@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 const playChime = () => {
   try {
@@ -201,9 +204,9 @@ export default function VendorDashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => (
-            <div key={stat.title} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all">
+            <StaggerItem key={stat.title} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className={`h-12 w-12 rounded-2xl ${stat.color} flex items-center justify-center`}>
                   <stat.icon className="h-6 w-6" />
@@ -215,12 +218,12 @@ export default function VendorDashboard() {
               </div>
               <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
               <h3 className="text-2xl font-bold text-foreground mt-1">{stat.value}</h3>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-card border border-border rounded-3xl p-8">
+          <FadeIn className="bg-card border border-border rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Recent Orders</h2>
               <button className="text-sm text-primary font-semibold flex items-center gap-1 hover:underline">
@@ -239,12 +242,12 @@ export default function VendorDashboard() {
                 <p className="text-sm text-muted-foreground max-w-[250px] mt-2">New orders from customers will appear here in real-time.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <StaggerList className="space-y-4">
                 {orders.slice(0, 10).map((order) => {
                   const display = getStatusDisplay(order.status);
                   return (
-                    <div 
-                      key={order._id} 
+                    <StaggerItem
+                      key={order._id}
                       onClick={() => { setSelectedOrder(order); setIsModalOpen(true); }}
                       className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer border border-transparent hover:border-border"
                     >
@@ -263,14 +266,14 @@ export default function VendorDashboard() {
                           {display.text}
                         </span>
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </StaggerList>
             )}
-          </div>
+          </FadeIn>
 
-          <div className="bg-card border border-border rounded-3xl p-8">
+          <FadeIn delay={0.05} className="bg-card border border-border rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Menu Performance</h2>
               <button className="text-sm text-primary font-semibold flex items-center gap-1 hover:underline">
@@ -286,7 +289,7 @@ export default function VendorDashboard() {
                 {isMeatVendor ? "Add your first meat items to start receiving orders." : "Add your first food items to start receiving orders."}
               </p>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </div>
 

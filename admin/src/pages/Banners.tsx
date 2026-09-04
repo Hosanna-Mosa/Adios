@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Upload, Loader2, LayoutTemplate, MonitorPlay } from "lucide-react";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import {
   Select,
   SelectContent,
@@ -337,16 +340,16 @@ export default function Banners() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
           <p>Loading banners...</p>
         ) : banners?.length === 0 ? (
           <p className="text-gray-500 col-span-full">No banners found. Create one to get started.</p>
         ) : (
           banners?.map((banner) => (
-            <div key={banner._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <StaggerItem key={banner._id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
               <div className="h-40 w-full relative">
-                <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+                <LazyImage src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                 {!banner.isActive && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Inactive</span>
@@ -396,10 +399,10 @@ export default function Banners() {
                   </div>
                 </div>
               </div>
-            </div>
+            </StaggerItem>
           ))
         )}
-      </div>
+      </StaggerList>
     </DashboardLayout>
   );
 }

@@ -5,6 +5,8 @@ import { adminFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { RefreshCw, Smartphone, ShieldCheck, Link2 } from "lucide-react";
 
 interface AppVersionConfig {
@@ -73,9 +75,9 @@ export default function AppVersions() {
             <RefreshCw className="h-6 w-6 animate-spin text-primary mr-2" /> Loading version settings...
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <StaggerList className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* iOS Config Card */}
-            <div className="section-card p-6 flex flex-col gap-6">
+            <StaggerItem className="section-card p-6 flex flex-col gap-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
                   <Smartphone className="h-5 w-5" />
@@ -125,10 +127,10 @@ export default function AppVersions() {
               >
                 Save iOS Configuration
               </Button>
-            </div>
+            </StaggerItem>
 
             {/* Android Config Card */}
-            <div className="section-card p-6 flex flex-col gap-6">
+            <StaggerItem className="section-card p-6 flex flex-col gap-6">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                   <Smartphone className="h-5 w-5" />
@@ -178,8 +180,8 @@ export default function AppVersions() {
               >
                 Save Android Configuration
               </Button>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerList>
         )}
       </div>
     </DashboardLayout>

@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { Package, Truck, Users, DollarSign, CheckCircle, AlertTriangle, UserPlus, Banknote, MoreVertical, Eye, Ban } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { useQuery } from "@tanstack/react-query";
@@ -107,17 +112,25 @@ export default function Dashboard() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard icon={<Package className="h-5 w-5" />} label="Total Orders" value={stats?.totalOrders?.toString() || "0"} badge="all time" badgeColor="success" />
-          <StatCard icon={<Truck className="h-5 w-5" />} label="Active Drivers" value={stats?.activeDrivers?.toString() || "0"} badge="Online" badgeColor="success" />
-          <StatCard icon={<Users className="h-5 w-5" />} label="Total Users" value={stats?.totalUsers?.toString() || "0"} badge="System" badgeColor="muted" />
-          <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Revenue" value={`₹${stats?.totalRevenue?.toLocaleString() || "0"}`} badge="INR" badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-4 gap-4">
+          <StaggerItem>
+            <StatCard icon={<Package className="h-5 w-5" />} label="Total Orders" value={stats?.totalOrders?.toString() || "0"} badge="all time" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Truck className="h-5 w-5" />} label="Active Drivers" value={stats?.activeDrivers?.toString() || "0"} badge="Online" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Users className="h-5 w-5" />} label="Total Users" value={stats?.totalUsers?.toString() || "0"} badge="System" badgeColor="muted" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Revenue" value={`₹${stats?.totalRevenue?.toLocaleString() || "0"}`} badge="INR" badgeColor="success" />
+          </StaggerItem>
+        </StaggerList>
 
         {/* Charts Row */}
         <div className="grid grid-cols-3 gap-4">
           {/* Delivery Performance */}
-          <div className="col-span-2 section-card p-6">
+          <FadeIn className="col-span-2 section-card p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">Delivery Performance</h3>
@@ -149,10 +162,10 @@ export default function Dashboard() {
                 <Bar dataKey="target" fill="hsl(185, 80%, 88%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </FadeIn>
 
           {/* Live Activity Log */}
-          <div className="section-card p-6 flex flex-col">
+          <FadeIn delay={0.05} className="section-card p-6 flex flex-col">
             <h3 className="text-lg font-semibold text-foreground mb-4">Live Activity Log</h3>
             <div className="flex-1 space-y-4">
               {activityLog.map((item: any, i: number) => (
@@ -167,18 +180,18 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
-            <button 
+            <button
               onClick={() => toast.info("Audit log is fully up to date. No older activities to display.")}
               className="mt-4 w-full py-2.5 border border-border rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
             >
               View All Activity
             </button>
-          </div>
+          </FadeIn>
         </div>
 
         {/* Map + Insight */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 section-card overflow-hidden h-[240px] relative">
+          <FadeIn className="col-span-2 section-card overflow-hidden h-[240px] relative">
             {isLoaded ? (
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -213,9 +226,9 @@ export default function Dashboard() {
               <p className="text-[10px] uppercase tracking-wider text-primary-foreground/70">Live Tracking</p>
               <p className="text-sm font-semibold">Downtown Hub</p>
             </div>
-          </div>
+          </FadeIn>
 
-          <div className="section-card p-6 bg-primary text-primary-foreground flex flex-col justify-between">
+          <FadeIn delay={0.05} className="section-card p-6 bg-primary text-primary-foreground flex flex-col justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-wider text-primary-foreground/70">System Insight</p>
               <h3 className="text-xl font-bold mt-1">Optimized Fleet Performance</h3>
@@ -237,7 +250,7 @@ export default function Dashboard() {
             >
               Generate Fleet Report
             </button>
-          </div>
+          </FadeIn>
         </div>
 
         <DownloadReportDialog
@@ -275,8 +288,17 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
+              <AnimatePresence mode="popLayout" initial={false}>
               {manifests.map((m: any) => (
-                <tr key={m.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <motion.tr
+                  key={m.id}
+                  layout
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0 }}
+                  className="border-t border-border hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-6 py-4 text-sm font-medium text-primary">{m.id}</td>
                   <td className="px-6 py-4 text-sm text-foreground">{m.dest}</td>
                   <td className="px-6 py-4">
@@ -313,8 +335,9 @@ export default function Dashboard() {
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Drumstick, AlertCircle, Plus, Trash2, Check, X, IndianRupee, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 interface MeatItem {
   _id: string;
@@ -97,14 +99,14 @@ export default function VendorMeatMenu() {
           <p className="text-muted-foreground">Manage stock availability and update your daily prices.</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <StaggerList className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {isLoading ? (
             <p className="text-muted-foreground col-span-full text-center py-12">Loading your items...</p>
           ) : !menu || menu.length === 0 ? (
             <p className="text-muted-foreground col-span-full text-center py-12">No meat items found for your center.</p>
           ) : (
             menu.map((item) => (
-              <div
+              <StaggerItem
                 key={item._id}
                 className={`bg-card border ${
                   item.isAvailable ? "border-border" : "border-dashed border-muted-foreground/30"
@@ -202,10 +204,10 @@ export default function VendorMeatMenu() {
                     )}
                   </div>
                 </div>
-              </div>
+              </StaggerItem>
             ))
           )}
-        </div>
+        </StaggerList>
 
         <div className="bg-muted/30 p-6 rounded-2xl flex items-start gap-4">
           <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />

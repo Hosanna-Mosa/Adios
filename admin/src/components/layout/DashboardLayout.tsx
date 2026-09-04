@@ -1,6 +1,8 @@
 import { ReactNode, useState } from "react";
+import { motion } from "framer-motion";
 import { AppSidebar } from "./AppSidebar";
 import { TopBar } from "./TopBar";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,7 +16,7 @@ export function DashboardLayout({ children, searchPlaceholder }: DashboardLayout
   });
 
   const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => {
+    setIsSidebarOpen((prev: boolean) => {
       const next = !prev;
       localStorage.setItem("sidebar_open", JSON.stringify(next));
       return next;
@@ -23,13 +25,19 @@ export function DashboardLayout({ children, searchPlaceholder }: DashboardLayout
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className={`transition-all duration-300 ease-in-out overflow-hidden flex shrink-0 sticky top-0 h-screen ${isSidebarOpen ? "w-[240px]" : "w-0"}`}>
+      <motion.div
+        animate={{ width: isSidebarOpen ? 240 : 0 }}
+        transition={{ type: "tween", duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+        className="overflow-hidden flex shrink-0 sticky top-0 h-screen"
+      >
         <AppSidebar />
-      </div>
+      </motion.div>
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar searchPlaceholder={searchPlaceholder} onToggleSidebar={toggleSidebar} />
-        <main className="flex-1 overflow-auto p-6">
-          {children}
+        <main className="flex-1 overflow-auto p-6 md:p-8">
+          <div className="max-w-[1600px] mx-auto">
+            <PageTransition>{children}</PageTransition>
+          </div>
         </main>
       </div>
     </div>

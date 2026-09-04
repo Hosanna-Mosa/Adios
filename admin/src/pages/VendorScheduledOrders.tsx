@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { CalendarClock, Clock, Phone, User, CheckCircle2, XCircle, Hourglass } from "lucide-react";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 type ScheduledRequest = {
   requestId: string;
@@ -100,22 +102,22 @@ export default function VendorScheduledOrders() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-card border border-border p-6 rounded-3xl">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StaggerItem className="bg-card border border-border p-6 rounded-3xl">
             <p className="text-sm text-muted-foreground">Total Requests</p>
             <h3 className="text-2xl font-bold mt-1">{requests.length}</h3>
-          </div>
-          <div className="bg-card border border-border p-6 rounded-3xl">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-6 rounded-3xl">
             <p className="text-sm text-muted-foreground">Awaiting Action</p>
             <h3 className="text-2xl font-bold mt-1 text-amber-600">{pendingCount}</h3>
-          </div>
-          <div className="bg-card border border-border p-6 rounded-3xl">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-6 rounded-3xl">
             <p className="text-sm text-muted-foreground">Accepted</p>
             <h3 className="text-2xl font-bold mt-1 text-emerald-600">
               {requests.filter((request) => request.status === "accepted").length}
             </h3>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerList>
 
         <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
           {isLoading ? (
@@ -131,14 +133,14 @@ export default function VendorScheduledOrders() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <StaggerList className="space-y-4">
               {requests.map((request) => {
                 const status = statusStyles[request.status];
                 const StatusIcon = status.icon;
                 const isResponding = respondingId === request.requestId && respondMutation.isPending;
 
                 return (
-                  <div
+                  <StaggerItem
                     key={request.requestId}
                     className="border border-border rounded-2xl p-5 bg-muted/20 hover:bg-muted/30 transition-colors"
                   >
@@ -199,10 +201,10 @@ export default function VendorScheduledOrders() {
                         </div>
                       )}
                     </div>
-                  </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerList>
           )}
         </div>
       </div>

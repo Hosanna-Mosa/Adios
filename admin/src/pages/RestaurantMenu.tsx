@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { fadeIn } from "@/components/motion/variants";
 import { Store, Plus, Search, Edit, Trash2, Eye, Upload, Loader2, PlusCircle, Check, X, FileText, ShoppingBag, ArrowLeft, QrCode, Download } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -549,7 +552,7 @@ export default function RestaurantMenu() {
                             <td className="px-4 py-2 text-center">
                               <div className="relative group w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                                 {item.images && item.images.length > 0 ? (
-                                  <img src={item.images[0]} alt="item" className="w-full h-full object-cover" />
+                                  <LazyImage src={item.images[0]} alt="item" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                                 ) : (
                                   <Upload className="h-4 w-4 text-slate-400" />
                                 )}
@@ -721,8 +724,17 @@ export default function RestaurantMenu() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
+                  <AnimatePresence mode="popLayout" initial={false}>
                   {paginatedRestaurants.map((res) => (
-                    <tr key={res._id} className="hover:bg-slate-50/60 transition-colors duration-200">
+                    <motion.tr
+                      key={res._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="hover:bg-slate-50/60 transition-colors duration-200"
+                    >
                       {/* Restaurant Profile */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
@@ -805,8 +817,9 @@ export default function RestaurantMenu() {
                           </Button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
+                  </AnimatePresence>
                 </tbody>
               </table>
             </div>
@@ -1005,7 +1018,7 @@ export default function RestaurantMenu() {
                             <td className="px-4 py-2 text-center">
                               <div className="relative group w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                                 {item.images && item.images.length > 0 ? (
-                                  <img src={item.images[0]} alt="item" className="w-full h-full object-cover" />
+                                  <LazyImage src={item.images[0]} alt="item" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                                 ) : (
                                   <Upload className="h-4 w-4 text-slate-400" />
                                 )}

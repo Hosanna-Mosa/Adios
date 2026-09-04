@@ -7,7 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { 
+import { motion, AnimatePresence } from "framer-motion";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
+import {
   User, 
   ArrowLeft, 
   ShoppingBag, 
@@ -224,28 +228,28 @@ export default function UserDetail() {
         </div>
 
         {/* Statistics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <StaggerList className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <ShoppingBag className="h-5 w-5 text-blue-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.totalOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Hires</p>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <Truck className="h-5 w-5 text-indigo-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.deliveryOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Deliveries</p>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <ArrowLeft className="h-5 w-5 rotate-135 text-green-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.ridesOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Rides Hired</p>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <Briefcase className="h-5 w-5 text-orange-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.helperOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Helper Tasks</p>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerList>
 
         {/* Edit details + order history */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -318,8 +322,17 @@ export default function UserDetail() {
                       <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">No orders recorded for this customer account.</td>
                     </tr>
                   ) : (
-                    orders.map(order => (
-                      <tr key={order._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                    {orders.map(order => (
+                      <motion.tr
+                        key={order._id}
+                        layout
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="visible"
+                        exit={{ opacity: 0 }}
+                        className="border-t border-border hover:bg-muted/30 transition-colors"
+                      >
                         <td className="px-4 py-3 font-semibold text-primary">
                           <Link to={`/live-orders/${order._id}`} className="hover:underline">
                             {order._id}
@@ -349,8 +362,9 @@ export default function UserDetail() {
                             <MessageSquare className="h-3 w-3" /> View Chat
                           </Button>
                         </td>
-                      </tr>
-                    ))
+                      </motion.tr>
+                    ))}
+                    </AnimatePresence>
                   )}
                 </tbody>
               </table>

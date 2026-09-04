@@ -1,6 +1,9 @@
 import { useState, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { VendorLayout } from "@/components/layout/VendorLayout";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { Plus, Utensils, IndianRupee, Trash2, Edit2, Search, Filter, Upload, X, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
@@ -237,7 +240,7 @@ export default function VendorMenu() {
                     <div className="flex flex-wrap gap-2 mt-4">
                       {newItem.images.map((url, i) => (
                         <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-border">
-                          <img src={url} className="h-full w-full object-cover" />
+                          <LazyImage src={url} alt="" className="h-full w-full object-cover" wrapperClassName="h-full w-full" />
                           <button 
                             type="button"
                             onClick={() => removeImage(i)}
@@ -316,7 +319,7 @@ export default function VendorMenu() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {isLoading ? (
             <p>Loading menu...</p>
           ) : menu?.length === 0 ? (
@@ -327,9 +330,14 @@ export default function VendorMenu() {
             </div>
           ) : (
             menu?.map((item) => (
-              <div key={item._id} className="bg-card border border-border overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all group">
+              <StaggerItem key={item._id} className="bg-card border border-border overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all group">
                 <div className="h-48 w-full relative overflow-hidden">
-                  <img src={item.images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"} alt={item.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <LazyImage
+                    src={item.images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    wrapperClassName="h-full w-full"
+                  />
                   <div className="absolute top-4 left-4 h-6 w-6 rounded border border-white bg-white/20 backdrop-blur-md flex items-center justify-center p-1">
                      <div className={`h-full w-full rounded-full ${item.isVeg ? "bg-success" : "bg-destructive"}`} />
                   </div>
@@ -356,10 +364,10 @@ export default function VendorMenu() {
                   <h3 className="text-lg font-bold text-foreground mb-1">{item.name}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
                 </div>
-              </div>
+              </StaggerItem>
             ))
           )}
-        </div>
+        </StaggerList>
       </div>
 
       {/* Edit Dish Dialog */}
@@ -391,7 +399,7 @@ export default function VendorMenu() {
                 <div className="flex flex-wrap gap-2 mt-4">
                   {editItemForm.images.map((url, i) => (
                     <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-border">
-                      <img src={url} className="h-full w-full object-cover" />
+                      <LazyImage src={url} alt="" className="h-full w-full object-cover" wrapperClassName="h-full w-full" />
                       <button 
                         type="button"
                         onClick={() => removeImage(i)}

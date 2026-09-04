@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { socketService } from "@/lib/socketService";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 interface Ticket {
   _id: string;
@@ -171,14 +174,14 @@ export default function Support() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 space-y-3">
+            <StaggerList className="flex-1 overflow-auto p-4 space-y-3">
               {isLoading ? (
                 <div className="py-10 text-center text-muted-foreground">Loading support cases...</div>
               ) : filteredTickets.length === 0 ? (
                 <div className="py-10 text-center text-muted-foreground">No cases found in this category.</div>
               ) : (
                 filteredTickets.map((ticket) => (
-                  <div
+                  <StaggerItem
                     key={ticket._id}
                     onClick={() => setActiveTicketId(ticket._id)}
                     className={`rounded-2xl p-4 border transition-all cursor-pointer ${
@@ -228,16 +231,16 @@ export default function Support() {
                         <span className="text-xs text-muted-foreground">{ticket.time}</span>
                       </div>
                     )}
-                  </div>
+                  </StaggerItem>
                 ))
               )}
-            </div>
+            </StaggerList>
           </div>
 
           {/* Right - Chat */}
           <div className="section-card flex flex-col">
             {selectedTicket ? (
-              <>
+              <FadeIn key={selectedTicket._id} className="flex flex-col flex-1 min-h-0">
                 {/* Chat Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <div className="flex items-center gap-3">
@@ -361,7 +364,7 @@ export default function Support() {
                     </div>
                   </div>
                 </div>
-              </>
+              </FadeIn>
             ) : (
               <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 Select a ticket complaint to start resolution chat.

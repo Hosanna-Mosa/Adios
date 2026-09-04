@@ -1,9 +1,12 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/shared/Pagination";
+import { fadeIn } from "@/components/motion/variants";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tag, Plus, Trash2, Calendar, Ticket, Check, X, ShieldAlert } from "lucide-react";
@@ -23,6 +26,7 @@ interface Coupon {
 export default function Coupons() {
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [newCoupon, setNewCoupon] = useState({
     code: "",
     discountType: "PERCENTAGE",
@@ -108,6 +112,11 @@ export default function Coupons() {
       deleteMutation.mutate(id);
     }
   };
+
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(coupons.length / itemsPerPage) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedCoupons = coupons.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
 
   return (
     <DashboardLayout>
@@ -224,8 +233,17 @@ export default function Coupons() {
               ) : coupons.length === 0 ? (
                 <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">No promo coupons active. Create one to drive sales!</td></tr>
               ) : (
-                coupons.map((coupon) => (
-                  <tr key={coupon._id} className="border-t border-border hover:bg-muted/30 transition-colors text-sm">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {paginatedCoupons.map((coupon) => (
+                  <motion.tr
+                    key={coupon._id}
+                    layout
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    className="border-t border-border hover:bg-muted/30 transition-colors text-sm"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -276,11 +294,21 @@ export default function Coupons() {
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
-                  </tr>
-                ))
+                  </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
+
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemLabel="coupons"
+            shownCount={paginatedCoupons.length}
+            totalCount={coupons.length}
+          />
         </div>
       </div>
     </DashboardLayout>

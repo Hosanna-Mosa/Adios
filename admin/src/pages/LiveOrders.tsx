@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { RefreshCw, Timer, Truck, SlidersHorizontal, Plus, Download, MoreVertical, Star, GitBranch, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
@@ -85,11 +89,17 @@ export default function LiveOrders() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard icon={<RefreshCw className="h-5 w-5" />} label="Total Orders" value={orders.length.toString()} badge="Overall" badgeColor="success" />
-          <StatCard icon={<Timer className="h-5 w-5" />} label="Active Operations" value={activeOrdersCount.toString()} />
-          <StatCard icon={<Truck className="h-5 w-5" />} label="Live In-Transit" value={orders.filter((o: any) => o.status === "PICKED_UP").length.toString()} />
-        </div>
+        <StaggerList className="grid grid-cols-3 gap-4">
+          <StaggerItem>
+            <StatCard icon={<RefreshCw className="h-5 w-5" />} label="Total Orders" value={orders.length.toString()} badge="Overall" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Timer className="h-5 w-5" />} label="Active Operations" value={activeOrdersCount.toString()} />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Truck className="h-5 w-5" />} label="Live In-Transit" value={orders.filter((o: any) => o.status === "PICKED_UP").length.toString()} />
+          </StaggerItem>
+        </StaggerList>
 
         {/* Table */}
         <div className="section-card">
@@ -121,8 +131,17 @@ export default function LiveOrders() {
                   <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No orders found matching the filter.</td>
                 </tr>
               ) : (
-                filteredOrders.map((o: any) => (
-                  <tr key={o._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {filteredOrders.map((o: any) => (
+                  <motion.tr
+                    key={o._id}
+                    layout
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    className="border-t border-border hover:bg-muted/30 transition-colors"
+                  >
                     <td className="px-6 py-4 text-sm font-medium text-primary">
                       <Link to={`/live-orders/${o._id}`} className="hover:underline">
                         {o._id.startsWith("ORD-") ? o._id : `#${o._id.substring(o._id.length - 6).toUpperCase()}`}
@@ -161,8 +180,9 @@ export default function LiveOrders() {
                         <p className={`text-xs text-muted-foreground`}>Created</p>
                       </div>
                     </td>
-                  </tr>
-                ))
+                  </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>

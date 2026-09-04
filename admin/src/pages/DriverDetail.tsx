@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { 
+import { motion, AnimatePresence } from "framer-motion";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
+import {
   Truck, 
   ArrowLeft, 
   MapPin, 
@@ -246,23 +250,23 @@ export default function DriverDetail() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <Activity className="h-5 w-5 text-blue-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.totalOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider font-semibold">Total Trips Received</p>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.completedOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider font-semibold">Completed Trips</p>
-          </div>
-          <div className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
             <XCircle className="h-5 w-5 text-red-500 mx-auto" />
             <p className="text-2xl font-bold text-foreground">{stats.cancelledOrders}</p>
             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider font-semibold">Cancelled Trips</p>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerList>
 
         {/* Profile Details & Document Verification */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -355,8 +359,17 @@ export default function DriverDetail() {
                       <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">No trip logs recorded for this driver account.</td>
                     </tr>
                   ) : (
-                    orders.map(order => (
-                      <tr key={order._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                    {orders.map(order => (
+                      <motion.tr
+                        key={order._id}
+                        layout
+                        variants={fadeIn}
+                        initial="hidden"
+                        animate="visible"
+                        exit={{ opacity: 0 }}
+                        className="border-t border-border hover:bg-muted/30 transition-colors"
+                      >
                         <td className="px-4 py-3 font-semibold text-primary">
                           <Link to={`/live-orders/${order._id}`} className="hover:underline">
                             {order._id}
@@ -386,8 +399,9 @@ export default function DriverDetail() {
                             <MessageSquare className="h-3 w-3" /> View Chat
                           </Button>
                         </td>
-                      </tr>
-                    ))
+                      </motion.tr>
+                    ))}
+                    </AnimatePresence>
                   )}
                 </tbody>
               </table>

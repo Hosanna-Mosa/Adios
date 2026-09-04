@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Pagination } from "@/components/shared/Pagination";
+import { fadeIn } from "@/components/motion/variants";
 import { Store, Plus, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
@@ -111,11 +114,12 @@ export default function Vendors() {
   const [searchQuery, setSearchQuery] = useState("");
   const autocompleteInputRef = useRef<HTMLInputElement>(null);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  
+
   // List Filters
   const [filterSearch, setFilterSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterVeg, setFilterVeg] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [newVendor, setNewVendor] = useState({
     name: "",
@@ -242,6 +246,20 @@ export default function Vendors() {
 
     createVendorMutation.mutate(payload);
   };
+
+  const filteredVendors = (vendors || []).filter(vendor => {
+    const searchLower = filterSearch.toLowerCase();
+    const matchesSearch = vendor.name.toLowerCase().includes(searchLower) || vendor.address.toLowerCase().includes(searchLower);
+    const status = (vendor as any).onboardingStatus || "draft";
+    const matchesStatus = filterStatus === "all" || status === filterStatus;
+    const matchesVeg = filterVeg === "all" || (filterVeg === "veg" && vendor.isPureVeg) || (filterVeg === "nonveg" && !vendor.isPureVeg);
+    return matchesSearch && matchesStatus && matchesVeg;
+  });
+
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(filteredVendors.length / itemsPerPage) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedVendors = filteredVendors.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
 
   return (
     <DashboardLayout searchPlaceholder="Search vendors...">
@@ -384,13 +402,13 @@ export default function Vendors() {
             <Input
               placeholder="Search by restaurant name or location..."
               value={filterSearch}
-              onChange={(e) => setFilterSearch(e.target.value)}
+              onChange={(e) => { setFilterSearch(e.target.value); setCurrentPage(1); }}
               className="pl-9 w-full"
             />
           </div>
-          <select 
+          <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
           >
             <option value="all">All Statuses</option>
@@ -399,9 +417,9 @@ export default function Vendors() {
             <option value="draft">Draft</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select 
+          <select
             value={filterVeg}
-            onChange={(e) => setFilterVeg(e.target.value)}
+            onChange={(e) => { setFilterVeg(e.target.value); setCurrentPage(1); }}
             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
           >
             <option value="all">All Dietary</option>
@@ -426,23 +444,20 @@ export default function Vendors() {
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
               ) : vendors?.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
+              ) : paginatedVendors.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
               ) : (
-                (() => {
-                  const filtered = vendors?.filter(vendor => {
-                    const searchLower = filterSearch.toLowerCase();
-                    const matchesSearch = vendor.name.toLowerCase().includes(searchLower) || vendor.address.toLowerCase().includes(searchLower);
-                    const status = (vendor as any).onboardingStatus || "draft";
-                    const matchesStatus = filterStatus === "all" || status === filterStatus;
-                    const matchesVeg = filterVeg === "all" || (filterVeg === "veg" && vendor.isPureVeg) || (filterVeg === "nonveg" && !vendor.isPureVeg);
-                    return matchesSearch && matchesStatus && matchesVeg;
-                  });
-
-                  if (!filtered || filtered.length === 0) {
-                    return <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>;
-                  }
-
-                  return filtered.map((vendor) => (
-                    <tr key={vendor._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {paginatedVendors.map((vendor) => (
+                    <motion.tr
+                      key={vendor._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="border-t border-border hover:bg-muted/30 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -498,12 +513,21 @@ export default function Vendors() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
-                    </tr>
-                  ));
-                })()
+                    </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
+
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemLabel="vendors"
+            shownCount={paginatedVendors.length}
+            totalCount={filteredVendors.length}
+          />
         </div>
       </div>
 

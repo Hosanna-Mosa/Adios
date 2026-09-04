@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { Calendar, Download } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { toast } from "sonner";
@@ -79,17 +84,17 @@ export default function Analytics() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard label="Total Orders" value="12,842" badge="+14.2%" badgeColor="success" />
-          <StatCard label="Net Revenue" value="₹482.5k" badge="+8.4%" badgeColor="success" />
-          <StatCard label="Avg. Delivery" value="34.2m" badge="-2.1%" badgeColor="destructive" />
-          <StatCard label="Active Drivers" value="842" badge="98% cap." badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-4 gap-4">
+          <StaggerItem><StatCard label="Total Orders" value="12,842" badge="+14.2%" badgeColor="success" /></StaggerItem>
+          <StaggerItem><StatCard label="Net Revenue" value="₹482.5k" badge="+8.4%" badgeColor="success" /></StaggerItem>
+          <StaggerItem><StatCard label="Avg. Delivery" value="34.2m" badge="-2.1%" badgeColor="destructive" /></StaggerItem>
+          <StaggerItem><StatCard label="Active Drivers" value="842" badge="98% cap." badgeColor="success" /></StaggerItem>
+        </StaggerList>
 
         {/* Charts */}
         <div className="grid grid-cols-3 gap-4">
           {/* Orders Velocity */}
-          <div className="col-span-2 section-card p-6">
+          <FadeIn className="col-span-2 section-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">Orders Velocity</h3>
               <div className="flex items-center gap-2">
@@ -118,10 +123,10 @@ export default function Analytics() {
                 </AreaChart>
               </ResponsiveContainer>
             )}
-          </div>
+          </FadeIn>
 
           {/* Revenue Stream */}
-          <div className="section-card p-6">
+          <FadeIn delay={0.05} className="section-card p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">Revenue Stream</h3>
             <div className="flex items-center justify-center gap-4 mb-6">
               {["W1", "W2", "W3", "W4"].map((w) => (
@@ -141,13 +146,13 @@ export default function Analytics() {
               <span className="text-sm text-muted-foreground">Monthly Growth</span>
               <span className="text-sm font-semibold text-success">+12.4%</span>
             </div>
-          </div>
+          </FadeIn>
         </div>
 
         {/* Heatmap + Map */}
         <div className="grid grid-cols-3 gap-4">
           {/* Peak Demand Hours */}
-          <div className="section-card p-6">
+          <FadeIn className="section-card p-6">
             <h3 className="text-lg font-semibold text-foreground mb-4">Peak Demand Hours</h3>
             <div className="grid grid-cols-5 gap-1.5 mb-4">
               {heatmapData.map((cell: any) => (
@@ -164,10 +169,10 @@ export default function Analytics() {
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>06:00</span><span>10:00</span><span>14:00</span><span>18:00</span><span>22:00</span><span>02:00</span>
             </div>
-          </div>
+          </FadeIn>
 
           {/* Driver Saturation Map */}
-          <div className="col-span-2 section-card overflow-hidden h-[300px] relative">
+          <FadeIn delay={0.05} className="col-span-2 section-card overflow-hidden h-[300px] relative">
             {isLoaded ? (
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: "100%" }}
@@ -224,7 +229,7 @@ export default function Analytics() {
               </div>
               <span className="text-xs font-medium text-foreground">+12 Active Now</span>
             </div>
-          </div>
+          </FadeIn>
         </div>
 
         <DownloadReportDialog
@@ -263,8 +268,17 @@ export default function Analytics() {
               </tr>
             </thead>
             <tbody>
+              <AnimatePresence mode="popLayout" initial={false}>
               {anomalies.map((a: any) => (
-                <tr key={a.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <motion.tr
+                  key={a.id}
+                  layout
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0 }}
+                  className="border-t border-border hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-6 py-4 text-sm font-medium text-foreground">{a.id}</td>
                   <td className="px-6 py-4"><StatusBadge status={a.status} variant={a.statusVariant} /></td>
                   <td className="px-6 py-4">
@@ -275,8 +289,9 @@ export default function Analytics() {
                   </td>
                   <td className="px-6 py-4 text-sm text-foreground">{a.value}</td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">{a.activity}</td>
-                </tr>
+                </motion.tr>
               ))}
+              </AnimatePresence>
             </tbody>
           </table>
           <div className="p-4 text-center border-t border-border">

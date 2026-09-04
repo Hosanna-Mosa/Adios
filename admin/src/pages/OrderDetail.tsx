@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { CheckCircle, Truck as TruckIcon, Package, MapPin, Clock, Plus, Minus, Layers } from "lucide-react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -127,7 +130,7 @@ export default function OrderDetail() {
           </div>
 
           {/* Timeline */}
-          <div className="section-card p-6 mb-6">
+          <FadeIn className="section-card p-6 mb-6">
             <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-6">Order Logistics Flow</p>
             <div className="space-y-0">
               {timelineSteps.map((step, i) => (
@@ -158,13 +161,13 @@ export default function OrderDetail() {
                 </div>
               ))}
             </div>
-          </div>
+          </FadeIn>
 
           {/* Route Inventory */}
-          <div className="mb-6">
+          <StaggerList className="mb-6">
             <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-4">Route Inventory Stops</p>
             {order.stops && order.stops.map((stop: any, index: number) => (
-              <div key={index} className="section-card border-l-4 border-l-primary mb-3">
+              <StaggerItem key={index} className="section-card border-l-4 border-l-primary mb-3">
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <div className="flex items-center gap-3">
                     <span className="h-7 w-7 rounded bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">{index + 1}</span>
@@ -188,9 +191,9 @@ export default function OrderDetail() {
                     )}
                   </div>
                 )}
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerList>
         </div>
 
         {/* Right Panel - Map */}

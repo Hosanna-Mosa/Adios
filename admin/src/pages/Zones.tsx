@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { Map as MapIcon, MapPin, Compass, Trash2, Plus, SlidersHorizontal, ToggleLeft, ToggleRight, X, AlertTriangle, RefreshCw, Eye, Undo, Clock, ShieldCheck, ChevronDown, ChevronUp, Flame, Pencil } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
@@ -496,18 +500,18 @@ export default function Zones() {
     <DashboardLayout searchPlaceholder="Search zones...">
       <div className="space-y-6">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label="Total Zones" value={zones.length.toString()} badge="Configured" badgeColor="success" />
-          <StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label="Active Zones" value={activeZonesCount.toString()} badge="Live Geofences" badgeColor="success" />
-          <StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label="Surge Multipliers" value={`${maxMultiplier}x Max`} badge="Dynamic Pricing" badgeColor="warning" />
-          <div className="stat-card bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 flex flex-col justify-between p-5 rounded-xl border">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <StaggerItem><StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label="Total Zones" value={zones.length.toString()} badge="Configured" badgeColor="success" /></StaggerItem>
+          <StaggerItem><StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label="Active Zones" value={activeZonesCount.toString()} badge="Live Geofences" badgeColor="success" /></StaggerItem>
+          <StaggerItem><StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label="Surge Multipliers" value={`${maxMultiplier}x Max`} badge="Dynamic Pricing" badgeColor="warning" /></StaggerItem>
+          <StaggerItem className="stat-card bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 flex flex-col justify-between p-5 rounded-xl border">
             <div>
               <p className="text-xs font-semibold text-primary uppercase tracking-wider">Dynamic Control</p>
               <h4 className="text-2xl font-bold text-foreground mt-1.5">Map Engine</h4>
             </div>
             <p className="text-xs text-muted-foreground mt-2">Visualizing operational boundaries using Google Cloud.</p>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerList>
 
         {/* Main Grid: Zones List (Col 2/3) and Map Preview (Col 1/3) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -559,14 +563,20 @@ export default function Zones() {
                         </td>
                       </tr>
                     ) : (
-                      zones.map((z: any) => {
+                      <AnimatePresence mode="popLayout" initial={false}>
+                      {zones.map((z: any) => {
                         const isSelected = selectedZone?._id === z._id;
                         const hasTimeLimits = z.activeHours?.start && z.activeHours?.end;
                         const hasServiceLimits = z.allowedServices && z.allowedServices.length > 0;
-                        
+
                         return (
-                          <tr 
-                            key={z._id} 
+                          <motion.tr
+                            key={z._id}
+                            layout
+                            variants={fadeIn}
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0 }}
                             onClick={() => handleSelectZone(z)}
                             className={`border-t border-border hover:bg-muted/30 transition-colors cursor-pointer ${
                               isSelected ? "bg-primary/5 border-l-4 border-l-primary" : ""
@@ -705,9 +715,10 @@ export default function Zones() {
                                 </button>
                               </div>
                             </td>
-                          </tr>
+                          </motion.tr>
                         );
-                      })
+                      })}
+                      </AnimatePresence>
                     )}
                   </tbody>
                 </table>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { adminFetch } from "@/lib/api-client";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 type ForgotStep = "email" | "otp" | "reset" | "done";
 
@@ -194,7 +195,7 @@ export default function VendorLogin() {
           <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
         </div>
 
-        <div className="w-full max-w-md p-8 relative z-10">
+        <FadeIn className="w-full max-w-md p-8 relative z-10">
           <div className="text-center mb-8">
             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
               {forgotStep === "done" ? (
@@ -381,7 +382,7 @@ export default function VendorLogin() {
           <p className="text-center text-xs text-muted-foreground mt-8">
             &copy; 2026 Precision Nav Logistics. All rights reserved.
           </p>
-        </div>
+        </FadeIn>
       </div>
     );
   }
@@ -395,7 +396,7 @@ export default function VendorLogin() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="w-full max-w-md p-8 relative z-10">
+      <FadeIn className="w-full max-w-md p-8 relative z-10">
         <div className="text-center mb-10">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
             <Store className="h-8 w-8 text-primary" />
@@ -470,7 +471,7 @@ export default function VendorLogin() {
         <p className="text-center text-xs text-muted-foreground mt-8">
           &copy; 2026 Precision Nav Logistics. All rights reserved.
         </p>
-      </div>
+      </FadeIn>
     </div>
   );
 }

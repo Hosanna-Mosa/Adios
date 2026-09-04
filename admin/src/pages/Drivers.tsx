@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { 
-  Truck, Users as UsersIcon, Star, DollarSign, SlidersHorizontal, UserPlus, 
-  Eye, Trash2, Ban, Phone, MessageSquare, MapPin, MoreVertical, 
-  ChevronLeft, ChevronRight, Navigation, Compass, Calendar, ArrowUpRight, ExternalLink,
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { Pagination } from "@/components/shared/Pagination";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { fadeIn } from "@/components/motion/variants";
+import {
+  Truck, Users as UsersIcon, Star, DollarSign, SlidersHorizontal, UserPlus,
+  Eye, Trash2, Ban, Phone, MessageSquare, MapPin, MoreVertical,
+  Navigation, Compass, Calendar, ArrowUpRight, ExternalLink,
   ShoppingBag, CheckCircle2, XCircle, Wallet, Plus, Search
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -476,10 +482,10 @@ export default function Drivers() {
       <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
         
         {/* PREMIUM HEADER ROW STAT CARDS (5 cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          
+        <StaggerList className="grid grid-cols-1 md:grid-cols-5 gap-4">
+
           {/* Card 1: Total Registered */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -495,10 +501,10 @@ export default function Drivers() {
             <div className="self-end pb-1">
               <GreenSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 2: On-Duty Drivers */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -516,10 +522,10 @@ export default function Drivers() {
             <div className="self-end pb-1">
               <GreenSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 3: Average Rating */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
@@ -535,10 +541,10 @@ export default function Drivers() {
             <div className="self-end pb-1">
               <OrangeSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 4: Today's Earnings */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -554,10 +560,10 @@ export default function Drivers() {
             <div className="self-end pb-1">
               <BlueSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 5: Fleet Health */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
@@ -573,9 +579,9 @@ export default function Drivers() {
             <div className="self-center">
               <FleetHealthCircularProgress percentage={98} />
             </div>
-          </div>
+          </StaggerItem>
 
-        </div>
+        </StaggerList>
 
         {/* Tab Selection */}
         <div className="flex border-b border-border mb-4 gap-2">
@@ -664,19 +670,29 @@ export default function Drivers() {
                       <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground text-sm">No drivers found matching the filter.</td>
                     </tr>
                   ) : (
-                    paginatedDrivers.map((d: any) => {
+                    <AnimatePresence mode="popLayout" initial={false}>
+                    {paginatedDrivers.map((d: any) => {
                       const loc = getLocationDetails(d);
                       const isOnline = d.status?.toUpperCase() === "ONLINE";
                       return (
-                        <tr key={d._id} className="hover:bg-muted/10 transition-colors">
+                        <motion.tr
+                          key={d._id}
+                          layout
+                          variants={fadeIn}
+                          initial="hidden"
+                          animate="visible"
+                          exit={{ opacity: 0 }}
+                          className="hover:bg-muted/10 transition-colors"
+                        >
                           {/* Driver Details */}
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="relative shrink-0">
-                                <img 
-                                  src={getAvatarUrl(d.user?.name || "")} 
-                                  alt={d.user?.name} 
+                                <LazyImage
+                                  src={getAvatarUrl(d.user?.name || "")}
+                                  alt={d.user?.name}
                                   className="h-10 w-10 rounded-full object-cover border border-border"
+                                  wrapperClassName="h-10 w-10 rounded-full shrink-0"
                                 />
                                 <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-card ${
                                   d.status?.toUpperCase() === "ONLINE" ? "bg-emerald-500" : d.status?.toUpperCase() === "BUSY" ? "bg-amber-500" : "bg-zinc-400"
@@ -791,55 +807,32 @@ export default function Drivers() {
                               </DropdownMenu>
                             </div>
                           </td>
-                        </tr>
+                        </motion.tr>
                       );
-                    })
+                    })}
+                    </AnimatePresence>
                   )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-6 py-4 border-t border-border mt-auto">
-              <p className="text-xs text-muted-foreground">Showing {paginatedDrivers.length} to {filteredDrivers.length} of {filteredDrivers.length} drivers</p>
-              <div className="flex items-center gap-1.5">
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                  disabled={currentPage === 1}
-                  className="p-1.5 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 disabled:opacity-40 transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                {Array.from({ length: totalPages }, (_, idx) => (
-                  <button 
-                    key={idx + 1} 
-                    onClick={() => setCurrentPage(idx + 1)} 
-                    className={`h-8 w-8 rounded-xl text-xs font-semibold transition-all ${
-                      currentPage === idx + 1 
-                        ? "bg-emerald-600 text-white" 
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
-                  disabled={currentPage === totalPages}
-                  className="p-1.5 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 disabled:opacity-40 transition-colors"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              itemLabel="drivers"
+              shownCount={paginatedDrivers.length}
+              totalCount={filteredDrivers.length}
+            />
 
           </div>
         )}
 
         {/* BOTTOM METRICS ROW (5 Cards) */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
+        <StaggerList className="grid grid-cols-2 md:grid-cols-5 gap-4">
+
+          <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <ShoppingBag className="h-5 w-5" />
             </div>
@@ -848,9 +841,9 @@ export default function Drivers() {
               <p className="text-lg font-bold text-foreground mt-0.5">{totalOrdersCount}</p>
               <p className="text-[9px] text-muted-foreground">Today</p>
             </div>
-          </div>
+          </StaggerItem>
 
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
+          <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
               <CheckCircle2 className="h-5 w-5" />
             </div>
@@ -859,9 +852,9 @@ export default function Drivers() {
               <p className="text-lg font-bold text-foreground mt-0.5">{completedCount}</p>
               <p className="text-[9px] text-muted-foreground">Today</p>
             </div>
-          </div>
+          </StaggerItem>
 
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
+          <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
               <XCircle className="h-5 w-5" />
             </div>
@@ -870,9 +863,9 @@ export default function Drivers() {
               <p className="text-lg font-bold text-foreground mt-0.5">{cancelledCount}</p>
               <p className="text-[9px] text-muted-foreground">Today</p>
             </div>
-          </div>
+          </StaggerItem>
 
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
+          <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
               <MapPin className="h-5 w-5" />
             </div>
@@ -883,9 +876,9 @@ export default function Drivers() {
               </p>
               <p className="text-[9px] text-muted-foreground">Today</p>
             </div>
-          </div>
+          </StaggerItem>
 
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
+          <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
             <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <Wallet className="h-5 w-5" />
             </div>
@@ -894,9 +887,9 @@ export default function Drivers() {
               <p className="text-lg font-bold text-foreground mt-0.5">{totalEarningsToday}</p>
               <p className="text-[9px] text-muted-foreground">Today</p>
             </div>
-          </div>
+          </StaggerItem>
 
-        </div>
+        </StaggerList>
 
       </div>
 
@@ -1314,18 +1307,28 @@ export default function Drivers() {
                     <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground text-sm">No drivers found matching the search query.</td>
                   </tr>
                 ) : (
-                  searchedDrivers.map((d: any) => {
+                  <AnimatePresence mode="popLayout" initial={false}>
+                  {searchedDrivers.map((d: any) => {
                   const assignedZoneId = d.preferredZone?._id || d.preferredZone;
                   const zoneObj = zonesList.find((z: any) => z._id === assignedZoneId);
-                  
+
                   return (
-                    <tr key={d._id} className="hover:bg-muted/10 transition-colors">
+                    <motion.tr
+                      key={d._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="hover:bg-muted/10 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <img
+                          <LazyImage
                             src={getAvatarUrl(d.user?.name || "")}
                             alt={d.user?.name}
                             className="h-10 w-10 rounded-full object-cover border border-border"
+                            wrapperClassName="h-10 w-10 rounded-full shrink-0"
                           />
                           <div>
                             <p className="text-sm font-bold text-foreground">{d.user?.name}</p>
@@ -1381,9 +1384,10 @@ export default function Drivers() {
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
-                })
+                  })}
+                  </AnimatePresence>
               )}
             </tbody>
             </table>

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { fadeIn } from "@/components/motion/variants";
 import { Store, Plus, MoreVertical, Search, MapPin, Star, Drumstick, Edit2, Trash2, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
@@ -399,8 +401,17 @@ export default function MeatCenters() {
               ) : centers?.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No meat centers found.</td></tr>
               ) : (
-                centers?.map((center) => (
-                  <tr key={center._id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {centers?.map((center) => (
+                  <motion.tr
+                    key={center._id}
+                    layout
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
@@ -442,8 +453,9 @@ export default function MeatCenters() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
-                  </tr>
-                ))
+                  </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>

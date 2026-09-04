@@ -1,4 +1,6 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -24,7 +26,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Live Orders", url: "/live-orders", icon: ShoppingCart },
   { title: "Drivers", url: "/drivers", icon: Truck },
   { title: "Dev Drivers", url: "/dev-drivers", icon: SlidersHorizontal },
@@ -67,42 +69,45 @@ export function AppSidebar() {
           </p>
         </div>
 
-        <nav className="mt-2 flex flex-col gap-0.5">
+        <motion.nav
+          className="mt-2 flex flex-col gap-0.5"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
           {(() => {
             const isSupport = !!localStorage.getItem("support_token");
             const filteredNavItems = isSupport
               ? navItems.filter(item => item.url === "/support-cases" || item.url === "/support/chats")
               : navItems;
-            
+
             return filteredNavItems.map((item) => {
-            const isActive =
-              item.url === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(item.url);
+            const isActive = location.pathname.startsWith(item.url);
             return (
-              <Link
-                key={item.title}
-                to={item.url}
-                className={`flex items-center justify-between pl-6 pr-4 py-2.5 text-sm transition-colors rounded-r-full mr-4 ${
-                  isActive
-                    ? "bg-[#e6f4f2] text-[#00665c] font-bold"
-                    : "text-sidebar-foreground hover:bg-muted/50 font-medium"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-[#00665c]" : "text-muted-foreground"}`} />
-                  <span>{item.title}</span>
-                </div>
-                {item.title === "Live Orders" && (
-                  <span className="text-[10px] font-bold bg-[#eefcfb] text-[#00665c] px-2 py-0.5 rounded-full border border-[#00665c]/10">
-                    24
-                  </span>
-                )}
-              </Link>
+              <motion.div key={item.title} variants={fadeInUp}>
+                <Link
+                  to={item.url}
+                  className={`flex items-center justify-between pl-6 pr-4 py-2.5 text-sm transition-colors rounded-r-full mr-4 ${
+                    isActive
+                      ? "bg-[#e6f4f2] text-[#00665c] font-bold"
+                      : "text-sidebar-foreground hover:bg-muted/50 font-medium"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-[#00665c]" : "text-muted-foreground"}`} />
+                    <span>{item.title}</span>
+                  </div>
+                  {item.title === "Live Orders" && (
+                    <span className="text-[10px] font-bold bg-[#eefcfb] text-[#00665c] px-2 py-0.5 rounded-full border border-[#00665c]/10">
+                      24
+                    </span>
+                  )}
+                </Link>
+              </motion.div>
             );
           })
         })()}
-        </nav>
+        </motion.nav>
       </div>
 
       <div className="space-y-4 pb-4">
