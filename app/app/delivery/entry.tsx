@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,6 +12,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { MapBackground, MapBackgroundRef } from "@/components/MapBackground";
 import { StopCard } from "@/components/StopCard";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { fadeIn, fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
 
 export default function DeliveryEntryScreen() {
   const insets = useSafeAreaInsets();
@@ -73,7 +75,7 @@ export default function DeliveryEntryScreen() {
     const t = setTimeout(async () => {
       setIsCalculating(true);
       try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/routing/optimize`, {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/routing/optimize`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ origin: currentCoords, stops }),
@@ -103,44 +105,50 @@ export default function DeliveryEntryScreen() {
     <View style={styles.root}>
       <MapBackground ref={mapRef} stops={stops} polyline={route?.polyline} onLocationUpdate={handleLocationUpdate} style={StyleSheet.absoluteFill} />
 
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Package delivery</Text>
         <View style={styles.betaBadge}><Text style={styles.betaBadgeText}>Beta</Text></View>
-      </View>
+      </Animated.View>
 
-      <View style={styles.sheet}>
+      <Animated.View style={styles.sheet} entering={modalSlideUp}>
         <View style={styles.sheetHandle} />
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
-          <Text style={styles.headline}>Create multi-stop{"\n"}delivery</Text>
-          <Text style={styles.subhead}>Pick up from several places on one run. We'll pay at the store and you settle here.</Text>
+          <Animated.View entering={fadeInUp(60)}>
+            <Text style={styles.headline}>Create multi-stop{"\n"}delivery</Text>
+            <Text style={styles.subhead}>Pick up from several places on one run. We&apos;ll pay at the store and you settle here.</Text>
+          </Animated.View>
 
-          <TouchableOpacity style={styles.startCard} activeOpacity={0.85} onPress={handleRecenter}>
-            <View style={styles.startIcon}>
-              {isLocating ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="locate" size={moderateScale(17)} color={accent.accent} />}
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.startLabel}>Starting from</Text>
-              <Text style={styles.startValue} numberOfLines={1}>{currentLocation}</Text>
-            </View>
-            <Text style={styles.changeLink}>Change</Text>
-          </TouchableOpacity>
+          <Animated.View entering={fadeInUp(120)}>
+            <TouchableOpacity style={styles.startCard} activeOpacity={0.85} onPress={handleRecenter}>
+              <View style={styles.startIcon}>
+                {isLocating ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="locate" size={moderateScale(17)} color={accent.accent} />}
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.startLabel}>Starting from</Text>
+                <Text style={styles.startValue} numberOfLines={1}>{currentLocation}</Text>
+              </View>
+              <Text style={styles.changeLink}>Change</Text>
+            </TouchableOpacity>
+          </Animated.View>
 
-          <View style={styles.routeSection}>
+          <Animated.View style={styles.routeSection} entering={fadeInUp(180)}>
             <Text style={styles.sectionLabel}>Route · {stops.length} {stops.length === 1 ? "stop" : "stops"}</Text>
             {stops.length > 0 && (
               <View style={{ gap: 8, marginBottom: 10 }}>
                 {stops.map((stop, i) => (
-                  <StopCard key={stop.id} stop={stop} index={i} onRemove={removeStop} onPress={handleStopPress} />
+                  <Animated.View key={stop.id} entering={staggerListItem(i)}>
+                    <StopCard stop={stop} index={i} onRemove={removeStop} onPress={handleStopPress} />
+                  </Animated.View>
                 ))}
               </View>
             )}
             <TouchableOpacity style={styles.addStopBtn} onPress={() => router.push("/delivery/add-stop")} activeOpacity={0.85}>
               <Text style={styles.addStopBtnText}>+ Add pickup location</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
@@ -164,7 +172,7 @@ export default function DeliveryEntryScreen() {
             <Text style={styles.reviewBtnText}>Review route</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }

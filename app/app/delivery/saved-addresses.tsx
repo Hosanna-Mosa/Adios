@@ -16,6 +16,7 @@ import { moderateScale } from "react-native-size-matters";
 import { router, useFocusEffect } from "expo-router";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -23,6 +24,7 @@ import { useHomeStore } from "@/contexts/homeStore";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { staggerListItem } from "@/motion/presets";
 
 const RECENT_LOCATIONS_KEY = "recent_locations";
 
@@ -53,7 +55,7 @@ export default function SavedAddressesScreen() {
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any[]>("/api/v1/users/addresses");
+      const data = await customFetch<any[]>("/users/addresses");
       setAddresses(data || []);
       if (user) setUser({ ...user, addresses: data || [] });
     } catch (err) {
@@ -66,7 +68,7 @@ export default function SavedAddressesScreen() {
   const loadRecentLocations = async () => {
     try {
       setRecentLoading(true);
-      const data = await customFetch<any[]>("/api/v1/users/recent-locations");
+      const data = await customFetch<any[]>("/users/recent-locations");
       if (Array.isArray(data) && data.length > 0) {
         setRecentLocations(data);
         await AsyncStorage.setItem(RECENT_LOCATIONS_KEY, JSON.stringify(data));
@@ -157,7 +159,7 @@ export default function SavedAddressesScreen() {
         onPress: async () => {
           try {
             setDeletingId(id);
-            const updatedAddresses = await customFetch<any[]>(`/api/v1/users/addresses/${id}`, { method: "DELETE" });
+            const updatedAddresses = await customFetch<any[]>(`/users/addresses/${id}`, { method: "DELETE" });
             setAddresses(updatedAddresses || []);
             if (user) setUser({ ...user, addresses: updatedAddresses || [] });
           } catch (err: any) {
@@ -203,7 +205,7 @@ export default function SavedAddressesScreen() {
           </View>
           <Text style={styles.emptyTitle}>No saved places</Text>
           <Text style={styles.emptySubtitle}>
-            Save the addresses you use often — home, work, your parents' place — and every flow in Flavour gets one tap shorter.
+            Save the addresses you use often — home, work, your parents&apos; place — and every flow in Flavour gets one tap shorter.
           </Text>
           <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push("/delivery/add-address")}>
             <Text style={styles.primaryBtnText}>Add your first address</Text>
@@ -234,8 +236,8 @@ export default function SavedAddressesScreen() {
                   const isSelecting = selectingId === addr._id;
                   const instructions = parseInstructions(addr.addressLine);
                   return (
+                    <Animated.View key={addr._id} entering={staggerListItem(idx)}>
                     <TouchableOpacity
-                      key={addr._id}
                       style={[styles.addressRow, idx < addresses.length - 1 && styles.addressRowDivider, isSelecting && { opacity: 0.6 }]}
                       onPress={() => handleSelectAddress(addr)}
                       disabled={selectingId !== null}
@@ -252,6 +254,7 @@ export default function SavedAddressesScreen() {
                         {deletingId === addr._id ? <ActivityIndicator size="small" color={tokens.error} /> : <Ionicons name="ellipsis-horizontal" size={18} color={tokens.muted} />}
                       </TouchableOpacity>
                     </TouchableOpacity>
+                    </Animated.View>
                   );
                 })}
               </View>
@@ -265,8 +268,8 @@ export default function SavedAddressesScreen() {
                 <ActivityIndicator color={accent.accent} style={{ paddingVertical: 16 }} />
               ) : (
                 recentLocations.map((item, idx) => (
+                  <Animated.View key={item.id || idx} entering={staggerListItem(idx)}>
                   <TouchableOpacity
-                    key={item.id || idx}
                     style={[styles.recentRow, idx < recentLocations.length - 1 && styles.recentRowDivider]}
                     onPress={() => handleSelectRecentLocation(item)}
                     disabled={selectingId !== null}
@@ -275,6 +278,7 @@ export default function SavedAddressesScreen() {
                     <Text style={styles.recentName} numberOfLines={1}>{item.name}{item.address ? `, ${item.address}` : ""}</Text>
                     <Text style={styles.recentSave}>Save</Text>
                   </TouchableOpacity>
+                  </Animated.View>
                 ))
               )}
             </View>

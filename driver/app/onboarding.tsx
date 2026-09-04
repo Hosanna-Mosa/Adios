@@ -4,7 +4,6 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
@@ -16,9 +15,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
+import { staggerListItem, SPRING } from "@/motion/presets";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -384,7 +385,11 @@ export default function OnboardingScreen() {
   const [step, setStep] = useState<1 | 2>(1);
   const [sectionIdx, setSectionIdx] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useSharedValue(0);
+  const slideAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(slideAnim.value, [-1, 0, 1], [-SCREEN_WIDTH * 0.3, 0, SCREEN_WIDTH * 0.3]) }],
+    opacity: interpolate(slideAnim.value, [-1, 0, 1], [0.3, 1, 0.3]),
+  }));
 
   // ── Async State ──────────────────────────────────────────────────────────
   const [saving, setSaving] = useState(false);
@@ -403,7 +408,7 @@ export default function OnboardingScreen() {
       try {
         const token = useDriverStore.getState().token;
         if (!token) return;
-        const res = await fetch(`${API_URL}/api/v1/onboarding`, {
+        const res = await fetch(`${API_URL}/onboarding`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.status === 401 || res.status === 403) {
@@ -435,7 +440,7 @@ export default function OnboardingScreen() {
       try {
         const token = useDriverStore.getState().token;
         if (token) {
-          const res = await fetch(`${API_URL}/api/v1/zones`, {
+          const res = await fetch(`${API_URL}/zones`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
@@ -450,7 +455,7 @@ export default function OnboardingScreen() {
       try {
         const token = useDriverStore.getState().token;
         if (token) {
-          const res = await fetch(`${API_URL}/api/v1/users/addresses`, {
+          const res = await fetch(`${API_URL}/users/addresses`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
@@ -491,7 +496,7 @@ export default function OnboardingScreen() {
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`${API_URL}/api/v1/places/autocomplete?input=${encodeURIComponent(query)}`, { headers });
+      const res = await fetch(`${API_URL}/places/autocomplete?input=${encodeURIComponent(query)}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setSuggestions(Array.isArray(data) ? data : []);
@@ -566,13 +571,8 @@ export default function OnboardingScreen() {
 
   // ── Animations ────────────────────────────────────────────────────────────
   const animateTransition = (direction: 1 | -1) => {
-    slideAnim.setValue(direction);
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      tension: 65,
-      friction: 11,
-      useNativeDriver: true,
-    }).start();
+    slideAnim.value = direction;
+    slideAnim.value = withSpring(0, SPRING);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   };
 
@@ -630,7 +630,7 @@ export default function OnboardingScreen() {
     try {
       const token = useDriverStore.getState().token;
       if (token) {
-        const res = await fetch(`${API_URL}/api/v1/onboarding/verify-pan`, {
+        const res = await fetch(`${API_URL}/onboarding/verify-pan`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ panNumber: cleanedPan, panName }),
@@ -668,7 +668,7 @@ export default function OnboardingScreen() {
       try {
         const token = useDriverStore.getState().token;
         if (token) {
-          const res = await fetch(`${API_URL}/api/v1/onboarding/verify-aadhaar`, {
+          const res = await fetch(`${API_URL}/onboarding/verify-aadhaar`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ aadhaarNumber: cleaned }),
@@ -704,7 +704,7 @@ export default function OnboardingScreen() {
       try {
         const token = useDriverStore.getState().token;
         if (token) {
-          await fetch(`${API_URL}/api/v1/onboarding`, {
+          await fetch(`${API_URL}/onboarding`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({
@@ -760,7 +760,7 @@ export default function OnboardingScreen() {
       case "homeAddress": {
         setSaving(true);
         try {
-          const res = await fetch(`${API_URL}/api/v1/users/addresses`, {
+          const res = await fetch(`${API_URL}/users/addresses`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -791,7 +791,7 @@ export default function OnboardingScreen() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/v1/onboarding`, {
+      const res = await fetch(`${API_URL}/onboarding`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -819,7 +819,7 @@ export default function OnboardingScreen() {
     // Save selfie section first
     setSaving(true);
     try {
-      const patchRes = await fetch(`${API_URL}/api/v1/onboarding`, {
+      const patchRes = await fetch(`${API_URL}/onboarding`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -835,7 +835,7 @@ export default function OnboardingScreen() {
       }
 
       // Call complete endpoint
-      const res = await fetch(`${API_URL}/api/v1/onboarding/complete`, {
+      const res = await fetch(`${API_URL}/onboarding/complete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -941,33 +941,38 @@ export default function OnboardingScreen() {
       case "gender":
         return (
           <View style={{ gap: 12 }}>
-            <SelectCard
-              selected={gender === "male"}
-              onSelect={() => setGender("male")}
-              icon="user"
-              label="Male"
-            />
-            <SelectCard
-              selected={gender === "female"}
-              onSelect={() => setGender("female")}
-              icon="user"
-              label="Female"
-            />
+            <Animated.View entering={staggerListItem(0)}>
+              <SelectCard
+                selected={gender === "male"}
+                onSelect={() => setGender("male")}
+                icon="user"
+                label="Male"
+              />
+            </Animated.View>
+            <Animated.View entering={staggerListItem(1)}>
+              <SelectCard
+                selected={gender === "female"}
+                onSelect={() => setGender("female")}
+                icon="user"
+                label="Female"
+              />
+            </Animated.View>
           </View>
         );
 
       case "vehicle":
         return (
           <View style={{ gap: 12 }}>
-            {VEHICLES.map((v) => (
-              <SelectCard
-                key={v.id}
-                selected={vehicle === v.id}
-                onSelect={() => setVehicle(v.id)}
-                icon={v.icon}
-                label={v.label}
-                desc={v.desc}
-              />
+            {VEHICLES.map((v, idx) => (
+              <Animated.View key={v.id} entering={staggerListItem(idx)}>
+                <SelectCard
+                  selected={vehicle === v.id}
+                  onSelect={() => setVehicle(v.id)}
+                  icon={v.icon}
+                  label={v.label}
+                  desc={v.desc}
+                />
+              </Animated.View>
             ))}
           </View>
         );
@@ -1232,7 +1237,7 @@ export default function OnboardingScreen() {
                     style={{ alignItems: "center", paddingVertical: 10 }}
                   >
                     <Text style={{ fontSize: 14, color: Colors.textMuted, fontWeight: "500" }}>
-                      Skip, I'll use PAN card →
+                      Skip, I&apos;ll use PAN card →
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -1404,7 +1409,7 @@ export default function OnboardingScreen() {
               {bankConfirm && bankAccount !== bankConfirm && (
                 <View style={bankStyles.errorRow}>
                   <Feather name="alert-circle" size={15} color={Colors.error} />
-                  <Text style={bankStyles.errorText}>Account numbers don't match</Text>
+                  <Text style={bankStyles.errorText}>Account numbers don&apos;t match</Text>
                 </View>
               )}
               <FormInput
@@ -1537,20 +1542,7 @@ export default function OnboardingScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View
-            style={{
-              transform: [{
-                translateX: slideAnim.interpolate({
-                  inputRange: [-1, 0, 1],
-                  outputRange: [-SCREEN_WIDTH * 0.3, 0, SCREEN_WIDTH * 0.3],
-                }),
-              }],
-              opacity: slideAnim.interpolate({
-                inputRange: [-1, 0, 1],
-                outputRange: [0.3, 1, 0.3],
-              }),
-            }}
-          >
+          <Animated.View style={slideAnimatedStyle}>
             {renderSection()}
           </Animated.View>
         </ScrollView>

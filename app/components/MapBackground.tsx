@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import { StyleSheet, View, Platform, ViewStyle, Text, TouchableOpacity, Image } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Region, MapType, Marker, Polyline, Circle } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, Circle } from '@/components/maps';
 import * as Location from 'expo-location';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DeliveryStop, useDeliveryStore } from '@/contexts/deliveryStore';
@@ -233,7 +233,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     const loadRoadRoute = async () => {
       try {
         const [origin, ...destinationStops] = validRouteStops;
-        const route = await customFetch<{ polyline?: string; routeSource?: string }>("/api/v1/routing/optimize", {
+        const route = await customFetch<{ polyline?: string; routeSource?: string }>("/routing/optimize", {
           method: "POST",
           body: JSON.stringify({
             origin: {
@@ -465,6 +465,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     </View>
   );
 });
+
+MapBackground.displayName = "MapBackground";
 
 // Utility to decode Google Polyline
 function decodePolyline(encoded: string) {

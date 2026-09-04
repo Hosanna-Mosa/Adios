@@ -50,7 +50,7 @@ export default function PayoutSetupScreen() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/api/v1/onboarding`, {
+      const res = await fetch(`${API_URL}/onboarding`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -151,7 +151,7 @@ export default function PayoutSetupScreen() {
             {confirmAccount.length > 0 && !accountsMatch && (
               <View style={styles.errorRow}>
                 <Feather name="alert-circle" size={15} color={Colors.error} />
-                <Text style={styles.errorText}>Account numbers don't match</Text>
+                <Text style={styles.errorText}>Account numbers don&apos;t match</Text>
               </View>
             )}
 
@@ -227,9 +227,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
-    backgroundColor: "#f1fbf5",
+    backgroundColor: Colors.successLight,
     borderWidth: 1,
-    borderColor: "#b8e6ca",
+    borderColor: Colors.success,
     borderRadius: 14,
     padding: 14,
   },
@@ -293,9 +293,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    backgroundColor: "#fef2f2",
+    backgroundColor: Colors.errorLight,
     borderWidth: 1,
-    borderColor: "#fecaca",
+    borderColor: Colors.error,
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,

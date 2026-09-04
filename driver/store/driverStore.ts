@@ -219,7 +219,7 @@ export const useDriverStore = create<DriverState>()(
         const { token, driverUserId } = get();
         if (token) {
           try {
-            await fetch(`${apiUrl}/api/v1/drivers/status`, {
+            await fetch(`${apiUrl}/drivers/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -336,7 +336,7 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (token) {
           try {
-            await fetch(`${apiUrl}/api/v1/drivers/status`, {
+            await fetch(`${apiUrl}/drivers/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -362,7 +362,7 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/drivers/home-mode`, {
+            const res = await fetch(`${apiUrl}/drivers/home-mode`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -389,7 +389,7 @@ export const useDriverStore = create<DriverState>()(
         let orderFromApi: any = null;
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/orders/${orderId}`, {
+            const res = await fetch(`${apiUrl}/orders/${orderId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -456,7 +456,7 @@ export const useDriverStore = create<DriverState>()(
           let orderFromApi: any = null;
           if (token) {
             try {
-              const res = await fetch(`${apiUrl}/api/v1/orders/${incomingOrder.id}/accept`, {
+              const res = await fetch(`${apiUrl}/orders/${incomingOrder.id}/accept`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -541,7 +541,7 @@ export const useDriverStore = create<DriverState>()(
         const { incomingOrder, token } = get();
         if (incomingOrder && token && reason) {
           try {
-            await fetch(`${apiUrl}/api/v1/orders/${incomingOrder.id}/decline`, {
+            await fetch(`${apiUrl}/orders/${incomingOrder.id}/decline`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -570,7 +570,7 @@ export const useDriverStore = create<DriverState>()(
         let orderFromApi: any = null;
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/orders/${currentOrder.id}/status`, {
+            const res = await fetch(`${apiUrl}/orders/${currentOrder.id}/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -684,7 +684,7 @@ export const useDriverStore = create<DriverState>()(
         }
 
         try {
-          const res = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+          const res = await fetch(`${apiUrl}/drivers/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -740,7 +740,7 @@ export const useDriverStore = create<DriverState>()(
 
       loginWithPassword: async (phone: string, password: string) => {
         try {
-          const response = await fetch(`${apiUrl}/api/v1/auth/login-password`, {
+          const response = await fetch(`${apiUrl}/auth/login-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ phone, password, role: "DRIVER" }),
@@ -771,7 +771,7 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (!token || !apiUrl) return;
         try {
-          const res = await fetch(`${apiUrl}/api/v1/drivers/earnings`, {
+          const res = await fetch(`${apiUrl}/drivers/earnings`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok) return; // silently ignore — keep whatever is in store

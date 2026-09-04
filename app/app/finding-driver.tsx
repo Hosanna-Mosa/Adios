@@ -1,5 +1,14 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
-import { View, Text, StyleSheet, Animated, Alert, TouchableOpacity, Modal } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Modal } from "react-native";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 import { useLocalSearchParams, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,6 +20,7 @@ import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { MapBackground } from "@/components/MapBackground";
+import { fadeInUp } from "@/motion/presets";
 
 const TIER_LABEL: Record<string, string> = {
   bike: "Bike",
@@ -35,19 +45,29 @@ export default function FindingDriverScreen() {
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
   const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string }>({});
 
-  const sweep = useRef(new Animated.Value(0)).current;
-  const ring1 = useRef(new Animated.Value(0)).current;
-  const ring2 = useRef(new Animated.Value(0)).current;
+  const sweep = useSharedValue(0);
+  const ring1 = useSharedValue(0);
+  const ring2 = useSharedValue(0);
 
   useEffect(() => {
-    const spin = Animated.loop(Animated.timing(sweep, { toValue: 1, duration: 1000, useNativeDriver: true, isInteraction: false }));
-    const pulse = (value: Animated.Value, delay: number) =>
-      Animated.loop(Animated.sequence([Animated.delay(delay), Animated.timing(value, { toValue: 1, duration: 2600, useNativeDriver: true })]));
-    const p1 = pulse(ring1, 0);
-    const p2 = pulse(ring2, 800);
-    spin.start(); p1.start(); p2.start();
-    return () => { spin.stop(); p1.stop(); p2.stop(); };
-  }, []);
+    sweep.value = withRepeat(withTiming(1, { duration: 1000, easing: Easing.linear }), -1, false);
+    // Each ring loops its own [pause, pulse] cycle — ring2's 800ms pause
+    // before every pulse is what staggers it relative to ring1.
+    ring1.value = withRepeat(withTiming(1, { duration: 2600 }), -1, false);
+    ring2.value = withRepeat(withSequence(withTiming(0, { duration: 800 }), withTiming(1, { duration: 2600 })), -1, false);
+  }, [sweep, ring1, ring2]);
+
+  const ring1Style = useAnimatedStyle(() => ({
+    opacity: interpolate(ring1.value, [0, 1], [0.18, 0]),
+    transform: [{ scale: interpolate(ring1.value, [0, 1], [0.3, 1]) }],
+  }));
+  const ring2Style = useAnimatedStyle(() => ({
+    opacity: interpolate(ring2.value, [0, 1], [0.22, 0]),
+    transform: [{ scale: interpolate(ring2.value, [0, 1], [0.3, 1]) }],
+  }));
+  const spinStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${sweep.value * 360}deg` }],
+  }));
 
   useEffect(() => {
     if (!orderId) {
@@ -109,7 +129,7 @@ export default function FindingDriverScreen() {
     const checkOrderStatus = async () => {
       if (isTransitioned) return;
       try {
-        const orderData = await customFetch<any>(`/api/v1/orders/${orderId}`, { responseType: "json" });
+        const orderData = await customFetch<any>(`/orders/${orderId}`, { responseType: "json" });
         if (orderData) {
           if (orderData.serviceType) useDeliveryStore.getState().setServiceType(orderData.serviceType);
           setOrderSummary({
@@ -173,7 +193,7 @@ export default function FindingDriverScreen() {
               router.replace("/(tabs)");
               if (orderId) {
                 try {
-                  await customFetch(`/api/v1/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+                  await customFetch(`/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
                 } catch (error) {
                   console.error("Failed to cancel order on backend:", error);
                 }
@@ -200,7 +220,7 @@ export default function FindingDriverScreen() {
     router.push("/(tabs)");
     if (orderId) {
       try {
-        await customFetch(`/api/v1/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+        await customFetch(`/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
       } catch (error) {
         console.error("Failed to cancel order on backend:", error);
       }
@@ -216,7 +236,7 @@ export default function FindingDriverScreen() {
     const fetchOnlineDrivers = async () => {
       try {
         const queryParams = new URLSearchParams({ latitude: String(pickupStop.lat), longitude: String(pickupStop.lng), radius: "50000" });
-        const res = await customFetch<any[]>(`/api/v1/drivers/nearby?${queryParams.toString()}`);
+        const res = await customFetch<any[]>(`/drivers/nearby?${queryParams.toString()}`);
         if (active && Array.isArray(res)) {
           const mapped = res
             .map((drv) => ({
@@ -242,7 +262,6 @@ export default function FindingDriverScreen() {
   const pickupStop = stops.find((s) => s.type === "pickup");
   const dropStop = stops.find((s) => s.type === "drop");
   const tierLabel = orderSummary.serviceType ? TIER_LABEL[orderSummary.serviceType] || orderSummary.serviceType : null;
-  const spin = sweep.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   if (bookingConfirmed && confirmedDriver) {
     return (
@@ -252,7 +271,7 @@ export default function FindingDriverScreen() {
         </View>
         <Text style={styles.confirmedTitle}>Booking confirmed</Text>
         <Text style={styles.confirmedSub}>
-          A captain has accepted your reserved ride for {dateTimeStr || "the scheduled time"}. We'll notify you 15 minutes before pickup.
+          A captain has accepted your reserved ride for {dateTimeStr || "the scheduled time"}. We&apos;ll notify you 15 minutes before pickup.
         </Text>
         <View style={styles.confirmedCard}>
           <Text style={styles.confirmedCardTitle}>Captain</Text>
@@ -271,8 +290,8 @@ export default function FindingDriverScreen() {
       <MapBackground stops={stops} driverMarkers={onlineDrivers} style={StyleSheet.absoluteFill} />
 
       <View style={styles.radarWrap} pointerEvents="none">
-        <Animated.View style={[styles.radarRing, { opacity: ring1.interpolate({ inputRange: [0, 1], outputRange: [0.18, 0] }), transform: [{ scale: ring1.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }] }]} />
-        <Animated.View style={[styles.radarRing, { opacity: ring2.interpolate({ inputRange: [0, 1], outputRange: [0.22, 0] }), transform: [{ scale: ring2.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }] }]} />
+        <Animated.View style={[styles.radarRing, ring1Style]} />
+        <Animated.View style={[styles.radarRing, ring2Style]} />
         <View style={styles.radarDot} />
       </View>
 
@@ -283,7 +302,7 @@ export default function FindingDriverScreen() {
       <View style={styles.sheet}>
         <View style={styles.sheetHandle} />
         <View style={styles.titleRow}>
-          <Animated.View style={[styles.spinner, { transform: [{ rotate: spin }] }]} />
+          <Animated.View style={[styles.spinner, spinStyle]} />
           <Text style={styles.title}>Finding your captain</Text>
         </View>
         <Text style={styles.subtitle}>
@@ -291,7 +310,7 @@ export default function FindingDriverScreen() {
         </Text>
 
         {(orderSummary.totalPrice != null || pickupStop || dropStop) && (
-          <View style={styles.routeCard}>
+          <Animated.View entering={fadeInUp(0)} style={styles.routeCard}>
             {orderSummary.totalPrice != null && (
               <View style={styles.routeCardHead}>
                 <Text style={styles.routeCardHeadLabel}>Total fare</Text>
@@ -317,7 +336,7 @@ export default function FindingDriverScreen() {
                 )}
               </View>
             )}
-          </View>
+          </Animated.View>
         )}
 
         {tierLabel && (
@@ -340,7 +359,7 @@ export default function FindingDriverScreen() {
           <View style={[styles.cancelSheet, { paddingBottom: insets.bottom + 16 }]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.cancelSheetTitle}>Why do you want to cancel?</Text>
-            <Text style={styles.cancelSheetSub}>No cancellation fee — we haven't assigned a captain yet.</Text>
+            <Text style={styles.cancelSheetSub}>No cancellation fee — we haven&apos;t assigned a captain yet.</Text>
 
             <View style={{ gap: 8, marginBottom: 18 }}>
               {CANCEL_REASONS.map((reason) => {

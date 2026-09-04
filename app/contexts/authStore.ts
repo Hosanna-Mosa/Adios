@@ -21,6 +21,7 @@ interface AuthState {
   loginWithPassword: (phoneOrEmail: string, password: string, role: string) => Promise<{ success: boolean }>;
   initializeAuth: () => Promise<void>;
   toggleFavorite: (restaurantId: string) => Promise<void>;
+  toggleFavoriteItem: (itemId: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -63,13 +64,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       // Update favorites in database
       if (token) {
-        await fetch(`${apiUrl}/api/v1/users/favorites/${restaurantId}`, {
+        await fetch(`${apiUrl}/users/favorites/${restaurantId}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
       }
     } catch (e) {
       console.error("Failed to persist favorites", e);
+    }
+  },
+
+  toggleFavoriteItem: async (itemId: string) => {
+    const { user, token } = get();
+    if (!user) return;
+
+    const currentFavoriteItems = user.favoriteItems || [];
+    const isFavorite = currentFavoriteItems.includes(itemId);
+    const newFavoriteItems = isFavorite
+      ? currentFavoriteItems.filter((id: string) => id !== itemId)
+      : [...currentFavoriteItems, itemId];
+
+    const updatedUser = { ...user, favoriteItems: newFavoriteItems };
+    set({ user: updatedUser });
+
+    try {
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+
+      if (token) {
+        await fetch(`${apiUrl}/users/favorite-items/${itemId}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } catch (e) {
+      console.error("Failed to persist favorite items", e);
     }
   },
 
@@ -90,7 +118,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ token, user: cachedUser });
 
         try {
-          const response = await fetch(`${apiUrl}/api/v1/users/profile`, {
+          const response = await fetch(`${apiUrl}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -136,7 +164,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   requestOTP: async (phone: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/request-otp`, {
+      const response = await fetch(`${apiUrl}/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
@@ -154,7 +182,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifyOTP: async (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
+      const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, code, role, name, email, password }),
@@ -183,7 +211,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loginWithPassword: async (phoneOrEmail: string, password: string, role: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/login-password`, {
+      const response = await fetch(`${apiUrl}/auth/login-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phoneOrEmail, password, role }),

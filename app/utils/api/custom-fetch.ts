@@ -244,6 +244,7 @@ async function parseJsonBody(
         response,
         "json",
         `Failed to parse response body as JSON. Method: ${requestInfo.method}. URL: ${requestInfo.url}. Error: ${err.message}`,
+        requestInfo,
       );
     }
     throw err;

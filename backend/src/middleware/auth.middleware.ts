@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserRole } from "../database/models/User";
+import { getJwtSecret } from "../utils/jwtSecret";
 
 export interface AuthRequest extends Request {
   user?: {
@@ -15,7 +16,7 @@ export const authenticateToken = (req: AuthRequest, res: Response, next: NextFun
 
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.JWT_SECRET || "supersecret123", (err: any, user: any) => {
+  jwt.verify(token, getJwtSecret(), (err: any, user: any) => {
     if (err) return res.sendStatus(403);
     
     // Support tokens using 'id' instead of 'userId'

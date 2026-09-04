@@ -1,5 +1,6 @@
 import React from "react";
-import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ImageSourcePropType, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -21,9 +22,9 @@ export function FoodCard({ image, name, rating, time, category, onPress }: Props
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.9}>
       <View style={styles.imageContainer}>
-        <Image source={image} style={styles.image} resizeMode="cover" />
+        <Image source={image} style={styles.image} contentFit="cover" transition={200} />
         <View style={styles.ratingBadge}>
-          <Feather name="star" size={10} color="#F59E0B" />
+          <Feather name="star" size={10} color={colors.warning} />
           <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
         </View>
       </View>

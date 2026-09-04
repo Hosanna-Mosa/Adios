@@ -8,6 +8,7 @@ import User, { UserRole } from "../database/models/User";
 import Order from "../database/models/Order";
 import Driver, { DriverStatus } from "../database/models/Driver";
 import ChatMessage from "../database/models/ChatMessage";
+import { getJwtSecret } from "../utils/jwtSecret";
 
 export class SocketManager {
   private static instance: SocketManager;
@@ -80,7 +81,7 @@ export class SocketManager {
         return next(new Error("Authentication error: No token provided"));
       }
 
-      jwt.verify(token, process.env.JWT_SECRET || "supersecret123", (err: any, decoded: any) => {
+      jwt.verify(token, getJwtSecret(), (err: any, decoded: any) => {
         if (err) {
           console.warn(`[SOCKET SECURITY] Handshake rejected: Invalid token (Socket ID: ${socket.id})`);
           return next(new Error("Authentication error: Invalid token"));

@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -21,6 +22,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore, OrderStatus } from "@/contexts/deliveryStore";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
@@ -71,7 +73,7 @@ export default function ChatScreen() {
 
     setOrderId(deepLinkOrderId);
 
-    customFetch<any>(`/api/v1/orders/${deepLinkOrderId}`)
+    customFetch<any>(`/orders/${deepLinkOrderId}`)
       .then((order) => {
         if (order?.serviceType) setServiceType(order.serviceType);
         if (order?.driver) {
@@ -85,7 +87,7 @@ export default function ChatScreen() {
       })
       .catch((err) => console.error("[Chat] Failed to load order for deep link:", err));
 
-    customFetch<any[]>(`/api/v1/orders/${deepLinkOrderId}/chat`)
+    customFetch<any[]>(`/orders/${deepLinkOrderId}/chat`)
       .then((history) => {
         setChatMessages(
           (history || []).map((m) => ({
@@ -152,7 +154,7 @@ export default function ChatScreen() {
     return (
       <>
         {showDateDivider && <Text style={styles.dateDivider}>Today</Text>}
-        <View style={[styles.messageRow, isUser ? { justifyContent: "flex-end" } : { justifyContent: "flex-start" }]}>
+        <Animated.View entering={fadeInUp(0)} style={[styles.messageRow, isUser ? { justifyContent: "flex-end" } : { justifyContent: "flex-start" }]}>
           {!isUser && (
             <View style={styles.partnerAvatarSmall}>
               <Ionicons name="person" size={13} color={tokens.sec} />
@@ -162,7 +164,7 @@ export default function ChatScreen() {
             <Text style={[styles.bubbleText, { color: isUser ? accent.on : tokens.text }]}>{item.text}</Text>
             <Text style={[styles.bubbleTime, { color: isUser ? `${accent.on}B3` : tokens.sec, alignSelf: isUser ? "flex-end" : "flex-start" }]}>{item.timestamp}</Text>
           </View>
-        </View>
+        </Animated.View>
       </>
     );
   };
@@ -187,10 +189,10 @@ export default function ChatScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.safetyBanner}>
+      <Animated.View entering={fadeInUp(60)} style={styles.safetyBanner}>
         <Ionicons name="shield-checkmark-outline" size={16} color={tokens.warning} />
-        <Text style={styles.safetyText}>Keep the conversation in Flavour. Don't share your PIN with the {partnerLabel.toLowerCase()} before the {isHelper ? "task" : isRide ? "ride" : "order"} starts.</Text>
-      </View>
+        <Text style={styles.safetyText}>Keep the conversation in Flavour. Don&apos;t share your PIN with the {partnerLabel.toLowerCase()} before the {isHelper ? "task" : isRide ? "ride" : "order"} starts.</Text>
+      </Animated.View>
 
       <FlatList
         ref={flatListRef}
@@ -210,20 +212,24 @@ export default function ChatScreen() {
       />
 
       {isHelper && !taskAssigned && (
-        <TouchableOpacity style={[styles.assignRow, { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={handleAssignTask} activeOpacity={0.85}>
-          <View style={[styles.assignIcon, { backgroundColor: accent.accent }]}>
-            <Ionicons name="construct" size={14} color={accent.on} />
-          </View>
-          <Text style={styles.assignText}>Assign task</Text>
-          <Text style={[styles.assignSend, { color: accent.accent }]}>SEND</Text>
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(0)}>
+          <TouchableOpacity style={[styles.assignRow, { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={handleAssignTask} activeOpacity={0.85}>
+            <View style={[styles.assignIcon, { backgroundColor: accent.accent }]}>
+              <Ionicons name="construct" size={14} color={accent.on} />
+            </View>
+            <Text style={styles.assignText}>Assign task</Text>
+            <Text style={[styles.assignSend, { color: accent.accent }]}>SEND</Text>
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickRepliesRow} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
-        {QUICK_REPLIES.map((item) => (
-          <TouchableOpacity key={item} style={styles.quickReplyChip} onPress={() => sendMessage(item)}>
-            <Text style={styles.quickReplyChipText}>{item}</Text>
-          </TouchableOpacity>
+        {QUICK_REPLIES.map((item, idx) => (
+          <Animated.View key={item} entering={staggerListItem(idx)}>
+            <TouchableOpacity style={styles.quickReplyChip} onPress={() => sendMessage(item)}>
+              <Text style={styles.quickReplyChipText}>{item}</Text>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
       </ScrollView>
 

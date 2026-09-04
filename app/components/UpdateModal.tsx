@@ -16,7 +16,7 @@ interface UpdateModalProps {
 export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss }: UpdateModalProps) {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   if (!visible) return null;

@@ -16,10 +16,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Reanimated from "react-native-reanimated";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { Button } from "@/components/ui/Button";
+import { fadeInUp } from "@/motion/presets";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
@@ -74,7 +77,7 @@ export default function AuthScreen() {
   const { loginWithPassword, requestOTP, loading, token, isInitialized } = useAuthStore();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);
 
   // Guard: if a token already exists, skip straight to the app.
@@ -132,7 +135,7 @@ export default function AuthScreen() {
     return (
       <Animated.View style={{
         flex: 1,
-        backgroundColor: "#002045", // deep blue branding background
+        backgroundColor: tokens.brand,
         justifyContent: "center",
         alignItems: "center",
         opacity: splashOpacity,
@@ -166,7 +169,7 @@ export default function AuthScreen() {
   if (!isInitialized) {
     return (
       <View style={[styles.root, { justifyContent: "center", alignItems: "center" }]}>
-        <ActivityIndicator size="large" color="#002045" />
+        <ActivityIndicator size="large" color={tokens.brand} />
       </View>
     );
   }
@@ -182,7 +185,7 @@ export default function AuthScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Brand mark + headline, centered in the space above the form */}
-        <View style={styles.heroBlock}>
+        <Reanimated.View style={styles.heroBlock} entering={fadeInUp(0)}>
           <View style={styles.logoMark}>
             <Text style={styles.logoMarkText}>F</Text>
           </View>
@@ -191,10 +194,10 @@ export default function AuthScreen() {
           <Text style={styles.subhead}>
             Food, meat, rides, helpers and courier runs. One app.
           </Text>
-        </View>
+        </Reanimated.View>
 
         {/* Form */}
-        <View style={styles.form}>
+        <Reanimated.View style={styles.form} entering={fadeInUp(90)}>
           <View style={styles.fieldWrapper}>
             <Text style={styles.fieldLabel}>Phone or email</Text>
             <View style={[styles.inputContainer, styles.inputContainerAccent]}>
@@ -244,51 +247,46 @@ export default function AuthScreen() {
           </View>
 
           {/* Sign In CTA */}
-          <TouchableOpacity
-            style={[styles.signInBtn, (!identifier || !password || loading) && styles.signInBtnDisabled]}
+          <Button
+            title="Sign in"
             onPress={handleSignIn}
-            disabled={!identifier || !password || loading}
-            activeOpacity={0.85}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color={accent.on} />
-            ) : (
-              <Text style={styles.signInBtnText}>Sign in</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+            disabled={!identifier || !password}
+            loading={loading}
+            fullWidth
+            style={{ marginTop: 4 }}
+          />
+        </Reanimated.View>
 
         {/* Divider */}
-        <View style={styles.dividerRow}>
+        <Reanimated.View style={styles.dividerRow} entering={fadeInUp(160)}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>or</Text>
           <View style={styles.dividerLine} />
-        </View>
+        </Reanimated.View>
 
         {/* OTP alternative */}
-        <TouchableOpacity
-          style={styles.otpBtn}
-          onPress={handleContinueWithOtp}
-          disabled={sendingOtp}
-          activeOpacity={0.85}
-        >
-          {sendingOtp ? (
-            <ActivityIndicator size="small" color={tokens.text} />
-          ) : (
-            <Text style={styles.otpBtnText}>Continue with OTP instead</Text>
-          )}
-        </TouchableOpacity>
+        <Reanimated.View entering={fadeInUp(200)} style={{ marginTop: 16 }}>
+          <Button
+            title="Continue with OTP instead"
+            onPress={handleContinueWithOtp}
+            loading={sendingOtp}
+            variant="secondary"
+            fullWidth
+          />
+        </Reanimated.View>
 
         {/* Create account link */}
-        <TouchableOpacity
-          onPress={() => router.replace("/signup")}
-          activeOpacity={0.7}
-          style={styles.signUpLinkRow}
-        >
-          <Text style={styles.signUpLinkText}>
-            New here? <Text style={styles.signUpLinkHighlight}>Create an account</Text>
-          </Text>
-        </TouchableOpacity>
+        <Reanimated.View entering={fadeInUp(240)}>
+          <TouchableOpacity
+            onPress={() => router.replace("/signup")}
+            activeOpacity={0.7}
+            style={styles.signUpLinkRow}
+          >
+            <Text style={styles.signUpLinkText}>
+              New here? <Text style={styles.signUpLinkHighlight}>Create an account</Text>
+            </Text>
+          </TouchableOpacity>
+        </Reanimated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

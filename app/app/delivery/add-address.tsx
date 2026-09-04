@@ -15,13 +15,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import * as Location from "expo-location";
-import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "@/components/maps";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { fadeIn, fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
 
 export default function AddAddressScreen() {
   const insets = useSafeAreaInsets();
@@ -174,7 +176,7 @@ export default function AddAddressScreen() {
       setSearching(true);
       try {
         const locQuery = userCoords ? `&lat=${userCoords.lat}&lng=${userCoords.lng}&radius=50000` : "";
-        const results = await customFetch<any[]>(`/api/v1/places/autocomplete?input=${encodeURIComponent(text)}${locQuery}`);
+        const results = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}${locQuery}`);
         setSearchResults(results || []);
       } catch (error) {
         console.error("Search error:", error);
@@ -190,7 +192,7 @@ export default function AddAddressScreen() {
     try {
       const details = Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))
         ? { lat: Number(item.lat), lng: Number(item.lng) }
-        : await customFetch<any>(`/api/v1/places/details/${item.id}`);
+        : await customFetch<any>(`/places/details/${item.id}`);
       const newRegion = { ...region, latitude: details.lat, longitude: details.lng };
       setRegion(newRegion);
       mapRef.current?.animateToRegion(newRegion, 1000);
@@ -225,8 +227,8 @@ export default function AddAddressScreen() {
       };
 
       const updatedAddresses = isEditMode
-        ? await customFetch<any[]>(`/api/v1/users/addresses/${params.editId}`, { method: "PATCH", body: JSON.stringify(payload) })
-        : await customFetch<any[]>("/api/v1/users/addresses", { method: "POST", body: JSON.stringify(payload) });
+        ? await customFetch<any[]>(`/users/addresses/${params.editId}`, { method: "PATCH", body: JSON.stringify(payload) })
+        : await customFetch<any[]>("/users/addresses", { method: "POST", body: JSON.stringify(payload) });
 
       if (user) setUser({ ...user, addresses: updatedAddresses });
       router.back();
@@ -252,7 +254,7 @@ export default function AddAddressScreen() {
             showsMyLocationButton={false}
           />
 
-          <View style={[styles.searchRow, { top: insets.top + 10 }]}>
+          <Animated.View style={[styles.searchRow, { top: insets.top + 10 }]} entering={fadeIn(0)}>
             <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
             </TouchableOpacity>
@@ -268,25 +270,27 @@ export default function AddAddressScreen() {
               />
               {searching && <ActivityIndicator size="small" color={accent.accent} />}
             </View>
-          </View>
+          </Animated.View>
 
           {searchResults.length > 0 && (
             <ScrollView style={[styles.searchResults, { top: insets.top + 62 }]} keyboardShouldPersistTaps="handled">
-              {searchResults.map((item) => (
-                <TouchableOpacity key={item.id} style={styles.searchResultRow} onPress={() => handleSelectSearchResult(item)}>
-                  <Text style={styles.searchResultName}>{item.name}</Text>
-                  <Text style={styles.searchResultAddr} numberOfLines={1}>{item.address}</Text>
-                </TouchableOpacity>
+              {searchResults.map((item, i) => (
+                <Animated.View key={item.id} entering={staggerListItem(i, 25)}>
+                  <TouchableOpacity style={styles.searchResultRow} onPress={() => handleSelectSearchResult(item)}>
+                    <Text style={styles.searchResultName}>{item.name}</Text>
+                    <Text style={styles.searchResultAddr} numberOfLines={1}>{item.address}</Text>
+                  </TouchableOpacity>
+                </Animated.View>
               ))}
             </ScrollView>
           )}
 
-          <View style={styles.useCurrentWrap}>
+          <Animated.View style={styles.useCurrentWrap} entering={fadeIn(120)}>
             <TouchableOpacity style={styles.useCurrentBtn} onPress={handleUseCurrentLocation}>
               <Ionicons name="locate" size={15} color={accent.accent} />
               <Text style={styles.useCurrentText}>Use current location</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
           <View style={styles.centerMarker} pointerEvents="none">
             <View style={styles.dragHint}>
@@ -302,7 +306,7 @@ export default function AddAddressScreen() {
             <View style={styles.pinShadow} />
           </View>
 
-          <View style={[styles.bottomCard, { paddingBottom: insets.bottom + 16 }]}>
+          <Animated.View style={[styles.bottomCard, { paddingBottom: insets.bottom + 16 }]} entering={modalSlideUp}>
             <View style={styles.sheetHandle} />
             <View style={styles.addressCard}>
               <View style={styles.addressIcon}>
@@ -319,42 +323,46 @@ export default function AddAddressScreen() {
             <TouchableOpacity style={[styles.nextBtn, isResolvingAddress && { opacity: 0.6 }]} onPress={() => setStep(2)} disabled={isResolvingAddress}>
               <Text style={styles.nextBtnText}>Add more address details</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
       ) : (
         <View style={{ flex: 1 }}>
-          <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+          <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
             <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
               <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>{isEditMode ? "Edit address" : "Add address"}</Text>
-          </View>
+          </Animated.View>
 
           <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
-            <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
-              <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
-              <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
-              <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
-            </TouchableOpacity>
+            <Animated.View entering={fadeInUp(60)}>
+              <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
+                <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
+                <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
+                <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
+              </TouchableOpacity>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(120)}>
               <Text style={styles.sectionLabel}>Save as</Text>
               <View style={{ flexDirection: "row", gap: 8 }}>
-                {(["Home", "Work", "Other"] as const).map((chip) => {
+                {(["Home", "Work", "Other"] as const).map((chip, i) => {
                   const isActive = selectedChip === chip;
                   return (
-                    <TouchableOpacity key={chip} style={[styles.chip, isActive && { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={() => setSelectedChip(chip)}>
-                      <Text style={[styles.chipText, isActive && { color: accent.accent }]}>{chip}</Text>
-                    </TouchableOpacity>
+                    <Animated.View key={chip} entering={staggerListItem(i, 30)} style={{ flex: 1 }}>
+                      <TouchableOpacity style={[styles.chip, isActive && { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={() => setSelectedChip(chip)}>
+                        <Text style={[styles.chipText, isActive && { color: accent.accent }]}>{chip}</Text>
+                      </TouchableOpacity>
+                    </Animated.View>
                   );
                 })}
               </View>
               {selectedChip === "Other" && (
                 <TextInput style={styles.customLabelInput} placeholder="Custom label (e.g. Friend's house)" placeholderTextColor={tokens.muted} value={label} onChangeText={setLabel} />
               )}
-            </View>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(180)}>
               <Text style={styles.fieldLabel}>Street address</Text>
               <View style={styles.fieldRow}>
                 <TextInput style={styles.fieldInput} placeholder="Street address" placeholderTextColor={tokens.muted} value={addressLine} onChangeText={setAddressLine} />
@@ -364,9 +372,9 @@ export default function AddAddressScreen() {
               <View style={styles.fieldRow}>
                 <TextInput style={styles.fieldInput} placeholder="Apartment / suite / floor" placeholderTextColor={tokens.muted} value={completeAddress} onChangeText={setCompleteAddress} />
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(240)}>
               <Text style={styles.sectionLabel}>Delivery instructions</Text>
               <View style={styles.instructionsBox}>
                 <TextInput
@@ -380,7 +388,7 @@ export default function AddAddressScreen() {
                 />
               </View>
               <Text style={styles.charCounter}>{instructions.length} / 200</Text>
-            </View>
+            </Animated.View>
           </ScrollView>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>

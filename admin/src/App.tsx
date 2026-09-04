@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { RequireAuth, RequireVendor } from "@/components/RequireAuth";
 import Dashboard from "./pages/Dashboard";
 import LiveOrders from "./pages/LiveOrders";
 import Drivers from "./pages/Drivers";
@@ -37,7 +38,7 @@ const RootRedirect = () => {
   const adminToken = localStorage.getItem("admin_token");
   const vendorToken = localStorage.getItem("vendor_token");
   const supportToken = localStorage.getItem("support_token");
-  
+
   if (adminToken) return <Dashboard />;
   if (supportToken) return <Navigate to="/support-cases" replace />;
   if (vendorToken) return <Navigate to="/vendor/dashboard" replace />;
@@ -54,35 +55,35 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
-
-          <Route path="/live-orders" element={<LiveOrders />} />
-          <Route path="/live-orders/:id" element={<OrderDetail />} />
-          <Route path="/drivers" element={<Drivers />} />
-          <Route path="/dev-drivers" element={<DevDrivers />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/support-cases" element={<SupportIssues />} />
-          <Route path="/support/chats" element={<SupportChat />} />
-          <Route path="/support/chats/:id" element={<SupportChat />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/vendors" element={<Vendors />} />
-          <Route path="/restaurant-menu" element={<RestaurantMenu />} />
-          <Route path="/meat-centers" element={<MeatCenters />} />
-          <Route path="/meat-pricing" element={<MeatPricing />} />
-          <Route path="/zones" element={<Zones />} />
-          <Route path="/banners" element={<Banners />} />
           <Route path="/vendor-login" element={<VendorLogin />} />
 
-          <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-          <Route path="/vendor/scheduled-orders" element={<VendorScheduledOrders />} />
-          <Route path="/vendor/menu" element={<VendorMenu />} />
-          <Route path="/vendor/meat-menu" element={<VendorMeatMenu />} />
-          <Route path="/vendor/settings" element={<VendorSettings />} />
-          <Route path="/coupons" element={<Coupons />} />
-          <Route path="/users/:id" element={<UserDetail />} />
-          <Route path="/drivers/:id" element={<DriverDetail />} />
-          <Route path="/app-updates" element={<AppVersions />} />
+          <Route path="/live-orders" element={<RequireAuth><LiveOrders /></RequireAuth>} />
+          <Route path="/live-orders/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
+          <Route path="/drivers" element={<RequireAuth><Drivers /></RequireAuth>} />
+          <Route path="/dev-drivers" element={<RequireAuth><DevDrivers /></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+          <Route path="/payments" element={<RequireAuth><Payments /></RequireAuth>} />
+          <Route path="/support" element={<RequireAuth><Support /></RequireAuth>} />
+          <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
+          <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />
+          <Route path="/support/chats/:id" element={<RequireAuth><SupportChat /></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth><Users /></RequireAuth>} />
+          <Route path="/vendors" element={<RequireAuth><Vendors /></RequireAuth>} />
+          <Route path="/restaurant-menu" element={<RequireAuth><RestaurantMenu /></RequireAuth>} />
+          <Route path="/meat-centers" element={<RequireAuth><MeatCenters /></RequireAuth>} />
+          <Route path="/meat-pricing" element={<RequireAuth><MeatPricing /></RequireAuth>} />
+          <Route path="/zones" element={<RequireAuth><Zones /></RequireAuth>} />
+          <Route path="/banners" element={<RequireAuth><Banners /></RequireAuth>} />
+
+          <Route path="/vendor/dashboard" element={<RequireVendor><VendorDashboard /></RequireVendor>} />
+          <Route path="/vendor/scheduled-orders" element={<RequireVendor><VendorScheduledOrders /></RequireVendor>} />
+          <Route path="/vendor/menu" element={<RequireVendor><VendorMenu /></RequireVendor>} />
+          <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
+          <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
+          <Route path="/coupons" element={<RequireAuth><Coupons /></RequireAuth>} />
+          <Route path="/users/:id" element={<RequireAuth><UserDetail /></RequireAuth>} />
+          <Route path="/drivers/:id" element={<RequireAuth><DriverDetail /></RequireAuth>} />
+          <Route path="/app-updates" element={<RequireAuth><AppVersions /></RequireAuth>} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -21,6 +22,8 @@ import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { Button } from "@/components/ui/Button";
+import { fadeInDown, fadeInUp, staggerListItem } from "@/motion/presets";
 
 const ACTIVE_STATUSES = ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "ON_THE_WAY", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP", "PICKING_ITEMS", "EN_ROUTE_DELIVERY", "ARRIVED_DELIVERY", "IN_TRANSIT", "driver_assigned", "confirmed", "pending"];
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
@@ -94,7 +97,7 @@ export default function OrdersScreen() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any[]>("/api/v1/orders");
+      const data = await customFetch<any[]>("/orders");
       if (data) setOrders(data);
     } catch (err) {
       console.error("Fetch orders error:", err);
@@ -129,7 +132,7 @@ export default function OrdersScreen() {
     if (!selectedOrderForReview) return;
     try {
       setSubmittingReview(true);
-      await customFetch("/api/v1/reviews", {
+      await customFetch("/reviews", {
         method: "POST",
         body: JSON.stringify({ orderId: selectedOrderForReview._id, rating: reviewRating, comment: reviewComment, tags: reviewTags }),
       });
@@ -232,12 +235,12 @@ export default function OrdersScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 14 }]} entering={fadeInDown(0)}>
         <Text style={styles.headline}>My orders</Text>
         <TouchableOpacity style={styles.filterBtn} onPress={openFilterSheet}>
           <Ionicons name="options-outline" size={moderateScale(17)} color={tokens.text} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {loading ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 4, gap: 12 }}>
@@ -255,17 +258,15 @@ export default function OrdersScreen() {
           ))}
         </ScrollView>
       ) : isEmpty ? (
-        <View style={styles.emptyWrap}>
-          <View style={styles.emptyIconCircle}><Ionicons name="receipt-outline" size={moderateScale(28)} color={tokens.services.food.accent} /></View>
+        <Animated.View style={styles.emptyWrap} entering={fadeInUp(0)}>
+          <View style={styles.emptyIconCircle}><Ionicons name="receipt-outline" size={moderateScale(28)} color={tokens.brand} /></View>
           <Text style={styles.emptyTitle}>No orders yet</Text>
           <Text style={styles.emptySubtitle}>Food, meat, rides, helpers and courier runs will all show up here once you place your first one.</Text>
-          <TouchableOpacity style={[styles.primaryBtn, { backgroundColor: tokens.services.food.accent }]} onPress={() => router.replace("/(tabs)")}>
-            <Text style={[styles.primaryBtnText, { color: tokens.services.food.on }]}>Explore Flavour</Text>
-          </TouchableOpacity>
-        </View>
+          <Button title="Explore Flavour" onPress={() => router.replace("/(tabs)")} fullWidth />
+        </Animated.View>
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+          <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow} entering={fadeInUp(40)}>
             <TouchableOpacity style={[styles.chip, serviceFilters.size === 0 && styles.chipActive]} onPress={() => setServiceFilters(new Set())}>
               <Text style={[styles.chipText, serviceFilters.size === 0 && styles.chipTextActive]}>All</Text>
             </TouchableOpacity>
@@ -281,15 +282,15 @@ export default function OrdersScreen() {
                 </TouchableOpacity>
               );
             })}
-          </ScrollView>
+          </Animated.ScrollView>
 
           {scheduled.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>Scheduled</Text>
-              {scheduled.map((order) => {
+              {scheduled.map((order, index) => {
                 const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
                 return (
-                  <View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]}>
+                  <Animated.View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
                     <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label} · scheduled</Text>
                     <Text style={styles.cardTitle}>{order.reservedAt ? new Date(order.reservedAt).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Scheduled"}</Text>
                     <Text style={styles.cardMeta} numberOfLines={1}>{order.stops?.map((s: any) => s.address).join(" → ")}</Text>
@@ -300,7 +301,7 @@ export default function OrdersScreen() {
                         <Text style={styles.actionBtnOutlineText}>View</Text>
                       </TouchableOpacity>
                     </View>
-                  </View>
+                  </Animated.View>
                 );
               })}
             </View>
@@ -309,10 +310,10 @@ export default function OrdersScreen() {
           {active.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>Active now</Text>
-              {active.map((order) => {
+              {active.map((order, index) => {
                 const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
                 return (
-                  <View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]}>
+                  <Animated.View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
                     <View style={styles.liveRow}>
                       <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label}</Text>
                       <View style={styles.liveDot}><View style={[styles.liveDotCore, { backgroundColor: accent.accent }]} /></View>
@@ -323,7 +324,7 @@ export default function OrdersScreen() {
                     <TouchableOpacity style={[styles.trackBtn, { backgroundColor: accent.accent }]} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
                       <Text style={[styles.trackBtnText, { color: accent.on }]}>Track order</Text>
                     </TouchableOpacity>
-                  </View>
+                  </Animated.View>
                 );
               })}
             </View>
@@ -332,13 +333,13 @@ export default function OrdersScreen() {
           {past.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionLabel}>Past</Text>
-              {past.map((order) => {
+              {past.map((order, index) => {
                 const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
                 const isCancelled = String(order.status).toUpperCase() === "CANCELLED";
                 const isDelivered = ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(order.status);
                 const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString([], { day: "numeric", month: "short" }) : "";
                 return (
-                  <View key={order._id} style={[styles.card, { borderLeftColor: isCancelled ? tokens.borderStrong : accent.accent, borderLeftWidth: 3, marginBottom: 12 }]}>
+                  <Animated.View key={order._id} style={[styles.card, { borderLeftColor: isCancelled ? tokens.borderStrong : accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
                     <View style={styles.liveRow}>
                       <Text style={[styles.cardEyebrow, { color: isCancelled ? tokens.muted : accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label}</Text>
                       {isCancelled ? (
@@ -367,7 +368,7 @@ export default function OrdersScreen() {
                         )}
                       </View>
                     )}
-                  </View>
+                  </Animated.View>
                 );
               })}
             </View>
@@ -409,8 +410,8 @@ export default function OrdersScreen() {
               <TouchableOpacity style={styles.clearBtn} onPress={() => setPendingServiceFilters(new Set())}>
                 <Text style={styles.clearBtnText}>Clear all</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.showBtn, { backgroundColor: tokens.services.food.accent }]} onPress={applyFilters}>
-                <Text style={[styles.showBtnText, { color: tokens.services.food.on }]}>Show {pendingCount} orders</Text>
+              <TouchableOpacity style={[styles.showBtn, { backgroundColor: tokens.brand }]} onPress={applyFilters}>
+                <Text style={[styles.showBtnText, { color: tokens.onBrand }]}>Show {pendingCount} orders</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -438,10 +439,10 @@ export default function OrdersScreen() {
                 return (
                   <TouchableOpacity
                     key={tag}
-                    style={[styles.reviewTagChip, isSelected && { backgroundColor: tokens.services.food.accent, borderColor: tokens.services.food.accent }]}
+                    style={[styles.reviewTagChip, isSelected && { backgroundColor: tokens.brand, borderColor: tokens.brand }]}
                     onPress={() => setReviewTags((prev) => (isSelected ? prev.filter((t) => t !== tag) : [...prev, tag]))}
                   >
-                    <Text style={[styles.reviewTagText, isSelected && { color: tokens.services.food.on }]}>{tag}</Text>
+                    <Text style={[styles.reviewTagText, isSelected && { color: tokens.onBrand }]}>{tag}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -451,8 +452,8 @@ export default function OrdersScreen() {
               <TouchableOpacity style={styles.reviewCancelBtn} onPress={() => setSelectedOrderForReview(null)}>
                 <Text style={styles.reviewCancelBtnText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.reviewSubmitBtn, { backgroundColor: tokens.services.food.accent }]} onPress={handleSubmitReview} disabled={submittingReview}>
-                {submittingReview ? <ActivityIndicator size="small" color={tokens.services.food.on} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.services.food.on }]}>Submit</Text>}
+              <TouchableOpacity style={[styles.reviewSubmitBtn, { backgroundColor: tokens.brand }]} onPress={handleSubmitReview} disabled={submittingReview}>
+                {submittingReview ? <ActivityIndicator size="small" color={tokens.onBrand} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.onBrand }]}>Submit</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -506,7 +507,7 @@ const createStyles = (tokens: ThemeTokens) =>
     skeletonBar: { backgroundColor: tokens.sunken, borderRadius: 6 },
 
     emptyWrap: { flex: 1, alignItems: "center", paddingTop: 100, paddingHorizontal: 32 },
-    emptyIconCircle: { width: 72, height: 72, borderRadius: 24, backgroundColor: tokens.services.food.skin, alignItems: "center", justifyContent: "center", marginBottom: 18 },
+    emptyIconCircle: { width: 72, height: 72, borderRadius: 24, backgroundColor: tokens.brandSkin, alignItems: "center", justifyContent: "center", marginBottom: 18 },
     emptyTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.2, color: tokens.text, textAlign: "center" },
     emptySubtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(21), color: tokens.sec, textAlign: "center", marginTop: 10, marginBottom: 22 },
     primaryBtn: { width: "100%", borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },

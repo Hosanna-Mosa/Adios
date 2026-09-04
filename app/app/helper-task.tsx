@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, Stack } from "expo-router";
+import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
+import { fadeIn, fadeInUp, staggerListItem } from "@/motion/presets";
 
 const getDistanceFromLatLonInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371;
@@ -101,7 +103,7 @@ export default function HelperTaskScreen() {
     if (step === "searching" && localOrderId) {
       const fetchStatus = async () => {
         try {
-          const orderData = await customFetch<any>(`/api/v1/orders/${localOrderId}`);
+          const orderData = await customFetch<any>(`/orders/${localOrderId}`);
           if (orderData) {
             setRejectedCount(orderData.declineReasons ? orderData.declineReasons.length : 0);
             setTotalContacted(orderData.totalCandidatesCount || 0);
@@ -162,7 +164,7 @@ export default function HelperTaskScreen() {
     setActiveField(type);
     if (text.trim().length < 2) { setSearchResults([]); return; }
     try {
-      const data = await customFetch<any[]>(`/api/v1/places/autocomplete?input=${encodeURIComponent(text)}`, { responseType: "json" });
+      const data = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}`, { responseType: "json" });
       setSearchResults(Array.isArray(data) ? data : []);
     } catch {
       setSearchResults([]);
@@ -177,7 +179,7 @@ export default function HelperTaskScreen() {
         lat = Number(result.lat);
         lng = Number(result.lng);
       } else if (result.id) {
-        const details = await customFetch<{ lat: number; lng: number }>(`/api/v1/places/details/${result.id}`);
+        const details = await customFetch<{ lat: number; lng: number }>(`/places/details/${result.id}`);
         if (details?.lat) { lat = details.lat; lng = details.lng; }
       }
       if (currentCoords && radius && lat !== null && lng !== null) {
@@ -210,7 +212,7 @@ export default function HelperTaskScreen() {
     if (!localOrderId) return;
     setIsIncreasingPrice(amount);
     try {
-      const updatedOrder = await customFetch<any>(`/api/v1/orders/${localOrderId}/increase-price`, {
+      const updatedOrder = await customFetch<any>(`/orders/${localOrderId}/increase-price`, {
         method: "PATCH",
         body: JSON.stringify({ amount }),
       });
@@ -232,7 +234,7 @@ export default function HelperTaskScreen() {
         onPress: async () => {
           if (localOrderId) {
             try {
-              await customFetch(`/api/v1/orders/${localOrderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+              await customFetch(`/orders/${localOrderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
             } catch (error) {
               console.warn("Failed to cancel order on backend", error);
             }
@@ -271,7 +273,7 @@ export default function HelperTaskScreen() {
       if (isDropoffValid && dropoffCoords?.lat) {
         stops.push({ sequence: 2, type: "drop", address: dropoffLocation, lat: dropoffCoords?.lat, lng: dropoffCoords?.lng });
       }
-      const order = await customFetch<{ _id: string; customerPrice?: number; totalPrice?: number }>("/api/v1/orders", {
+      const order = await customFetch<{ _id: string; customerPrice?: number; totalPrice?: number }>("/orders", {
         method: "POST",
         body: JSON.stringify({ serviceType: "helper", stops, duration: totalHours, totals: { total: finalOffer } }),
       });
@@ -308,36 +310,37 @@ export default function HelperTaskScreen() {
   return (
     <View style={styles.root}>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => (step === "compose" ? router.back() : setStep("compose"))}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? "Finding a helper" : "Task assigned"}
         </Text>
-      </View>
+      </Animated.View>
 
       {step === "compose" && (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
-            <Text style={styles.headline}>What do you need?</Text>
+            <Animated.Text style={styles.headline} entering={fadeInUp(0)}>What do you need?</Animated.Text>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-              {TASK_TYPES.map((t) => {
+              {TASK_TYPES.map((t, i) => {
                 const isSelected = taskType === t;
                 return (
-                  <TouchableOpacity
-                    key={t}
-                    style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                    onPress={() => setTaskType(isSelected ? null : t)}
-                  >
-                    <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{t}</Text>
-                  </TouchableOpacity>
+                  <Animated.View key={t} entering={staggerListItem(i, 30)}>
+                    <TouchableOpacity
+                      style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
+                      onPress={() => setTaskType(isSelected ? null : t)}
+                    >
+                      <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{t}</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
                 );
               })}
             </ScrollView>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(80)}>
               <View style={styles.locationCard}>
                 <View style={styles.railCol}>
                   <View style={styles.pickupDot} />
@@ -397,9 +400,9 @@ export default function HelperTaskScreen() {
                   </View>
                 </View>
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(140)}>
               <Text style={styles.sectionLabel}>Time required</Text>
               <View style={{ flexDirection: "row", gap: 10 }}>
                 <View style={styles.timeStepper}>
@@ -427,9 +430,9 @@ export default function HelperTaskScreen() {
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(200)}>
               <Text style={styles.sectionLabel}>Task description</Text>
               <View style={styles.descBox}>
                 <TextInput
@@ -443,7 +446,7 @@ export default function HelperTaskScreen() {
                 />
               </View>
               <Text style={styles.descHint}>Helpers see this before they bid. Mention stairs, weight and anything heavy.</Text>
-            </View>
+            </Animated.View>
           </ScrollView>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
@@ -463,15 +466,15 @@ export default function HelperTaskScreen() {
       {step === "bidding" && (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-            <View style={styles.offerBlock}>
+            <Animated.View style={styles.offerBlock} entering={fadeInUp(0)}>
               <Text style={styles.offerEyebrow}>Current offer</Text>
               <Text style={styles.offerAmount}>₹{offer ?? calculatedFare}</Text>
               <Text style={styles.offerSub}>
                 for {Math.floor(totalHours)}h {Math.round((totalHours % 1) * 60)}m · about ₹{Math.round((offer ?? calculatedFare) / totalHours)}/hour
               </Text>
-            </View>
+            </Animated.View>
 
-            <View style={styles.section}>
+            <Animated.View style={styles.section} entering={fadeInUp(80)}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
                 <TouchableOpacity style={styles.offerStepBtn} onPress={() => setOffer((o) => Math.max(0, (o ?? calculatedFare) - 20))}>
                   <Text style={styles.offerStepBtnText}>−</Text>
@@ -483,7 +486,7 @@ export default function HelperTaskScreen() {
                   <Text style={[styles.offerStepBtnText, { color: accent.on }]}>+</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           </ScrollView>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
@@ -498,50 +501,53 @@ export default function HelperTaskScreen() {
       {step === "searching" && (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16, paddingTop: 8 }}>
-            <View style={styles.titleRow}>
-              <View style={styles.spinner} />
-              <Text style={styles.matchingTitle}>Finding a helper</Text>
-            </View>
-            <Text style={styles.subtitle}>Matching you with helpers nearby.</Text>
+            <Animated.View entering={fadeInUp(0)}>
+              <View style={styles.titleRow}>
+                <View style={styles.spinner} />
+                <Text style={styles.matchingTitle}>Finding a helper</Text>
+              </View>
+              <Text style={styles.subtitle}>Matching you with helpers nearby.</Text>
+            </Animated.View>
 
             <View style={{ gap: 12, marginTop: 18 }}>
-              <View style={styles.checkRow}>
+              <Animated.View style={styles.checkRow} entering={fadeInUp(60)}>
                 <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
                 <Text style={styles.checkText}>Task published · ₹{currentTaskPrice ?? offer ?? calculatedFare}</Text>
-              </View>
+              </Animated.View>
               {totalContacted > 0 && (
-                <View style={styles.checkRow}>
+                <Animated.View style={styles.checkRow} entering={fadeInUp(0)}>
                   <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
                   <Text style={styles.checkText}>{totalContacted} helpers notified</Text>
-                </View>
+                </Animated.View>
               )}
-              <View style={styles.checkRow}>
+              <Animated.View style={styles.checkRow} entering={fadeInUp(100)}>
                 <View style={styles.checkPending} />
                 <Text style={[styles.checkText, { color: accent.accent }]}>Waiting for the first acceptance</Text>
-              </View>
+              </Animated.View>
             </View>
 
             {totalContacted > 0 && rejectedCount > 0 && (
-              <View style={styles.declineNote}>
+              <Animated.View style={styles.declineNote} entering={fadeInUp(0)}>
                 <Text style={styles.declineNoteText}>{rejectedCount} of {totalContacted} contacted helpers have passed so far — consider raising your offer.</Text>
-              </View>
+              </Animated.View>
             )}
 
-            <View style={{ marginTop: 22 }}>
+            <Animated.View style={{ marginTop: 22 }} entering={fadeInUp(160)}>
               <Text style={styles.sectionLabel}>Attract helpers faster</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-                {[10, 20, 30, 40, 50].map((amount) => (
-                  <TouchableOpacity
-                    key={amount}
-                    style={styles.raiseChip}
-                    onPress={() => handleIncreasePrice(amount)}
-                    disabled={isIncreasingPrice === amount}
-                  >
-                    <Text style={styles.raiseChipText}>+₹{amount}</Text>
-                  </TouchableOpacity>
+                {[10, 20, 30, 40, 50].map((amount, i) => (
+                  <Animated.View key={amount} entering={staggerListItem(i, 30)}>
+                    <TouchableOpacity
+                      style={styles.raiseChip}
+                      onPress={() => handleIncreasePrice(amount)}
+                      disabled={isIncreasingPrice === amount}
+                    >
+                      <Text style={styles.raiseChipText}>+₹{amount}</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
                 ))}
               </ScrollView>
-            </View>
+            </Animated.View>
           </ScrollView>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
@@ -556,18 +562,18 @@ export default function HelperTaskScreen() {
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
             {startOtp && (
-              <View style={styles.otpCard}>
+              <Animated.View style={styles.otpCard} entering={fadeInUp(0)}>
                 <Text style={styles.otpLabel}>Share this OTP to start</Text>
                 <View style={{ flexDirection: "row", gap: 8, marginTop: 10 }}>
                   {String(startOtp).split("").map((digit, i) => (
                     <View key={i} style={styles.otpDigit}><Text style={styles.otpDigitText}>{digit}</Text></View>
                   ))}
                 </View>
-                <Text style={styles.otpHint}>Don't share this code before the helper arrives.</Text>
-              </View>
+                <Text style={styles.otpHint}>Don&apos;t share this code before the helper arrives.</Text>
+              </Animated.View>
             )}
 
-            <View style={styles.driverRow}>
+            <Animated.View style={styles.driverRow} entering={fadeInUp(60)}>
               <View style={styles.driverAvatar}><Ionicons name="person" size={22} color={tokens.sec} /></View>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={styles.driverName}>{activeDriver.name || "Helper"}</Text>
@@ -578,19 +584,19 @@ export default function HelperTaskScreen() {
                   <Text style={styles.driverPrice}>₹{currentTaskPrice ?? offer}</Text>
                 </View>
               )}
-            </View>
+            </Animated.View>
 
-            <View style={{ flexDirection: "row", gap: 10, marginVertical: 14 }}>
+            <Animated.View style={{ flexDirection: "row", gap: 10, marginVertical: 14 }} entering={fadeInUp(120)}>
               <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${activeDriver.phone || ""}`)}>
                 <Text style={styles.callBtnText}>Call</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.messageBtn} onPress={() => router.push("/chat")}>
                 <Text style={styles.messageBtnText}>Message</Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
 
             {(pickupLocation || dropoffLocation) && (
-              <View style={styles.routeCard}>
+              <Animated.View style={styles.routeCard} entering={fadeInUp(180)}>
                 <View style={styles.railColSmall}>
                   <View style={styles.pickupDotSmall} />
                   <View style={styles.railLine} />
@@ -600,7 +606,7 @@ export default function HelperTaskScreen() {
                   <Text style={styles.routeAddr} numberOfLines={1}>{pickupLocation}</Text>
                   <Text style={styles.routeAddr} numberOfLines={1}>{dropoffLocation || "—"}</Text>
                 </View>
-              </View>
+              </Animated.View>
             )}
           </ScrollView>
 

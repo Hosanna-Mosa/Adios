@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
+import { fadeInUp } from "@/motion/presets";
 
 const TIP_OPTIONS = [0, 20, 30, 50];
 
@@ -30,7 +32,9 @@ export default function FoodCheckoutScreen() {
   const params = useLocalSearchParams();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  // Same as cart.tsx: checkout doesn't disambiguate food vs meat, so it
+  // renders in the service-agnostic brand accent.
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const { getItemCount, vendorId, items, clearCart } = useCartStore();
@@ -66,7 +70,7 @@ export default function FoodCheckoutScreen() {
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const response = await customFetch<any>("/api/v1/orders/validate-coupon", {
+      const response = await customFetch<any>("/orders/validate-coupon", {
         method: "POST",
         body: JSON.stringify({ code: promoCodeText.trim(), cartTotal: subtotal }),
       });
@@ -172,7 +176,7 @@ export default function FoodCheckoutScreen() {
 
       let finalOrderId: string;
 
-      const rzpOrderResponse = await customFetch<any>("/api/v1/payments/create-order", {
+      const rzpOrderResponse = await customFetch<any>("/payments/create-order", {
         method: "POST",
         body: JSON.stringify({ amount: total }),
       });
@@ -187,7 +191,7 @@ export default function FoodCheckoutScreen() {
         theme: rzpOrderResponse.theme,
       });
 
-      const verifyResponse = await customFetch<any>("/api/v1/payments/verify", {
+      const verifyResponse = await customFetch<any>("/payments/verify", {
         method: "POST",
         body: JSON.stringify({
           razorpay_payment_id: rzpResult.razorpay_payment_id,
@@ -223,7 +227,7 @@ export default function FoodCheckoutScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(0)} style={styles.section}>
           <TouchableOpacity style={styles.addressCard} activeOpacity={0.85} onPress={() => router.push("/delivery/saved-addresses")}>
             <View style={styles.addressAvatar}>
               <Text style={styles.addressAvatarText}>{(selectedAddress?.label || "H")[0].toUpperCase()}</Text>
@@ -239,9 +243,9 @@ export default function FoodCheckoutScreen() {
             </View>
             <Text style={styles.changeLink}>Change</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(60)} style={styles.section}>
           <View style={styles.orderCard}>
             <View style={styles.orderCardHead}>
               <Text style={styles.orderCardTitle}>Your order · {getItemCount()} items</Text>
@@ -256,9 +260,9 @@ export default function FoodCheckoutScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(120)} style={styles.section}>
           <Text style={styles.sectionLabel}>Offers &amp; coupons</Text>
           {appliedPromo ? (
             <View style={[styles.couponOptionRow, { borderColor: accent.accent, backgroundColor: accent.skin }]}>
@@ -293,9 +297,9 @@ export default function FoodCheckoutScreen() {
             </TouchableOpacity>
           )}
           {!!promoError && <Text style={styles.promoError}>{promoError}</Text>}
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(180)} style={styles.section}>
           <Text style={styles.sectionLabel}>Tip your delivery partner</Text>
           <Text style={styles.tipSub}>100% of the tip goes to the partner.</Text>
           <View style={styles.tipRow}>
@@ -328,9 +332,9 @@ export default function FoodCheckoutScreen() {
               onChangeText={setOtherTipText}
             />
           )}
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(240)} style={styles.section}>
           <Text style={styles.sectionLabel}>Bill details</Text>
           <View style={styles.billCard}>
             <View style={styles.billRow}>
@@ -363,7 +367,7 @@ export default function FoodCheckoutScreen() {
               <Text style={styles.billTotalValue}>₹{total}</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>

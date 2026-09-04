@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
-  Animated,
   Dimensions,
   Linking,
   Modal,
@@ -14,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -170,7 +170,7 @@ function OrderReviewCard({
 
   useEffect(() => {
     if (!orderId) return;
-    customFetch<any>(`/api/v1/reviews/order/${orderId}`)
+    customFetch<any>(`/reviews/order/${orderId}`)
       .then((res) => {
         if (res && res.review) {
           setIsSubmitted(true);
@@ -188,7 +188,7 @@ function OrderReviewCard({
     if (!orderId) return;
     try {
       setIsSubmitting(true);
-      const res = await customFetch<any>("/api/v1/reviews", {
+      const res = await customFetch<any>("/reviews", {
         method: "POST",
         body: JSON.stringify({ orderId, rating, comment, tags: selectedTags }),
       });
@@ -227,7 +227,7 @@ function OrderReviewCard({
             ))}
           </View>
         )}
-        {existingReview.comment ? <Text style={styles.reviewComment}>"{existingReview.comment}"</Text> : null}
+        {existingReview.comment ? <Text style={styles.reviewComment}>&quot;{existingReview.comment}&quot;</Text> : null}
       </View>
     );
   }
@@ -351,7 +351,7 @@ export default function TrackingScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await customFetch(`/api/v1/orders/${currentOrderId}/sos`, { method: "POST" });
+              await customFetch(`/orders/${currentOrderId}/sos`, { method: "POST" });
               Alert.alert("SOS dispatched", "Your emergency alert has been sent. Support is on the way.");
             } catch (err: any) {
               Alert.alert("Error", err.message || "Failed to trigger SOS. Please call emergency services.");
@@ -373,21 +373,24 @@ export default function TrackingScreen() {
   };
 
   // Radar / pulse animation shown only while no driver is assigned yet.
-  const pulse1 = useRef(new Animated.Value(0)).current;
-  const pulse2 = useRef(new Animated.Value(0)).current;
+  const pulse1 = useSharedValue(0);
+  const pulse2 = useSharedValue(0);
   useEffect(() => {
     if (driver) return;
-    const createPulse = (value: Animated.Value, delay: number) =>
-      Animated.loop(Animated.sequence([Animated.delay(delay), Animated.timing(value, { toValue: 1, duration: 2000, useNativeDriver: true })]));
-    const a1 = createPulse(pulse1, 0);
-    const a2 = createPulse(pulse2, 1000);
-    a1.start();
-    a2.start();
-    return () => {
-      a1.stop();
-      a2.stop();
-    };
-  }, [driver]);
+    // Each pulse loops its own [pause, animate] cycle — pulse2's 1000ms pause
+    // before every animation is what staggers it relative to pulse1.
+    pulse1.value = withRepeat(withTiming(1, { duration: 2000 }), -1, false);
+    pulse2.value = withRepeat(withSequence(withTiming(0, { duration: 1000 }), withTiming(1, { duration: 2000 })), -1, false);
+  }, [driver, pulse1, pulse2]);
+
+  const pulse1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse1.value, [0, 1], [1, 2.2]) }],
+    opacity: interpolate(pulse1.value, [0, 1], [0.5, 0]),
+  }));
+  const pulse2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(pulse2.value, [0, 1], [1, 2.2]) }],
+    opacity: interpolate(pulse2.value, [0, 1], [0.5, 0]),
+  }));
 
   useEffect(() => {
     if (cancellationAlerted.current) return;
@@ -405,7 +408,7 @@ export default function TrackingScreen() {
     if (!currentOrderId) return;
 
     const fetchOrderDetails = () => {
-      customFetch<any>(`/api/v1/orders/${currentOrderId}`)
+      customFetch<any>(`/orders/${currentOrderId}`)
         .then((order) => {
           if (!order) return;
           if (order.status) {
@@ -665,8 +668,8 @@ export default function TrackingScreen() {
           {!driver ? (
             <View style={styles.findingWrap}>
               <View style={styles.radarWrap}>
-                <Animated.View style={[styles.radarRing, { borderColor: accent.accent, transform: [{ scale: pulse1.interpolate({ inputRange: [0, 1], outputRange: [1, 2.2] }) }], opacity: pulse1.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }) }]} />
-                <Animated.View style={[styles.radarRing, { borderColor: accent.accent, transform: [{ scale: pulse2.interpolate({ inputRange: [0, 1], outputRange: [1, 2.2] }) }], opacity: pulse2.interpolate({ inputRange: [0, 1], outputRange: [0.5, 0] }) }]} />
+                <Animated.View style={[styles.radarRing, { borderColor: accent.accent }, pulse1Style]} />
+                <Animated.View style={[styles.radarRing, { borderColor: accent.accent }, pulse2Style]} />
                 <View style={[styles.radarCenter, { backgroundColor: accent.accent }]}>
                   <Ionicons name="search" size={22} color={accent.on} />
                 </View>

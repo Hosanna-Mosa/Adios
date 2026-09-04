@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
   Pressable,
   RefreshControl,
@@ -13,15 +12,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image } from "expo-image";
+import Animated from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
-import Colors from "@/constants/colors";
+import Colors, { gradients } from "@/constants/colors";
 import { StatusCard } from "@/components/StatusCard";
 import { VehicleCard } from "@/components/VehicleCard";
 import { useDriverStore } from "@/store/driverStore";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -151,7 +153,7 @@ export default function ProfileScreen() {
 
     refreshing ? setIsRefreshing(true) : setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+      const response = await fetch(`${apiUrl}/drivers/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.status === 401 || response.status === 403 || response.status === 404) {
@@ -214,7 +216,7 @@ export default function ProfileScreen() {
       if (editPhone.trim()) body.phone = editPhone.trim();
       if (editGender) body.gender = editGender;
 
-      const response = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+      const response = await fetch(`${apiUrl}/drivers/profile`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -254,7 +256,7 @@ export default function ProfileScreen() {
 
     setIsSavingPassword(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/users/change-password`, {
+      const response = await fetch(`${apiUrl}/users/change-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -289,7 +291,7 @@ export default function ProfileScreen() {
     setIsSavingBank(true);
     try {
       // Use the onboarding PATCH endpoint to add a bank account
-      const response = await fetch(`${apiUrl}/api/v1/onboarding`, {
+      const response = await fetch(`${apiUrl}/onboarding`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -816,7 +818,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <LinearGradient
-        colors={["#E3F2FD", "#f8f9ff"]}
+        colors={[Colors.brandSkin, Colors.background]}
         style={styles.headerGradient}
       />
       <ScrollView
@@ -835,10 +837,10 @@ export default function ProfileScreen() {
           </View>
         ) : (
           <>
-            <View style={styles.header}>
+            <Animated.View entering={fadeInUp(0)} style={styles.header}>
               <View style={styles.avatarWrap}>
                 {profile.account.profilePic ? (
-                  <Image source={{ uri: profile.account.profilePic }} style={styles.avatarImage} />
+                  <Image source={{ uri: profile.account.profilePic }} style={styles.avatarImage} contentFit="cover" transition={200} />
                 ) : (
                   <Text style={styles.avatarText}>{initials}</Text>
                 )}
@@ -850,9 +852,9 @@ export default function ProfileScreen() {
                 <Feather name="star" size={11} color={Colors.white} />
                 <Text style={styles.ratingText}>{profile.stats.rating.toFixed(1)}</Text>
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={styles.statsCard}>
+            <Animated.View entering={fadeInUp(60)} style={styles.statsCard}>
               <View style={styles.statCol}>
                 <Text style={styles.statValueBold}>{profile.stats.completedTrips}</Text>
                 <Text style={styles.statLabelMuted}>Trips</Text>
@@ -867,29 +869,29 @@ export default function ProfileScreen() {
                 <Text style={styles.statValueBold}>{profile.driver?.status === "online" ? "ONLINE" : "OFFLINE"}</Text>
                 <Text style={styles.statLabelMuted}>Status</Text>
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={styles.docsRow}>
-              <View style={[styles.docCard, { backgroundColor: "#FFF4F4" }]}>
+            <Animated.View entering={fadeInUp(120)} style={styles.docsRow}>
+              <View style={[styles.docCard, { backgroundColor: Colors.errorLight }]}>
                 <View style={styles.docIconWrap}>
-                  <Feather name="file-text" size={24} color="#FF4B4B" />
+                  <Feather name="file-text" size={24} color={Colors.error} />
                 </View>
                 <Text style={styles.docTitle}>Driving License</Text>
-                <View style={[styles.statusPill, { backgroundColor: "#FFD6D6" }]}>
-                  <Text style={[styles.statusPillText, { color: "#D11A1A" }]}>Expired</Text>
+                <View style={[styles.statusPill, { backgroundColor: Colors.errorLight }]}>
+                  <Text style={[styles.statusPillText, { color: Colors.error }]}>Expired</Text>
                 </View>
               </View>
 
-              <View style={[styles.docCard, { backgroundColor: "#F0FFF4" }]}>
+              <View style={[styles.docCard, { backgroundColor: Colors.successLight }]}>
                 <View style={styles.docIconWrap}>
-                  <Feather name="shield" size={24} color="#2DB963" />
+                  <Feather name="shield" size={24} color={Colors.success} />
                 </View>
                 <Text style={styles.docTitle}>Vehicle Insurance</Text>
-                <View style={[styles.statusPill, { backgroundColor: "#D4F7DF" }]}>
-                  <Text style={[styles.statusPillText, { color: "#1D9F4E" }]}>Valid</Text>
+                <View style={[styles.statusPill, { backgroundColor: Colors.successLight }]}>
+                  <Text style={[styles.statusPillText, { color: Colors.success }]}>Valid</Text>
                 </View>
               </View>
-            </View>
+            </Animated.View>
 
             <Pressable style={styles.currentVehicleCard} onPress={() => setActiveSection("vehicle")}>
               <View style={styles.vehicleIconBg}>
@@ -905,36 +907,37 @@ export default function ProfileScreen() {
             <Text style={styles.sectionHeader}>Account</Text>
 
             <View style={styles.menuList}>
-              {sections.map((item) => (
-                <Pressable
-                  key={item.key}
-                  style={styles.menuItem}
-                  onPress={() => {
-                    if (item.key === "support") {
-                      router.push("/support");
-                    } else if (item.key === "address") {
-                      router.push("/saved-addresses");
-                    } else if (item.key === "notifications") {
-                      router.push("/notifications");
-                    } else {
-                      setActiveSection(item.key);
-                    }
-                  }}
-                >
-                  <View style={styles.menuIconContainer}>
-                    <Feather name={item.icon} size={18} color="#7F56D9" />
-                  </View>
-                  <View style={styles.menuCopy}>
-                    <Text style={styles.menuLabel}>{item.title}</Text>
-                    <Text style={styles.menuSubtitle} numberOfLines={1}>{item.subtitle}</Text>
-                  </View>
-                  <Feather name="chevron-right" size={18} color={Colors.textMuted} />
-                </Pressable>
+              {sections.map((item, idx) => (
+                <Animated.View key={item.key} entering={staggerListItem(idx)}>
+                  <Pressable
+                    style={styles.menuItem}
+                    onPress={() => {
+                      if (item.key === "support") {
+                        router.push("/support");
+                      } else if (item.key === "address") {
+                        router.push("/saved-addresses");
+                      } else if (item.key === "notifications") {
+                        router.push("/notifications");
+                      } else {
+                        setActiveSection(item.key);
+                      }
+                    }}
+                  >
+                    <View style={styles.menuIconContainer}>
+                      <Feather name={item.icon} size={18} color={Colors.brand} />
+                    </View>
+                    <View style={styles.menuCopy}>
+                      <Text style={styles.menuLabel}>{item.title}</Text>
+                      <Text style={styles.menuSubtitle} numberOfLines={1}>{item.subtitle}</Text>
+                    </View>
+                    <Feather name="chevron-right" size={18} color={Colors.textMuted} />
+                  </Pressable>
+                </Animated.View>
               ))}
             </View>
 
             <Pressable style={styles.signOutButtonWrap} onPress={handleLogout}>
-              <LinearGradient colors={["#7A5AF8", "#4C74FF"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.signOutGradient}>
+              <LinearGradient colors={gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.signOutGradient}>
                 <Text style={styles.signOutText}>Sign Out</Text>
               </LinearGradient>
             </Pressable>
@@ -1072,7 +1075,7 @@ function formatCoordinates(coordinates?: number[]) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F8F9FF",
+    backgroundColor: Colors.background,
   },
   headerGradient: {
     position: "absolute",
@@ -1111,9 +1114,9 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "#DCE5F2",
+    backgroundColor: Colors.brandSkin,
     borderWidth: 3,
-    borderColor: "#A9C9FF",
+    borderColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
@@ -1135,7 +1138,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "#2DB963",
+    backgroundColor: Colors.success,
     borderWidth: 2,
     borderColor: Colors.white,
   },
@@ -1154,7 +1157,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "#4C74FF",
+    backgroundColor: Colors.brand,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 8,
@@ -1241,7 +1244,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#F1F3F5",
+    backgroundColor: Colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -1279,7 +1282,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: "#F2F0FF",
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,

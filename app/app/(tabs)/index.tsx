@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
-  Animated,
   Dimensions,
-  Easing,
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -19,6 +16,22 @@ import {
   ActivityIndicator,
   type ViewStyle,
 } from "react-native";
+import { Image } from "expo-image";
+import { FlashList } from "@shopify/flash-list";
+import Animated, {
+  Easing,
+  interpolate,
+  interpolateColor,
+  runOnJS,
+  useAnimatedRef,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSpring,
+  withTiming,
+  type SharedValue,
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -36,6 +49,9 @@ import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { useAuthStore } from "@/contexts/authStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { SPRING, staggerListItem } from "@/motion/presets";
+
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList<any>);
 
 // Maps the short quick-search tags to the actual query terms the backend
 // dish-search endpoint expects.
@@ -106,8 +122,8 @@ export default function HomeScreen() {
   const [searchText, setSearchText] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
-  const searchTranslateY = useRef(new Animated.Value(-Dimensions.get("window").height)).current;
-  const searchBackdropOpacity = useRef(new Animated.Value(0)).current;
+  const searchTranslateY = useSharedValue(-Dimensions.get("window").height);
+  const searchBackdropOpacity = useSharedValue(0);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   useEffect(() => {
@@ -115,30 +131,34 @@ export default function HomeScreen() {
       setIsSearchVisible(true);
       // Entry animation is handled by onShow in Modal
     } else if (isSearchVisible) {
-      Animated.parallel([
-        Animated.timing(searchTranslateY, {
-          toValue: -Dimensions.get("window").height,
-          duration: 300,
-          easing: Easing.in(Easing.poly(3)),
-          useNativeDriver: true,
-        }),
-        Animated.timing(searchBackdropOpacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start(() => setIsSearchVisible(false));
+      searchTranslateY.value = withTiming(-Dimensions.get("window").height, {
+        duration: 300,
+        easing: Easing.in(Easing.cubic),
+      });
+      searchBackdropOpacity.value = withTiming(0, { duration: 300 }, (finished) => {
+        if (finished) runOnJS(setIsSearchVisible)(false);
+      });
     }
   }, [isSearchActive]);
+
+  const searchSheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: searchTranslateY.value }],
+  }));
+  const searchBackdropAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: searchBackdropOpacity.value,
+  }));
 
   const [banners, setBanners] = useState<any[]>([]);
   const [hasShownStartupAd, setHasShownStartupAd] = useState(false);
   const [activeStartupAd, setActiveStartupAd] = useState<any | null>(null);
 
   const screenWidth = Dimensions.get("window").width;
-  const carouselRef = useRef<ScrollView>(null);
-  const bannerScrollX = useRef(new Animated.Value(0)).current;
+  const carouselRef = useAnimatedRef<Animated.ScrollView>();
+  const bannerScrollX = useSharedValue(0);
   const bannerIndexRef = useRef(0);
+  const onBannerScroll = useAnimatedScrollHandler((event) => {
+    bannerScrollX.value = event.contentOffset.x;
+  });
 
   useEffect(() => {
     (async () => {
@@ -185,16 +205,16 @@ export default function HomeScreen() {
   }, [cartVendorId, meatCenters, restaurants, activeService]);
 
   const isHoveringSearch = useCartStore((s) => s.isHoveringSearch);
-  const searchBarScale = useRef(new Animated.Value(1)).current;
+  const searchBarScale = useSharedValue(1);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
-    Animated.spring(searchBarScale, {
-      toValue: isHoveringSearch ? 1.06 : 1.0,
-      friction: 5,
-      useNativeDriver: true,
-    }).start();
+    searchBarScale.value = withSpring(isHoveringSearch ? 1.06 : 1.0, SPRING);
   }, [isHoveringSearch]);
+
+  const searchBarAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: searchBarScale.value }],
+  }));
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(
@@ -252,7 +272,7 @@ export default function HomeScreen() {
       try {
         setIsSearchingDishes(true);
         const queryTerm = TAG_SEARCH_MAP[searchText] || searchText;
-        const data = await customFetch<any>(`/api/v1/food/search?query=${encodeURIComponent(queryTerm)}`);
+        const data = await customFetch<any>(`/food/search?query=${encodeURIComponent(queryTerm)}`);
         setSearchedDishes(data);
       } catch (error) {
         console.error("Error searching dishes:", error);
@@ -278,7 +298,7 @@ export default function HomeScreen() {
 
       (async () => {
         try {
-          const response = await customFetch<any>("/api/v1/banners");
+          const response = await customFetch<any>("/banners");
           if (response && response.data) {
             setBanners(response.data);
             const startupAds = response.data.filter((b: any) => b.itemType === "ad" && b.position === "startup");
@@ -372,7 +392,7 @@ export default function HomeScreen() {
     try {
       if (pageNum === 1) setLoading(true); else setLoadingMore(true);
       const radiusParam = appliedDistanceKm ? `&radius=${Math.round(appliedDistanceKm * 1000)}` : "";
-      const data = await customFetch<any>(`/api/v1/vendors/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
+      const data = await customFetch<any>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
         if (pageNum === 1) {
@@ -396,7 +416,7 @@ export default function HomeScreen() {
     try {
       if (pageNum === 1) setLoading(true); else setLoadingMore(true);
       const radiusParam = appliedDistanceKm ? `&radius=${Math.round(appliedDistanceKm * 1000)}` : "";
-      const data = await customFetch<any>(`/api/v1/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
+      const data = await customFetch<any>(`/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
         if (pageNum === 1) {
@@ -419,7 +439,7 @@ export default function HomeScreen() {
   const fetch149StoreItems = async (lat: number, lng: number) => {
     try {
       setLoading149(true);
-      const data = await customFetch<any>(`/api/v1/food/store-149?lat=${lat}&lng=${lng}`);
+      const data = await customFetch<any>(`/food/store-149?lat=${lat}&lng=${lng}`);
       setStore149Items(data);
     } catch (error) {
       console.error("Error fetching 149 store items:", error);
@@ -439,7 +459,7 @@ export default function HomeScreen() {
       const baseUrl = process.env.EXPO_PUBLIC_API_URL;
       const headers: any = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
-      const response = await fetch(`${baseUrl}/api/v1/drivers/nearby?latitude=${lat}&longitude=${lng}&radius=5000`, { headers });
+      const response = await fetch(`${baseUrl}/drivers/nearby?latitude=${lat}&longitude=${lng}&radius=5000`, { headers });
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) setNearbyDriversCount(data.length);
@@ -554,14 +574,16 @@ export default function HomeScreen() {
 
   const showHomeSkeleton = (loading && !loadingMore) || loadingDrivers;
 
-  const filteredItems = (activeService === "Meat" ? meatCenters : restaurants).filter((item) => {
-    if (!searchText) return true;
-    const query = searchText.toLowerCase();
-    const nameMatch = item.name.toLowerCase().includes(query);
-    const categoryMatch = item.categories && item.categories.some((cat: string) => cat.toLowerCase().includes(query));
-    const addressMatch = item.address && item.address.toLowerCase().includes(query);
-    return nameMatch || categoryMatch || addressMatch;
-  });
+  const filteredItems = useMemo(() => {
+    return (activeService === "Meat" ? meatCenters : restaurants).filter((item) => {
+      if (!searchText) return true;
+      const query = searchText.toLowerCase();
+      const nameMatch = item.name.toLowerCase().includes(query);
+      const categoryMatch = item.categories && item.categories.some((cat: string) => cat.toLowerCase().includes(query));
+      const addressMatch = item.address && item.address.toLowerCase().includes(query);
+      return nameMatch || categoryMatch || addressMatch;
+    });
+  }, [activeService, meatCenters, restaurants, searchText]);
 
   // Note: the old code had a second, overlapping veg-only filter on top of
   // this (a header toggle separate from the "Pure Veg" filter chip below).
@@ -688,6 +710,8 @@ export default function HomeScreen() {
           <Image
             source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" }}
             style={styles.mealImage}
+            contentFit="cover"
+            transition={200}
           />
           <View style={styles.mealPriceBadge}>
             <Text style={styles.mealPriceBadgeText}>₹{item.price}</Text>
@@ -706,11 +730,23 @@ export default function HomeScreen() {
     );
   };
 
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollY = useSharedValue(0);
+  const isStickyVisibleShared = useSharedValue(false);
   const [isStickyVisible, setIsStickyVisible] = useState(false);
 
-  const stickyHeaderTranslateY = scrollY.interpolate({ inputRange: [330, 360], outputRange: [-120, 0], extrapolate: "clamp" });
-  const stickyHeaderOpacity = scrollY.interpolate({ inputRange: [330, 350], outputRange: [0, 1], extrapolate: "clamp" });
+  const stickyHeaderAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: interpolate(scrollY.value, [330, 360], [-120, 0], "clamp") }],
+    opacity: interpolate(scrollY.value, [330, 350], [0, 1], "clamp"),
+  }));
+
+  const onMainScroll = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+    const visible = event.contentOffset.y >= 330;
+    if (visible !== isStickyVisibleShared.value) {
+      isStickyVisibleShared.value = visible;
+      runOnJS(setIsStickyVisible)(visible);
+    }
+  });
 
   const listData = useMemo(() => {
     if (showHomeSkeleton) return HOME_SKELETON_ITEMS.map((item) => ({ ...item, isSkeleton: true }));
@@ -741,7 +777,7 @@ export default function HomeScreen() {
         snapToInterval={STRIDE}
         decelerationRate="fast"
         contentContainerStyle={styles.promoScrollContent}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: bannerScrollX } } }], { useNativeDriver: false })}
+        onScroll={onBannerScroll}
         onMomentumScrollEnd={(e) => {
           bannerIndexRef.current = Math.round(e.nativeEvent.contentOffset.x / STRIDE);
         }}
@@ -759,19 +795,16 @@ export default function HomeScreen() {
       </Animated.ScrollView>
       {promoCards.length > 1 && (
         <View style={styles.promoDotsRow}>
-          {promoCards.map((_, i) => {
-            const width = bannerScrollX.interpolate({
-              inputRange: [(i - 1) * STRIDE, i * STRIDE, (i + 1) * STRIDE],
-              outputRange: [5, 18, 5],
-              extrapolate: "clamp",
-            });
-            const backgroundColor = bannerScrollX.interpolate({
-              inputRange: [(i - 1) * STRIDE, i * STRIDE, (i + 1) * STRIDE],
-              outputRange: [tokens.borderStrong, accent.accent, tokens.borderStrong],
-              extrapolate: "clamp",
-            });
-            return <Animated.View key={i} style={[styles.promoDot, { width, backgroundColor }]} />;
-          })}
+          {promoCards.map((_, i) => (
+            <PromoDot
+              key={i}
+              index={i}
+              scrollX={bannerScrollX}
+              baseStyle={styles.promoDot}
+              activeColor={accent.accent}
+              inactiveColor={tokens.borderStrong}
+            />
+          ))}
         </View>
       )}
     </View>
@@ -830,7 +863,7 @@ export default function HomeScreen() {
         </Text>
 
         {/* Search bar */}
-        <Animated.View style={{ transform: [{ scale: searchBarScale }] }}>
+        <Animated.View style={searchBarAnimatedStyle}>
           <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
             <Ionicons name="search" size={moderateScale(16)} color={tokens.sec} />
             <Text style={styles.searchPlaceholder} numberOfLines={1}>
@@ -886,7 +919,7 @@ export default function HomeScreen() {
 
             {greetingAds.length > 0 && greetingAds.map((banner, index) => (
               <View key={banner._id || index} style={styles.adCard}>
-                <Image source={{ uri: banner.imageUrl }} style={styles.adImage} resizeMode="cover" />
+                <Image source={{ uri: banner.imageUrl }} style={styles.adImage} contentFit="cover" transition={200} />
                 <View style={styles.adCaption}>
                   <Text style={styles.adTitle}>{banner.title}</Text>
                   {banner.description && <Text style={styles.adDescription}>{banner.description}</Text>}
@@ -1035,7 +1068,7 @@ export default function HomeScreen() {
     <View style={styles.root}>
       {isStickyVisible && (
         <Animated.View
-          style={[styles.stickyHeader, { paddingTop: insets.top + 8, transform: [{ translateY: stickyHeaderTranslateY }], opacity: stickyHeaderOpacity }]}
+          style={[styles.stickyHeader, { paddingTop: insets.top + 8 }, stickyHeaderAnimatedStyle]}
         >
           <View style={styles.stickyRow}>
             <Text style={styles.stickyAddress} numberOfLines={1}>{areaLabel}</Text>
@@ -1065,17 +1098,30 @@ export default function HomeScreen() {
         </Animated.View>
       )}
 
-      <Animated.FlatList
+      <AnimatedFlashList
         data={listData}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => {
+        keyExtractor={(item: any) => item._id}
+        getItemType={(item: any) => (item.isSkeleton ? "skeleton" : item.isHeader ? "header" : item.isDish ? "dish" : "restaurant")}
+        renderItem={({ item, index }: { item: any; index: number }) => {
           if (item.isSkeleton) return <HomeSkeletonCard tokens={tokens} />;
           if (item.isHeader) return <Text style={styles.listSectionHeader}>{item.title}</Text>;
-          if (item.isRestaurant) return <RestaurantListItem {...item} isMeat={activeService === "Meat"} />;
-          if (item.isDish) return <DishSearchResultItem item={item} tokens={tokens} accent={accent} styles={styles} />;
+          if (item.isRestaurant) {
+            return (
+              <Animated.View entering={staggerListItem(index)}>
+                <RestaurantListItem {...item} isMeat={activeService === "Meat"} />
+              </Animated.View>
+            );
+          }
+          if (item.isDish) {
+            return (
+              <Animated.View entering={staggerListItem(index)}>
+                <DishSearchResultItem item={item} tokens={tokens} accent={accent} styles={styles} />
+              </Animated.View>
+            );
+          }
           return null;
         }}
-        ListHeaderComponent={renderHeader()}
+        ListHeaderComponent={renderHeader}
         ListEmptyComponent={() => {
           if (showHomeSkeleton || loadingDrivers) return null;
 
@@ -1086,7 +1132,7 @@ export default function HomeScreen() {
                   <Ionicons name="location-sharp" size={26} color={tokens.warning} />
                 </View>
                 <Text style={styles.noServiceTitle}>No location selected</Text>
-                <Text style={styles.noServiceSubtitle}>We need an address to show prices, ETAs and who's open near you.</Text>
+                <Text style={styles.noServiceSubtitle}>We need an address to show prices, ETAs and who&apos;s open near you.</Text>
                 <TouchableOpacity style={styles.noServiceButton} onPress={handleUseCurrentLocation}>
                   <Text style={styles.noServiceButtonText}>Use my current location</Text>
                 </TouchableOpacity>
@@ -1144,7 +1190,7 @@ export default function HomeScreen() {
                   <Ionicons name="bicycle-outline" size={26} color={accent.accent} />
                 </View>
                 <Text style={styles.noServiceTitle}>No riders available nearby</Text>
-                <Text style={styles.noServiceSubtitle}>All captains nearby are on trips right now. It's usually a few minutes before one frees up.</Text>
+                <Text style={styles.noServiceSubtitle}>All captains nearby are on trips right now. It&apos;s usually a few minutes before one frees up.</Text>
                 <TouchableOpacity
                   style={[styles.noServiceButton, isRetryingDrivers && styles.noServiceButtonDisabled]}
                   disabled={isRetryingDrivers}
@@ -1177,8 +1223,8 @@ export default function HomeScreen() {
                 <View style={styles.emptyIconCircle}>
                   <Ionicons name="map-outline" size={26} color={tokens.sec} />
                 </View>
-                <Text style={styles.noServiceTitle}>Services aren't available in this location</Text>
-                <Text style={styles.noServiceSubtitle}>We don't have {serviceName} outlets or delivery services here yet. Try another location, or let us know you're waiting.</Text>
+                <Text style={styles.noServiceTitle}>Services aren&apos;t available in this location</Text>
+                <Text style={styles.noServiceSubtitle}>We don&apos;t have {serviceName} outlets or delivery services here yet. Try another location, or let us know you&apos;re waiting.</Text>
                 <TouchableOpacity style={styles.noServiceButton} onPress={() => router.push("/delivery/saved-addresses")}>
                   <Text style={styles.noServiceButtonText}>Change location</Text>
                 </TouchableOpacity>
@@ -1211,14 +1257,8 @@ export default function HomeScreen() {
           if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
           else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
         }}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: true,
-          listener: (event: any) => {
-            const y = event.nativeEvent.contentOffset.y;
-            const visible = y >= 330;
-            if (visible !== isStickyVisible) setIsStickyVisible(visible);
-          },
-        })}
+        onScroll={onMainScroll}
+        scrollEventThrottle={16}
       />
 
       <AppTabBar active="home" accent={activeService === "Meat" ? "meat" : "food"} cartVendorName={cartVendorName} />
@@ -1230,21 +1270,19 @@ export default function HomeScreen() {
         transparent
         onRequestClose={() => setIsSearchActive(false)}
         onShow={() => {
-          Animated.parallel([
-            Animated.timing(searchTranslateY, { toValue: 0, duration: 350, easing: Easing.out(Easing.poly(3)), useNativeDriver: true }),
-            Animated.timing(searchBackdropOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
-          ]).start();
+          searchTranslateY.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
+          searchBackdropOpacity.value = withTiming(1, { duration: 350 });
         }}
       >
         <View style={{ flex: 1 }}>
-          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)", opacity: searchBackdropOpacity }]}>
+          <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)" }, searchBackdropAnimatedStyle]}>
             <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSearchActive(false)} />
           </Animated.View>
           <Animated.View
             style={[
               styles.searchSheet,
               { paddingTop: Math.max(insets.top, 16), maxHeight: Dimensions.get("window").height * 0.85 },
-              { transform: [{ translateY: searchTranslateY }] },
+              searchSheetAnimatedStyle,
             ]}
           >
             <View style={styles.searchSheetHeaderRow}>
@@ -1309,10 +1347,22 @@ export default function HomeScreen() {
                 data={listData.filter((item: any) => item.isHeader || item.isRestaurant || item.isDish)}
                 keyExtractor={(item) => item._id}
                 keyboardShouldPersistTaps="handled"
-                renderItem={({ item }: any) => {
+                renderItem={({ item, index }: any) => {
                   if (item.isHeader) return <Text style={styles.listSectionHeader}>{item.title}</Text>;
-                  if (item.isRestaurant) return <RestaurantListItem {...item} isMeat={activeService === "Meat"} />;
-                  if (item.isDish) return <DishSearchResultItem item={item} tokens={tokens} accent={accent} styles={styles} />;
+                  if (item.isRestaurant) {
+                    return (
+                      <Animated.View entering={staggerListItem(index)}>
+                        <RestaurantListItem {...item} isMeat={activeService === "Meat"} />
+                      </Animated.View>
+                    );
+                  }
+                  if (item.isDish) {
+                    return (
+                      <Animated.View entering={staggerListItem(index)}>
+                        <DishSearchResultItem item={item} tokens={tokens} accent={accent} styles={styles} />
+                      </Animated.View>
+                    );
+                  }
                   return null;
                 }}
                 contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
@@ -1323,7 +1373,7 @@ export default function HomeScreen() {
                       <Ionicons name="search-outline" size={26} color={tokens.sec} />
                     </View>
                     <Text style={styles.emptySearchTitle}>No results found</Text>
-                    <Text style={styles.emptySearchSubtitle}>We couldn't find any outlets matching "{searchText}".</Text>
+                    <Text style={styles.emptySearchSubtitle}>We couldn&apos;t find any outlets matching &quot;{searchText}&quot;.</Text>
                   </View>
                 )}
               />
@@ -1397,7 +1447,7 @@ export default function HomeScreen() {
               <TouchableOpacity style={styles.startupAdCloseBtn} onPress={() => setActiveStartupAd(null)}>
                 <Feather name="x" size={moderateScale(16)} color={tokens.text} />
               </TouchableOpacity>
-              <Image source={{ uri: activeStartupAd.imageUrl }} style={styles.startupAdImage} resizeMode="cover" />
+              <Image source={{ uri: activeStartupAd.imageUrl }} style={styles.startupAdImage} contentFit="cover" transition={200} />
               <View style={{ padding: 18 }}>
                 <Text style={styles.startupAdTitle}>{activeStartupAd.title}</Text>
                 {activeStartupAd.description && <Text style={styles.startupAdDescription}>{activeStartupAd.description}</Text>}
@@ -1590,11 +1640,38 @@ export default function HomeScreen() {
   );
 }
 
-function SkeletonBlock({ style, shimmer, shimmerHighlight }: { style: ViewStyle; shimmer: Animated.Value; shimmerHighlight: string }) {
-  const translateX = shimmer.interpolate({ inputRange: [0, 1], outputRange: [-220, 220] });
+// Animated dot for the promo carousel's page indicator — its own component
+// (rather than inline in a .map()) because useAnimatedStyle is a hook.
+function PromoDot({
+  index,
+  scrollX,
+  baseStyle,
+  activeColor,
+  inactiveColor,
+}: {
+  index: number;
+  scrollX: SharedValue<number>;
+  baseStyle: ViewStyle;
+  activeColor: string;
+  inactiveColor: string;
+}) {
+  const animatedStyle = useAnimatedStyle(() => {
+    const inputRange = [(index - 1) * STRIDE, index * STRIDE, (index + 1) * STRIDE];
+    return {
+      width: interpolate(scrollX.value, inputRange, [5, 18, 5], "clamp"),
+      backgroundColor: interpolateColor(scrollX.value, inputRange, [inactiveColor, activeColor, inactiveColor]),
+    };
+  });
+  return <Animated.View style={[baseStyle, animatedStyle]} />;
+}
+
+function SkeletonBlock({ style, shimmer, shimmerHighlight }: { style: ViewStyle; shimmer: SharedValue<number>; shimmerHighlight: string }) {
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(shimmer.value, [0, 1], [-220, 220]) }],
+  }));
   return (
     <View style={[style, { overflow: "hidden" }]}>
-      <Animated.View style={[StyleSheet.absoluteFillObject, { width: 220, transform: [{ translateX }] }]}>
+      <Animated.View style={[StyleSheet.absoluteFillObject, { width: 220 }, animatedStyle]}>
         <LinearGradient colors={["transparent", shimmerHighlight, "transparent"]} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={StyleSheet.absoluteFillObject} />
       </Animated.View>
     </View>
@@ -1602,13 +1679,11 @@ function SkeletonBlock({ style, shimmer, shimmerHighlight }: { style: ViewStyle;
 }
 
 function HomeSkeletonCard({ tokens }: { tokens: ThemeTokens }) {
-  const shimmer = useRef(new Animated.Value(0)).current;
+  const shimmer = useSharedValue(0);
   const shimmerHighlight = "rgba(255,255,255,0.5)";
 
   useEffect(() => {
-    const animation = Animated.loop(Animated.timing(shimmer, { toValue: 1, duration: 1300, easing: Easing.linear, useNativeDriver: true }));
-    animation.start();
-    return () => animation.stop();
+    shimmer.value = withRepeat(withTiming(1, { duration: 1300, easing: Easing.linear }), -1, false);
   }, [shimmer]);
 
   return (
@@ -1659,7 +1734,7 @@ function DishSearchResultItem({ item, tokens, accent, styles }: { item: any; tok
 
       <View style={styles.dishItemImageContainer}>
         <TouchableOpacity activeOpacity={0.85} onPress={handleNavigateToMenu}>
-          <Image source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }} style={styles.dishItemImage} />
+          <Image source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }} style={styles.dishItemImage} contentFit="cover" transition={200} />
         </TouchableOpacity>
         <View style={styles.dishAddButtonOverlay}>
           {cartItem ? (

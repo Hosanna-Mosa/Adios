@@ -15,10 +15,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { router } from "expo-router";
+import Animated from "react-native-reanimated";
 import { useDeliveryStore, DeliveryItem } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
+import { staggerListItem } from "@/motion/presets";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -63,7 +65,7 @@ export default function AddStopScreen() {
 
   const fetchNearbySuggestions = async (lat: number, lng: number) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/v1/places/nearby?lat=${lat}&lng=${lng}&radius=3000`);
+      const response = await fetch(`${BACKEND_URL}/places/nearby?lat=${lat}&lng=${lng}&radius=3000`);
       const data = await response.json();
       if (Array.isArray(data)) setNearbySuggestions(data.slice(0, 6));
     } catch (error) {
@@ -82,7 +84,7 @@ export default function AddStopScreen() {
       setIsSearching(true);
       try {
         const latParam = currentCoords ? `&lat=${currentCoords.lat}&lng=${currentCoords.lng}` : "";
-        const response = await fetch(`${BACKEND_URL}/api/v1/places/autocomplete?input=${encodeURIComponent(input)}${latParam}&radius=10000`);
+        const response = await fetch(`${BACKEND_URL}/places/autocomplete?input=${encodeURIComponent(input)}${latParam}&radius=10000`);
         const data = await response.json();
         if (Array.isArray(data)) {
           setAutocompleteSuggestions(data.slice(0, 6));
@@ -110,7 +112,7 @@ export default function AddStopScreen() {
       setCoords({ lat: item.lat, lng: item.lng });
     } else if (item.id) {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/v1/places/details/${item.id}`);
+        const response = await fetch(`${BACKEND_URL}/places/details/${item.id}`);
         const data = await response.json();
         if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
       } catch (error) {
@@ -131,7 +133,7 @@ export default function AddStopScreen() {
     (async () => {
       try {
         const hypotheticalStops = [...stops, { id: "preview", address, lat: coords.lat, lng: coords.lng, type: "pickup" }];
-        const response = await fetch(`${BACKEND_URL}/api/v1/routing/optimize`, {
+        const response = await fetch(`${BACKEND_URL}/routing/optimize`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ origin: currentCoords, stops: hypotheticalStops }),

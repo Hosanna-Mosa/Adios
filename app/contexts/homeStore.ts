@@ -61,7 +61,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
         driversHeaders["Authorization"] = `Bearer ${token}`;
       }
       const driversPromise = customFetch<any[]>(
-        `/api/v1/drivers/nearby?latitude=${lat}&longitude=${lng}&radius=5000`,
+        `/drivers/nearby?latitude=${lat}&longitude=${lng}&radius=5000`,
         { headers: driversHeaders }
       )
         .then((drivers) => {
@@ -78,7 +78,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
       // 2. Fetch main service data using the exact same endpoints as index.tsx
       let servicePromise;
       if (activeService === 'Meat') {
-        servicePromise = customFetch<any[]>(`/api/v1/meat/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}`)
+        servicePromise = customFetch<any[]>(`/meat/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}`)
           .then((data) => {
             set({ meatCenters: Array.isArray(data) ? data : [] });
           })
@@ -88,7 +88,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
           });
       } else {
         servicePromise = Promise.all([
-          customFetch<any[]>(`/api/v1/vendors/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}`)
+          customFetch<any[]>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}`)
             .then((data) => {
               set({ restaurants: Array.isArray(data) ? data : [] });
             })
@@ -96,7 +96,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
               console.error("Fetch vendors error in homeStore:", err);
               set({ restaurants: [] });
             }),
-          customFetch<any[]>(`/api/v1/food/store-149?lat=${lat}&lng=${lng}`)
+          customFetch<any[]>(`/food/store-149?lat=${lat}&lng=${lng}`)
             .then((data) => {
               set({ store149Items: Array.isArray(data) ? data : [] });
             })

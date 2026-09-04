@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -19,6 +20,7 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { fadeIn, fadeInUp } from "@/motion/presets";
 
 export default function DeliveryCheckoutScreen() {
   const insets = useSafeAreaInsets();
@@ -47,7 +49,7 @@ export default function DeliveryCheckoutScreen() {
 
     setIsProcessing(true);
     try {
-      const rzpOrder = await customFetch<any>("/api/v1/payments/create-order", {
+      const rzpOrder = await customFetch<any>("/payments/create-order", {
         method: "POST",
         body: JSON.stringify({ amount: price.total }),
       });
@@ -62,7 +64,7 @@ export default function DeliveryCheckoutScreen() {
         theme: rzpOrder.theme,
       });
 
-      const verifyResponse = await customFetch<any>("/api/v1/payments/verify", {
+      const verifyResponse = await customFetch<any>("/payments/verify", {
         method: "POST",
         body: JSON.stringify({
           ...paymentResult,
@@ -90,7 +92,7 @@ export default function DeliveryCheckoutScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
@@ -102,10 +104,10 @@ export default function DeliveryCheckoutScreen() {
             {route?.estimatedTime != null ? ` · about ${route.estimatedTime} min` : ""}
           </Text>
         </View>
-      </View>
+      </Animated.View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
+        <Animated.View style={styles.section} entering={fadeInUp(60)}>
           <Text style={styles.sectionLabel}>Active route</Text>
           {stops.length === 0 ? (
             <View style={styles.emptyStops}>
@@ -142,10 +144,10 @@ export default function DeliveryCheckoutScreen() {
               </View>
             </View>
           )}
-        </View>
+        </Animated.View>
 
         {itemsEstimate > 0 && (
-          <View style={styles.section}>
+          <Animated.View style={styles.section} entering={fadeInUp(120)}>
             <Text style={styles.sectionLabel}>Store payment</Text>
             <View style={styles.storePaymentCard}>
               <View style={styles.storePaymentRow}>
@@ -156,10 +158,10 @@ export default function DeliveryCheckoutScreen() {
                 The rider pays at each counter and shares the bill photo. Items are verified on-site and the difference is settled after delivery — this amount is not charged now.
               </Text>
             </View>
-          </View>
+          </Animated.View>
         )}
 
-        <View style={styles.section}>
+        <Animated.View style={styles.section} entering={fadeInUp(180)}>
           <Text style={styles.sectionLabel}>Delivery charges</Text>
           <View style={styles.billCard}>
             <View style={styles.billRow}>
@@ -178,9 +180,9 @@ export default function DeliveryCheckoutScreen() {
               <Text style={styles.billTotalValue}>₹{price?.total ?? 0}</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View style={styles.section} entering={fadeInUp(240)}>
           <View style={styles.methodRow}>
             <View style={styles.methodIcon}>
               <Ionicons name="card-outline" size={moderateScale(17)} color={tokens.sec} />
@@ -190,7 +192,7 @@ export default function DeliveryCheckoutScreen() {
               <Text style={styles.methodSub}>UPI, cards, wallets — choose on the next step</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>

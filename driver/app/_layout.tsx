@@ -1,15 +1,21 @@
+import { useFonts } from "expo-font";
 import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+  FamiljenGrotesk_400Regular,
+  FamiljenGrotesk_500Medium,
+  FamiljenGrotesk_600SemiBold,
+  FamiljenGrotesk_700Bold,
+} from "@expo-google-fonts/familjen-grotesk";
+import {
+  Figtree_400Regular,
+  Figtree_500Medium,
+  Figtree_600SemiBold,
+  Figtree_700Bold,
+} from "@expo-google-fonts/figtree";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Platform } from "react-native";
+import { Alert, Platform, StyleSheet, Text, TextInput } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -24,9 +30,71 @@ import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import UpdateModal from "@/components/UpdateModal";
 import { registerForPushNotificationsAsync } from "../utils/notificationRegister";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
+import { typography, fontFamilies } from "@/constants/typography";
+import { ToastProvider } from "@/components/ui/Toast";
 import "@/utils/networkLogger";
 
 SplashScreen.preventAutoHideAsync();
+
+// --- Global Typography Patch (mirrors app/app/_layout.tsx) ---
+// Normalizes ad-hoc fontSize values onto the shared typography scale and
+// routes font family by role: Familjen Grotesk for heading-sized text
+// (fontSize >= 18), Figtree for everything else.
+const patchComponentStyle = (Component: any) => {
+  const originalRender = Component.render;
+  if (!originalRender) return;
+
+  const familyFor = (isHeading: boolean, weight: any) => {
+    const set = isHeading ? fontFamilies.heading : fontFamilies.body;
+    if (weight === "800" || weight === "900" || weight === "bold" || weight === "700") return set.bold;
+    if (weight === "600") return set.semibold;
+    if (weight === "500") return set.medium;
+    return set.regular;
+  };
+
+  Component.render = function (props: any, ref: any) {
+    if (props && props.style) {
+      const flat = StyleSheet.flatten(props.style);
+      const updated = { ...flat };
+      let isHeading = false;
+
+      if (typeof flat.fontSize === "number") {
+        const size = flat.fontSize;
+        if (size >= 24) {
+          updated.fontSize = typography.heading1.fontSize;
+          if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "900" || flat.fontWeight === "bold") {
+            updated.fontWeight = typography.heading1.fontWeight;
+          }
+          isHeading = true;
+        } else if (size >= 18) {
+          updated.fontSize = typography.heading2.fontSize;
+          if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "bold") {
+            updated.fontWeight = typography.heading2.fontWeight;
+          }
+          isHeading = true;
+        } else if (size >= 15) {
+          updated.fontSize = typography.sizes.bodyLarge;
+        } else if (size >= 13) {
+          updated.fontSize = typography.body.fontSize;
+        } else if (size >= 11) {
+          updated.fontSize = typography.bodySecondary.fontSize;
+        } else {
+          updated.fontSize = typography.sizes.caption;
+        }
+      }
+
+      updated.fontFamily = familyFor(isHeading, updated.fontWeight ?? flat.fontWeight);
+      props = { ...props, style: updated };
+    } else {
+      props = { ...props, style: { fontFamily: fontFamilies.body.regular } };
+    }
+    return originalRender.call(this, props, ref);
+  };
+};
+
+patchComponentStyle(Text);
+patchComponentStyle(TextInput);
+// -------------------------------
 
 const queryClient = new QueryClient();
 
@@ -138,7 +206,7 @@ function RootLayoutNav() {
       const tokenSubscription = Notifications.addPushTokenListener(async (tokenData: any) => {
         console.log("[PushNotifications] Token refreshed (Driver):", tokenData.data);
         try {
-          const response = await fetch(`${apiUrl}/api/v1/users/push-token`, {
+          const response = await fetch(`${apiUrl}/users/push-token`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -214,10 +282,14 @@ export default function RootLayout() {
   };
 
   const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
+    FamiljenGrotesk_400Regular,
+    FamiljenGrotesk_500Medium,
+    FamiljenGrotesk_600SemiBold,
+    FamiljenGrotesk_700Bold,
+    Figtree_400Regular,
+    Figtree_500Medium,
+    Figtree_600SemiBold,
+    Figtree_700Bold,
   });
 
   useEffect(() => {
@@ -232,8 +304,8 @@ export default function RootLayout() {
       try {
         const platform = Platform.OS === "ios" ? "ios" : "android";
         const currentVersion = Constants.expoConfig?.version || "1.0.0";
-        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUri}/api/v1/auth/version-check?platform=${platform}&version=${currentVersion}`);
+        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+        const res = await fetch(`${apiUri}/auth/version-check?platform=${platform}&version=${currentVersion}`);
         if (!res.ok) return;
         const result = await res.json();
         if (result.updateRequired) {
@@ -265,15 +337,17 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
-              <RootLayoutNav />
-              <LocationHandler />
-              <GlobalSocketHandler />
-              <UpdateModal 
-                visible={showUpdate} 
-                forceUpdate={forceUpdate} 
-                storeUrl={storeUrl} 
-                onDismiss={handleDismissUpdate} 
-              />
+              <ToastProvider>
+                <RootLayoutNav />
+                <LocationHandler />
+                <GlobalSocketHandler />
+                <UpdateModal
+                  visible={showUpdate}
+                  forceUpdate={forceUpdate}
+                  storeUrl={storeUrl}
+                  onDismiss={handleDismissUpdate}
+                />
+              </ToastProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </QueryClientProvider>

@@ -1,13 +1,16 @@
 import mongoose from "mongoose";
 import * as path from "path";
 import * as fs from "fs";
+import * as dotenv from "dotenv";
 import Order, { ServiceType, StopType } from "../database/models/Order";
 import User, { UserRole } from "../database/models/User";
 import Vendor from "../database/models/Vendor";
 import Driver from "../database/models/Driver";
 import { InvoiceService } from "../services/invoice.service";
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/projectx";
+dotenv.config();
+
+const MONGODB_URI = process.env.DATABASE_URL || "mongodb://127.0.0.1:27017/projectx";
 
 async function main() {
   console.log("Connecting to MongoDB at:", MONGODB_URI);

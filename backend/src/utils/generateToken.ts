@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "./jwtSecret";
 
 const generateToken = (id: string, role: string = "restaurant_vendor") => {
   return jwt.sign(
     { id, userId: id, role },
-    process.env.JWT_SECRET || "supersecret123",
+    getJwtSecret(),
     { expiresIn: "30d" }
   );
 };

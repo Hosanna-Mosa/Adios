@@ -39,8 +39,8 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }: any) =>
         // 2. HTTP REST update to ensure backend MongoDB & Redis remain updated even if OS pauses WebSocket
         if (store.token) {
           try {
-            const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "http://localhost:8000";
-            await fetch(`${apiUrl}/api/v1/drivers/location`, {
+            const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "http://localhost:3000/api/v1";
+            await fetch(`${apiUrl}/drivers/location`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -100,7 +100,7 @@ export const LocationHandler = () => {
               body: "Your app is minimized, so you are now offline and won't receive new orders.",
               sound: true,
             },
-            trigger: { seconds: 1 },
+            trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 1 },
           });
         }
       }

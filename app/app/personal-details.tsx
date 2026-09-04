@@ -1,21 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { Button } from "@/components/ui/Button";
+import { fadeInDown, staggerListItem } from "@/motion/presets";
 
 export default function PersonalDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { user, setUser } = useAuthStore();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [name, setName] = useState(user?.name || "");
@@ -31,7 +34,7 @@ export default function PersonalDetailsScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    customFetch<any>("/api/v1/users/profile")
+    customFetch<any>("/users/profile")
       .then((data) => {
         if (!data || cancelled) return;
         setUser(data);
@@ -53,7 +56,7 @@ export default function PersonalDetailsScreen() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const data = await customFetch<any>("/api/v1/users/profile", {
+      const data = await customFetch<any>("/users/profile", {
         method: "PATCH",
         body: JSON.stringify({ name, username, email }),
       });
@@ -70,28 +73,28 @@ export default function PersonalDetailsScreen() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
+      <Animated.View style={styles.header} entering={fadeInDown(0)}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Personal details</Text>
-      </View>
+      </Animated.View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
         <View style={{ gap: 12 }}>
-          <View>
+          <Animated.View entering={staggerListItem(0)}>
             <Text style={styles.label}>Full name</Text>
             <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder="Your name" placeholderTextColor={tokens.muted} />
-          </View>
-          <View>
+          </Animated.View>
+          <Animated.View entering={staggerListItem(1)}>
             <Text style={styles.label}>Username</Text>
             <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder="@handle" autoCapitalize="none" placeholderTextColor={tokens.muted} />
-          </View>
-          <View>
+          </Animated.View>
+          <Animated.View entering={staggerListItem(2)}>
             <Text style={styles.label}>Email</Text>
             <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
-          </View>
-          <View>
+          </Animated.View>
+          <Animated.View entering={staggerListItem(3)}>
             <Text style={styles.label}>Phone</Text>
             <View style={styles.phoneField}>
               <Text style={styles.phoneText}>{user?.phone || "—"}</Text>
@@ -99,15 +102,13 @@ export default function PersonalDetailsScreen() {
                 <Text style={styles.verifiedPillText}>Verified</Text>
               </View>
             </View>
-            <Text style={styles.phoneHint}>This is your login number. Contact <Text style={styles.phoneHintLink} onPress={() => router.push("/support")}>support</Text> to change it — there's no self-serve way to re-verify a new number yet.</Text>
-          </View>
+            <Text style={styles.phoneHint}>This is your login number. Contact <Text style={styles.phoneHintLink} onPress={() => router.push("/support")}>support</Text> to change it — there&apos;s no self-serve way to re-verify a new number yet.</Text>
+          </Animated.View>
         </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <TouchableOpacity style={[styles.saveBtn, { opacity: saving ? 0.7 : 1 }]} onPress={handleSave} disabled={saving}>
-          {saving ? <ActivityIndicator color={accent.on} /> : <Text style={styles.saveBtnText}>Update profile</Text>}
-        </TouchableOpacity>
+        <Button title="Update profile" onPress={handleSave} loading={saving} fullWidth />
       </View>
     </View>
   );

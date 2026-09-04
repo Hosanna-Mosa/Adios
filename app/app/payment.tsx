@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +22,7 @@ import { useCartStore } from "@/contexts/cartStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
+import { fadeInUp } from "@/motion/presets";
 
 type VendorDetails = { _id: string; name: string; address: string; location?: { coordinates?: number[] } };
 
@@ -29,7 +31,7 @@ export default function PaymentScreen() {
   const params = useLocalSearchParams();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const { items, vendorId, clearCart, getItemCount } = useCartStore();
@@ -50,7 +52,7 @@ export default function PaymentScreen() {
 
   useEffect(() => {
     if (!vendorId) return;
-    customFetch<VendorDetails>(`/api/v1/vendors/${vendorId}`).then(setVendor).catch(() => {});
+    customFetch<VendorDetails>(`/vendors/${vendorId}`).then(setVendor).catch(() => {});
   }, [vendorId]);
 
   useFocusEffect(
@@ -83,7 +85,7 @@ export default function PaymentScreen() {
 
     setProcessing(true);
     try {
-      const rzpOrderResponse = await customFetch<any>("/api/v1/payments/create-order", {
+      const rzpOrderResponse = await customFetch<any>("/payments/create-order", {
         method: "POST",
         body: JSON.stringify({ amount: total }),
       });
@@ -105,7 +107,7 @@ export default function PaymentScreen() {
       const pickupLng = Number(vendorCoords?.[0] ?? dropLng + 0.004);
       const orderItems = items.map((item) => ({ id: item._id, name: item.name, quantity: item.quantity, price: item.price, total: item.price * item.quantity }));
 
-      const verifyResponse = await customFetch<any>("/api/v1/payments/verify", {
+      const verifyResponse = await customFetch<any>("/payments/verify", {
         method: "POST",
         body: JSON.stringify({
           ...paymentResult,
@@ -167,13 +169,13 @@ export default function PaymentScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.payingBlock}>
+        <Animated.View entering={fadeInUp(0)} style={styles.payingBlock}>
           <Text style={styles.payingEyebrow}>Paying</Text>
           <Text style={styles.payingAmount}>₹{total}</Text>
           <Text style={styles.payingSub}>{vendorName} · {getItemCount()} items</Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(60)} style={styles.section}>
           <View style={styles.billCard}>
             <View style={styles.billRow}>
               <Text style={styles.billLabel}>Item total</Text>
@@ -205,9 +207,9 @@ export default function PaymentScreen() {
               <Text style={styles.billTotalValue}>₹{total}</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(120)} style={styles.section}>
           <View style={styles.addressCard}>
             <View style={styles.addressAvatar}>
               <Text style={styles.addressAvatarText}>{(selectedAddress?.label || "A")[0].toUpperCase()}</Text>
@@ -217,9 +219,9 @@ export default function PaymentScreen() {
               <Text style={styles.addressLine} numberOfLines={2}>{selectedAddress?.addressLine || "No address selected"}</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(180)} style={styles.section}>
           <Text style={styles.sectionLabel}>Payment</Text>
           <View style={styles.methodRow}>
             <View style={styles.methodIcon}>
@@ -230,16 +232,16 @@ export default function PaymentScreen() {
               <Text style={styles.methodSub}>UPI, cards, wallets and net banking — choose on the next step</Text>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.section}>
+        <Animated.View entering={fadeInUp(240)} style={styles.section}>
           <View style={styles.trustRow}>
             <Ionicons name="lock-closed" size={moderateScale(14)} color={tokens.success} />
             <Text style={styles.trustText}>
               Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.
             </Text>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>

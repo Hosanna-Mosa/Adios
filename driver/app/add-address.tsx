@@ -48,7 +48,7 @@ export default function AddAddressScreen() {
       const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const res = await fetch(`${apiUrl}/api/v1/places/autocomplete?input=${encodeURIComponent(query)}`, { headers });
+      const res = await fetch(`${apiUrl}/places/autocomplete?input=${encodeURIComponent(query)}`, { headers });
       if (res.ok) {
         const data = await res.json();
         setSuggestions(Array.isArray(data) ? data : []);
@@ -129,7 +129,7 @@ export default function AddAddressScreen() {
         body.coordinates = { lat: Number(params.lat), lng: Number(params.lng) };
       }
 
-      const res = await fetch(`${apiUrl}/api/v1/users/addresses`, {
+      const res = await fetch(`${apiUrl}/users/addresses`, {
         method: "POST",
         headers,
         body: JSON.stringify(body),
@@ -228,9 +228,9 @@ export default function AddAddressScreen() {
             {suggestions.length > 0 && (
               <View style={{
                 borderWidth: 1,
-                borderColor: Colors.border || "#e2e8f0",
+                borderColor: Colors.border,
                 borderRadius: 12,
-                backgroundColor: "#ffffff",
+                backgroundColor: Colors.surface,
                 maxHeight: 180,
                 overflow: "hidden",
                 marginTop: 4,
@@ -254,11 +254,11 @@ export default function AddAddressScreen() {
                       style={{
                         padding: 12,
                         borderBottomWidth: 1,
-                        borderBottomColor: "#f1f5f9"
+                        borderBottomColor: Colors.surfaceContainer,
                       }}
                     >
-                      <Text style={{ fontSize: 14, color: "#1e293b", fontWeight: "600" }}>{item.name}</Text>
-                      <Text style={{ fontSize: 12, color: "#64748b" }}>{item.address}</Text>
+                      <Text style={{ fontSize: 14, color: Colors.text, fontWeight: "600" }}>{item.name}</Text>
+                      <Text style={{ fontSize: 12, color: Colors.textSecondary }}>{item.address}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -269,20 +269,20 @@ export default function AddAddressScreen() {
               <View style={{
                 flexDirection: "row",
                 alignItems: "center",
-                backgroundColor: "#f0fdf4",
+                backgroundColor: Colors.successLight,
                 borderWidth: 1.5,
-                borderColor: Colors.success || "#22c55e",
+                borderColor: Colors.success,
                 borderRadius: 12,
                 padding: 12,
                 gap: 10,
                 marginTop: 8
               }}>
-                <Feather name="check-circle" size={18} color="#22c55e" />
+                <Feather name="check-circle" size={18} color={Colors.success} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: "600", color: "#166534" }}>
+                  <Text style={{ fontSize: 13, fontWeight: "600", color: Colors.success }}>
                     Location Coordinates Resolved
                   </Text>
-                  <Text style={{ fontSize: 11, color: "#15803d", marginTop: 2 }}>
+                  <Text style={{ fontSize: 11, color: Colors.success, marginTop: 2 }}>
                     Coords: [{addressLng.toFixed(4)}, {addressLat.toFixed(4)}]
                   </Text>
                 </View>
@@ -296,7 +296,7 @@ export default function AddAddressScreen() {
           <Text style={styles.sectionTitle}>Contact Details</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Receiver's Name</Text>
+            <Text style={styles.inputLabel}>Receiver&apos;s Name</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter receiver name"

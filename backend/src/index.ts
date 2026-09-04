@@ -6,6 +6,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import * as dotenv from "dotenv";
 dotenv.config();
+import { getJwtSecret } from "./utils/jwtSecret";
+// Fail fast on boot rather than letting auth silently fall back to a hardcoded secret.
+getJwtSecret();
 import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
@@ -36,7 +39,11 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// ALLOWED_ORIGINS: comma-separated list of allowed web origins (admin dashboard, partner
+// site). Mobile apps (app/driver) call the API directly and aren't affected by CORS. Left
+// unset, CORS stays fully open (current behavior) — set it in production to lock this down.
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean);
+app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());

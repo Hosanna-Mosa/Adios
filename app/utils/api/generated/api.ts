@@ -29,7 +29,7 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  * @summary Health check
  */
 export const getHealthCheckUrl = () => {
-  return `/api/v1/healthz`;
+  return `/healthz`;
 };
 
 export const healthCheck = async (
@@ -42,7 +42,7 @@ export const healthCheck = async (
 };
 
 export const getHealthCheckQueryKey = () => {
-  return [`/api/v1/healthz`] as const;
+  return [`/healthz`] as const;
 };
 
 export const getHealthCheckQueryOptions = <

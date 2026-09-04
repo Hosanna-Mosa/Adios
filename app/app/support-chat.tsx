@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -22,6 +23,7 @@ import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 interface ChatMessage {
   sender: "user" | "admin" | "system";
@@ -69,7 +71,7 @@ export default function SupportChatScreen() {
   const params = useLocalSearchParams<{ ticketId?: string }>();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [viewMode, setViewMode] = useState<"cases" | "chat">("cases");
@@ -91,7 +93,7 @@ export default function SupportChatScreen() {
   const fetchTickets = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const tickets = await customFetch<SupportTicket[]>("/api/v1/support/tickets");
+      const tickets = await customFetch<SupportTicket[]>("/support/tickets");
       setAllTickets(tickets || []);
 
       // Opened via a deep link (notification tap) with a specific ticket in mind — jump
@@ -145,7 +147,7 @@ export default function SupportChatScreen() {
     }
     setCreatingTicket(true);
     try {
-      const created = await customFetch<SupportTicket>("/api/v1/support/tickets", {
+      const created = await customFetch<SupportTicket>("/support/tickets", {
         method: "POST",
         body: JSON.stringify({ title: newTitle.trim(), category: newCategory, message: newMessage.trim() }),
       });
@@ -167,7 +169,7 @@ export default function SupportChatScreen() {
     setInputText("");
     setSubmittingReply(true);
     try {
-      const updatedTicket = await customFetch<SupportTicket>(`/api/v1/support/tickets/${ticket._id}/messages`, {
+      const updatedTicket = await customFetch<SupportTicket>(`/support/tickets/${ticket._id}/messages`, {
         method: "POST",
         body: JSON.stringify({ text: messageText }),
       });
@@ -183,7 +185,7 @@ export default function SupportChatScreen() {
   const handleResolve = async (approve: boolean) => {
     if (!ticket) return;
     try {
-      const updated = await customFetch<SupportTicket>(`/api/v1/support/tickets/${ticket._id}/resolve`, {
+      const updated = await customFetch<SupportTicket>(`/support/tickets/${ticket._id}/resolve`, {
         method: "POST",
         body: JSON.stringify({ approve }),
       });
@@ -196,7 +198,7 @@ export default function SupportChatScreen() {
 
   const handleReopen = async (t: SupportTicket) => {
     try {
-      await customFetch(`/api/v1/support/tickets/${t._id}/messages`, {
+      await customFetch(`/support/tickets/${t._id}/messages`, {
         method: "POST",
         body: JSON.stringify({ text: "Re-opening this case — I still need help with it." }),
       });
@@ -218,7 +220,7 @@ export default function SupportChatScreen() {
     }
     const isUser = item.sender === "user";
     return (
-      <View style={[styles.messageRow, { justifyContent: isUser ? "flex-end" : "flex-start" }]}>
+      <Animated.View entering={fadeInUp(0)} style={[styles.messageRow, { justifyContent: isUser ? "flex-end" : "flex-start" }]}>
         {!isUser && (
           <View style={styles.avatar}>
             <Ionicons name="headset" size={13} color={accent.accent} />
@@ -228,7 +230,7 @@ export default function SupportChatScreen() {
           <Text style={[styles.bubbleText, { color: isUser ? accent.on : tokens.text }]}>{item.text}</Text>
           <Text style={[styles.bubbleTime, { color: isUser ? `${accent.on}B3` : tokens.sec }]}>{item.time}</Text>
         </View>
-      </View>
+      </Animated.View>
     );
   };
 
@@ -343,48 +345,49 @@ export default function SupportChatScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
         {allTickets.length > 0 && (
           <View style={{ paddingHorizontal: 16, paddingTop: 16, gap: 12 }}>
-            {allTickets.map((t) => {
+            {allTickets.map((t, idx) => {
               const isResolved = t.status === "RESOLVED";
               const isPending = t.status === "PENDING_RESOLVE";
               const stripeColor = isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning;
               return (
-                <TouchableOpacity
-                  key={t._id}
-                  activeOpacity={isResolved ? 1 : 0.85}
-                  onPress={() => { if (!isResolved) { setTicket(t); setViewMode("chat"); } }}
-                  style={[styles.caseCard, { borderLeftColor: stripeColor }]}
-                >
-                  <View style={styles.caseTopRow}>
-                    <Text style={[styles.caseEyebrow, { color: stripeColor }]} numberOfLines={1}>{t.category} · #{t.ticketId}</Text>
-                    <View style={[styles.caseStatusPill, { backgroundColor: isResolved ? tokens.successSkin : isPending ? tokens.services.task.skin : tokens.warningSkin }]}>
-                      <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]}>{STATUS_LABEL[t.status]}</Text>
+                <Animated.View key={t._id} entering={staggerListItem(idx)}>
+                  <TouchableOpacity
+                    activeOpacity={isResolved ? 1 : 0.85}
+                    onPress={() => { if (!isResolved) { setTicket(t); setViewMode("chat"); } }}
+                    style={[styles.caseCard, { borderLeftColor: stripeColor }]}
+                  >
+                    <View style={styles.caseTopRow}>
+                      <Text style={[styles.caseEyebrow, { color: stripeColor }]} numberOfLines={1}>{t.category} · #{t.ticketId}</Text>
+                      <View style={[styles.caseStatusPill, { backgroundColor: isResolved ? tokens.successSkin : isPending ? tokens.services.task.skin : tokens.warningSkin }]}>
+                        <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]}>{STATUS_LABEL[t.status]}</Text>
+                      </View>
                     </View>
-                  </View>
-                  <Text style={styles.caseTitle} numberOfLines={1}>{t.title}</Text>
-                  <Text style={styles.caseMeta}>
-                    {isResolved ? `Closed ${formatDate(t.updatedAt)}` : `${t.messages.length} message${t.messages.length === 1 ? "" : "s"} · updated ${formatDate(t.updatedAt)}`}
-                  </Text>
-                  {isResolved && (
-                    <View style={styles.caseActionRow}>
-                      <TouchableOpacity style={styles.caseActionOutline} onPress={() => handleReopen(t)}>
-                        <Text style={styles.caseActionOutlineText}>Reopen case</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.caseActionFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]}
-                        onPress={() => { setNewTitle(""); setNewMessage(""); }}
-                      >
-                        <Text style={[styles.caseActionFilledText, { color: accent.accent }]}>Start new chat</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                    <Text style={styles.caseTitle} numberOfLines={1}>{t.title}</Text>
+                    <Text style={styles.caseMeta}>
+                      {isResolved ? `Closed ${formatDate(t.updatedAt)}` : `${t.messages.length} message${t.messages.length === 1 ? "" : "s"} · updated ${formatDate(t.updatedAt)}`}
+                    </Text>
+                    {isResolved && (
+                      <View style={styles.caseActionRow}>
+                        <TouchableOpacity style={styles.caseActionOutline} onPress={() => handleReopen(t)}>
+                          <Text style={styles.caseActionOutlineText}>Reopen case</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.caseActionFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]}
+                          onPress={() => { setNewTitle(""); setNewMessage(""); }}
+                        >
+                          <Text style={[styles.caseActionFilledText, { color: accent.accent }]}>Start new chat</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </Animated.View>
               );
             })}
           </View>
         )}
 
         <Text style={styles.sectionLabel}>Raise a new ticket</Text>
-        <View style={styles.formCard}>
+        <Animated.View entering={fadeInUp(0)} style={styles.formCard}>
           <Text style={styles.formLabel}>Issue category</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
             {CATEGORIES.map((c) => {
@@ -422,15 +425,17 @@ export default function SupportChatScreen() {
             onChangeText={setNewMessage}
             textAlignVertical="top"
           />
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={[styles.submitBtn, { backgroundColor: accent.accent, opacity: creatingTicket ? 0.7 : 1 }]}
-          onPress={handleCreateTicket}
-          disabled={creatingTicket}
-        >
-          {creatingTicket ? <ActivityIndicator color={accent.on} /> : <Text style={[styles.submitBtnText, { color: accent.on }]}>Submit ticket</Text>}
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(60)}>
+          <TouchableOpacity
+            style={[styles.submitBtn, { backgroundColor: accent.accent, opacity: creatingTicket ? 0.7 : 1 }]}
+            onPress={handleCreateTicket}
+            disabled={creatingTicket}
+          >
+            {creatingTicket ? <ActivityIndicator color={accent.on} /> : <Text style={[styles.submitBtnText, { color: accent.on }]}>Submit ticket</Text>}
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

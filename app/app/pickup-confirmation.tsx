@@ -12,12 +12,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import Animated from "react-native-reanimated";
+import MapView, { PROVIDER_GOOGLE } from "@/components/maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import Colors from "@/constants/colors";
+import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { modalSlideUp } from "@/motion/presets";
 
 const { height } = Dimensions.get("window");
 
@@ -59,8 +61,9 @@ const formatGeocodeAddress = (place: Location.LocationGeocodedAddress) => {
 export default function PickupConfirmationScreen() {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
-  const colors = Colors[theme];
-  const styles = React.useMemo(() => createStyles(colors, insets), [colors, insets]);
+  const tokens = designTokens[theme];
+  const accent = tokens.services.ride;
+  const styles = React.useMemo(() => createStyles(tokens, accent, insets), [theme, insets]);
   const mapRef = React.useRef<MapView>(null);
 
   const params = useLocalSearchParams<{
@@ -125,7 +128,7 @@ export default function PickupConfirmationScreen() {
           serviceType: normalizeServiceType(params.serviceId),
         });
         const result = await customFetch<FareEstimate>(
-          `/api/v1/orders/estimate-fare?${query.toString()}`,
+          `/orders/estimate-fare?${query.toString()}`,
           { responseType: "json" },
         );
         setEstimate(result);
@@ -242,7 +245,7 @@ export default function PickupConfirmationScreen() {
               <Text style={styles.pickupBubbleText}>Pickup Point</Text>
             </View>
             <View style={styles.pin}>
-              <Ionicons name="navigate" size={18} color={colors.surface} />
+              <Ionicons name="navigate" size={18} color={accent.on} />
             </View>
           </View>
         </View>
@@ -251,15 +254,15 @@ export default function PickupConfirmationScreen() {
           style={[styles.backButton, { top: insets.top + 16 }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <Ionicons name="arrow-back" size={22} color={tokens.text} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.locateButton} onPress={useCurrentLocation}>
-          <Ionicons name="locate" size={22} color={colors.primary} />
+          <Ionicons name="locate" size={22} color={accent.accent} />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.panel}>
+      <Animated.View entering={modalSlideUp} style={styles.panel}>
         <View style={styles.handle} />
         <Text style={styles.title}>Double check pickup point</Text>
 
@@ -276,7 +279,7 @@ export default function PickupConfirmationScreen() {
           <Text style={styles.metaText}>{params.rideName || "Ride"}</Text>
           <View style={styles.metaValue}>
             {loadingEstimate ? (
-              <ActivityIndicator size="small" color={colors.textSecondary} />
+              <ActivityIndicator size="small" color={tokens.sec} />
             ) : (
               <Text style={styles.metaText}>
                 {estimate ? `₹${estimate.fareBreakdown.total.toFixed(2)}` : params.ridePrice}
@@ -288,16 +291,16 @@ export default function PickupConfirmationScreen() {
         <TouchableOpacity style={styles.updateButton} onPress={updatePickup}>
           <Text style={styles.updateButtonText}>Update pickup</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }
 
-const createStyles = (colors: typeof Colors.light, insets: any) =>
+const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, insets: any) =>
   StyleSheet.create({
     root: {
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: tokens.bg,
     },
     mapArea: {
       height: height * 0.64,
@@ -309,7 +312,7 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       width: 42,
       height: 42,
       borderRadius: 21,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -325,7 +328,7 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       width: 42,
       height: 42,
       borderRadius: 21,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -353,7 +356,7 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       height: 92,
     },
     pickupBubble: {
-      backgroundColor: colors.primary,
+      backgroundColor: accent.accent,
       paddingHorizontal: 16,
       paddingVertical: 9,
       borderRadius: 18,
@@ -367,7 +370,7 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       alignItems: "center",
     },
     pickupBubbleText: {
-      color: colors.surface,
+      color: accent.on,
       fontSize: 13,
       fontWeight: "800",
     },
@@ -375,16 +378,16 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       width: 26,
       height: 26,
       borderRadius: 13,
-      backgroundColor: colors.primary,
+      backgroundColor: accent.accent,
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 2,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
     },
     panel: {
       flex: 1,
       marginTop: -18,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       paddingHorizontal: 14,
@@ -400,21 +403,21 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
       width: 38,
       height: 4,
       borderRadius: 2,
-      backgroundColor: colors.border,
+      backgroundColor: tokens.border,
       alignSelf: "center",
       marginBottom: 14,
     },
     title: {
       fontSize: 16,
       fontWeight: "800",
-      color: colors.text,
+      color: tokens.text,
       marginBottom: 18,
     },
     addressCard: {
       borderWidth: 2,
-      borderColor: colors.primary,
+      borderColor: accent.accent,
       borderRadius: 10,
-      backgroundColor: colors.surfaceSecondary,
+      backgroundColor: tokens.sunken,
       paddingHorizontal: 10,
       paddingVertical: 8,
       marginBottom: 12,
@@ -422,12 +425,12 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
     addressTitle: {
       fontSize: 16,
       fontWeight: "800",
-      color: colors.text,
+      color: tokens.text,
       marginBottom: 1,
     },
     addressSubtitle: {
       fontSize: 13,
-      color: colors.textSecondary,
+      color: tokens.sec,
     },
     metaRow: {
       minHeight: 28,
@@ -439,7 +442,7 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
     metaText: {
       fontSize: 13,
       fontWeight: "700",
-      color: colors.textSecondary,
+      color: tokens.sec,
     },
     metaValue: {
       minWidth: 62,
@@ -448,12 +451,12 @@ const createStyles = (colors: typeof Colors.light, insets: any) =>
     updateButton: {
       height: 46,
       borderRadius: 23,
-      backgroundColor: colors.primary,
+      backgroundColor: accent.accent,
       alignItems: "center",
       justifyContent: "center",
     },
     updateButtonText: {
-      color: colors.surface,
+      color: accent.on,
       fontSize: 15,
       fontWeight: "800",
     },

@@ -25,7 +25,7 @@ function localCrashRef(): string {
 export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const insets = useSafeAreaInsets();
 
@@ -47,7 +47,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
     if (reported) return;
     setReporting(true);
     try {
-      await customFetch("/api/v1/support/tickets", {
+      await customFetch("/support/tickets", {
         method: "POST",
         body: JSON.stringify({
           title: `App crash · ref ${crashRef}`,

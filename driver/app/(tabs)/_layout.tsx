@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import Colors from "@/constants/colors";
+import { fontFamilies } from "@/constants/typography";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
@@ -45,7 +46,7 @@ export default function TabLayout() {
             />
           ),
         tabBarLabelStyle: {
-          fontFamily: "Inter_500Medium",
+          fontFamily: fontFamilies.body.medium,
           fontSize: 11,
           marginTop: 2,
         },

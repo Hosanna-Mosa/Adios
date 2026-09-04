@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User, { UserRole } from "../../database/models/User";
 import { ValidationError, UnauthorizedError, NotFoundError, ForbiddenError } from "../../utils/errors";
+import { getJwtSecret } from "../../utils/jwtSecret";
 
 function buildLoginIdentifierQuery(identifier: string) {
   const trimmed = identifier.trim();
@@ -107,7 +108,7 @@ export class AuthService {
   generateToken(userId: string, role: UserRole) {
     return jwt.sign(
       { userId, role },
-      process.env.JWT_SECRET || "default_secret",
+      getJwtSecret(),
       { expiresIn: "30d" } // 30 days
     );
   }

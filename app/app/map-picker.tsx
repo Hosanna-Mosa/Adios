@@ -6,11 +6,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import { Alert } from "react-native";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -18,6 +18,8 @@ import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { LIGHT_GREEN_MAP_STYLE } from "@/constants/mapStyle";
 import { customFetch } from "@/utils/api/custom-fetch";
+import AppMapView from "@/components/AppMapView";
+import { fadeIn, modalSlideUp } from "@/motion/presets";
 
 export default function MapPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -47,7 +49,7 @@ export default function MapPickerScreen() {
   const [address, setAddress] = useState("Fetching address...");
   const [loading, setLoading] = useState(false);
   const [recentering, setRecentering] = useState(false);
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<React.ElementRef<typeof AppMapView>>(null);
 
   useEffect(() => {
     (async () => {
@@ -101,7 +103,7 @@ export default function MapPickerScreen() {
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      const checkRes = await customFetch<any>(`/api/v1/zones/check?lat=${region.latitude}&lng=${region.longitude}`);
+      const checkRes = await customFetch<any>(`/zones/check?lat=${region.latitude}&lng=${region.longitude}`);
       if (!checkRes || !checkRes.inZone) {
         Alert.alert("No Service", `No service at current ${step} location.`);
         return;
@@ -146,16 +148,15 @@ export default function MapPickerScreen() {
   return (
     <View style={styles.root}>
       <View style={styles.mapContainer}>
-        <MapView
+        <AppMapView
           ref={mapRef}
-          provider={PROVIDER_GOOGLE}
           style={StyleSheet.absoluteFill}
           initialRegion={region}
           onRegionChangeComplete={handleRegionChangeComplete}
           customMapStyle={LIGHT_GREEN_MAP_STYLE}
         />
 
-        <View style={styles.centerMarkerContainer} pointerEvents="none">
+        <Animated.View entering={fadeIn(150)} style={styles.centerMarkerContainer} pointerEvents="none">
           <View style={styles.dragHint}>
             <Text style={styles.dragHintText}>Drag to adjust</Text>
           </View>
@@ -167,7 +168,7 @@ export default function MapPickerScreen() {
             <View style={styles.pinStem} />
             <View style={styles.pinShadow} />
           </View>
-        </View>
+        </Animated.View>
 
         <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
@@ -182,11 +183,11 @@ export default function MapPickerScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.bottomPanel}>
+      <Animated.View entering={modalSlideUp} style={styles.bottomPanel}>
         <View style={styles.sheetHandle} />
         <Text style={styles.panelTitle}>Double check {step} point</Text>
         <Text style={styles.panelSub}>
-          Move the pin to where you'll actually stand. Captains cancel most often when the pin is inside a gated community.
+          Move the pin to where you&apos;ll actually stand. Captains cancel most often when the pin is inside a gated community.
         </Text>
 
         <View style={styles.addressCard}>
@@ -211,7 +212,7 @@ export default function MapPickerScreen() {
         <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} disabled={loading} activeOpacity={0.9}>
           <Text style={styles.confirmBtnText}>Confirm {step}</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }

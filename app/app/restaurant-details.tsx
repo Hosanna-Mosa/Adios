@@ -9,6 +9,7 @@ import {
   Linking,
   Platform,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +19,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { fadeInUp } from "@/motion/presets";
 
 interface VendorDetails {
   _id: string;
@@ -58,7 +60,7 @@ export default function RestaurantDetails() {
     const fetchVendorDetails = async () => {
       try {
         const baseUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
-        const response = await fetch(`${baseUrl}/api/v1/vendors/${id}`);
+        const response = await fetch(`${baseUrl}/vendors/${id}`);
         if (response.ok) setVendor(await response.json());
       } catch (error) {
         console.error("Error fetching vendor details:", error);
@@ -116,7 +118,7 @@ export default function RestaurantDetails() {
         <ActivityIndicator size="large" color={accent.accent} style={{ marginTop: 60 }} />
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
-          <View style={styles.section}>
+          <Animated.View entering={fadeInUp(0)} style={styles.section}>
             <Text style={styles.name}>{displayName}</Text>
             <View style={styles.badgeRow}>
               {vendor?.isPureVeg && (
@@ -143,7 +145,7 @@ export default function RestaurantDetails() {
             {!!vendor?.categories?.length && (
               <Text style={styles.cuisineLine}>{vendor.categories.join(" · ")}</Text>
             )}
-          </View>
+          </Animated.View>
 
           <View style={styles.divider} />
 
@@ -164,7 +166,7 @@ export default function RestaurantDetails() {
           )}
 
           {vendor?.address && (
-            <View style={styles.section}>
+            <Animated.View entering={fadeInUp(60)} style={styles.section}>
               <Text style={styles.sectionLabel}>Address</Text>
               <View style={styles.card}>
                 <Text style={styles.addressText}>
@@ -175,7 +177,7 @@ export default function RestaurantDetails() {
                   <Text style={styles.navigateBtnText}>Navigate in Google Maps</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </Animated.View>
           )}
 
           {(vendor?.phone || vendor?.email) && (
@@ -204,7 +206,7 @@ export default function RestaurantDetails() {
           {isMeat === "true" && !vendor && (
             <View style={styles.section}>
               <Text style={styles.hygieneText}>
-                Full details for meat centers aren't available yet — there's no public lookup endpoint for them, only the nearby-search listing.
+                Full details for meat centers aren&apos;t available yet — there&apos;s no public lookup endpoint for them, only the nearby-search listing.
               </Text>
             </View>
           )}

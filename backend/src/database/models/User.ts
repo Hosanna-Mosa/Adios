@@ -46,6 +46,7 @@ export interface IUser extends Document, IUserMethods {
   bookingPreference?: IBookingPreference;
   password?: string;
   favorites?: Types.ObjectId[];
+  favoriteItems?: Types.ObjectId[];
   isBlocked?: boolean;
   expoPushToken?: string;
   webPushSubscriptions?: IWebPushSubscription[];
@@ -109,6 +110,7 @@ const UserSchema: Schema = new Schema(
     },
     password: { type: String },
     favorites: [{ type: Schema.Types.ObjectId, ref: "Vendor", default: [] }],
+    favoriteItems: [{ type: Schema.Types.ObjectId, default: [] }],
   },
   { timestamps: true }
 );

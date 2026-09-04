@@ -4,9 +4,13 @@ import crypto from "crypto";
 
 dotenv.config();
 
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error("RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET environment variables are not set");
+}
+
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_Rbm66o8JPEj0P8",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "fbze5Ra1MSS1ExDE5tlszK22",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export class PaymentService {
@@ -27,12 +31,13 @@ export class PaymentService {
   }
 
   async verifyPayment(paymentId: string, orderId: string, signature: string) {
-    // Development Bypass: If testing with our mock frontend simulation
-    if (signature.startsWith("sig_")) {
+    // Development Bypass: If testing with our mock frontend simulation.
+    // Gated to non-production so this can never ship as a live payment-verification skip.
+    if (process.env.NODE_ENV !== "production" && signature.startsWith("sig_")) {
       return true;
     }
 
-    const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "fbze5Ra1MSS1ExDE5tlszK22");
+    const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!);
     hmac.update(orderId + "|" + paymentId);
     const generated_signature = hmac.digest("hex");
 

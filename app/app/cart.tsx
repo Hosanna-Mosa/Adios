@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,6 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image } from "expo-image";
+import Animated from "react-native-reanimated";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,6 +20,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { staggerListItem } from "@/motion/presets";
 
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
@@ -29,8 +31,8 @@ export default function CartScreen() {
   const { items, getTotalPrice, vendorId, updateQuantity, addItem } = useCartStore();
 
   // The cart doesn't currently track which service (food vs meat) its
-  // vendor belongs to, so this always renders in the food accent.
-  const accent = tokens.services.food;
+  // vendor belongs to, so this renders in the service-agnostic brand accent.
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [fetchedVendorName, setFetchedVendorName] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export default function CartScreen() {
     if (!vendorId) return;
     // Only food vendors expose a public by-id lookup today — meat centers
     // don't, so their delivery fee genuinely can't be sourced here yet.
-    customFetch<any>(`/api/v1/vendors/${vendorId}`)
+    customFetch<any>(`/vendors/${vendorId}`)
       .then((v) => {
         if (v?.name) setFetchedVendorName(v.name);
         if (typeof v?.deliveryFee === "number") setDeliveryFee(v.deliveryFee);
@@ -59,7 +61,7 @@ export default function CartScreen() {
 
   useEffect(() => {
     if (!vendorId) return;
-    customFetch<any[]>(`/api/v1/food/vendor/${vendorId}`)
+    customFetch<any[]>(`/food/vendor/${vendorId}`)
       .then((data) => {
         if (data?.length) setMenuItems(data);
         else fetchMeatMenu();
@@ -67,7 +69,7 @@ export default function CartScreen() {
       .catch(fetchMeatMenu);
 
     function fetchMeatMenu() {
-      customFetch<any[]>(`/api/v1/meat/menu/${vendorId}`)
+      customFetch<any[]>(`/meat/menu/${vendorId}`)
         .then((meatData) => {
           if (Array.isArray(meatData)) {
             setMenuItems(
@@ -88,7 +90,7 @@ export default function CartScreen() {
   useEffect(() => {
     if (items.length > 0) return;
     setLoadingRecent(true);
-    customFetch<any[]>("/api/v1/orders")
+    customFetch<any[]>("/orders")
       .then((orders) => {
         const withVendor = (orders || []).filter((o) => o.vendor);
         const seen = new Set<string>();
@@ -128,7 +130,7 @@ export default function CartScreen() {
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const response = await customFetch<any>("/api/v1/orders/validate-coupon", {
+      const response = await customFetch<any>("/orders/validate-coupon", {
         method: "POST",
         body: JSON.stringify({ code: promoCode.trim(), cartTotal: subtotal }),
       });
@@ -227,7 +229,7 @@ export default function CartScreen() {
           {loadingRecent && <ActivityIndicator style={{ marginTop: 20 }} color={accent.accent} />}
         </ScrollView>
 
-        <AppTabBar active="home" accent="food" />
+        <AppTabBar active="cart" />
       </View>
     );
   }
@@ -248,10 +250,10 @@ export default function CartScreen() {
         <View style={styles.section}>
           <View style={styles.itemsCard}>
             {items.map((item, idx) => (
-              <View key={item._id} style={[styles.itemRow, idx < items.length - 1 && styles.itemRowDivider]}>
+              <Animated.View key={item._id} entering={staggerListItem(idx)} style={[styles.itemRow, idx < items.length - 1 && styles.itemRowDivider]}>
                 <View style={styles.itemThumbWrap}>
                   {item.images?.[0] ? (
-                    <Image source={{ uri: item.images[0] }} style={styles.itemThumb} />
+                    <Image source={{ uri: item.images[0] }} style={styles.itemThumb} contentFit="cover" transition={200} />
                   ) : (
                     <View style={[styles.itemThumb, styles.itemThumbFallback]}>
                       <Ionicons name="restaurant-outline" size={moderateScale(16)} color={tokens.muted} />
@@ -279,7 +281,7 @@ export default function CartScreen() {
                   </TouchableOpacity>
                 </View>
                 <Text style={styles.itemLinePrice}>₹{item.price * item.quantity}</Text>
-              </View>
+              </Animated.View>
             ))}
             <TouchableOpacity style={styles.addMoreRow} onPress={() => router.back()}>
               <Text style={styles.addMoreText}>+ Add more items</Text>
@@ -291,9 +293,9 @@ export default function CartScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Complement your cart</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-              {complements.slice(0, 8).map((comp) => (
-                <View key={comp._id} style={styles.complementCard}>
-                  <Image source={{ uri: comp.images?.[0] }} style={styles.complementImage} />
+              {complements.slice(0, 8).map((comp, idx) => (
+                <Animated.View key={comp._id} entering={staggerListItem(idx)} style={styles.complementCard}>
+                  <Image source={{ uri: comp.images?.[0] }} style={styles.complementImage} contentFit="cover" transition={200} />
                   <Text style={styles.complementName} numberOfLines={1}>{comp.name}</Text>
                   <View style={styles.complementFooter}>
                     <Text style={styles.complementPrice}>₹{comp.price}</Text>
@@ -301,7 +303,7 @@ export default function CartScreen() {
                       <Ionicons name="add" size={16} color={accent.accent} />
                     </TouchableOpacity>
                   </View>
-                </View>
+                </Animated.View>
               ))}
             </ScrollView>
           </View>

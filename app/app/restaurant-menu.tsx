@@ -1,15 +1,16 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
   Modal,
 } from "react-native";
+import { Image } from "expo-image";
+import Animated from "react-native-reanimated";
 import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,6 +24,7 @@ import { useCartStore } from "@/contexts/cartStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { shareRestaurant } from "@/utils/shareLink";
+import { staggerListItem } from "@/motion/presets";
 
 interface FoodItem {
   _id: string;
@@ -53,6 +55,11 @@ export default function RestaurantMenu() {
   const user = useAuthStore((s) => s.user);
   const toggleFavorite = useAuthStore((s) => s.toggleFavorite);
   const isFavorite = useMemo(() => user?.favorites?.includes(id as string) || false, [user?.favorites, id]);
+  const toggleFavoriteItem = useAuthStore((s) => s.toggleFavoriteItem);
+  const isDishFavorite = useCallback(
+    (dishId: string) => user?.favoriteItems?.includes(dishId) || false,
+    [user?.favoriteItems]
+  );
 
   const [loading, setLoading] = useState(true);
   const [menu, setMenu] = useState<FoodItem[]>([]);
@@ -124,8 +131,8 @@ export default function RestaurantMenu() {
       try {
         const baseUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
         const endpoint = isMeat === "true"
-          ? `${baseUrl}/api/v1/meat/menu/${id}`
-          : `${baseUrl}/api/v1/food/vendor/${id}`;
+          ? `${baseUrl}/meat/menu/${id}`
+          : `${baseUrl}/food/vendor/${id}`;
 
         const response = await fetch(endpoint);
         const data = await response.json();
@@ -242,7 +249,7 @@ export default function RestaurantMenu() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        <Image source={{ uri: (image as string) || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600" }} style={styles.heroImage} />
+        <Image source={{ uri: (image as string) || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600" }} style={styles.heroImage} contentFit="cover" transition={200} />
 
         <View style={styles.sheet}>
           <TouchableOpacity
@@ -337,8 +344,8 @@ export default function RestaurantMenu() {
                 const cartItem = items.find((i) => i._id === item._id);
                 const soldOut = item.isAvailable === false;
                 return (
+                  <Animated.View key={item._id} entering={staggerListItem(idx)}>
                   <TouchableOpacity
-                    key={item._id}
                     activeOpacity={0.85}
                     onPress={() => setSelectedDishDetail(item)}
                     style={[
@@ -367,6 +374,8 @@ export default function RestaurantMenu() {
                       <Image
                         source={{ uri: item.images?.[0] || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }}
                         style={styles.rowImage}
+                        contentFit="cover"
+                        transition={200}
                       />
                       {soldOut ? (
                         <View style={styles.soldOutBadge}><Text style={styles.soldOutText}>Sold out</Text></View>
@@ -391,6 +400,7 @@ export default function RestaurantMenu() {
                       )}
                     </View>
                   </TouchableOpacity>
+                  </Animated.View>
                 );
               })}
             </View>
@@ -407,6 +417,8 @@ export default function RestaurantMenu() {
               <Image
                 source={{ uri: selectedDishDetail.images?.[0] || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=800" }}
                 style={styles.modalImage}
+                contentFit="cover"
+                transition={200}
               />
               <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setSelectedDishDetail(null)}>
                 <Ionicons name="close" size={22} color="#fff" />
@@ -430,6 +442,17 @@ export default function RestaurantMenu() {
                     <Text style={styles.modalTitle}>{selectedDishDetail.name}</Text>
                     <Text style={styles.modalPrice}>₹{selectedDishDetail.price}</Text>
                   </View>
+                  <TouchableOpacity
+                    style={styles.modalFavoriteBtn}
+                    onPress={() => toggleFavoriteItem(selectedDishDetail._id)}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Ionicons
+                      name={isDishFavorite(selectedDishDetail._id) ? "heart" : "heart-outline"}
+                      size={moderateScale(20)}
+                      color={isDishFavorite(selectedDishDetail._id) ? accent.accent : tokens.sec}
+                    />
+                  </TouchableOpacity>
                 </View>
                 <Text style={styles.modalDesc}>{selectedDishDetail.description}</Text>
 
@@ -581,6 +604,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     modalHeadRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
     modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(21), letterSpacing: -0.2, color: tokens.text },
     modalPrice: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.sec, marginTop: 4 },
+    modalFavoriteBtn: { padding: 4 },
     modalDesc: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec, marginTop: 12 },
     modalSoldOut: { marginTop: 18, alignSelf: "flex-start", backgroundColor: tokens.sunken, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9 },
     modalAddBtn: { marginTop: 18, backgroundColor: accent.accent, borderRadius: 14, paddingVertical: 15, alignItems: "center" },

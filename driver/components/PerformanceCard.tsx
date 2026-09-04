@@ -41,7 +41,7 @@ export function PerformanceCard({ stats }: PerformanceCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.title}>Today's Performance</Text>
+        <Text style={styles.title}>Today&apos;s Performance</Text>
         <TouchableOpacity style={styles.dropdown}>
           <Text style={styles.dropdownText}>This Week</Text>
           <Feather name="chevron-down" size={14} color={Colors.textSecondary} />

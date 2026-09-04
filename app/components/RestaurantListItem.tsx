@@ -1,12 +1,17 @@
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
+import Animated from "react-native-reanimated";
+import { designTokens, radius, elevation, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
+import { usePressScale } from "@/motion/presets";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface Props {
   _id: string;
@@ -51,6 +56,7 @@ export function RestaurantListItem({
   const user = useAuthStore((s) => s.user);
   const toggleFavorite = useAuthStore((s) => s.toggleFavorite);
   const isFavorite = React.useMemo(() => user?.favorites?.includes(_id) || false, [user?.favorites, _id]);
+  const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.98);
 
   const categoryLabel = Array.isArray(categories) ? categories.slice(0, 2).join(", ") : categories;
 
@@ -74,12 +80,13 @@ export function RestaurantListItem({
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.card, isOpen === false && styles.cardClosed]}
-      activeOpacity={0.85}
+    <AnimatedPressable
+      style={[styles.card, animatedStyle, isOpen === false && styles.cardClosed]}
       onPress={handlePress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
     >
-      <Image source={{ uri: image }} style={styles.thumb} resizeMode="cover" />
+      <Image source={{ uri: image }} style={styles.thumb} contentFit="cover" transition={200} />
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
@@ -124,7 +131,7 @@ export function RestaurantListItem({
           )
         )}
       </View>
-    </TouchableOpacity>
+    </AnimatedPressable>
   );
 }
 
@@ -135,18 +142,19 @@ const createStyles = (tokens: ThemeTokens, accentColor: string) => StyleSheet.cr
     backgroundColor: tokens.surface,
     borderWidth: 1,
     borderColor: tokens.border,
-    borderRadius: moderateScale(18),
+    borderRadius: radius.lg,
     padding: 14,
     marginHorizontal: 16,
     marginBottom: 14,
+    ...elevation.sm,
   },
   cardClosed: {
     opacity: 0.7,
   },
   thumb: {
-    width: moderateScale(88),
-    height: moderateScale(88),
-    borderRadius: moderateScale(8),
+    width: moderateScale(90),
+    height: moderateScale(90),
+    borderRadius: radius.sm,
     backgroundColor: tokens.sunken,
     flexShrink: 0,
   },

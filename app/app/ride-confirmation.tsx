@@ -16,14 +16,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import MapView, { Marker, Callout, PROVIDER_GOOGLE, Polyline } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
+import Animated from "react-native-reanimated";
+import MapView, { Marker, Callout, PROVIDER_GOOGLE, Polyline } from "@/components/maps";
+import MapViewDirections from "@/components/maps/MapViewDirections";
 import * as Location from "expo-location";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { fadeIn, fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -136,7 +138,7 @@ export default function RideConfirmationScreen() {
                 dropLng: String(dropCoords.longitude),
                 serviceType: tier.id,
               });
-              const estimate = await customFetch<FareEstimate>(`/api/v1/orders/estimate-fare?${query}`, { responseType: "json" });
+              const estimate = await customFetch<FareEstimate>(`/orders/estimate-fare?${query}`, { responseType: "json" });
               return [tier.id, estimate] as const;
             } catch {
               return [tier.id, null] as const;
@@ -224,7 +226,7 @@ export default function RideConfirmationScreen() {
     let cancelled = false;
     const loadBackendRoute = async () => {
       try {
-        const route = await customFetch<RouteOptimizeResponse>("/api/v1/routing/optimize", {
+        const route = await customFetch<RouteOptimizeResponse>("/routing/optimize", {
           method: "POST",
           body: JSON.stringify({
             origin: { latitude: pickupCoords.latitude, longitude: pickupCoords.longitude },
@@ -251,7 +253,7 @@ export default function RideConfirmationScreen() {
       if (!Number.isFinite(pickupCoords.latitude) || !Number.isFinite(pickupCoords.longitude)) return;
       try {
         const drivers = await customFetch<any[]>(
-          `/api/v1/drivers/nearby?latitude=${pickupCoords.latitude}&longitude=${pickupCoords.longitude}&radius=50000`,
+          `/drivers/nearby?latitude=${pickupCoords.latitude}&longitude=${pickupCoords.longitude}&radius=50000`,
           { responseType: "json" }
         );
         const mapped = (drivers || [])
@@ -327,7 +329,7 @@ export default function RideConfirmationScreen() {
         ...stops.map((s: any) => ({ address: s.name, latitude: s.lat, longitude: s.lng, type: "stop" })),
         { address: params.dropName, latitude: dropCoords.latitude, longitude: dropCoords.longitude, type: "drop" },
       ];
-      const res = await customFetch<{ _id: string }>("/api/v1/orders", {
+      const res = await customFetch<{ _id: string }>("/orders", {
         method: "POST",
         body: JSON.stringify({
           stops: orderStops,
@@ -365,15 +367,15 @@ export default function RideConfirmationScreen() {
     return (
       <View style={styles.root}>
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-          <View style={styles.successBlock}>
+          <Animated.View style={styles.successBlock} entering={fadeInUp(0)}>
             <View style={styles.successIcon}>
               <Ionicons name="checkmark" size={moderateScale(32)} color="#fff" />
             </View>
             <Text style={styles.successTitle}>Reservation{"\n"}confirmed</Text>
-            <Text style={styles.successSub}>We'll assign your captain at {confirmedReservation.timeStr} and notify you.</Text>
-          </View>
+            <Text style={styles.successSub}>We&apos;ll assign your captain at {confirmedReservation.timeStr} and notify you.</Text>
+          </Animated.View>
 
-          <View style={styles.section}>
+          <Animated.View style={styles.section} entering={fadeInUp(100)}>
             <View style={styles.detailsCard}>
               <View style={styles.detailsRow}><Text style={styles.detailsLabel}>Service</Text><Text style={styles.detailsValue}>{confirmedReservation.tierName}</Text></View>
               <View style={styles.detailsRow}><Text style={styles.detailsLabel}>Pickup time</Text><Text style={styles.detailsValue}>{confirmedReservation.dateTimeStr}</Text></View>
@@ -385,17 +387,17 @@ export default function RideConfirmationScreen() {
               </View>
             </View>
             <Text style={styles.estimateNote}>Estimated · final fare may change with route and waiting time.</Text>
-          </View>
+          </Animated.View>
         </ScrollView>
 
-        <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
+        <Animated.View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]} entering={fadeInUp(160)}>
           <TouchableOpacity style={styles.footerPrimaryBtn} onPress={() => router.replace("/(tabs)/orders")}>
             <Text style={styles.footerPrimaryBtnText}>View my orders</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.footerSecondaryBtn} onPress={() => router.replace("/(tabs)")}>
             <Text style={styles.footerSecondaryBtnText}>Back to home</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     );
   }
@@ -486,7 +488,7 @@ export default function RideConfirmationScreen() {
           )}
         </MapView>
 
-        <View style={[styles.mapOverlay, { top: insets.top + 10 }]}>
+        <Animated.View style={[styles.mapOverlay, { top: insets.top + 10 }]} entering={fadeIn(0)}>
           <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
             <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
           </TouchableOpacity>
@@ -501,17 +503,17 @@ export default function RideConfirmationScreen() {
               <Ionicons name="add" size={20} color={tokens.text} />
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.routeChip}>
+        <Animated.View style={styles.routeChip} entering={fadeIn(60)}>
           <Text style={styles.routeChipMain} numberOfLines={1}>{getDisplayName(params.pickupName)} → {getDisplayName(params.dropName)}</Text>
           {selectedFare && (
             <Text style={styles.routeChipSub}>{selectedFare.distanceInKm.toFixed(1)} km · about {selectedFare.estimatedMinutes} min</Text>
           )}
-        </View>
+        </Animated.View>
       </View>
 
-      <View style={styles.sheet}>
+      <Animated.View style={styles.sheet} entering={modalSlideUp}>
         <View style={styles.sheetHandle} />
         <View style={styles.sheetHeadRow}>
           <Text style={styles.sheetTitle}>Choose a trip</Text>
@@ -522,31 +524,32 @@ export default function RideConfirmationScreen() {
 
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20 }} showsVerticalScrollIndicator={false}>
           <View style={{ gap: 8 }}>
-            {ENABLED_TIERS.map((tier) => {
+            {ENABLED_TIERS.map((tier, i) => {
               const isSelected = selectedTier === tier.id;
               const fare = tierFares[tier.id];
               return (
-                <TouchableOpacity
-                  key={tier.id}
-                  style={[styles.tierRow, isSelected && styles.tierRowSelected]}
-                  onPress={() => setSelectedTier(tier.id)}
-                  activeOpacity={0.85}
-                >
-                  <View style={styles.tierIconCircle}><Text style={{ fontSize: 20 }}>{tier.icon}</Text></View>
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.tierName}>{tier.name}</Text>
-                    <Text style={styles.tierMeta}>
-                      {tier.capacity}{fare ? ` · ${fare.estimatedMinutes} min away` : ""}
-                    </Text>
-                  </View>
-                  <View style={{ alignItems: "flex-end" }}>
-                    {loadingFares && !fare ? (
-                      <ActivityIndicator size="small" color={accent.accent} />
-                    ) : (
-                      <Text style={styles.tierPrice}>{fare ? `₹${Math.round(fare.fareBreakdown.total)}` : "—"}</Text>
-                    )}
-                  </View>
-                </TouchableOpacity>
+                <Animated.View key={tier.id} entering={staggerListItem(i)}>
+                  <TouchableOpacity
+                    style={[styles.tierRow, isSelected && styles.tierRowSelected]}
+                    onPress={() => setSelectedTier(tier.id)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={styles.tierIconCircle}><Text style={{ fontSize: 20 }}>{tier.icon}</Text></View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={styles.tierName}>{tier.name}</Text>
+                      <Text style={styles.tierMeta}>
+                        {tier.capacity}{fare ? ` · ${fare.estimatedMinutes} min away` : ""}
+                      </Text>
+                    </View>
+                    <View style={{ alignItems: "flex-end" }}>
+                      {loadingFares && !fare ? (
+                        <ActivityIndicator size="small" color={accent.accent} />
+                      ) : (
+                        <Text style={styles.tierPrice}>{fare ? `₹${Math.round(fare.fareBreakdown.total)}` : "—"}</Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                </Animated.View>
               );
             })}
           </View>
@@ -579,7 +582,7 @@ export default function RideConfirmationScreen() {
             )}
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
 
       <Modal visible={showDatePicker} transparent animationType="slide" onRequestClose={() => setShowDatePicker(false)}>
         <View style={styles.sheetOverlay}>
@@ -587,7 +590,7 @@ export default function RideConfirmationScreen() {
           <View style={[styles.datePickerSheet, { paddingBottom: insets.bottom + 16 }]}>
             <View style={styles.sheetHandle} />
             <Text style={styles.datePickerTitle}>Schedule a ride</Text>
-            <Text style={styles.datePickerSub}>We'll assign a captain 15 minutes before pickup.</Text>
+            <Text style={styles.datePickerSub}>We&apos;ll assign a captain 15 minutes before pickup.</Text>
 
             <Text style={styles.pickerLabel}>Date</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginBottom: 20 }}>
@@ -595,10 +598,12 @@ export default function RideConfirmationScreen() {
                 const isSelected = reserveDate.toDateString() === date.toDateString();
                 const dayName = idx === 0 ? "Today" : date.toLocaleDateString([], { weekday: "short" });
                 return (
-                  <TouchableOpacity key={idx} style={[styles.dateCard, isSelected && { borderColor: accent.accent, backgroundColor: accent.skin }]} onPress={() => setReserveDate(date)}>
-                    <Text style={[styles.dateCardDay, isSelected && { color: accent.accent }]}>{dayName}</Text>
-                    <Text style={[styles.dateCardNum, isSelected && { color: accent.accent }]}>{date.getDate()}</Text>
-                  </TouchableOpacity>
+                  <Animated.View key={idx} entering={staggerListItem(idx, 30)}>
+                    <TouchableOpacity style={[styles.dateCard, isSelected && { borderColor: accent.accent, backgroundColor: accent.skin }]} onPress={() => setReserveDate(date)}>
+                      <Text style={[styles.dateCardDay, isSelected && { color: accent.accent }]}>{dayName}</Text>
+                      <Text style={[styles.dateCardNum, isSelected && { color: accent.accent }]}>{date.getDate()}</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
                 );
               })}
             </ScrollView>

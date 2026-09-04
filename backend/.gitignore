@@ -39,3 +39,9 @@ yarn-error.*
 .vercel
 
 .env
+
+# ad-hoc one-off debug/scratch scripts dropped in the backend root
+# (legitimate one-off scripts belong in backend/src/scripts/)
+/*.ts
+/*.js
+!/eslint.config.js

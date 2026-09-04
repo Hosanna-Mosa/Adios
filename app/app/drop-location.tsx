@@ -11,6 +11,7 @@ import {
   Modal,
   TextInput,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
@@ -25,6 +26,7 @@ import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 type RecentPlace = {
   id: string;
@@ -96,7 +98,7 @@ export default function LocationSelectionScreen() {
     if (!user?.id) return;
     (async () => {
       try {
-        const profile = await customFetch<any>("/api/v1/users/profile");
+        const profile = await customFetch<any>("/users/profile");
         if (profile?.bookingPreference?.type) {
           setBookingFor(profile.bookingPreference.type);
           if (profile.bookingPreference.contactNumber) {
@@ -110,7 +112,7 @@ export default function LocationSelectionScreen() {
   }, [user?.id]);
 
   useEffect(() => {
-    customFetch<any[]>("/api/v1/users/addresses")
+    customFetch<any[]>("/users/addresses")
       .then((data) => setSavedAddresses(Array.isArray(data) ? data.slice(0, 3) : []))
       .catch(() => {});
   }, [user?.id]);
@@ -246,7 +248,7 @@ export default function LocationSelectionScreen() {
         ? `&lat=${encodeURIComponent(String(pickup.lat))}&lng=${encodeURIComponent(String(pickup.lng))}`
         : "";
       const data = await customFetch<any[]>(
-        `/api/v1/places/autocomplete?input=${encodeURIComponent(text)}${locationQuery}`,
+        `/places/autocomplete?input=${encodeURIComponent(text)}${locationQuery}`,
         { responseType: "json" },
       );
       if (requestId === searchRequestIdRef.current) {
@@ -269,7 +271,7 @@ export default function LocationSelectionScreen() {
     try {
       const details = Number.isFinite(Number(result.lat)) && Number.isFinite(Number(result.lng))
         ? { lat: Number(result.lat), lng: Number(result.lng) }
-        : await customFetch<{ lat: number, lng: number }>(`/api/v1/places/details/${result.id}`);
+        : await customFetch<{ lat: number, lng: number }>(`/places/details/${result.id}`);
       const completeData = {
         description: result.address,
         lat: details.lat,
@@ -305,7 +307,7 @@ export default function LocationSelectionScreen() {
 
     if (lat && lng) {
       try {
-        const checkRes = await customFetch<any>(`/api/v1/zones/check?lat=${lat}&lng=${lng}`);
+        const checkRes = await customFetch<any>(`/zones/check?lat=${lat}&lng=${lng}`);
         if (!checkRes || !checkRes.inZone) {
           Alert.alert("No Service", `No service at current ${type} location.`);
           if (type === 'pickup') {
@@ -412,7 +414,7 @@ export default function LocationSelectionScreen() {
 
       // Check zone for current location
       try {
-        const checkRes = await customFetch<any>(`/api/v1/zones/check?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
+        const checkRes = await customFetch<any>(`/zones/check?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
         if (!checkRes || !checkRes.inZone) {
           Alert.alert("No Service", "No service at current pickup location.");
           pickupRef.current?.setAddressText("");
@@ -481,7 +483,7 @@ export default function LocationSelectionScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.inputCard}>
+      <Animated.View entering={fadeInUp(0)} style={styles.inputCard}>
         <View style={styles.dotsContainer}>
           <View style={styles.pickupDot} />
           <View style={styles.dashLine} />
@@ -580,9 +582,9 @@ export default function LocationSelectionScreen() {
             />
           </View>
         </View>
-      </View>
+      </Animated.View>
 
-      <View style={styles.actionRow}>
+      <Animated.View entering={fadeInUp(80)} style={styles.actionRow}>
         <TouchableOpacity
           style={styles.actionBtn}
           onPress={handleAddStop}
@@ -608,7 +610,7 @@ export default function LocationSelectionScreen() {
           <Ionicons name="locate-outline" size={15} color={tokens.sec} />
           <Text style={styles.actionBtnText}>Select on map</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       <ScrollView style={styles.placesScroll} keyboardShouldPersistTaps="handled">
         {!isSearching && savedAddresses.length > 0 && (
@@ -616,19 +618,20 @@ export default function LocationSelectionScreen() {
             <Text style={styles.sectionTitle}>Saved places</Text>
             <View style={styles.savedCard}>
               {savedAddresses.map((addr, idx) => (
-                <TouchableOpacity
-                  key={addr._id}
-                  style={[styles.savedRow, idx < savedAddresses.length - 1 && styles.savedRowDivider]}
-                  onPress={() => selectSavedAddress(addr)}
-                >
-                  <View style={styles.savedAvatar}>
-                    <Text style={styles.savedAvatarText}>{(addr.label || "?")[0].toUpperCase()}</Text>
-                  </View>
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.savedLabel}>{addr.label || "Address"}</Text>
-                    <Text style={styles.savedAddress} numberOfLines={1}>{addr.addressLine}</Text>
-                  </View>
-                </TouchableOpacity>
+                <Animated.View key={addr._id} entering={staggerListItem(idx)}>
+                  <TouchableOpacity
+                    style={[styles.savedRow, idx < savedAddresses.length - 1 && styles.savedRowDivider]}
+                    onPress={() => selectSavedAddress(addr)}
+                  >
+                    <View style={styles.savedAvatar}>
+                      <Text style={styles.savedAvatarText}>{(addr.label || "?")[0].toUpperCase()}</Text>
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={styles.savedLabel}>{addr.label || "Address"}</Text>
+                      <Text style={styles.savedAddress} numberOfLines={1}>{addr.addressLine}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </Animated.View>
               ))}
             </View>
           </View>
@@ -650,36 +653,37 @@ export default function LocationSelectionScreen() {
           <View style={styles.emptyRecents}>
             <Text style={styles.emptyRecentsText}>Your searched places will appear here.</Text>
           </View>
-        ) : (isSearching ? searchResults : recentPlaces).map((place) => (
-          <TouchableOpacity
-            key={place.id}
-            style={styles.placeItem}
-            onPress={() => {
-              if (isSearching) {
-                selectResult(place);
-              } else {
-                if (!pickup) {
-                  pickupRef.current?.setAddressText(place.address || place.name);
-                  handleSelection('pickup', { id: place.id, name: place.name, description: place.address || place.name, lat: place.lat, lng: place.lng }, null);
+        ) : (isSearching ? searchResults : recentPlaces).map((place, idx) => (
+          <Animated.View key={place.id} entering={staggerListItem(idx)}>
+            <TouchableOpacity
+              style={styles.placeItem}
+              onPress={() => {
+                if (isSearching) {
+                  selectResult(place);
                 } else {
-                  dropRef.current?.setAddressText(place.address || place.name);
-                  handleSelection('drop', { id: place.id, name: place.name, description: place.address || place.name, lat: place.lat, lng: place.lng }, null);
+                  if (!pickup) {
+                    pickupRef.current?.setAddressText(place.address || place.name);
+                    handleSelection('pickup', { id: place.id, name: place.name, description: place.address || place.name, lat: place.lat, lng: place.lng }, null);
+                  } else {
+                    dropRef.current?.setAddressText(place.address || place.name);
+                    handleSelection('drop', { id: place.id, name: place.name, description: place.address || place.name, lat: place.lat, lng: place.lng }, null);
+                  }
                 }
-              }
-            }}
-          >
-            <View style={styles.placeIconBox}>
-              <Ionicons
-                name={isSearching ? "search" : "time-outline"}
-                size={17}
-                color={tokens.sec}
-              />
-            </View>
-            <View style={styles.placeInfo}>
-              <Text style={styles.placeName}>{place.name}</Text>
-              <Text style={styles.placeAddress} numberOfLines={1}>{place.address}</Text>
-            </View>
-          </TouchableOpacity>
+              }}
+            >
+              <View style={styles.placeIconBox}>
+                <Ionicons
+                  name={isSearching ? "search" : "time-outline"}
+                  size={17}
+                  color={tokens.sec}
+                />
+              </View>
+              <View style={styles.placeInfo}>
+                <Text style={styles.placeName}>{place.name}</Text>
+                <Text style={styles.placeAddress} numberOfLines={1}>{place.address}</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
         ))}
       </ScrollView>
 
@@ -745,7 +749,7 @@ export default function LocationSelectionScreen() {
 
           <View style={styles.infoBox}>
             <Ionicons name="information-circle-outline" size={16} color={tokens.sec} />
-            <Text style={styles.infoText}>Contact name won't be shared with driver</Text>
+            <Text style={styles.infoText}>Contact name won&apos;t be shared with driver</Text>
           </View>
 
           <TouchableOpacity
@@ -758,7 +762,7 @@ export default function LocationSelectionScreen() {
               if (user?.id) {
                 try {
                   setSavingPreference(true);
-                  await customFetch("/api/v1/users/booking-preference", {
+                  await customFetch("/users/booking-preference", {
                     method: "PATCH",
                     body: JSON.stringify({
                       type: bookingFor,

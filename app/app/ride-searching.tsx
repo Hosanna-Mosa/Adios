@@ -7,12 +7,12 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Animated,
   Image,
 } from "react-native";
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "@/components/maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Colors from "@/constants/colors";
@@ -64,45 +64,22 @@ export default function RideSearchingScreen() {
   const { currentOrderId, setOrderId: setCurrentOrderId, setServiceType: setGlobalServiceType, setDriver: setGlobalDriver, setStatus: setGlobalStatus } = useDeliveryStore();
   const mapRef = React.useRef<MapView>(null);
 
-  const animatedProgress = React.useRef(new Animated.Value(0)).current;
-  const dotOpacity = React.useRef(new Animated.Value(1)).current;
+  const animatedProgress = useSharedValue(0);
+  const dotOpacity = useSharedValue(1);
 
   React.useEffect(() => {
-    const anim = Animated.loop(
-      Animated.timing(animatedProgress, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: true,
-      })
-    );
-    anim.start();
-    return () => anim.stop();
-  }, []);
+    animatedProgress.value = withRepeat(withTiming(1, { duration: 2000 }), -1, false);
+  }, [animatedProgress]);
 
   React.useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(dotOpacity, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(dotOpacity, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, []);
+    dotOpacity.value = withRepeat(withSequence(withTiming(0.3, { duration: 800 }), withTiming(1, { duration: 800 })), -1, false);
+  }, [dotOpacity]);
 
   const screenWidth = Dimensions.get("window").width;
-  const translateX = animatedProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-120, screenWidth],
-  });
+  const progressBarStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(animatedProgress.value, [0, 1], [-120, screenWidth]) }],
+  }));
+  const dotStyle = useAnimatedStyle(() => ({ opacity: dotOpacity.value }));
 
 
   const params = useLocalSearchParams<{
@@ -162,7 +139,7 @@ export default function RideSearchingScreen() {
           radius: "5000",
           vehicleType: service,
         });
-        const res = await customFetch<OnlineDriver[]>(`/api/v1/drivers/nearby?${queryParams.toString()}`);
+        const res = await customFetch<OnlineDriver[]>(`/drivers/nearby?${queryParams.toString()}`);
         console.log(`[CLIENT DRIVER SEARCH RESPONSE] Returned count: ${res ? res.length : 0}, data: ${JSON.stringify(res)}`);
         if (active && Array.isArray(res)) {
           setOnlineDrivers(res);
@@ -212,7 +189,7 @@ export default function RideSearchingScreen() {
   React.useEffect(() => {
     const createRideOrder = async () => {
       try {
-        const order = await customFetch<any>("/api/v1/orders", {
+        const order = await customFetch<any>("/orders", {
           method: "POST",
           responseType: "json",
           body: JSON.stringify({
@@ -314,7 +291,7 @@ export default function RideSearchingScreen() {
 
     if (orderIdToCancel) {
       try {
-        await customFetch(`/api/v1/orders/${orderIdToCancel}/status`, {
+        await customFetch(`/orders/${orderIdToCancel}/status`, {
           method: "PATCH",
           body: JSON.stringify({ status: "CANCELLED" }),
         });
@@ -423,21 +400,14 @@ export default function RideSearchingScreen() {
 
           <View style={styles.headerInfo}>
             <View style={styles.statusDotRow}>
-              <Animated.View style={[styles.pulseDot, { opacity: dotOpacity, backgroundColor: colors.success }]} />
+              <Animated.View style={[styles.pulseDot, dotStyle, { backgroundColor: colors.success }]} />
               <Text style={styles.title}>Finding your captain...</Text>
             </View>
             <Text style={styles.subtitle}>Connecting with nearby drivers in your area</Text>
           </View>
 
           <View style={styles.progressTrack}>
-            <Animated.View
-              style={[
-                styles.progressBarActive,
-                {
-                  transform: [{ translateX }],
-                },
-              ]}
-            />
+            <Animated.View style={[styles.progressBarActive, progressBarStyle]} />
           </View>
 
           <View style={[styles.fareCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight }]}>
@@ -459,7 +429,7 @@ export default function RideSearchingScreen() {
                 <Ionicons name="person" size={20} color={colors.text} />
               </View>
               <Text style={[styles.suggestionTitle, { color: colors.text }]}>
-                Captains aren't accepting at ₹{fare}. Try adding more:
+                Captains aren&apos;t accepting at ₹{fare}. Try adding more:
               </Text>
             </View>
 

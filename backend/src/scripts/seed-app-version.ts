@@ -4,7 +4,10 @@ import AppVersion from "../database/models/AppVersion";
 
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL || "mongodb+srv://sunandvemavarapu_db_user:h5wPWY3uxifM95Rr@cluster0.tdar1ey.mongodb.net/?appName=Cluster0";
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined in .env");
+}
 
 const initialVersions = [
   {
@@ -27,7 +30,7 @@ async function seedAppVersions() {
   console.log("==================================================");
   console.log(`Connecting to database...`);
   try {
-    await mongoose.connect(DATABASE_URL);
+    await mongoose.connect(DATABASE_URL!);
     console.log("Connected successfully to MongoDB.");
 
     console.log("Cleaning up existing app version records...");

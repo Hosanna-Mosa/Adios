@@ -6,9 +6,12 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Button } from "@/components/ui/Button";
+import { fadeInUp } from "@/motion/presets";
 
 interface GoOnlineModalProps {
   visible: boolean;
@@ -63,15 +66,15 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
           </View>
 
           {showSuccess ? (
-            <View style={styles.successContainer}>
+            <Animated.View entering={fadeInUp(0)} style={styles.successContainer}>
               <View style={styles.successIconWrap}>
                 <Feather name="check-circle" size={56} color={Colors.success} />
               </View>
-              <Text style={styles.successTitle}>You're Online!</Text>
+              <Text style={styles.successTitle}>You&apos;re Online!</Text>
               <Text style={styles.successText}>
-                You'll receive orders for {selectedServices.join(" & ")}
+                You&apos;ll receive orders for {selectedServices.join(" & ")}
               </Text>
-            </View>
+            </Animated.View>
           ) : (
             <>
               {/* Header */}
@@ -170,20 +173,13 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
 
               {/* Actions */}
               <View style={styles.actions}>
-                <Pressable
-                  style={[
-                    styles.goOnlineBtn,
-                    selectedServices.length === 0 && styles.goOnlineBtnDisabled,
-                  ]}
+                <Button
+                  title={`Go Online${selectedServices.length > 0 ? ` (${selectedServices.length})` : ""}`}
                   onPress={handleGoOnline}
                   disabled={selectedServices.length === 0}
-                >
-                  <Feather name="wifi" size={18} color={Colors.white} />
-                  <Text style={styles.goOnlineBtnText}>
-                    Go Online
-                    {selectedServices.length > 0 && ` (${selectedServices.length})`}
-                  </Text>
-                </Pressable>
+                  icon={<Feather name="wifi" size={18} color={Colors.onBrand} />}
+                  fullWidth
+                />
                 <Pressable style={styles.cancelBtn} onPress={handleClose}>
                   <Text style={styles.cancelBtnText}>Cancel</Text>
                 </Pressable>

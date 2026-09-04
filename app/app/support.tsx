@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -8,6 +9,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
   food: { label: "Food", accent: "food" },
@@ -77,7 +79,7 @@ export default function SupportScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      customFetch<any[]>("/api/v1/orders")
+      customFetch<any[]>("/orders")
         .then((data) => setRecentOrder(data && data.length > 0 ? data[0] : null))
         .catch(() => {});
     }, [])
@@ -105,32 +107,36 @@ export default function SupportScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
-        <Text style={styles.heroTitle}>How can we help?</Text>
+        <Animated.View entering={fadeInUp(0)}>
+          <Text style={styles.heroTitle}>How can we help?</Text>
+        </Animated.View>
 
         {recentOrder && (
-          <TouchableOpacity
-            style={styles.recentCard}
-            activeOpacity={0.85}
-            onPress={() => router.push({ pathname: "/tracking", params: { orderId: recentOrder._id } })}
-          >
-            <View style={[styles.recentIcon, { backgroundColor: accent.skin }]}>
-              <Ionicons name={meta?.accent === "ride" ? "car" : meta?.accent === "task" ? "construct" : meta?.accent === "delivery" ? "cube" : "fast-food"} size={19} color={accent.accent} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={[styles.recentEyebrow, { color: accent.accent }]}>{isActive ? "Active order" : "Recent order"}</Text>
-              <Text style={styles.recentTitle} numberOfLines={1}>{recentTitle} · ₹{Math.round(recentOrder.totalPrice || 0)}</Text>
-              <Text style={styles.recentMeta}>{formatRelativeDate(recentOrder.createdAt)}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-          </TouchableOpacity>
+          <Animated.View entering={fadeInUp(60)}>
+            <TouchableOpacity
+              style={styles.recentCard}
+              activeOpacity={0.85}
+              onPress={() => router.push({ pathname: "/tracking", params: { orderId: recentOrder._id } })}
+            >
+              <View style={[styles.recentIcon, { backgroundColor: accent.skin }]}>
+                <Ionicons name={meta?.accent === "ride" ? "car" : meta?.accent === "task" ? "construct" : meta?.accent === "delivery" ? "cube" : "fast-food"} size={19} color={accent.accent} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={[styles.recentEyebrow, { color: accent.accent }]}>{isActive ? "Active order" : "Recent order"}</Text>
+                <Text style={styles.recentTitle} numberOfLines={1}>{recentTitle} · ₹{Math.round(recentOrder.totalPrice || 0)}</Text>
+                <Text style={styles.recentMeta}>{formatRelativeDate(recentOrder.createdAt)}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
+            </TouchableOpacity>
+          </Animated.View>
         )}
-        <Text style={styles.recentHint}>Most issues are about a specific order — start there and we'll skip the questions.</Text>
+        <Text style={styles.recentHint}>Most issues are about a specific order — start there and we&apos;ll skip the questions.</Text>
 
         <Text style={styles.sectionLabel}>Contact us</Text>
-        <View style={{ gap: 10 }}>
+        <Animated.View entering={fadeInUp(120)} style={{ gap: 10 }}>
           <TouchableOpacity style={styles.contactRow} onPress={() => router.push("/support-chat")}>
-            <View style={[styles.contactIcon, { backgroundColor: tokens.services.food.skin }]}>
-              <Ionicons name="chatbubble-ellipses" size={17} color={tokens.services.food.accent} />
+            <View style={[styles.contactIcon, { backgroundColor: tokens.brandSkin }]}>
+              <Ionicons name="chatbubble-ellipses" size={17} color={tokens.brand} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.contactLabel}>Live chat</Text>
@@ -160,25 +166,26 @@ export default function SupportScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         <Text style={[styles.sectionLabel, { marginTop: 22 }]}>Common questions</Text>
         <View style={styles.faqCard}>
           {FAQS.map((faq, idx) => {
             const isExpanded = expandedFAQ === idx;
             return (
-              <TouchableOpacity
-                key={faq.question}
-                style={[styles.faqRow, idx < FAQS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
-                activeOpacity={0.7}
-                onPress={() => toggleFAQ(idx)}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                  <Text style={styles.faqQuestion}>{faq.question}</Text>
-                  <Ionicons name={isExpanded ? "remove" : "add"} size={18} color={accent.accent} />
-                </View>
-                {isExpanded && <Text style={styles.faqAnswer}>{faq.answer}</Text>}
-              </TouchableOpacity>
+              <Animated.View key={faq.question} entering={staggerListItem(idx)}>
+                <TouchableOpacity
+                  style={[styles.faqRow, idx < FAQS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
+                  activeOpacity={0.7}
+                  onPress={() => toggleFAQ(idx)}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                    <Text style={styles.faqQuestion}>{faq.question}</Text>
+                    <Ionicons name={isExpanded ? "remove" : "add"} size={18} color={accent.accent} />
+                  </View>
+                  {isExpanded && <Text style={styles.faqAnswer}>{faq.answer}</Text>}
+                </TouchableOpacity>
+              </Animated.View>
             );
           })}
         </View>

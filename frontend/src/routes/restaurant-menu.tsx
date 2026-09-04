@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE_URL } from "@/lib/api-client";
 
 interface Restaurant {
   _id: string;
@@ -40,8 +41,6 @@ export default function RestaurantMenuFront() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [vegOnly, setVegOnly] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
-
   useEffect(() => {
     const fetchRestaurantData = async () => {
       try {
@@ -63,7 +62,7 @@ export default function RestaurantMenuFront() {
     if (id) {
       fetchRestaurantData();
     }
-  }, [id, API_BASE_URL]);
+  }, [id]);
 
   // Shared via a "share this dish" link — scroll straight to it once the menu has loaded.
   useEffect(() => {

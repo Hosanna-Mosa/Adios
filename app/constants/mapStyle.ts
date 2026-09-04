@@ -1,4 +1,4 @@
-import { MapStyleElement } from "react-native-maps";
+import type { MapStyleElement } from "react-native-maps";
 
 export const LIGHT_GREEN_MAP_STYLE: MapStyleElement[] = [
   { featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#3f5f50" }] },

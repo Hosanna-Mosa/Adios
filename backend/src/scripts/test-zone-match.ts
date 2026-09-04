@@ -5,10 +5,13 @@ import Zone from "../database/models/Zone";
 
 dotenv.config();
 
-const DATABASE_URL = process.env.DATABASE_URL || "mongodb+srv://sunandvemavarapu_db_user:h5wPWY3uxifM95Rr@cluster0.tdar1ey.mongodb.net/?appName=Cluster0";
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error("DATABASE_URL is not defined in .env");
+}
 
 async function testMatch() {
-  await mongoose.connect(DATABASE_URL);
+  await mongoose.connect(DATABASE_URL!);
   console.log("Connected to MongoDB");
 
   const zonesService = new ZonesService();

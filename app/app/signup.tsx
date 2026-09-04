@@ -9,16 +9,18 @@ import {
   TouchableOpacity,
   View,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { Button } from "@/components/ui/Button";
+import { fadeInUp } from "@/motion/presets";
 
 type PasswordStrength = "empty" | "weak" | "fair" | "good";
 
@@ -47,7 +49,7 @@ export default function SignupScreen() {
   const { requestOTP, loading, token, isInitialized } = useAuthStore();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const isPhoneDisabled = !!prefillPhone;
@@ -125,14 +127,14 @@ export default function SignupScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Centered like the sign-in screen's hero — same treatment, not a one-off */}
-        <View style={styles.heroBlock}>
+        <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
           <Text style={styles.headline} numberOfLines={1}>Create your account</Text>
           <Text style={styles.subhead}>
-            Takes about a minute. We'll verify your phone with an OTP.
+            Takes about a minute. We&apos;ll verify your phone with an OTP.
           </Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.form}>
+        <Animated.View style={styles.form} entering={fadeInUp(80)}>
           <View style={styles.fieldWrapper}>
             <Text style={styles.fieldLabel}>Full name</Text>
             <View style={styles.inputContainer}>
@@ -227,44 +229,46 @@ export default function SignupScreen() {
               </View>
             )}
           </View>
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={styles.termsRow}
-          onPress={() => setAgreedToTerms(!agreedToTerms)}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-            {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
-          </View>
-          <Text style={styles.termsText}>
-            I agree to the <Text style={styles.legalHighlight}>Terms</Text> and{" "}
-            <Text style={styles.legalHighlight}>Privacy Policy</Text>.
-          </Text>
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(160)}>
+          <TouchableOpacity
+            style={styles.termsRow}
+            onPress={() => setAgreedToTerms(!agreedToTerms)}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
+            </View>
+            <Text style={styles.termsText}>
+              I agree to the <Text style={styles.legalHighlight}>Terms</Text> and{" "}
+              <Text style={styles.legalHighlight}>Privacy Policy</Text>.
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={[styles.signUpBtn, !canSubmit && styles.signUpBtnDisabled]}
-          onPress={handleRegister}
-          disabled={!canSubmit}
-          activeOpacity={0.85}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color={accent.on} />
-          ) : (
-            <Text style={styles.signUpBtnText}>Create account</Text>
-          )}
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(220)}>
+          <Button
+            title="Create account"
+            onPress={handleRegister}
+            disabled={!canSubmit}
+            loading={loading}
+            fullWidth
+            style={{ marginTop: 14 }}
+          />
+        </Animated.View>
 
-        <TouchableOpacity
-          style={styles.loginLinkRow}
-          onPress={() => router.replace("/login")}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.loginLinkText}>
-            Already have one? <Text style={styles.loginLinkHighlight}>Sign in</Text>
-          </Text>
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(280)}>
+          <TouchableOpacity
+            style={styles.loginLinkRow}
+            onPress={() => router.replace("/login")}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.loginLinkText}>
+              Already have one? <Text style={styles.loginLinkHighlight}>Sign in</Text>
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

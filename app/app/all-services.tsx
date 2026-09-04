@@ -1,5 +1,6 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -9,6 +10,7 @@ import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 type RideTier = {
   id: string;
@@ -51,46 +53,54 @@ export default function AllServicesScreen() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabBarHeight + 24 }]} showsVerticalScrollIndicator={false}>
-        <Text style={styles.headline}>Going somewhere?</Text>
-        <Text style={styles.subhead}>Pick a ride to see live fares for your trip.</Text>
+        <Animated.View entering={fadeInUp(0)}>
+          <Text style={styles.headline}>Going somewhere?</Text>
+          <Text style={styles.subhead}>Pick a ride to see live fares for your trip.</Text>
+        </Animated.View>
 
         <View style={styles.tierGrid}>
-          {RIDE_TIERS.map((tier) => (
-            <TouchableOpacity key={tier.id} style={styles.tierCard} activeOpacity={0.85} onPress={() => selectTier(tier)}>
-              <View style={styles.tierIconCircle}>
-                <MaterialCommunityIcons name={tier.icon} size={moderateScale(24)} color={accent.accent} />
-              </View>
-              <Text style={styles.tierName}>{tier.name}</Text>
-              <Text style={styles.tierDescription}>{tier.description}</Text>
-            </TouchableOpacity>
+          {RIDE_TIERS.map((tier, idx) => (
+            <Animated.View key={tier.id} entering={staggerListItem(idx)} style={styles.tierCard}>
+              <TouchableOpacity activeOpacity={0.85} onPress={() => selectTier(tier)}>
+                <View style={styles.tierIconCircle}>
+                  <MaterialCommunityIcons name={tier.icon} size={moderateScale(24)} color={accent.accent} />
+                </View>
+                <Text style={styles.tierName}>{tier.name}</Text>
+                <Text style={styles.tierDescription}>{tier.description}</Text>
+              </TouchableOpacity>
+            </Animated.View>
           ))}
         </View>
 
         <Text style={styles.sectionLabel}>Also on Flavour</Text>
         <View style={styles.crossPromoList}>
-          <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/helper-task")}>
-            <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.task.skin }]}>
-              <Ionicons name="construct-outline" size={moderateScale(18)} color={tokens.services.task.accent} />
-            </View>
-            <View style={styles.crossPromoTextWrap}>
-              <Text style={styles.crossPromoTitle}>Hire a helper</Text>
-              <Text style={styles.crossPromoSubtitle}>From ₹120 / hour</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={moderateScale(18)} color={tokens.muted} />
-          </TouchableOpacity>
+          <Animated.View entering={staggerListItem(0)}>
+            <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/helper-task")}>
+              <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.task.skin }]}>
+                <Ionicons name="construct-outline" size={moderateScale(18)} color={tokens.services.task.accent} />
+              </View>
+              <View style={styles.crossPromoTextWrap}>
+                <Text style={styles.crossPromoTitle}>Hire a helper</Text>
+                <Text style={styles.crossPromoSubtitle}>From ₹120 / hour</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={moderateScale(18)} color={tokens.muted} />
+            </TouchableOpacity>
+          </Animated.View>
 
-          <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/delivery/entry")}>
-            <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.delivery.skin }]}>
-              <Ionicons name="cube-outline" size={moderateScale(18)} color={tokens.services.delivery.accent} />
-            </View>
-            <View style={styles.crossPromoTextWrap}>
-              <Text style={styles.crossPromoTitle}>Package delivery</Text>
-              <Text style={styles.crossPromoSubtitle}>Multi-stop courier · from ₹39</Text>
-            </View>
-            <View style={styles.betaBadge}>
-              <Text style={styles.betaBadgeText}>Beta</Text>
-            </View>
-          </TouchableOpacity>
+          <Animated.View entering={staggerListItem(1)}>
+            <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/delivery/entry")}>
+              <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.delivery.skin }]}>
+                <Ionicons name="cube-outline" size={moderateScale(18)} color={tokens.services.delivery.accent} />
+              </View>
+              <View style={styles.crossPromoTextWrap}>
+                <Text style={styles.crossPromoTitle}>Package delivery</Text>
+                <Text style={styles.crossPromoSubtitle}>Multi-stop courier · from ₹39</Text>
+              </View>
+              <View style={styles.betaBadge}>
+                <Text style={styles.betaBadgeText}>Beta</Text>
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </ScrollView>
 

@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image } from "expo-image";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -22,6 +23,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { fadeInDown, fadeInUp, staggerListItem } from "@/motion/presets";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -29,7 +31,7 @@ export default function ProfileScreen() {
   const { user, logout, setUser } = useAuthStore();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [loading, setLoading] = useState(false);
@@ -46,7 +48,7 @@ export default function ProfileScreen() {
   useFocusEffect(
     React.useCallback(() => {
       fetchProfile();
-      customFetch<{ unreadCount: number }>("/api/v1/notifications/unread-count")
+      customFetch<{ unreadCount: number }>("/notifications/unread-count")
         .then((res) => setUnreadCount(res?.unreadCount || 0))
         .catch(() => {});
     }, [])
@@ -55,10 +57,10 @@ export default function ProfileScreen() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any>("/api/v1/users/profile");
+      const data = await customFetch<any>("/users/profile");
       if (data) setUser(data);
       try {
-        const ordersData = await customFetch<any[]>("/api/v1/orders");
+        const ordersData = await customFetch<any[]>("/orders");
         if (ordersData && Array.isArray(ordersData)) {
           setOrdersCount(ordersData.length);
           setTotalSpent(ordersData.reduce((sum, o) => sum + (o.totalPrice || 0), 0));
@@ -90,7 +92,7 @@ export default function ProfileScreen() {
       const match = /\.(\w+)$/.exec(filename || "");
       const type = match ? `image/${match[1]}` : "image";
       fd.append("image", { uri, name: filename, type } as any);
-      const data = await customFetch<any>("/api/v1/users/profile-pic", { method: "POST", body: fd, isFormData: true });
+      const data = await customFetch<any>("/users/profile-pic", { method: "POST", body: fd, isFormData: true });
       if (data && data.user) setUser(data.user);
     } catch (err) {
       Alert.alert("Error", "Failed to upload image");
@@ -115,7 +117,7 @@ export default function ProfileScreen() {
     try {
       setChangingPassword(true);
       const token = useAuthStore.getState().token;
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/v1/users/change-password`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/change-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ currentPassword, newPassword }),
@@ -158,17 +160,17 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 12 }]} entering={fadeInDown(0)}>
         <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.profileCard}>
+        <Animated.View style={styles.profileCard} entering={fadeInUp(0)}>
           <TouchableOpacity onPress={handlePickImage} activeOpacity={0.85}>
             {user?.profilePic ? (
-              <Image source={{ uri: user.profilePic }} style={styles.avatar} />
+              <Image source={{ uri: user.profilePic }} style={styles.avatar} contentFit="cover" transition={200} />
             ) : (
               <View style={styles.avatarPlaceholder}>
                 <Text style={styles.avatarInitial}>{(user?.name || "U").charAt(0).toUpperCase()}</Text>
@@ -179,9 +181,9 @@ export default function ProfileScreen() {
             <Text style={styles.profileName} numberOfLines={1}>{user?.name || "Your name"}</Text>
             <Text style={styles.profilePhone}>{user?.phone || ""}</Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <View style={styles.statsRow}>
+        <Animated.View style={styles.statsRow} entering={fadeInUp(70)}>
           <View style={styles.statTile}>
             <Text style={styles.statValue}>{ordersCount}</Text>
             <Text style={styles.statLabel}>orders</Text>
@@ -194,34 +196,37 @@ export default function ProfileScreen() {
             <Text style={styles.statValue}>{memberSinceYear || "—"}</Text>
             <Text style={styles.statLabel}>member since</Text>
           </View>
-        </View>
+        </Animated.View>
 
         <View style={styles.menuCard}>
           {MENU_ITEMS.map((item, idx) => (
-            <TouchableOpacity
-              key={item.key}
-              style={[styles.menuRow, idx < MENU_ITEMS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
-              activeOpacity={0.7}
-              onPress={item.onPress}
-            >
-              <View style={[styles.menuIcon, { backgroundColor: item.key === "orders" ? accent.skin : tokens.sunken }]}>
-                <Ionicons name={item.icon as any} size={17} color={item.key === "orders" ? accent.accent : tokens.sec} />
-              </View>
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              {"badge" in item && item.badge && <Text style={styles.menuBadgeText}>{item.badge}</Text>}
-              {"countBadge" in item && item.countBadge ? (
-                <View style={styles.menuCountBadge}>
-                  <Text style={styles.menuCountBadgeText}>{item.countBadge}</Text>
+            <Animated.View key={item.key} entering={staggerListItem(idx, 30)}>
+              <TouchableOpacity
+                style={[styles.menuRow, idx < MENU_ITEMS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
+                activeOpacity={0.7}
+                onPress={item.onPress}
+              >
+                <View style={[styles.menuIcon, { backgroundColor: item.key === "orders" ? accent.skin : tokens.sunken }]}>
+                  <Ionicons name={item.icon as any} size={17} color={item.key === "orders" ? accent.accent : tokens.sec} />
                 </View>
-              ) : null}
-              <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-            </TouchableOpacity>
+                <Text style={styles.menuLabel}>{item.label}</Text>
+                {"badge" in item && item.badge && <Text style={styles.menuBadgeText}>{item.badge}</Text>}
+                {"countBadge" in item && item.countBadge ? (
+                  <View style={styles.menuCountBadge}>
+                    <Text style={styles.menuCountBadgeText}>{item.countBadge}</Text>
+                  </View>
+                ) : null}
+                <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
+              </TouchableOpacity>
+            </Animated.View>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout} disabled={loading} activeOpacity={0.8}>
-          {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>Sign out</Text>}
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(280)}>
+          <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout} disabled={loading} activeOpacity={0.8}>
+            {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>Sign out</Text>}
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
 
       <AppTabBar active="account" />

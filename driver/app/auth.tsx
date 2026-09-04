@@ -3,9 +3,8 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import * as React from "react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
-  Animated,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -15,10 +14,14 @@ import {
   View,
   Alert,
 } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
 import Constants from "expo-constants";
+import { Button } from "@/components/ui/Button";
+import { TextField } from "@/components/ui/TextField";
+import { fadeInUp, SPRING } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 const MOCK_OTP = "123456";
@@ -36,8 +39,11 @@ export default function AuthScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const otpRefs = useRef<(TextInput | null)[]>([]);
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const otpRefs = React.useRef<(TextInput | null)[]>([]);
+  const slideAnim = useSharedValue(0);
+  const slideAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(slideAnim.value, [0, 1], [300, 0]) }],
+  }));
   const { loginWithPassword, refreshSession } = useDriverStore();
 
   const routeAfterAuth = async () => {
@@ -110,7 +116,7 @@ export default function AuthScreen() {
     setLoading(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/request-otp`, {
+      const response = await fetch(`${apiUrl}/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: `+91${phone}` }),
@@ -119,12 +125,7 @@ export default function AuthScreen() {
       if (!response.ok) throw new Error(data.message || "Failed to send OTP");
 
       setStep("otp");
-      Animated.spring(slideAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 60,
-        friction: 10,
-      }).start();
+      slideAnim.value = withSpring(1, SPRING);
     } catch (err: any) {
       Alert.alert("Error", err.message);
     } finally {
@@ -156,7 +157,7 @@ export default function AuthScreen() {
     if (fullOtp.length < 6) return;
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
+      const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -225,92 +226,74 @@ export default function AuthScreen() {
 
       {/* Name field — sign up only */}
       {mode === "signup" && (
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Your Name</Text>
-          <View style={styles.inputContainer}>
-            <Feather name="user" size={18} color={Colors.primary} />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your full name"
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-              placeholderTextColor={Colors.textMuted}
-            />
-          </View>
-        </View>
+        <Animated.View entering={fadeInUp(0)}>
+          <TextField
+            label="Your Name"
+            icon={<Feather name="user" size={18} color={Colors.brand} />}
+            placeholder="Enter your full name"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
+        </Animated.View>
       )}
 
       {/* Phone */}
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Phone Number</Text>
-        <View style={styles.inputContainer}>
-          <Text style={styles.countryCode}>+91</Text>
-          <View style={styles.phoneDivider} />
-          <TextInput
-            style={styles.input}
-            placeholder="Enter 10-digit number"
-            value={phone}
-            onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))}
-            keyboardType="phone-pad"
-            placeholderTextColor={Colors.textMuted}
-          />
-        </View>
-      </View>
+      <Animated.View entering={fadeInUp(40)}>
+        <TextField
+          label="Phone Number"
+          icon={
+            <View style={styles.countryCodeGroup}>
+              <Text style={styles.countryCode}>+91</Text>
+              <View style={styles.phoneDivider} />
+            </View>
+          }
+          placeholder="Enter 10-digit number"
+          value={phone}
+          onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))}
+          keyboardType="phone-pad"
+        />
+      </Animated.View>
 
       {/* Password */}
-      <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Password</Text>
-        <View style={styles.inputContainer}>
-          <Feather name="lock" size={18} color={Colors.primary} />
-          <TextInput
-            style={styles.input}
-            placeholder={mode === "signin" ? "Enter your password" : "Create a password (6+ chars)"}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor={Colors.textMuted}
-          />
-        </View>
-      </View>
+      <Animated.View entering={fadeInUp(80)}>
+        <TextField
+          label="Password"
+          icon={<Feather name="lock" size={18} color={Colors.brand} />}
+          placeholder={mode === "signin" ? "Enter your password" : "Create a password (6+ chars)"}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+      </Animated.View>
 
       {/* Confirm Password — sign up only */}
       {mode === "signup" && (
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Confirm Password</Text>
-          <View style={styles.inputContainer}>
-            <Feather name="shield" size={18} color={Colors.primary} />
-            <TextInput
-              style={styles.input}
-              placeholder="Re-enter your password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-              placeholderTextColor={Colors.textMuted}
-            />
-          </View>
-        </View>
+        <Animated.View entering={fadeInUp(120)}>
+          <TextField
+            label="Confirm Password"
+            icon={<Feather name="shield" size={18} color={Colors.brand} />}
+            placeholder="Re-enter your password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            secureTextEntry
+          />
+        </Animated.View>
       )}
 
       {/* Submit button */}
-      <TouchableOpacity
-        style={[styles.primaryButton, loading && styles.primaryButtonDisabled]}
+      <Button
+        title={
+          loading
+            ? mode === "signin" ? "Signing in..." : "Sending OTP..."
+            : mode === "signin" ? "Sign In" : "Get OTP"
+        }
         onPress={mode === "signin" ? handleSignIn : handleSendOTP}
-        disabled={loading}
-      >
-        {loading ? (
-          <Text style={styles.primaryButtonText}>
-            {mode === "signin" ? "Signing in..." : "Sending OTP..."}
-          </Text>
-        ) : (
-          <>
-            <Text style={styles.primaryButtonText}>
-              {mode === "signin" ? "Sign In" : "Get OTP"}
-            </Text>
-            <Feather name={mode === "signin" ? "log-in" : "arrow-right"} size={20} color={Colors.white} />
-          </>
-        )}
-      </TouchableOpacity>
+        loading={loading}
+        icon={!loading ? <Feather name={mode === "signin" ? "log-in" : "arrow-right"} size={18} color={Colors.onBrand} /> : undefined}
+        fullWidth
+        style={{ marginTop: 4 }}
+      />
 
       {/* Bottom switch hint */}
       <TouchableOpacity
@@ -328,19 +311,7 @@ export default function AuthScreen() {
 
   const renderOTP = () => (
     <Animated.View
-      style={[
-        styles.formSection,
-        {
-          transform: [
-            {
-              translateX: slideAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [300, 0],
-              }),
-            },
-          ],
-        },
-      ]}
+      style={[styles.formSection, slideAnimatedStyle]}
     >
       <TouchableOpacity
         style={styles.backButton}
@@ -374,20 +345,14 @@ export default function AuthScreen() {
         ))}
       </View>
 
-      <TouchableOpacity
-        style={[styles.primaryButton, loading && styles.primaryButtonDisabled]}
+      <Button
+        title={loading ? "Creating account..." : "Verify & Create Account"}
         onPress={() => handleVerifyOTP()}
-        disabled={loading || otp.join("").length < 6}
-      >
-        {loading ? (
-          <Text style={styles.primaryButtonText}>Creating account...</Text>
-        ) : (
-          <>
-            <Text style={styles.primaryButtonText}>Verify & Create Account</Text>
-            <Feather name="check" size={20} color={Colors.white} />
-          </>
-        )}
-      </TouchableOpacity>
+        loading={loading}
+        disabled={otp.join("").length < 6}
+        icon={!loading ? <Feather name="check" size={18} color={Colors.onBrand} /> : undefined}
+        fullWidth
+      />
 
       <TouchableOpacity style={styles.resendButton} onPress={handleSendOTP}>
         <Text style={styles.resendText}>Resend OTP</Text>
@@ -413,7 +378,7 @@ export default function AuthScreen() {
           <View style={styles.logoContainer}>
             <Feather name="truck" size={moderateScale(40)} color={Colors.white} />
           </View>
-          <Text style={styles.appName}>DeliverPro</Text>
+          <Text style={styles.appName}>Flavour Driver</Text>
           <Text style={styles.tagline}>Driver Partner App</Text>
         </View>
 
@@ -464,6 +429,11 @@ const styles = StyleSheet.create({
   },
   formSection: {
     gap: 14,
+  },
+  countryCodeGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
   },
   formTitle: {
     fontSize: moderateScale(22),

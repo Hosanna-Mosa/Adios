@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, Animated, Easing, Dimensions } from "react-native";
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-import Colors from "@/constants/colors";
+import Colors, { gradients } from "@/constants/colors";
+import { fontFamilies } from "@/constants/typography";
 import { ServiceToggle } from "@/components/ServiceToggle";
 import { PerformanceCard } from "@/components/PerformanceCard";
 import { ActiveTaskCard } from "@/components/ActiveTaskCard";
@@ -15,6 +16,7 @@ import { GoOnlineModal } from "@/components/GoOnlineModal";
 import IncomingOrderModal from "@/components/IncomingOrderModal";
 import { useDriverStore } from "@/store/driverStore";
 import { router } from "expo-router";
+import { staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -75,7 +77,7 @@ export default function HomeScreen() {
     if (!apiUrl) return;
     (async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/banners`);
+        const res = await fetch(`${apiUrl}/banners`);
         if (res.ok) {
           const json = await res.json();
           const bannersArray = json.data || json;
@@ -88,33 +90,22 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const translateX = React.useRef(new Animated.Value(0)).current;
+  const translateX = useSharedValue(0);
+  const scooterAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   // Drive Animation when going online
   useEffect(() => {
     if (isOnline) {
-      Animated.sequence([
+      translateX.value = withSequence(
         // Drive off screen to the right
-        Animated.timing(translateX, {
-          toValue: 200,
-          duration: 500,
-          easing: Easing.in(Easing.back(1.5)),
-          useNativeDriver: true,
-        }),
+        withTiming(200, { duration: 500, easing: Easing.in(Easing.back(1.5)) }),
         // Instantly move off-screen left
-        Animated.timing(translateX, {
-          toValue: -300,
-          duration: 0,
-          useNativeDriver: true,
-        }),
+        withTiming(-300, { duration: 0 }),
         // Drive in from left to original position
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 800,
-          easing: Easing.out(Easing.back(1.2)),
-          useNativeDriver: true,
-        })
-      ]).start();
+        withTiming(0, { duration: 800, easing: Easing.out(Easing.back(1.2)) }),
+      );
     }
   }, [isOnline, translateX]);
 
@@ -122,7 +113,7 @@ export default function HomeScreen() {
     if (!apiUrl || !token) return;
     setLoadingScheduled(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/orders/driver/scheduled`, {
+      const response = await fetch(`${apiUrl}/orders/driver/scheduled`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -159,7 +150,7 @@ export default function HomeScreen() {
 
     setIsLoadingHotspots(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/drivers/high-demand-areas?limit=5`, {
+      const response = await fetch(`${apiUrl}/drivers/high-demand-areas?limit=5`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -242,7 +233,7 @@ export default function HomeScreen() {
     if (!token) return;
     (async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+        const res = await fetch(`${apiUrl}/drivers/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -270,7 +261,7 @@ export default function HomeScreen() {
       >
         {/* Header with Online/Offline Toggle */}
         <LinearGradient
-          colors={['#60a5fa', '#3b82f6']}
+          colors={gradients.brand}
           style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
         >
           <Image
@@ -306,7 +297,7 @@ export default function HomeScreen() {
               style={styles.statusCard}
               onPress={handleToggleOnline}
             >
-              <View style={[styles.statusIconBg, { backgroundColor: isOnline ? '#e6faec' : '#f1f5f9' }]}>
+              <View style={[styles.statusIconBg, { backgroundColor: isOnline ? Colors.successLight : Colors.surfaceContainer }]}>
                 <Feather
                   name={isOnline ? "wifi" : "wifi-off"}
                   size={20}
@@ -323,7 +314,7 @@ export default function HomeScreen() {
               </View>
               <View style={[
                 styles.powerButton,
-                { backgroundColor: isOnline ? '#22C55E' : '#EF4444', borderWidth: 0 }
+                { backgroundColor: isOnline ? Colors.success : Colors.error, borderWidth: 0 }
               ]}>
                 <Feather
                   name="power"
@@ -335,10 +326,10 @@ export default function HomeScreen() {
             {/* Illustration */}
             <Animated.Image
               source={require('../../assets/images/generated_blue_scooter.png')}
-              style={[styles.heroIllustration, { transform: [{ translateX }] }]}
+              style={[styles.heroIllustration, scooterAnimatedStyle]}
               resizeMode="contain"
             />
-            <Animated.View style={[styles.onlineBadgeHero, { transform: [{ translateX }] }]}>
+            <Animated.View style={[styles.onlineBadgeHero, scooterAnimatedStyle]}>
               <View style={[styles.onlineBadgeDot, !isOnline && { backgroundColor: Colors.textMuted }]} />
               <Text style={[styles.onlineBadgeText, !isOnline && { color: Colors.textMuted }]}>
                 {isOnline ? "ONLINE" : "OFFLINE"}
@@ -360,7 +351,7 @@ export default function HomeScreen() {
                   <Feather
                     name="home"
                     size={18}
-                    color={homeMode ? Colors.white : "#0ea5e9"}
+                    color={homeMode ? Colors.white : Colors.brand}
                   />
                 </View>
                 <View style={styles.homeModeTextWrap}>
@@ -447,7 +438,7 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Scheduled Rides ({scheduledRides.length})</Text>
               </View>
               <View style={{ gap: 12, marginTop: 8 }}>
-                {scheduledRides.map((ride) => {
+                {scheduledRides.map((ride, idx) => {
                   const pickup = ride.stops?.[0]?.address || "Pickup Location";
                   const drop = ride.stops?.[ride.stops.length - 1]?.address || "Drop Location";
                   const dateStr = ride.reservedAt ? new Date(ride.reservedAt).toLocaleString([], {
@@ -459,7 +450,7 @@ export default function HomeScreen() {
                   }) : "N/A";
 
                   return (
-                    <View key={ride._id} style={styles.scheduledCard}>
+                    <Animated.View key={ride._id} entering={staggerListItem(idx)} style={styles.scheduledCard}>
                       <View style={styles.scheduledHeader}>
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                           <Feather name="calendar" size={16} color={Colors.primary} />
@@ -499,7 +490,7 @@ export default function HomeScreen() {
                           <Text style={styles.startRideBtnText}>Start Ride</Text>
                         </TouchableOpacity>
                       </View>
-                    </View>
+                    </Animated.View>
                   );
                 })}
               </View>
@@ -708,7 +699,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   homeModeRowActive: {
-    backgroundColor: "#eefaff",
+    backgroundColor: Colors.brandSkin,
     borderColor: Colors.primary,
   },
   homeModeLeft: {
@@ -721,7 +712,7 @@ const styles = StyleSheet.create({
     width: moderateScale(38),
     height: moderateScale(38),
     borderRadius: moderateScale(10),
-    backgroundColor: '#e0f2fe',
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -823,11 +814,11 @@ const styles = StyleSheet.create({
   },
   safetyAlert: {
     flexDirection: "row",
-    backgroundColor: "#fff5e6",
+    backgroundColor: Colors.warningLight,
     borderRadius: moderateScale(16),
     padding: 16,
     borderWidth: 1,
-    borderColor: "#fde68a",
+    borderColor: Colors.warning + "40",
     gap: 12,
     position: 'relative',
     overflow: 'hidden',
@@ -837,15 +828,15 @@ const styles = StyleSheet.create({
     marginRight: 60,
   },
   safetyTitle: {
-    fontFamily: "Inter_700Bold",
+    fontFamily: fontFamilies.body.bold,
     fontSize: moderateScale(15),
-    color: '#92400e',
+    color: Colors.warning,
     marginBottom: 4,
   },
   safetyText: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: fontFamilies.body.medium,
     fontSize: moderateScale(12),
-    color: '#b45309',
+    color: Colors.warning,
     lineHeight: 18,
   },
   safetyImg: {

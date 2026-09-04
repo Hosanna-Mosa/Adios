@@ -15,10 +15,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { Button } from "@/components/ui/Button";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const RESEND_SECONDS = 30;
 
@@ -49,7 +52,7 @@ export default function OTPScreen() {
   const { verifyOTP, requestOTP, loading } = useAuthStore();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   useEffect(() => {
@@ -137,7 +140,7 @@ export default function OTPScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Same centered hero treatment as screens 1 & 2 */}
-        <View style={styles.heroBlock}>
+        <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
           <Text style={styles.headline} numberOfLines={1}>Verify your number</Text>
           <Text style={styles.subhead}>
             We sent a 6-digit code to{" "}
@@ -146,32 +149,33 @@ export default function OTPScreen() {
               Change
             </Text>
           </Text>
-        </View>
+        </Animated.View>
 
         <View style={styles.otpRow}>
           {otp.map((digit, i) => (
-            <TextInput
-              key={i}
-              ref={(ref) => {
-                inputs.current[i] = ref;
-              }}
-              style={[
-                styles.otpCell,
-                (digit.length > 0 || focusedIndex === i) && styles.otpCellActive,
-              ]}
-              value={digit}
-              onChangeText={(text) => handleChange(text, i)}
-              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
-              onFocus={() => setFocusedIndex(i)}
-              keyboardType="number-pad"
-              maxLength={1}
-              textAlign="center"
-              selectionColor={accent.accent}
-            />
+            <Animated.View key={i} style={{ flex: 1 }} entering={staggerListItem(i)}>
+              <TextInput
+                ref={(ref) => {
+                  inputs.current[i] = ref;
+                }}
+                style={[
+                  styles.otpCell,
+                  (digit.length > 0 || focusedIndex === i) && styles.otpCellActive,
+                ]}
+                value={digit}
+                onChangeText={(text) => handleChange(text, i)}
+                onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
+                onFocus={() => setFocusedIndex(i)}
+                keyboardType="number-pad"
+                maxLength={1}
+                textAlign="center"
+                selectionColor={accent.accent}
+              />
+            </Animated.View>
           ))}
         </View>
 
-        <View style={styles.resendRow}>
+        <Animated.View style={styles.resendRow} entering={fadeInUp(280)}>
           {secondsLeft > 0 ? (
             <Text style={styles.resendMuted}>Resend code in 0:{String(secondsLeft).padStart(2, "0")}</Text>
           ) : (
@@ -183,26 +187,26 @@ export default function OTPScreen() {
               )}
             </TouchableOpacity>
           )}
-        </View>
+        </Animated.View>
 
-        <TouchableOpacity
-          style={[styles.verifyBtn, (!isFilled || loading) && styles.verifyBtnDisabled]}
-          onPress={handleVerify}
-          disabled={!isFilled || loading}
-          activeOpacity={0.85}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color={accent.on} />
-          ) : (
-            <Text style={styles.verifyBtnText}>Verify &amp; continue</Text>
-          )}
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(340)}>
+          <Button
+            title="Verify & continue"
+            onPress={handleVerify}
+            disabled={!isFilled}
+            loading={loading}
+            fullWidth
+            style={{ marginTop: 24 }}
+          />
+        </Animated.View>
 
-        <TouchableOpacity style={styles.callRow} onPress={handleCallInstead} activeOpacity={0.7}>
-          <Text style={styles.callText}>
-            Didn't get it? <Text style={styles.callHighlight}>Get a call instead</Text>
-          </Text>
-        </TouchableOpacity>
+        <Animated.View entering={fadeInUp(400)}>
+          <TouchableOpacity style={styles.callRow} onPress={handleCallInstead} activeOpacity={0.7}>
+            <Text style={styles.callText}>
+              Didn&apos;t get it? <Text style={styles.callHighlight}>Get a call instead</Text>
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

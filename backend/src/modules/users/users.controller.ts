@@ -3,6 +3,8 @@ import User from "../../database/models/User";
 import Order from "../../database/models/Order";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
+import FoodItem from "../../database/models/FoodItem";
+import MeatItem from "../../database/models/MeatItem";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import cloudinary from "../../utils/cloudinary";
 
@@ -323,6 +325,81 @@ export class UsersController {
       return res.json({ isFavorite, favorites: user.favorites });
     } catch (error) {
       console.error("Toggle favorite error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  // Dish-level favorites mirror getFavorites/toggleFavorite above: item IDs
+  // can belong to either FoodItem or MeatItem, so we resolve against both
+  // collections at read time rather than tracking which type each ID is.
+  async getFavoriteItems(req: AuthRequest, res: Response) {
+    try {
+      const user = await User.findById(req.user?.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const favoriteItemIds = user.favoriteItems || [];
+      const [foodItems, meatItems] = await Promise.all([
+        FoodItem.find({ _id: { $in: favoriteItemIds } }).lean(),
+        MeatItem.find({ _id: { $in: favoriteItemIds } }).lean(),
+      ]);
+
+      const combined = [
+        ...foodItems.map((item: any) => ({
+          _id: item._id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image: item.images?.[0],
+          category: item.category,
+          isVeg: item.isVeg,
+          vendorId: item.vendorId,
+          isMeat: false,
+        })),
+        ...meatItems.map((item: any) => ({
+          _id: item._id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          category: item.category,
+          vendorId: item.meatCenterId,
+          isMeat: true,
+        })),
+      ];
+
+      const ordered = favoriteItemIds
+        .map((id) => combined.find((item) => item._id.toString() === id.toString()))
+        .filter(Boolean);
+
+      return res.json(ordered);
+    } catch (error) {
+      console.error("Get favorite items error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async toggleFavoriteItem(req: AuthRequest, res: Response) {
+    try {
+      const { itemId } = req.params;
+      const user = await User.findById(req.user?.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      if (!user.favoriteItems) {
+        user.favoriteItems = [];
+      }
+
+      const index = user.favoriteItems.indexOf(itemId as any);
+      let isFavorite = false;
+      if (index === -1) {
+        user.favoriteItems.push(itemId as any);
+        isFavorite = true;
+      } else {
+        user.favoriteItems.splice(index, 1);
+      }
+
+      await user.save();
+      return res.json({ isFavorite, favoriteItems: user.favoriteItems });
+    } catch (error) {
+      console.error("Toggle favorite item error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   }

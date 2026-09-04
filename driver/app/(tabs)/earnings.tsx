@@ -3,15 +3,14 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -20,7 +19,10 @@ import Colors from "@/constants/colors";
 import { EarningsChart } from "@/components/EarningsChart";
 import { CashOutButton } from "@/components/CashOutButton";
 import { TransactionItem } from "@/components/TransactionItem";
+import { Button } from "@/components/ui/Button";
+import { TextField } from "@/components/ui/TextField";
 import { useDriverStore } from "@/store/driverStore";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -95,7 +97,7 @@ export default function EarningsScreen() {
 
     refreshing ? setIsRefreshing(true) : setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/drivers/earnings`, {
+      const response = await fetch(`${apiUrl}/drivers/earnings`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -135,7 +137,7 @@ export default function EarningsScreen() {
 
     setIsCashingOut(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/drivers/cash-out`, {
+      const response = await fetch(`${apiUrl}/drivers/cash-out`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,8 +179,8 @@ export default function EarningsScreen() {
           </View>
         ) : (
           <>
-            <View style={styles.balanceCard}>
-              <Text style={styles.balanceLabel}>This Week's Balance</Text>
+            <Animated.View entering={fadeInUp(0)} style={styles.balanceCard}>
+              <Text style={styles.balanceLabel}>This Week&apos;s Balance</Text>
               <View style={styles.balanceRow}>
                 <Text style={styles.balanceAmount}>{formatCurrency(earnings.weekBalance)}</Text>
                 <View style={styles.trendBadge}>
@@ -194,9 +196,11 @@ export default function EarningsScreen() {
                 Available: {formatCurrency(earnings.availableBalance)}
                 {earnings.bank.last4 ? ` to bank ending ${earnings.bank.last4}` : ""}
               </Text>
-            </View>
+            </Animated.View>
 
-            <EarningsChart data={earnings.weeklyBreakdown} />
+            <Animated.View entering={fadeInUp(60)}>
+              <EarningsChart data={earnings.weeklyBreakdown} />
+            </Animated.View>
 
             <CashOutButton
               onPress={() => {
@@ -221,24 +225,25 @@ export default function EarningsScreen() {
               isLoading={isCashingOut}
             />
 
-            <View style={styles.sectionCard}>
+            <Animated.View entering={fadeInUp(120)} style={styles.sectionCard}>
               <Text style={styles.sectionTitle}>Recent Activity</Text>
               {earnings.recentActivity.length === 0 ? (
                 <Text style={styles.emptyText}>No completed earnings yet.</Text>
               ) : (
-                earnings.recentActivity.map((tx) => (
-                  <TransactionItem
-                    key={tx.id}
-                    icon={tx.icon}
-                    label={tx.label}
-                    amount={`${tx.amount >= 0 ? "+" : "-"}${formatCurrency(Math.abs(tx.amount))}`}
-                    time={formatRelativeTime(tx.createdAt)}
-                  />
+                earnings.recentActivity.map((tx, idx) => (
+                  <Animated.View key={tx.id} entering={staggerListItem(idx)}>
+                    <TransactionItem
+                      icon={tx.icon}
+                      label={tx.label}
+                      amount={`${tx.amount >= 0 ? "+" : "-"}${formatCurrency(Math.abs(tx.amount))}`}
+                      time={formatRelativeTime(tx.createdAt)}
+                    />
+                  </Animated.View>
                 ))
               )}
-            </View>
+            </Animated.View>
 
-            <View style={styles.bottomStats}>
+            <Animated.View entering={fadeInUp(180)} style={styles.bottomStats}>
               <View style={styles.statCard}>
                 <Text style={styles.statValue}>{earnings.stats.onlineHours.toFixed(1)}h</Text>
                 <Text style={styles.statLabel}>Online Hours</Text>
@@ -247,7 +252,7 @@ export default function EarningsScreen() {
                 <Text style={styles.statValue}>{earnings.stats.totalDistance} km</Text>
                 <Text style={styles.statLabel}>Total Distance</Text>
               </View>
-            </View>
+            </Animated.View>
           </>
         )}
       </ScrollView>
@@ -264,33 +269,27 @@ export default function EarningsScreen() {
             <Text style={styles.modalText}>
               {formatCurrency(earnings.availableBalance)} will be transferred through Razorpay.
             </Text>
-            <TextInput
+            <TextField
               value={password}
               onChangeText={setPassword}
               placeholder="Driver password"
-              placeholderTextColor={Colors.textMuted}
               secureTextEntry
-              style={styles.passwordInput}
+              style={{ marginBottom: 14 }}
             />
             <View style={styles.modalActions}>
-              <Pressable
-                style={styles.secondaryButton}
+              <Button
+                title="Cancel"
+                variant="secondary"
+                size="sm"
                 onPress={() => setCashOutVisible(false)}
                 disabled={isCashingOut}
-              >
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={styles.primaryButton}
+              />
+              <Button
+                title="Confirm"
+                size="sm"
                 onPress={handleCashOut}
-                disabled={isCashingOut}
-              >
-                {isCashingOut ? (
-                  <ActivityIndicator size="small" color={Colors.white} />
-                ) : (
-                  <Text style={styles.primaryButtonText}>Confirm</Text>
-                )}
-              </Pressable>
+                loading={isCashingOut}
+              />
             </View>
           </View>
         </View>

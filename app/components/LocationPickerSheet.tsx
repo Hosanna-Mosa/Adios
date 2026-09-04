@@ -45,7 +45,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
   const fetchSavedAddresses = async () => {
     try {
       setLoading(true);
-      const data = (await customFetch("/api/v1/users/addresses")) as any;
+      const data = (await customFetch("/users/addresses")) as any;
       console.log("Raw addresses from server:", data);
       if (Array.isArray(data)) {
         const validAddresses = data.filter(
@@ -75,7 +75,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
     if (text.length > 2) {
       setSearching(true);
       try {
-        const results = await customFetch<any[]>(`/api/v1/places/autocomplete?input=${encodeURIComponent(text)}`);
+        const results = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}`);
         setSearchResults(results);
       } catch (error) {
         console.error("Search error:", error);
@@ -102,7 +102,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       setSavingLocation(true);
       console.log("Attempting to save location:", detectedLocation);
       
-      const updatedData = await customFetch<any[]>("/api/v1/users/addresses", {
+      const updatedData = await customFetch<any[]>("/users/addresses", {
         method: "POST",
         body: JSON.stringify({
           label: detectedLocation.label,
@@ -224,7 +224,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
             setSelectingAddressId(item.id);
             const details = Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))
               ? { lat: Number(item.lat), lng: Number(item.lng) }
-              : await customFetch<any>(`/api/v1/places/details/${item.id}`);
+              : await customFetch<any>(`/places/details/${item.id}`);
             if (onSelectAddress) {
               await onSelectAddress({
                 addressLine: item.address,

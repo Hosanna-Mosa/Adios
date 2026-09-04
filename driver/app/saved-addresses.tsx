@@ -12,8 +12,10 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
+import { staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -34,7 +36,7 @@ export default function SavedAddressesScreen() {
       setLoading(true);
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
-      const res = await fetch(`${apiUrl}/api/v1/users/addresses`, { headers });
+      const res = await fetch(`${apiUrl}/users/addresses`, { headers });
       const data = await res.json();
       setAddresses(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -55,7 +57,7 @@ export default function SavedAddressesScreen() {
             setLoading(true);
             const headers: Record<string, string> = { "Content-Type": "application/json" };
             if (token) headers["Authorization"] = `Bearer ${token}`;
-            const res = await fetch(`${apiUrl}/api/v1/users/addresses/${id}`, {
+            const res = await fetch(`${apiUrl}/users/addresses/${id}`, {
               method: "DELETE",
               headers,
             });
@@ -108,8 +110,8 @@ export default function SavedAddressesScreen() {
                 <Text style={styles.emptyText}>No saved addresses yet</Text>
               </View>
             ) : (
-              addresses.map((addr: any) => (
-                <View key={addr._id} style={styles.addressCard}>
+              addresses.map((addr: any, idx: number) => (
+                <Animated.View key={addr._id} entering={staggerListItem(idx)} style={styles.addressCard}>
                   <View style={styles.addressIconBox}>
                     <Feather
                       name={
@@ -146,7 +148,7 @@ export default function SavedAddressesScreen() {
                       <Feather name="trash-2" size={18} color={Colors.error} />
                     </TouchableOpacity>
                   </View>
-                </View>
+                </Animated.View>
               ))
             )}
           </View>

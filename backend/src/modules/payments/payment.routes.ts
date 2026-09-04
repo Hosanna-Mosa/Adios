@@ -3,23 +3,26 @@ import { PaymentService } from "./payment.service";
 import { authenticateToken, AuthRequest } from "../../middleware/auth.middleware";
 import { OrdersService } from "../orders/orders.service";
 import { ServiceType } from "../../database/models/Order";
+import { validateRequest } from "../../middleware/validation.middleware";
+import { authRateLimiter } from "../../middleware/rateLimit.middleware";
+import { createRazorpayOrderSchema, verifyPaymentSchema } from "./payment.validation";
 
 const router = Router();
 const paymentService = new PaymentService();
 const ordersService = new OrdersService();
 
-router.post("/create-order", async (req: Request, res: Response) => {
+router.post("/create-order", authenticateToken, authRateLimiter, validateRequest(createRazorpayOrderSchema), async (req: Request, res: Response) => {
   try {
     const { amount } = req.body;
     if (!amount) return res.status(400).json({ message: "Amount is required" });
-    
+
     const amountInPaise = Math.round(amount * 100);
     const order = await paymentService.createRazorpayOrder(amount);
-    
+
     // Send back the configuration required for the SDK together with the order
     res.json({
       ...order,
-      key: process.env.RAZORPAY_KEY_ID || "rzp_test_Rbm66o8JPEj0P8",
+      key: process.env.RAZORPAY_KEY_ID,
       name: "Precision Logistics",
       prefill: {
         email: "customer@example.com", // This could also come from user session

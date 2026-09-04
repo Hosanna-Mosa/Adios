@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -19,6 +20,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 const MEAT_TYPES = [
   { name: "Chicken", emoji: "🐔" },
@@ -66,7 +68,7 @@ export default function MeatCentersScreen() {
       else setLoadingMore(true);
 
       const baseUrl = process.env.EXPO_PUBLIC_API_URL;
-      let url = `${baseUrl}/api/v1/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20`;
+      let url = `${baseUrl}/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20`;
       if (category) url += `&category=${encodeURIComponent(category)}`;
 
       const response = await fetch(url);
@@ -148,10 +150,10 @@ export default function MeatCentersScreen() {
 
   const renderHeader = () => (
     <>
-      <View style={styles.headline}>
+      <Animated.View entering={fadeInUp(0)} style={styles.headline}>
         <Text style={styles.headlineText}>Meat centers near you</Text>
         <Text style={styles.headlineSub}>{meatCenters.length} open · cut fresh on order</Text>
-      </View>
+      </Animated.View>
 
       {searchOpen && (
         <View style={styles.searchRow}>
@@ -173,26 +175,27 @@ export default function MeatCentersScreen() {
       )}
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typesRow}>
-        {MEAT_TYPES.map((t) => {
+        {MEAT_TYPES.map((t, idx) => {
           const isActive = selectedCategory === t.name;
           return (
-            <TouchableOpacity
-              key={t.name}
-              style={styles.typeItem}
-              onPress={() => setSelectedCategory(isActive ? null : t.name)}
-            >
-              <View style={[styles.typeCircle, isActive && styles.typeCircleActive]}>
-                <Text style={{ fontSize: moderateScale(24) }}>{t.emoji}</Text>
-              </View>
-              <Text style={[styles.typeLabel, isActive && { color: accent.accent }]} numberOfLines={1}>
-                {t.name}
-              </Text>
-            </TouchableOpacity>
+            <Animated.View key={t.name} entering={staggerListItem(idx)}>
+              <TouchableOpacity
+                style={styles.typeItem}
+                onPress={() => setSelectedCategory(isActive ? null : t.name)}
+              >
+                <View style={[styles.typeCircle, isActive && styles.typeCircleActive]}>
+                  <Text style={{ fontSize: moderateScale(24) }}>{t.emoji}</Text>
+                </View>
+                <Text style={[styles.typeLabel, isActive && { color: accent.accent }]} numberOfLines={1}>
+                  {t.name}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
           );
         })}
       </ScrollView>
 
-      <View style={styles.chipsRow}>
+      <Animated.View entering={fadeInUp(120)} style={styles.chipsRow}>
         <TouchableOpacity
           style={[styles.chip, activeQuickFilters.has("fast") && styles.chipActive]}
           onPress={() => toggleQuickFilter("fast")}
@@ -211,7 +214,7 @@ export default function MeatCentersScreen() {
         >
           <Text style={[styles.chipText, activeQuickFilters.has("open") && styles.chipTextActive]}>Open now</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </>
   );
 
@@ -243,7 +246,11 @@ export default function MeatCentersScreen() {
         <FlatList
           data={visibleCenters}
           keyExtractor={(item) => item._id}
-          renderItem={({ item }) => <RestaurantListItem {...item} isMeat={true} />}
+          renderItem={({ item, index }) => (
+            <Animated.View entering={staggerListItem(index)}>
+              <RestaurantListItem {...item} isMeat={true} />
+            </Animated.View>
+          )}
           ListHeaderComponent={renderHeader}
           ListFooterComponent={() =>
             loadingMore ? <ActivityIndicator size="small" color={accent.accent} style={{ marginVertical: 20 }} /> : <View style={{ height: 120 }} />

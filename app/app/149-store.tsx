@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -20,6 +21,7 @@ import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
 
 // Standard Indian food-labeling convention: a circle for veg, a triangle
 // for non-veg, both inside a small squared-off border — not just two dot
@@ -74,7 +76,7 @@ export default function Store149Screen() {
     const fetchItems = async () => {
       try {
         if (currentCoords?.lat && currentCoords?.lng) {
-          const data = await customFetch<any>(`/api/v1/food/store-149?lat=${currentCoords.lat}&lng=${currentCoords.lng}`);
+          const data = await customFetch<any>(`/food/store-149?lat=${currentCoords.lat}&lng=${currentCoords.lng}`);
           if (Array.isArray(data)) setStore149Items(data);
         }
       } catch (error) {
@@ -100,7 +102,7 @@ export default function Store149Screen() {
         {/* Full-bleed accent header — the one screen that floods the accent
             color, so the ₹149 promo gets its own identity before the
             neutral system resumes below. */}
-        <View style={[styles.heroHeader, { paddingTop: insets.top + 4 }]}>
+        <Animated.View entering={fadeInUp(0)} style={[styles.heroHeader, { paddingTop: insets.top + 4 }]}>
           <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
             <Ionicons name="chevron-back" size={moderateScale(20)} color={accent.on} />
           </TouchableOpacity>
@@ -109,18 +111,19 @@ export default function Store149Screen() {
           <Text style={styles.heroSubtext}>
             {store149Items.length} dishes{outletCount > 0 ? ` · ${outletCount} outlets` : ""}
           </Text>
-        </View>
+        </Animated.View>
 
         <View style={styles.sheet}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScrollContent}>
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat}
-                style={[styles.categoryChip, activeCategory === cat && styles.categoryChipActive]}
-                onPress={() => setActiveCategory(cat)}
-              >
-                <Text style={[styles.categoryChipText, activeCategory === cat && styles.categoryChipTextActive]}>{cat}</Text>
-              </TouchableOpacity>
+            {categories.map((cat, idx) => (
+              <Animated.View key={cat} entering={staggerListItem(idx)}>
+                <TouchableOpacity
+                  style={[styles.categoryChip, activeCategory === cat && styles.categoryChipActive]}
+                  onPress={() => setActiveCategory(cat)}
+                >
+                  <Text style={[styles.categoryChipText, activeCategory === cat && styles.categoryChipTextActive]}>{cat}</Text>
+                </TouchableOpacity>
+              </Animated.View>
             ))}
           </ScrollView>
 
@@ -130,14 +133,13 @@ export default function Store149Screen() {
             </View>
           ) : (
             <View style={styles.grid}>
-              {visibleItems.map((item) => {
+              {visibleItems.map((item, idx) => {
                 const cartItem = cartItems.find((i) => i._id === item._id);
                 const handleAdd = () => addCartItem(buildFoodItem(item), item.vendorId);
 
                 return (
+                  <Animated.View key={item._id} entering={staggerListItem(idx)} style={styles.card}>
                   <TouchableOpacity
-                    key={item._id}
-                    style={styles.card}
                     activeOpacity={0.9}
                     onPress={() => { setSelectedItem(item); setIsSheetVisible(true); }}
                   >
@@ -177,6 +179,7 @@ export default function Store149Screen() {
                       </View>
                     </View>
                   </TouchableOpacity>
+                  </Animated.View>
                 );
               })}
             </View>

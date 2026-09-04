@@ -1,10 +1,4 @@
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from "@expo-google-fonts/inter";
+import { useFonts } from "expo-font";
 import {
   FamiljenGrotesk_400Regular,
   FamiljenGrotesk_500Medium,
@@ -49,14 +43,14 @@ setAuthTokenGetter(() => {
 });
 
 
-import { FloatingCart } from "@/components/FloatingCart";
 import UpdateModal from "@/components/UpdateModal";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { useState } from "react";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
+import { ToastProvider } from "@/components/ui/Toast";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { typography } from "@/constants/typography";
+import { typography, fontFamilies } from "@/constants/typography";
 import { TextInput } from "react-native";
 
 // --- Global Typography Patch ---
@@ -64,11 +58,23 @@ const patchComponentStyle = (Component: any) => {
   const originalRender = Component.render;
   if (!originalRender) return;
 
+  // Picks the weight-matched family variant for a text role — heading sizes
+  // (>=18) get Familjen Grotesk, everything else gets Figtree, per the
+  // pairing documented in constants/typography.ts.
+  const familyFor = (isHeading: boolean, weight: any) => {
+    const set = isHeading ? fontFamilies.heading : fontFamilies.body;
+    if (weight === "800" || weight === "900" || weight === "bold" || weight === "700") return set.bold;
+    if (weight === "600") return set.semibold;
+    if (weight === "500") return set.medium;
+    return set.regular;
+  };
+
   Component.render = function (props: any, ref: any) {
     if (props && props.style) {
       const flat = StyleSheet.flatten(props.style);
       const updated = { ...flat };
       let changed = false;
+      let isHeading = false;
 
       // 1. Intercept Font Size & Weight mapping to Typography
       if (typeof flat.fontSize === "number") {
@@ -78,12 +84,14 @@ const patchComponentStyle = (Component: any) => {
           if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "900" || flat.fontWeight === "bold") {
             updated.fontWeight = typography.heading1.fontWeight;
           }
+          isHeading = true;
           changed = true;
         } else if (size >= 18) {
           updated.fontSize = typography.heading2.fontSize;
           if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "bold") {
             updated.fontWeight = typography.heading2.fontWeight;
           }
+          isHeading = true;
           changed = true;
         } else if (size >= 15) {
           updated.fontSize = typography.sizes.bodyLarge;
@@ -100,21 +108,10 @@ const patchComponentStyle = (Component: any) => {
         }
       }
 
-      // 2. Set Font Family based on Weight to ensure Inter is used everywhere
-      const weight = flat.fontWeight;
-      if (weight === "800" || weight === "900" || weight === "bold" || weight === "700") {
-        updated.fontFamily = "Inter_700Bold";
-        changed = true;
-      } else if (weight === "600") {
-        updated.fontFamily = "Inter_600SemiBold";
-        changed = true;
-      } else if (weight === "500") {
-        updated.fontFamily = "Inter_500Medium";
-        changed = true;
-      } else {
-        updated.fontFamily = "Inter_400Regular";
-        changed = true;
-      }
+      // 2. Set font family — Familjen Grotesk for headings, Figtree for body —
+      // by weight, using the (possibly just-updated) target weight.
+      updated.fontFamily = familyFor(isHeading, updated.fontWeight ?? flat.fontWeight);
+      changed = true;
 
       if (changed) {
         props = {
@@ -123,10 +120,10 @@ const patchComponentStyle = (Component: any) => {
         };
       }
     } else {
-      // Default to regular Inter font if no style is specified
+      // No style at all: default to regular Figtree (body is the common case).
       props = {
         ...props,
-        style: { fontFamily: "Inter_400Regular" },
+        style: { fontFamily: fontFamilies.body.regular },
       };
     }
     return originalRender.call(this, props, ref);
@@ -154,25 +151,25 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="otp" options={{ headerShown: false }} />
-        <Stack.Screen name="signup" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="delivery/entry" options={{ headerShown: false }} />
-        <Stack.Screen name="delivery/add-stop" options={{ headerShown: false }} />
-        <Stack.Screen name="delivery/checkout" options={{ headerShown: false }} />
-        <Stack.Screen name="cart" options={{ headerShown: false }} />
-        <Stack.Screen name="checkout" options={{ headerShown: false }} />
-        <Stack.Screen name="payment" options={{ headerShown: false }} />
-        <Stack.Screen name="tracking" options={{ headerShown: false }} />
-        <Stack.Screen name="pickup-confirmation" options={{ headerShown: false }} />
-        <Stack.Screen name="ride-searching" options={{ headerShown: false }} />
-        <Stack.Screen name="restaurant-menu" options={{ headerShown: false }} />
-        <Stack.Screen name="restaurant-details" options={{ headerShown: false }} />
-        <Stack.Screen name="chat" options={{ headerShown: false }} />
-        <Stack.Screen name="149-store" options={{ headerShown: false, animation: "slide_from_right" }} />
+      <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+        <Stack.Screen name="index" options={{ animation: "fade" }} />
+        <Stack.Screen name="login" options={{ animation: "fade" }} />
+        <Stack.Screen name="otp" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
+        <Stack.Screen name="delivery/entry" />
+        <Stack.Screen name="delivery/add-stop" />
+        <Stack.Screen name="delivery/checkout" />
+        <Stack.Screen name="cart" options={{ animation: "slide_from_bottom" }} />
+        <Stack.Screen name="checkout" />
+        <Stack.Screen name="payment" />
+        <Stack.Screen name="tracking" />
+        <Stack.Screen name="pickup-confirmation" />
+        <Stack.Screen name="ride-searching" />
+        <Stack.Screen name="restaurant-menu" />
+        <Stack.Screen name="restaurant-details" />
+        <Stack.Screen name="chat" />
+        <Stack.Screen name="149-store" />
       </Stack>
       {Platform.OS === "android" && insets.bottom > 0 && (
         <View style={{ height: insets.bottom, backgroundColor: colors.background }} />
@@ -209,7 +206,7 @@ export default function RootLayout() {
       try {
         const platform = Platform.OS === "ios" ? "ios" : "android";
         const currentVersion = Constants.expoConfig?.version || "1.0.0";
-        const res = await fetch(`${apiUrl}/api/v1/auth/version-check?platform=${platform}&version=${currentVersion}`);
+        const res = await fetch(`${apiUrl}/auth/version-check?platform=${platform}&version=${currentVersion}`);
         if (!res.ok) return;
         const result = await res.json();
         if (result.updateRequired) {
@@ -236,10 +233,6 @@ export default function RootLayout() {
   }, []);
 
   const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
     FamiljenGrotesk_400Regular,
     FamiljenGrotesk_500Medium,
     FamiljenGrotesk_600SemiBold,
@@ -288,7 +281,7 @@ export default function RootLayout() {
 
   // Register push notifications when authenticated, and listen for tokens & taps (Priority 3 & 4)
   useEffect(() => {
-    if (!token) return;
+    if (!token || Platform.OS === "web") return;
 
     const { registerForPushNotificationsAsync } = require("@/utils/notificationRegister");
     const { customFetch } = require("@/utils/api/custom-fetch");
@@ -302,7 +295,7 @@ export default function RootLayout() {
     const tokenSubscription = Notifications.addPushTokenListener(async (tokenData) => {
       console.log("[PushNotifications] Token refreshed:", tokenData.data);
       try {
-        await customFetch("/api/v1/users/push-token", {
+        await customFetch("/users/push-token", {
           method: "POST",
           body: JSON.stringify({ expoPushToken: tokenData.data }),
         });
@@ -342,16 +335,17 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
-              <RootLayoutNav />
-              <FloatingCart />
-              <GlobalSocketHandler />
-              <OfflineBanner />
-              <UpdateModal
-                visible={showUpdate} 
-                forceUpdate={forceUpdate} 
-                storeUrl={storeUrl} 
-                onDismiss={handleDismissUpdate} 
-              />
+              <ToastProvider>
+                <RootLayoutNav />
+                <GlobalSocketHandler />
+                <OfflineBanner />
+                <UpdateModal
+                  visible={showUpdate}
+                  forceUpdate={forceUpdate}
+                  storeUrl={storeUrl}
+                  onDismiss={handleDismissUpdate}
+                />
+              </ToastProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </QueryClientProvider>
