@@ -51,6 +51,9 @@ export default function MapPickerScreen() {
   const [recentering, setRecentering] = useState(false);
   const mapRef = useRef<React.ElementRef<typeof AppMapView>>(null);
 
+  const latLabel = region.latitude.toFixed(6);
+  const lngLabel = region.longitude.toFixed(6);
+
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -199,6 +202,7 @@ export default function MapPickerScreen() {
             <Text style={styles.addressSub} numberOfLines={1}>
               {loading ? "Fetching address details…" : address}
             </Text>
+            <Text style={styles.addressCoords} numberOfLines={1}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
           </View>
           {loading ? (
             <ActivityIndicator size="small" color={accent.accent} />
@@ -259,6 +263,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride
     addressInfo: { flex: 1, minWidth: 0 },
     addressMain: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
     addressSub: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
+    addressCoords: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, marginTop: 3, letterSpacing: 0.2 },
     editLink: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.5, textTransform: "uppercase", color: accent.accent },
 
     confirmBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },

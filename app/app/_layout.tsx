@@ -26,12 +26,17 @@ import * as Notifications from "expo-notifications";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAuthStore } from "@/contexts/authStore";
-import { setAuthTokenGetter, setBaseUrl } from "@/utils/api/custom-fetch";
+import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
 
 // The API URL should be retrieved from environment variables or app config
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 console.log("[DEBUG] API URL:", apiUrl);
+
+// QA knob: makes the update gate report this version instead of the built one,
+// so every band can be exercised without building an old APK. Inlined by Metro
+// at bundle time — see .env.example. Unset in real builds.
+const versionOverride = process.env.EXPO_PUBLIC_VERSION_OVERRIDE?.trim();
 
 if (apiUrl) {
   setBaseUrl(apiUrl);
@@ -42,8 +47,18 @@ setAuthTokenGetter(() => {
   return useAuthStore.getState().token;
 });
 
+// The API answers 401 — and only 401 — for a missing, expired or revoked token.
+// handleUnauthorized clears the session and returns true only for the first of
+// a burst of parallel 401s, so the sign-out and the redirect happen once.
+setUnauthorizedHandler(() => {
+  if (useAuthStore.getState().handleUnauthorized()) {
+    router.replace("/login");
+  }
+});
+
 
 import UpdateModal from "@/components/UpdateModal";
+import CartConflictDialog from "@/components/CartConflictDialog";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { useState } from "react";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
@@ -155,7 +170,7 @@ function RootLayoutNav() {
         <Stack.Screen name="index" options={{ animation: "fade" }} />
         <Stack.Screen name="login" options={{ animation: "fade" }} />
         <Stack.Screen name="otp" />
-        <Stack.Screen name="signup" />
+        <Stack.Screen name="signup" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
         <Stack.Screen name="delivery/entry" />
         <Stack.Screen name="delivery/add-stop" />
@@ -205,17 +220,30 @@ export default function RootLayout() {
     (async () => {
       try {
         const platform = Platform.OS === "ios" ? "ios" : "android";
-        const currentVersion = Constants.expoConfig?.version || "1.0.0";
+        const currentVersion = versionOverride || Constants.expoConfig?.version || "1.0.0";
+        if (versionOverride) {
+          console.warn(
+            `[VersionGate] SIMULATING app version ${versionOverride} (EXPO_PUBLIC_VERSION_OVERRIDE) — not the real build version`
+          );
+        }
         const res = await fetch(`${apiUrl}/auth/version-check?platform=${platform}&version=${currentVersion}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.warn(`[VersionGate] version-check failed: HTTP ${res.status} for ${apiUrl}/auth/version-check`);
+          return;
+        }
         const result = await res.json();
+        console.log(`[VersionGate] platform=${platform} version=${currentVersion} ->`, result);
         if (result.updateRequired) {
           const latest = result.latest || "1.0.0";
           setLatestVersion(latest);
           setStoreUrl(result.url || (platform === "ios" ? "https://apps.apple.com" : "https://play.google.com"));
           setForceUpdate(result.forceUpdate);
-          
+
           if (result.forceUpdate) {
+            setShowUpdate(true);
+          } else if (versionOverride) {
+            // While simulating a version, the prompt must come back on every
+            // launch so the dismissible band stays re-testable.
             setShowUpdate(true);
           } else {
             // Check if this version was already dismissed
@@ -270,13 +298,9 @@ export default function RootLayout() {
     }
 
     if (token && isAuthScreen) {
-        // Token exists → go straight to the main app
-        router.replace("/(tabs)");
-      }
-      if (token && false) {
-        // No token → show login screen
-        router.replace("/login");
-      }
+      // Token exists → go straight to the main app
+      router.replace("/(tabs)");
+    }
   }, [isInitialized, token, fontsLoaded, fontError, segments]);
 
   // Register push notifications when authenticated, and listen for tokens & taps (Priority 3 & 4)
@@ -345,6 +369,7 @@ export default function RootLayout() {
                   storeUrl={storeUrl}
                   onDismiss={handleDismissUpdate}
                 />
+                <CartConflictDialog />
               </ToastProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>

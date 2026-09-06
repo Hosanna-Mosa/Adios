@@ -14,12 +14,15 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
-import Constants from "expo-constants";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { customFetch } from "@/utils/api/custom-fetch";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { fadeInUp } from "@/motion/presets";
+
+// Only used to highlight today's row; the authoritative window is openState.today.
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 interface VendorDetails {
   _id: string;
@@ -33,8 +36,23 @@ interface VendorDetails {
   categories: string[];
   isPureVeg: boolean;
   isOpen: boolean;
+  /** Server-evaluated schedule — see backend utils/openingHours.ts. */
+  openState?: {
+    isOpen: boolean;
+    label: string;
+    opensAt: string | null;
+    today: string | null;
+    week: { day: string; hours: string }[];
+  };
   legal?: { fssaiNumber?: string };
   location?: { type: string; coordinates: number[] };
+}
+
+interface VendorOffer {
+  code: string;
+  title: string;
+  description: string;
+  minOrder: number;
 }
 
 export default function RestaurantDetails() {
@@ -48,6 +66,7 @@ export default function RestaurantDetails() {
 
   const [loading, setLoading] = useState(true);
   const [vendor, setVendor] = useState<VendorDetails | null>(null);
+  const [offers, setOffers] = useState<VendorOffer[]>([]);
 
   useEffect(() => {
     // There's no public by-id endpoint for meat centers today, only for
@@ -59,9 +78,7 @@ export default function RestaurantDetails() {
     }
     const fetchVendorDetails = async () => {
       try {
-        const baseUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
-        const response = await fetch(`${baseUrl}/vendors/${id}`);
-        if (response.ok) setVendor(await response.json());
+        setVendor(await customFetch<VendorDetails>(`/vendors/${id}`));
       } catch (error) {
         console.error("Error fetching vendor details:", error);
       } finally {
@@ -70,6 +87,25 @@ export default function RestaurantDetails() {
     };
     fetchVendorDetails();
   }, [id, isMeat]);
+
+  // Offers are their own request: /coupons/applicable is authenticated (so it has
+  // to go through customFetch, not a bare fetch) and platform-wide coupons apply
+  // to meat centers too, which the vendor lookup above skips.
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await customFetch<{ coupons: VendorOffer[] }>(`/coupons/applicable?vendorId=${id}&subtotal=0`);
+        if (!cancelled) setOffers(Array.isArray(data?.coupons) ? data.coupons : []);
+      } catch (error) {
+        // An unauthenticated or offline session simply shows no offers.
+        console.error("Error fetching offers:", error);
+        if (!cancelled) setOffers([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id]);
 
   const handleCall = (phoneNumber: string) => {
     Linking.openURL(`tel:${phoneNumber}`).catch((err) => console.error("Failed to call:", err));
@@ -100,6 +136,11 @@ export default function RestaurantDetails() {
       );
     }
   };
+
+  const openState = vendor?.openState;
+  const isOpenNow = openState ? openState.isOpen : vendor?.isOpen !== false;
+  const openLabel = openState?.label || (isOpenNow ? "Open now" : "Closed");
+  const todayName = WEEKDAY_NAMES[new Date().getDay()];
 
   const displayName = vendor?.name || (searchName as string) || "Restaurant";
   const displayRating = vendor?.rating || parseFloat(searchRating as string) || undefined;
@@ -135,9 +176,9 @@ export default function RestaurantDetails() {
                 </View>
               )}
               {vendor && (
-                <View style={[styles.statusBadge, { backgroundColor: vendor.isOpen !== false ? tokens.successSkin : tokens.errorSkin }]}>
-                  <Text style={[styles.statusBadgeText, { color: vendor.isOpen !== false ? tokens.success : tokens.error }]}>
-                    {vendor.isOpen !== false ? "Open now" : "Closed"}
+                <View style={[styles.statusBadge, { backgroundColor: isOpenNow ? tokens.successSkin : tokens.errorSkin }]}>
+                  <Text style={[styles.statusBadgeText, { color: isOpenNow ? tokens.success : tokens.error }]}>
+                    {openLabel}
                   </Text>
                 </View>
               )}
@@ -148,6 +189,46 @@ export default function RestaurantDetails() {
           </Animated.View>
 
           <View style={styles.divider} />
+
+          {offers.length > 0 && (
+            <Animated.View entering={fadeInUp(30)} style={styles.section}>
+              <Text style={styles.sectionLabel}>Offers</Text>
+              <View style={styles.card}>
+                {offers.map((offer, index) => (
+                  <View key={offer.code} style={[styles.offerRow, index > 0 && styles.offerRowDivider]}>
+                    <View style={styles.offerCodeChip}>
+                      <Text style={styles.offerCodeText}>{offer.code}</Text>
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={styles.offerTitle}>{offer.title}</Text>
+                      <Text style={styles.offerDescription}>{offer.description}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
+
+          {!!openState?.week?.length && (
+            <Animated.View entering={fadeInUp(45)} style={styles.section}>
+              <Text style={styles.sectionLabel}>Timings</Text>
+              <View style={styles.card}>
+                <View style={styles.timingTodayRow}>
+                  <Text style={styles.timingTodayLabel}>Today</Text>
+                  <Text style={styles.timingTodayValue}>{openState.today || (isOpenNow ? "Open now" : "Closed today")}</Text>
+                </View>
+                {openState.week.map((entry) => {
+                  const isToday = entry.day === todayName;
+                  return (
+                    <View key={entry.day} style={styles.timingRow}>
+                      <Text style={[styles.timingDay, isToday && styles.timingRowToday]}>{entry.day}</Text>
+                      <Text style={[styles.timingHours, isToday && styles.timingRowToday]}>{entry.hours}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </Animated.View>
+          )}
 
           {vendor?.legal?.fssaiNumber && (
             <View style={styles.section}>
@@ -249,6 +330,21 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     hygieneText: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec },
 
     card: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 14 },
+
+    offerRow: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+    offerRowDivider: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: tokens.border },
+    offerCodeChip: { backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 },
+    offerCodeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.6, color: accent.accent },
+    offerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
+    offerDescription: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginTop: 3 },
+
+    timingTodayRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingBottom: 12, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: tokens.border },
+    timingTodayLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
+    timingTodayValue: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
+    timingRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 5 },
+    timingDay: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
+    timingHours: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
+    timingRowToday: { fontFamily: fontFamilies.body.bold, color: tokens.text },
     addressText: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(22), color: tokens.text },
     navigateBtn: { marginTop: 12, backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, borderRadius: 12, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
     navigateBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: accent.accent },

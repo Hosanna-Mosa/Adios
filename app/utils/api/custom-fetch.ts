@@ -9,6 +9,8 @@ export type BodyType<T> = T;
 
 export type AuthTokenGetter = () => Promise<string | null> | string | null;
 
+export type UnauthorizedHandler = (response: Response) => void;
+
 const NO_BODY_STATUS = new Set([204, 205, 304]);
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
@@ -18,6 +20,7 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
+let _unauthorizedHandler: UnauthorizedHandler | null = null;
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -40,6 +43,20 @@ export function setBaseUrl(url: string | null): void {
  */
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
   _authTokenGetter = getter;
+}
+
+/**
+ * Register a handler invoked whenever the API answers 401 — the single status
+ * the backend uses for a missing, expired or revoked token. It runs before the
+ * `ApiError` is thrown, so per-call catch blocks keep working unchanged.
+ *
+ * The handler is called once per 401 response, so it must be idempotent: a
+ * screen firing several requests at once produces several 401s, and only the
+ * first may clear the session and navigate.
+ * Pass `null` to clear the handler.
+ */
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): void {
+  _unauthorizedHandler = handler;
 }
 
 function isRequest(input: RequestInfo | URL): input is Request {
@@ -366,6 +383,9 @@ export async function customFetch<T = unknown>(
   console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
 
   if (!response.ok) {
+    if (response.status === 401 && _unauthorizedHandler) {
+      _unauthorizedHandler(response);
+    }
     const errorData = await parseErrorBody(response, method);
     throw new ApiError(response, errorData, requestInfo);
   }

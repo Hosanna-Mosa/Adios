@@ -44,6 +44,7 @@ export default function ProfileScreen() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+  const [signingOutAll, setSigningOutAll] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -69,11 +70,9 @@ export default function ProfileScreen() {
         console.warn("Failed to fetch user orders:", orderErr);
       }
     } catch (err: any) {
+      // A dead session is handled centrally: customFetch's 401 interceptor
+      // clears the store and redirects once, so this must not navigate too.
       console.error("Fetch profile error:", err);
-      if (err.status === 401 || err.status === 403 || err.status === 404) {
-        await logout();
-        router.replace("/login");
-      }
     } finally {
       setLoading(false);
     }
@@ -106,8 +105,8 @@ export default function ProfileScreen() {
       Alert.alert("Missing fields", "All fields are required");
       return;
     }
-    if (newPassword.length < 6) {
-      Alert.alert("Weak password", "New password must be at least 6 characters");
+    if (newPassword.length < 8) {
+      Alert.alert("Weak password", "New password must be at least 8 characters");
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -116,14 +115,12 @@ export default function ProfileScreen() {
     }
     try {
       setChangingPassword(true);
-      const token = useAuthStore.getState().token;
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/change-password`, {
+      // customFetch rather than a hand-built fetch, so an expired session here
+      // goes through the same 401 interceptor as every other call.
+      await customFetch("/users/change-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to change password");
       Alert.alert("Success", "Password changed successfully.");
       setSecurityVisible(false);
       setCurrentPassword("");
@@ -134,6 +131,34 @@ export default function ProfileScreen() {
     } finally {
       setChangingPassword(false);
     }
+  };
+
+  const handleSignOutAllDevices = () => {
+    Alert.alert(
+      "Sign out of all devices?",
+      "Every phone signed in to this account gets signed out, including this one.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign out everywhere",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setSigningOutAll(true);
+              await customFetch("/auth/logout-all", { method: "POST" });
+            } catch (err: any) {
+              console.error("Sign out of all devices error:", err);
+              Alert.alert("Error", err?.message || "Couldn't sign out of all devices.");
+              setSigningOutAll(false);
+              return;
+            }
+            await logout();
+            setSigningOutAll(false);
+            router.replace("/login");
+          },
+        },
+      ]
+    );
   };
 
   const handleLogout = async () => {
@@ -226,6 +251,9 @@ export default function ProfileScreen() {
           <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout} disabled={loading} activeOpacity={0.8}>
             {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>Sign out</Text>}
           </TouchableOpacity>
+          <TouchableOpacity style={styles.signOutAllBtn} onPress={handleSignOutAllDevices} disabled={signingOutAll || loading} activeOpacity={0.8}>
+            {signingOutAll ? <ActivityIndicator size="small" color={tokens.sec} /> : <Text style={styles.signOutAllBtnText}>Sign out of all devices</Text>}
+          </TouchableOpacity>
         </Animated.View>
       </ScrollView>
 
@@ -248,7 +276,7 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>New password</Text>
-                <TextInput style={styles.textInput} value={newPassword} onChangeText={setNewPassword} secureTextEntry placeholder="At least 6 characters" placeholderTextColor={tokens.muted} />
+                <TextInput style={styles.textInput} value={newPassword} onChangeText={setNewPassword} secureTextEntry placeholder="Min. 8 characters" placeholderTextColor={tokens.muted} />
               </View>
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Confirm new password</Text>
@@ -293,6 +321,8 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
 
     signOutBtn: { marginTop: 14, borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
     signOutBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.error },
+    signOutAllBtn: { marginTop: 10, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
+    signOutAllBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.sec },
 
     modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
     modalBody: { backgroundColor: tokens.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: "88%" },

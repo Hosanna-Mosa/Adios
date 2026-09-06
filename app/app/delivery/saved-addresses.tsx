@@ -19,7 +19,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
-import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
@@ -49,6 +49,7 @@ export default function SavedAddressesScreen() {
     useCallback(() => {
       fetchAddresses();
       loadRecentLocations();
+      useDeliveryStore.getState().hydrateSelectedAddress();
     }, [])
   );
 
@@ -120,19 +121,30 @@ export default function SavedAddressesScreen() {
 
   const handleSelectAddress = async (addr: any) => {
     if (selectingId || deletingId) return;
-    const addressWithCoords = { ...addr };
     const lat = addr.coordinates?.lat ?? addr.location?.coordinates?.[1] ?? 17.4447;
     const lng = addr.coordinates?.lng ?? addr.location?.coordinates?.[0] ?? 78.3498;
-    addressWithCoords.coordinates = { lat, lng };
-    addressWithCoords.location = { type: "Point", coordinates: [lng, lat] };
+    const addressWithCoords: SelectedDeliveryAddress = {
+      _id: addr._id,
+      label: addr.label,
+      addressLine: addr.addressLine,
+      phone: addr.phone,
+      receiverName: addr.receiverName,
+      receiverPhone: addr.receiverPhone,
+      landmark: addr.landmark,
+      coordinates: { lat, lng },
+      location: { type: "Point", coordinates: [lng, lat] },
+    };
 
     try {
       setSelectingId(addr._id);
+      useDeliveryStore.getState().setSelectedAddress(addressWithCoords);
       useDeliveryStore.getState().setCurrentCoords({ lat, lng });
       useDeliveryStore.getState().setCurrentLocation(addr.addressLine || addr.label || "");
+      // The home feed refresh is a side effect of the new location — whoever sent us
+      // here (checkout, most often) must not wait on a network round trip to get its
+      // answer back. fetchHomeData swallows its own errors.
       const activeService = useHomeStore.getState().activeService;
-      await useHomeStore.getState().fetchHomeData(lat, lng, activeService);
-      await AsyncStorage.setItem("active_address", JSON.stringify(addressWithCoords));
+      void useHomeStore.getState().fetchHomeData(lat, lng, activeService);
       router.back();
     } catch (e) {
       console.error("Failed to save active address:", e);
@@ -145,7 +157,7 @@ export default function SavedAddressesScreen() {
     if (selectingId || deletingId) return;
     const lat = item.location?.coordinates?.[1] ?? item.coordinates?.lat ?? "";
     const lng = item.location?.coordinates?.[0] ?? item.coordinates?.lng ?? "";
-    const qs = `editId=${encodeURIComponent(item._id || "")}&label=${encodeURIComponent(item.label || "")}&addressLine=${encodeURIComponent(item.addressLine || "")}&phone=${encodeURIComponent(item.phone || "")}&receiverName=${encodeURIComponent(item.receiverName || "")}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
+    const qs = `editId=${encodeURIComponent(item._id || "")}&label=${encodeURIComponent(item.label || "")}&addressLine=${encodeURIComponent(item.addressLine || "")}&phone=${encodeURIComponent(item.phone || "")}&receiverName=${encodeURIComponent(item.receiverName || "")}&receiverPhone=${encodeURIComponent(item.receiverPhone || "")}&landmark=${encodeURIComponent(item.landmark || "")}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
     router.push(`/delivery/add-address?${qs}`);
   };
 
@@ -162,6 +174,8 @@ export default function SavedAddressesScreen() {
             const updatedAddresses = await customFetch<any[]>(`/users/addresses/${id}`, { method: "DELETE" });
             setAddresses(updatedAddresses || []);
             if (user) setUser({ ...user, addresses: updatedAddresses || [] });
+            const { selectedAddress, setSelectedAddress } = useDeliveryStore.getState();
+            if (String(selectedAddress?._id || "") === String(id)) setSelectedAddress(null);
           } catch (err: any) {
             console.error("Delete error:", err);
             Alert.alert("Error", err.message || "Failed to delete address");
@@ -235,6 +249,7 @@ export default function SavedAddressesScreen() {
                 {addresses.map((addr, idx) => {
                   const isSelecting = selectingId === addr._id;
                   const instructions = parseInstructions(addr.addressLine);
+                  const contact = [addr.receiverName, addr.receiverPhone].filter(Boolean).join(" · ");
                   return (
                     <Animated.View key={addr._id} entering={staggerListItem(idx)}>
                     <TouchableOpacity
@@ -248,7 +263,9 @@ export default function SavedAddressesScreen() {
                       <View style={{ flex: 1, minWidth: 0 }}>
                         <Text style={styles.addrLabel}>{addr.label}</Text>
                         <Text style={styles.addrLine} numberOfLines={1}>{stripMeta(addr.addressLine)}</Text>
+                        {!!addr.landmark && <Text style={styles.addrInstructions} numberOfLines={1}>Near {addr.landmark}</Text>}
                         {instructions && <Text style={styles.addrInstructions} numberOfLines={1}>{instructions}</Text>}
+                        {!!contact && <Text style={styles.addrContact} numberOfLines={1}>{contact}</Text>}
                       </View>
                       <TouchableOpacity onPress={() => handleMoreOptions(addr)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} disabled={selectingId !== null || deletingId !== null}>
                         {deletingId === addr._id ? <ActivityIndicator size="small" color={tokens.error} /> : <Ionicons name="ellipsis-horizontal" size={18} color={tokens.muted} />}
@@ -315,6 +332,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
     addrLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
     addrLine: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 3 },
     addrInstructions: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.sec, marginTop: 5 },
+    addrContact: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 5 },
 
     recentRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 11, minHeight: 52 },
     recentRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },

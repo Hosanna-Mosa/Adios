@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,6 +19,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
+import { useHomeStore, useServiceAccent } from "@/contexts/homeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { staggerListItem } from "@/motion/presets";
@@ -28,12 +30,16 @@ export default function CartScreen() {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
   const { vendorName: paramVendorName } = useLocalSearchParams();
-  const { items, getTotalPrice, vendorId, updateQuantity, addItem } = useCartStore();
+  const { items, getTotalPrice, vendorId, updateQuantity, addItem, clearCart } = useCartStore();
+  const storeVendorName = useCartStore((s) => s.vendorName);
+  const cartStatus = useCartStore((s) => s.status);
 
-  // The cart doesn't currently track which service (food vs meat) its
-  // vendor belongs to, so this renders in the service-agnostic brand accent.
-  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  // The active Food/Meat mode is the single source of truth for the accent, so
+  // the cart tints to whatever the customer is actually shopping.
+  const activeService = useHomeStore((s) => s.activeService);
+  const serviceKey = activeService === "Meat" ? "meat" : "food";
+  const accent = useServiceAccent();
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, accent]);
 
   const [fetchedVendorName, setFetchedVendorName] = useState<string | null>(null);
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
@@ -111,18 +117,13 @@ export default function CartScreen() {
     [menuItems, items]
   );
 
-  const displayVendorName = paramVendorName ? String(paramVendorName) : fetchedVendorName || "your vendor";
+  const displayVendorName = paramVendorName
+    ? String(paramVendorName)
+    : storeVendorName || fetchedVendorName || "your vendor";
   const subtotal = getTotalPrice();
 
-  let discount = 0;
-  if (appliedPromo) {
-    if (appliedPromo.discountType === "PERCENTAGE") {
-      discount = (subtotal * appliedPromo.discountValue) / 100;
-      if (appliedPromo.maxDiscount) discount = Math.min(discount, appliedPromo.maxDiscount);
-    } else {
-      discount = appliedPromo.discountValue;
-    }
-  }
+  // The server owns the coupon maths — this is only what it told us.
+  const discount = appliedPromo?.discountAmount || 0;
   const total = Math.max(0, Math.round((subtotal + (deliveryFee || 0) - discount) * 100) / 100);
 
   const handleApplyPromo = async () => {
@@ -130,19 +131,55 @@ export default function CartScreen() {
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const response = await customFetch<any>("/orders/validate-coupon", {
-        method: "POST",
-        body: JSON.stringify({ code: promoCode.trim(), cartTotal: subtotal }),
-      });
+      const response = await customFetch<{ valid: boolean; code: string; discountAmount: number }>(
+        "/coupons/validate",
+        {
+          method: "POST",
+          body: JSON.stringify({ code: promoCode.trim().toUpperCase(), vendorId, subtotal }),
+        }
+      );
       if (response?.code) {
-        setAppliedPromo(response);
+        setAppliedPromo({ code: response.code, discountAmount: Number(response.discountAmount) || 0 });
         setShowPromoInput(false);
+        setPromoCode("");
       }
     } catch (error: any) {
       setPromoError((error?.message || "Invalid promo code").replace(/^HTTP \d+.*?: /, "").trim());
     } finally {
       setIsApplyingPromo(false);
     }
+  };
+
+  // Quantities change after a code is applied, so the saving has to be re-derived
+  // server-side rather than left showing a number the order would be rejected for.
+  useEffect(() => {
+    const code = appliedPromo?.code;
+    if (!code) return;
+    let cancelled = false;
+    customFetch<{ code: string; discountAmount: number }>("/coupons/validate", {
+      method: "POST",
+      body: JSON.stringify({ code, vendorId, subtotal }),
+    })
+      .then((res) => {
+        if (cancelled || !res?.code) return;
+        setAppliedPromo({ code: res.code, discountAmount: Number(res.discountAmount) || 0 });
+      })
+      .catch((error: any) => {
+        if (cancelled) return;
+        setAppliedPromo(null);
+        setPromoError((error?.message || "This promo code no longer applies").replace(/^HTTP \d+.*?: /, "").trim());
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
+
+  const confirmClearCart = () => {
+    Alert.alert("Clear cart?", `This removes every item from ${displayVendorName}.`, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Clear cart", style: "destructive", onPress: () => clearCart() },
+    ]);
   };
 
   const goToCheckout = () => {
@@ -158,6 +195,26 @@ export default function CartScreen() {
       },
     });
   };
+
+  // Restoring this account's saved cart — showing the empty state here would
+  // read as "your cart was thrown away" for the second it takes.
+  if (items.length === 0 && cartStatus === "hydrating") {
+    return (
+      <View style={styles.root}>
+        <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+          <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitleSolo}>Cart</Text>
+        </View>
+        <View style={styles.emptyWrap}>
+          <ActivityIndicator color={accent.accent} />
+          <Text style={styles.emptySubtitle}>Restoring your cart…</Text>
+        </View>
+        <AppTabBar active="cart" accent={serviceKey} />
+      </View>
+    );
+  }
 
   if (items.length === 0) {
     const lastOrder = recentOrders[0];
@@ -229,7 +286,7 @@ export default function CartScreen() {
           {loadingRecent && <ActivityIndicator style={{ marginTop: 20 }} color={accent.accent} />}
         </ScrollView>
 
-        <AppTabBar active="cart" />
+        <AppTabBar active="cart" accent={serviceKey} />
       </View>
     );
   }
@@ -240,10 +297,13 @@ export default function CartScreen() {
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
-        <View style={{ minWidth: 0 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.headerEyebrow}>Your cart from</Text>
           <Text style={styles.headerTitle} numberOfLines={1}>{displayVendorName}</Text>
         </View>
+        <TouchableOpacity style={styles.iconBtn} onPress={confirmClearCart}>
+          <Feather name="trash-2" size={moderateScale(17)} color={tokens.sec} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>

@@ -62,7 +62,44 @@ export default function OTPScreen() {
   }, [secondsLeft]);
 
   const handleChange = (text: string, index: number) => {
-    const digit = text.slice(-1);
+    // A clipboard paste can carry spaces and an SMS autofill can hand over more
+    // than the bare code, so only the digits matter here.
+    const digits = text.replace(/[^0-9]/g, "");
+
+    // Code-length or longer means a paste or a whole-code autofill: it fills the
+    // row from the first box no matter which one received it, and parks the
+    // caret on the last box so backspace still works.
+    if (digits.length >= otp.length) {
+      setOtp(digits.slice(0, otp.length).split(""));
+      const last = otp.length - 1;
+      inputs.current[last]?.focus();
+      setFocusedIndex(last);
+      return;
+    }
+
+    // The boxes no longer cap input at one character, so a keystroke typed into
+    // an already-filled box arrives as "old + new" — drop the old digit so it
+    // still reads as a replacement.
+    const previous = otp[index];
+    const incoming =
+      previous && digits.length > 1 && digits.startsWith(previous)
+        ? digits.slice(previous.length)
+        : digits;
+
+    // A short paste (a partial code) spreads forward from this box.
+    if (incoming.length > 1) {
+      const next = [...otp];
+      for (let i = 0; i < incoming.length && index + i < next.length; i++) {
+        next[index + i] = incoming[i];
+      }
+      setOtp(next);
+      const last = Math.min(index + incoming.length, next.length) - 1;
+      inputs.current[last]?.focus();
+      setFocusedIndex(last);
+      return;
+    }
+
+    const digit = incoming;
     const newOtp = [...otp];
     newOtp[index] = digit;
     setOtp(newOtp);
@@ -84,12 +121,18 @@ export default function OTPScreen() {
       const result = await verifyOTP(phone, code, "USER", name, email, password);
       if (result.isNewUser) {
         // Reached by entering a phone straight on the sign-in screen — it
-        // checks out but there's no account yet, so go collect the rest.
-        router.push({ pathname: "/signup", params: { phone } });
+        // checks out but there's no account yet, so go collect the rest. The
+        // code is spent, so this screen must not survive underneath: otherwise
+        // Back from "Create your account" walks into the auth flow again.
+        if (router.canDismiss()) router.dismissAll();
+        router.replace({ pathname: "/signup", params: { phone } });
       } else {
         // Either a normal sign-in verification, or — when name/email/password
         // were carried through from the create-account form — the account was
-        // just created by this same call.
+        // just created by this same call. `replace` alone only swaps this
+        // screen, leaving sign-in (and any create-account screen) below it, so
+        // pop the whole auth stack first.
+        if (router.canDismiss()) router.dismissAll();
         router.replace("/(tabs)");
       }
     } catch (error: any) {
@@ -167,7 +210,15 @@ export default function OTPScreen() {
                 onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
                 onFocus={() => setFocusedIndex(i)}
                 keyboardType="number-pad"
-                maxLength={1}
+                // No maxLength: the platform enforces it before onChangeText
+                // runs, so a pasted/autofilled code would arrive here already
+                // cut to one digit. The controlled `value` above is what keeps
+                // each box showing a single character.
+                textContentType="oneTimeCode"
+                // Android only forwards autoComplete; hinting just the first box
+                // keeps the SMS autofill from firing into all six at once.
+                autoComplete={i === 0 ? "one-time-code" : "off"}
+                selectTextOnFocus
                 textAlign="center"
                 selectionColor={accent.accent}
               />

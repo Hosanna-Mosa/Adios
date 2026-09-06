@@ -78,7 +78,7 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     onBrand: "#FFFFFF",
     services: {
       food: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
-      meat: { accent: "#C13566", skin: "#FBE8EF", on: "#FFFFFF" },
+      meat: { accent: "#8C1D2F", skin: "#F7E5E7", on: "#FFFFFF" },
       ride: { accent: "#0A7EA8", skin: "#E1F2F8", on: "#FFFFFF" },
       task: { accent: "#6C4FE0", skin: "#EEE9FC", on: "#FFFFFF" },
       delivery: { accent: "#5B8A1E", skin: "#EFF5E1", on: "#FFFFFF" },
@@ -108,7 +108,7 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     onBrand: "#131118",
     services: {
       food: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
-      meat: { accent: "#F589AC", skin: "#331522", on: "#131118" },
+      meat: { accent: "#E28791", skin: "#33161B", on: "#131118" },
       ride: { accent: "#4FC7EC", skin: "#0B2A38", on: "#131118" },
       task: { accent: "#B7A6FF", skin: "#221B44", on: "#131118" },
       delivery: { accent: "#A6D65C", skin: "#232B10", on: "#131118" },
@@ -162,7 +162,7 @@ export const gradients: {
   light: {
     brand: ["#4F3CF2", "#7C63F5"],
     food: ["#E8720C", "#F3924A"],
-    meat: ["#C13566", "#D65F8A"],
+    meat: ["#8C1D2F", "#B0384C"],
     ride: ["#0A7EA8", "#3AA7CE"],
     task: ["#6C4FE0", "#9078EE"],
     delivery: ["#5B8A1E", "#82AE49"],
@@ -170,7 +170,7 @@ export const gradients: {
   dark: {
     brand: ["#8B7FFF", "#B0A6FF"],
     food: ["#FF9A4D", "#FFB878"],
-    meat: ["#F589AC", "#FAAAC6"],
+    meat: ["#E28791", "#EFA9B1"],
     ride: ["#4FC7EC", "#82D9F3"],
     task: ["#B7A6FF", "#D0C4FF"],
     delivery: ["#A6D65C", "#C1E58A"],

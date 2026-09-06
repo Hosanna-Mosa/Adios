@@ -13,7 +13,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -37,10 +36,11 @@ export default function PaymentScreen() {
   const { items, vendorId, clearCart, getItemCount } = useCartStore();
   const { setOrderId, setStatus, setServiceType } = useDeliveryStore();
   const { user, token } = useAuthStore();
+  const selectedAddress = useDeliveryStore((s) => s.selectedAddress);
+  const hydrateSelectedAddress = useDeliveryStore((s) => s.hydrateSelectedAddress);
 
   const [processing, setProcessing] = useState(false);
   const [vendor, setVendor] = useState<VendorDetails | null>(null);
-  const [selectedAddress, setSelectedAddress] = useState<any>(null);
 
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0) || Number(params.subtotal || 0);
   const deliveryFee = params.deliveryFee ? Number(params.deliveryFee) : null;
@@ -49,6 +49,12 @@ export default function PaymentScreen() {
   const couponCode = params.couponCode ? String(params.couponCode) : "";
   const total = Math.max(0, Math.round((subtotal + (deliveryFee || 0) + tip - discount) * 100) / 100);
   const vendorName = params.vendorName ? String(params.vendorName) : vendor?.name || "your vendor";
+  const receiverContact = [
+    String(selectedAddress?.receiverName || "").trim(),
+    String(selectedAddress?.receiverPhone || selectedAddress?.phone || "").trim(),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   useEffect(() => {
     if (!vendorId) return;
@@ -57,15 +63,8 @@ export default function PaymentScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      (async () => {
-        try {
-          const activeStr = await AsyncStorage.getItem("active_address");
-          if (activeStr) setSelectedAddress(JSON.parse(activeStr));
-        } catch (e) {
-          console.error("Failed to load active address:", e);
-        }
-      })();
-    }, [])
+      void hydrateSelectedAddress();
+    }, [hydrateSelectedAddress])
   );
 
   const handlePayment = async () => {
@@ -114,7 +113,9 @@ export default function PaymentScreen() {
           orderData: {
             serviceType: "delivery",
             vendorId,
-            totals: { subtotal, deliveryFee: deliveryFee || 0, tip, discount, total },
+            // The server re-derives the discount from the code — the numbers
+            // beside it are only what this screen displayed.
+            totals: { subtotal, deliveryFee: deliveryFee || 0, tip, discount, total, couponCode: couponCode || undefined },
             stops: [
               {
                 id: "vendor-pickup",
@@ -131,8 +132,10 @@ export default function PaymentScreen() {
                 deliveryAddress: {
                   label: selectedAddress.label || "",
                   addressLine: selectedAddress.addressLine,
-                  phone: selectedAddress.phone || "",
+                  phone: selectedAddress.receiverPhone || selectedAddress.phone || "",
                   receiverName: selectedAddress.receiverName || "",
+                  receiverPhone: selectedAddress.receiverPhone || selectedAddress.phone || "",
+                  landmark: selectedAddress.landmark || "",
                   formattedAddress: selectedAddress.addressLine,
                 },
                 latitude: dropLat,
@@ -217,6 +220,7 @@ export default function PaymentScreen() {
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.addressTitle}>Deliver to {selectedAddress?.label || "…"}</Text>
               <Text style={styles.addressLine} numberOfLines={2}>{selectedAddress?.addressLine || "No address selected"}</Text>
+              {!!receiverContact && <Text style={styles.addressContact}>{receiverContact}</Text>}
             </View>
           </View>
         </Animated.View>
@@ -292,6 +296,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     addressAvatarText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.accent },
     addressTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
     addressLine: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 3 },
+    addressContact: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 5 },
 
     methodRow: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 14, minHeight: 64 },
     methodIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },

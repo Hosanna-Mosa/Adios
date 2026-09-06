@@ -1,4 +1,27 @@
 import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+/** AsyncStorage mirror of `selectedAddress`, kept for the screens that still read the raw key. */
+const ACTIVE_ADDRESS_KEY = "active_address";
+/** The last mirror write, so a hydrate right after a select never reads the previous value. */
+let activeAddressWrite: Promise<unknown> = Promise.resolve();
+
+/**
+ * The delivery address the customer has chosen for the next order. Shaped after the
+ * address subdocument returned by `GET /users/addresses`, plus the `coordinates`
+ * convenience pair the address screens attach on selection.
+ */
+export interface SelectedDeliveryAddress {
+  _id?: string;
+  label?: string;
+  addressLine: string;
+  phone?: string;
+  receiverName?: string;
+  receiverPhone?: string;
+  landmark?: string;
+  coordinates?: { lat: number; lng: number } | null;
+  location?: { type: string; coordinates: number[] } | null;
+}
 
 export interface DeliveryItem {
   id: string;
@@ -67,8 +90,13 @@ export interface DeliveryState {
   unreadCount: number;
   isChatActive: boolean;
   vendorId: string | null;
+  selectedAddress: SelectedDeliveryAddress | null;
   setCurrentLocation: (address: string) => void;
   setCurrentCoords: (coords: { lat: number; lng: number }) => void;
+  /** Sets the chosen delivery address and mirrors it to AsyncStorage. Pass null to clear it. */
+  setSelectedAddress: (address: SelectedDeliveryAddress | null) => void;
+  /** Reads the mirrored address back into the store — the store itself is not persisted. */
+  hydrateSelectedAddress: () => Promise<void>;
   setOrderId: (id: string | null) => void;
   setServiceType: (type: string | null) => void;
   setDriver: (driver: any) => void;
@@ -119,8 +147,29 @@ const initialState = {
 
 export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   ...initialState,
+  // Deliberately outside initialState: the chosen delivery address is a standing
+  // preference rather than in-progress order state, so resetDelivery() must not wipe it.
+  selectedAddress: null,
   setCurrentLocation: (currentLocation) => set({ currentLocation }),
   setCurrentCoords: (currentCoords) => set({ currentCoords }),
+
+  setSelectedAddress: (selectedAddress) => {
+    set({ selectedAddress });
+    activeAddressWrite = (selectedAddress
+      ? AsyncStorage.setItem(ACTIVE_ADDRESS_KEY, JSON.stringify(selectedAddress))
+      : AsyncStorage.removeItem(ACTIVE_ADDRESS_KEY)
+    ).catch((err) => console.error("Failed to persist active address:", err));
+  },
+
+  hydrateSelectedAddress: async () => {
+    try {
+      await activeAddressWrite;
+      const stored = await AsyncStorage.getItem(ACTIVE_ADDRESS_KEY);
+      set({ selectedAddress: stored ? (JSON.parse(stored) as SelectedDeliveryAddress) : null });
+    } catch (err) {
+      console.error("Failed to read active address:", err);
+    }
+  },
   setOrderId: (currentOrderId) => set({ currentOrderId }),
   setServiceType: (serviceType) => set({ serviceType }),
   setDriver: (driver) => set({ driver }),

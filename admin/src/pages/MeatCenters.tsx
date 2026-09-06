@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { fadeIn } from "@/components/motion/variants";
@@ -22,6 +22,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+interface DayHours {
+  open: string;
+  close: string;
+  closed?: boolean;
+}
+
+type WeeklyHours = Partial<Record<DayKey, DayHours>>;
+
+/** Server-evaluated open/closed verdict returned on every meat-centre row. */
+interface OpenState {
+  isOpen: boolean;
+  label: string;
+  opensAt: string | null;
+  today: string | null;
+  week: { day: string; hours: string }[];
+}
+
 interface MeatCenter {
   _id: string;
   name: string;
@@ -30,6 +49,109 @@ interface MeatCenter {
   reviews: string;
   phone: string;
   image: string;
+  isManuallyClosed?: boolean;
+  openingHours?: WeeklyHours;
+  openState?: OpenState;
+}
+
+const WEEK_DAYS: { key: DayKey; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+type HoursDraft = Record<DayKey, { open: string; close: string; closed: boolean }>;
+
+const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
+  WEEK_DAYS.reduce((draft, { key }) => {
+    const day = hours?.[key];
+    draft[key] = {
+      open: day?.open || "09:00",
+      close: day?.close || "22:00",
+      closed: day?.closed === true,
+    };
+    return draft;
+  }, {} as HoursDraft);
+
+const toWeeklyHours = (draft: HoursDraft): WeeklyHours =>
+  WEEK_DAYS.reduce((hours, { key }) => {
+    const day = draft[key];
+    hours[key] = day.closed
+      ? { open: day.open, close: day.close, closed: true }
+      : { open: day.open, close: day.close };
+    return hours;
+  }, {} as WeeklyHours);
+
+const hasWeeklyHours = (hours?: WeeklyHours) => !!hours && Object.keys(hours).length > 0;
+
+function OpeningHoursEditor({ draft, onChange }: { draft: HoursDraft; onChange: (next: HoursDraft) => void }) {
+  const setDay = (key: DayKey, patch: Partial<HoursDraft[DayKey]>) =>
+    onChange({ ...draft, [key]: { ...draft[key], ...patch } });
+
+  return (
+    <div className="space-y-2">
+      {WEEK_DAYS.map(({ key, label }) => (
+        <div key={key} className="flex items-center gap-2">
+          <span className="w-[70px] shrink-0 text-xs font-semibold text-muted-foreground">{label}</span>
+          {draft[key].closed ? (
+            <span className="flex-1 text-xs text-muted-foreground italic">Closed all day</span>
+          ) : (
+            <div className="flex flex-1 items-center gap-2">
+              <Input
+                type="time"
+                value={draft[key].open}
+                onChange={e => setDay(key, { open: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="time"
+                value={draft[key].close}
+                onChange={e => setDay(key, { close: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+            </div>
+          )}
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={draft[key].closed}
+              onChange={e => setDay(key, { closed: e.target.checked })}
+              className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            Closed
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
+  // A manual close always wins, exactly as the server evaluates it — so the pill is
+  // right the instant the toggle is flipped, before the list has refetched.
+  const manuallyClosed = isManuallyClosed === true;
+  const isOpen = manuallyClosed ? false : openState ? openState.isOpen : true;
+  const label = manuallyClosed ? "Closed" : openState?.label || "Open now";
+
+  return (
+    <div className="space-y-1">
+      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+        isOpen
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+      }`}>
+        {label}
+      </span>
+      <p className="text-[10px] text-muted-foreground">
+        {isManuallyClosed ? "Closed by admin" : openState?.today || "No hours set"}
+      </p>
+    </div>
+  );
 }
 
 export default function MeatCenters() {
@@ -46,8 +168,14 @@ export default function MeatCenters() {
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
-    address: ""
+    address: "",
+    isManuallyClosed: false
   });
+
+  // Kept beside editForm rather than inside it: a centre with no schedule must stay
+  // "always open", so the week is only written when the admin explicitly turns it on.
+  const [editHoursEnabled, setEditHoursEnabled] = useState(false);
+  const [editHours, setEditHours] = useState<HoursDraft>(() => toHoursDraft());
 
   const deleteCenterMutation = useMutation({
     mutationFn: (id: string) => adminFetch(`/meat/${id}`, { method: "DELETE" }),
@@ -80,15 +208,22 @@ export default function MeatCenters() {
     setEditForm({
       name: center.name,
       phone: center.phone,
-      address: center.address
+      address: center.address,
+      isManuallyClosed: center.isManuallyClosed === true
     });
+    setEditHoursEnabled(hasWeeklyHours(center.openingHours));
+    setEditHours(toHoursDraft(center.openingHours));
     setIsEditOpen(true);
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingCenter) return;
-    updateCenterMutation.mutate({ id: editingCenter._id, data: editForm });
+    updateCenterMutation.mutate({
+      id: editingCenter._id,
+      // An empty object clears the schedule, which the server reads as "always open".
+      data: { ...editForm, openingHours: editHoursEnabled ? toWeeklyHours(editHours) : {} }
+    });
   };
 
   const handleDeleteClick = (center: MeatCenter) => {
@@ -122,6 +257,16 @@ export default function MeatCenters() {
     queryKey: ["meat-centers"],
     queryFn: () => adminFetch<MeatCenter[]>("/meat/nearby?lat=0&lng=0&all=true"),
   });
+
+  // The View dialog holds a snapshot, so after an availability toggle refetches the list
+  // it would keep rendering the openState it was opened with. Re-sync it from the fresh row.
+  useEffect(() => {
+    if (!isViewOpen) return;
+    setViewingCenter((current) => {
+      if (!current) return current;
+      return (centers || []).find((c) => c._id === current._id) || current;
+    });
+  }, [centers, isViewOpen]);
 
   const createCenterMutation = useMutation({
     mutationFn: (data: any) => adminFetch("/meat", {
@@ -391,15 +536,16 @@ export default function MeatCenters() {
                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Center Name</th>
                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Address</th>
                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Rating</th>
+                <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Availability</th>
                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Contact</th>
                 <th className="text-left px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">Action</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center">Loading...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center">Loading...</td></tr>
               ) : centers?.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No meat centers found.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No meat centers found.</td></tr>
               ) : (
                 <AnimatePresence mode="popLayout" initial={false}>
                 {centers?.map((center) => (
@@ -429,6 +575,9 @@ export default function MeatCenters() {
                         <span className="text-sm font-medium">{center.rating}</span>
                         <span className="text-xs text-muted-foreground">({center.reviews})</span>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <AvailabilityPill openState={center.openState} isManuallyClosed={center.isManuallyClosed} />
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm">{center.phone}</p>
@@ -464,7 +613,7 @@ export default function MeatCenters() {
 
       {/* View Details Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
+        <DialogContent className="sm:max-w-[450px] rounded-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Meat Center Details</DialogTitle>
           </DialogHeader>
@@ -486,6 +635,49 @@ export default function MeatCenters() {
                 <span className="font-semibold text-muted-foreground">Rating:</span>
                 <span className="font-medium text-foreground">{viewingCenter.rating} ★ ({viewingCenter.reviews} reviews)</span>
               </div>
+
+              {/* Open / Closed Control Section */}
+              <div className="p-3 bg-muted rounded-xl space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-foreground text-xs block">Order Availability</label>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      A closed centre drops out of the app's "Open now" filter.
+                    </p>
+                  </div>
+                  <AvailabilityPill openState={viewingCenter.openState} isManuallyClosed={viewingCenter.isManuallyClosed} />
+                </div>
+                <Button
+                  size="sm"
+                  variant={viewingCenter.isManuallyClosed ? "default" : "destructive"}
+                  className="w-full rounded-lg"
+                  disabled={updateCenterMutation.isPending}
+                  onClick={() => {
+                    const nextClosed = !viewingCenter.isManuallyClosed;
+                    updateCenterMutation.mutate({
+                      id: viewingCenter._id,
+                      data: { isManuallyClosed: nextClosed }
+                    });
+                    setViewingCenter({ ...viewingCenter, isManuallyClosed: nextClosed });
+                  }}
+                >
+                  {viewingCenter.isManuallyClosed ? "Reopen Meat Center" : "Close Meat Center Now"}
+                </Button>
+                {viewingCenter.openState?.week?.length ? (
+                  <div className="space-y-0.5 pt-1 border-t border-border/60">
+                    {viewingCenter.openState.week.map((day) => (
+                      <div key={day.day} className="flex justify-between text-[11px]">
+                        <span className="text-muted-foreground">{day.day}</span>
+                        <span className="font-medium text-foreground">{day.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/60">
+                    No weekly hours set — open around the clock unless closed above.
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
@@ -493,7 +685,7 @@ export default function MeatCenters() {
 
       {/* Edit Center Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
+        <DialogContent className="sm:max-w-[520px] rounded-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Edit Meat Center</DialogTitle>
           </DialogHeader>
@@ -522,6 +714,43 @@ export default function MeatCenters() {
                 required
               />
             </div>
+
+            <div className="space-y-3 rounded-2xl border border-border p-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="editCenterManuallyClosed"
+                  checked={editForm.isManuallyClosed}
+                  onChange={e => setEditForm({ ...editForm, isManuallyClosed: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editCenterManuallyClosed" className="text-sm font-medium cursor-pointer select-none">
+                  Temporarily closed (stop taking orders)
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 border-t border-border pt-3">
+                <input
+                  type="checkbox"
+                  id="editCenterHoursEnabled"
+                  checked={editHoursEnabled}
+                  onChange={e => setEditHoursEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editCenterHoursEnabled" className="text-sm font-medium cursor-pointer select-none">
+                  Set weekly opening hours
+                </label>
+              </div>
+
+              {editHoursEnabled ? (
+                <OpeningHoursEditor draft={editHours} onChange={setEditHours} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Without a schedule this centre is treated as open around the clock.
+                </p>
+              )}
+            </div>
+
             <Button type="submit" className="w-full mt-4" disabled={updateCenterMutation.isPending}>
               {updateCenterMutation.isPending ? "Updating..." : "Save Changes"}
             </Button>

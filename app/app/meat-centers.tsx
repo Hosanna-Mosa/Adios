@@ -19,6 +19,7 @@ import * as Location from "expo-location";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { customFetch } from "@/utils/api/custom-fetch";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 
@@ -67,13 +68,14 @@ export default function MeatCentersScreen() {
       if (pageNum === 1) setLoading(true);
       else setLoadingMore(true);
 
-      const baseUrl = process.env.EXPO_PUBLIC_API_URL;
-      let url = `${baseUrl}/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20`;
+      let url = `/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20`;
       if (category) url += `&category=${encodeURIComponent(category)}`;
+      // Rating and open-now are evaluated server-side, so paging keeps honouring
+      // them instead of re-introducing centres the filter already removed.
+      if (activeQuickFilters.has("rating")) url += "&minRating=4";
+      if (activeQuickFilters.has("open")) url += "&openNow=true";
 
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Failed to fetch meat centers: ${response.status}`);
-      const data = await response.json();
+      const data = await customFetch<any>(url);
 
       if (Array.isArray(data)) {
         setHasMore(data.length >= 20);
@@ -100,6 +102,9 @@ export default function MeatCentersScreen() {
     }, [])
   );
 
+  // Set identity changes on every toggle, so key the refetch on the contents.
+  const quickFilterKey = useMemo(() => Array.from(activeQuickFilters).sort().join(","), [activeQuickFilters]);
+
   useEffect(() => {
     (async () => {
       setPage(1);
@@ -107,7 +112,7 @@ export default function MeatCentersScreen() {
       const { lat, lng } = await getCoords();
       fetchMeatCenters(lat, lng, 1, selectedCategory);
     })();
-  }, [selectedAddress, selectedCategory]);
+  }, [selectedAddress, selectedCategory, quickFilterKey]);
 
   const loadMore = async () => {
     if (!loading && !loadingMore && hasMore) {
@@ -143,16 +148,23 @@ export default function MeatCentersScreen() {
       list = list.filter((c) => (c.rating || 0) >= 4.0);
     }
     if (activeQuickFilters.has("open")) {
-      list = list.filter((c) => c.isOpen !== false);
+      list = list.filter((c) => (c.openState ? c.openState.isOpen : c.isOpen !== false));
     }
     return list;
   }, [meatCenters, searchText, activeQuickFilters]);
+
+  const openCount = useMemo(
+    () => meatCenters.filter((c) => (c.openState ? c.openState.isOpen : c.isOpen !== false)).length,
+    [meatCenters]
+  );
 
   const renderHeader = () => (
     <>
       <Animated.View entering={fadeInUp(0)} style={styles.headline}>
         <Text style={styles.headlineText}>Meat centers near you</Text>
-        <Text style={styles.headlineSub}>{meatCenters.length} open · cut fresh on order</Text>
+        <Text style={styles.headlineSub}>
+          {openCount} of {meatCenters.length} open now · cut fresh on order
+        </Text>
       </Animated.View>
 
       {searchOpen && (

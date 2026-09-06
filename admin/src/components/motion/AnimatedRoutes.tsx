@@ -9,6 +9,7 @@ import NotFound from "@/pages/NotFound";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const LiveOrders = lazy(() => import("@/pages/LiveOrders"));
+const ScheduledOrders = lazy(() => import("@/pages/ScheduledOrders"));
 const Drivers = lazy(() => import("@/pages/Drivers"));
 const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
@@ -61,6 +62,7 @@ export function AnimatedRoutes() {
         <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
         <Route path="/live-orders" element={<RequireAuth><LiveOrders /></RequireAuth>} />
         <Route path="/live-orders/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
+        <Route path="/scheduled-orders" element={<RequireAuth><ScheduledOrders /></RequireAuth>} />
         <Route path="/drivers" element={<RequireAuth><Drivers /></RequireAuth>} />
         <Route path="/dev-drivers" element={<RequireAuth><DevDrivers /></RequireAuth>} />
         <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />

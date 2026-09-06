@@ -23,28 +23,33 @@ type Props = {
   confirmLabel?: string;
   loading?: boolean;
   initialDate?: Date;
+  /** Service accent of the screen presenting the sheet. Falls back to the brand colour. */
+  accent?: string;
 };
 
 const HOUR_OPTIONS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const MINUTE_OPTIONS = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
 
-const getDefaultTimeParts = (baseDate = new Date()) => {
-  const next = new Date(baseDate);
-  next.setMinutes(next.getMinutes() + 45);
-  let hourVal = next.getHours();
+const timePartsOf = (date: Date) => {
+  let hourVal = date.getHours();
   const ampmVal = hourVal >= 12 ? "PM" : "AM";
   hourVal = hourVal % 12;
   hourVal = hourVal ? hourVal : 12;
 
-  let minVal = Math.round(next.getMinutes() / 5) * 5;
+  let minVal = Math.round(date.getMinutes() / 5) * 5;
   if (minVal >= 60) minVal = 0;
 
   return {
-    date: next,
     hour: String(hourVal),
     minute: String(minVal).padStart(2, "0"),
     ampm: ampmVal as "AM" | "PM",
   };
+};
+
+const getDefaultTimeParts = (baseDate = new Date()) => {
+  const next = new Date(baseDate);
+  next.setMinutes(next.getMinutes() + 45);
+  return { date: next, ...timePartsOf(next) };
 };
 
 export function ScheduleDateTimeSheet({
@@ -56,11 +61,13 @@ export function ScheduleDateTimeSheet({
   confirmLabel = "OK",
   loading = false,
   initialDate,
+  accent,
 }: Props) {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const colors = Colors[theme];
-  const styles = React.useMemo(() => createStyles(colors), [theme]);
+  const primary = accent || colors.primary;
+  const styles = React.useMemo(() => createStyles(colors, primary), [theme, primary]);
 
   const dateOptions = React.useMemo(() => {
     const arr: Date[] = [];
@@ -80,8 +87,18 @@ export function ScheduleDateTimeSheet({
 
   React.useEffect(() => {
     if (!visible) return;
-    const defaults = getDefaultTimeParts(initialDate || new Date());
-    setSelectedDate(initialDate || defaults.date);
+    // Reopening with a slot already chosen must show THAT slot — deriving the
+    // time from `now + 45` here silently moved every re-edit forward.
+    if (initialDate) {
+      const parts = timePartsOf(initialDate);
+      setSelectedDate(initialDate);
+      setHour(parts.hour);
+      setMinute(parts.minute);
+      setAmpm(parts.ampm);
+      return;
+    }
+    const defaults = getDefaultTimeParts();
+    setSelectedDate(defaults.date);
     setHour(defaults.hour);
     setMinute(defaults.minute);
     setAmpm(defaults.ampm);
@@ -216,7 +233,7 @@ export function ScheduleDateTimeSheet({
   );
 }
 
-const createStyles = (colors: typeof Colors.light) =>
+const createStyles = (colors: typeof Colors.light, primary: string) =>
   StyleSheet.create({
     overlay: { flex: 1, justifyContent: "flex-end" },
     scrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(15, 23, 42, 0.68)" },
@@ -275,13 +292,13 @@ const createStyles = (colors: typeof Colors.light) =>
       borderColor: "transparent",
     },
     dateCardActive: {
-      backgroundColor: `${colors.primary}15`,
-      borderColor: colors.primary,
+      backgroundColor: `${primary}15`,
+      borderColor: primary,
     },
     dateDayText: { fontSize: 12, fontWeight: "600", color: colors.textSecondary, marginBottom: 2 },
-    dateDayTextActive: { color: colors.primary, fontWeight: "700" },
+    dateDayTextActive: { color: primary, fontWeight: "700" },
     dateValText: { fontSize: 14, fontWeight: "700", color: colors.text },
-    dateValTextActive: { color: colors.primary },
+    dateValTextActive: { color: primary },
     timeRow: { gap: 8, paddingBottom: 12 },
     timeChip: {
       paddingVertical: 8,
@@ -294,11 +311,11 @@ const createStyles = (colors: typeof Colors.light) =>
       borderColor: "transparent",
     },
     timeChipActive: {
-      backgroundColor: `${colors.primary}15`,
-      borderColor: colors.primary,
+      backgroundColor: `${primary}15`,
+      borderColor: primary,
     },
     timeChipText: { fontSize: 14, fontWeight: "700", color: colors.text },
-    timeChipTextActive: { color: colors.primary },
+    timeChipTextActive: { color: primary },
     ampmRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
     ampmBtn: {
       flex: 1,
@@ -310,13 +327,13 @@ const createStyles = (colors: typeof Colors.light) =>
       borderColor: "transparent",
     },
     ampmBtnActive: {
-      backgroundColor: `${colors.primary}15`,
-      borderColor: colors.primary,
+      backgroundColor: `${primary}15`,
+      borderColor: primary,
     },
     ampmBtnText: { fontSize: 14, fontWeight: "700", color: colors.text },
-    ampmBtnTextActive: { color: colors.primary },
+    ampmBtnTextActive: { color: primary },
     confirmBtn: {
-      backgroundColor: colors.primary,
+      backgroundColor: primary,
       paddingVertical: 15,
       borderRadius: 12,
       alignItems: "center",

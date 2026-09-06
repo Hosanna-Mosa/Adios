@@ -23,6 +23,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+interface DayHours {
+  open: string;
+  close: string;
+  closed?: boolean;
+}
+
+type WeeklyHours = Partial<Record<DayKey, DayHours>>;
+
+/** Server-evaluated open/closed verdict returned on every vendor row. */
+interface OpenState {
+  isOpen: boolean;
+  label: string;
+  opensAt: string | null;
+  today: string | null;
+  week: { day: string; hours: string }[];
+}
+
 interface Vendor {
   _id: string;
   name: string;
@@ -33,6 +52,111 @@ interface Vendor {
   isPureVeg: boolean;
   phone: string;
   email: string;
+  commissionRate?: number;
+  onboardingStatus?: string;
+  isManuallyClosed?: boolean;
+  openingHours?: WeeklyHours;
+  openState?: OpenState;
+}
+
+const WEEK_DAYS: { key: DayKey; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+type HoursDraft = Record<DayKey, { open: string; close: string; closed: boolean }>;
+
+const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
+  WEEK_DAYS.reduce((draft, { key }) => {
+    const day = hours?.[key];
+    draft[key] = {
+      open: day?.open || "09:00",
+      close: day?.close || "22:00",
+      closed: day?.closed === true,
+    };
+    return draft;
+  }, {} as HoursDraft);
+
+const toWeeklyHours = (draft: HoursDraft): WeeklyHours =>
+  WEEK_DAYS.reduce((hours, { key }) => {
+    const day = draft[key];
+    hours[key] = day.closed
+      ? { open: day.open, close: day.close, closed: true }
+      : { open: day.open, close: day.close };
+    return hours;
+  }, {} as WeeklyHours);
+
+const hasWeeklyHours = (hours?: WeeklyHours) => !!hours && Object.keys(hours).length > 0;
+
+function OpeningHoursEditor({ draft, onChange }: { draft: HoursDraft; onChange: (next: HoursDraft) => void }) {
+  const setDay = (key: DayKey, patch: Partial<HoursDraft[DayKey]>) =>
+    onChange({ ...draft, [key]: { ...draft[key], ...patch } });
+
+  return (
+    <div className="space-y-2">
+      {WEEK_DAYS.map(({ key, label }) => (
+        <div key={key} className="flex items-center gap-2">
+          <span className="w-[70px] shrink-0 text-xs font-semibold text-muted-foreground">{label}</span>
+          {draft[key].closed ? (
+            <span className="flex-1 text-xs text-muted-foreground italic">Closed all day</span>
+          ) : (
+            <div className="flex flex-1 items-center gap-2">
+              <Input
+                type="time"
+                value={draft[key].open}
+                onChange={e => setDay(key, { open: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="time"
+                value={draft[key].close}
+                onChange={e => setDay(key, { close: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+            </div>
+          )}
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={draft[key].closed}
+              onChange={e => setDay(key, { closed: e.target.checked })}
+              className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            Closed
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
+  // A manual close always wins, exactly as the server evaluates it — so the pill is
+  // right the instant the toggle is flipped, before the list has refetched.
+  const manuallyClosed = isManuallyClosed === true;
+  const isOpen = manuallyClosed ? false : openState ? openState.isOpen : true;
+  const label = manuallyClosed ? "Closed" : openState?.label || "Open now";
+
+  return (
+    <div className="space-y-1">
+      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+        isOpen
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+      }`}>
+        {label}
+      </span>
+      <p className="text-[10px] text-muted-foreground">
+        {isManuallyClosed ? "Closed by admin" : openState?.today || "No hours set"}
+      </p>
+    </div>
+  );
 }
 
 export default function Vendors() {
@@ -52,8 +176,14 @@ export default function Vendors() {
     email: "",
     phone: "",
     isPureVeg: false,
-    address: ""
+    address: "",
+    isManuallyClosed: false
   });
+
+  // Kept beside editForm rather than inside it: an outlet with no schedule must stay
+  // "always open", so the week is only written when the admin explicitly turns it on.
+  const [editHoursEnabled, setEditHoursEnabled] = useState(false);
+  const [editHours, setEditHours] = useState<HoursDraft>(() => toHoursDraft());
 
   const deleteVendorMutation = useMutation({
     mutationFn: (id: string) => adminFetch(`/vendors/${id}`, { method: "DELETE" }),
@@ -88,15 +218,22 @@ export default function Vendors() {
       email: vendor.email || "",
       phone: vendor.phone,
       isPureVeg: vendor.isPureVeg,
-      address: vendor.address
+      address: vendor.address,
+      isManuallyClosed: vendor.isManuallyClosed === true
     });
+    setEditHoursEnabled(hasWeeklyHours(vendor.openingHours));
+    setEditHours(toHoursDraft(vendor.openingHours));
     setIsEditOpen(true);
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingVendor) return;
-    updateVendorMutation.mutate({ id: editingVendor._id, data: editForm });
+    updateVendorMutation.mutate({
+      id: editingVendor._id,
+      // An empty object clears the schedule, which the server reads as "always open".
+      data: { ...editForm, openingHours: editHoursEnabled ? toWeeklyHours(editHours) : {} }
+    });
   };
 
   const handleDeleteClick = (vendor: Vendor) => {
@@ -139,6 +276,16 @@ export default function Vendors() {
     queryKey: ["vendors"],
     queryFn: () => adminFetch<Vendor[]>("/vendors/nearby?lat=0&lng=0"), // Default fetch
   });
+
+  // The View dialog holds a snapshot, so after an availability toggle refetches the list
+  // it would keep rendering the openState it was opened with. Re-sync it from the fresh row.
+  useEffect(() => {
+    if (!isViewOpen) return;
+    setViewingVendor((current) => {
+      if (!current) return current;
+      return (vendors || []).find((v) => v._id === current._id) || current;
+    });
+  }, [vendors, isViewOpen]);
 
   const createVendorMutation = useMutation({
     mutationFn: (data: any) => adminFetch("/vendors", {
@@ -435,17 +582,18 @@ export default function Vendors() {
                 <th className="table-header-text text-left px-6 py-3">Restaurant</th>
                 <th className="table-header-text text-left px-6 py-3">Location</th>
                 <th className="table-header-text text-left px-6 py-3">Rating</th>
+                <th className="table-header-text text-left px-6 py-3">Availability</th>
                 <th className="table-header-text text-left px-6 py-3">Contact</th>
                 <th className="table-header-text text-left px-6 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
               ) : vendors?.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
               ) : paginatedVendors.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
               ) : (
                 <AnimatePresence mode="popLayout" initial={false}>
                 {paginatedVendors.map((vendor) => (
@@ -488,6 +636,9 @@ export default function Vendors() {
                           <span className="text-sm font-medium text-foreground">{vendor.rating}</span>
                           <span className="text-xs text-muted-foreground">({vendor.reviews})</span>
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <AvailabilityPill openState={vendor.openState} isManuallyClosed={vendor.isManuallyClosed} />
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm text-foreground">{vendor.phone}</p>
@@ -566,6 +717,49 @@ export default function Vendors() {
               <div className="flex justify-between border-b pb-2 border-border">
                 <span className="font-semibold text-muted-foreground">Current Onboarding:</span>
                 <span className="font-medium text-foreground uppercase">{(viewingVendor as any).onboardingStatus || "draft"}</span>
+              </div>
+
+              {/* Open / Closed Control Section */}
+              <div className="p-3 bg-muted rounded-xl space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-foreground text-xs block">Order Availability</label>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      A closed outlet drops out of the app's "Open now" filter.
+                    </p>
+                  </div>
+                  <AvailabilityPill openState={viewingVendor.openState} isManuallyClosed={viewingVendor.isManuallyClosed} />
+                </div>
+                <Button
+                  size="sm"
+                  variant={viewingVendor.isManuallyClosed ? "default" : "destructive"}
+                  className="w-full rounded-lg"
+                  disabled={updateVendorMutation.isPending}
+                  onClick={() => {
+                    const nextClosed = !viewingVendor.isManuallyClosed;
+                    updateVendorMutation.mutate({
+                      id: viewingVendor._id,
+                      data: { isManuallyClosed: nextClosed }
+                    });
+                    setViewingVendor({ ...viewingVendor, isManuallyClosed: nextClosed });
+                  }}
+                >
+                  {viewingVendor.isManuallyClosed ? "Reopen Restaurant" : "Close Restaurant Now"}
+                </Button>
+                {viewingVendor.openState?.week?.length ? (
+                  <div className="space-y-0.5 pt-1 border-t border-border/60">
+                    {viewingVendor.openState.week.map((day) => (
+                      <div key={day.day} className="flex justify-between text-[11px]">
+                        <span className="text-muted-foreground">{day.day}</span>
+                        <span className="font-medium text-foreground">{day.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/60">
+                    No weekly hours set — open around the clock unless closed above.
+                  </p>
+                )}
               </div>
 
               {/* Commission Control Section */}
@@ -651,7 +845,7 @@ export default function Vendors() {
 
       {/* Edit Vendor Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
+        <DialogContent className="sm:max-w-[520px] rounded-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Edit Restaurant</DialogTitle>
           </DialogHeader>
@@ -698,6 +892,43 @@ export default function Vendors() {
               />
               <label htmlFor="editIsPureVeg" className="text-sm font-medium cursor-pointer select-none">Is Pure Veg</label>
             </div>
+
+            <div className="space-y-3 rounded-2xl border border-border p-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="editIsManuallyClosed"
+                  checked={editForm.isManuallyClosed}
+                  onChange={e => setEditForm({ ...editForm, isManuallyClosed: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editIsManuallyClosed" className="text-sm font-medium cursor-pointer select-none">
+                  Temporarily closed (stop taking orders)
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 border-t border-border pt-3">
+                <input
+                  type="checkbox"
+                  id="editHoursEnabled"
+                  checked={editHoursEnabled}
+                  onChange={e => setEditHoursEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editHoursEnabled" className="text-sm font-medium cursor-pointer select-none">
+                  Set weekly opening hours
+                </label>
+              </div>
+
+              {editHoursEnabled ? (
+                <OpeningHoursEditor draft={editHours} onChange={setEditHours} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Without a schedule this restaurant is treated as open around the clock.
+                </p>
+              )}
+            </div>
+
             <Button type="submit" className="w-full" disabled={updateVendorMutation.isPending}>
               {updateVendorMutation.isPending ? "Updating..." : "Save Changes"}
             </Button>

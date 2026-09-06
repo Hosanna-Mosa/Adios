@@ -30,6 +30,9 @@ interface Props {
   isMeat?: boolean;
   deliveryFee?: number;
   isOpen?: boolean;
+  /** Server-evaluated opening state (see backend utils/openingHours.ts). */
+  openState?: { isOpen: boolean; label: string };
+  distanceKm?: number;
 }
 
 export function RestaurantListItem({
@@ -47,6 +50,8 @@ export function RestaurantListItem({
   minOrderValue,
   isMeat,
   isOpen,
+  openState,
+  distanceKm,
 }: Props) {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
@@ -59,6 +64,13 @@ export function RestaurantListItem({
   const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.98);
 
   const categoryLabel = Array.isArray(categories) ? categories.slice(0, 2).join(", ") : categories;
+  // openState is the evaluated verdict; the bare isOpen boolean is the fallback for
+  // any payload that predates it. Either way the card always states a status.
+  const isClosed = openState ? !openState.isOpen : isOpen === false;
+  const statusText = openState?.label || (isClosed ? "Closed" : "Open now");
+  const distanceLabel = typeof distanceKm === "number"
+    ? (distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`)
+    : distance;
 
   const handlePress = () => {
     router.push({
@@ -73,7 +85,7 @@ export function RestaurantListItem({
         categories: Array.isArray(categories) ? categories.join(", ") : categories || "",
         minOrderValue: minOrderValue != null ? String(minOrderValue) : "",
         time: time || "",
-        distance: distance || "",
+        distance: distanceLabel || "",
         address: address || "",
       },
     });
@@ -81,7 +93,7 @@ export function RestaurantListItem({
 
   return (
     <AnimatedPressable
-      style={[styles.card, animatedStyle, isOpen === false && styles.cardClosed]}
+      style={[styles.card, animatedStyle, isClosed && styles.cardClosed]}
       onPress={handlePress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
@@ -116,20 +128,21 @@ export function RestaurantListItem({
           {minOrderValue ? (isMeat ? ` · from ₹${minOrderValue} / kg` : ` · ₹${minOrderValue} for two`) : ""}
         </Text>
         <Text style={styles.metaLine} numberOfLines={1}>
-          {rating} ★ ({reviews}) · {time} · {distance}
+          {rating} ★ ({reviews}) · {time} · {distanceLabel}
         </Text>
 
-        {isOpen === false ? (
-          <View style={styles.closedBadge}>
-            <Text style={styles.closedText}>Closed now</Text>
+        <View style={styles.badgeRow}>
+          <View style={[styles.statusBadge, isClosed ? styles.statusBadgeClosed : styles.statusBadgeOpen]}>
+            <Text style={[styles.statusText, isClosed ? styles.statusTextClosed : styles.statusTextOpen]} numberOfLines={1}>
+              {statusText}
+            </Text>
           </View>
-        ) : (
-          offer && (
+          {!isClosed && !!offer && (
             <View style={styles.offerBadge}>
               <Text style={styles.offerText}>{offer}</Text>
             </View>
-          )
-        )}
+          )}
+        </View>
       </View>
     </AnimatedPressable>
   );
@@ -208,13 +221,18 @@ const createStyles = (tokens: ThemeTokens, accentColor: string) => StyleSheet.cr
     color: tokens.sec,
     marginTop: 5,
   },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 8,
+  },
   offerBadge: {
-    alignSelf: "flex-start",
     backgroundColor: `${accentColor}1A`,
     borderRadius: moderateScale(6),
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginTop: 8,
   },
   offerText: {
     fontFamily: fontFamilies.body.bold,
@@ -223,19 +241,27 @@ const createStyles = (tokens: ThemeTokens, accentColor: string) => StyleSheet.cr
     textTransform: "uppercase",
     color: accentColor,
   },
-  closedBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: tokens.sunken,
+  statusBadge: {
     borderRadius: moderateScale(6),
     paddingHorizontal: 8,
     paddingVertical: 4,
-    marginTop: 8,
   },
-  closedText: {
+  statusBadgeOpen: {
+    backgroundColor: tokens.successSkin,
+  },
+  statusBadgeClosed: {
+    backgroundColor: tokens.errorSkin,
+  },
+  statusText: {
     fontFamily: fontFamilies.body.bold,
     fontSize: moderateScale(11),
     letterSpacing: 0.4,
     textTransform: "uppercase",
-    color: tokens.sec,
+  },
+  statusTextOpen: {
+    color: tokens.success,
+  },
+  statusTextClosed: {
+    color: tokens.error,
   },
 });

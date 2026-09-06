@@ -51,7 +51,7 @@ export default function RestaurantMenu() {
   const styles = useMemo(() => createStyles(tokens, accent), [theme, isMeat]);
 
   const { setVendorId } = useDeliveryStore();
-  const { items, addItem, updateQuantity, getItemCount } = useCartStore();
+  const { items, requestAddItem, updateQuantity, getItemCount } = useCartStore();
   const user = useAuthStore((s) => s.user);
   const toggleFavorite = useAuthStore((s) => s.toggleFavorite);
   const isFavorite = useMemo(() => user?.favorites?.includes(id as string) || false, [user?.favorites, id]);
@@ -76,7 +76,7 @@ export default function RestaurantMenu() {
     if (loadingItems[item._id] || item.isAvailable === false) return;
     setLoadingItems((prev) => ({ ...prev, [item._id]: true }));
     setTimeout(() => {
-      addItem(item as any, id as string);
+      requestAddItem(item as any, id as string, name as string);
       setLoadingItems((prev) => ({ ...prev, [item._id]: false }));
     }, 450);
   };

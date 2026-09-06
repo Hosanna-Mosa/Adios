@@ -21,12 +21,72 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useCartStore } from "@/contexts/cartStore";
+import { useHomeStore } from "@/contexts/homeStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { Button } from "@/components/ui/Button";
 import { fadeInDown, fadeInUp, staggerListItem } from "@/motion/presets";
 
-const ACTIVE_STATUSES = ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "ON_THE_WAY", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP", "PICKING_ITEMS", "EN_ROUTE_DELIVERY", "ARRIVED_DELIVERY", "IN_TRANSIT", "driver_assigned", "confirmed", "pending"];
+// Inverted on purpose. In-flight statuses are written in both cases by the
+// driver, vendor and admin apps (en_route_pickup, PICKING_ITEMS, CREATED, …),
+// so enumerating them is what put live orders under "Past". Only a finished
+// order is enumerable.
+const TERMINAL_STATUSES = ["DELIVERED", "COMPLETED", "CANCELLED", "REJECTED"];
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
+
+function isTerminalOrder(order: any): boolean {
+  return TERMINAL_STATUSES.includes(String(order?.status || "").toUpperCase());
+}
+
+function isScheduledOrder(order: any): boolean {
+  return !!order?.scheduledFor || !!order?.isReserved || order?.scheduledDelivery?.type === "later";
+}
+
+function scheduledSlot(order: any): Date | null {
+  const raw = order?.scheduledFor || order?.scheduledDelivery?.requestedAt || order?.reservedAt;
+  if (!raw) return null;
+  const date = new Date(raw);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+const SCHEDULE_PILL: Record<string, string> = {
+  pending: "Awaiting restaurant",
+  accepted: "Confirmed",
+  rejected: "Rejected",
+};
+
+/**
+ * Stop lines are persisted as `items: { lines: [...] }`, and every order now
+ * also carries a flat top-level `items`. Prefer the flat one and fall back for
+ * anything stored before it existed.
+ */
+function readOrderLines(order: any): any[] {
+  if (Array.isArray(order?.items) && order.items.length) return order.items;
+  const stops = Array.isArray(order?.stops) ? order.stops : [];
+  return stops.flatMap((stop: any) => readStopLines(stop));
+}
+
+function readStopLines(stop: any): any[] {
+  const raw = stop?.items;
+  if (Array.isArray(raw)) return raw;
+  return Array.isArray(raw?.lines) ? raw.lines : [];
+}
+
+function toCartItem(line: any) {
+  return {
+    _id: String(line?.id || line?._id || line?.itemId || ""),
+    name: String(line?.name || "Item"),
+    description: String(line?.description || ""),
+    price: Number(line?.price) || 0,
+    category: String(line?.category || ""),
+    isVeg: line?.isVeg !== false,
+    images: Array.isArray(line?.images) && line.images.length
+      ? line.images
+      : line?.image
+        ? [String(line.image)]
+        : [],
+    quantity: Math.max(1, Math.round(Number(line?.quantity) || 1)),
+  };
+}
 
 const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
   food: { label: "Food", accent: "food" },
@@ -82,6 +142,8 @@ export default function OrdersScreen() {
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [pendingServiceFilters, setPendingServiceFilters] = useState<Set<string>>(new Set());
 
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
+
   const [selectedOrderForReview, setSelectedOrderForReview] = useState<any | null>(null);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
@@ -111,9 +173,9 @@ export default function OrdersScreen() {
     () => (serviceFilters.size === 0 ? withKey : withKey.filter((o) => serviceFilters.has(o.__serviceKey))),
     [withKey, serviceFilters]
   );
-  const scheduled = filtered.filter((o) => o.isReserved && ACTIVE_STATUSES.includes(o.status));
-  const active = filtered.filter((o) => !o.isReserved && ACTIVE_STATUSES.includes(o.status));
-  const past = filtered.filter((o) => !ACTIVE_STATUSES.includes(o.status) || (o.isReserved && !ACTIVE_STATUSES.includes(o.status)));
+  const scheduled = filtered.filter((o) => isScheduledOrder(o) && !isTerminalOrder(o));
+  const active = filtered.filter((o) => !isScheduledOrder(o) && !isTerminalOrder(o));
+  const past = filtered.filter((o) => isTerminalOrder(o));
 
   const serviceCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -145,6 +207,47 @@ export default function OrdersScreen() {
     }
   };
 
+  /**
+   * Rebuilds the cart from a past order. The server's reorder endpoint is the
+   * source of truth (it also writes the saved cart); the order's own lines are
+   * the offline fallback. Nothing is cleared until we know there are items —
+   * a failed reorder must not wipe a cart the customer was building.
+   */
+  const reorderIntoCart = async (order: any, serviceKey: string) => {
+    const vendorId = typeof order.vendor === "object" ? order.vendor?._id : order.vendor;
+    const vendorName = typeof order.vendor === "object" ? order.vendor?.name : undefined;
+
+    setReorderingId(order._id);
+    try {
+      let cartVendorId: string | null = vendorId || null;
+      let cartItems = [] as ReturnType<typeof toCartItem>[];
+
+      try {
+        const cart = await customFetch<{ vendorId: string | null; items: any[] }>(
+          `/orders/${order._id}/reorder`,
+          { method: "POST" }
+        );
+        cartItems = (cart?.items || []).map(toCartItem).filter((item) => !!item._id);
+        cartVendorId = cart?.vendorId ?? cartVendorId;
+      } catch {
+        cartItems = readOrderLines(order).map(toCartItem).filter((item) => !!item._id);
+      }
+
+      if (!cartVendorId || cartItems.length === 0) {
+        Alert.alert("Can't reorder", "We couldn't find the items from this order. Please add them from the menu.");
+        return;
+      }
+
+      useCartStore.getState().replaceCart(cartVendorId, cartItems, vendorName);
+      // Keeps the cart in the mode the order was placed in instead of inheriting
+      // whatever the home tab was last left on.
+      useHomeStore.getState().setActiveService(serviceKey === "meat" ? "Meat" : "Food");
+      router.push("/cart");
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
   const handleReorder = (order: any) => {
     const serviceKey = order.__serviceKey || resolveServiceKey(order);
 
@@ -173,28 +276,7 @@ export default function OrdersScreen() {
     }
 
     if (serviceKey === "food" || serviceKey === "meat") {
-      const { clearCart, addItem, updateQuantity } = useCartStore.getState();
-      clearCart();
-      const vendorId = typeof order.vendor === "object" ? order.vendor._id : order.vendor;
-      const dropStop = order.stops?.find((s: any) => s.type === "drop");
-      if (dropStop && Array.isArray(dropStop.items)) {
-        dropStop.items.forEach((item: any) => {
-          addItem(
-            {
-              _id: item.id || item._id,
-              name: item.name,
-              price: item.price,
-              description: "",
-              category: item.category || "",
-              isVeg: item.isVeg !== false,
-              images: item.image ? [item.image] : [],
-            },
-            vendorId
-          );
-          updateQuantity(item.id || item._id, item.quantity);
-        });
-      }
-      router.push("/cart");
+      void reorderIntoCart(order, serviceKey);
       return;
     }
 
@@ -205,7 +287,13 @@ export default function OrdersScreen() {
     (order.stops || [])
       .filter((s: any) => s.type !== "pickup")
       .forEach((s: any) => {
-        addStop(s.address || "Stop", undefined, s.items || [], s.location?.coordinates?.[1], s.location?.coordinates?.[0]);
+        const stopItems = readStopLines(s).map((line: any) => ({
+          id: String(line?.id || line?._id || ""),
+          name: String(line?.name || "Item"),
+          quantity: Math.max(1, Math.round(Number(line?.quantity) || 1)),
+          estimatedPrice: line?.estimatedPrice ?? line?.price,
+        }));
+        addStop(s.address || "Stop", undefined, stopItems, s.location?.coordinates?.[1], s.location?.coordinates?.[0]);
       });
     router.push("/delivery/entry");
   };
@@ -289,14 +377,26 @@ export default function OrdersScreen() {
               <Text style={styles.sectionLabel}>Scheduled</Text>
               {scheduled.map((order, index) => {
                 const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
+                const slot = scheduledSlot(order);
+                const scheduleStatus = String(order.scheduleStatus || "");
+                const pillLabel = SCHEDULE_PILL[scheduleStatus];
+                const isAccepted = scheduleStatus === "accepted";
                 return (
                   <Animated.View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
-                    <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label} · scheduled</Text>
-                    <Text style={styles.cardTitle}>{order.reservedAt ? new Date(order.reservedAt).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Scheduled"}</Text>
-                    <Text style={styles.cardMeta} numberOfLines={1}>{order.stops?.map((s: any) => s.address).join(" → ")}</Text>
+                    <View style={styles.liveRow}>
+                      <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label} · scheduled</Text>
+                      {!!pillLabel && (
+                        <View style={[styles.schedulePill, isAccepted && { backgroundColor: tokens.successSkin }]}>
+                          <Text style={[styles.schedulePillText, isAccepted && { color: tokens.success }]}>{pillLabel}</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={styles.cardTitle}>{slot ? slot.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Scheduled"}</Text>
+                    <Text style={styles.cardMeta} numberOfLines={1}>
+                      {typeof order.vendor === "object" ? order.vendor?.name : order.stops?.map((s: any) => s.address).join(" → ")}
+                    </Text>
                     <Text style={styles.cardMeta}>est. ₹{Math.round(order.totalPrice || 0)}</Text>
                     <View style={styles.actionRow}>
-                      <View style={[styles.actionBtnFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]}><Text style={[styles.actionBtnFilledText, { color: accent.accent }]}>Edit time</Text></View>
                       <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
                         <Text style={styles.actionBtnOutlineText}>View</Text>
                       </TouchableOpacity>
@@ -335,39 +435,53 @@ export default function OrdersScreen() {
               <Text style={styles.sectionLabel}>Past</Text>
               {past.map((order, index) => {
                 const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
-                const isCancelled = String(order.status).toUpperCase() === "CANCELLED";
+                const isRejected = String(order.scheduleStatus || "") === "rejected";
+                const isCancelled = String(order.status).toUpperCase() === "CANCELLED" || isRejected;
                 const isDelivered = ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(order.status);
                 const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString([], { day: "numeric", month: "short" }) : "";
+                const isReordering = reorderingId === order._id;
                 return (
                   <Animated.View key={order._id} style={[styles.card, { borderLeftColor: isCancelled ? tokens.borderStrong : accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
                     <View style={styles.liveRow}>
                       <Text style={[styles.cardEyebrow, { color: isCancelled ? tokens.muted : accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label}</Text>
                       {isCancelled ? (
-                        <View style={styles.cancelledBadge}><Text style={styles.cancelledBadgeText}>Cancelled</Text></View>
+                        <View style={styles.cancelledBadge}><Text style={styles.cancelledBadgeText}>{isRejected ? "Rejected" : "Cancelled"}</Text></View>
                       ) : (
                         <Text style={styles.cardMetaRight}>{dateStr}</Text>
                       )}
                     </View>
                     <Text style={styles.cardTitle} numberOfLines={1}>{typeof order.vendor === "object" ? order.vendor?.name : order.stops?.map((s: any) => s.address).join(" → ") || "Order"}</Text>
                     <Text style={styles.cardMeta}>₹{Math.round(order.totalPrice || 0)}{order.__serviceKey === "delivery" ? " delivery" : ""}</Text>
-                    {!isCancelled && (
-                      <View style={styles.actionRow}>
-                        <TouchableOpacity style={[styles.actionBtnFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={() => handleReorder(order)}>
-                          <Text style={[styles.actionBtnFilledText, { color: accent.accent }]}>
-                            {RIDE_TYPES.includes(order.serviceType) ? "Rebook" : order.__serviceKey === "delivery" ? "Repeat route" : "Reorder"}
-                          </Text>
-                        </TouchableOpacity>
-                        {isDelivered && !order.isReviewed ? (
-                          <TouchableOpacity style={styles.actionBtnOutline} onPress={() => handleOpenReviewModal(order)}>
-                            <Text style={styles.actionBtnOutlineText}>Rate</Text>
-                          </TouchableOpacity>
-                        ) : (
-                          <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
-                            <Text style={styles.actionBtnOutlineText}>Receipt</Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
+                    {isRejected && (
+                      <Text style={styles.rejectionReason}>
+                        {order.scheduleRejectionReason || "The restaurant could not take this order for the requested slot."}
+                      </Text>
                     )}
+                    <View style={styles.actionRow}>
+                      <TouchableOpacity
+                        style={[styles.actionBtnFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]}
+                        onPress={() => handleReorder(order)}
+                        disabled={isReordering}
+                      >
+                        {isReordering ? (
+                          <ActivityIndicator size="small" color={accent.accent} />
+                        ) : (
+                          <Text style={[styles.actionBtnFilledText, { color: accent.accent }]}>
+                            {RIDE_TYPES.includes(order.serviceType) ? "Rebook" : order.__serviceKey === "delivery" ? "Repeat route" : "Order again"}
+                          </Text>
+                        )}
+                      </TouchableOpacity>
+                      {/* A cancelled order has no receipt to open — tracking bounces straight back home. */}
+                      {!isCancelled && (isDelivered && !order.isReviewed ? (
+                        <TouchableOpacity style={styles.actionBtnOutline} onPress={() => handleOpenReviewModal(order)}>
+                          <Text style={styles.actionBtnOutlineText}>Rate</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
+                          <Text style={styles.actionBtnOutlineText}>Receipt</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
                   </Animated.View>
                 );
               })}
@@ -494,6 +608,9 @@ const createStyles = (tokens: ThemeTokens) =>
     liveLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12) },
     cancelledBadge: { backgroundColor: tokens.errorSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
     cancelledBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 0.5, textTransform: "uppercase", color: tokens.error },
+    schedulePill: { marginLeft: "auto", backgroundColor: tokens.warningSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
+    schedulePillText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 0.5, textTransform: "uppercase", color: tokens.warning },
+    rejectionReason: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), lineHeight: moderateScale(18), color: tokens.error, marginTop: 6 },
 
     actionRow: { flexDirection: "row", gap: 8, marginTop: 12 },
     actionBtnFilled: { flex: 1, borderWidth: 1, borderRadius: 10, minHeight: 40, alignItems: "center", justifyContent: "center" },

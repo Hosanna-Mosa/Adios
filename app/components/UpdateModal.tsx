@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Linking, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -21,8 +21,31 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
 
   if (!visible) return null;
 
-  const handleUpdate = () => {
-    Linking.openURL(storeUrl).catch((err) => console.error("Failed to open store URL:", err));
+  const handleUpdate = async () => {
+    const url =
+      storeUrl?.trim() ||
+      (Platform.OS === "ios"
+        ? "https://apps.apple.com/app/flavour/id123456"
+        : "https://play.google.com/store/apps/details?id=com.flavour.customer");
+
+    // market:// hands the listing straight to the Play Store app; the https
+    // listing is the fallback for devices without Play Services.
+    const candidates =
+      Platform.OS === "android" && url.includes("play.google.com/store/apps/details?")
+        ? [url.replace(/^https?:\/\/play\.google\.com\/store\/apps\/details\?/, "market://details?"), url]
+        : [url];
+
+    for (const candidate of candidates) {
+      try {
+        await Linking.openURL(candidate);
+        return;
+      } catch (err) {
+        console.warn("Failed to open store URL:", candidate, err);
+      }
+    }
+
+    // A misconfigured store URL used to vanish into the console — surface it.
+    Alert.alert("Couldn't open the store", url);
   };
 
   return (

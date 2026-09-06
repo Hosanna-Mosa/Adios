@@ -18,6 +18,7 @@ import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
+import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
 import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "@/components/maps";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -46,8 +47,10 @@ export default function AddAddressScreen() {
   const [completeAddress, setCompleteAddress] = useState("");
   const [instructions, setInstructions] = useState("");
 
-  const [phone, setPhone] = useState(String(params.phone || ""));
+  const [phone] = useState(String(params.phone || ""));
   const [receiverName, setReceiverName] = useState(String(params.receiverName || ""));
+  const [receiverPhone, setReceiverPhone] = useState(String(params.receiverPhone || ""));
+  const [landmark, setLandmark] = useState(String(params.landmark || ""));
   const [shortAddress, setShortAddress] = useState("Select location");
   const [cityOrCountry, setCityOrCountry] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,6 +65,9 @@ export default function AddAddressScreen() {
 
   const [isResolvingAddress, setIsResolvingAddress] = useState(false);
   const isMapReady = useRef(false);
+
+  const latLabel = region.latitude.toFixed(6);
+  const lngLabel = region.longitude.toFixed(6);
 
   const fetchAddressForCoords = async (lat: number, lng: number) => {
     try {
@@ -209,20 +215,28 @@ export default function AddAddressScreen() {
       Alert.alert("Missing information", "Street address is required.");
       return;
     }
+    const receiverPhoneDigits = receiverPhone.replace(/\D/g, "");
+    if (receiverPhone.trim() && receiverPhoneDigits.length !== 10) {
+      Alert.alert("Invalid phone", "Enter a valid 10-digit receiver phone number.");
+      return;
+    }
     try {
       setLoading(true);
       let finalAddress = addressLine.trim();
       if (completeAddress.trim()) finalAddress += ` [Apt: ${completeAddress.trim()}]`;
       if (instructions.trim()) finalAddress += ` (Instructions: ${instructions.trim()})`;
       const finalLabel = selectedChip === "Other" ? label.trim() || "Other" : selectedChip;
-      const finalPhone = phone || user?.phone || "0000000000";
-      const finalReceiver = receiverName || user?.name || "User";
+      // The address contact falls back to the receiver's number, then to whatever the
+      // address already carried, then to the account holder's — never a fabricated one.
+      const finalPhone = receiverPhoneDigits || phone || user?.phone || "";
 
       const payload = {
         label: finalLabel,
         addressLine: finalAddress,
         phone: finalPhone,
-        receiverName: finalReceiver,
+        receiverName: receiverName.trim(),
+        receiverPhone: receiverPhoneDigits,
+        landmark: landmark.trim(),
         coordinates: { lat: region.latitude, lng: region.longitude },
       };
 
@@ -231,6 +245,34 @@ export default function AddAddressScreen() {
         : await customFetch<any[]>("/users/addresses", { method: "POST", body: JSON.stringify(payload) });
 
       if (user) setUser({ ...user, addresses: updatedAddresses });
+
+      if (isEditMode && !useDeliveryStore.getState().selectedAddress) {
+        await useDeliveryStore.getState().hydrateSelectedAddress();
+      }
+      const list = updatedAddresses || [];
+      const saved = isEditMode
+        ? list.find((a: any) => String(a._id) === String(params.editId))
+        : list[list.length - 1];
+      const { selectedAddress, setSelectedAddress } = useDeliveryStore.getState();
+      // A brand new address becomes the active one; an edit only re-selects the
+      // address that was already active, so editing an unrelated one cannot move
+      // the delivery location out from under the customer.
+      const shouldSelect = saved && (!isEditMode || String(selectedAddress?._id || "") === String(saved._id));
+      if (shouldSelect) {
+        const next: SelectedDeliveryAddress = {
+          _id: saved._id,
+          label: saved.label,
+          addressLine: saved.addressLine,
+          phone: saved.phone,
+          receiverName: saved.receiverName,
+          receiverPhone: saved.receiverPhone,
+          landmark: saved.landmark,
+          coordinates: { lat: region.latitude, lng: region.longitude },
+          location: { type: "Point", coordinates: [region.longitude, region.latitude] },
+        };
+        setSelectedAddress(next);
+      }
+
       router.back();
     } catch (error: any) {
       console.error(error);
@@ -315,6 +357,7 @@ export default function AddAddressScreen() {
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={styles.addressMain} numberOfLines={1}>{isResolvingAddress ? "Fetching location…" : shortAddress}</Text>
                 <Text style={styles.addressSub} numberOfLines={1}>{isResolvingAddress ? "Updating address for pin…" : cityOrCountry}</Text>
+                <Text style={styles.addressCoords} numberOfLines={1}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
               </View>
               <TouchableOpacity onPress={() => searchInputRef.current?.focus()}>
                 <Text style={styles.changeLink}>Change</Text>
@@ -341,6 +384,7 @@ export default function AddAddressScreen() {
                 <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
                 <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
               </TouchableOpacity>
+              <Text style={styles.mapPreviewCoords}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
             </Animated.View>
 
             <Animated.View style={styles.section} entering={fadeInUp(120)}>
@@ -372,9 +416,34 @@ export default function AddAddressScreen() {
               <View style={styles.fieldRow}>
                 <TextInput style={styles.fieldInput} placeholder="Apartment / suite / floor" placeholderTextColor={tokens.muted} value={completeAddress} onChangeText={setCompleteAddress} />
               </View>
+              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Landmark · optional</Text>
+              <View style={styles.fieldRow}>
+                <TextInput style={styles.fieldInput} placeholder="Opposite the blue water tank" placeholderTextColor={tokens.muted} value={landmark} onChangeText={setLandmark} />
+              </View>
             </Animated.View>
 
-            <Animated.View style={styles.section} entering={fadeInUp(240)}>
+            <Animated.View style={styles.section} entering={fadeInUp(210)}>
+              <Text style={styles.sectionLabel}>Receiver details</Text>
+              <Text style={styles.fieldLabel}>Receiver name · optional</Text>
+              <View style={styles.fieldRow}>
+                <TextInput style={styles.fieldInput} placeholder="Who is receiving this order?" placeholderTextColor={tokens.muted} value={receiverName} onChangeText={setReceiverName} />
+              </View>
+              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Receiver phone · optional</Text>
+              <View style={styles.fieldRow}>
+                <TextInput
+                  style={styles.fieldInput}
+                  placeholder="10-digit mobile number"
+                  placeholderTextColor={tokens.muted}
+                  keyboardType="phone-pad"
+                  maxLength={10}
+                  value={receiverPhone}
+                  onChangeText={(text) => setReceiverPhone(text.replace(/\D/g, ""))}
+                />
+              </View>
+              <Text style={styles.fieldHint}>Leave these blank to deliver to your own name and number.</Text>
+            </Animated.View>
+
+            <Animated.View style={styles.section} entering={fadeInUp(270)}>
               <Text style={styles.sectionLabel}>Delivery instructions</Text>
               <View style={styles.instructionsBox}>
                 <TextInput
@@ -440,6 +509,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
     addressIcon: { width: 34, height: 34, alignItems: "center", justifyContent: "center", flexShrink: 0 },
     addressMain: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
     addressSub: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
+    addressCoords: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, marginTop: 3, letterSpacing: 0.2 },
     changeLink: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.5, textTransform: "uppercase", color: accent.accent },
     nextBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     nextBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
@@ -451,6 +521,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
     mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
     mapPreviewPill: { position: "absolute", bottom: 10, alignSelf: "center", backgroundColor: tokens.surface, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: tokens.border, maxWidth: "82%" },
     mapPreviewPillText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: tokens.text },
+    mapPreviewCoords: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, textAlign: "center", marginTop: 6, marginHorizontal: 16 },
 
     section: { paddingHorizontal: 16, paddingTop: 20 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
@@ -463,6 +534,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
     fieldLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
     fieldRow: { flexDirection: "row", alignItems: "center", gap: 10, borderBottomWidth: 1.5, borderBottomColor: tokens.borderStrong, paddingBottom: 8 },
     fieldInput: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
+    fieldHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.muted, marginTop: 10 },
     instructionsBox: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, padding: 13, minHeight: 72 },
     instructionsInput: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), color: tokens.text, minHeight: 44 },
     charCounter: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, textAlign: "right", marginTop: 6 },

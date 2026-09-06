@@ -120,6 +120,10 @@ export default function HomeScreen() {
   } = useHomeStore();
 
   const [searchText, setSearchText] = useState("");
+  // Debounced copy of searchText — the term actually sent to the server.
+  const [searchQuery, setSearchQuery] = useState("");
+  // The term the currently loaded restaurant list was fetched with.
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const searchTranslateY = useSharedValue(-Dimensions.get("window").height);
@@ -241,7 +245,7 @@ export default function HomeScreen() {
   const hasRedirectedRef = useRef(false);
 
   const [isDistanceSheetOpen, setIsDistanceSheetOpen] = useState(false);
-  const [distanceOption, setDistanceOption] = useState<"3" | "5" | "7" | "custom">("5");
+  const [distanceOption, setDistanceOption] = useState<"1" | "3" | "5" | "10" | "custom">("5");
   const [customDistance, setCustomDistance] = useState("");
   const [appliedDistanceKm, setAppliedDistanceKm] = useState<number | null>(null);
   const [distanceRefreshKey, setDistanceRefreshKey] = useState(0);
@@ -256,32 +260,55 @@ export default function HomeScreen() {
   const [filter99Store, setFilter99Store] = useState<boolean>(false);
   const [filterFastDelivery, setFilterFastDelivery] = useState<boolean>(false);
   const [filterOffers, setFilterOffers] = useState<boolean>(false);
-  const [filterRating4Plus, setFilterRating4Plus] = useState<boolean>(false);
+  const [filterMinRating, setFilterMinRating] = useState<number>(0); // 0 = no threshold
+  const [filterOpenNow, setFilterOpenNow] = useState<boolean>(false);
   const [filterCostRange, setFilterCostRange] = useState<string>("all");
   const [filterVegNonVeg, setFilterVegNonVeg] = useState<string>("all");
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [activeFilterTab, setActiveFilterTab] = useState<string>("Sort");
   const [isFilterModalVisible, setIsFilterModalVisible] = useState<boolean>(false);
 
+  // One debounce feeds both halves of search — the dish list and the restaurant
+  // refetch — so the two can never be answering different questions.
   useEffect(() => {
-    if (!searchText) {
-      setSearchedDishes([]);
+    const trimmed = searchText.trim();
+    if (!trimmed) {
+      setSearchQuery("");
       return;
     }
-    const delayDebounceFn = setTimeout(async () => {
-      try {
-        setIsSearchingDishes(true);
-        const queryTerm = TAG_SEARCH_MAP[searchText] || searchText;
-        const data = await customFetch<any>(`/food/search?query=${encodeURIComponent(queryTerm)}`);
-        setSearchedDishes(data);
-      } catch (error) {
-        console.error("Error searching dishes:", error);
-      } finally {
-        setIsSearchingDishes(false);
-      }
-    }, 400);
+    const delayDebounceFn = setTimeout(() => setSearchQuery(trimmed), 400);
     return () => clearTimeout(delayDebounceFn);
   }, [searchText]);
+
+  useEffect(() => {
+    if (!searchQuery) {
+      setSearchedDishes([]);
+      setIsSearchingDishes(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        setIsSearchingDishes(true);
+        // Keep the tag itself alongside its synonym. Replacing "Desserts" with
+        // "Waffles" searched for a word the catalogue does not contain.
+        const synonym = TAG_SEARCH_MAP[searchQuery];
+        const queryTerm = synonym && synonym.toLowerCase() !== searchQuery.toLowerCase()
+          ? `${searchQuery} ${synonym}`
+          : searchQuery;
+        const coords = useHomeStore.getState().lastFetchedCoords;
+        const coordParams = coords ? `&lat=${coords.lat}&lng=${coords.lng}` : "";
+        const data = await customFetch<any>(`/food/search?query=${encodeURIComponent(queryTerm)}${coordParams}`);
+        if (!cancelled) setSearchedDishes(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error searching dishes:", error);
+        if (!cancelled) setSearchedDishes([]);
+      } finally {
+        if (!cancelled) setIsSearchingDishes(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [searchQuery]);
 
   useFocusEffect(
     useCallback(() => {
@@ -388,11 +415,34 @@ export default function HomeScreen() {
     ? Math.max(1, Number(customDistance) || 5)
     : Number(distanceOption);
 
+  // Radius, rating threshold, open-now and the nearest-first ordering are all
+  // resolved server-side, so page 2 and beyond keep honouring them instead of
+  // re-introducing outlets the filter already removed.
+  const discoveryParams = useMemo(() => {
+    const parts: string[] = [];
+    if (appliedDistanceKm) parts.push(`&radius=${Math.round(appliedDistanceKm * 1000)}`);
+    if (filterMinRating > 0) parts.push(`&minRating=${filterMinRating}`);
+    if (filterOpenNow) parts.push("&openNow=true");
+    if (selectedSort === "distance") parts.push("&sort=distance");
+    else if (selectedSort === "rating") parts.push("&sort=rating");
+    return parts.join("");
+  }, [appliedDistanceKm, filterMinRating, filterOpenNow, selectedSort]);
+
+  // Everything in discoveryParams except the radius, which already has its own
+  // refetch path through applyDistanceFilter.
+  const serverFilterKey = useMemo(
+    () => [filterMinRating, filterOpenNow, selectedSort === "distance" || selectedSort === "rating" ? selectedSort : "default", searchQuery].join("|"),
+    [filterMinRating, filterOpenNow, selectedSort, searchQuery]
+  );
+
   const fetchVendors = async (lat: number, lng: number, pageNum: number = 1) => {
     try {
       if (pageNum === 1) setLoading(true); else setLoadingMore(true);
-      const radiusParam = appliedDistanceKm ? `&radius=${Math.round(appliedDistanceKm * 1000)}` : "";
-      const data = await customFetch<any>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
+      // The server matches a restaurant through its menu items too, which is the
+      // only way a dish word like "Dosa" can surface the outlets that serve it.
+      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : "";
+      const data = await customFetch<any>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${discoveryParams}${searchParam}`);
+      setAppliedSearchTerm(searchQuery);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
         if (pageNum === 1) {
@@ -415,8 +465,7 @@ export default function HomeScreen() {
   const fetchMeatCenters = async (lat: number, lng: number, pageNum: number = 1) => {
     try {
       if (pageNum === 1) setLoading(true); else setLoadingMore(true);
-      const radiusParam = appliedDistanceKm ? `&radius=${Math.round(appliedDistanceKm * 1000)}` : "";
-      const data = await customFetch<any>(`/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${radiusParam}`);
+      const data = await customFetch<any>(`/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${discoveryParams}`);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
         if (pageNum === 1) {
@@ -562,6 +611,22 @@ export default function HomeScreen() {
     setDistanceRefreshKey((value) => value + 1);
   };
 
+  // Rating, open-now, ordering and search are server-side now, so each change needs
+  // a fresh page 1. The main fetch effect early-returns on its cached-coords guard,
+  // so drop that cache first — the same nudge applyDistanceFilter uses.
+  const didMountFiltersRef = useRef(false);
+  useEffect(() => {
+    if (!didMountFiltersRef.current) {
+      didMountFiltersRef.current = true;
+      return;
+    }
+    useHomeStore.setState({ lastFetchedCoords: null });
+    setPage(1);
+    setHasMore(true);
+    setLoading(true);
+    setDistanceRefreshKey((value) => value + 1);
+  }, [serverFilterKey]);
+
   const clearDistanceFilter = () => {
     setDistanceOption("5");
     setCustomDistance("");
@@ -574,16 +639,35 @@ export default function HomeScreen() {
 
   const showHomeSkeleton = (loading && !loadingMore) || loadingDrivers;
 
+  // Every restaurant that serves one of the matched dishes, so a dish word also
+  // surfaces its outlet even when the outlet's own text says nothing about it.
+  const dishVendorIds = useMemo(
+    () =>
+      new Set(
+        searchedDishes
+          .map((dish: any) => (dish?.vendorId && typeof dish.vendorId === "object" ? dish.vendorId._id : dish?.vendorId))
+          .filter(Boolean)
+          .map(String)
+      ),
+    [searchedDishes]
+  );
+
+  // For Food the server already matched restaurants through their menus, so a
+  // second name-only pass here would throw those hits away. /meat/nearby has no
+  // search parameter, so meat keeps the local match, widened by the dish hits.
+  const isServerSearched = activeService !== "Meat" && !!searchQuery && appliedSearchTerm === searchQuery;
+
   const filteredItems = useMemo(() => {
     return (activeService === "Meat" ? meatCenters : restaurants).filter((item) => {
       if (!searchText) return true;
+      if (isServerSearched) return true;
       const query = searchText.toLowerCase();
       const nameMatch = item.name.toLowerCase().includes(query);
       const categoryMatch = item.categories && item.categories.some((cat: string) => cat.toLowerCase().includes(query));
       const addressMatch = item.address && item.address.toLowerCase().includes(query);
-      return nameMatch || categoryMatch || addressMatch;
+      return nameMatch || categoryMatch || addressMatch || dishVendorIds.has(String(item._id));
     });
-  }, [activeService, meatCenters, restaurants, searchText]);
+  }, [activeService, meatCenters, restaurants, searchText, isServerSearched, dishVendorIds]);
 
   // Note: the old code had a second, overlapping veg-only filter on top of
   // this (a header toggle separate from the "Pure Veg" filter chip below).
@@ -611,8 +695,11 @@ export default function HomeScreen() {
     if (filterOffers) {
       items = items.filter((vendor) => vendor.deliveryFee === 0 || (vendor.offer && vendor.offer.toLowerCase().includes("free")));
     }
-    if (filterRating4Plus) {
-      items = items.filter((vendor) => vendor.rating >= 4.0);
+    if (filterMinRating > 0) {
+      items = items.filter((vendor) => (vendor.rating || 0) >= filterMinRating);
+    }
+    if (filterOpenNow) {
+      items = items.filter((vendor) => (vendor.openState ? vendor.openState.isOpen : vendor.isOpen !== false));
     }
     if (filterCostRange !== "all") {
       items = items.filter((vendor) => {
@@ -635,7 +722,14 @@ export default function HomeScreen() {
       items = items.filter((vendor) => Array.isArray(vendor.categories) && vendor.categories.some((cat: string) => selectedCuisines.includes(cat)));
     }
 
-    if (selectedSort === "time") {
+    if (selectedSort === "distance") {
+      // Items with no distanceKm (the admin lat=0/lng=0 payload) park at the end.
+      items.sort(
+        (a, b) =>
+          (typeof a.distanceKm === "number" ? a.distanceKm : Number.POSITIVE_INFINITY) -
+          (typeof b.distanceKm === "number" ? b.distanceKm : Number.POSITIVE_INFINITY)
+      );
+    } else if (selectedSort === "time") {
       items.sort((a, b) => {
         const tA = a.time ? parseInt(a.time.match(/\d+/)?.[0] || "999") : 999;
         const tB = b.time ? parseInt(b.time.match(/\d+/)?.[0] || "999") : 999;
@@ -650,7 +744,7 @@ export default function HomeScreen() {
     }
 
     return items;
-  }, [visibleItems, selectedSort, filter99Store, filterFastDelivery, filterOffers, filterRating4Plus, filterCostRange, filterVegNonVeg, selectedCuisines, store149Items]);
+  }, [visibleItems, selectedSort, filter99Store, filterFastDelivery, filterOffers, filterMinRating, filterOpenNow, filterCostRange, filterVegNonVeg, selectedCuisines, store149Items]);
 
   const availableCuisines = useMemo(() => {
     const cuisinesSet = new Set<string>();
@@ -688,7 +782,7 @@ export default function HomeScreen() {
   }, [promoCards.length]);
 
   const Store149Card = ({ item }: { item: any }) => {
-    const { items: cItems, addItem: addCartItem, updateQuantity: updateCartQuantity } = useCartStore();
+    const { items: cItems, requestAddItem: addCartItem, updateQuantity: updateCartQuantity } = useCartStore();
     const cartItem = cItems.find((i) => i._id === item._id);
 
     const handleAdd = () => {
@@ -701,7 +795,7 @@ export default function HomeScreen() {
         isVeg: item.isVeg,
         images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"],
       };
-      addCartItem(foodItem, item.vendorId);
+      addCartItem(foodItem, item.vendorId, item.brand);
     };
 
     return (
@@ -725,7 +819,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         <Text style={styles.mealName} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.mealVendor} numberOfLines={1}>{item.brand || "Nearby"} · {item.rating || "4.3"} ★</Text>
+        <Text style={styles.mealVendor} numberOfLines={1}>
+          {item.brand || "Nearby"}
+          {typeof item.distanceKm === "number" ? ` · ${item.distanceKm} km` : ""} · {item.rating || "4.3"} ★
+        </Text>
       </View>
     );
   };
@@ -811,9 +908,37 @@ export default function HomeScreen() {
   );
 
   const activeFilterCount = [
-    filter99Store, filterFastDelivery, filterOffers, filterRating4Plus,
+    filter99Store, filterFastDelivery, filterOffers, filterMinRating > 0, filterOpenNow,
     filterCostRange !== "all", filterVegNonVeg !== "all", selectedCuisines.length > 0,
+    appliedDistanceKm !== null, selectedSort !== "relevance",
   ].filter(Boolean).length;
+
+  const clearAllFilters = () => {
+    setSelectedSort("relevance");
+    setFilter99Store(false);
+    setFilterFastDelivery(false);
+    setFilterOffers(false);
+    setFilterMinRating(0);
+    setFilterOpenNow(false);
+    setFilterCostRange("all");
+    setFilterVegNonVeg("all");
+    setSelectedCuisines([]);
+    setDistanceOption("5");
+    setCustomDistance("");
+    setAppliedDistanceKm(null);
+    // Radius and the server-side filters are cached against these coords, so drop
+    // the cache or the refetch would be swallowed by the guard in the fetch effect.
+    useHomeStore.setState({ lastFetchedCoords: null });
+  };
+
+  // True while the debounce or either search request is still in flight — the
+  // window in which the list used to claim "No results found" prematurely.
+  const isSearching =
+    searchText.trim().length > 0 &&
+    (searchQuery !== searchText.trim() ||
+      isSearchingDishes ||
+      // /meat/nearby has no search parameter, so only the Food list waits on a refetch.
+      (activeService !== "Meat" && appliedSearchTerm !== searchQuery));
 
   // Re-attempts GPS from scratch: drops any saved address and the cached
   // "user denied GPS" flag, then nudges the address-loading effect to re-run.
@@ -865,7 +990,7 @@ export default function HomeScreen() {
         {/* Search bar */}
         <Animated.View style={searchBarAnimatedStyle}>
           <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
-            <Ionicons name="search" size={moderateScale(16)} color={tokens.sec} />
+            <Ionicons name="search" size={moderateScale(16)} color={accent.accent} />
             <Text style={styles.searchPlaceholder} numberOfLines={1}>
               {activeService === "Meat" ? "Search “mutton curry cut”, “prawns”" : "Search “biryani”, “Bawarchi”"}
             </Text>
@@ -876,7 +1001,7 @@ export default function HomeScreen() {
         <View style={styles.tilesRow}>
           <View style={styles.togglePill}>
             <TouchableOpacity
-              style={[styles.toggleCell, activeService === "Food" && { backgroundColor: tokens.services.food.skin, borderColor: tokens.services.food.accent }]}
+              style={[styles.toggleCell, activeService === "Food" && { backgroundColor: tokens.surface, borderColor: tokens.services.food.accent }]}
               onPress={() => handleServiceSwitch("Food")}
               activeOpacity={0.85}
             >
@@ -886,7 +1011,7 @@ export default function HomeScreen() {
               <Text style={[styles.toggleLabel, activeService === "Food" && { color: tokens.services.food.accent }]}>Food</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.toggleCell, activeService === "Meat" && { backgroundColor: tokens.services.meat.skin, borderColor: tokens.services.meat.accent }]}
+              style={[styles.toggleCell, activeService === "Meat" && { backgroundColor: tokens.surface, borderColor: tokens.services.meat.accent }]}
               onPress={() => handleServiceSwitch("Meat")}
               activeOpacity={0.85}
             >
@@ -978,8 +1103,11 @@ export default function HomeScreen() {
                   <TouchableOpacity style={[styles.chip, filterFastDelivery && styles.chipActive]} onPress={() => setFilterFastDelivery(!filterFastDelivery)}>
                     <Text style={[styles.chipText, filterFastDelivery && styles.chipTextActive]}>Fast delivery</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.chip, filterRating4Plus && styles.chipActive]} onPress={() => setFilterRating4Plus(!filterRating4Plus)}>
-                    <Text style={[styles.chipText, filterRating4Plus && styles.chipTextActive]}>Ratings 4.0+</Text>
+                  <TouchableOpacity style={[styles.chip, filterMinRating === 4 && styles.chipActive]} onPress={() => setFilterMinRating(filterMinRating === 4 ? 0 : 4)}>
+                    <Text style={[styles.chipText, filterMinRating === 4 && styles.chipTextActive]}>Ratings 4.0+</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.chip, filterOpenNow && styles.chipActive]} onPress={() => setFilterOpenNow(!filterOpenNow)}>
+                    <Text style={[styles.chipText, filterOpenNow && styles.chipTextActive]}>Open now</Text>
                   </TouchableOpacity>
                   {["Chicken", "Mutton"].map((meatType) => {
                     const isSelected = selectedCuisines.includes(meatType);
@@ -996,11 +1124,14 @@ export default function HomeScreen() {
                 </>
               ) : (
                 <>
+                  <TouchableOpacity style={[styles.chip, filterOpenNow && styles.chipActive]} onPress={() => setFilterOpenNow(!filterOpenNow)}>
+                    <Text style={[styles.chipText, filterOpenNow && styles.chipTextActive]}>Open now</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity style={[styles.chip, filterOffers && styles.chipActive]} onPress={() => setFilterOffers(!filterOffers)}>
                     <Text style={[styles.chipText, filterOffers && styles.chipTextActive]}>Offers</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={[styles.chip, filterRating4Plus && styles.chipActive]} onPress={() => setFilterRating4Plus(!filterRating4Plus)}>
-                    <Text style={[styles.chipText, filterRating4Plus && styles.chipTextActive]}>Ratings 4.0+</Text>
+                  <TouchableOpacity style={[styles.chip, filterMinRating === 4 && styles.chipActive]} onPress={() => setFilterMinRating(filterMinRating === 4 ? 0 : 4)}>
+                    <Text style={[styles.chipText, filterMinRating === 4 && styles.chipTextActive]}>Ratings 4.0+</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.chip, filterCostRange === "300to600" && styles.chipActive]}
@@ -1052,9 +1183,9 @@ export default function HomeScreen() {
               <View style={styles.listHeadingBlock}>
                 <Text style={styles.listHeading}>{activeService === "Meat" ? "Meat centers" : "All restaurants"}</Text>
                 <Text style={styles.listHeadingMeta}>
-                  {activeService === "Meat"
-                    ? `${filteredAndSortedItems.length} open within ${appliedDistanceKm || 5} km`
-                    : `${filteredAndSortedItems.length} open near ${areaLabel}`}
+                  {appliedDistanceKm
+                    ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`
+                    : `${filteredAndSortedItems.length} outlets near ${areaLabel}`}
                 </Text>
               </View>
             )}
@@ -1075,13 +1206,13 @@ export default function HomeScreen() {
             <View style={styles.stickyActions}>
               <View style={styles.stickyTogglePill}>
                 <TouchableOpacity
-                  style={[styles.stickyToggleCell, activeService === "Food" && { backgroundColor: tokens.services.food.skin }]}
+                  style={[styles.stickyToggleCell, activeService === "Food" && { backgroundColor: tokens.surface }]}
                   onPress={() => handleServiceSwitch("Food")}
                 >
                   <Text style={styles.stickyToggleEmoji}>🍛</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.stickyToggleCell, activeService === "Meat" && { backgroundColor: tokens.services.meat.skin }]}
+                  style={[styles.stickyToggleCell, activeService === "Meat" && { backgroundColor: tokens.surface }]}
                   onPress={() => handleServiceSwitch("Meat")}
                 >
                   <Text style={styles.stickyToggleEmoji}>🍖</Text>
@@ -1142,6 +1273,15 @@ export default function HomeScreen() {
               </View>
             );
           }
+          if (isSearching) {
+            return (
+              <View style={styles.emptySearchContainer}>
+                <ActivityIndicator size="small" color={accent.accent} />
+                <Text style={styles.emptySearchTitle}>Searching…</Text>
+                <Text style={styles.emptySearchSubtitle}>Looking for &quot;{searchText.trim()}&quot; across nearby menus.</Text>
+              </View>
+            );
+          }
           if (searchText) {
             const hasActiveFilters = activeFilterCount > 0;
             const tryInstead = activeService === "Meat" ? ["Chicken curry cut", "Mutton", "Prawns"] : ["Biryani", "Pizza", "₹149 meals"];
@@ -1157,18 +1297,7 @@ export default function HomeScreen() {
                     : `We couldn't find any outlets matching "${searchText}".`}
                 </Text>
                 {hasActiveFilters && (
-                  <TouchableOpacity
-                    style={styles.noServiceButton}
-                    onPress={() => {
-                      setFilter99Store(false);
-                      setFilterFastDelivery(false);
-                      setFilterOffers(false);
-                      setFilterRating4Plus(false);
-                      setFilterCostRange("all");
-                      setFilterVegNonVeg("all");
-                      setSelectedCuisines([]);
-                    }}
-                  >
+                  <TouchableOpacity style={styles.noServiceButton} onPress={clearAllFilters}>
                     <Text style={styles.noServiceButtonText}>Clear filters</Text>
                   </TouchableOpacity>
                 )}
@@ -1233,6 +1362,22 @@ export default function HomeScreen() {
                   onPress={() => Alert.alert("Thanks!", "We'll notify you when we launch in your area.")}
                 >
                   <Text style={styles.noServiceSecondaryButtonText}>Notify me when you launch</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          }
+          if (activeFilterCount > 0) {
+            return (
+              <View style={styles.noServiceContainer}>
+                <View style={styles.emptyIconCircle}>
+                  <Ionicons name="funnel-outline" size={26} color={tokens.sec} />
+                </View>
+                <Text style={styles.noServiceTitle}>No outlets match your filters</Text>
+                <Text style={styles.noServiceSubtitle}>
+                  Nothing nearby clears the {activeFilterCount === 1 ? "filter" : "filters"} you&apos;ve set. Try a lower rating or clear them.
+                </Text>
+                <TouchableOpacity style={styles.noServiceButton} onPress={clearAllFilters}>
+                  <Text style={styles.noServiceButtonText}>Clear filters</Text>
                 </TouchableOpacity>
               </View>
             );
@@ -1367,15 +1512,23 @@ export default function HomeScreen() {
                 }}
                 contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
                 showsVerticalScrollIndicator={false}
-                ListEmptyComponent={() => (
-                  <View style={styles.emptySearchContainer}>
-                    <View style={styles.emptyIconCircle}>
-                      <Ionicons name="search-outline" size={26} color={tokens.sec} />
+                ListEmptyComponent={() =>
+                  isSearching ? (
+                    <View style={styles.emptySearchContainer}>
+                      <ActivityIndicator size="small" color={accent.accent} />
+                      <Text style={styles.emptySearchTitle}>Searching…</Text>
+                      <Text style={styles.emptySearchSubtitle}>Looking for &quot;{searchText.trim()}&quot; across nearby menus.</Text>
                     </View>
-                    <Text style={styles.emptySearchTitle}>No results found</Text>
-                    <Text style={styles.emptySearchSubtitle}>We couldn&apos;t find any outlets matching &quot;{searchText}&quot;.</Text>
-                  </View>
-                )}
+                  ) : (
+                    <View style={styles.emptySearchContainer}>
+                      <View style={styles.emptyIconCircle}>
+                        <Ionicons name="search-outline" size={26} color={tokens.sec} />
+                      </View>
+                      <Text style={styles.emptySearchTitle}>No results found</Text>
+                      <Text style={styles.emptySearchSubtitle}>We couldn&apos;t find any outlets matching &quot;{searchText}&quot;.</Text>
+                    </View>
+                  )
+                }
               />
             )}
           </Animated.View>
@@ -1415,7 +1568,7 @@ export default function HomeScreen() {
             )}
 
             <View style={styles.distancePresetRow}>
-              {(["3", "5", "7"] as const).map((option) => (
+              {(["1", "3", "5", "10"] as const).map((option) => (
                 <TouchableOpacity
                   key={option}
                   style={[styles.distanceChip, distanceOption === option && styles.distanceChipActive]}
@@ -1478,6 +1631,7 @@ export default function HomeScreen() {
                   { id: "Sort", label: "Sort" },
                   { id: "99store", label: "149 Store" },
                   { id: "15mins", label: "15 mins" },
+                  { id: "OpenNow", label: "Open now" },
                   { id: "Offers", label: "Offers" },
                   { id: "Ratings", label: "Ratings" },
                   { id: "CostForTwo", label: "Cost for two" },
@@ -1489,8 +1643,9 @@ export default function HomeScreen() {
                   if (tab.id === "Sort" && selectedSort !== "relevance") hasApplied = true;
                   if (tab.id === "99store" && filter99Store) hasApplied = true;
                   if (tab.id === "15mins" && filterFastDelivery) hasApplied = true;
+                  if (tab.id === "OpenNow" && filterOpenNow) hasApplied = true;
                   if (tab.id === "Offers" && filterOffers) hasApplied = true;
-                  if (tab.id === "Ratings" && filterRating4Plus) hasApplied = true;
+                  if (tab.id === "Ratings" && filterMinRating > 0) hasApplied = true;
                   if (tab.id === "CostForTwo" && filterCostRange !== "all") hasApplied = true;
                   if (tab.id === "VegNonVeg" && filterVegNonVeg !== "all") hasApplied = true;
                   if (tab.id === "Cuisines" && selectedCuisines.length > 0) hasApplied = true;
@@ -1509,6 +1664,7 @@ export default function HomeScreen() {
                     <Text style={styles.filterSectionTitle}>SORT BY</Text>
                     {[
                       { id: "relevance", label: "Relevance (Default)" },
+                      { id: "distance", label: "Distance: Nearest first" },
                       { id: "time", label: "Delivery Time" },
                       { id: "rating", label: "Rating" },
                       { id: "costLowHigh", label: "Cost: Low to High" },
@@ -1539,6 +1695,15 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                   </View>
                 )}
+                {activeFilterTab === "OpenNow" && (
+                  <View>
+                    <Text style={styles.filterSectionTitle}>AVAILABILITY</Text>
+                    <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterOpenNow(!filterOpenNow)}>
+                      <Ionicons name={filterOpenNow ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterOpenNow ? accent.accent : tokens.muted} />
+                      <Text style={[styles.filterOptionLabel, filterOpenNow && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Open now only</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
                 {activeFilterTab === "Offers" && (
                   <View>
                     <Text style={styles.filterSectionTitle}>OFFERS</Text>
@@ -1551,10 +1716,18 @@ export default function HomeScreen() {
                 {activeFilterTab === "Ratings" && (
                   <View>
                     <Text style={styles.filterSectionTitle}>RATINGS</Text>
-                    <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterRating4Plus(!filterRating4Plus)}>
-                      <Ionicons name={filterRating4Plus ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterRating4Plus ? accent.accent : tokens.muted} />
-                      <Text style={[styles.filterOptionLabel, filterRating4Plus && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Ratings 4.0+</Text>
-                    </TouchableOpacity>
+                    {[
+                      { value: 0, label: "Show all" },
+                      { value: 3, label: "Ratings 3.0+" },
+                      { value: 3.5, label: "Ratings 3.5+" },
+                      { value: 4, label: "Ratings 4.0+" },
+                      { value: 4.5, label: "Ratings 4.5+" },
+                    ].map((opt) => (
+                      <TouchableOpacity key={opt.value} style={styles.filterOptionRow} onPress={() => setFilterMinRating(opt.value)}>
+                        <Ionicons name={filterMinRating === opt.value ? "radio-button-on" : "radio-button-off"} size={moderateScale(18)} color={filterMinRating === opt.value ? accent.accent : tokens.muted} />
+                        <Text style={[styles.filterOptionLabel, filterMinRating === opt.value && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{opt.label}</Text>
+                      </TouchableOpacity>
+                    ))}
                   </View>
                 )}
                 {activeFilterTab === "CostForTwo" && (
@@ -1614,23 +1787,13 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.filterModalFooter}>
-              <TouchableOpacity
-                style={styles.filterModalClearBtn}
-                onPress={() => {
-                  setSelectedSort("relevance");
-                  setFilter99Store(false);
-                  setFilterFastDelivery(false);
-                  setFilterOffers(false);
-                  setFilterRating4Plus(false);
-                  setFilterCostRange("all");
-                  setFilterVegNonVeg("all");
-                  setSelectedCuisines([]);
-                }}
-              >
+              <TouchableOpacity style={styles.filterModalClearBtn} onPress={clearAllFilters}>
                 <Text style={styles.filterModalClearText}>Clear filters</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.filterModalApplyBtn} onPress={() => setIsFilterModalVisible(false)}>
-                <Text style={styles.filterModalApplyText}>Apply</Text>
+                <Text style={styles.filterModalApplyText}>
+                  Apply · {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? "result" : "results"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1696,12 +1859,14 @@ function HomeSkeletonCard({ tokens }: { tokens: ThemeTokens }) {
 }
 
 function DishSearchResultItem({ item, tokens, accent, styles }: { item: any; tokens: ThemeTokens; accent: ServiceTokens; styles: any }) {
-  const { items, addItem, updateQuantity } = useCartStore();
+  const { items, requestAddItem, updateQuantity } = useCartStore();
   const cartItem = items.find((i) => i._id === item._id);
   const vendor = item.vendorId;
+  const soldOut = item.isAvailable === false;
 
   const handleAdd = () => {
-    if (vendor?._id) addItem(item, vendor._id);
+    if (soldOut) return;
+    if (vendor?._id) requestAddItem(item, vendor._id, vendor?.name);
   };
 
   const handleNavigateToMenu = () => {
@@ -1737,7 +1902,11 @@ function DishSearchResultItem({ item, tokens, accent, styles }: { item: any; tok
           <Image source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }} style={styles.dishItemImage} contentFit="cover" transition={200} />
         </TouchableOpacity>
         <View style={styles.dishAddButtonOverlay}>
-          {cartItem ? (
+          {soldOut ? (
+            <View style={styles.dishSoldOutPill}>
+              <Text style={styles.dishSoldOutPillText}>SOLD OUT</Text>
+            </View>
+          ) : cartItem ? (
             <View style={styles.dishQuantityPill}>
               <TouchableOpacity onPress={() => updateQuantity(item._id, cartItem.quantity - 1)} style={styles.dishQtyActionBtn}>
                 <Feather name="minus" size={moderateScale(12)} color={accent.accent} />
@@ -1788,13 +1957,13 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
 
   searchBar: {
     flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
-    borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(14), height: moderateScale(48),
+    borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), height: moderateScale(48),
     paddingHorizontal: 14, marginHorizontal: 16, marginTop: 14,
   },
   searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), color: tokens.sec },
 
   tilesRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: 16, alignItems: "stretch" },
-  togglePill: { flex: 1, flexDirection: "row", gap: 4, backgroundColor: tokens.sunken, borderRadius: moderateScale(22), padding: 4 },
+  togglePill: { flex: 1, flexDirection: "row", gap: 4, backgroundColor: accent.skin, borderRadius: moderateScale(22), padding: 4 },
   toggleCell: { flex: 1, borderRadius: moderateScale(18), borderWidth: 1.5, borderColor: "transparent", paddingVertical: 9, alignItems: "center", gap: 7 },
   launcherTile: {
     flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(20),
@@ -1859,9 +2028,9 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
     flexDirection: "row", alignItems: "center", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong,
     borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9,
   },
-  chipActive: { backgroundColor: tokens.text, borderColor: tokens.text },
+  chipActive: { backgroundColor: accent.accent, borderColor: accent.accent },
   chipText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec },
-  chipTextActive: { color: tokens.bg, fontFamily: fontFamilies.body.semibold },
+  chipTextActive: { color: accent.on, fontFamily: fontFamilies.body.semibold },
   chipFilled: { backgroundColor: accent.accent, borderColor: accent.accent },
   chipFilledText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: accent.on },
   chipBadge: { marginLeft: 6, minWidth: moderateScale(16), height: moderateScale(16), borderRadius: moderateScale(8), backgroundColor: accent.on, alignItems: "center", justifyContent: "center", paddingHorizontal: 3 },
@@ -1869,7 +2038,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   chipVegDot: { width: moderateScale(8), height: moderateScale(8), borderRadius: moderateScale(4), backgroundColor: tokens.veg, marginRight: 6 },
 
   cuisineSection: { marginTop: 22 },
-  cuisineLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, paddingHorizontal: 16, marginBottom: 12 },
+  cuisineLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent, paddingHorizontal: 16, marginBottom: 12 },
   cuisineScrollContent: { paddingHorizontal: 16, gap: 16 },
   cuisineItem: { width: 64, alignItems: "center" },
   cuisineCircle: { width: 64, height: 64, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
@@ -1880,7 +2049,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   listHeading: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.3, color: tokens.text },
   listHeadingMeta: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
 
-  listSectionHeader: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1.2, textTransform: "uppercase", color: tokens.muted, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
+  listSectionHeader: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1.2, textTransform: "uppercase", color: accent.accent, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
 
   stickyHeader: {
     position: "absolute", top: 0, left: 0, right: 0, zIndex: 100, backgroundColor: tokens.surface,
@@ -1889,7 +2058,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   stickyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16 },
   stickyAddress: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text, marginRight: 8 },
   stickyActions: { flexDirection: "row", alignItems: "center", gap: 8 },
-  stickyTogglePill: { flexDirection: "row", gap: 3, backgroundColor: tokens.sunken, borderRadius: 999, padding: 3 },
+  stickyTogglePill: { flexDirection: "row", gap: 3, backgroundColor: accent.skin, borderRadius: 999, padding: 3 },
   stickyToggleCell: { width: moderateScale(28), height: moderateScale(28), borderRadius: 999, alignItems: "center", justifyContent: "center" },
   stickyToggleEmoji: { fontSize: moderateScale(13) },
   stickyIconBtn: { width: moderateScale(30), height: moderateScale(30), borderRadius: 999, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
@@ -1934,6 +2103,8 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   dishAddButtonOverlay: { position: "absolute", bottom: -8, left: 8, right: 8, alignItems: "center" },
   dishAddPill: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, paddingHorizontal: 16, paddingVertical: 5, borderRadius: moderateScale(8), minWidth: 70, alignItems: "center" },
   dishAddPillText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), color: accent.accent },
+  dishSoldOutPill: { backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, paddingHorizontal: 16, paddingVertical: 5, borderRadius: moderateScale(8), minWidth: 70, alignItems: "center" },
+  dishSoldOutPillText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), color: tokens.muted },
   dishQuantityPill: { flexDirection: "row", alignItems: "center", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: moderateScale(8), paddingHorizontal: 4, paddingVertical: 4, gap: 8 },
   dishQtyActionBtn: { paddingHorizontal: 4, paddingVertical: 2 },
   dishQtyText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), color: tokens.text },
@@ -1942,7 +2113,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   searchSheetHeaderRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, gap: 16 },
   searchSheetHeaderText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.sec },
   searchSheetInputRow: { paddingHorizontal: 16, paddingBottom: 16 },
-  searchSheetInputWrap: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: moderateScale(14), paddingHorizontal: 14, paddingVertical: Platform.OS === "ios" ? 13 : 9 },
+  searchSheetInputWrap: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface, borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), paddingHorizontal: 14, paddingVertical: Platform.OS === "ios" ? 13 : 9 },
   searchSheetInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
   searchSectionHeadRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   searchSectionTitle: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, color: tokens.muted },
@@ -2001,6 +2172,6 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.
   filterModalFooter: { flexDirection: "row", padding: 16, borderTopWidth: 1, borderTopColor: tokens.border, justifyContent: "space-between", alignItems: "center", backgroundColor: tokens.surface },
   filterModalClearBtn: { paddingVertical: 12, paddingHorizontal: 16 },
   filterModalClearText: { fontFamily: fontFamilies.body.bold, color: tokens.sec, fontSize: moderateScale(14) },
-  filterModalApplyBtn: { backgroundColor: accent.accent, paddingVertical: 12, paddingHorizontal: 36, borderRadius: 999 },
+  filterModalApplyBtn: { backgroundColor: accent.accent, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 999 },
   filterModalApplyText: { fontFamily: fontFamilies.body.bold, color: accent.on, fontSize: moderateScale(14) },
 });

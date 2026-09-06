@@ -103,9 +103,14 @@ export default function Coupons() {
       ...newCoupon,
       code: newCoupon.code.toUpperCase(),
       maxDiscount: newCoupon.discountType === "PERCENTAGE" ? newCoupon.maxDiscount : undefined,
-      expiryDate: newCoupon.expiryDate ? newCoupon.expiryDate : undefined
+      // A bare "YYYY-MM-DD" is read as UTC midnight, so a coupon dated today would
+      // already be past its expiry and never reach the app's offer list. Run it to
+      // the end of the chosen day so "expires on" means "valid through".
+      expiryDate: newCoupon.expiryDate ? new Date(`${newCoupon.expiryDate}T23:59:59`).toISOString() : undefined
     });
   };
+
+  const isExpired = (coupon: Coupon) => !!coupon.expiryDate && new Date(coupon.expiryDate) <= new Date();
 
   const handleDelete = (id: string, code: string) => {
     if (confirm(`Are you sure you want to delete coupon ${code}?`)) {
@@ -272,6 +277,9 @@ export default function Coupons() {
                     <td className="px-6 py-4 text-muted-foreground flex items-center gap-1.5 py-6">
                       <Calendar className="h-3.5 w-3.5" />
                       <span>{coupon.expiryDate ? new Date(coupon.expiryDate).toLocaleDateString() : "Never"}</span>
+                      {isExpired(coupon) && (
+                        <span className="text-[10px] font-bold uppercase text-destructive">Expired</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <button

@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  BackHandler,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,7 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
@@ -61,6 +62,47 @@ export default function SignupScreen() {
       router.replace("/(tabs)");
     }
   }, [isInitialized, token]);
+
+  // Anything the user actually typed. The phone is pre-filled and locked when
+  // this screen is reached from the OTP screen, so it doesn't count as entered.
+  const hasEnteredDetails =
+    !!name || !!email || !!password || agreedToTerms || (!prefillPhone && !!phoneNumber);
+
+  // Never router.back() here: this screen is reached with a replace from both
+  // the sign-in screen and the OTP screen, so "back" would either dead-end or
+  // drop the user onto a spent OTP screen.
+  const leaveSignup = useCallback(() => {
+    router.replace("/login");
+  }, []);
+
+  const handleBack = useCallback(() => {
+    if (!hasEnteredDetails) {
+      leaveSignup();
+      return;
+    }
+    Alert.alert(
+      "Discard sign up?",
+      "Your details won't be saved.",
+      [
+        { text: "Keep editing", style: "cancel" },
+        { text: "Discard", style: "destructive", onPress: leaveSignup },
+      ],
+      { cancelable: true }
+    );
+  }, [hasEnteredDetails, leaveSignup]);
+
+  // Android hardware back has to hit the same confirmation as the header arrow
+  // instead of silently popping back into the auth flow (or exiting the app).
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS !== "android") return;
+      const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+        handleBack();
+        return true;
+      });
+      return () => sub.remove();
+    }, [handleBack])
+  );
 
   const handleRegister = async () => {
     if (name.trim().length < 3) {
@@ -111,10 +153,7 @@ export default function SignupScreen() {
       <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
         <TouchableOpacity
           style={styles.backBtn}
-          onPress={() => {
-            if (router.canGoBack()) router.back();
-            else router.replace("/");
-          }}
+          onPress={handleBack}
           activeOpacity={0.7}
         >
           <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />

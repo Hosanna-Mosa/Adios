@@ -147,7 +147,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
     onClose();
     const lat = item.location?.coordinates?.[1] ?? item.coordinates?.lat ?? "";
     const lng = item.location?.coordinates?.[0] ?? item.coordinates?.lng ?? "";
-    const qs = `step=2&editId=${encodeURIComponent(item._id || '')}&label=${encodeURIComponent(item.label || '')}&addressLine=${encodeURIComponent(item.addressLine || '')}&phone=${encodeURIComponent(item.phone || '')}&receiverName=${encodeURIComponent(item.receiverName || '')}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
+    const qs = `step=2&editId=${encodeURIComponent(item._id || '')}&label=${encodeURIComponent(item.label || '')}&addressLine=${encodeURIComponent(item.addressLine || '')}&phone=${encodeURIComponent(item.phone || '')}&receiverName=${encodeURIComponent(item.receiverName || '')}&receiverPhone=${encodeURIComponent(item.receiverPhone || '')}&landmark=${encodeURIComponent(item.landmark || '')}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
     router.push(`/delivery/add-address?${qs}`);
   };
 

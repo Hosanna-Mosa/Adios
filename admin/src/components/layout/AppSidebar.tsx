@@ -4,6 +4,7 @@ import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import {
   LayoutDashboard,
   ShoppingCart,
+  CalendarClock,
   Truck,
   Users,
   GitBranch,
@@ -28,6 +29,7 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Live Orders", url: "/live-orders", icon: ShoppingCart },
+  { title: "Scheduled Orders", url: "/scheduled-orders", icon: CalendarClock },
   { title: "Drivers", url: "/drivers", icon: Truck },
   { title: "Dev Drivers", url: "/dev-drivers", icon: SlidersHorizontal },
   { title: "Users", url: "/users", icon: Users },

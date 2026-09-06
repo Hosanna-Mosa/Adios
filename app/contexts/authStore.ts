@@ -16,6 +16,12 @@ interface AuthState {
   setUser: (user: any) => void;
   setToken: (token: string) => void;
   logout: () => Promise<void>;
+  /**
+   * Called by the HTTP layer's 401 interceptor. Clears the session, and returns
+   * true only for the call that actually did it — so a burst of parallel 401s
+   * produces exactly one sign-out and one redirect.
+   */
+  handleUnauthorized: () => boolean;
   requestOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
   verifyOTP: (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => Promise<{ success: boolean; isNewUser?: boolean }>;
   loginWithPassword: (phoneOrEmail: string, password: string, role: string) => Promise<{ success: boolean }>;
@@ -23,6 +29,11 @@ interface AuthState {
   toggleFavorite: (restaurantId: string) => Promise<void>;
   toggleFavoriteItem: (itemId: string) => Promise<void>;
 }
+
+// Guards the one-shot session-expiry path against a redirect storm: several
+// in-flight requests can all come back 401 at once. Reset whenever a new token
+// is stored, so a later session can expire again.
+let sessionExpiryHandled = false;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -41,6 +52,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setToken: (token) => {
+    sessionExpiryHandled = false;
     set({ token });
     AsyncStorage.setItem("token", token);
   },
@@ -126,8 +138,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const data = await response.json();
             set({ user: data, isInitialized: true });
             await AsyncStorage.setItem("user", JSON.stringify(data));
-          } else if (response.status === 401 || response.status === 403 || response.status === 404) {
-            // Token is invalid/expired or user doesn't exist anymore
+          } else if (response.status === 401) {
+            // 401 is the only status the API uses for a dead session — missing,
+            // expired or revoked token, or a user that no longer exists. A 403
+            // means authenticated-but-not-permitted and a 404 means the route
+            // moved; neither is a reason to throw the session away.
             set({ token: null, user: null, isInitialized: true });
             await Promise.all([
               AsyncStorage.removeItem("token"),
@@ -147,6 +162,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.error("Failed to initialize auth", err);
       set({ isInitialized: true }); // still mark done even on error
     }
+  },
+
+  handleUnauthorized: () => {
+    if (sessionExpiryHandled || !get().token) return false;
+    sessionExpiryHandled = true;
+    void get().logout();
+    return true;
   },
 
   logout: async () => {
@@ -196,6 +218,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return { success: true, isNewUser: true };
       }
 
+      sessionExpiryHandled = false;
       set({ user: data.user, token: data.token });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
@@ -221,6 +244,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (!response.ok) throw new Error(data.message || "Login failed");
 
+      sessionExpiryHandled = false;
       set({ user: data.user, token: data.token });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
