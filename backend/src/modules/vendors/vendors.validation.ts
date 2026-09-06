@@ -20,7 +20,11 @@ export const nearbyVendorsSchema = z.object({
     lng: z.string().optional(),
     page: z.string().optional(),
     limit: z.string().optional(),
-    radius: z.string().optional(),
+    radius: z.coerce.number().min(0).optional(),
+    minRating: z.coerce.number().min(0).max(5).optional(),
+    sort: z.enum(["distance", "rating", "default"]).optional(),
+    openNow: z.enum(["true", "false"]).optional(),
+    search: z.string().optional(),
   }),
 });
 

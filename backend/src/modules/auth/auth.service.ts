@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import User, { UserRole } from "../../database/models/User";
-import { ValidationError, UnauthorizedError, NotFoundError, ForbiddenError } from "../../utils/errors";
+import { ValidationError, UnauthorizedError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
 
 function buildLoginIdentifierQuery(identifier: string) {
@@ -39,6 +40,18 @@ function buildLoginIdentifierQuery(identifier: string) {
   };
 }
 
+// One status and one message for every password-login failure. Distinguishing
+// "no such user" from "wrong password" tells an attacker which phone numbers and
+// email addresses are registered.
+const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
+
+// A cost-10 bcrypt digest of 24 random bytes whose preimage was never recorded,
+// so no password can ever match it. Comparing against it when the account does
+// not exist keeps the failure path in the same timing band as a wrong password,
+// so response latency does not leak registration status either. The cost must
+// stay in step with the User model's bcrypt.genSalt(10).
+const DUMMY_PASSWORD_HASH = "$2b$10$bPAxJGsgdz.EoM9tuODmYOti.AVMh.XLTXpxeeIkuU5E2yvUwxyrS";
+
 export class AuthService {
   async requestOTP(phone: string) {
     // Dummy mode — log and return success (no SMS sent)
@@ -73,7 +86,7 @@ export class AuthService {
       console.log(`[DUMMY AUTH] New user created: ${name} (${phone}) with password and email ${email || ""}`);
     }
 
-    const token = this.generateToken((user._id as any).toString(), user.role);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
     return { user, token, isNewUser: false };
   }
 
@@ -84,30 +97,37 @@ export class AuthService {
     };
     const user = await User.findOne(query);
 
-    if (!user) {
-      throw new NotFoundError("User not found. Please sign up first.");
+    // Always pay the bcrypt cost, even when there is no such account, so a
+    // missing user and a wrong password take the same amount of time.
+    const isMatch = user?.password
+      ? await user.matchPassword(password)
+      : await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+
+    if (!user || !isMatch) {
+      throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
     }
 
-    if (!user.password) {
-      throw new ValidationError("No password set on this account. Please use OTP login.");
-    }
-
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      throw new UnauthorizedError("Invalid password");
-    }
-
-    if (user.role !== role) {
-      throw new ForbiddenError("Unauthorized role");
-    }
-
-    const token = this.generateToken((user._id as any).toString(), user.role);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
     return { user, token };
   }
 
-  generateToken(userId: string, role: UserRole) {
+  async logoutAll(userId: string) {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $inc: { tokenVersion: 1 } },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new NotFoundError("User not found");
+    }
+
+    return { success: true, message: "Signed out of all devices" };
+  }
+
+  generateToken(userId: string, role: UserRole, tokenVersion = 0) {
     return jwt.sign(
-      { userId, role },
+      { userId, role, tv: tokenVersion },
       getJwtSecret(),
       { expiresIn: "30d" } // 30 days
     );

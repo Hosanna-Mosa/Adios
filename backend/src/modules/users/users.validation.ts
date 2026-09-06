@@ -15,11 +15,22 @@ const coordinatesSchema = z.object({
   lng: z.coerce.number().optional(),
 }).optional();
 
+// 10 digits when present. An empty string is how the form clears the field, so
+// it has to stay acceptable.
+const receiverPhoneSchema = z
+  .string()
+  .trim()
+  .refine((value) => value === "" || /^\d{10}$/.test(value), "Receiver phone must be 10 digits")
+  .optional();
+
 export const addAddressSchema = z.object({
   body: z.object({
     label: z.string().optional(),
     addressLine: z.string().optional(),
     phone: z.string().optional(),
+    receiverName: z.string().optional(),
+    receiverPhone: receiverPhoneSchema,
+    landmark: z.string().optional(),
     coordinates: coordinatesSchema,
   }),
 });
@@ -32,6 +43,9 @@ export const updateAddressSchema = z.object({
     label: z.string().optional(),
     addressLine: z.string().optional(),
     phone: z.string().optional(),
+    receiverName: z.string().optional(),
+    receiverPhone: receiverPhoneSchema,
+    landmark: z.string().optional(),
     coordinates: coordinatesSchema,
   }),
 });
@@ -45,7 +59,7 @@ export const addressIdParamSchema = z.object({
 export const changePasswordSchema = z.object({
   body: z.object({
     currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(6, "New password must be at least 6 characters"),
+    newPassword: z.string().min(8, "New password must be at least 8 characters"),
   }),
 });
 

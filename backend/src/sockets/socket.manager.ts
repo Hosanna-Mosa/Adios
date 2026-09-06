@@ -73,7 +73,7 @@ export class SocketManager {
   }
 
   private setupAuthentication() {
-    this.io.use((socket: Socket, next) => {
+    this.io.use(async (socket: Socket, next) => {
       const token = socket.handshake.auth?.token || 
                     socket.handshake.headers["authorization"]?.split(" ")[1];
       if (!token) {
@@ -81,20 +81,40 @@ export class SocketManager {
         return next(new Error("Authentication error: No token provided"));
       }
 
-      jwt.verify(token, getJwtSecret(), (err: any, decoded: any) => {
-        if (err) {
-          console.warn(`[SOCKET SECURITY] Handshake rejected: Invalid token (Socket ID: ${socket.id})`);
-          return next(new Error("Authentication error: Invalid token"));
+      let decoded: any;
+      try {
+        decoded = jwt.verify(token, getJwtSecret());
+      } catch (err) {
+        console.warn(`[SOCKET SECURITY] Handshake rejected: Invalid token (Socket ID: ${socket.id})`);
+        return next(new Error("Authentication error: Invalid token"));
+      }
+
+      // Normalize userId from id parameter if needed
+      if (decoded && decoded.id && !decoded.userId) {
+        decoded.userId = decoded.id;
+      }
+
+      // Same tokenVersion check authenticateToken runs, so /auth/logout-all also
+      // shuts the door on sockets. Vendor and meat-centre tokens carry a role
+      // that is not a UserRole and no User document, so they are skipped.
+      if (Object.values(UserRole).includes(decoded?.role)) {
+        try {
+          const user = mongoose.Types.ObjectId.isValid(decoded.userId)
+            ? await User.findById(decoded.userId).select("tokenVersion").lean()
+            : null;
+
+          if (!user || (decoded.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+            console.warn(`[SOCKET SECURITY] Handshake rejected: Revoked token (Socket ID: ${socket.id})`);
+            return next(new Error("Authentication error: Session no longer valid"));
+          }
+        } catch (err) {
+          console.error("[SOCKET SECURITY] Token version check failed:", err);
+          return next(new Error("Authentication error: Unable to verify session"));
         }
-        
-        // Normalize userId from id parameter if needed
-        if (decoded && decoded.id && !decoded.userId) {
-          decoded.userId = decoded.id;
-        }
-        
-        socket.data.user = decoded;
-        next();
-      });
+      }
+
+      socket.data.user = decoded;
+      next();
     });
   }
 

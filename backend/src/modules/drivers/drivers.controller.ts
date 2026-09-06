@@ -57,7 +57,10 @@ export class DriversController {
   async nearby(req: AuthRequest, res: Response) {
     try {
       const { latitude, longitude, radius, vehicleType, onlineOnly } = req.query;
-      const isOnlineOnly = onlineOnly === "true";
+      // Default to online-only: this endpoint feeds the customer map and the
+      // "captains near you" count, so offline drivers must not be listed unless
+      // a caller explicitly opts in with onlineOnly=false.
+      const isOnlineOnly = onlineOnly !== "false";
       const drivers = await driverService.getNearbyDrivers(
         Number(latitude), 
         Number(longitude), 

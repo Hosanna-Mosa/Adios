@@ -13,15 +13,25 @@ export const verifyOtpSchema = z.object({
     code: z.string().min(4, "OTP code must be at least 4 digits"),
     role: z.nativeEnum(UserRole),
     name: z.string().optional(),
-    password: z.string().min(6, "Password must be at least 6 characters").optional(),
+    email: z.string().trim().toLowerCase().email("Invalid email").optional(),
+    password: z.string().min(8, "Password must be at least 8 characters").optional(),
   }),
 });
 
 export const loginWithPasswordSchema = z.object({
-  body: z.object({
-    phone: z.string().trim().min(3, "Phone or email is required"),
-    password: z.string().min(1, "Password is required"),
-    role: z.nativeEnum(UserRole),
-  }),
+  // The admin portal posts { email, password, role } when the identifier looks
+  // like an email and { phone, ... } otherwise, so either key identifies the
+  // account. The service resolves both through buildLoginIdentifierQuery.
+  body: z
+    .object({
+      phone: z.string().trim().min(3, "Phone or email is required").optional(),
+      email: z.string().trim().min(3, "Phone or email is required").optional(),
+      password: z.string().min(1, "Password is required"),
+      role: z.nativeEnum(UserRole),
+    })
+    .refine((body) => Boolean(body.phone || body.email), {
+      message: "Phone or email is required",
+      path: ["phone"],
+    }),
 });
 

@@ -13,6 +13,8 @@ import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
 import { ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
+import { CouponsService } from "../coupons/coupons.service";
+import { CartService } from "../cart/cart.service";
 import { InvoiceService } from "../../services/invoice.service";
 import ChatMessage from "../../database/models/ChatMessage";
 
@@ -20,6 +22,8 @@ export class OrdersService {
   private routingService = new RoutingService();
   private pricingService = new PricingService();
   private zonesService = new ZonesService();
+  private couponsService = new CouponsService();
+  private cartService = new CartService();
 
   async createOrder(userId: string, stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, radius?: number, duration?: number, isReserved?: boolean, reservedAt?: Date | string, metadata?: any) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -62,6 +66,43 @@ export class OrdersService {
       }
     }
 
+    // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
+    // the pre-existing transport (payments/verify already forwards it) and is honoured too.
+    const scheduledForInput =
+      metadata?.scheduledFor ??
+      (metadata?.scheduledDelivery?.type === "later" ? metadata.scheduledDelivery.requestedAt : undefined);
+    let scheduledForDate: Date | undefined;
+    if (scheduledForInput) {
+      const parsedSchedule = new Date(scheduledForInput);
+      if (!Number.isNaN(parsedSchedule.getTime()) && parsedSchedule.getTime() > Date.now()) {
+        scheduledForDate = parsedSchedule;
+      } else if (metadata?.scheduledFor) {
+        // POST /orders — nothing has been charged yet, so reject outright.
+        throw new ValidationError("scheduledFor must be a future date and time");
+      } else {
+        // Arrived through the already-paid /payments/verify transport and the slot has lapsed.
+        // Place the order for now rather than throwing away an order that was just paid for.
+        console.warn(`[orders.service] Ignoring lapsed scheduled slot ${scheduledForInput} — placing the order immediately.`);
+      }
+    }
+    const isScheduledOrder = !!scheduledForDate;
+
+    // A client-supplied discount is only a preview — the coupon is always re-resolved here.
+    const requestedCouponCode = metadata?.couponCode ?? totals?.couponCode;
+    let couponDiscount = 0;
+    let appliedCouponCode: string | undefined;
+    let appliedCouponId: any;
+    if (requestedCouponCode) {
+      const { coupon, discountAmount } = await this.couponsService.resolveForCart(
+        String(requestedCouponCode),
+        Number(totals?.subtotal) || 0,
+        vendorId,
+      );
+      couponDiscount = discountAmount;
+      appliedCouponCode = coupon.code;
+      appliedCouponId = coupon._id;
+    }
+
     let totalPrice: number;
     let priceBreakdown: any;
 
@@ -97,6 +138,15 @@ export class OrdersService {
         optimizationResult.optimizedStops.length,
         surgeMultiplier,
       );
+      if (appliedCouponCode) {
+        // Rebuild the payable amount from the parts instead of trusting totals.total.
+        totalPrice = Math.max(0, Math.round(
+          (Number(totals?.subtotal) || 0) +
+          (Number(totals?.deliveryFee) || 0) +
+          (Number(totals?.tip) || 0) -
+          couponDiscount,
+        ));
+      }
       const rateConfig = await this.pricingService.getRateConfig(effectiveType);
       priceBreakdown = {
         baseFare: totals?.subtotal ?? rateConfig.baseFare,
@@ -106,6 +156,10 @@ export class OrdersService {
         total: totalPrice,
       };
     }
+
+    const effectiveTotals = appliedCouponCode && totals
+      ? { ...totals, couponCode: appliedCouponCode, discount: couponDiscount, total: totalPrice }
+      : totals;
 
     const orderStops = optimizationResult.optimizedStops.map((stop: any, index: number) => {
       let normalizedType = StopType.DROP;
@@ -134,7 +188,7 @@ export class OrdersService {
           lines: stop.items || [],
           instructions: stop.instructions,
           deliveryAddress: stop.deliveryAddress,
-          totals: normalizedType === StopType.DROP ? totals : undefined,
+          totals: normalizedType === StopType.DROP ? effectiveTotals : undefined,
         },
       };
     });
@@ -167,13 +221,19 @@ export class OrdersService {
       totalDistance: optimizationResult.totalDistance,
       totalPrice,
       priceBreakdown,
-      status: isReserved ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
+      status: (isReserved || isScheduledOrder) ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
       stops: orderStops,
       radius,
       duration,
       customerPrice: metadata?.customerPrice ? Math.round(Number(metadata.customerPrice)) : undefined,
       bookingFor: metadata?.bookingFor,
-      scheduledDelivery: metadata?.scheduledDelivery,
+      scheduledDelivery: isScheduledOrder
+        ? { ...(metadata?.scheduledDelivery || {}), type: "later", requestedAt: scheduledForDate, restaurantAccepted: false }
+        : metadata?.scheduledDelivery,
+      scheduledFor: scheduledForDate ?? null,
+      scheduleStatus: isScheduledOrder ? "pending" : null,
+      couponCode: appliedCouponCode,
+      discountAmount: couponDiscount,
       isReserved,
       reservedAt: reservedAt ? new Date(reservedAt) : undefined,
       deliveryOtp,
@@ -182,6 +242,31 @@ export class OrdersService {
     });
 
     const savedOrder = await order.save();
+
+    if (appliedCouponId) {
+      this.couponsService
+        .recordUsage(appliedCouponId)
+        .catch((err) => console.error("[orders.service] Failed to record coupon usage:", err));
+    }
+
+    // Reuse the existing scheduled-delivery request pipeline (model, vendor screen, sockets)
+    // instead of building a second one — the order is simply linked to the request it creates.
+    // Payment has already been captured by this point, so a scheduling hiccup must never throw
+    // the order away.
+    if (isScheduledOrder && vendorId && scheduledForDate) {
+      try {
+        const scheduleRequest = await this.requestScheduledDelivery(
+          userId,
+          vendorId,
+          scheduledForDate,
+          savedOrder._id.toString(),
+        );
+        savedOrder.set("scheduledDelivery.requestId", scheduleRequest.requestId);
+        await savedOrder.save();
+      } catch (err) {
+        console.error("[orders.service] Failed to create scheduled delivery request:", err);
+      }
+    }
 
     // Schedule reservation notification if this is a reserved ride/delivery
     if (savedOrder.isReserved && savedOrder.reservedAt) {
@@ -390,12 +475,15 @@ export class OrdersService {
       savedOrder.totalCandidatesCount = sortedCandidateInfos.length;
       await savedOrder.save();
 
-      // Start Sequential Dispatch Cascade (1 driver at a time, nearest first)
-      const { dispatchManager } = require("../../services/dispatch.manager");
-      await dispatchManager.startDispatch(savedOrder._id.toString(), sortedCandidateInfos, {
-        ...orderPayload,
-        customerUserId: userId,
-      });
+      // Start Sequential Dispatch Cascade (1 driver at a time, nearest first).
+      // A scheduled order is dispatched when its slot is accepted, not at booking time.
+      if (!isScheduledOrder) {
+        const { dispatchManager } = require("../../services/dispatch.manager");
+        await dispatchManager.startDispatch(savedOrder._id.toString(), sortedCandidateInfos, {
+          ...orderPayload,
+          customerUserId: userId,
+        });
+      }
 
       // NOTIFY vendor/restaurant
       if (vendorId && !isReserved) {
@@ -426,7 +514,7 @@ export class OrdersService {
     return result;
   }
 
-  async requestScheduledDelivery(userId: string, vendorId: string, scheduledFor: Date | string) {
+  async requestScheduledDelivery(userId: string, vendorId: string, scheduledFor: Date | string, orderId?: string) {
     if (!mongoose.Types.ObjectId.isValid(userId)) throw new Error("Invalid User ID format");
     if (!vendorId) throw new Error("Vendor is required");
 
@@ -451,12 +539,14 @@ export class OrdersService {
       customerPhone: user.phone || "",
       scheduledFor: requestedAt,
       status: "pending",
+      order: orderId,
     });
 
     const payload = {
       requestId,
       vendorId: vendor._id.toString(),
       customerId,
+      orderId,
       customerName: saved.customerName,
       customerPhone: saved.customerPhone,
       scheduledFor: requestedAt.toISOString(),
@@ -473,6 +563,7 @@ export class OrdersService {
       requestId,
       vendorId: vendor._id.toString(),
       customerId,
+      orderId,
       scheduledFor: requestedAt.toISOString(),
       status: "pending",
     };
@@ -489,6 +580,7 @@ export class OrdersService {
       customerId: request.customer.toString(),
       customerName: request.customerName,
       customerPhone: request.customerPhone,
+      orderId: request.order,
       scheduledFor: request.scheduledFor,
       status: request.status,
       respondedAt: request.respondedAt,
@@ -509,7 +601,7 @@ export class OrdersService {
     };
   }
 
-  async respondToScheduledDelivery(requestId: string, vendorId: string, accepted: boolean) {
+  async respondToScheduledDelivery(requestId: string, vendorId: string, accepted: boolean, reason?: string) {
     const request = await ScheduledDeliveryRequest.findOne({ requestId, vendor: vendorId });
     if (!request) throw new Error("Scheduled delivery request not found");
     if (request.status !== "pending") {
@@ -525,11 +617,90 @@ export class OrdersService {
       requestId: request.requestId,
       vendorId: request.vendor.toString(),
       customerId,
+      orderId: request.order,
       customerName: request.customerName,
       customerPhone: request.customerPhone,
       scheduledFor: request.scheduledFor.toISOString(),
       accepted,
       status: request.status,
+      reason: accepted ? undefined : reason,
+    };
+
+    // Carry the vendor's verdict onto the order it belongs to, if there is one.
+    if (request.order) {
+      const order = await Order.findOne(this.getOrderQuery(request.order));
+      if (order) {
+        await this.applyScheduleDecisionToOrder(order, accepted, reason);
+      }
+    }
+
+    const socketManager = SocketManager.getInstance();
+    if (socketManager) {
+      socketManager.emitToUser(
+        customerId,
+        accepted ? "scheduled_delivery_accepted" : "scheduled_delivery_rejected",
+        payload,
+      );
+    }
+
+    await this.notifyScheduleDecision(customerId, request.order, request.scheduledFor, accepted, reason);
+
+    return payload;
+  }
+
+  /**
+   * Scheduled orders for the admin screen, newest first.
+   */
+  async getScheduledOrders() {
+    const orders = await Order.find({ scheduledFor: { $ne: null } })
+      .populate("user", "name phone email")
+      .populate("vendor", "name phone address")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return orders.map((order: any) => ({
+      ...order,
+      items: this.extractOrderItems(order),
+    }));
+  }
+
+  /**
+   * Admin accept/reject of a scheduled order, addressed by order id. Mirrors the verdict onto
+   * the linked ScheduledDeliveryRequest so the vendor screen stays in step, and notifies the
+   * customer through the same NotificationService the vendor path uses.
+   */
+  async respondToOrderSchedule(orderId: string, action: "accept" | "reject", reason?: string) {
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    if (!order) throw new Error("Order not found");
+    if (!order.scheduledFor) {
+      throw new ValidationError("This order is not a scheduled order");
+    }
+    if (order.scheduleStatus && order.scheduleStatus !== "pending") {
+      throw new ValidationError(`This scheduled order was already ${order.scheduleStatus}`);
+    }
+
+    const accepted = action === "accept";
+    await this.applyScheduleDecisionToOrder(order, accepted, reason);
+
+    const requestId = order.scheduledDelivery?.requestId;
+    if (requestId) {
+      await ScheduledDeliveryRequest.updateOne(
+        { requestId, status: "pending" },
+        { $set: { status: accepted ? "accepted" : "rejected", respondedAt: new Date() } },
+      );
+    }
+
+    const customerId = order.user.toString();
+    const payload = {
+      orderId: order._id,
+      requestId,
+      customerId,
+      vendorId: order.vendor?.toString(),
+      scheduledFor: order.scheduledFor ? new Date(order.scheduledFor).toISOString() : null,
+      accepted,
+      status: order.status,
+      scheduleStatus: order.scheduleStatus,
+      scheduleRejectionReason: order.scheduleRejectionReason ?? undefined,
     };
 
     const socketManager = SocketManager.getInstance();
@@ -541,7 +712,61 @@ export class OrdersService {
       );
     }
 
+    await this.notifyScheduleDecision(customerId, order._id, order.scheduledFor, accepted, reason);
+
     return payload;
+  }
+
+  private async applyScheduleDecisionToOrder(order: any, accepted: boolean, reason?: string) {
+    order.scheduleStatus = accepted ? "accepted" : "rejected";
+
+    if (!order.scheduledDelivery) {
+      order.scheduledDelivery = { type: "later", requestedAt: order.scheduledFor };
+    }
+
+    if (accepted) {
+      order.scheduledDelivery.restaurantAccepted = true;
+      order.scheduledDelivery.acceptedAt = new Date();
+      order.scheduleRejectionReason = null;
+      order.isReserved = true;
+      order.reservedAt = order.scheduledFor ?? order.reservedAt;
+    } else {
+      order.scheduledDelivery.restaurantAccepted = false;
+      order.scheduleRejectionReason = reason || "The restaurant could not take this order for the requested slot";
+      order.status = OrderStatus.CANCELLED;
+    }
+
+    await order.save();
+    return order;
+  }
+
+  private async notifyScheduleDecision(
+    customerId: string,
+    orderId: string | undefined,
+    scheduledFor: Date | null | undefined,
+    accepted: boolean,
+    reason?: string,
+  ) {
+    const slot = scheduledFor ? new Date(scheduledFor).toLocaleString() : "the requested slot";
+    try {
+      await NotificationService.getInstance().sendNotification({
+        userId: customerId,
+        title: accepted ? "Scheduled order confirmed ✅" : "Scheduled order rejected ❌",
+        body: accepted
+          ? `Your order is confirmed for ${slot}.`
+          : `The restaurant could not take your order for ${slot}.${reason ? ` Reason: ${reason}.` : ""} Any payment will be refunded.`,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          orderId,
+          scheduleStatus: accepted ? "accepted" : "rejected",
+          scheduleRejectionReason: accepted ? undefined : reason,
+          deepLink: { screen: "/(tabs)/orders" },
+        },
+      });
+    } catch (err) {
+      console.error("[orders.service] Failed to send scheduled-order notification:", err);
+    }
   }
 
   async estimateFare(
@@ -908,8 +1133,83 @@ export class OrdersService {
     return populated || savedOrder || order;
   }
 
+  /**
+   * Stop items are persisted as `{ lines: [...] }` (see createOrder), which is awkward for a
+   * client that just wants "what was ordered". This flattens every stop's lines into one
+   * array of `{ id, name, quantity, price, ... }` — what reorder needs.
+   */
+  extractOrderItems(order: any): any[] {
+    const stops = Array.isArray(order?.stops) ? order.stops : [];
+    const lines: any[] = [];
+
+    for (const stop of stops) {
+      const raw = stop?.items;
+      const stopLines = Array.isArray(raw) ? raw : Array.isArray(raw?.lines) ? raw.lines : [];
+      for (const line of stopLines) {
+        if (!line) continue;
+        lines.push({
+          ...line,
+          id: String(line.id ?? line._id ?? line.itemId ?? ""),
+          name: line.name ?? "",
+          quantity: Math.max(1, Math.round(Number(line.quantity) || 1)),
+          price: Number(line.price) || 0,
+        });
+      }
+    }
+
+    return lines;
+  }
+
   async getUserOrders(userId: string) {
-    return Order.find({ user: userId }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    return orders.map((order: any) => ({
+      ...order,
+      items: this.extractOrderItems(order),
+    }));
+  }
+
+  /**
+   * The items of a past order, in the exact shape the cart stores them. Used by reorder.
+   */
+  async getReorderPayload(orderId: string, userId: string) {
+    const order = await Order.findOne(this.getOrderQuery(orderId)).lean();
+    if (!order) throw new Error("Order not found");
+    if (order.user?.toString() !== userId.toString()) {
+      throw new ValidationError("You can only reorder your own orders");
+    }
+
+    const lines = this.extractOrderItems(order).filter((line) => line.id);
+    const items = lines.map((line) => ({
+      itemId: line.id,
+      _id: line.id,
+      name: line.name,
+      description: line.description ?? "",
+      price: line.price,
+      category: line.category ?? "",
+      isVeg: line.isVeg !== false,
+      image: line.image,
+      images: line.images,
+      quantity: line.quantity,
+    }));
+
+    return {
+      orderId: order._id,
+      vendorId: order.vendor ? order.vendor.toString() : null,
+      items,
+    };
+  }
+
+  /**
+   * Rebuilds the caller's server cart from a past order and returns the new cart, so the app
+   * can reorder in a single request instead of replaying add-item calls.
+   */
+  async reorderIntoCart(orderId: string, userId: string) {
+    const { vendorId, items } = await this.getReorderPayload(orderId, userId);
+    if (!items.length) {
+      throw new ValidationError("This order has no items to reorder");
+    }
+
+    return this.cartService.saveCart(userId, vendorId, items);
   }
 
   async getVendorOrders(vendorId: string) {

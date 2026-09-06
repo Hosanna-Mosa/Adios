@@ -30,7 +30,10 @@ export const nearbyMeatCentersSchema = z.object({
     limit: z.string().optional(),
     category: z.string().optional(),
     all: z.string().optional(),
-    radius: z.string().optional(),
+    radius: z.coerce.number().min(0).optional(),
+    minRating: z.coerce.number().min(0).max(5).optional(),
+    sort: z.enum(["distance", "rating", "default"]).optional(),
+    openNow: z.enum(["true", "false"]).optional(),
   }),
 });
 
@@ -64,6 +67,8 @@ export const updateMeatCenterSchema = z.object({
     image: z.string().optional(),
     categories: z.array(z.string()).optional(),
     isOpen: z.boolean().optional(),
+    openingHours: z.record(z.string(), z.any()).optional(),
+    isManuallyClosed: z.boolean().optional(),
     deliveryFee: z.coerce.number().optional(),
     minOrderValue: z.coerce.number().optional(),
   }),

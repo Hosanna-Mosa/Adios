@@ -34,6 +34,18 @@ export const updateFoodItemSchema = z.object({
 export const searchFoodItemsSchema = z.object({
   query: z.object({
     query: z.string().min(1, "Search query is required"),
+    lat: z.string().optional(),
+    lng: z.string().optional(),
+    limit: z.coerce.number().min(1).max(100).optional(),
+  }),
+});
+
+export const updateFoodItemAvailabilitySchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Food item ID is required"),
+  }),
+  body: z.object({
+    isAvailable: z.boolean(),
   }),
 });
 

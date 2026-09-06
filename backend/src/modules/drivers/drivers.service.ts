@@ -39,6 +39,34 @@ export class DriverService {
     return R * c; // distance in meters
   }
 
+  private getLocationMaxAgeMs(): number {
+    const raw = process.env.DRIVER_LOCATION_MAX_AGE_MS;
+    if (raw !== undefined && raw.trim() !== "") {
+      const configured = Number(raw);
+      if (Number.isFinite(configured) && configured >= 0) return configured;
+    }
+    return 15 * 60 * 1000;
+  }
+
+  // A driver whose GPS fix is missing or stale is not reachable, so it must not be
+  // reported as an available captain even when the DB still says ONLINE.
+  private hasLiveLocation(driver: any, maxAgeMs: number): boolean {
+    const coords = driver?.currentLocation?.coordinates;
+    if (!Array.isArray(coords) || coords.length < 2) return false;
+
+    const lng = Number(coords[0]);
+    const lat = Number(coords[1]);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return false;
+    if (lng === 0 && lat === 0) return false; // schema default: never reported a fix
+
+    if (maxAgeMs === 0) return true; // freshness check disabled
+
+    const lastUpdate = driver?.updatedAt ? new Date(driver.updatedAt).getTime() : NaN;
+    if (!Number.isFinite(lastUpdate)) return false;
+
+    return Date.now() - lastUpdate <= maxAgeMs;
+  }
+
   async getNearbyDrivers(lat: number, lng: number, radiusInMeters?: number, vehicleType?: string, requireOnline: boolean = false) {
     const socketManager = SocketManager.getInstance();
     const redisClient = socketManager ? (socketManager as any).redisClient : null;
@@ -83,6 +111,20 @@ export class DriverService {
     // Retrieve vehicle-specific 3-stage expansion configuration
     const stages = getDispatchStagesForVehicle(vehicleType);
 
+    // Every lookup below must honour requireOnline, otherwise off-shift drivers come back
+    // as available captains.
+    const onlineFilter: any = requireOnline ? { status: DriverStatus.ONLINE, isAvailable: true } : {};
+    const locationMaxAgeMs = this.getLocationMaxAgeMs();
+    const filterAvailable = (drivers: any[], source: string): any[] => {
+      if (!requireOnline) return drivers;
+      const live = drivers.filter((d) => this.hasLiveLocation(d, locationMaxAgeMs));
+      const dropped = drivers.length - live.length;
+      if (dropped > 0) {
+        console.log(`🕒 [STALE LOCATION - ${source}] Skipped ${dropped} driver(s) with no recent GPS fix.`);
+      }
+      return live;
+    };
+
     let results: any[] = [];
     let matchedStageName = "";
 
@@ -105,6 +147,7 @@ export class DriverService {
             const query: any = {
               _id: { $in: validObjectIds },
               preferredZone: activeZone._id,
+              ...onlineFilter,
             };
             if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime", "helper"].includes(vehicleType)) {
               if (vehicleType !== "helper" && vehicleType !== "delivery") {
@@ -126,6 +169,7 @@ export class DriverService {
       if (stageDrivers.length === 0) {
         const query: any = {
           preferredZone: activeZone._id,
+          ...onlineFilter,
           currentLocation: {
             $near: {
               $geometry: {
@@ -157,6 +201,7 @@ export class DriverService {
         const devUserIds = devUsers.map(u => u._id);
         const devDriversQuery: any = {
           user: { $in: devUserIds },
+          ...onlineFilter,
         };
         if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime", "helper"].includes(vehicleType)) {
           if (vehicleType !== "helper" && vehicleType !== "delivery") {
@@ -175,6 +220,8 @@ export class DriverService {
       } catch (devErr) {
         console.warn("[DEV DRIVERS SEARCH FETCH] Error loading dev drivers:", devErr);
       }
+
+      stageDrivers = filterAvailable(stageDrivers, stage.name);
 
       if (stageDrivers.length > 0) {
         results = stageDrivers;
@@ -202,7 +249,7 @@ export class DriverService {
         if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime"].includes(vehicleType)) {
           zoneDriversQuery.vehicleType = vehicleType;
         }
-        const zoneDrivers = await Driver.find(zoneDriversQuery).populate("user");
+        const zoneDrivers = filterAvailable(await Driver.find(zoneDriversQuery).populate("user"), "Zone DB Fallback");
         if (zoneDrivers.length > 0) {
           results = zoneDrivers;
           matchedStageName = "Zone DB Fallback";

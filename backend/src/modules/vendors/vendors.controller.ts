@@ -7,6 +7,82 @@ import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { PaymentService } from "../payments/payment.service";
 import VendorPayout, { VendorPayoutStatus } from "../../database/models/VendorPayout";
+import FoodItem from "../../database/models/FoodItem";
+import { evaluateOutletOpenState } from "../../utils/openingHours";
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const toSearchTokens = (term: string) => term.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6);
+
+const matchesAnyToken = (value: unknown, tokens: string[]) => {
+  if (typeof value !== "string" || !value) return false;
+  const haystack = value.toLowerCase();
+  return tokens.some((token) => haystack.includes(token));
+};
+
+/** Vendor identity match — name, cuisines and address. */
+const vendorTextMatches = (vendor: any, tokens: string[]) =>
+  matchesAnyToken(vendor?.name, tokens) ||
+  matchesAnyToken(vendor?.address, tokens) ||
+  (Array.isArray(vendor?.categories) &&
+    vendor.categories.some((category: unknown) => matchesAnyToken(category, tokens)));
+
+/**
+ * Menus captured during onboarding live on the vendor document instead of the
+ * FoodItem collection, so a dish word has to be looked for in both places.
+ */
+const onboardedMenuMatches = (vendor: any, tokens: string[]) => {
+  const operations = vendor?.operations || {};
+  const menuCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
+  const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];
+
+  const categoryMatch = menuCategories.some(
+    (category: any) =>
+      matchesAnyToken(category?.name, tokens) ||
+      (Array.isArray(category?.items) &&
+        category.items.some(
+          (item: any) => matchesAnyToken(item?.name, tokens) || matchesAnyToken(item?.description, tokens)
+        ))
+  );
+
+  return (
+    categoryMatch ||
+    uploadedRows.some(
+      (row: any) => matchesAnyToken(row?.itemName, tokens) || matchesAnyToken(row?.category, tokens)
+    )
+  );
+};
+
+/**
+ * Keep the vendors whose name, cuisines, address or MENU matches the search term,
+ * de-duplicated by vendor id so a restaurant matching several dishes appears once.
+ */
+const filterVendorsBySearch = async (vendors: any[], term: string) => {
+  const tokens = toSearchTokens(term);
+  if (tokens.length === 0) return vendors;
+
+  const patterns = tokens.map((token) => new RegExp(escapeRegex(token), "i"));
+  const menuMatches = await FoodItem.find({
+    vendorId: { $in: vendors.map((vendor) => vendor._id) },
+    isAvailable: true,
+    $or: [{ name: { $in: patterns } }, { category: { $in: patterns } }, { description: { $in: patterns } }],
+  })
+    .select("vendorId")
+    .lean();
+
+  const vendorIdsWithMatchingDish = new Set(menuMatches.map((item: any) => String(item.vendorId)));
+
+  return vendors.filter(
+    (vendor) =>
+      vendorTextMatches(vendor, tokens) ||
+      vendorIdsWithMatchingDish.has(String(vendor._id)) ||
+      onboardedMenuMatches(vendor, tokens)
+  );
+};
+
+// Upper bound on documents scanned when a filter has to run in memory: open-now
+// and search are derived server-side, so Mongo cannot page them.
+const MAX_IN_MEMORY_SCAN = 300;
 
 export const forgotVendorPassword = async (req: Request, res: Response) => {
   try {
@@ -90,7 +166,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
 
 export const getNearbyVendors = async (req: Request, res: Response) => {
   try {
-    const { lat, lng, page = 1, limit = 20, radius } = req.query;
+    const { lat, lng, page = 1, limit = 20, radius, minRating, sort, openNow, search } = req.query;
 
     if (!lat || !lng) {
       return res.status(400).json({ message: "Latitude and Longitude are required" });
@@ -102,8 +178,8 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     // Admin Panel bypass: lat=0 & lng=0 fetches all vendors
     if (userLat === 0 && userLng === 0) {
       console.log(`[API] Fetching ALL vendors for Admin Panel`);
-      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } }).sort({ createdAt: -1 });
-      return res.json(allVendors);
+      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } }).sort({ createdAt: -1 }).lean();
+      return res.json(allVendors.map((vendor) => ({ ...vendor, openState: evaluateOutletOpenState(vendor) })));
     }
 
     // Zone Serviceability Check
@@ -120,8 +196,19 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
 
     console.log(`[API] Fetching nearby vendors - Lat: ${userLat}, Lng: ${userLng}, Page: ${page} (Zone: ${activeZone.name})`);
 
+    const sortMode = sort === "rating" || sort === "distance" ? sort : "default";
+    const minRatingValue = Number(minRating);
+    const hasMinRating = Number.isFinite(minRatingValue) && minRatingValue > 0;
+    const openNowOnly = String(openNow) === "true";
+    const searchTerm = typeof search === "string" ? search.trim() : "";
+
     // Build spatial match query enforcing active zone boundaries
     const geoQuery: any = { partnerType: { $ne: "meat" } };
+    // Applied inside $geoNear so pagination counts only matching vendors — a
+    // client-side pass would filter one page and let $skip re-introduce the rest.
+    if (hasMinRating) {
+      geoQuery.rating = { $gte: minRatingValue };
+    }
     if (activeZone.type === "polygon" && activeZone.boundary) {
       geoQuery.location = {
         $geoWithin: {
@@ -134,8 +221,12 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
       ? Math.min(radiusInMeters, activeZone.radius) 
       : radiusInMeters;
 
+    // Open-now and search are derived server-side, so Mongo cannot page them:
+    // those requests scan a bounded candidate set and page in memory instead.
+    const pagesInMemory = openNowOnly || searchTerm.length > 0;
+
     // MongoDB Proximity Query with Pagination
-    const vendors = await Vendor.aggregate([
+    const pipeline: any[] = [
       {
         $geoNear: {
           near: {
@@ -149,32 +240,50 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
           query: geoQuery,
         },
       },
-      { $skip: skip },
-      { $limit: Number(limit) }
-    ]);
+      sortMode === "rating" ? { $sort: { rating: -1, distance: 1 } } : { $sort: { distance: 1 } },
+    ];
+
+    if (pagesInMemory) {
+      pipeline.push({ $limit: MAX_IN_MEMORY_SCAN });
+    } else {
+      pipeline.push({ $skip: skip }, { $limit: Number(limit) });
+    }
+
+    const candidates = await Vendor.aggregate(pipeline);
+    const vendors = searchTerm ? await filterVendorsBySearch(candidates, searchTerm) : candidates;
 
     // Apply Time Estimation (Option B)
-    const formattedVendors = vendors.map((vendor) => {
+    const evaluatedVendors = vendors.map((vendor) => {
       const distanceInKm = vendor.distance / 1000;
-      
+
       // Assume 20km/h speed + 15 mins prep time
       const travelTimeMinutes = (distanceInKm / 20) * 60;
       const totalEstimatedTime = Math.round(travelTimeMinutes + 15);
-      
+      const openState = evaluateOutletOpenState(vendor);
+
       return {
         ...vendor,
+        openState,
+        isOpen: openState.isOpen,
+        distanceKm: Math.round(distanceInKm * 10) / 10,
+        distanceMeters: Math.round(vendor.distance),
         time: `${totalEstimatedTime}-${totalEstimatedTime + 10} min`,
-        distance: distanceInKm < 1 
-          ? `${Math.round(vendor.distance)} metres` 
+        distance: distanceInKm < 1
+          ? `${Math.round(vendor.distance)} metres`
           : `${distanceInKm.toFixed(1)} km`,
-        offer: vendor.deliveryFee === 0 
-          ? "FREE delivery fee" 
+        offer: vendor.deliveryFee === 0
+          ? "FREE delivery fee"
           : `USD 0 delivery fee over USD 12`,
       };
     });
 
+    const openVendors = openNowOnly
+      ? evaluatedVendors.filter((vendor) => vendor.openState.isOpen)
+      : evaluatedVendors;
+    const formattedVendors = pagesInMemory ? openVendors.slice(skip, skip + Number(limit)) : openVendors;
+
     res.json(formattedVendors);
-    console.log(`[API] Found ${vendors.length} vendors nearby`);
+    console.log(`[API] Found ${formattedVendors.length} vendors nearby`);
   } catch (error) {
     console.error("Error fetching nearby vendors:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -183,9 +292,12 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
 
 export const getVendorById = async (req: Request, res: Response) => {
   try {
-    const vendor = await Vendor.findById(req.params.id);
+    const vendor = await Vendor.findById(req.params.id).lean();
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-    res.json(vendor);
+    // openState carries today's window and the full week so the details screen can
+    // show real timings instead of a hardcoded "Open now".
+    const openState = evaluateOutletOpenState(vendor);
+    res.json({ ...vendor, openState, isOpen: openState.isOpen });
   } catch (error) {
     console.error("Error fetching vendor:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -641,7 +753,7 @@ export const getPlaceDetails = async (req: Request, res: Response) => {
 export const updateVendor = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, email, phone, password, googlePlaceId, location, address, image, categories, isPureVeg, deliveryFee, minOrderValue, onboardingStatus, commissionRate } = req.body;
+    const { name, email, phone, password, googlePlaceId, location, address, image, categories, isPureVeg, isOpen, openingHours, isManuallyClosed, deliveryFee, minOrderValue, onboardingStatus, commissionRate } = req.body;
 
     const vendor = await Vendor.findById(id);
     if (!vendor) {
@@ -672,13 +784,20 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (image !== undefined) vendor.image = image;
     if (categories !== undefined) vendor.categories = categories;
     if (isPureVeg !== undefined) vendor.isPureVeg = isPureVeg;
+    if (isOpen !== undefined) vendor.isOpen = isOpen;
+    if (openingHours !== undefined) vendor.openingHours = openingHours;
+    if (isManuallyClosed !== undefined) vendor.isManuallyClosed = isManuallyClosed;
     if (deliveryFee !== undefined) vendor.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) vendor.minOrderValue = minOrderValue;
     if (onboardingStatus !== undefined) vendor.onboardingStatus = onboardingStatus;
     if (commissionRate !== undefined) vendor.commissionRate = commissionRate;
 
     await vendor.save();
-    res.json({ message: "Vendor updated successfully", vendor });
+    const updatedVendor = vendor.toObject();
+    res.json({
+      message: "Vendor updated successfully",
+      vendor: { ...updatedVendor, openState: evaluateOutletOpenState(updatedVendor) },
+    });
   } catch (error) {
     console.error("Error updating vendor:", error);
     res.status(500).json({ message: "Internal server error" });

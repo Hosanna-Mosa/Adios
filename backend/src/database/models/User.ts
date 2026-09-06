@@ -17,6 +17,8 @@ export interface IAddress {
   _id?: any;
   label: string; // Home, Work, etc.
   receiverName?: string;
+  receiverPhone?: string;
+  landmark?: string;
   addressLine: string;
   phone: string;
   location: {
@@ -48,6 +50,7 @@ export interface IUser extends Document, IUserMethods {
   favorites?: Types.ObjectId[];
   favoriteItems?: Types.ObjectId[];
   isBlocked?: boolean;
+  tokenVersion?: number;
   expoPushToken?: string;
   webPushSubscriptions?: IWebPushSubscription[];
   createdAt: Date;
@@ -62,6 +65,9 @@ const UserSchema: Schema = new Schema(
     phone: { type: String, required: true, unique: true },
     profilePic: { type: String },
     isBlocked: { type: Boolean, default: false },
+    // Bumped by POST /auth/logout-all. Every JWT carries the value it was minted
+    // with as `tv`; authenticateToken rejects a token whose `tv` has fallen behind.
+    tokenVersion: { type: Number, default: 0 },
     expoPushToken: { type: String },
     webPushSubscriptions: [webPushSubscriptionSchema],
     role: {
@@ -84,6 +90,8 @@ const UserSchema: Schema = new Schema(
       {
         label: { type: String, required: true },
         receiverName: { type: String },
+        receiverPhone: { type: String },
+        landmark: { type: String },
         addressLine: { type: String, required: true },
         phone: { type: String, required: true },
         location: {

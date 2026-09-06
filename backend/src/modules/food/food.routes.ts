@@ -9,7 +9,8 @@ import {
   deleteFoodItem,
   uploadImages,
   searchFoodItems,
-  getStore149Items
+  getStore149Items,
+  updateFoodItemAvailability
 } from "./food.controller";
 import {
   extractMenuFromImage,
@@ -26,6 +27,7 @@ import {
   addFoodItemSchema,
   updateFoodItemSchema,
   searchFoodItemsSchema,
+  updateFoodItemAvailabilitySchema,
   store149ItemsSchema,
   saveRestaurantAndMenuSchema,
   restaurantIdParamSchema,
@@ -40,6 +42,9 @@ router.get("/store-149", validateRequest(store149ItemsSchema), getStore149Items)
 router.get("/vendor/:vendorId", validateRequest(vendorIdParamSchema), getVendorMenu);
 router.post("/", authenticateToken, validateRequest(addFoodItemSchema), addFoodItem);
 router.post("/upload", authenticateToken, upload.array("images", 5), uploadImages);
+// Vendor-or-admin stock toggle. Registered before PUT /:id so the three-segment
+// path is never matched as an item id.
+router.patch("/items/:id/availability", authenticateToken, validateRequest(updateFoodItemAvailabilitySchema), updateFoodItemAvailability);
 router.put("/:id", authenticateToken, validateRequest(updateFoodItemSchema), updateFoodItem);
 router.delete("/:id", authenticateToken, validateRequest(foodItemIdParamSchema), deleteFoodItem);
 

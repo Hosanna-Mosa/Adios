@@ -73,17 +73,21 @@ export class UsersController {
 
   async addAddress(req: AuthRequest, res: Response) {
     try {
-      const { label, addressLine, phone, coordinates } = req.body;
+      const { label, addressLine, phone, receiverName, receiverPhone, landmark, coordinates } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
       const lng = coordinates?.lng ?? 0;
       const lat = coordinates?.lat ?? 0;
+      const trimmedReceiverPhone = String(receiverPhone || "").trim();
 
       const newAddress = {
         label,
         addressLine,
-        phone: phone || user.phone,
+        phone: phone || trimmedReceiverPhone || user.phone,
+        receiverName,
+        receiverPhone: trimmedReceiverPhone || undefined,
+        landmark,
         location: {
           type: "Point",
           coordinates: [lng, lat],
@@ -101,7 +105,7 @@ export class UsersController {
   async updateAddress(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { label, addressLine, phone, coordinates } = req.body;
+      const { label, addressLine, phone, receiverName, receiverPhone, landmark, coordinates } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -111,6 +115,11 @@ export class UsersController {
       if (label) address.label = label;
       if (addressLine) address.addressLine = addressLine;
       if (phone) address.phone = phone;
+      // Explicit undefined checks rather than the truthy style above, so an
+      // empty string can clear a receiver detail that was set before.
+      if (receiverName !== undefined) address.receiverName = receiverName;
+      if (receiverPhone !== undefined) address.receiverPhone = receiverPhone;
+      if (landmark !== undefined) address.landmark = landmark;
       if (coordinates) {
         address.location = {
           type: "Point",
@@ -149,8 +158,8 @@ export class UsersController {
         return res.status(400).json({ message: "Current password and new password are required" });
       }
 
-      if (newPassword.length < 6) {
-        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters" });
       }
 
       const user = await User.findById(req.user?.userId);

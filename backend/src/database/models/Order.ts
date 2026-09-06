@@ -81,7 +81,13 @@ export interface IOrder extends Omit<Document, "_id"> {
     requestedAt?: Date;
     restaurantAccepted?: boolean;
     acceptedAt?: Date;
+    requestId?: string;
   };
+  scheduledFor?: Date | null;
+  scheduleStatus?: "pending" | "accepted" | "rejected" | null;
+  scheduleRejectionReason?: string | null;
+  couponCode?: string;
+  discountAmount?: number;
   isReserved?: boolean;
   reservedAt?: Date;
   deliveryOtp?: string;
@@ -170,7 +176,17 @@ const OrderSchema: Schema = new Schema(
       requestedAt: { type: Date },
       restaurantAccepted: { type: Boolean, default: false },
       acceptedAt: { type: Date },
+      requestId: { type: String },
     },
+    scheduledFor: { type: Date, default: null },
+    scheduleStatus: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: null,
+    },
+    scheduleRejectionReason: { type: String, default: null },
+    couponCode: { type: String },
+    discountAmount: { type: Number, default: 0 },
     isReserved: { type: Boolean, default: false },
     reservedAt: { type: Date },
     deliveryOtp: { type: String },

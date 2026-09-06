@@ -3,11 +3,12 @@ import { OrdersService } from "./orders.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import Order, { OrderStatus, ServiceType } from "../../database/models/Order";
 import Driver from "../../database/models/Driver";
-import Coupon from "../../database/models/Coupon";
+import { CouponsService } from "../coupons/coupons.service";
 import { ValidationError, NotFoundError, UnauthorizedError, ConflictError } from "../../utils/errors";
 import { InvoiceService } from "../../services/invoice.service";
 
 const ordersService = new OrdersService();
+const couponsService = new CouponsService();
 
 export class OrdersController {
   async validateCoupon(req: Request, res: Response, next: NextFunction) {
@@ -17,23 +18,8 @@ export class OrdersController {
         throw new ValidationError("Promo code is required");
       }
 
-      const coupon = await Coupon.findOne({ code: code.toUpperCase() });
-      if (!coupon) {
-        throw new NotFoundError("Invalid promo code");
-      }
-
-      if (!coupon.isActive) {
-        throw new ValidationError("This promo code is no longer active");
-      }
-
-      if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
-        throw new ValidationError("This promo code has expired");
-      }
-
       const orderTotal = Number(cartTotal) || 0;
-      if (coupon.minOrderValue && orderTotal < coupon.minOrderValue) {
-        throw new ValidationError(`This promo code requires a minimum order of ₹${coupon.minOrderValue}`);
-      }
+      const { coupon, discountAmount } = await couponsService.resolveForCart(code, orderTotal, req.body.vendorId);
 
       return res.json({
         code: coupon.code,
@@ -41,6 +27,7 @@ export class OrdersController {
         discountValue: coupon.discountValue,
         maxDiscount: coupon.maxDiscount,
         minOrderValue: coupon.minOrderValue,
+        discountAmount,
       });
     } catch (error: any) {
       next(error);
@@ -73,7 +60,7 @@ export class OrdersController {
 
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, customerPrice, bookingFor, scheduledDelivery } = req.body;
+      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, customerPrice, bookingFor, scheduledDelivery, scheduledFor, couponCode } = req.body;
       const userId = req.user?.userId;
 
       if (!userId) {
@@ -84,6 +71,8 @@ export class OrdersController {
         customerPrice,
         bookingFor,
         scheduledDelivery,
+        scheduledFor,
+        couponCode,
       });
 
       return res.status(201).json(order);
@@ -101,7 +90,9 @@ export class OrdersController {
         throw new NotFoundError("Order not found");
       }
 
-      return res.json(order);
+      // Same flattened `items` the list endpoint returns, so reorder works from the detail
+      // screen too without the client having to dig through stops[].items.lines.
+      return res.json({ ...order.toJSON(), items: ordersService.extractOrderItems(order) });
     } catch (error) {
       next(error);
     }
@@ -172,6 +163,48 @@ export class OrdersController {
     }
   }
 
+  async getScheduledOrders(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const orders = await ordersService.getScheduledOrders();
+      return res.json(orders);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async respondToOrderSchedule(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { action, reason } = req.body;
+
+      const result = await ordersService.respondToOrderSchedule(id as string, action, reason);
+      return res.json(result);
+    } catch (error: any) {
+      if (error.message === "Order not found") {
+        return next(new NotFoundError(error.message));
+      }
+      next(error);
+    }
+  }
+
+  async reorder(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const userId = req.user?.userId;
+      if (!userId) {
+        throw new UnauthorizedError("User is not authenticated");
+      }
+
+      const cart = await ordersService.reorderIntoCart(id as string, userId);
+      return res.json(cart);
+    } catch (error: any) {
+      if (error.message === "Order not found") {
+        return next(new NotFoundError(error.message));
+      }
+      next(error);
+    }
+  }
+
   async getVendorScheduledDeliveries(req: Request, res: Response, next: NextFunction) {
     try {
       const { vendorId } = req.params;
@@ -202,9 +235,9 @@ export class OrdersController {
   async respondScheduledDelivery(req: Request, res: Response, next: NextFunction) {
     try {
       const { requestId } = req.params;
-      const { vendorId, accepted } = req.body;
+      const { vendorId, accepted, reason } = req.body;
       
-      const result = await ordersService.respondToScheduledDelivery(requestId as string, vendorId, accepted);
+      const result = await ordersService.respondToScheduledDelivery(requestId as string, vendorId, accepted, reason);
       return res.json(result);
     } catch (error: any) {
       if (error.message === "Scheduled delivery request not found") {
