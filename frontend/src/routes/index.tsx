@@ -1,5 +1,10 @@
-import { Fragment, useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Icon } from "@/components/shared/Icon";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 // Premium high-resolution Unsplash images
 const burgerHeroImg =
@@ -8,69 +13,11 @@ const carHeroImg = "/bike_taxi_hero.png";
 const mockupBurgerImg =
   "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80";
 
-function Icon({ name, className = "" }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined select-none ${className}`}>{name}</span>;
-}
-
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
   const [activeMode, setActiveMode] = useState<"food" | "ride">("food");
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <div className="bg-[#f8f9fa] text-[#0a1128] min-h-screen flex flex-col font-sans transition-colors duration-500 overflow-x-hidden">
-      {/* Navigation Bar */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md py-3 shadow-[0_10px_30px_rgba(0,0,0,0.02)] border-[#edeeef]"
-            : "bg-transparent py-5 border-transparent"
-        }`}
-      >
-        <div className="max-w-[1440px] mx-auto px-10 md:px-20 flex justify-between items-center w-full">
-          <div className="flex items-center gap-16">
-            <Link
-              to="/"
-              className="text-[28px] font-black tracking-tight text-[#002045] font-display"
-            >
-              Flavor
-            </Link>
-            
-            {/* Navigation links */}
-            <div className="hidden lg:flex items-center gap-10">
-              <a href="#services" className="text-sm font-semibold text-[#002045] relative after:content-[''] after:absolute after:bottom-[-6px] after:left-0 after:w-full after:h-[2px] after:bg-[#002045] transition-all">
-                Services
-              </a>
-              <a href="#experience" className="text-sm font-medium text-[#4a5568] hover:text-[#002045] transition-colors">
-                Experience
-              </a>
-              <a href="#logistics" className="text-sm font-medium text-[#4a5568] hover:text-[#002045] transition-colors">
-                Logistics
-              </a>
-              <Link to="/partner" className="text-sm font-medium text-[#4a5568] hover:text-[#002045] transition-colors">
-                Partners
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <a
-              href="#download"
-              className="text-sm font-semibold px-6 py-2.5 rounded transition-all duration-300 bg-[#002045] text-white hover:bg-[#002045]/90 hover:shadow-lg hover:shadow-[#002045]/10"
-            >
-              Download App
-            </a>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
 
@@ -84,10 +31,11 @@ export default function Home() {
                 : "opacity-0 translate-x-12"
             }`}
           >
-            <img
+            <LazyImage
               src={burgerHeroImg}
               alt="Refined Hamburger Taste"
               className="w-full h-full object-cover"
+              wrapperClassName="w-full h-full"
             />
             {/* Smooth transition from the left (white) to transparent */}
             <div className="absolute inset-0 bg-gradient-to-r from-white via-white/20 to-transparent" />
@@ -101,10 +49,11 @@ export default function Home() {
                 : "opacity-0 -translate-x-12"
             }`}
           >
-            <img
+            <LazyImage
               src={carHeroImg}
               alt="Executive Mobility Vehicle"
               className="w-full h-full object-cover"
+              wrapperClassName="w-full h-full"
             />
             {/* Smooth transition from the right (white) to transparent */}
             <div className="absolute inset-0 bg-gradient-to-l from-white via-white/20 to-transparent" />
@@ -139,7 +88,7 @@ export default function Home() {
         </div>
 
         {/* Hero Content Container (Flips columns layout with transitions) */}
-        <div className="max-w-[1440px] mx-auto w-full px-10 md:px-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-16 relative z-10 min-h-[80vh] lg:min-h-screen pt-32 lg:pt-0">
+        <FadeIn className="max-w-[1440px] mx-auto w-full px-10 md:px-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-16 relative z-10 min-h-[80vh] lg:min-h-screen pt-32 lg:pt-0">
           
           {/* Column 1 (Left) - Displays Food Text in Food mode, Rides Image in Ride mode */}
           <div className="relative h-[420px] lg:h-[550px] flex flex-col justify-center">
@@ -195,10 +144,11 @@ export default function Home() {
                   : "opacity-0 -translate-x-12 pointer-events-none"
               }`}
             >
-              <img
+              <LazyImage
                 src={carHeroImg}
                 alt="Executive Mobility Vehicle"
                 className="w-full h-full object-cover"
+                wrapperClassName="w-full h-full"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
@@ -214,10 +164,11 @@ export default function Home() {
                   : "opacity-0 translate-x-12 pointer-events-none"
               }`}
             >
-              <img
+              <LazyImage
                 src={burgerHeroImg}
                 alt="Refined Hamburger Taste"
                 className="w-full h-full object-cover"
+                wrapperClassName="w-full h-full"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             </div>
@@ -267,12 +218,12 @@ export default function Home() {
             </div>
           </div>
 
-        </div>
+        </FadeIn>
       </section>
 
       {/* Grid Features Section */}
       <section id="services" className="py-24 bg-white border-y border-[#edeeef]">
-        <div className="max-w-[1440px] mx-auto px-10 md:px-20">
+        <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
           {/* Header text container */}
           <div className="text-center mb-16 max-w-2xl mx-auto h-[120px] relative">
             {/* Food text header */}
@@ -388,12 +339,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* Command & Control Product Showcase */}
       <section id="experience" className="py-24 bg-[#f8f9fa]">
-        <div className="max-w-[1440px] mx-auto px-10 md:px-20">
+        <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
           <div className="relative min-h-[550px]">
             {/* FOOD SHOWCASE */}
             <div
@@ -467,7 +418,7 @@ export default function Home() {
                     {/* Restaurant card item */}
                     <div className="mx-3 mt-3 bg-white border border-[#edeeef] rounded-lg overflow-hidden shadow-sm flex flex-col">
                       <div className="h-28 bg-neutral-200 relative">
-                        <img src={mockupBurgerImg} alt="Burger" className="w-full h-full object-cover" />
+                        <LazyImage src={mockupBurgerImg} alt="Burger" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                         <span className="absolute top-2 left-2 bg-green-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded">PURE VEG</span>
                       </div>
                       <div className="p-3">
@@ -671,12 +622,12 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* CTA Section */}
       <section id="download" className="py-24 bg-white border-t border-[#edeeef] relative">
-        <div className="max-w-[1440px] mx-auto px-10 md:px-20">
+        <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
           <div className="relative min-h-[350px]">
             {/* FOOD CTA */}
             <div
@@ -760,80 +711,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </FadeIn>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#0a1128] text-white pt-20 pb-10 border-t border-white/10">
-        <div className="max-w-[1440px] mx-auto px-10 md:px-20">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-1 text-left">
-              <h2 className="text-[28px] font-black text-white mb-6 tracking-tight font-display">Flavor</h2>
-              <p className="text-neutral-400 text-sm leading-relaxed mb-6 font-body">
-                High-end culinary and mobility logistics for the modern professional.
-              </p>
-              <div className="flex gap-4">
-                <a href="#social" className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all">
-                  <Icon name="public" className="text-base" />
-                </a>
-                <a href="#social" className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all">
-                  <Icon name="alternate_email" className="text-base" />
-                </a>
-              </div>
-            </div>
-
-            <div className="text-left">
-              <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">Solutions</h4>
-              <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#food">Executive Food</a></li>
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#rides">Executive Motion</a></li>
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#corporate">Corporate Accounts</a></li>
-                <li><Link className="hover:text-[#c5a47e] transition-colors" to="/partner">Partner with Us</Link></li>
-              </ul>
-            </div>
-
-            <div className="text-left">
-              <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">Support</h4>
-              <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#help">Help Center</a></li>
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#safety">Safety Protocols</a></li>
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#privacy">Privacy Policy</a></li>
-                <li><a className="hover:text-[#c5a47e] transition-colors" href="#terms">Terms of Service</a></li>
-              </ul>
-            </div>
-
-            {/* Stacked Monochrome Store Badges */}
-            <div className="text-left">
-              <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">Download</h4>
-              <div className="flex flex-col gap-3">
-                <a href="#download" className="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded hover:bg-white/10 transition-all max-w-[170px]">
-                  <Icon name="grid_view" className="text-lg" />
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[8px] uppercase tracking-wider text-neutral-400">Download on the</span>
-                    <span className="text-[13px] font-bold mt-0.5">App Store</span>
-                  </div>
-                </a>
-                <a href="#download" className="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded hover:bg-white/10 transition-all max-w-[170px]">
-                  <Icon name="play_arrow" className="text-lg" />
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[8px] uppercase tracking-wider text-neutral-400">Get it on</span>
-                    <span className="text-[13px] font-bold mt-0.5">Google Play</span>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-          
-          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-white/40 text-xs font-body">© 2026 Flavor Technologies Inc. All rights reserved.</p>
-            <div className="flex gap-8 text-xs font-bold text-white/40 uppercase tracking-widest font-display">
-              <a className="hover:text-white" href="#privacy">Privacy</a>
-              <a className="hover:text-white" href="#terms">Terms</a>
-              <a className="hover:text-white" href="#security">Security</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

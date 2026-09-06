@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import Animated from "react-native-reanimated";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -22,6 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Colors, { gradients } from "@/constants/colors";
 import { StatusCard } from "@/components/StatusCard";
 import { VehicleCard } from "@/components/VehicleCard";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 
@@ -112,7 +113,7 @@ const GENDERS = [
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function ProfileScreen() {
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useDriverTabBarHeight();
   const token = useDriverStore((s) => s.token);
   const logout = useDriverStore((s) => s.logout);
   const resetOnboarding = useDriverStore((s) => s.resetOnboarding);
@@ -823,7 +824,7 @@ export default function ProfileScreen() {
       />
       <ScrollView
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 104 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => loadProfile(true)} />}
         showsVerticalScrollIndicator={false}
       >
@@ -955,6 +956,8 @@ export default function ProfileScreen() {
           </>
         )}
       </ScrollView>
+
+      <DriverTabBar active="profile" />
 
       {/* ── Section Detail Modal ────────────────────────────────────────────── */}
       <Modal

@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -21,6 +21,7 @@ import { CashOutButton } from "@/components/CashOutButton";
 import { TransactionItem } from "@/components/TransactionItem";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 
@@ -79,7 +80,7 @@ const emptyEarnings: EarningsResponse = {
 };
 
 export default function EarningsScreen() {
-  const insets = useSafeAreaInsets();
+  const tabBarHeight = useDriverTabBarHeight();
   const token = useDriverStore((s) => s.token);
   const [earnings, setEarnings] = useState<EarningsResponse>(emptyEarnings);
   const [isLoading, setIsLoading] = useState(true);
@@ -166,7 +167,7 @@ export default function EarningsScreen() {
     <SafeAreaView style={styles.safe} edges={["top"]}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 104 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={() => loadEarnings(true)} />
         }
@@ -256,6 +257,8 @@ export default function EarningsScreen() {
           </>
         )}
       </ScrollView>
+
+      <DriverTabBar active="earnings" />
 
       <Modal
         visible={cashOutVisible}

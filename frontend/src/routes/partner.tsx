@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
-function Icon({ name, className = "" }: { name: string; className?: string }) {
-  return <span className={`material-symbols-outlined ${className}`}>{name}</span>;
-}
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Icon } from "@/components/shared/Icon";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 const benefits = [
   {
@@ -86,22 +87,6 @@ export default function PartnerPage() {
 
   return (
     <div className="bg-white text-on-surface overflow-x-hidden">
-      {/* Simple Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-surface-container py-4">
-        <div className="flex justify-between items-center px-6 max-w-[1280px] mx-auto">
-          <Link to="/" className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter">
-            HYBRID
-          </Link>
-          <Link
-            to="/"
-            className="text-sm font-medium text-secondary-app hover:text-on-surface transition-colors flex items-center gap-1"
-          >
-            <Icon name="arrow_back" className="text-base" />
-            Back to Home
-          </Link>
-        </div>
-      </nav>
-
       <main>
         {/* Hero Banner */}
         <section className="relative pt-24 pb-20 lg:pb-28 bg-gradient-to-br from-on-surface via-[#0d2844] to-[#162d4a] overflow-hidden">
@@ -109,7 +94,7 @@ export default function PartnerPage() {
             <div className="absolute top-10 left-10 w-72 h-72 bg-brand-kinetic rounded-full blur-3xl" />
             <div className="absolute bottom-10 right-10 w-96 h-96 bg-brand-kinetic/50 rounded-full blur-3xl" />
           </div>
-          <div className="container max-w-[1280px] mx-auto px-6 relative z-10">
+          <FadeIn className="container max-w-[1280px] mx-auto px-6 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-kinetic/10 text-brand-kinetic rounded-full mb-8 text-sm font-semibold border border-brand-kinetic/20">
                 <Icon name="handshake" className="text-lg" />
@@ -138,12 +123,12 @@ export default function PartnerPage() {
                 </a>
               </div>
             </div>
-          </div>
+          </FadeIn>
         </section>
 
         {/* Stats Bar */}
         <section className="py-12 bg-surface-container-low/30 border-b border-surface-container">
-          <div className="container max-w-[1280px] mx-auto px-6">
+          <StaggerList inView className="container max-w-[1280px] mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
                 ["500K+", "Registered Partners"],
@@ -151,13 +136,13 @@ export default function PartnerPage() {
                 ["50M+", "Orders Processed"],
                 ["4.8★", "Partner Rating"],
               ].map(([value, label]) => (
-                <div key={label}>
+                <StaggerItem key={label}>
                   <p className="font-display text-3xl lg:text-4xl font-extrabold text-brand-kinetic">{value}</p>
                   <p className="text-sm text-secondary-app font-medium mt-1">{label}</p>
-                </div>
+                </StaggerItem>
               ))}
             </div>
-          </div>
+          </StaggerList>
         </section>
 
         {/* Why Partner */}
@@ -169,9 +154,9 @@ export default function PartnerPage() {
                 Everything you need to grow your business and delight your customers.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StaggerList inView className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {benefits.map((benefit) => (
-                <div
+                <StaggerItem
                   key={benefit.title}
                   className="group p-8 rounded-2xl border border-surface-container bg-white hover:border-brand-kinetic/20 hover:shadow-lg hover:shadow-brand-kinetic/5 transition-all duration-300"
                 >
@@ -180,9 +165,9 @@ export default function PartnerPage() {
                   </div>
                   <h3 className="font-display text-lg font-bold mb-3">{benefit.title}</h3>
                   <p className="text-sm text-secondary-app leading-relaxed">{benefit.desc}</p>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerList>
           </div>
         </section>
 
@@ -195,9 +180,9 @@ export default function PartnerPage() {
                 Get your business on Hybrid in four simple steps.
               </p>
             </div>
-            <div className="space-y-8">
+            <StaggerList inView className="space-y-8">
               {steps.map((step, i) => (
-                <div key={i} className="flex gap-6 items-start group">
+                <StaggerItem key={i} className="flex gap-6 items-start group">
                   <div className="flex flex-col items-center">
                     <div className="w-14 h-14 rounded-2xl bg-brand-kinetic text-white flex items-center justify-center font-display font-extrabold text-lg shrink-0">
                       {step.step}
@@ -210,9 +195,9 @@ export default function PartnerPage() {
                     <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
                     <p className="text-secondary-app text-sm leading-relaxed">{step.desc}</p>
                   </div>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerList>
           </div>
         </section>
 
@@ -226,9 +211,9 @@ export default function PartnerPage() {
                 Everything you need to know about partnering with Hybrid.
               </p>
             </div>
-            <div className="space-y-3">
+            <StaggerList inView className="space-y-3">
               {faqs.map((faq, i) => (
-                <div
+                <StaggerItem
                   key={i}
                   className="rounded-2xl border border-surface-container bg-white overflow-hidden transition-all"
                 >
@@ -242,20 +227,31 @@ export default function PartnerPage() {
                       className={`text-xl transition-all duration-300 ${openFaq === i ? "text-brand-kinetic" : "text-secondary-app"}`}
                     />
                   </button>
-                  {openFaq === i && (
-                    <div className="px-6 pb-5 text-sm text-secondary-app leading-relaxed border-t border-surface-container pt-4">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
+                  <AnimatePresence initial={false}>
+                    {openFaq === i && (
+                      <motion.div
+                        key="answer"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-6 pb-5 text-sm text-secondary-app leading-relaxed border-t border-surface-container pt-4">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerList>
           </div>
         </section>
 
         {/* CTA */}
         <section className="py-20 bg-gradient-to-br from-brand-kinetic via-[#ff5733] to-brand-kinetic">
-          <div className="container max-w-[700px] mx-auto px-6 text-center">
+          <FadeIn inView className="container max-w-[700px] mx-auto px-6 text-center">
             <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
               Ready to Grow with Us?
             </h2>
@@ -269,13 +265,26 @@ export default function PartnerPage() {
             >
               Get Started Now
             </button>
-          </div>
+          </FadeIn>
         </section>
       </main>
 
+      <AnimatePresence>
       {showPartnerTypeDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/60 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/60 px-4 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"
+          >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-brand-kinetic">Start onboarding</p>
@@ -316,28 +325,11 @@ export default function PartnerPage() {
                 <p className="mt-2 text-sm text-secondary-app">Meat center details, product list, FSSAI, and payout setup.</p>
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
-      {/* Footer */}
-      <footer className="bg-on-surface text-white pt-16 pb-10">
-        <div className="container max-w-[1280px] mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
-            <Link to="/" className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter">
-              HYBRID
-            </Link>
-            <div className="flex gap-6 text-sm text-white/60">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Contact Support</a>
-            </div>
-          </div>
-          <div className="pt-6 border-t border-white/10 text-center">
-            <p className="text-white/40 text-xs">© 2024 Hybrid Technologies Inc. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

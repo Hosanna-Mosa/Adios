@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -19,7 +19,7 @@ import { Audio } from "expo-av";
 import { useDriverStore } from "@/store/driverStore";
 import { Colors, elevation, radius } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
-import { SPRING } from "@/motion/presets";
+import { SPRING, staggerListItem } from "@/motion/presets";
 
 const { height } = Dimensions.get("window");
 
@@ -28,6 +28,8 @@ export default function IncomingOrderModal() {
   const { incomingOrder, acceptOrder, rejectOrder } = useDriverStore();
   const slideAnim = useSharedValue(height);
   const sheetAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ translateY: slideAnim.value }] }));
+  const timerWidth = useSharedValue(100);
+  const timerBarAnimatedStyle = useAnimatedStyle(() => ({ width: `${timerWidth.value}%` }));
   const [secondsLeft, setSecondsLeft] = React.useState(15);
   const [showDeclineReasons, setShowDeclineReasons] = React.useState(false);
   const [sound, setSound] = React.useState<Audio.Sound>();
@@ -76,11 +78,16 @@ export default function IncomingOrderModal() {
     }
   }, [incomingOrder, slideAnim, rejectOrder]);
 
+  useEffect(() => {
+    if (!incomingOrder) return;
+    const total = incomingOrder.isReserved ? 60 : 15;
+    timerWidth.value = withTiming((secondsLeft / total) * 100, { duration: 320 });
+  }, [secondsLeft, incomingOrder, timerWidth]);
+
   if (!incomingOrder) return null;
 
   const isHelper = incomingOrder.serviceType?.toLowerCase() === "helper";
   const isRide = ["bike", "auto", "cab", "cab_prime"].includes(incomingOrder.serviceType?.toLowerCase() || "");
-  const maxSeconds = incomingOrder.isReserved ? 60 : 15;
 
   const getFoodItems = () => {
     if (!incomingOrder?.stops) return [];
@@ -151,7 +158,7 @@ export default function IncomingOrderModal() {
           {/* Response Timer Bar */}
           <View style={styles.timerContainer}>
             <View style={styles.timerBarBg}>
-              <View style={[styles.timerBar, { width: `${(secondsLeft / maxSeconds) * 100}%` }]} />
+              <Animated.View style={[styles.timerBar, timerBarAnimatedStyle]} />
             </View>
             <Text style={styles.timerText}>Decline auto-triggers in {secondsLeft} seconds</Text>
           </View>
@@ -159,18 +166,19 @@ export default function IncomingOrderModal() {
           {showDeclineReasons ? (
             <View style={{ paddingVertical: 10, paddingBottom: 20 }}>
               <Text style={{ fontSize: 18, fontWeight: '700', color: Colors.text, marginBottom: 16 }}>Why are you declining?</Text>
-              {["Fare is too low", "Distance is too long", "Pickup is too far", "Not interested right now"].map((reason) => (
-                <TouchableOpacity
-                  key={reason}
-                  style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.border, flexDirection: 'row', alignItems: 'center' }}
-                  onPress={() => {
-                    setShowDeclineReasons(false);
-                    rejectOrder(reason);
-                  }}
-                >
-                  <Text style={{ fontSize: 16, color: Colors.textSecondary, flex: 1 }}>{reason}</Text>
-                  <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
-                </TouchableOpacity>
+              {["Fare is too low", "Distance is too long", "Pickup is too far", "Not interested right now"].map((reason, idx) => (
+                <Animated.View key={reason} entering={staggerListItem(idx)}>
+                  <TouchableOpacity
+                    style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.border, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => {
+                      setShowDeclineReasons(false);
+                      rejectOrder(reason);
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, color: Colors.textSecondary, flex: 1 }}>{reason}</Text>
+                    <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+                  </TouchableOpacity>
+                </Animated.View>
               ))}
               <TouchableOpacity
                 style={{ marginTop: 24, paddingVertical: 14, backgroundColor: Colors.surfaceContainer, borderRadius: radius.md, alignItems: 'center' }}

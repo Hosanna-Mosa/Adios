@@ -14,6 +14,7 @@ import { ActiveTaskCard } from "@/components/ActiveTaskCard";
 import { HighDemandAreas, Hotspot } from "@/components/HighDemandAreas";
 import { GoOnlineModal } from "@/components/GoOnlineModal";
 import IncomingOrderModal from "@/components/IncomingOrderModal";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
 import { router } from "expo-router";
 import { staggerListItem } from "@/motion/presets";
@@ -49,6 +50,7 @@ const fallbackHotspots: Hotspot[] = [
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useDriverTabBarHeight();
   const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
   const [showOnlineModal, setShowOnlineModal] = useState(false);
@@ -256,7 +258,7 @@ export default function HomeScreen() {
     <View style={styles.safe}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 104 }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight }}
         bounces={false}
       >
         {/* Header with Online/Offline Toggle */}
@@ -523,6 +525,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <DriverTabBar active="home" />
 
       <GoOnlineModal
         visible={showOnlineModal}

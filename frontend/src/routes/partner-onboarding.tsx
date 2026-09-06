@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useGoogleMaps } from "../hooks/useGoogleMaps";
 import { apiFetch } from "../lib/api-client";
 
@@ -1362,6 +1363,14 @@ export default function PartnerOnboarding() {
 
         {/* ─── Main Content ─── */}
         <main className="px-4 lg:px-8 py-6 lg:py-10 max-w-[900px] mx-auto pb-32">
+          <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          >
           {/* ═══════════════ STEP 1: Restaurant Information ═══════════════ */}
           {step === 1 && (
             <div>
@@ -2768,6 +2777,8 @@ export default function PartnerOnboarding() {
               </section>
             </div>
           )}
+          </motion.div>
+          </AnimatePresence>
 
           {/* ─── Navigation Footer ─── */}
           <div className="fixed bottom-0 left-0 right-0 lg:left-[280px] z-30 bg-white border-t border-gray-200 px-4 lg:px-8 py-4">

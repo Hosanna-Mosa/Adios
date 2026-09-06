@@ -1,10 +1,12 @@
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, lazy, ReactNode, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./routes/__root";
-import Home from "./routes/index";
-import PartnerPage from "./routes/partner";
-import PartnerOnboarding from "./routes/partner-onboarding";
-import RestaurantMenuFront from "./routes/restaurant-menu";
+import { RouteLoadingFallback } from "@/components/motion/RouteLoadingFallback";
+
+const Home = lazy(() => import("./routes/index"));
+const PartnerPage = lazy(() => import("./routes/partner"));
+const PartnerOnboarding = lazy(() => import("./routes/partner-onboarding"));
+const RestaurantMenuFront = lazy(() => import("./routes/restaurant-menu"));
 
 function NotFound() {
   return (
@@ -91,15 +93,19 @@ class ErrorBoundary extends Component<
 export default function App() {
   return (
     <ErrorBoundary>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="partner" element={<PartnerPage />} />
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <Routes>
+          <Route element={<Layout variant="marketing" />}>
+            <Route index element={<Home />} />
+          </Route>
+          <Route element={<Layout variant="minimal" />}>
+            <Route path="partner" element={<PartnerPage />} />
+          </Route>
           <Route path="partner/onboarding" element={<PartnerOnboarding />} />
           <Route path="restaurant-menu/:id" element={<RestaurantMenuFront />} />
           <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }

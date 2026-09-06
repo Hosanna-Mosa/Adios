@@ -11,7 +11,7 @@ import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
-import { fadeInUp } from "@/motion/presets";
+import { fadeIn, fadeInUp, usePressScale } from "@/motion/presets";
 
 interface GoOnlineModalProps {
   visible: boolean;
@@ -23,6 +23,8 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
   const insets = useSafeAreaInsets();
   const [selectedServices, setSelectedServices] = React.useState<("food" | "ride")[]>(["ride", "food"]);
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const ridePress = usePressScale(0.98);
+  const foodPress = usePressScale(0.98);
 
   const toggleService = (service: "food" | "ride") => {
     setSelectedServices((prev) =>
@@ -85,12 +87,15 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
 
               {/* Service Options */}
               <View style={styles.servicesContainer}>
+                <Animated.View style={ridePress.animatedStyle}>
                 <Pressable
                   style={[
                     styles.serviceCard,
                     selectedServices.includes("ride") && styles.serviceCardActive,
                   ]}
                   onPress={() => toggleService("ride")}
+                  onPressIn={ridePress.onPressIn}
+                  onPressOut={ridePress.onPressOut}
                 >
                   <View style={styles.serviceLeft}>
                     <View
@@ -118,18 +123,22 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
                     </View>
                   </View>
                   {selectedServices.includes("ride") && (
-                    <View style={styles.selectedBadge}>
+                    <Animated.View entering={fadeIn()} style={styles.selectedBadge}>
                       <Text style={styles.selectedBadgeText}>Selected</Text>
-                    </View>
+                    </Animated.View>
                   )}
                 </Pressable>
+                </Animated.View>
 
+                <Animated.View style={foodPress.animatedStyle}>
                 <Pressable
                   style={[
                     styles.serviceCard,
                     selectedServices.includes("food") && styles.serviceCardActive,
                   ]}
                   onPress={() => toggleService("food")}
+                  onPressIn={foodPress.onPressIn}
+                  onPressOut={foodPress.onPressOut}
                 >
                   <View style={styles.serviceLeft}>
                     <View
@@ -157,11 +166,12 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
                     </View>
                   </View>
                   {selectedServices.includes("food") && (
-                    <View style={styles.selectedBadge}>
+                    <Animated.View entering={fadeIn()} style={styles.selectedBadge}>
                       <Text style={styles.selectedBadgeText}>Selected</Text>
-                    </View>
+                    </Animated.View>
                   )}
                 </Pressable>
+                </Animated.View>
               </View>
 
               {/* Info note */}

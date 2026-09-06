@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "@/lib/api-client";
+import { LazyImage } from "@/components/shared/LazyImage";
 
 interface Restaurant {
   _id: string;
@@ -426,7 +427,7 @@ export default function RestaurantMenuFront() {
                         <div className="flex flex-col items-center justify-center shrink-0 relative w-28 md:w-32">
                           {item.images && item.images.length > 0 && (
                             <div className="w-28 h-28 md:w-32 md:h-32 bg-slate-100 rounded-2xl overflow-hidden shadow-inner relative">
-                              <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                              <LazyImage src={item.images[0]} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" wrapperClassName="w-full h-full" />
                             </div>
                           )}
                         </div>
