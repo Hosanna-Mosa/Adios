@@ -167,7 +167,10 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <StatusBar style="dark" />
+      {/* Content colour, not a bar colour: edge-to-edge leaves the background to
+          the screen underneath. Follows the theme so the icons never match the
+          ground they sit on. */}
+      <StatusBar style={theme === "dark" ? "light" : "dark"} />
       <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
         <Stack.Screen name="index" options={{ animation: "fade" }} />
         <Stack.Screen name="login" options={{ animation: "fade" }} />
