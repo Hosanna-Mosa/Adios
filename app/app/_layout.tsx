@@ -250,8 +250,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Initialize auth (reads token from AsyncStorage), then hide splash
-      initializeAuth().then(() => {
+      // Initialize auth and restore the saved theme (both read AsyncStorage),
+      // then hide splash — resolving the theme first keeps the app from
+      // flashing light before settling on the user's choice.
+      Promise.all([initializeAuth(), useThemeStore.getState().hydrateTheme()]).then(() => {
         SplashScreen.hideAsync();
       });
     }
