@@ -482,7 +482,7 @@ const parsePrice = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const buildOnboardedMeatItems = (meatVendor: any) => {
+export const buildOnboardedMeatItems = (meatVendor: any) => {
   const operations = meatVendor.operations || {};
   const manualCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
   const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];

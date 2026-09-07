@@ -33,6 +33,8 @@ export default function CartScreen() {
   const { items, getTotalPrice, vendorId, updateQuantity, addItem, clearCart } = useCartStore();
   const storeVendorName = useCartStore((s) => s.vendorName);
   const cartStatus = useCartStore((s) => s.status);
+  const syncNotices = useCartStore((s) => s.syncNotices);
+  const clearSyncNotices = useCartStore((s) => s.clearSyncNotices);
 
   // The active Food/Meat mode is the single source of truth for the accent, so
   // the cart tints to whatever the customer is actually shopping.
@@ -307,6 +309,30 @@ export default function CartScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>
+        {syncNotices.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.noticeCard}>
+              <Feather name="alert-circle" size={moderateScale(16)} color={tokens.warning} />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.noticeTitle}>
+                  {syncNotices.length === 1 ? "1 item was updated" : `${syncNotices.length} items were updated`}
+                </Text>
+                {syncNotices.map((notice) => (
+                  <Text key={notice.itemId} style={styles.noticeLine}>
+                    {notice.status === "price_changed"
+                      ? `${notice.name} is now ₹${notice.price} (was ₹${notice.previousPrice})`
+                      : notice.status === "unavailable"
+                        ? `${notice.name} is sold out and was removed`
+                        : `${notice.name} is no longer on the menu and was removed`}
+                  </Text>
+                ))}
+              </View>
+              <TouchableOpacity onPress={clearSyncNotices} hitSlop={8}>
+                <Feather name="x" size={moderateScale(16)} color={tokens.sec} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
         <View style={styles.section}>
           <View style={styles.itemsCard}>
             {items.map((item, idx) => (
@@ -460,6 +486,18 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     section: { paddingHorizontal: 16, paddingTop: 18 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
 
+    noticeCard: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 10,
+      backgroundColor: tokens.warningSkin,
+      borderWidth: 1,
+      borderColor: tokens.warning,
+      borderRadius: 14,
+      padding: 12,
+    },
+    noticeTitle: { color: tokens.text, fontWeight: "600", marginBottom: 2 },
+    noticeLine: { color: tokens.sec, fontSize: 12, lineHeight: 17 },
     itemsCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, paddingHorizontal: 14 },
     itemRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12 },
     itemRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },

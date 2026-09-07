@@ -1,8 +1,11 @@
 import Cart, { ICartItem } from "../../database/models/Cart";
+import { CartChange, resolveCatalog, verifyItems } from "./cart.catalog";
 
 export interface CartPayload {
   vendorId: string | null;
   items: any[];
+  /** What reconciliation against the live menu had to correct. Empty when nothing moved. */
+  changes: CartChange[];
 }
 
 export class CartService {
@@ -28,34 +31,69 @@ export class CartService {
     return { ...plain, itemId: plain.itemId, _id: plain.itemId };
   }
 
+  /**
+   * Reconciles `items` against the outlet's live menu. Returns the stored rows
+   * untouched when the catalogue can't be resolved — see resolveCatalog.
+   */
+  private async verifyAgainstCatalog(vendorId: string | null, items: any[]) {
+    if (!vendorId || !items.length) return { items, changes: [] as CartChange[] };
+    const catalog = await resolveCatalog(String(vendorId));
+    return verifyItems(items, catalog);
+  }
+
   async getCart(userId: string): Promise<CartPayload> {
     const cart = await Cart.findOne({ user: userId }).lean();
-    return {
-      vendorId: cart?.vendor ?? null,
-      items: (cart?.items ?? []).map((item) => this.toWireItem(item)),
-    };
+    const vendorId = cart?.vendor ?? null;
+    const stored = (cart?.items ?? []).map((item) => this.toWireItem(item));
+
+    const { items, changes } = await this.verifyAgainstCatalog(vendorId, stored);
+
+    // Write the correction back, so a stale price is fixed once rather than
+    // re-reported on every fetch — and so checkout reads the corrected cart.
+    if (changes.length) {
+      if (!items.length) {
+        await this.clearCart(userId);
+        return { vendorId: null, items: [], changes };
+      }
+      await Cart.updateOne(
+        { user: userId },
+        { $set: { items: items.map((item) => this.normalizeItem(item)) } },
+      );
+    }
+
+    return { vendorId, items: items.map((item) => this.toWireItem(item)), changes };
   }
 
   /**
    * Whole-cart replace, never a merge — the result is independent of request ordering.
+   * The incoming prices are treated as a client claim and re-checked against the
+   * menu before they are stored.
    */
   async saveCart(userId: string, vendorId: string | null, items: any[]): Promise<CartPayload> {
     const normalized = (items || []).map((item) => this.normalizeItem(item)).filter((item) => !!item.itemId);
 
     if (!normalized.length) {
       await this.clearCart(userId);
-      return { vendorId: null, items: [] };
+      return { vendorId: null, items: [], changes: [] };
+    }
+
+    const { items: verified, changes } = await this.verifyAgainstCatalog(vendorId, normalized);
+
+    if (!verified.length) {
+      await this.clearCart(userId);
+      return { vendorId: null, items: [], changes };
     }
 
     const cart = await Cart.findOneAndUpdate(
       { user: userId },
-      { $set: { vendor: vendorId ?? null, items: normalized } },
+      { $set: { vendor: vendorId ?? null, items: verified.map((item) => this.normalizeItem(item)) } },
       { upsert: true, new: true, setDefaultsOnInsert: true },
     ).lean();
 
     return {
       vendorId: cart?.vendor ?? null,
       items: (cart?.items ?? []).map((item) => this.toWireItem(item)),
+      changes,
     };
   }
 

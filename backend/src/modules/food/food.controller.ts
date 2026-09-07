@@ -18,7 +18,7 @@ const parsePrice = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const buildOnboardedFoodItems = (vendor: any) => {
+export const buildOnboardedFoodItems = (vendor: any) => {
   const operations = vendor?.operations || {};
   const menuCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
   const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];

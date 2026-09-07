@@ -24,6 +24,16 @@ export interface PendingCartConflict {
   vendorName?: string;
 }
 
+/** A correction the server made after checking the cart against the outlet's live menu. */
+export interface CartSyncNotice {
+  itemId: string;
+  name: string;
+  status: "price_changed" | "unavailable" | "removed";
+  /** Only on "price_changed". */
+  previousPrice?: number;
+  price?: number;
+}
+
 /** "idle" = nobody signed in yet, "hydrating" = restoring this account's cart, "ready" = safe to push. */
 export type CartStatus = "idle" | "hydrating" | "ready";
 
@@ -36,6 +46,9 @@ interface CartState {
   ownerId: string | null;
   status: CartStatus;
   pendingConflict: PendingCartConflict | null;
+  /** Corrections from the last hydrate — stale prices fixed, sold-out lines dropped. */
+  syncNotices: CartSyncNotice[];
+  clearSyncNotices: () => void;
   setIsHoveringSearch: (hovering: boolean) => void;
   addItem: (item: FoodItem, vendorId: string, vendorName?: string) => void;
   /** Returns 'added' when the item went in, 'conflict' when a dialog is now pending. */
@@ -153,6 +166,8 @@ export const useCartStore = create<CartState>((set, get) => ({
   ownerId: null,
   status: "idle",
   pendingConflict: null,
+  syncNotices: [],
+  clearSyncNotices: () => set({ syncNotices: [] }),
   setIsHoveringSearch: (hovering) => set({ isHoveringSearch: hovering }),
 
   addItem: (item, vendorId, vendorName) => {
@@ -246,7 +261,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (get().ownerId === userId && get().status !== "idle") return;
     // Starts empty, so a different account never sees the previous one's items,
     // not even for a frame.
-    set({ ownerId: userId, status: "hydrating", items: [], vendorId: null, vendorName: null, pendingConflict: null });
+    set({ ownerId: userId, status: "hydrating", items: [], vendorId: null, vendorName: null, pendingConflict: null, syncNotices: [] });
 
     try {
       const raw = await AsyncStorage.getItem(cartKey(userId));
@@ -259,12 +274,16 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
 
     try {
-      const data = await customFetch<{ vendorId: string | null; items: any[] }>("/cart");
+      const data = await customFetch<{ vendorId: string | null; items: any[]; changes?: CartSyncNotice[] }>(
+        "/cart",
+      );
       // A late response for an account that has since signed out must not repaint.
       if (get().ownerId !== userId) return;
       const items = fromWire(data?.items ?? []);
       const vendorId = data?.vendorId ?? null;
-      set({ items, vendorId });
+      // The server reconciles the stored cart against the live menu, so this
+      // response — not the local mirror — is what the customer should see.
+      set({ items, vendorId, syncNotices: Array.isArray(data?.changes) ? data.changes : [] });
       await AsyncStorage.setItem(cartKey(userId), JSON.stringify({ vendorId, items })).catch(() => {});
     } catch {
       // Offline sign-in: keep the locally mirrored cart rather than blanking it.
@@ -278,7 +297,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       clearTimeout(syncTimer);
       syncTimer = null;
     }
-    set({ items: [], vendorId: null, vendorName: null, ownerId: null, status: "idle", pendingConflict: null });
+    set({ items: [], vendorId: null, vendorName: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
   },
 
   getTotalPrice: () => {
