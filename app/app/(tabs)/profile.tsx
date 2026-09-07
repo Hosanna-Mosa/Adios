@@ -5,6 +5,7 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -29,7 +30,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
   const { user, logout, setUser } = useAuthStore();
-  const { theme } = useThemeStore();
+  const { theme, toggleTheme } = useThemeStore();
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -245,6 +246,24 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </Animated.View>
           ))}
+
+          {/* Appearance — a switch rather than a navigation row, so it sits
+              outside MENU_ITEMS and carries its own top divider. */}
+          <Animated.View entering={staggerListItem(MENU_ITEMS.length, 30)}>
+            <View style={[styles.menuRow, { borderTopWidth: 1, borderTopColor: tokens.border }]}>
+              <View style={[styles.menuIcon, { backgroundColor: tokens.sunken }]}>
+                <Ionicons name={theme === "dark" ? "moon" : "sunny"} size={17} color={tokens.sec} />
+              </View>
+              <Text style={styles.menuLabel}>Dark mode</Text>
+              <Switch
+                value={theme === "dark"}
+                onValueChange={toggleTheme}
+                trackColor={{ false: tokens.sunken, true: accent.accent }}
+                thumbColor={tokens.surface}
+                ios_backgroundColor={tokens.sunken}
+              />
+            </View>
+          </Animated.View>
         </View>
 
         <Animated.View entering={fadeInUp(280)}>
