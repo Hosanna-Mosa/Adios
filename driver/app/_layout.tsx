@@ -23,16 +23,17 @@ import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { useDriverStore } from "@/store/driverStore";
-import { LocationHandler } from "@/components/LocationHandler";
-import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
-import UpdateModal from "@/components/UpdateModal";
+import { LocationHandler } from "@/components/shared/LocationHandler";
+import { GlobalSocketHandler } from "@/components/shared/GlobalSocketHandler";
+import UpdateModal from "@/components/shared/UpdateModal";
 import { registerForPushNotificationsAsync } from "../utils/notificationRegister";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
 import { typography, fontFamilies } from "@/constants/typography";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/utils/networkLogger";
+import { API_URL } from "@/utils/apiUrl";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -195,7 +196,6 @@ function RootLayoutNav() {
     }
 
     try {
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
       // 1. Initial Registration
       registerForPushNotificationsAsync(token).catch((err: any) => {
@@ -206,7 +206,7 @@ function RootLayoutNav() {
       const tokenSubscription = Notifications.addPushTokenListener(async (tokenData: any) => {
         console.log("[PushNotifications] Token refreshed (Driver):", tokenData.data);
         try {
-          const response = await fetch(`${apiUrl}/users/push-token`, {
+          const response = await fetch(`${API_URL}/users/push-token`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -305,7 +305,7 @@ export default function RootLayout() {
       try {
         const platform = Platform.OS === "ios" ? "ios" : "android";
         const currentVersion = Constants.expoConfig?.version || "1.0.0";
-        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+        const apiUri = API_URL;
         const res = await fetch(`${apiUri}/auth/version-check?platform=${platform}&version=${currentVersion}`);
         if (!res.ok) return;
         const result = await res.json();

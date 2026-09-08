@@ -1,25 +1,28 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, Easing } from "react-native-reanimated";
+import { Alert, Linking, ScrollView, Text, View } from "react-native";
+import { useSharedValue, useAnimatedStyle, withSequence, withTiming, Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
-import { Feather } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 
-import Colors, { gradients } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
-import { ServiceToggle } from "@/components/ServiceToggle";
-import { PerformanceCard } from "@/components/PerformanceCard";
-import { ActiveTaskCard } from "@/components/ActiveTaskCard";
-import { HighDemandAreas, Hotspot } from "@/components/HighDemandAreas";
-import { GoOnlineModal } from "@/components/GoOnlineModal";
-import IncomingOrderModal from "@/components/IncomingOrderModal";
-import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
+import { PerformanceCard } from "@/features/earnings/components/PerformanceCard";
+import type { Hotspot } from "@/features/jobs/components/HighDemandAreas";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/shared/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
 import { router } from "expo-router";
-import { staggerListItem } from "@/motion/presets";
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+import {
+  ActiveTaskCard,
+  GoOnlineModal,
+  HeadHomeToggle,
+  HighDemandAreas,
+  HomeGreetingHeader,
+  IncomingOrderModal,
+  NoActiveTasksCard,
+  OnlineStatusCard,
+  SafetyAlertCard,
+  ScheduledRideCard,
+  ServiceToggle,
+} from "@/features/jobs/components";
+import { styles } from "@/features/jobs/home.styles";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 
 const fallbackHotspots: Hotspot[] = [
   {
@@ -262,126 +265,24 @@ export default function HomeScreen() {
         bounces={false}
       >
         {/* Header with Online/Offline Toggle */}
-        <LinearGradient
-          colors={gradients.brand}
-          style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
-        >
-          <Image
-            source={require('../../assets/images/cityscape_bg.png')}
-            style={styles.headerBgImage}
-            resizeMode="cover"
-          />
-
-          <View style={styles.headerContent}>
-            {/* Top Row: Greeting */}
-            <View style={styles.headerTopRow}>
-              <View style={styles.headerCopy}>
-                <Text style={styles.greeting}>
-                  {(() => {
-                    const h = new Date().getHours();
-                    if (h < 12) return `Good Morning${driverName ? `, ${driverName.split(' ')[0]}` : ''}!`;
-                    if (h < 17) return `Good Afternoon${driverName ? `, ${driverName.split(' ')[0]}` : ''}!`;
-                    return `Good Evening${driverName ? `, ${driverName.split(' ')[0]}` : ''}!`;
-                  })()} 👋
-                </Text>
-                <Text style={styles.subGreeting} numberOfLines={1}>
-                  {isOnline ? "You're online and receiving orders" : "Ready to start earning"}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </LinearGradient>
+        <HomeGreetingHeader
+          driverName={driverName}
+          isOnline={isOnline}
+          paddingTop={insets.top + 16}
+        />
 
         <View style={styles.content}>
           <View style={{ position: 'relative', zIndex: 10, marginTop: overlapMargin, marginBottom: 8 }}>
-            {/* Online Status Banner (Overlapping) */}
-            <Pressable
-              style={styles.statusCard}
-              onPress={handleToggleOnline}
-            >
-              <View style={[styles.statusIconBg, { backgroundColor: isOnline ? Colors.successLight : Colors.surfaceContainer }]}>
-                <Feather
-                  name={isOnline ? "wifi" : "wifi-off"}
-                  size={20}
-                  color={isOnline ? Colors.success : Colors.textMuted}
-                />
-              </View>
-              <View style={styles.statusCardCopy}>
-                <Text style={styles.statusCardTitle}>
-                  {isOnline ? `Online for ${activeServices.join(" & ").toLowerCase()}` : "You're Offline"}
-                </Text>
-                <Text style={styles.statusCardDesc}>
-                  {isOnline ? "You're visible to customers" : "Tap to go online"}
-                </Text>
-              </View>
-              <View style={[
-                styles.powerButton,
-                { backgroundColor: isOnline ? Colors.success : Colors.error, borderWidth: 0 }
-              ]}>
-                <Feather
-                  name="power"
-                  size={24}
-                  color="#ffffff"
-                />
-              </View>
-            </Pressable>
-            {/* Illustration */}
-            <Animated.Image
-              source={require('../../assets/images/generated_blue_scooter.png')}
-              style={[styles.heroIllustration, scooterAnimatedStyle]}
-              resizeMode="contain"
+            <OnlineStatusCard
+              isOnline={isOnline}
+              activeServices={activeServices}
+              onToggle={handleToggleOnline}
+              scooterAnimatedStyle={scooterAnimatedStyle}
             />
-            <Animated.View style={[styles.onlineBadgeHero, scooterAnimatedStyle]}>
-              <View style={[styles.onlineBadgeDot, !isOnline && { backgroundColor: Colors.textMuted }]} />
-              <Text style={[styles.onlineBadgeText, !isOnline && { color: Colors.textMuted }]}>
-                {isOnline ? "ONLINE" : "OFFLINE"}
-              </Text>
-            </Animated.View>
           </View>
 
           {/* Head Home Mode — visible only when online */}
-          {isOnline && (
-            <Pressable
-              style={[
-                styles.homeModeRow,
-                homeMode && styles.homeModeRowActive,
-              ]}
-              onPress={toggleHomeMode}
-            >
-              <View style={styles.homeModeLeft}>
-                <View style={[styles.homeModeIconWrap, homeMode && styles.homeModeIconWrapActive]}>
-                  <Feather
-                    name="home"
-                    size={18}
-                    color={homeMode ? Colors.white : Colors.brand}
-                  />
-                </View>
-                <View style={styles.homeModeTextWrap}>
-                  <Text style={[styles.homeModeLabel, homeMode && styles.homeModeLabelActive]}>
-                    Head Home
-                  </Text>
-                  <Text style={styles.homeModeDesc}>
-                    {homeMode
-                      ? "Getting orders toward your home"
-                      : "Receive orders heading toward home"}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.homeModeSwitch,
-                  homeMode && styles.homeModeSwitchActive,
-                ]}
-              >
-                <View
-                  style={[
-                    styles.homeModeSwitchThumb,
-                    homeMode && styles.homeModeSwitchThumbActive,
-                  ]}
-                />
-              </View>
-            </Pressable>
-          )}
+          {isOnline && <HeadHomeToggle homeMode={homeMode} onToggle={toggleHomeMode} />}
 
           {/* Service Toggle */}
           <ServiceToggle active={mode} onToggle={setMode} />
@@ -414,22 +315,7 @@ export default function HomeScreen() {
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Active Tasks</Text>
               </View>
-              <View style={styles.emptyTasksCard}>
-                <Image
-                  source={require('../../assets/images/clipboard_empty_state.png')}
-                  style={styles.emptyTasksImg}
-                  resizeMode="contain"
-                />
-                <View style={styles.emptyTasksCopy}>
-                  <Text style={styles.emptyTasksTitle}>No Active Tasks</Text>
-                  <Text style={styles.emptyTasksDesc}>
-                    {isOnline ? "You are online and ready\nto receive bookings.\nKeep the app open." : "Go online to receive\nand accept bookings."}
-                  </Text>
-                </View>
-                <TouchableOpacity style={styles.calendarBtn}>
-                  <Feather name="calendar" size={18} color={Colors.primary} />
-                </TouchableOpacity>
-              </View>
+              <NoActiveTasksCard isOnline={isOnline} />
             </>
           )}
 
@@ -440,61 +326,18 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Scheduled Rides ({scheduledRides.length})</Text>
               </View>
               <View style={{ gap: 12, marginTop: 8 }}>
-                {scheduledRides.map((ride, idx) => {
-                  const pickup = ride.stops?.[0]?.address || "Pickup Location";
-                  const drop = ride.stops?.[ride.stops.length - 1]?.address || "Drop Location";
-                  const dateStr = ride.reservedAt ? new Date(ride.reservedAt).toLocaleString([], {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }) : "N/A";
-
-                  return (
-                    <Animated.View key={ride._id} entering={staggerListItem(idx)} style={styles.scheduledCard}>
-                      <View style={styles.scheduledHeader}>
-                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                          <Feather name="calendar" size={16} color={Colors.primary} />
-                          <Text style={styles.scheduledTime}>{dateStr}</Text>
-                        </View>
-                        <Text style={styles.scheduledPrice}>₹{Math.round(ride.totalPrice * 0.8)}</Text>
-                      </View>
-
-                      <View style={styles.scheduledBody}>
-                        <View style={styles.addressLine}>
-                          <View style={[styles.dot, { backgroundColor: Colors.success }]} />
-                          <Text style={styles.addressText} numberOfLines={1}>{pickup}</Text>
-                        </View>
-                        <View style={styles.connectorLine} />
-                        <View style={styles.addressLine}>
-                          <View style={[styles.dot, { backgroundColor: Colors.error }]} />
-                          <Text style={styles.addressText} numberOfLines={1}>{drop}</Text>
-                        </View>
-                      </View>
-
-                      <View style={styles.scheduledFooter}>
-                        <View>
-                          <Text style={styles.customerName}>Rider: {ride.user?.name || "Customer"}</Text>
-                          <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{ride.serviceType?.toUpperCase()}</Text>
-                          </View>
-                        </View>
-
-                        <TouchableOpacity
-                          style={[styles.startRideBtn, currentOrder && { opacity: 0.5 }]}
-                          disabled={!!currentOrder}
-                          onPress={() => {
-                            const { startReservedRide } = useDriverStore.getState();
-                            startReservedRide(ride._id);
-                          }}
-                        >
-                          <Text style={styles.startRideBtnText}>Start Ride</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </Animated.View>
-                  );
-                })}
+                {scheduledRides.map((ride, idx) => (
+                  <ScheduledRideCard
+                    key={ride._id}
+                    ride={ride}
+                    index={idx}
+                    disabled={!!currentOrder}
+                    onStart={() => {
+                      const { startReservedRide } = useDriverStore.getState();
+                      startReservedRide(ride._id);
+                    }}
+                  />
+                ))}
               </View>
             </View>
           )}
@@ -509,20 +352,10 @@ export default function HomeScreen() {
           </View>
 
           {/* Safety Alerts */}
-          <View style={styles.safetyAlert}>
-            <Feather name="alert-triangle" size={moderateScale(24)} color="#f59e0b" style={{ marginTop: 2 }} />
-            <View style={styles.safetyContent}>
-              <Text style={styles.safetyTitle}>Safety Alert</Text>
-              <Text style={styles.safetyText}>
-                Road closure reported on Main St due to construction. Use alternate route.
-              </Text>
-            </View>
-            <Image
-              source={require('../../assets/images/safety_cones.png')}
-              style={styles.safetyImg}
-              resizeMode="contain"
-            />
-          </View>
+          <SafetyAlertCard
+            title="Safety Alert"
+            message="Road closure reported on Main St due to construction. Use alternate route."
+          />
         </View>
       </ScrollView>
 
@@ -538,399 +371,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-  },
-  startRideBtn: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: moderateScale(20),
-  },
-  startRideBtnText: {
-    color: '#fff',
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: moderateScale(14),
-  },
-  headerGradient: {
-    borderBottomLeftRadius: moderateScale(24),
-    borderBottomRightRadius: moderateScale(24),
-    overflow: 'hidden',
-    position: 'relative',
-    paddingBottom: 40,
-  },
-  headerBgImage: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 140,
-    opacity: 0.15,
-  },
-  headerContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 57.5,
-  },
-  headerTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    zIndex: 2,
-  },
-  menuButton: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  headerCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-  greeting: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(20),
-    color: '#fff',
-  },
-  subGreeting: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(13),
-    color: 'rgba(255,255,255,0.9)',
-    marginTop: 2,
-  },
-  heroIllustration: {
-    position: 'absolute',
-    right: 16,
-    top: -85,
-    width: 100,
-    height: 100,
-    zIndex: 10,
-  },
-  onlineBadgeHero: {
-    position: 'absolute',
-    right: 14,
-    top: -96,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: moderateScale(10),
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    zIndex: 11,
-  },
-  onlineBadgeDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: Colors.success,
-  },
-  onlineBadgeText: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(9),
-    color: Colors.success,
-  },
-  statusCard: {
-    backgroundColor: '#fff',
-    borderRadius: moderateScale(16),
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-    marginTop: 0,
-    marginBottom: 0,
-    zIndex: 5,
-  },
-  statusIconBg: {
-    width: moderateScale(48),
-    height: moderateScale(48),
-    borderRadius: moderateScale(24),
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  statusCardCopy: {
-    flex: 1,
-  },
-  statusCardTitle: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(15),
-    color: Colors.text,
-    marginBottom: 2,
-  },
-  statusCardDesc: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-  },
-  powerButton: {
-    width: moderateScale(48),
-    height: moderateScale(48),
-    borderRadius: moderateScale(24),
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  powerButtonOnline: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  homeModeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(14),
-    padding: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  homeModeRowActive: {
-    backgroundColor: Colors.brandSkin,
-    borderColor: Colors.primary,
-  },
-  homeModeLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  homeModeIconWrap: {
-    width: moderateScale(38),
-    height: moderateScale(38),
-    borderRadius: moderateScale(10),
-    backgroundColor: Colors.brandSkin,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  homeModeIconWrapActive: {
-    backgroundColor: Colors.primary,
-  },
-  homeModeTextWrap: {
-    flex: 1,
-  },
-  homeModeLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(14),
-    color: Colors.text,
-    marginBottom: 2,
-  },
-  homeModeLabelActive: {
-    color: Colors.primaryDark,
-  },
-  homeModeDesc: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-  },
-  homeModeSwitch: {
-    width: moderateScale(44),
-    height: moderateScale(24),
-    borderRadius: moderateScale(12),
-    backgroundColor: Colors.border,
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  homeModeSwitchActive: {
-    backgroundColor: Colors.primary,
-  },
-  homeModeSwitchThumb: {
-    width: moderateScale(18),
-    height: moderateScale(18),
-    borderRadius: moderateScale(9),
-    backgroundColor: Colors.white,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  homeModeSwitchThumbActive: {
-    alignSelf: "flex-end",
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  sectionTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(15),
-    color: Colors.text,
-  },
-  sectionSpacing: {
-    marginTop: 4,
-  },
-  emptyTasksCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(16),
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  emptyTasksImg: {
-    width: 80,
-    height: 80,
-    marginRight: 16,
-  },
-  emptyTasksCopy: {
-    flex: 1,
-  },
-  emptyTasksTitle: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(15),
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  emptyTasksDesc: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: moderateScale(12),
-    color: Colors.textSecondary,
-    lineHeight: 18,
-  },
-  calendarBtn: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: Colors.surfaceContainerLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
-  },
-  safetyAlert: {
-    flexDirection: "row",
-    backgroundColor: Colors.warningLight,
-    borderRadius: moderateScale(16),
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.warning + "40",
-    gap: 12,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  safetyContent: {
-    flex: 1,
-    marginRight: 60,
-  },
-  safetyTitle: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(15),
-    color: Colors.warning,
-    marginBottom: 4,
-  },
-  safetyText: {
-    fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(12),
-    color: Colors.warning,
-    lineHeight: 18,
-  },
-  safetyImg: {
-    width: 80,
-    height: 80,
-    position: 'absolute',
-    right: -10,
-    bottom: -10,
-  },
-  scheduledCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(14),
-    padding: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  scheduledHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderColor: Colors.border,
-    paddingBottom: 10,
-    marginBottom: 10,
-  },
-  scheduledTime: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(14),
-    color: Colors.text,
-  },
-  scheduledPrice: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(15),
-    color: Colors.success,
-  },
-  scheduledBody: {
-    gap: 8,
-    marginBottom: 10,
-  },
-  addressLine: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  addressText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-    flex: 1,
-  },
-  connectorLine: {
-    width: 1,
-    height: 12,
-    backgroundColor: Colors.border,
-    marginLeft: 3.5,
-    marginTop: -6,
-    marginBottom: -6,
-  },
-  scheduledFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: Colors.border,
-    paddingTop: 10,
-  },
-  customerName: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-  },
-  badge: {
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: moderateScale(6),
-  },
-  badgeText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(10),
-    color: Colors.primaryDark,
-  },
-});

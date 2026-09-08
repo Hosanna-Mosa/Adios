@@ -7,21 +7,36 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
-  StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Colors from "@/constants/colors";
+import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
-import { staggerListItem, SPRING } from "@/motion/presets";
+import {
+  BankNotice,
+  ConsentCheckbox,
+  FormInput,
+  HomeAddressSuggestions,
+  LocationVerifiedBox,
+  InfoBanner,
+  PrimaryButton,
+  SectionHeader,
+  SelectCard,
+  SelfieCaptureSection,
+  StepIndicator,
+  OnboardingTopBar,
+  SectionProgressBar,
+} from "@/features/onboarding/components";
+import { inputStyles } from "@/features/onboarding/components/FormInput.styles";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { staggerListItem, SPRING } from "@/motion/presets";
+import { styles, dlStyles, bankStyles, selfieSectionStyles } from "@/features/onboarding/onboarding.styles";
+import { API_URL } from "@/utils/apiUrl";
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -46,330 +61,6 @@ const VEHICLES = [
     desc: "Premium deliveries & longer distances",
   },
 ];
-
-// ─── Step Indicator ────────────────────────────────────────────────────────────
-
-function StepIndicator({ step }: { step: 1 | 2 }) {
-  const labels = ["Work Settings", "Verification"];
-  return (
-    <View style={indicatorStyles.wrap}>
-      <Text style={indicatorStyles.label}>
-        Step {step} of 2 — {labels[step - 1]}
-      </Text>
-    </View>
-  );
-}
-
-const indicatorStyles = StyleSheet.create({
-  wrap: { alignItems: "center", gap: 10, marginBottom: 8 },
-  label: { fontSize: 13, fontWeight: "600", color: Colors.textMuted, letterSpacing: 0.3 },
-});
-
-// ─── Section Header ────────────────────────────────────────────────────────────
-
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <View style={{ marginBottom: 16 }}>
-      <Text style={{ fontSize: 22, fontWeight: "700", color: Colors.text }}>{title}</Text>
-      {subtitle && (
-        <Text style={{ fontSize: 14, color: Colors.textSecondary, marginTop: 4, lineHeight: 20 }}>
-          {subtitle}
-        </Text>
-      )}
-    </View>
-  );
-}
-
-// ─── Select Card ───────────────────────────────────────────────────────────────
-
-function SelectCard({
-  selected,
-  onSelect,
-  icon,
-  label,
-  desc,
-}: {
-  selected: boolean;
-  onSelect: () => void;
-  icon?: keyof typeof Feather.glyphMap;
-  label: string;
-  desc?: string;
-}) {
-  return (
-    <Pressable
-      onPress={() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        onSelect();
-      }}
-      style={[
-        selectStyles.card,
-        selected && selectStyles.cardSelected,
-      ]}
-    >
-      <View style={selectStyles.row}>
-        {icon && (
-          <View style={[selectStyles.iconWrap, selected && selectStyles.iconWrapSelected]}>
-            <Feather
-              name={icon}
-              size={20}
-              color={selected ? Colors.white : Colors.primary}
-            />
-          </View>
-        )}
-        <View style={selectStyles.textWrap}>
-          <Text style={[selectStyles.label, selected && selectStyles.labelSelected]}>
-            {label}
-          </Text>
-          {desc && (
-            <Text style={[selectStyles.desc, selected && selectStyles.descSelected]}>
-              {desc}
-            </Text>
-          )}
-        </View>
-        <View style={[selectStyles.radio, selected && selectStyles.radioSelected]}>
-          {selected && <Feather name="check" size={14} color={Colors.white} />}
-        </View>
-      </View>
-    </Pressable>
-  );
-}
-
-const selectStyles = StyleSheet.create({
-  card: {
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    padding: 16,
-  },
-  cardSelected: {
-    borderColor: Colors.primary,
-    backgroundColor: "#f0fcff",
-  },
-  row: { flexDirection: "row", alignItems: "center", gap: 14 },
-  iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: Colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  iconWrapSelected: { backgroundColor: Colors.primary },
-  textWrap: { flex: 1 },
-  label: { fontSize: 16, fontWeight: "600", color: Colors.text },
-  labelSelected: { color: Colors.primaryDark },
-  desc: { fontSize: 13, color: Colors.textMuted, marginTop: 2 },
-  descSelected: { color: Colors.primaryDark },
-  radio: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  radioSelected: { borderColor: Colors.primary, backgroundColor: Colors.primary },
-});
-
-// ─── Primary Button ────────────────────────────────────────────────────────────
-
-function PrimaryButton({
-  title,
-  onPress,
-  icon,
-  disabled,
-  loading,
-}: {
-  title: string;
-  onPress: () => void;
-  icon?: keyof typeof Feather.glyphMap;
-  disabled?: boolean;
-  loading?: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      style={[btnStyles.button, disabled && btnStyles.disabled]}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
-    >
-      {loading ? (
-        <Text style={btnStyles.text}>Please wait...</Text>
-      ) : (
-        <>
-          <Text style={btnStyles.text}>{title}</Text>
-          {icon && <Feather name={icon} size={20} color={Colors.white} />}
-        </>
-      )}
-    </TouchableOpacity>
-  );
-}
-
-const btnStyles = StyleSheet.create({
-  button: {
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  disabled: { opacity: 0.5 },
-  text: { color: Colors.white, fontSize: 17, fontWeight: "700" },
-});
-
-// ─── Input Field ───────────────────────────────────────────────────────────────
-
-function FormInput({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  keyboardType,
-  maxLength,
-  icon,
-  autoCapitalize,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (t: string) => void;
-  placeholder?: string;
-  keyboardType?: "default" | "number-pad" | "phone-pad";
-  maxLength?: number;
-  icon?: keyof typeof Feather.glyphMap;
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
-}) {
-  return (
-    <View style={inputStyles.group}>
-      <Text style={inputStyles.label}>{label}</Text>
-      <View style={inputStyles.container}>
-        {icon && <Feather name={icon} size={18} color={Colors.primary} />}
-        <TextInput
-          style={inputStyles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={Colors.textMuted}
-          keyboardType={keyboardType || "default"}
-          maxLength={maxLength}
-          autoCapitalize={autoCapitalize || "none"}
-        />
-      </View>
-    </View>
-  );
-}
-
-const inputStyles = StyleSheet.create({
-  group: { gap: 8 },
-  label: { fontSize: 14, fontWeight: "600", color: Colors.text },
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
-    backgroundColor: Colors.surface,
-  },
-  input: { flex: 1, fontSize: 16, color: Colors.text },
-});
-
-// ─── Info Banner ───────────────────────────────────────────────────────────────
-
-function InfoBanner({ icon, text, type }: { icon: keyof typeof Feather.glyphMap; text: string; type?: "success" | "info" }) {
-  const bgColor =
-    type === "success" ? "#e8f5e9" : Colors.primaryLight;
-  const txtColor =
-    type === "success" ? "#2e7d32" : Colors.primaryDark;
-  const iconColor =
-    type === "success" ? "#2e7d32" : Colors.primary;
-  return (
-    <View style={[bannerStyles.banner, { backgroundColor: bgColor }]}>
-      <Feather name={icon} size={16} color={iconColor} />
-      <Text style={[bannerStyles.text, { color: txtColor }]}>{text}</Text>
-    </View>
-  );
-}
-
-// ─── Consent Checkbox ────────────────────────────────────────────────────
-
-function ConsentCheckbox({
-  checked,
-  onToggle,
-  label,
-}: {
-  checked: boolean;
-  onToggle: () => void;
-  label: string;
-}) {
-  return (
-    <Pressable
-      onPress={onToggle}
-      style={consentStyles.wrap}
-    >
-      <View style={[consentStyles.box, checked && consentStyles.boxChecked]}>
-        {checked && <Feather name="check" size={14} color={Colors.white} />}
-      </View>
-      <Text style={consentStyles.label}>{label}</Text>
-    </Pressable>
-  );
-}
-
-const consentStyles = StyleSheet.create({
-  wrap: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  box: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 1,
-  },
-  boxChecked: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  label: {
-    flex: 1,
-    fontSize: 13,
-    color: Colors.text,
-    lineHeight: 18,
-  },
-});
-
-const bannerStyles = StyleSheet.create({
-  banner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: Colors.primaryLight,
-    padding: 14,
-    borderRadius: 12,
-  },
-  text: { fontSize: 13, color: Colors.primaryDark, flex: 1, lineHeight: 18 },
-});
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  MAIN ONBOARDING SCREEN
@@ -1114,68 +805,17 @@ export default function OnboardingScreen() {
               icon="home"
             />
 
-            {suggestions.length > 0 && (
-              <View style={{
-                borderWidth: 1,
-                borderColor: Colors.border || "#e2e8f0",
-                borderRadius: 12,
-                backgroundColor: "#ffffff",
-                maxHeight: 180,
-                overflow: "hidden",
-                marginTop: -8,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                elevation: 3,
-                zIndex: 999
-              }}>
-                <ScrollView nestedScrollEnabled={true} style={{ maxHeight: 180 }}>
-                  {suggestions.map((item) => (
-                    <TouchableOpacity
-                      key={item.id}
-                      onPress={() => {
-                        setHomeAddressLine(item.address);
-                        setHomeLat(item.lat);
-                        setHomeLng(item.lng);
-                        setSuggestions([]);
-                      }}
-                      style={{
-                        padding: 12,
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#f1f5f9"
-                      }}
-                    >
-                      <Text style={{ fontSize: 14, color: "#1e293b", fontWeight: "600" }}>{item.name}</Text>
-                      <Text style={{ fontSize: 12, color: "#64748b" }}>{item.address}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            )}
+            <HomeAddressSuggestions
+              suggestions={suggestions}
+              onSelect={(item) => {
+                setHomeAddressLine(item.address);
+                setHomeLat(item.lat);
+                setHomeLng(item.lng);
+                setSuggestions([]);
+              }}
+            />
 
-            {homeLat !== null && homeLng !== null && (
-              <View style={{
-                flexDirection: "row",
-                alignItems: "center",
-                backgroundColor: "#f0fdf4",
-                borderWidth: 1.5,
-                borderColor: Colors.success || "#22c55e",
-                borderRadius: 12,
-                padding: 12,
-                gap: 10
-              }}>
-                <Feather name="check-circle" size={18} color="#22c55e" />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 13, fontWeight: "600", color: "#166534" }}>
-                    Location Verified Geometrically
-                  </Text>
-                  <Text style={{ fontSize: 11, color: "#15803d", marginTop: 2 }}>
-                    Coords: [${homeLng.toFixed(4)}, ${homeLat.toFixed(4)}]
-                  </Text>
-                </View>
-              </View>
-            )}
+            <LocationVerifiedBox lat={homeLat} lng={homeLng} />
           </View>
         );
 
@@ -1377,17 +1017,10 @@ export default function OnboardingScreen() {
       case "bank":
         return (
           <View style={bankStyles.wrap}>
-            <View style={bankStyles.notice}>
-              <View style={bankStyles.noticeIcon}>
-                <Feather name="shield" size={17} color={Colors.success} />
-              </View>
-              <View style={bankStyles.noticeCopy}>
-                <Text style={bankStyles.noticeTitle}>Secure payout setup</Text>
-                <Text style={bankStyles.noticeText}>
-                  Add the account where your delivery earnings should be settled.
-                </Text>
-              </View>
-            </View>
+            <BankNotice
+              title="Secure payout setup"
+              text="Add the account where your delivery earnings should be settled."
+            />
 
             <View style={bankStyles.card}>
               <FormInput
@@ -1436,39 +1069,10 @@ export default function OnboardingScreen() {
 
       case "selfie":
         return (
-          <View style={{ gap: 20, alignItems: "center" }}>
-            <View style={selfieSectionStyles.viewfinder}>
-              <View style={selfieSectionStyles.viewfinderInner}>
-                <Feather name="camera" size={36} color={Colors.textMuted} />
-                <Text style={selfieSectionStyles.viewfinderText}>
-                  Position your face within the frame
-                </Text>
-              </View>
-              {/* Oval cutout guidelines */}
-              <View style={selfieSectionStyles.oval} />
-            </View>
-
-            {!selfieCaptured ? (
-              <TouchableOpacity
-                style={selfieSectionStyles.captureBtn}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                  setSelfieCaptured(true);
-                }}
-                activeOpacity={0.8}
-              >
-                <Feather name="camera" size={24} color={Colors.white} />
-              </TouchableOpacity>
-            ) : (
-              <View style={{ alignItems: "center", gap: 12 }}>
-                <InfoBanner icon="check-circle" text="Photo captured successfully!" />
-              </View>
-            )}
-
-            <Text style={selfieSectionStyles.guidelines}>
-              Make sure your face is clearly visible, well-lit, and without hats or sunglasses.
-            </Text>
-          </View>
+          <SelfieCaptureSection
+            captured={selfieCaptured}
+            onCapture={() => setSelfieCaptured(true)}
+          />
         );
 
       default:
@@ -1482,54 +1086,28 @@ export default function OnboardingScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
-        {/* Header Back + Close */}
-        <View style={styles.topBar}>
-          {sectionIdx > 0 || step > 1 ? (
-            <TouchableOpacity
-              onPress={() => {
-                if (sectionIdx > 0) {
-                  goToPrevSection();
-                } else if (step > 1) {
-                  setStep((p) => (p - 1) as 1 | 2);
-                  setSectionIdx(step1Sections.length - 1);
-                  animateTransition(-1);
-                }
-              }}
-              style={styles.topBarBtn}
-            >
-              <Feather name="arrow-left" size={20} color={Colors.text} />
-            </TouchableOpacity>
-          ) : (
-            <View style={{ width: 40 }} />
-          )}
-          <TouchableOpacity
-            onPress={() => {
-              setOnboardingCompleted();
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              router.replace("/(tabs)");
-            }}
-            style={styles.topBarBtn}
-          >
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-        </View>
+        <OnboardingTopBar
+          canGoBack={sectionIdx > 0 || step > 1}
+          onBack={() => {
+            if (sectionIdx > 0) {
+              goToPrevSection();
+            } else if (step > 1) {
+              setStep((p) => (p - 1) as 1 | 2);
+              setSectionIdx(step1Sections.length - 1);
+              animateTransition(-1);
+            }
+          }}
+          onSkip={() => {
+            setOnboardingCompleted();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            router.replace("/(tabs)");
+          }}
+        />
 
         {/* Progress */}
         <StepIndicator step={step} />
 
-        {/* Section Progress */}
-        <View style={styles.sectionProgress}>
-          {currentSections.map((s, i) => (
-            <View
-              key={s.key}
-              style={[
-                styles.sectionBar,
-                i < sectionIdx && styles.sectionBarDone,
-                i === sectionIdx && styles.sectionBarActive,
-              ]}
-            />
-          ))}
-        </View>
+        <SectionProgressBar sections={currentSections} currentIndex={sectionIdx} />
 
         {/* Section Title */}
         <SectionHeader title={sectionTitle()} subtitle={sectionSubtitle()} />
@@ -1694,184 +1272,3 @@ export default function OnboardingScreen() {
 }
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  inner: { flex: 1, paddingHorizontal: 20 },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  topBarBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceContainerLow,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  skipText: { fontSize: 14, fontWeight: "600", color: Colors.textMuted },
-  sectionProgress: {
-    flexDirection: "row",
-    gap: 6,
-    marginBottom: 20,
-  },
-  sectionBar: {
-    flex: 1,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.border,
-  },
-  sectionBarDone: { backgroundColor: Colors.success },
-  sectionBarActive: { backgroundColor: Colors.primary },
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
-  bottomBar: {
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
-  bottomBarHidden: {
-    display: "none",
-  },
-});
-
-const dlStyles = StyleSheet.create({
-  dateButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
-    backgroundColor: Colors.surface,
-  },
-  dateText: { flex: 1, fontSize: 16, color: Colors.text },
-  datePlaceholder: { flex: 1, fontSize: 16, color: Colors.textMuted },
-  errorBox: {
-    backgroundColor: "#fef2f2",
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#fecaca",
-  },
-  errorText: { color: Colors.error, fontSize: 13, lineHeight: 18 },
-});
-
-const bankStyles = StyleSheet.create({
-  wrap: {
-    gap: 16,
-  },
-  notice: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    backgroundColor: "#f1fbf5",
-    borderWidth: 1,
-    borderColor: "#b8e6ca",
-    borderRadius: 14,
-    padding: 14,
-  },
-  noticeIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: Colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  noticeCopy: {
-    flex: 1,
-    gap: 3,
-  },
-  noticeTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  noticeText: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: Colors.textSecondary,
-  },
-  card: {
-    gap: 16,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 16,
-    padding: 16,
-  },
-  errorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    backgroundColor: "#fef2f2",
-    borderWidth: 1,
-    borderColor: "#fecaca",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  errorText: {
-    flex: 1,
-    color: Colors.error,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-});
-
-const selfieSectionStyles = StyleSheet.create({
-  viewfinder: {
-    width: 220,
-    height: 280,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    borderStyle: "dashed",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-  },
-  viewfinderInner: { alignItems: "center", gap: 12, zIndex: 1 },
-  viewfinderText: { fontSize: 12, color: Colors.textMuted, textAlign: "center", paddingHorizontal: 20 },
-  oval: {
-    position: "absolute",
-    top: 40,
-    left: 30,
-    right: 30,
-    bottom: 50,
-    borderRadius: 80,
-    borderWidth: 2,
-    borderColor: Colors.primary,
-    opacity: 0.3,
-  },
-  captureBtn: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  guidelines: {
-    fontSize: 13,
-    color: Colors.textMuted,
-    textAlign: "center",
-    lineHeight: 18,
-    paddingHorizontal: 20,
-  },
-});
-
-

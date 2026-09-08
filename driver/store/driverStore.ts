@@ -1,12 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import Constants from "expo-constants";
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "../utils/socketService";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
 export type StopType = "pickup" | "delivery" | "drop" | "stop";
 
@@ -688,9 +687,23 @@ export const useDriverStore = create<DriverState>()(
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          if (res.status === 401 || res.status === 403 || res.status === 404) {
+          // 401/403 mean this token is genuinely rejected — sign out.
+          // A 404 does NOT: it means the request never reached the profile
+          // route (wrong EXPO_PUBLIC_API_URL, missing /api/v1 prefix, a stale
+          // build). Destroying a valid session over a config mistake logged
+          // drivers out on every launch, so treat it like a network failure
+          // and keep whatever token we hold.
+          if (res.status === 401 || res.status === 403) {
             get().logout();
             return false;
+          }
+
+          if (res.status === 404) {
+            console.warn(
+              `Driver profile route not found at ${apiUrl}/drivers/profile — ` +
+                "check EXPO_PUBLIC_API_URL. Keeping the existing session.",
+            );
+            return Boolean(get().token);
           }
 
           if (res.ok) {

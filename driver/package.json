@@ -8,7 +8,7 @@
     "build": "npx expo build",
     "serve": "npx expo serve",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "expo lint",
+    "lint": "expo lint .",
     "android": "expo run:android",
     "ios": "expo run:ios"
   },

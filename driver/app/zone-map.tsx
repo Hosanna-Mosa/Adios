@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
-import MapView, { Polygon, Circle, PROVIDER_GOOGLE } from "react-native-maps";
+import { View } from "react-native";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, router } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { useDriverStore } from "@/store/driverStore";
-import Colors from "@/constants/colors";
+import { API_URL } from "@/utils/apiUrl";
+import {
+  ZoneGeofence,
+  ZoneMapError,
+  ZoneMapLoading,
+  ZoneMapOverlay,
+} from "@/features/jobs/components";
+import { styles } from "@/features/jobs/zone-map.styles";
 
 // Default fallback to Rajahmundry coordinates if undefined
 const DEFAULT_LAT = 16.9891;
@@ -25,7 +31,7 @@ export default function ZoneMapScreen() {
       }
       try {
         const token = useDriverStore.getState().token;
-        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+        const apiUri = API_URL;
         const res = await fetch(`${apiUri}/zones/${zoneId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -44,23 +50,16 @@ export default function ZoneMapScreen() {
   }, [zoneId]);
 
   if (loading) {
-    return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={Colors.brand} />
-        <Text style={styles.loadingText}>Loading operational geofence map...</Text>
-      </View>
-    );
+    return <ZoneMapLoading message="Loading operational geofence map..." />;
   }
 
   if (error || !zone) {
     return (
-      <View style={styles.centerContainer}>
-        <Feather name="alert-triangle" size={48} color={Colors.error} />
-        <Text style={styles.errorText}>{error || "Zone data could not be fetched"}</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backButtonText}>Back to Onboarding</Text>
-        </TouchableOpacity>
-      </View>
+      <ZoneMapError
+        message={error || "Zone data could not be fetched"}
+        actionLabel="Back to Onboarding"
+        onAction={() => router.back()}
+      />
     );
   }
 
@@ -104,116 +103,19 @@ export default function ZoneMapScreen() {
         style={styles.map}
         initialRegion={initialRegion}
       >
-        {isPolygon && mapCoordinates.length > 0 && (
-          <Polygon
-            coordinates={mapCoordinates}
-            fillColor="rgba(0, 180, 198, 0.3)"
-            strokeColor={Colors.brand}
-            strokeWidth={3}
-          />
-        )}
-        {!isPolygon && (
-          <Circle
-            center={circleCenter}
-            radius={circleRadius}
-            fillColor="rgba(0, 180, 198, 0.3)"
-            strokeColor={Colors.brand}
-            strokeWidth={3}
-          />
-        )}
+        <ZoneGeofence
+          isPolygon={isPolygon}
+          coordinates={mapCoordinates}
+          circleCenter={circleCenter}
+          circleRadius={circleRadius}
+        />
       </MapView>
 
-      {/* Map Floating Header overlay */}
-      <View style={styles.headerOverlay}>
-        <TouchableOpacity style={styles.roundBackBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color={Colors.text} />
-        </TouchableOpacity>
-        <View style={styles.titleContainer}>
-          <Text style={styles.headerTitle}>{zone.name}</Text>
-          <Text style={styles.headerSubtitle} numberOfLines={2}>
-            {zone.description || "Operational geofence coverage area."}
-          </Text>
-        </View>
-      </View>
+      <ZoneMapOverlay
+        name={zone.name}
+        description={zone.description}
+        onBack={() => router.back()}
+      />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 15,
-    color: Colors.textSecondary,
-  },
-  errorText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: Colors.error,
-    textAlign: "center",
-  },
-  backButton: {
-    marginTop: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    backgroundColor: Colors.brand,
-    borderRadius: 24,
-  },
-  backButtonText: {
-    color: "#ffffff",
-    fontWeight: "700",
-    fontSize: 15,
-  },
-  headerOverlay: {
-    position: "absolute",
-    top: 48,
-    left: 16,
-    right: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderRadius: 20,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  roundBackBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.surfaceContainer,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-});

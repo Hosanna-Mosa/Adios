@@ -12,7 +12,14 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "md" | "sm";
 
 interface Props {
-  title: string;
+  /** Button label. Optional when `children` or an icon-only button is used. */
+  title?: string;
+  /** Arbitrary content in place of the default icon + label row. */
+  children?: React.ReactNode;
+  /** Square icon button: drops the label and the horizontal padding. */
+  iconOnly?: boolean;
+  /** Required when `iconOnly`, since there is no visible label to read out. */
+  accessibilityLabel?: string;
   onPress?: () => void;
   variant?: Variant;
   size?: Size;
@@ -29,6 +36,9 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * Mirrors app/components/ui/Button.tsx — same API, driver's cyan-teal brand. */
 export function Button({
   title,
+  children,
+  iconOnly = false,
+  accessibilityLabel,
   onPress,
   variant = "primary",
   size = "md",
@@ -53,9 +63,12 @@ export function Button({
     <View style={styles.content}>
       {loading ? (
         <ActivityIndicator color={variant === "primary" || variant === "danger" ? Colors.onBrand : Colors.brand} />
+      ) : children ? (
+        children
       ) : (
         <>
           {icon}
+          {title ? (
           <Text
             style={[
               size === "sm" ? styles.labelSm : styles.label,
@@ -65,6 +78,7 @@ export function Button({
           >
             {title}
           </Text>
+          ) : null}
         </>
       )}
     </View>
@@ -76,10 +90,14 @@ export function Button({
       onPressIn={handlePressIn}
       onPressOut={onPressOut}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={[
         animatedStyle,
         styles.base,
         size === "sm" ? styles.baseSm : styles.baseMd,
+        iconOnly && (size === "sm" ? styles.iconOnlySm : styles.iconOnlyMd),
         variant === "secondary" && styles.secondary,
         variant === "ghost" && styles.ghost,
         variant === "danger" && styles.danger,
@@ -129,6 +147,14 @@ const styles = StyleSheet.create({
   },
   fullWidth: {
     width: "100%",
+  },
+  iconOnlyMd: {
+    width: moderateScale(52),
+    paddingHorizontal: 0,
+  },
+  iconOnlySm: {
+    width: moderateScale(40),
+    paddingHorizontal: 0,
   },
   disabled: {
     opacity: 0.5,

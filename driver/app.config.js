@@ -81,10 +81,8 @@ export default {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
 
-      eas: {
-        projectId: '484db5ff-50ce-4d0e-8705-8876148638a7',
-      },
+      // eas.projectId is written by `eas init` for the signed-in account.
+      // Previous (triozen-tech): 484db5ff-50ce-4d0e-8705-8876148638a7
     },
-    owner: 'triozen-tech',
   },
 };

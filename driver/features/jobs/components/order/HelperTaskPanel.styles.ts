@@ -1,0 +1,46 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/colors";
+
+/** Values lifted verbatim from the inline styles on the helper task stage. */
+export const helperTaskStyles = StyleSheet.create({
+  timerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    alignSelf: "center",
+  },
+  timerText: { fontSize: 24, fontWeight: "900", marginLeft: 8 },
+  progressTrack: {
+    height: 8,
+    backgroundColor: Colors.border,
+    borderRadius: 4,
+    marginBottom: 8,
+    overflow: "hidden",
+    flexDirection: "row",
+  },
+  progressRest: { backgroundColor: "transparent" },
+  progressLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  progressLabel: { fontSize: 12, color: Colors.textSecondary, fontWeight: "600" },
+  updatesHeading: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: "700",
+    marginBottom: 8,
+    textTransform: "uppercase",
+  },
+  updatesScroll: { marginBottom: 20 },
+  updateChip: {
+    backgroundColor: Colors.brandSkin,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: Colors.primaryLight,
+  },
+  updateChipText: { color: Colors.brand, fontSize: 13, fontWeight: "600" },
+});

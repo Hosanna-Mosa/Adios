@@ -2,10 +2,8 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   RefreshControl,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -13,19 +11,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Animated from "react-native-reanimated";
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
 
 import Colors from "@/constants/colors";
-import { EarningsChart } from "@/components/EarningsChart";
-import { CashOutButton } from "@/components/CashOutButton";
-import { TransactionItem } from "@/components/TransactionItem";
-import { Button } from "@/components/ui/Button";
-import { TextField } from "@/components/ui/TextField";
-import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/shared/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
+import { fadeInUp } from "@/motion/presets";
+import {
+  BalanceCard,
+  CashOutButton,
+  CashOutDialog,
+  EarningsChart,
+  EarningsStatsRow,
+  RecentActivityList,
+} from "@/features/earnings/components";
+import { formatCurrency } from "@/features/earnings/utils/format";
+import { styles } from "@/features/earnings/earnings.styles";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
 interface WeeklyPoint {
   day: string;
@@ -180,24 +182,13 @@ export default function EarningsScreen() {
           </View>
         ) : (
           <>
-            <Animated.View entering={fadeInUp(0)} style={styles.balanceCard}>
-              <Text style={styles.balanceLabel}>This Week&apos;s Balance</Text>
-              <View style={styles.balanceRow}>
-                <Text style={styles.balanceAmount}>{formatCurrency(earnings.weekBalance)}</Text>
-                <View style={styles.trendBadge}>
-                  <Feather
-                    name={earnings.trendPercent >= 0 ? "arrow-up" : "arrow-down"}
-                    size={12}
-                    color={Colors.success}
-                  />
-                  <Text style={styles.trendText}>{trendLabel}</Text>
-                </View>
-              </View>
-              <Text style={styles.availableText}>
-                Available: {formatCurrency(earnings.availableBalance)}
-                {earnings.bank.last4 ? ` to bank ending ${earnings.bank.last4}` : ""}
-              </Text>
-            </Animated.View>
+            <BalanceCard
+              weekBalance={earnings.weekBalance}
+              availableBalance={earnings.availableBalance}
+              trendPercent={earnings.trendPercent}
+              trendLabel={trendLabel}
+              bankLast4={earnings.bank.last4}
+            />
 
             <Animated.View entering={fadeInUp(60)}>
               <EarningsChart data={earnings.weeklyBreakdown} />
@@ -226,268 +217,27 @@ export default function EarningsScreen() {
               isLoading={isCashingOut}
             />
 
-            <Animated.View entering={fadeInUp(120)} style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-              {earnings.recentActivity.length === 0 ? (
-                <Text style={styles.emptyText}>No completed earnings yet.</Text>
-              ) : (
-                earnings.recentActivity.map((tx, idx) => (
-                  <Animated.View key={tx.id} entering={staggerListItem(idx)}>
-                    <TransactionItem
-                      icon={tx.icon}
-                      label={tx.label}
-                      amount={`${tx.amount >= 0 ? "+" : "-"}${formatCurrency(Math.abs(tx.amount))}`}
-                      time={formatRelativeTime(tx.createdAt)}
-                    />
-                  </Animated.View>
-                ))
-              )}
-            </Animated.View>
+            <RecentActivityList transactions={earnings.recentActivity} />
 
-            <Animated.View entering={fadeInUp(180)} style={styles.bottomStats}>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{earnings.stats.onlineHours.toFixed(1)}h</Text>
-                <Text style={styles.statLabel}>Online Hours</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{earnings.stats.totalDistance} km</Text>
-                <Text style={styles.statLabel}>Total Distance</Text>
-              </View>
-            </Animated.View>
+            <EarningsStatsRow
+              onlineHours={earnings.stats.onlineHours}
+              totalDistance={earnings.stats.totalDistance}
+            />
           </>
         )}
       </ScrollView>
 
       <DriverTabBar active="earnings" />
 
-      <Modal
+      <CashOutDialog
         visible={cashOutVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setCashOutVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Confirm Cash Out</Text>
-            <Text style={styles.modalText}>
-              {formatCurrency(earnings.availableBalance)} will be transferred through Razorpay.
-            </Text>
-            <TextField
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Driver password"
-              secureTextEntry
-              style={{ marginBottom: 14 }}
-            />
-            <View style={styles.modalActions}>
-              <Button
-                title="Cancel"
-                variant="secondary"
-                size="sm"
-                onPress={() => setCashOutVisible(false)}
-                disabled={isCashingOut}
-              />
-              <Button
-                title="Confirm"
-                size="sm"
-                onPress={handleCashOut}
-                loading={isCashingOut}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        amount={earnings.availableBalance}
+        password={password}
+        onPasswordChange={setPassword}
+        onConfirm={handleCashOut}
+        onCancel={() => setCashOutVisible(false)}
+        isCashingOut={isCashingOut}
+      />
     </SafeAreaView>
   );
 }
-
-function formatCurrency(amount: number) {
-  return `\u20b9${Number(amount || 0).toFixed(2)}`;
-}
-
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString);
-  const diffMs = Date.now() - date.getTime();
-  const minutes = Math.max(1, Math.floor(diffMs / 60000));
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hours ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} days ago`;
-}
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-  },
-  headerTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(24),
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  loadingCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 28,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  balanceCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 20,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  balanceLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    marginBottom: 8,
-  },
-  balanceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  balanceAmount: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(32),
-    color: Colors.text,
-  },
-  trendBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.success + "20",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: moderateScale(6),
-    gap: 2,
-  },
-  trendText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(12),
-    color: Colors.success,
-  },
-  availableText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-    marginTop: 8,
-  },
-  sectionCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  sectionTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  emptyText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    paddingVertical: 12,
-  },
-  bottomStats: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: moderateScale(12),
-    padding: 16,
-    alignItems: "center",
-  },
-  statValue: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(20),
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 18,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  modalTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(18),
-    color: Colors.text,
-    marginBottom: 6,
-  },
-  modalText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    marginBottom: 14,
-  },
-  passwordInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(10),
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontFamily: "Inter_500Medium",
-    color: Colors.text,
-    marginBottom: 14,
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-  },
-  secondaryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.surfaceContainerLow,
-  },
-  secondaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-  },
-  primaryButton: {
-    minWidth: 88,
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.primary,
-  },
-  primaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.white,
-  },
-});

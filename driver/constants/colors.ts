@@ -65,6 +65,59 @@ export const Colors = {
 
   // Surge Zone
   surge: "#00E5FF",
+
+  // -------------------------------------------------------------------------
+  // Tokens reclaimed from hardcoded hex literals during the view-layer
+  // refactor. Every value below is byte-identical to the literal it replaces —
+  // these names exist so call sites stop typing raw hex, not to restyle
+  // anything. Grouped by the role the literal actually played at its call site.
+  // -------------------------------------------------------------------------
+
+  // Info / sky blue — used by PerformanceCard, HighDemandAreas, zone callouts
+  info: "#0EA5E9",
+  infoMid: "#0284C7",
+  infoDark: "#0369A1",
+  infoSurface: "#F0F9FF",
+  infoBorder: "#E0F2FE",
+  infoSkin: "#EEFAFF",
+  infoSkinAlt: "#F0FCFF",
+  infoAccent: "#2E78B7",
+  infoAccentSkin: "#D2EBFF",
+  iosBlue: "#007AFF",
+
+  // Neutral slate ramp — leaked in from Tailwind defaults
+  neutral900: "#0F172A",
+  neutral800: "#1E293B",
+  neutral600: "#475569",
+  neutral500: "#64748B",
+  neutral200: "#E2E8F0",
+  neutral100: "#F1F5F9",
+  neutral50: "#F8F9FA",
+  systemGrey: "#F2F2F7",
+  nearBlack: "#1C1C1E",
+
+  // Danger — distinct from the brand `error` ramp already above
+  danger: "#EF4444",
+  dangerSurface: "#FEF2F2",
+  dangerBorder: "#FECACA",
+
+  // Success shades beyond the brand `success`
+  successBright: "#22C55E",
+  successStrong: "#15803D",
+  successDeep: "#166534",
+  successForest: "#2E7D32",
+  successSkin: "#E8F5E9",
+  successSkinAlt: "#EBFAF0",
+  successSkinSoft: "#F1FBF5",
+  successSkinPale: "#F0FDF4",
+  successBorder: "#B8E6CA",
+
+  // Warning / warm
+  amber: "#F59E0B",
+  warmSkin: "#FFF5E6",
+
+  // Accent violet — profile badges
+  violet: "#8B5CF6",
 };
 
 // Service accents — same hues as the customer app's designTokens.light.services

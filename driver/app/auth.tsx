@@ -7,23 +7,20 @@ import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
   Alert,
 } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
+import { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
-import Constants from "expo-constants";
-import { Button } from "@/components/ui/Button";
-import { TextField } from "@/components/ui/TextField";
-import { fadeInUp, SPRING } from "@/motion/presets";
+import { SPRING } from "@/motion/presets";
+import { AuthForm, OtpForm } from "@/features/auth/components";
+import { styles } from "@/features/auth/auth.styles";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 const MOCK_OTP = "123456";
 
 type AuthMode = "signin" | "signup";
@@ -197,169 +194,6 @@ export default function AuthScreen() {
 
   // ── Render ───────────────────────────────────────────────────
 
-  const renderForm = () => (
-    <View style={styles.formSection}>
-      {/* Tabs */}
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signin" && styles.tabActive]}
-          onPress={() => switchMode("signin")}
-        >
-          <Text style={[styles.tabText, mode === "signin" && styles.tabTextActive]}>Sign In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signup" && styles.tabActive]}
-          onPress={() => switchMode("signup")}
-        >
-          <Text style={[styles.tabText, mode === "signup" && styles.tabTextActive]}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.formTitle}>
-        {mode === "signin" ? "Welcome Back!" : "Join as Driver"}
-      </Text>
-      <Text style={styles.formSubtitle}>
-        {mode === "signin"
-          ? "Sign in with your phone number and password"
-          : "Create your account to start delivering"}
-      </Text>
-
-      {/* Name field — sign up only */}
-      {mode === "signup" && (
-        <Animated.View entering={fadeInUp(0)}>
-          <TextField
-            label="Your Name"
-            icon={<Feather name="user" size={18} color={Colors.brand} />}
-            placeholder="Enter your full name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
-        </Animated.View>
-      )}
-
-      {/* Phone */}
-      <Animated.View entering={fadeInUp(40)}>
-        <TextField
-          label="Phone Number"
-          icon={
-            <View style={styles.countryCodeGroup}>
-              <Text style={styles.countryCode}>+91</Text>
-              <View style={styles.phoneDivider} />
-            </View>
-          }
-          placeholder="Enter 10-digit number"
-          value={phone}
-          onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))}
-          keyboardType="phone-pad"
-        />
-      </Animated.View>
-
-      {/* Password */}
-      <Animated.View entering={fadeInUp(80)}>
-        <TextField
-          label="Password"
-          icon={<Feather name="lock" size={18} color={Colors.brand} />}
-          placeholder={mode === "signin" ? "Enter your password" : "Create a password (6+ chars)"}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </Animated.View>
-
-      {/* Confirm Password — sign up only */}
-      {mode === "signup" && (
-        <Animated.View entering={fadeInUp(120)}>
-          <TextField
-            label="Confirm Password"
-            icon={<Feather name="shield" size={18} color={Colors.brand} />}
-            placeholder="Re-enter your password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
-        </Animated.View>
-      )}
-
-      {/* Submit button */}
-      <Button
-        title={
-          loading
-            ? mode === "signin" ? "Signing in..." : "Sending OTP..."
-            : mode === "signin" ? "Sign In" : "Get OTP"
-        }
-        onPress={mode === "signin" ? handleSignIn : handleSendOTP}
-        loading={loading}
-        icon={!loading ? <Feather name={mode === "signin" ? "log-in" : "arrow-right"} size={18} color={Colors.onBrand} /> : undefined}
-        fullWidth
-        style={{ marginTop: 4 }}
-      />
-
-      {/* Bottom switch hint */}
-      <TouchableOpacity
-        style={styles.switchButton}
-        onPress={() => switchMode(mode === "signin" ? "signup" : "signin")}
-      >
-        <Text style={styles.switchText}>
-          {mode === "signin"
-            ? "Don't have an account? Sign Up"
-            : "Already have an account? Sign In"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderOTP = () => (
-    <Animated.View
-      style={[styles.formSection, slideAnimatedStyle]}
-    >
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => {
-          setStep("form");
-          setOtp(["", "", "", "", "", ""]);
-        }}
-      >
-        <Feather name="arrow-left" size={20} color={Colors.text} />
-      </TouchableOpacity>
-
-      <Text style={styles.formTitle}>Verify Phone</Text>
-      <Text style={styles.formSubtitle}>
-        Enter the 6-digit code sent to{'\n'}+91 {phone}
-      </Text>
-      <Text style={styles.demoHint}>Demo OTP: {MOCK_OTP}</Text>
-
-      <View style={styles.otpContainer}>
-        {otp.map((digit, idx) => (
-          <TextInput
-            key={idx}
-            ref={(r) => { otpRefs.current[idx] = r; }}
-            style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
-            value={digit}
-            onChangeText={(t) => handleOTPChange(t.slice(-1), idx)}
-            onKeyPress={(e) => handleKeyPress(e, idx)}
-            keyboardType="number-pad"
-            maxLength={1}
-            selectTextOnFocus
-          />
-        ))}
-      </View>
-
-      <Button
-        title={loading ? "Creating account..." : "Verify & Create Account"}
-        onPress={() => handleVerifyOTP()}
-        loading={loading}
-        disabled={otp.join("").length < 6}
-        icon={!loading ? <Feather name="check" size={18} color={Colors.onBrand} /> : undefined}
-        fullWidth
-      />
-
-      <TouchableOpacity style={styles.resendButton} onPress={handleSendOTP}>
-        <Text style={styles.resendText}>Resend OTP</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
-
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -382,212 +216,41 @@ export default function AuthScreen() {
           <Text style={styles.tagline}>Driver Partner App</Text>
         </View>
 
-        {step === "form" ? renderForm() : renderOTP()}
+        {step === "form" ? (
+          <AuthForm
+            mode={mode}
+            onSwitchMode={switchMode}
+            name={name}
+            onNameChange={setName}
+            phone={phone}
+            onPhoneChange={setPhone}
+            password={password}
+            onPasswordChange={setPassword}
+            confirmPassword={confirmPassword}
+            onConfirmPasswordChange={setConfirmPassword}
+            loading={loading}
+            onSignIn={handleSignIn}
+            onSendOTP={handleSendOTP}
+          />
+        ) : (
+          <OtpForm
+            phone={phone}
+            otp={otp}
+            otpRefs={otpRefs}
+            mockOtp={MOCK_OTP}
+            loading={loading}
+            onOtpChange={handleOTPChange}
+            onKeyPress={handleKeyPress}
+            onVerify={() => handleVerifyOTP()}
+            onResend={handleSendOTP}
+            onBack={() => {
+              setStep("form");
+              setOtp(["", "", "", "", "", ""]);
+            }}
+            animatedStyle={slideAnimatedStyle}
+          />
+        )}
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  inner: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center",
-    gap: 24,
-  },
-  logoSection: {
-    alignItems: "center",
-    gap: 6,
-  },
-  logoContainer: {
-    width: moderateScale(72),
-    height: moderateScale(72),
-    borderRadius: moderateScale(22),
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  appName: {
-    fontSize: moderateScale(26),
-    fontWeight: "800",
-    color: Colors.text,
-    letterSpacing: -0.5,
-  },
-  tagline: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    fontWeight: "500",
-  },
-  formSection: {
-    gap: 14,
-  },
-  countryCodeGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  formTitle: {
-    fontSize: moderateScale(22),
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  formSubtitle: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    lineHeight: 20,
-    marginTop: -6,
-  },
-  demoHint: {
-    fontSize: moderateScale(13),
-    color: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: moderateScale(8),
-    alignSelf: "flex-start",
-    fontWeight: "500",
-  },
-  tabRow: {
-    flexDirection: "row",
-    backgroundColor: Colors.surfaceAlt,
-    borderRadius: moderateScale(10),
-    padding: 3,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-  },
-  tabActive: {
-    backgroundColor: Colors.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  tabText: {
-    fontSize: moderateScale(14),
-    fontWeight: "600",
-    color: Colors.textSecondary,
-  },
-  tabTextActive: {
-    color: Colors.primary,
-  },
-  inputGroup: {
-    gap: 5,
-  },
-  inputLabel: {
-    fontSize: moderateScale(13),
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(12),
-    paddingHorizontal: 14,
-    height: moderateScale(48),
-    gap: 10,
-    backgroundColor: Colors.surface,
-  },
-  countryCode: {
-    fontSize: moderateScale(16),
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  phoneDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: Colors.border,
-  },
-  input: {
-    flex: 1,
-    fontSize: moderateScale(16),
-    color: Colors.text,
-  },
-  primaryButton: {
-    height: moderateScale(50),
-    borderRadius: moderateScale(25),
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-    marginTop: 4,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-  primaryButtonText: {
-    color: Colors.white,
-    fontSize: moderateScale(16),
-    fontWeight: "700",
-  },
-  otpContainer: {
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-    marginVertical: 4,
-  },
-  otpBox: {
-    width: moderateScale(44),
-    height: moderateScale(50),
-    borderRadius: moderateScale(10),
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
-    textAlign: "center",
-    fontSize: moderateScale(20),
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  otpBoxFilled: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-  },
-  backButton: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: Colors.surfaceAlt,
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "flex-start",
-  },
-  resendButton: {
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  resendText: {
-    fontSize: moderateScale(15),
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-  switchButton: {
-    alignItems: "center",
-    paddingVertical: 2,
-  },
-  switchText: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    fontWeight: "500",
-  },
-});

@@ -1,4 +1,3 @@
-import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -6,207 +5,30 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
-import { SPRING } from "@/motion/presets";
+import {
+  ConsentCheckbox,
+  FormInput,
+  InfoBanner,
+  PrimaryButton,
+  AlternateIdLink,
+  OnboardingTopBar,
+  SectionHeader,
+  ValidationErrorBox,
+} from "@/features/onboarding/components";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+import { SPRING } from "@/motion/presets";
+import { progressStyles, styles } from "./identity-verify.styles";
+import { API_URL } from "@/utils/apiUrl";
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // ─── Reusable UI Components ────────────────────────────────────────────────────
-
-function InfoBanner({ icon, text, type }: { icon: keyof typeof Feather.glyphMap; text: string; type?: "success" | "info" }) {
-  const bgColor = type === "success" ? "#e8f5e9" : Colors.primaryLight;
-  const txtColor = type === "success" ? "#2e7d32" : Colors.primaryDark;
-  const iconColor = type === "success" ? "#2e7d32" : Colors.primary;
-  return (
-    <View style={[bannerStyles.banner, { backgroundColor: bgColor }]}>
-      <Feather name={icon} size={16} color={iconColor} />
-      <Text style={[bannerStyles.text, { color: txtColor }]}>{text}</Text>
-    </View>
-  );
-}
-
-const bannerStyles = StyleSheet.create({
-  banner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 14,
-    borderRadius: 12,
-  },
-  text: { fontSize: 13, color: Colors.primaryDark, flex: 1, lineHeight: 18 },
-});
-
-function PrimaryButton({
-  title,
-  onPress,
-  icon,
-  disabled,
-  loading,
-}: {
-  title: string;
-  onPress: () => void;
-  icon?: keyof typeof Feather.glyphMap;
-  disabled?: boolean;
-  loading?: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      style={[btnStyles.button, disabled && btnStyles.disabled]}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
-    >
-      {loading ? (
-        <Text style={btnStyles.text}>Please wait...</Text>
-      ) : (
-        <>
-          <Text style={btnStyles.text}>{title}</Text>
-          {icon && <Feather name={icon} size={20} color={Colors.white} />}
-        </>
-      )}
-    </TouchableOpacity>
-  );
-}
-
-const btnStyles = StyleSheet.create({
-  button: {
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  disabled: { opacity: 0.5 },
-  text: { color: Colors.white, fontSize: 17, fontWeight: "700" },
-});
-
-function FormInput({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  keyboardType,
-  maxLength,
-  icon,
-  autoCapitalize,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (t: string) => void;
-  placeholder?: string;
-  keyboardType?: "default" | "number-pad" | "phone-pad";
-  maxLength?: number;
-  icon?: keyof typeof Feather.glyphMap;
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
-}) {
-  return (
-    <View style={inputStyles.group}>
-      <Text style={inputStyles.label}>{label}</Text>
-      <View style={inputStyles.container}>
-        {icon && <Feather name={icon} size={18} color={Colors.primary} />}
-        <TextInput
-          style={inputStyles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor={Colors.textMuted}
-          keyboardType={keyboardType || "default"}
-          maxLength={maxLength}
-          autoCapitalize={autoCapitalize || "none"}
-        />
-      </View>
-    </View>
-  );
-}
-
-const inputStyles = StyleSheet.create({
-  group: { gap: 8 },
-  label: { fontSize: 14, fontWeight: "600", color: Colors.text },
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
-    backgroundColor: Colors.surface,
-  },
-  input: { flex: 1, fontSize: 16, color: Colors.text },
-});
-
-function ConsentCheckbox({
-  checked,
-  onToggle,
-  label,
-}: {
-  checked: boolean;
-  onToggle: () => void;
-  label: string;
-}) {
-  return (
-    <Pressable onPress={onToggle} style={consentStyles.wrap}>
-      <View style={[consentStyles.box, checked && consentStyles.boxChecked]}>
-        {checked && <Feather name="check" size={14} color={Colors.white} />}
-      </View>
-      <Text style={consentStyles.label}>{label}</Text>
-    </Pressable>
-  );
-}
-
-const consentStyles = StyleSheet.create({
-  wrap: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  box: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: Colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 1,
-  },
-  boxChecked: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  label: {
-    flex: 1,
-    fontSize: 13,
-    color: Colors.text,
-    lineHeight: 18,
-  },
-});
 
 // ─── Section Progress Indicator ────────────────────────────────────────────────
 
@@ -223,26 +45,6 @@ function SectionProgress({ total, current }: { total: number; current: number })
           ]}
         />
       ))}
-    </View>
-  );
-}
-
-const progressStyles = StyleSheet.create({
-  row: { flexDirection: "row", gap: 6, marginBottom: 20 },
-  bar: { flex: 1, height: 4, borderRadius: 2, backgroundColor: Colors.border },
-  barDone: { backgroundColor: Colors.success },
-  barActive: { backgroundColor: Colors.primary },
-});
-
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
-  return (
-    <View style={{ marginBottom: 16 }}>
-      <Text style={{ fontSize: 22, fontWeight: "700", color: Colors.text }}>{title}</Text>
-      {subtitle && (
-        <Text style={{ fontSize: 14, color: Colors.textSecondary, marginTop: 4, lineHeight: 20 }}>
-          {subtitle}
-        </Text>
-      )}
     </View>
   );
 }
@@ -482,11 +284,7 @@ export default function IdentityVerifyScreen() {
                 (validateAadhaarFormat(aadhaarNumber.replace(/\s/g, "")) ? (
                   <InfoBanner icon="check-circle" text="Valid Aadhaar format" type="success" />
                 ) : (
-                  <View style={{ backgroundColor: "#fef2f2", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#fecaca" }}>
-                    <Text style={{ color: Colors.error, fontSize: 13, lineHeight: 18 }}>
-                      Invalid Aadhaar number. Must be 12 digits and cannot start with 0 or 1.
-                    </Text>
-                  </View>
+                  <ValidationErrorBox message="Invalid Aadhaar number. Must be 12 digits and cannot start with 0 or 1." />
                 ))}
             </>
           ) : !aadhaarVerified ? (
@@ -505,14 +303,7 @@ export default function IdentityVerifyScreen() {
                 icon="shield"
               />
               {!panVerified && (
-                <TouchableOpacity
-                  onPress={goNext}
-                  style={{ alignItems: "center", paddingVertical: 10 }}
-                >
-                  <Text style={{ fontSize: 14, color: Colors.textMuted, fontWeight: "500" }}>
-                    Use PAN Card instead →
-                  </Text>
-                </TouchableOpacity>
+                <AlternateIdLink label="Use PAN Card instead →" onPress={goNext} />
               )}
             </>
           ) : (
@@ -551,18 +342,10 @@ export default function IdentityVerifyScreen() {
                 type="info"
               />
               {panNumber.length > 0 && !validatePANFormat(panNumber) && (
-                <View style={{ backgroundColor: "#fef2f2", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#fecaca" }}>
-                  <Text style={{ color: Colors.error, fontSize: 13, lineHeight: 18 }}>
-                    Invalid PAN number. Format should be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F).
-                  </Text>
-                </View>
+                <ValidationErrorBox message="Invalid PAN number. Format should be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)." />
               )}
               {panName.length > 0 && panName.length < 3 && (
-                <View style={{ backgroundColor: "#fef2f2", padding: 12, borderRadius: 12, borderWidth: 1, borderColor: "#fecaca" }}>
-                  <Text style={{ color: Colors.error, fontSize: 13, lineHeight: 18 }}>
-                    Name must be at least 3 characters.
-                  </Text>
-                </View>
+                <ValidationErrorBox message="Name must be at least 3 characters." />
               )}
               {validatePANFormat(panNumber) && panName.length >= 3 && (
                 <InfoBanner icon="check-circle" text="Valid PAN details" type="success" />
@@ -584,14 +367,7 @@ export default function IdentityVerifyScreen() {
                 icon="shield"
               />
               {!aadhaarVerified && (
-                <TouchableOpacity
-                  onPress={goPrev}
-                  style={{ alignItems: "center", paddingVertical: 10 }}
-                >
-                  <Text style={{ fontSize: 14, color: Colors.textMuted, fontWeight: "500" }}>
-                    ← Use Aadhaar instead
-                  </Text>
-                </TouchableOpacity>
+                <AlternateIdLink label="← Use Aadhaar instead" onPress={goPrev} />
               )}
             </>
           ) : (
@@ -682,22 +458,11 @@ export default function IdentityVerifyScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
-        {/* Top Bar */}
-        <View style={styles.topBar}>
-          {sectionIdx > 0 ? (
-            <TouchableOpacity onPress={goPrev} style={styles.topBarBtn}>
-              <Feather name="arrow-left" size={20} color={Colors.text} />
-            </TouchableOpacity>
-          ) : (
-            <View style={{ width: 40 }} />
-          )}
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.topBarBtn}
-          >
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-        </View>
+        <OnboardingTopBar
+          canGoBack={sectionIdx > 0}
+          onBack={goPrev}
+          onSkip={() => router.back()}
+        />
 
         {/* Progress */}
         <SectionProgress total={totalSections} current={sectionIdx} />
@@ -736,31 +501,3 @@ export default function IdentityVerifyScreen() {
 }
 
 // ─── Styles ────────────────────────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  inner: { flex: 1, paddingHorizontal: 20 },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  topBarBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceContainerLow,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  skipText: { fontSize: 14, fontWeight: "600", color: Colors.textMuted },
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
-  bottomBar: {
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
-});

@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 
-import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
+import {
+  BankAccountForm,
+  PayoutHeader,
+  SaveBar,
+  SecureNotice,
+} from "@/features/onboarding/components";
+import { styles } from "@/features/onboarding/payout-setup.styles";
+import { API_URL } from "@/utils/apiUrl";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export default function PayoutSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -90,246 +89,41 @@ export default function PayoutSetupScreen() {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Feather name="arrow-left" size={20} color={Colors.text} />
-          </Pressable>
-          <Text style={styles.headerTitle}>Payout Setup</Text>
-          <View style={styles.backButton} />
-        </View>
+        <PayoutHeader
+          title="Payout Setup"
+          paddingTop={insets.top + 16}
+          onBack={() => router.back()}
+        />
 
         <ScrollView
           style={styles.flex}
           contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Notice */}
-          <View style={styles.notice}>
-            <View style={styles.noticeIcon}>
-              <Feather name="shield" size={17} color={Colors.success} />
-            </View>
-            <View style={styles.noticeCopy}>
-              <Text style={styles.noticeTitle}>Secure payout setup</Text>
-              <Text style={styles.noticeText}>
-                Add the account where your delivery earnings should be settled. Make sure the details are correct.
-              </Text>
-            </View>
-          </View>
+          <SecureNotice
+            title="Secure payout setup"
+            text="Add the account where your delivery earnings should be settled. Make sure the details are correct."
+          />
 
-          {/* Form */}
-          <View style={styles.card}>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Account Number</Text>
-              <View style={styles.inputContainer}>
-                <Feather name="credit-card" size={18} color={Colors.primary} />
-                <TextInput
-                  style={styles.input}
-                  value={accountNumber}
-                  onChangeText={(t) => setAccountNumber(t.replace(/[^0-9]/g, "").slice(0, 18))}
-                  placeholder="Enter account number"
-                  placeholderTextColor={Colors.textMuted}
-                  keyboardType="number-pad"
-                />
-              </View>
-            </View>
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Confirm Account Number</Text>
-              <View style={styles.inputContainer}>
-                <Feather name="check-square" size={18} color={Colors.primary} />
-                <TextInput
-                  style={styles.input}
-                  value={confirmAccount}
-                  onChangeText={(t) => setConfirmAccount(t.replace(/[^0-9]/g, "").slice(0, 18))}
-                  placeholder="Re-enter account number"
-                  placeholderTextColor={Colors.textMuted}
-                  keyboardType="number-pad"
-                />
-              </View>
-            </View>
-
-            {confirmAccount.length > 0 && !accountsMatch && (
-              <View style={styles.errorRow}>
-                <Feather name="alert-circle" size={15} color={Colors.error} />
-                <Text style={styles.errorText}>Account numbers don&apos;t match</Text>
-              </View>
-            )}
-
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>IFSC Code</Text>
-              <View style={styles.inputContainer}>
-                <Feather name="map-pin" size={18} color={Colors.primary} />
-                <TextInput
-                  style={styles.input}
-                  value={ifsc}
-                  onChangeText={(t) => setIfsc(t.toUpperCase().slice(0, 11))}
-                  placeholder="SBIN0001234"
-                  placeholderTextColor={Colors.textMuted}
-                  autoCapitalize="characters"
-                />
-              </View>
-            </View>
-          </View>
+          <BankAccountForm
+            accountNumber={accountNumber}
+            onAccountNumberChange={(t) => setAccountNumber(t.replace(/[^0-9]/g, "").slice(0, 18))}
+            confirmAccount={confirmAccount}
+            onConfirmAccountChange={(t) => setConfirmAccount(t.replace(/[^0-9]/g, "").slice(0, 18))}
+            accountsMatch={accountsMatch}
+            ifsc={ifsc}
+            onIfscChange={(t) => setIfsc(t.toUpperCase().slice(0, 11))}
+          />
         </ScrollView>
 
-        {/* Bottom save button */}
-        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
-          <Pressable
-            style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
-            onPress={handleSave}
-            disabled={!canSave}
-          >
-            {saving ? (
-              <ActivityIndicator size="small" color={Colors.white} />
-            ) : (
-              <Text style={styles.saveButtonText}>Save Bank Details</Text>
-            )}
-          </Pressable>
-        </View>
+        <SaveBar
+          label="Save Bank Details"
+          onPress={handleSave}
+          disabled={!canSave}
+          saving={saving}
+          paddingBottom={Math.max(insets.bottom, 12)}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  flex: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceContainerLow,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 18,
-    color: Colors.text,
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-  },
-  notice: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    backgroundColor: Colors.successLight,
-    borderWidth: 1,
-    borderColor: Colors.success,
-    borderRadius: 14,
-    padding: 14,
-  },
-  noticeIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: Colors.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  noticeCopy: {
-    flex: 1,
-    gap: 3,
-  },
-  noticeTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 14,
-    color: Colors.text,
-  },
-  noticeText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
-    lineHeight: 18,
-    color: Colors.textSecondary,
-  },
-  card: {
-    gap: 16,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 16,
-    padding: 16,
-  },
-  fieldGroup: {
-    gap: 8,
-  },
-  label: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: Colors.text,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
-    backgroundColor: Colors.surface,
-  },
-  input: {
-    flex: 1,
-    fontFamily: "Inter_500Medium",
-    fontSize: 16,
-    color: Colors.text,
-  },
-  errorRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    backgroundColor: Colors.errorLight,
-    borderWidth: 1,
-    borderColor: Colors.error,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  errorText: {
-    flex: 1,
-    color: Colors.error,
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
-  },
-  bottomBar: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    backgroundColor: Colors.background,
-  },
-  saveButton: {
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  saveButtonDisabled: {
-    opacity: 0.5,
-  },
-  saveButtonText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 17,
-    color: Colors.white,
-  },
-});

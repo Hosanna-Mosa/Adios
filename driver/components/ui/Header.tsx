@@ -1,7 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
@@ -19,7 +18,9 @@ interface Props {
   transparent?: boolean;
 }
 
-/** Mirrors app/components/ui/Header.tsx. */
+/** Presentational header bar. Knows nothing about navigation — pass `onBack`.
+ * Pass onBack={() => router.back()} for the usual go-back behaviour.
+ * Mirrors app/components/ui/Header.tsx. */
 export function Header({
   title,
   onBack,
@@ -36,8 +37,6 @@ export function Header({
     return { opacity: interpolate(scrollY.value, [0, blurThreshold], [transparent ? 0 : 1, 1], "clamp") };
   });
 
-  const handleBack = onBack ?? (() => router.back());
-
   return (
     <View style={{ paddingTop: insets.top }}>
       {scrollY ? (
@@ -49,8 +48,8 @@ export function Header({
       ) : null}
 
       <View style={styles.row}>
-        {showBack ? (
-          <Pressable hitSlop={12} onPress={handleBack} style={styles.iconBtn}>
+        {showBack && onBack ? (
+          <Pressable hitSlop={12} onPress={onBack} style={styles.iconBtn}>
             <Ionicons name="chevron-back" size={moderateScale(22)} color={Colors.text} />
           </Pressable>
         ) : (

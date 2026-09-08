@@ -1,0 +1,143 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/colors";
+
+export const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    backgroundColor: Colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: Colors.text,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+  },
+  heroSection: {
+    alignItems: "center",
+    marginBottom: 32,
+    paddingVertical: 12,
+  },
+  heroBadge: {
+    backgroundColor: Colors.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  heroBadgeText: {
+    color: Colors.primaryDark,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: Colors.text,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  heroSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 18,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: Colors.text,
+    marginBottom: 16,
+  },
+  contactGrid: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  contactCard: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    paddingVertical: 20,
+    paddingHorizontal: 8,
+    alignItems: "center",
+    shadowColor: Colors.cardShadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  iconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.primaryLight,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  contactLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.text,
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  contactDesc: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
+  faqList: {
+    gap: 12,
+  },
+  faqCard: {
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  faqHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+  },
+  faqQuestion: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.text,
+    flex: 1,
+    paddingRight: 8,
+  },
+  faqBody: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  faqAnswer: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+    marginTop: 12,
+  },
+});
