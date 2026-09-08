@@ -32,13 +32,13 @@ export default tseslint.config(
     files: ["src/routes/**/*.{ts,tsx}"],
     ignores: ["src/components/ui/**"],
     rules: {
-      "max-lines": ["warn", { max: 300, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
     },
   },
   {
     // Import-direction boundaries: routes/ is a leaf (nothing may import a
     // route back), and lib/ stays pure — no reaching into features,
-    // components, or routes. Warn-level for now; tighten in Phase 4.
+    // components, or routes.
     files: ["src/**/*.{ts,tsx}"],
     ignores: ["src/components/ui/**"],
     plugins: { boundaries },
@@ -56,7 +56,7 @@ export default tseslint.config(
     },
     rules: {
       "boundaries/dependencies": [
-        "warn",
+        "error",
         {
           default: "allow",
           policies: [
