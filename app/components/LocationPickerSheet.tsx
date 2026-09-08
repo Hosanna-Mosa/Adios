@@ -10,7 +10,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -64,11 +64,9 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
     }
   };
 
-
   const [locationLoading, setLocationLoading] = useState(false);
   const [detectedLocation, setDetectedLocation] = useState<any | null>(null);
   const [savingLocation, setSavingLocation] = useState(false);
-
 
   const handleSearch = async (text: string) => {
     setSearch(text);
@@ -137,11 +135,6 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       setSelectingAddressId(null);
     }
   };
-
-
-
-
-
 
   const handleEditAddress = (item: any) => {
     onClose();

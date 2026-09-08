@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated from "react-native-reanimated";
-import { Stack, router } from "expo-router";
+import { StyleSheet } from "react-native";
+import { Stack } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { fadeInUp } from "@/motion/presets";
+
+import { NotFoundBody } from "@/features/home/components/NotFoundBody";
 
 export default function NotFoundScreen() {
   const { theme } = useThemeStore();
@@ -17,16 +17,9 @@ export default function NotFoundScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Not found", headerShown: false }} />
-      <View style={styles.root}>
-        <Animated.View style={{ alignItems: "center" }} entering={fadeInUp(0)}>
-          <Text style={styles.code}>404</Text>
-          <Text style={styles.title}>This page moved</Text>
-          <Text style={styles.subtitle}>The link you followed doesn&apos;t exist any more.</Text>
-          <TouchableOpacity style={styles.button} onPress={() => router.replace("/(tabs)")} activeOpacity={0.85}>
-            <Text style={styles.buttonText}>Go home</Text>
-          </TouchableOpacity>
-        </Animated.View>
-      </View>
+      <NotFoundBody
+        styles={styles}
+      />
     </>
   );
 }

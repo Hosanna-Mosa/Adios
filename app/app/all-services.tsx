@@ -1,8 +1,7 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated from "react-native-reanimated";
+import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
@@ -10,7 +9,10 @@ import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
+
+import { AllServicesHeaderRow } from "@/features/home/components/AllServicesHeaderRow";
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { AllServicesBody } from "@/features/home/components/AllServicesBody";
 
 type RideTier = {
   id: string;
@@ -44,74 +46,29 @@ export default function AllServicesScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))} activeOpacity={0.7}>
-          <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>All services</Text>
-      </View>
+    <ScreenShell>
+      <AllServicesHeaderRow
+        insets={insets}
+        styles={styles}
+        tokens={tokens}
+      />
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabBarHeight + 24 }]} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={fadeInUp(0)}>
-          <Text style={styles.headline}>Going somewhere?</Text>
-          <Text style={styles.subhead}>Pick a ride to see live fares for your trip.</Text>
-        </Animated.View>
-
-        <View style={styles.tierGrid}>
-          {RIDE_TIERS.map((tier, idx) => (
-            <Animated.View key={tier.id} entering={staggerListItem(idx)} style={styles.tierCard}>
-              <TouchableOpacity activeOpacity={0.85} onPress={() => selectTier(tier)}>
-                <View style={styles.tierIconCircle}>
-                  <MaterialCommunityIcons name={tier.icon} size={moderateScale(24)} color={accent.accent} />
-                </View>
-                <Text style={styles.tierName}>{tier.name}</Text>
-                <Text style={styles.tierDescription}>{tier.description}</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
-        </View>
-
-        <Text style={styles.sectionLabel}>Also on Flavour</Text>
-        <View style={styles.crossPromoList}>
-          <Animated.View entering={staggerListItem(0)}>
-            <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/helper-task")}>
-              <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.task.skin }]}>
-                <Ionicons name="construct-outline" size={moderateScale(18)} color={tokens.services.task.accent} />
-              </View>
-              <View style={styles.crossPromoTextWrap}>
-                <Text style={styles.crossPromoTitle}>Hire a helper</Text>
-                <Text style={styles.crossPromoSubtitle}>From ₹120 / hour</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={moderateScale(18)} color={tokens.muted} />
-            </TouchableOpacity>
-          </Animated.View>
-
-          <Animated.View entering={staggerListItem(1)}>
-            <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/delivery/entry")}>
-              <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.delivery.skin }]}>
-                <Ionicons name="cube-outline" size={moderateScale(18)} color={tokens.services.delivery.accent} />
-              </View>
-              <View style={styles.crossPromoTextWrap}>
-                <Text style={styles.crossPromoTitle}>Package delivery</Text>
-                <Text style={styles.crossPromoSubtitle}>Multi-stop courier · from ₹39</Text>
-              </View>
-              <View style={styles.betaBadge}>
-                <Text style={styles.betaBadgeText}>Beta</Text>
-              </View>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-      </ScrollView>
+      <AllServicesBody
+        RIDE_TIERS={RIDE_TIERS}
+        accent={accent}
+        selectTier={selectTier}
+        styles={styles}
+        tabBarHeight={tabBarHeight}
+        tokens={tokens}
+      />
 
       <AppTabBar accent="ride" />
-    </View>
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
     backBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),

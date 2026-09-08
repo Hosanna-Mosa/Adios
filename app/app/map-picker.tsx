@@ -1,25 +1,18 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import Animated from "react-native-reanimated";
+import * as Location from "expo-location";
+import AppMapView from "@/components/AppMapView";
+import { StyleSheet, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import * as Location from "expo-location";
-import { Alert } from "react-native";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { LIGHT_GREEN_MAP_STYLE } from "@/constants/mapStyle";
 import { customFetch } from "@/utils/api/custom-fetch";
-import AppMapView from "@/components/AppMapView";
-import { fadeIn, modalSlideUp } from "@/motion/presets";
+import { MapPickerBottomPanel } from "@/features/delivery/components/MapPickerBottomPanel";
+import { MapPickerMapContainer } from "@/features/delivery/components/MapPickerMapContainer";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 export default function MapPickerScreen() {
   const insets = useSafeAreaInsets();
@@ -149,81 +142,35 @@ export default function MapPickerScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={styles.mapContainer}>
-        <AppMapView
-          ref={mapRef}
-          style={StyleSheet.absoluteFill}
-          initialRegion={region}
-          onRegionChangeComplete={handleRegionChangeComplete}
-          customMapStyle={LIGHT_GREEN_MAP_STYLE}
-        />
+    <ScreenShell>
+      <MapPickerMapContainer
+        LIGHT_GREEN_MAP_STYLE={LIGHT_GREEN_MAP_STYLE}
+        handleRegionChangeComplete={handleRegionChangeComplete}
+        handleUseCurrentLocation={handleUseCurrentLocation}
+        insets={insets}
+        mapRef={mapRef}
+        recentering={recentering}
+        region={region}
+        styles={styles}
+        tokens={tokens}
+      />
 
-        <Animated.View entering={fadeIn(150)} style={styles.centerMarkerContainer} pointerEvents="none">
-          <View style={styles.dragHint}>
-            <Text style={styles.dragHintText}>Drag to adjust</Text>
-          </View>
-          <View style={styles.dragHintStem} />
-          <View style={styles.pinWrapper}>
-            <View style={styles.pinHead}>
-              <View style={styles.pinDot} />
-            </View>
-            <View style={styles.pinStem} />
-            <View style={styles.pinShadow} />
-          </View>
-        </Animated.View>
-
-        <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.recenterBtn} onPress={handleUseCurrentLocation} disabled={recentering}>
-          {recentering ? (
-            <ActivityIndicator size="small" color={tokens.text} />
-          ) : (
-            <MaterialCommunityIcons name="crosshairs-gps" size={moderateScale(19)} color={tokens.text} />
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <Animated.View entering={modalSlideUp} style={styles.bottomPanel}>
-        <View style={styles.sheetHandle} />
-        <Text style={styles.panelTitle}>Double check {step} point</Text>
-        <Text style={styles.panelSub}>
-          Move the pin to where you&apos;ll actually stand. Captains cancel most often when the pin is inside a gated community.
-        </Text>
-
-        <View style={styles.addressCard}>
-          <View style={styles.addressDot} />
-          <View style={styles.addressInfo}>
-            <Text style={styles.addressMain} numberOfLines={1}>
-              {loading ? "Locating…" : address.split(",")[0]}
-            </Text>
-            <Text style={styles.addressSub} numberOfLines={1}>
-              {loading ? "Fetching address details…" : address}
-            </Text>
-            <Text style={styles.addressCoords} numberOfLines={1}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
-          </View>
-          {loading ? (
-            <ActivityIndicator size="small" color={accent.accent} />
-          ) : (
-            <TouchableOpacity onPress={() => router.back()}>
-              <Text style={styles.editLink}>Edit</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} disabled={loading} activeOpacity={0.9}>
-          <Text style={styles.confirmBtnText}>Confirm {step}</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+      <MapPickerBottomPanel
+        accent={accent}
+        address={address}
+        handleConfirm={handleConfirm}
+        latLabel={latLabel}
+        lngLabel={lngLabel}
+        loading={loading}
+        step={step}
+        styles={styles}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride"], insets: { bottom: number }) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     mapContainer: { flex: 1 },
     backBtn: {
       position: "absolute", left: 16, width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),

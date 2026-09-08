@@ -1,26 +1,19 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
+
 import { router } from "expo-router";
-import Animated from "react-native-reanimated";
 import { useDeliveryStore, DeliveryItem } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
-import { staggerListItem } from "@/motion/presets";
+import { createStyles } from "@/features/delivery/add-stop.styles";
+import { Header } from "@/components/ui/Header";
+import { designTokens } from "@/constants/colors";
+
+import { AddStopFooter } from "@/features/delivery/components/AddStopFooter";
+import { AddStopSection } from "@/features/delivery/components/AddStopSection";
+import { AddStopSection2 } from "@/features/delivery/components/AddStopSection2";
+import { AddStopSection3 } from "@/features/delivery/components/AddStopSection3";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -185,181 +178,67 @@ export default function AddStopScreen() {
   const removeItemFromLocal = (id: string) => setItems(items.filter((i) => i.id !== id));
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add stop {stops.length + 1}</Text>
-      </View>
+    <ScreenShell keyboardAvoiding>
+      <Header
+        title={`Add stop ${stops.length + 1}`}
+        onBack={() => router.back()}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
+      />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <View style={styles.section}>
-          <Text style={styles.fieldLabel}>Store name · optional</Text>
-          <View style={styles.fieldBox}>
-            <TextInput style={styles.fieldInput} placeholder="e.g. Karachi Bakery" placeholderTextColor={tokens.muted} value={storeName} onChangeText={setStoreName} />
-          </View>
+        <AddStopSection
+          accent={accent}
+          address={address}
+          addressInput={addressInput}
+          autocompleteSuggestions={autocompleteSuggestions}
+          handleAddressInput={handleAddressInput}
+          handleSelectSuggestion={handleSelectSuggestion}
+          isSearching={isSearching}
+          setShowDropdown={setShowDropdown}
+          setStoreName={setStoreName}
+          showDropdown={showDropdown}
+          storeName={storeName}
+          styles={styles}
+          tokens={tokens}
+        />
 
-          <Text style={[styles.fieldLabel, { marginTop: 14 }]}>Pickup address</Text>
-          <View style={[styles.fieldBox, styles.fieldBoxFocused, showDropdown && { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}>
-            <TextInput
-              style={styles.fieldInput}
-              placeholder="Search nearby store or address"
-              placeholderTextColor={tokens.muted}
-              value={addressInput}
-              onChangeText={handleAddressInput}
-              onFocus={() => autocompleteSuggestions.length > 0 && setShowDropdown(true)}
-              returnKeyType="search"
-            />
-            {isSearching && <ActivityIndicator size="small" color={accent.accent} />}
-            {address && !isSearching && <Ionicons name="checkmark-circle" size={16} color={accent.accent} />}
-          </View>
-          {showDropdown && autocompleteSuggestions.length > 0 && (
-            <View style={styles.dropdown}>
-              {autocompleteSuggestions.map((item, idx) => (
-                <TouchableOpacity key={item.id || idx} style={[styles.dropdownRow, idx < autocompleteSuggestions.length - 1 && styles.dropdownRowDivider]} onPress={() => handleSelectSuggestion(item)}>
-                  <Ionicons name="location-outline" size={14} color={tokens.sec} />
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.dropdownMain} numberOfLines={1}>{item.name || item.main_text}</Text>
-                    <Text style={styles.dropdownSub} numberOfLines={1}>{item.address || item.secondary_text}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.itemsHeadRow}>
-            <Text style={styles.sectionLabel}>What to pick up?</Text>
-            <Text style={styles.itemsCount}>{items.length} {items.length === 1 ? "item" : "items"}</Text>
-          </View>
-          <View style={styles.itemsCard}>
-            {items.map((item, idx) => (
-              <View key={item.id} style={[styles.itemRow, idx < items.length && styles.itemRowDivider]}>
-                <View style={styles.itemQtyBadge}><Text style={styles.itemQtyBadgeText}>{item.quantity}</Text></View>
-                <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
-                {item.estimatedPrice != null && <Text style={styles.itemPrice}>₹{item.estimatedPrice}</Text>}
-                <TouchableOpacity onPress={() => removeItemFromLocal(item.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                  <Ionicons name="close" size={15} color={tokens.sec} />
-                </TouchableOpacity>
-              </View>
-            ))}
-            <View style={styles.addItemRow}>
-              <TextInput
-                style={styles.addItemInput}
-                placeholder="Item name"
-                placeholderTextColor={tokens.muted}
-                value={newItemName}
-                onChangeText={setNewItemName}
-                onSubmitEditing={addItemToLocal}
-                returnKeyType="done"
-              />
-              <TextInput
-                style={styles.addItemPriceInput}
-                placeholder="₹ est."
-                placeholderTextColor={tokens.muted}
-                value={newItemPrice}
-                onChangeText={setNewItemPrice}
-                keyboardType="numeric"
-              />
-              <TouchableOpacity onPress={addItemToLocal} disabled={!newItemName.trim()}>
-                <Ionicons name="add-circle" size={26} color={newItemName.trim() ? accent.accent : tokens.muted} />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.itemsHint}>Prices are your estimate. The rider pays the real amount at the counter and you settle the difference at checkout.</Text>
-        </View>
+        <AddStopSection2
+          accent={accent}
+          addItemToLocal={addItemToLocal}
+          items={items}
+          newItemName={newItemName}
+          newItemPrice={newItemPrice}
+          removeItemFromLocal={removeItemFromLocal}
+          setNewItemName={setNewItemName}
+          setNewItemPrice={setNewItemPrice}
+          styles={styles}
+          tokens={tokens}
+        />
 
         {nearbySuggestions.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Nearby suggestions</Text>
-            <View style={{ gap: 8 }}>
-              {nearbySuggestions.map((item, i) => (
-                <TouchableOpacity key={i} style={styles.suggestionRow} onPress={() => handleSelectSuggestion(item)} activeOpacity={0.85}>
-                  <View style={styles.suggestionThumb} />
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.suggestionName} numberOfLines={1}>{item.name}</Text>
-                    {currentCoords && item.lat != null && item.lng != null && (
-                      <Text style={styles.suggestionMeta}>
-                        {formatDistance(getDistanceMeters(currentCoords.lat, currentCoords.lng, item.lat, item.lng))} from your start point
-                      </Text>
-                    )}
-                  </View>
-                  <Ionicons name="add" size={18} color={accent.accent} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          <AddStopSection3
+            formatDistance={formatDistance}
+            getDistanceMeters={getDistanceMeters}
+            accent={accent}
+            currentCoords={currentCoords}
+            handleSelectSuggestion={handleSelectSuggestion}
+            nearbySuggestions={nearbySuggestions}
+            styles={styles}
+          />
         )}
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        {address && (isPreviewing || previewDelta) && (
-          <View style={styles.previewBanner}>
-            {isPreviewing ? (
-              <Text style={styles.previewBannerText}>Calculating the fare impact of this stop…</Text>
-            ) : previewDelta ? (
-              <Text style={styles.previewBannerText}>
-                Adding this stop: <Text style={styles.previewBannerBold}>{previewDelta.distanceKm >= 0 ? "+" : ""}{previewDelta.distanceKm} km</Text>, delivery goes ₹{price?.total ?? "—"} → ₹{previewDelta.newTotal}.
-              </Text>
-            ) : null}
-          </View>
-        )}
-        <TouchableOpacity style={[styles.addBtn, (!address || items.length === 0) && { opacity: 0.5 }]} onPress={handleAddStop} disabled={!address || items.length === 0}>
-          <Text style={styles.addBtnText}>Add stop to route</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      <AddStopFooter
+        address={address}
+        handleAddStop={handleAddStop}
+        insets={insets}
+        isPreviewing={isPreviewing}
+        items={items}
+        previewDelta={previewDelta}
+        price={price}
+        route={route}
+        styles={styles}
+      />
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["delivery"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    section: { paddingHorizontal: 16, paddingTop: 20 },
-    fieldLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
-    fieldBox: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, backgroundColor: tokens.surface, paddingHorizontal: 14, minHeight: 48, flexDirection: "row", alignItems: "center", gap: 8 },
-    fieldBoxFocused: { borderWidth: 2, borderColor: accent.accent },
-    fieldInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-
-    dropdown: { backgroundColor: tokens.surface, borderWidth: 2, borderTopWidth: 0, borderColor: accent.accent, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, overflow: "hidden" },
-    dropdownRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, paddingVertical: 12 },
-    dropdownRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
-    dropdownMain: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: tokens.text },
-    dropdownSub: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(11), color: tokens.sec, marginTop: 1 },
-
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
-    itemsHeadRow: { flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", marginBottom: 12 },
-    itemsCount: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec },
-    itemsCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, paddingHorizontal: 14 },
-    itemRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
-    itemRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
-    itemQtyBadge: { width: 26, height: 26, borderRadius: 8, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    itemQtyBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), color: accent.accent },
-    itemName: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    itemPrice: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
-    addItemRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12 },
-    addItemInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    addItemPriceInput: { width: 64, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text, textAlign: "right" },
-    itemsHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 10 },
-
-    suggestionRow: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 12, minHeight: 56 },
-    suggestionThumb: { width: 34, height: 34, borderRadius: 11, backgroundColor: tokens.sunken, flexShrink: 0 },
-    suggestionName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-    suggestionMeta: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.sec, marginTop: 2 },
-
-    footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: tokens.border, backgroundColor: tokens.surface },
-    previewBanner: { backgroundColor: tokens.warningSkin, borderRadius: 12, padding: 11, marginBottom: 10 },
-    previewBannerText: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec },
-    previewBannerBold: { fontFamily: fontFamilies.body.bold, color: tokens.text },
-    addBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    addBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-  });

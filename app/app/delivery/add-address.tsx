@@ -1,30 +1,26 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+
+import { AddressFormPane } from "@/features/delivery/components/AddressFormPane";
+import { StyleSheet, View, TextInput, Platform, Alert } from "react-native";
+
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
-import Animated from "react-native-reanimated";
+
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
 import MapView, { PROVIDER_GOOGLE, PROVIDER_DEFAULT } from "@/components/maps";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { createStyles } from "@/features/delivery/add-address.styles";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { fadeIn, fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
+
+import { AddAddressBottomCard } from "@/features/delivery/components/AddAddressBottomCard";
+import { AddAddressCenterMarker } from "@/features/delivery/components/AddAddressCenterMarker";
+import { AddAddressUseCurrentWrap } from "@/features/delivery/components/AddAddressUseCurrentWrap";
+import { AddAddressSearchResults } from "@/features/delivery/components/AddAddressSearchResults";
+import { AddAddressSearchRow } from "@/features/delivery/components/AddAddressSearchRow";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 export default function AddAddressScreen() {
   const insets = useSafeAreaInsets();
@@ -283,7 +279,7 @@ export default function AddAddressScreen() {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.root}>
+    <ScreenShell keyboardAvoiding>
       {step === 1 ? (
         <View style={{ flex: 1 }}>
           <MapView
@@ -296,250 +292,90 @@ export default function AddAddressScreen() {
             showsMyLocationButton={false}
           />
 
-          <Animated.View style={[styles.searchRow, { top: insets.top + 10 }]} entering={fadeIn(0)}>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-            </TouchableOpacity>
-            <View style={styles.searchBox}>
-              <Ionicons name="search" size={16} color={tokens.sec} />
-              <TextInput
-                ref={searchInputRef}
-                style={styles.searchInput}
-                placeholder="Search for a new area, locality…"
-                placeholderTextColor={tokens.muted}
-                value={searchQuery}
-                onChangeText={handleSearch}
-              />
-              {searching && <ActivityIndicator size="small" color={accent.accent} />}
-            </View>
-          </Animated.View>
+          <AddAddressSearchRow
+            accent={accent}
+            handleSearch={handleSearch}
+            insets={insets}
+            router={router}
+            searchInputRef={searchInputRef}
+            searchQuery={searchQuery}
+            searching={searching}
+            styles={styles}
+            tokens={tokens}
+          />
 
           {searchResults.length > 0 && (
-            <ScrollView style={[styles.searchResults, { top: insets.top + 62 }]} keyboardShouldPersistTaps="handled">
-              {searchResults.map((item, i) => (
-                <Animated.View key={item.id} entering={staggerListItem(i, 25)}>
-                  <TouchableOpacity style={styles.searchResultRow} onPress={() => handleSelectSearchResult(item)}>
-                    <Text style={styles.searchResultName}>{item.name}</Text>
-                    <Text style={styles.searchResultAddr} numberOfLines={1}>{item.address}</Text>
-                  </TouchableOpacity>
-                </Animated.View>
-              ))}
-            </ScrollView>
+            <AddAddressSearchResults
+              handleSelectSearchResult={handleSelectSearchResult}
+              insets={insets}
+              searchResults={searchResults}
+              styles={styles}
+            />
           )}
 
-          <Animated.View style={styles.useCurrentWrap} entering={fadeIn(120)}>
-            <TouchableOpacity style={styles.useCurrentBtn} onPress={handleUseCurrentLocation}>
-              <Ionicons name="locate" size={15} color={accent.accent} />
-              <Text style={styles.useCurrentText}>Use current location</Text>
-            </TouchableOpacity>
-          </Animated.View>
+          <AddAddressUseCurrentWrap
+            accent={accent}
+            handleUseCurrentLocation={handleUseCurrentLocation}
+            styles={styles}
+          />
 
-          <View style={styles.centerMarker} pointerEvents="none">
-            <View style={styles.dragHint}>
-              {isResolvingAddress ? (
-                <ActivityIndicator size="small" color={tokens.bg} />
-              ) : (
-                <Text style={styles.dragHintText}>Move the pin to adjust</Text>
-              )}
-            </View>
-            <View style={styles.dragHintStem} />
-            <View style={styles.pinHead}><View style={styles.pinDot} /></View>
-            <View style={styles.pinStem} />
-            <View style={styles.pinShadow} />
-          </View>
+          <AddAddressCenterMarker
+            isResolvingAddress={isResolvingAddress}
+            styles={styles}
+            tokens={tokens}
+          />
 
-          <Animated.View style={[styles.bottomCard, { paddingBottom: insets.bottom + 16 }]} entering={modalSlideUp}>
-            <View style={styles.sheetHandle} />
-            <View style={styles.addressCard}>
-              <View style={styles.addressIcon}>
-                {isResolvingAddress ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="location" size={17} color={accent.accent} />}
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.addressMain} numberOfLines={1}>{isResolvingAddress ? "Fetching location…" : shortAddress}</Text>
-                <Text style={styles.addressSub} numberOfLines={1}>{isResolvingAddress ? "Updating address for pin…" : cityOrCountry}</Text>
-                <Text style={styles.addressCoords} numberOfLines={1}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
-              </View>
-              <TouchableOpacity onPress={() => searchInputRef.current?.focus()}>
-                <Text style={styles.changeLink}>Change</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={[styles.nextBtn, isResolvingAddress && { opacity: 0.6 }]} onPress={() => setStep(2)} disabled={isResolvingAddress}>
-              <Text style={styles.nextBtnText}>Add more address details</Text>
-            </TouchableOpacity>
-          </Animated.View>
+          <AddAddressBottomCard
+            accent={accent}
+            cityOrCountry={cityOrCountry}
+            insets={insets}
+            isResolvingAddress={isResolvingAddress}
+            latLabel={latLabel}
+            lngLabel={lngLabel}
+            searchInputRef={searchInputRef}
+            setStep={setStep}
+            shortAddress={shortAddress}
+            styles={styles}
+          />
         </View>
       ) : (
-        <View style={{ flex: 1 }}>
-          <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-              <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{isEditMode ? "Edit address" : "Add address"}</Text>
-          </Animated.View>
-
-          <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
-            <Animated.View entering={fadeInUp(60)}>
-              <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
-                <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
-                <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
-                <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
-              </TouchableOpacity>
-              <Text style={styles.mapPreviewCoords}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(120)}>
-              <Text style={styles.sectionLabel}>Save as</Text>
-              <View style={{ flexDirection: "row", gap: 8 }}>
-                {(["Home", "Work", "Other"] as const).map((chip, i) => {
-                  const isActive = selectedChip === chip;
-                  return (
-                    <Animated.View key={chip} entering={staggerListItem(i, 30)} style={{ flex: 1 }}>
-                      <TouchableOpacity style={[styles.chip, isActive && { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={() => setSelectedChip(chip)}>
-                        <Text style={[styles.chipText, isActive && { color: accent.accent }]}>{chip}</Text>
-                      </TouchableOpacity>
-                    </Animated.View>
-                  );
-                })}
-              </View>
-              {selectedChip === "Other" && (
-                <TextInput style={styles.customLabelInput} placeholder="Custom label (e.g. Friend's house)" placeholderTextColor={tokens.muted} value={label} onChangeText={setLabel} />
-              )}
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(180)}>
-              <Text style={styles.fieldLabel}>Street address</Text>
-              <View style={styles.fieldRow}>
-                <TextInput style={styles.fieldInput} placeholder="Street address" placeholderTextColor={tokens.muted} value={addressLine} onChangeText={setAddressLine} />
-                <TouchableOpacity onPress={handleUseCurrentLocation}><Ionicons name="locate-outline" size={17} color={tokens.sec} /></TouchableOpacity>
-              </View>
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Apartment / suite / floor · optional</Text>
-              <View style={styles.fieldRow}>
-                <TextInput style={styles.fieldInput} placeholder="Apartment / suite / floor" placeholderTextColor={tokens.muted} value={completeAddress} onChangeText={setCompleteAddress} />
-              </View>
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Landmark · optional</Text>
-              <View style={styles.fieldRow}>
-                <TextInput style={styles.fieldInput} placeholder="Opposite the blue water tank" placeholderTextColor={tokens.muted} value={landmark} onChangeText={setLandmark} />
-              </View>
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(210)}>
-              <Text style={styles.sectionLabel}>Receiver details</Text>
-              <Text style={styles.fieldLabel}>Receiver name · optional</Text>
-              <View style={styles.fieldRow}>
-                <TextInput style={styles.fieldInput} placeholder="Who is receiving this order?" placeholderTextColor={tokens.muted} value={receiverName} onChangeText={setReceiverName} />
-              </View>
-              <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Receiver phone · optional</Text>
-              <View style={styles.fieldRow}>
-                <TextInput
-                  style={styles.fieldInput}
-                  placeholder="10-digit mobile number"
-                  placeholderTextColor={tokens.muted}
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                  value={receiverPhone}
-                  onChangeText={(text) => setReceiverPhone(text.replace(/\D/g, ""))}
-                />
-              </View>
-              <Text style={styles.fieldHint}>Leave these blank to deliver to your own name and number.</Text>
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(270)}>
-              <Text style={styles.sectionLabel}>Delivery instructions</Text>
-              <View style={styles.instructionsBox}>
-                <TextInput
-                  style={styles.instructionsInput}
-                  placeholder="Gate 2, ask the guard for tower B…"
-                  placeholderTextColor={tokens.muted}
-                  multiline
-                  maxLength={200}
-                  value={instructions}
-                  onChangeText={setInstructions}
-                />
-              </View>
-              <Text style={styles.charCounter}>{instructions.length} / 200</Text>
-            </Animated.View>
-          </ScrollView>
-
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-            <TouchableOpacity style={[styles.saveBtn, loading && { opacity: 0.7 }]} onPress={handleSave} disabled={loading}>
-              {loading ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.saveBtnText}>{isEditMode ? "Update address" : "Save address"}</Text>}
-            </TouchableOpacity>
-          </View>
-        </View>
+        <AddressFormPane
+          MapView={MapView}
+          PROVIDER_DEFAULT={PROVIDER_DEFAULT}
+          PROVIDER_GOOGLE={PROVIDER_GOOGLE}
+          accent={accent}
+          addressLine={addressLine}
+          completeAddress={completeAddress}
+          handleSave={handleSave}
+          handleUseCurrentLocation={handleUseCurrentLocation}
+          insets={insets}
+          instructions={instructions}
+          isEditMode={isEditMode}
+          isResolvingAddress={isResolvingAddress}
+          label={label}
+          landmark={landmark}
+          latLabel={latLabel}
+          lngLabel={lngLabel}
+          loading={loading}
+          receiverName={receiverName}
+          receiverPhone={receiverPhone}
+          region={region}
+          router={router}
+          selectedChip={selectedChip}
+          setAddressLine={setAddressLine}
+          setCompleteAddress={setCompleteAddress}
+          setInstructions={setInstructions}
+          setLabel={setLabel}
+          setLandmark={setLandmark}
+          setReceiverName={setReceiverName}
+          setReceiverPhone={setReceiverPhone}
+          setSelectedChip={setSelectedChip}
+          setStep={setStep}
+          shortAddress={shortAddress}
+          styles={styles}
+          tokens={tokens}
+        />
       )}
-    </KeyboardAvoidingView>
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["delivery"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-
-    searchRow: { position: "absolute", left: 16, right: 16, zIndex: 10, flexDirection: "row", gap: 10 },
-    searchBox: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, paddingHorizontal: 14, minHeight: moderateScale(40) },
-    searchInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
-    searchResults: { position: "absolute", left: 66, right: 16, maxHeight: 250, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 12, zIndex: 9 },
-    searchResultRow: { padding: 12, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    searchResultName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: tokens.text },
-    searchResultAddr: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(11), color: tokens.sec, marginTop: 2 },
-
-    useCurrentWrap: { position: "absolute", left: 16, top: "40%" },
-    useCurrentBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9 },
-    useCurrentText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: accent.accent },
-
-    centerMarker: { position: "absolute", top: "38%", left: "50%", marginLeft: -moderateScale(17), marginTop: -moderateScale(80), alignItems: "center" },
-    dragHint: { backgroundColor: tokens.text, borderRadius: 9, paddingHorizontal: 11, paddingVertical: 7 },
-    dragHintText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: tokens.bg },
-    dragHintStem: { width: 2, height: 10, backgroundColor: tokens.text },
-    pinHead: { width: moderateScale(34), height: moderateScale(34), borderRadius: moderateScale(17), backgroundColor: accent.accent, borderWidth: 3, borderColor: tokens.surface, alignItems: "center", justifyContent: "center" },
-    pinDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: accent.on },
-    pinStem: { width: 2, height: 18, backgroundColor: accent.accent },
-    pinShadow: { width: 12, height: 5, borderRadius: 999, backgroundColor: "rgba(0,0,0,0.28)" },
-
-    bottomCard: {
-      position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: tokens.surface,
-      borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 1, borderColor: tokens.border,
-    },
-    sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 14 },
-    addressCard: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 14, marginBottom: 14 },
-    addressIcon: { width: 34, height: 34, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    addressMain: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    addressSub: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
-    addressCoords: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, marginTop: 3, letterSpacing: 0.2 },
-    changeLink: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.5, textTransform: "uppercase", color: accent.accent },
-    nextBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    nextBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    mapPreview: { height: 160, borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: tokens.border, marginHorizontal: 16, marginTop: 4, position: "relative" },
-    mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
-    mapPreviewPill: { position: "absolute", bottom: 10, alignSelf: "center", backgroundColor: tokens.surface, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: tokens.border, maxWidth: "82%" },
-    mapPreviewPillText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: tokens.text },
-    mapPreviewCoords: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, textAlign: "center", marginTop: 6, marginHorizontal: 16 },
-
-    section: { paddingHorizontal: 16, paddingTop: 20 },
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
-    chip: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, minHeight: moderateScale(44) },
-    chipText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.sec },
-    customLabelInput: {
-      marginTop: 12, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 10, paddingHorizontal: 14, height: moderateScale(44),
-      fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text, backgroundColor: tokens.surface,
-    },
-    fieldLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
-    fieldRow: { flexDirection: "row", alignItems: "center", gap: 10, borderBottomWidth: 1.5, borderBottomColor: tokens.borderStrong, paddingBottom: 8 },
-    fieldInput: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    fieldHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.muted, marginTop: 10 },
-    instructionsBox: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, padding: 13, minHeight: 72 },
-    instructionsInput: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), color: tokens.text, minHeight: 44 },
-    charCounter: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, textAlign: "right", marginTop: 6 },
-
-    footer: { paddingHorizontal: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: tokens.border, backgroundColor: tokens.surface },
-    saveBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-  });

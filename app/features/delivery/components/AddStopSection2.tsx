@@ -1,0 +1,75 @@
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+// Moved out of app/delivery/add-stop.tsx. The JSX is unchanged; what it read from the screen's
+// scope is now a prop of the same name.
+
+interface Props {
+  accent: any;
+  addItemToLocal: any;
+  items: any[];
+  newItemName: any;
+  newItemPrice: any;
+  removeItemFromLocal: any;
+  setNewItemName: any;
+  setNewItemPrice: any;
+  styles: any;
+  tokens: any;
+}
+
+export function AddStopSection2({
+  accent,
+  addItemToLocal,
+  items,
+  newItemName,
+  newItemPrice,
+  removeItemFromLocal,
+  setNewItemName,
+  setNewItemPrice,
+  styles,
+  tokens,
+}: Props) {
+  return (
+    <View style={styles.section}>
+      <View style={styles.itemsHeadRow}>
+        <Text style={styles.sectionLabel}>What to pick up?</Text>
+        <Text style={styles.itemsCount}>{items.length} {items.length === 1 ? "item" : "items"}</Text>
+      </View>
+      <View style={styles.itemsCard}>
+        {items.map((item, idx) => (
+          <View key={item.id} style={[styles.itemRow, idx < items.length && styles.itemRowDivider]}>
+            <View style={styles.itemQtyBadge}><Text style={styles.itemQtyBadgeText}>{item.quantity}</Text></View>
+            <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+            {item.estimatedPrice != null && <Text style={styles.itemPrice}>₹{item.estimatedPrice}</Text>}
+            <TouchableOpacity onPress={() => removeItemFromLocal(item.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Ionicons name="close" size={15} color={tokens.sec} />
+            </TouchableOpacity>
+          </View>
+        ))}
+        <View style={styles.addItemRow}>
+          <TextInput
+            style={styles.addItemInput}
+            placeholder="Item name"
+            placeholderTextColor={tokens.muted}
+            value={newItemName}
+            onChangeText={setNewItemName}
+            onSubmitEditing={addItemToLocal}
+            returnKeyType="done"
+          />
+          <TextInput
+            style={styles.addItemPriceInput}
+            placeholder="₹ est."
+            placeholderTextColor={tokens.muted}
+            value={newItemPrice}
+            onChangeText={setNewItemPrice}
+            keyboardType="numeric"
+          />
+          <TouchableOpacity onPress={addItemToLocal} disabled={!newItemName.trim()}>
+            <Ionicons name="add-circle" size={26} color={newItemName.trim() ? accent.accent : tokens.muted} />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Text style={styles.itemsHint}>Prices are your estimate. The rider pays the real amount at the counter and you settle the difference at checkout.</Text>
+    </View>
+  );
+}

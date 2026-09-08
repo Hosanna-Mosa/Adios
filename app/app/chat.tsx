@@ -1,16 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Linking, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,7 +11,15 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore, OrderStatus } from "@/contexts/deliveryStore";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
+import { fadeInUp } from "@/motion/presets";
+import { ChatInputBar } from "@/features/support/components/ChatInputBar";
+import { ChatQuickRepliesRow } from "@/features/support/components/ChatQuickRepliesRow";
+import { ChatAssignRow } from "@/features/support/components/ChatAssignRow";
+import { ChatHeader } from "@/features/support/components/ChatHeader";
+
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { ChatBody } from "@/features/support/components/ChatBody";
+import { ChatBubbleBody } from "@/features/support/components/ChatBubbleBody";
 
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
@@ -160,106 +157,79 @@ export default function ChatScreen() {
               <Ionicons name="person" size={13} color={tokens.sec} />
             </View>
           )}
-          <View style={[styles.bubble, isUser ? { backgroundColor: accent.accent, borderBottomRightRadius: 4 } : { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderBottomLeftRadius: 4 }]}>
-            <Text style={[styles.bubbleText, { color: isUser ? accent.on : tokens.text }]}>{item.text}</Text>
-            <Text style={[styles.bubbleTime, { color: isUser ? `${accent.on}B3` : tokens.sec, alignSelf: isUser ? "flex-end" : "flex-start" }]}>{item.timestamp}</Text>
-          </View>
+          <ChatBubbleBody
+            isUser={isUser}
+            item={item}
+            accent={accent}
+            styles={styles}
+            tokens={tokens}
+          />
         </Animated.View>
       </>
     );
   };
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
-      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <View style={styles.headerAvatar}>
-          <Ionicons name="person" size={20} color={tokens.sec} />
-        </View>
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.headerName} numberOfLines={1}>{driver?.name || "Your partner"}</Text>
-          <Text style={[styles.headerStatus, { color: accent.accent }]} numberOfLines={1}>
-            {partnerLabel}{status && STATUS_LABEL[status] ? ` · ${STATUS_LABEL[status]}` : ""}
-          </Text>
-        </View>
-        <TouchableOpacity style={[styles.callBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver?.phone || ""}`)}>
-          <Ionicons name="call" size={17} color={accent.on} />
-        </TouchableOpacity>
-      </View>
+    <ScreenShell keyboardAvoiding>
+      <ChatHeader
+        Linking={Linking}
+        STATUS_LABEL={STATUS_LABEL}
+        accent={accent}
+        driver={driver}
+        insets={insets}
+        partnerLabel={partnerLabel}
+        status={status}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <Animated.View entering={fadeInUp(60)} style={styles.safetyBanner}>
         <Ionicons name="shield-checkmark-outline" size={16} color={tokens.warning} />
         <Text style={styles.safetyText}>Keep the conversation in Flavour. Don&apos;t share your PIN with the {partnerLabel.toLowerCase()} before the {isHelper ? "task" : isRide ? "ride" : "order"} starts.</Text>
       </Animated.View>
 
-      <FlatList
-        ref={flatListRef}
-        style={styles.messagesFlatList}
-        data={activeChat}
-        keyExtractor={(item) => item.id}
+      <ChatBody
+        activeChat={activeChat}
+        flatListRef={flatListRef}
+        partnerLabel={partnerLabel}
         renderItem={renderItem}
-        contentContainerStyle={styles.messagesList}
-        showsVerticalScrollIndicator={false}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="chatbubbles-outline" size={32} color={tokens.muted} />
-            <Text style={styles.emptyStateText}>Messages with your {partnerLabel.toLowerCase()} will show up here.</Text>
-          </View>
-        }
+        styles={styles}
+        tokens={tokens}
       />
 
       {isHelper && !taskAssigned && (
         <Animated.View entering={fadeInUp(0)}>
-          <TouchableOpacity style={[styles.assignRow, { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={handleAssignTask} activeOpacity={0.85}>
-            <View style={[styles.assignIcon, { backgroundColor: accent.accent }]}>
-              <Ionicons name="construct" size={14} color={accent.on} />
-            </View>
-            <Text style={styles.assignText}>Assign task</Text>
-            <Text style={[styles.assignSend, { color: accent.accent }]}>SEND</Text>
-          </TouchableOpacity>
+          <ChatAssignRow
+            accent={accent}
+            handleAssignTask={handleAssignTask}
+            styles={styles}
+          />
         </Animated.View>
       )}
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickRepliesRow} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
-        {QUICK_REPLIES.map((item, idx) => (
-          <Animated.View key={item} entering={staggerListItem(idx)}>
-            <TouchableOpacity style={styles.quickReplyChip} onPress={() => sendMessage(item)}>
-              <Text style={styles.quickReplyChipText}>{item}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        ))}
-      </ScrollView>
+      <ChatQuickRepliesRow
+        QUICK_REPLIES={QUICK_REPLIES}
+        sendMessage={sendMessage}
+        styles={styles}
+      />
 
-      <View style={[styles.inputBar, { paddingBottom: Platform.OS === "ios" ? insets.bottom + 8 : 12 }]}>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            placeholder={`Message ${driver?.name?.split(" ")[0] || partnerLabel}…`}
-            placeholderTextColor={tokens.muted}
-            value={inputText}
-            onChangeText={setInputText}
-            multiline
-            maxLength={300}
-          />
-        </View>
-        <TouchableOpacity
-          style={[styles.sendBtn, { backgroundColor: accent.accent, opacity: inputText.trim() ? 1 : 0.5 }]}
-          onPress={() => sendMessage(inputText)}
-          disabled={!inputText.trim()}
-        >
-          <Ionicons name="send" size={18} color={accent.on} />
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      <ChatInputBar
+        accent={accent}
+        driver={driver}
+        inputText={inputText}
+        insets={insets}
+        partnerLabel={partnerLabel}
+        sendMessage={sendMessage}
+        setInputText={setInputText}
+        styles={styles}
+        tokens={tokens}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     header: {
       flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingBottom: 14, gap: 12,
       backgroundColor: tokens.surface, borderBottomWidth: 1, borderBottomColor: tokens.border,
@@ -277,7 +247,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     // of the space left between the safety banner and the quick-reply row —
     // as messages accumulate it pushes the chips and composer off-screen.
     messagesFlatList: { flex: 1 },
-    messagesList: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
+    messagesList: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8 },
     dateDivider: { textAlign: "center", fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.sec, marginBottom: 12 },
     messageRow: { flexDirection: "row", alignItems: "flex-end", gap: 8, marginBottom: 10 },
     partnerAvatarSmall: { width: moderateScale(24), height: moderateScale(24), borderRadius: moderateScale(12), backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", marginBottom: 2 },

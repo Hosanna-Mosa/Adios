@@ -1,29 +1,27 @@
 import React, { useState, useMemo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  Linking,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { TaskComposeForm } from "@/features/delivery/components/TaskComposeForm";
+import { TaskBiddingPanel } from "@/features/delivery/components/TaskBiddingPanel";
+import { TaskAssignedPanel } from "@/features/delivery/components/TaskAssignedPanel";
+import { View, ScrollView, Alert, Linking } from "react-native";
+
 import { router, useLocalSearchParams, Stack } from "expo-router";
-import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+
+import { Header } from "@/components/ui/Header";
+import { createStyles } from "@/features/delivery/helper-task.styles";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
-import { fadeIn, fadeInUp, staggerListItem } from "@/motion/presets";
+import { fadeIn } from "@/motion/presets";
+
+import { HelperTaskSection } from "@/features/delivery/components/HelperTaskSection";
+import { HelperTaskOfferBlock } from "@/features/delivery/components/HelperTaskOfferBlock";
+
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { HelperTaskBody } from "@/features/delivery/components/HelperTaskBody";
 
 const getDistanceFromLatLonInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 6371;
@@ -308,414 +306,109 @@ export default function HelperTaskScreen() {
   const activeDriver = assignedDriver || driver;
 
   return (
-    <View style={styles.root}>
+    <ScreenShell>
       <Stack.Screen options={{ headerShown: false }} />
-      <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => (step === "compose" ? router.back() : setStep("compose"))}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? "Finding a helper" : "Task assigned"}
-        </Text>
-      </Animated.View>
+      <Header
+        title={step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? "Finding a helper" : "Task assigned"}
+        onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
+        entering={fadeIn(0)}
+      />
 
       {step === "compose" && (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
-            <Animated.Text style={styles.headline} entering={fadeInUp(0)}>What do you need?</Animated.Text>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-              {TASK_TYPES.map((t, i) => {
-                const isSelected = taskType === t;
-                return (
-                  <Animated.View key={t} entering={staggerListItem(i, 30)}>
-                    <TouchableOpacity
-                      style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                      onPress={() => setTaskType(isSelected ? null : t)}
-                    >
-                      <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{t}</Text>
-                    </TouchableOpacity>
-                  </Animated.View>
-                );
-              })}
-            </ScrollView>
-
-            <Animated.View style={styles.section} entering={fadeInUp(80)}>
-              <View style={styles.locationCard}>
-                <View style={styles.railCol}>
-                  <View style={styles.pickupDot} />
-                  <View style={styles.railLine} />
-                  <View style={styles.dropSquare} />
-                </View>
-                <View style={{ flex: 1, minWidth: 0, gap: 10 }}>
-                  <View>
-                    <Text style={styles.fieldLabel}>Where the work starts</Text>
-                    <View style={styles.inputRow}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Pickup location"
-                        placeholderTextColor={tokens.muted}
-                        value={pickupLocation}
-                        onChangeText={(t) => handleSearch(t, "pickup")}
-                        onFocus={() => setActiveField("pickup")}
-                      />
-                      <TouchableOpacity onPress={handleUseCurrentLocation}>
-                        <Ionicons name="locate" size={moderateScale(18)} color={accent.accent} />
-                      </TouchableOpacity>
-                    </View>
-                    {activeField === "pickup" && searchResults.length > 0 && (
-                      <View style={styles.dropdown}>
-                        {searchResults.map((r, i) => (
-                          <TouchableOpacity key={r.id || i} style={styles.dropdownRow} onPress={() => selectResult(r)}>
-                            <Ionicons name="location-outline" size={15} color={tokens.sec} />
-                            <Text style={styles.dropdownText} numberOfLines={1}>{r.description || r.name}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                  <View style={{ height: 1, backgroundColor: tokens.border }} />
-                  <View>
-                    <Text style={styles.fieldLabel}>Where it ends</Text>
-                    <View style={styles.inputRow}>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Drop-off (optional)"
-                        placeholderTextColor={tokens.muted}
-                        value={dropoffLocation}
-                        onChangeText={(t) => handleSearch(t, "dropoff")}
-                        onFocus={() => setActiveField("dropoff")}
-                      />
-                    </View>
-                    {activeField === "dropoff" && searchResults.length > 0 && (
-                      <View style={styles.dropdown}>
-                        {searchResults.map((r, i) => (
-                          <TouchableOpacity key={r.id || i} style={styles.dropdownRow} onPress={() => selectResult(r)}>
-                            <Ionicons name="location-outline" size={15} color={tokens.sec} />
-                            <Text style={styles.dropdownText} numberOfLines={1}>{r.description || r.name}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </View>
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(140)}>
-              <Text style={styles.sectionLabel}>Time required</Text>
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                <View style={styles.timeStepper}>
-                  <TouchableOpacity onPress={() => { setDurationMode("custom"); setCustomHours((h) => Math.max(0, h - 1)); }}>
-                    <Text style={styles.stepperSign}>−</Text>
-                  </TouchableOpacity>
-                  <View style={{ alignItems: "center" }}>
-                    <Text style={styles.stepperValue}>{durationMode === "1hr" ? 1 : durationMode === "2hr" ? 2 : customHours}</Text>
-                    <Text style={styles.stepperUnit}>hours</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => { setDurationMode("custom"); setCustomHours((h) => h + 1); }}>
-                    <Text style={styles.stepperSign}>+</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.timeStepper}>
-                  <TouchableOpacity onPress={() => { setDurationMode("custom"); setCustomMinutes((m) => (m === 0 ? 45 : m - 15)); }}>
-                    <Text style={styles.stepperSign}>−</Text>
-                  </TouchableOpacity>
-                  <View style={{ alignItems: "center" }}>
-                    <Text style={styles.stepperValue}>{durationMode === "1hr" ? 0 : durationMode === "2hr" ? 0 : customMinutes}</Text>
-                    <Text style={styles.stepperUnit}>minutes</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => { setDurationMode("custom"); setCustomMinutes((m) => (m === 45 ? 0 : m + 15)); }}>
-                    <Text style={styles.stepperSign}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Animated.View>
-
-            <Animated.View style={styles.section} entering={fadeInUp(200)}>
-              <Text style={styles.sectionLabel}>Task description</Text>
-              <View style={styles.descBox}>
-                <TextInput
-                  style={styles.descInput}
-                  placeholder="Two people to carry a 3-seater sofa and 4 cartons down from the 4th floor. No lift after 8 PM."
-                  placeholderTextColor={tokens.muted}
-                  multiline
-                  textAlignVertical="top"
-                  value={description}
-                  onChangeText={setDescription}
-                />
-              </View>
-              <Text style={styles.descHint}>Helpers see this before they bid. Mention stairs, weight and anything heavy.</Text>
-            </Animated.View>
-          </ScrollView>
-
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-            {calculatedFare > 0 && (
-              <View style={styles.suggestedRow}>
-                <Text style={styles.suggestedLabel}>Suggested offer</Text>
-                <Text style={styles.suggestedValue}>₹{suggestedLow} – ₹{suggestedHigh}</Text>
-              </View>
-            )}
-            <TouchableOpacity style={[styles.primaryBtn, isProceedDisabled && { opacity: 0.5 }]} disabled={isProceedDisabled} onPress={goToBidding}>
-              <Text style={styles.primaryBtnText}>Set your offer</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
+        <TaskComposeForm
+          TASK_TYPES={TASK_TYPES}
+          accent={accent}
+          activeField={activeField}
+          calculatedFare={calculatedFare}
+          customHours={customHours}
+          customMinutes={customMinutes}
+          description={description}
+          dropoffLocation={dropoffLocation}
+          durationMode={durationMode}
+          goToBidding={goToBidding}
+          handleSearch={handleSearch}
+          handleUseCurrentLocation={handleUseCurrentLocation}
+          insets={insets}
+          isProceedDisabled={isProceedDisabled}
+          offer={offer}
+          pickupLocation={pickupLocation}
+          searchResults={searchResults}
+          selectResult={selectResult}
+          setActiveField={setActiveField}
+          setCustomHours={setCustomHours}
+          setCustomMinutes={setCustomMinutes}
+          setDescription={setDescription}
+          setDurationMode={setDurationMode}
+          setTaskType={setTaskType}
+          styles={styles}
+          suggestedHigh={suggestedHigh}
+          suggestedLow={suggestedLow}
+          taskType={taskType}
+          tokens={tokens}
+        />
       )}
 
       {step === "bidding" && (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-            <Animated.View style={styles.offerBlock} entering={fadeInUp(0)}>
-              <Text style={styles.offerEyebrow}>Current offer</Text>
-              <Text style={styles.offerAmount}>₹{offer ?? calculatedFare}</Text>
-              <Text style={styles.offerSub}>
-                for {Math.floor(totalHours)}h {Math.round((totalHours % 1) * 60)}m · about ₹{Math.round((offer ?? calculatedFare) / totalHours)}/hour
-              </Text>
-            </Animated.View>
+            <HelperTaskOfferBlock
+              calculatedFare={calculatedFare}
+              offer={offer}
+              styles={styles}
+              totalHours={totalHours}
+            />
 
-            <Animated.View style={styles.section} entering={fadeInUp(80)}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <TouchableOpacity style={styles.offerStepBtn} onPress={() => setOffer((o) => Math.max(0, (o ?? calculatedFare) - 20))}>
-                  <Text style={styles.offerStepBtnText}>−</Text>
-                </TouchableOpacity>
-                <View style={styles.offerStepsMid}>
-                  <Text style={styles.offerStepsMidText}>₹20 steps</Text>
-                </View>
-                <TouchableOpacity style={[styles.offerStepBtn, { backgroundColor: accent.accent, borderWidth: 0 }]} onPress={() => setOffer((o) => (o ?? calculatedFare) + 20)}>
-                  <Text style={[styles.offerStepBtnText, { color: accent.on }]}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
+            <HelperTaskSection
+              accent={accent}
+              calculatedFare={calculatedFare}
+              setOffer={setOffer}
+              styles={styles}
+            />
           </ScrollView>
 
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-            <Text style={styles.helperCountNote}>Your offer is visible to nearby helpers once you tap Find a helper.</Text>
-            <TouchableOpacity style={styles.primaryBtn} onPress={createTask} disabled={isCreating}>
-              <Text style={styles.primaryBtnText}>Find a helper · ₹{offer ?? calculatedFare}</Text>
-            </TouchableOpacity>
-          </View>
+          <TaskBiddingPanel
+            calculatedFare={calculatedFare}
+            createTask={createTask}
+            insets={insets}
+            isCreating={isCreating}
+            offer={offer}
+            styles={styles}
+          />
         </View>
       )}
 
       {step === "searching" && (
-        <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 16, paddingTop: 8 }}>
-            <Animated.View entering={fadeInUp(0)}>
-              <View style={styles.titleRow}>
-                <View style={styles.spinner} />
-                <Text style={styles.matchingTitle}>Finding a helper</Text>
-              </View>
-              <Text style={styles.subtitle}>Matching you with helpers nearby.</Text>
-            </Animated.View>
-
-            <View style={{ gap: 12, marginTop: 18 }}>
-              <Animated.View style={styles.checkRow} entering={fadeInUp(60)}>
-                <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
-                <Text style={styles.checkText}>Task published · ₹{currentTaskPrice ?? offer ?? calculatedFare}</Text>
-              </Animated.View>
-              {totalContacted > 0 && (
-                <Animated.View style={styles.checkRow} entering={fadeInUp(0)}>
-                  <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
-                  <Text style={styles.checkText}>{totalContacted} helpers notified</Text>
-                </Animated.View>
-              )}
-              <Animated.View style={styles.checkRow} entering={fadeInUp(100)}>
-                <View style={styles.checkPending} />
-                <Text style={[styles.checkText, { color: accent.accent }]}>Waiting for the first acceptance</Text>
-              </Animated.View>
-            </View>
-
-            {totalContacted > 0 && rejectedCount > 0 && (
-              <Animated.View style={styles.declineNote} entering={fadeInUp(0)}>
-                <Text style={styles.declineNoteText}>{rejectedCount} of {totalContacted} contacted helpers have passed so far — consider raising your offer.</Text>
-              </Animated.View>
-            )}
-
-            <Animated.View style={{ marginTop: 22 }} entering={fadeInUp(160)}>
-              <Text style={styles.sectionLabel}>Attract helpers faster</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
-                {[10, 20, 30, 40, 50].map((amount, i) => (
-                  <Animated.View key={amount} entering={staggerListItem(i, 30)}>
-                    <TouchableOpacity
-                      style={styles.raiseChip}
-                      onPress={() => handleIncreasePrice(amount)}
-                      disabled={isIncreasingPrice === amount}
-                    >
-                      <Text style={styles.raiseChipText}>+₹{amount}</Text>
-                    </TouchableOpacity>
-                  </Animated.View>
-                ))}
-              </ScrollView>
-            </Animated.View>
-          </ScrollView>
-
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-              <Text style={styles.cancelBtnText}>Cancel task</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <HelperTaskBody
+          accent={accent}
+          calculatedFare={calculatedFare}
+          currentTaskPrice={currentTaskPrice}
+          handleCancel={handleCancel}
+          handleIncreasePrice={handleIncreasePrice}
+          insets={insets}
+          isIncreasingPrice={isIncreasingPrice}
+          offer={offer}
+          rejectedCount={rejectedCount}
+          styles={styles}
+          totalContacted={totalContacted}
+        />
       )}
 
       {step === "assigned" && activeDriver && (
-        <View style={{ flex: 1 }}>
-          <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
-            {startOtp && (
-              <Animated.View style={styles.otpCard} entering={fadeInUp(0)}>
-                <Text style={styles.otpLabel}>Share this OTP to start</Text>
-                <View style={{ flexDirection: "row", gap: 8, marginTop: 10 }}>
-                  {String(startOtp).split("").map((digit, i) => (
-                    <View key={i} style={styles.otpDigit}><Text style={styles.otpDigitText}>{digit}</Text></View>
-                  ))}
-                </View>
-                <Text style={styles.otpHint}>Don&apos;t share this code before the helper arrives.</Text>
-              </Animated.View>
-            )}
-
-            <Animated.View style={styles.driverRow} entering={fadeInUp(60)}>
-              <View style={styles.driverAvatar}><Ionicons name="person" size={22} color={tokens.sec} /></View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.driverName}>{activeDriver.name || "Helper"}</Text>
-                <Text style={styles.driverMeta}>{activeDriver.vehicle || activeDriver.vehicleType || "On the way"}</Text>
-              </View>
-              {(currentTaskPrice ?? offer) != null && (
-                <View style={{ alignItems: "flex-end" }}>
-                  <Text style={styles.driverPrice}>₹{currentTaskPrice ?? offer}</Text>
-                </View>
-              )}
-            </Animated.View>
-
-            <Animated.View style={{ flexDirection: "row", gap: 10, marginVertical: 14 }} entering={fadeInUp(120)}>
-              <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${activeDriver.phone || ""}`)}>
-                <Text style={styles.callBtnText}>Call</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.messageBtn} onPress={() => router.push("/chat")}>
-                <Text style={styles.messageBtnText}>Message</Text>
-              </TouchableOpacity>
-            </Animated.View>
-
-            {(pickupLocation || dropoffLocation) && (
-              <Animated.View style={styles.routeCard} entering={fadeInUp(180)}>
-                <View style={styles.railColSmall}>
-                  <View style={styles.pickupDotSmall} />
-                  <View style={styles.railLine} />
-                  <View style={styles.dropSquareSmall} />
-                </View>
-                <View style={{ flex: 1, minWidth: 0, gap: 10 }}>
-                  <Text style={styles.routeAddr} numberOfLines={1}>{pickupLocation}</Text>
-                  <Text style={styles.routeAddr} numberOfLines={1}>{dropoffLocation || "—"}</Text>
-                </View>
-              </Animated.View>
-            )}
-          </ScrollView>
-
-          <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-            <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-              <Text style={styles.cancelBtnText}>Cancel task</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <TaskAssignedPanel
+          Linking={Linking}
+          activeDriver={activeDriver}
+          currentTaskPrice={currentTaskPrice}
+          dropoffLocation={dropoffLocation}
+          handleCancel={handleCancel}
+          insets={insets}
+          offer={offer}
+          pickupLocation={pickupLocation}
+          startOtp={startOtp}
+          styles={styles}
+          tokens={tokens}
+        />
       )}
-    </View>
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["task"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    headline: { fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(28), lineHeight: moderateScale(31), letterSpacing: -0.5, color: tokens.text, paddingHorizontal: 16, marginTop: 4 },
-    typeRow: { paddingHorizontal: 16, paddingTop: 16, gap: 8 },
-    typeChip: { borderWidth: 1, borderColor: tokens.borderStrong, backgroundColor: tokens.surface, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9 },
-    typeChipText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec },
-
-    section: { paddingHorizontal: 16, paddingTop: 20 },
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
-
-    locationCard: { flexDirection: "row", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, padding: 14 },
-    railCol: { width: 14, alignItems: "center", paddingTop: 14 },
-    pickupDot: { width: 10, height: 10, borderRadius: 5, borderWidth: 2.5, borderColor: accent.accent },
-    dropSquare: { width: 10, height: 10, borderRadius: 2, backgroundColor: tokens.text },
-    railLine: { width: 2, flex: 1, minHeight: 24, backgroundColor: tokens.borderStrong, marginVertical: 4 },
-    fieldLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
-    inputRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 3 },
-    input: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text, paddingVertical: 4 },
-    dropdown: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 12, marginTop: 6, overflow: "hidden" },
-    dropdownRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    dropdownText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
-
-    timeStepper: {
-      flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: tokens.surface,
-      borderWidth: 1, borderColor: tokens.border, borderRadius: 14, paddingHorizontal: 14, minHeight: 56,
-    },
-    stepperSign: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(18), color: accent.accent },
-    stepperValue: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.3, color: tokens.text },
-    stepperUnit: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.sec },
-
-    descBox: { borderWidth: 2, borderColor: accent.accent, borderRadius: 14, backgroundColor: tokens.surface, padding: 14, minHeight: 104 },
-    descInput: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(21), color: tokens.text, minHeight: 76 },
-    descHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 8 },
-
-    footer: { paddingHorizontal: 16, paddingTop: 14, paddingBottom: 20, borderTopWidth: 1, borderTopColor: tokens.border, backgroundColor: tokens.surface },
-    suggestedRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 10 },
-    suggestedLabel: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
-    suggestedValue: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    primaryBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    primaryBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-
-    offerBlock: { alignItems: "center", paddingHorizontal: 16, paddingTop: 24 },
-    offerEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
-    offerAmount: { fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(52), lineHeight: moderateScale(54), letterSpacing: -0.8, color: tokens.text, marginTop: 8 },
-    offerSub: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 8 },
-    offerStepBtn: { width: moderateScale(56), height: moderateScale(56), borderRadius: 18, borderWidth: 1, borderColor: tokens.borderStrong, backgroundColor: tokens.surface, alignItems: "center", justifyContent: "center" },
-    offerStepBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(22), color: tokens.text },
-    offerStepsMid: { flex: 1, height: moderateScale(56), borderRadius: 18, backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    offerStepsMidText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: accent.accent },
-    helperCountNote: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginBottom: 10, textAlign: "center" },
-
-    titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 10 },
-    spinner: { width: 22, height: 22, borderRadius: 11, borderWidth: 2.5, borderColor: accent.accent, borderTopColor: "transparent" },
-    matchingTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.2, color: tokens.text },
-    subtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), color: tokens.sec, marginTop: 10 },
-    checkRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-    checkDone: { width: 22, height: 22, borderRadius: 11, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    checkPending: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: accent.accent },
-    checkText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
-    declineNote: { marginTop: 16, backgroundColor: tokens.warningSkin, borderRadius: 12, padding: 12 },
-    declineNoteText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec },
-    raiseChip: { borderWidth: 1, borderColor: accent.accent, backgroundColor: accent.skin, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 },
-    raiseChipText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.accent },
-
-    cancelBtn: { borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    cancelBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.error },
-
-    otpCard: { backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, borderRadius: 16, padding: 14, marginTop: 8, marginBottom: 14 },
-    otpLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
-    otpDigit: { flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: accent.accent, borderRadius: 10, paddingVertical: 11, alignItems: "center" },
-    otpDigitText: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), color: tokens.text },
-    otpHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 10 },
-
-    driverRow: { flexDirection: "row", alignItems: "center", gap: 14, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    driverAvatar: { width: 56, height: 56, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    driverName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), letterSpacing: -0.1, color: tokens.text },
-    driverMeta: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 3 },
-    driverPrice: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(20), letterSpacing: -0.3, color: tokens.text },
-
-    callBtn: { flex: 1, backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    callBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.on },
-    messageBtn: { flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    messageBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-
-    routeCard: { flexDirection: "row", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 13 },
-    railColSmall: { width: 12, alignItems: "center", paddingTop: 5 },
-    pickupDotSmall: { width: 9, height: 9, borderRadius: 5, borderWidth: 2.5, borderColor: accent.accent },
-    dropSquareSmall: { width: 9, height: 9, borderRadius: 2, backgroundColor: tokens.text },
-    routeAddr: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
-  });

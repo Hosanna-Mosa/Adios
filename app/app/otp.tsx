@@ -1,27 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
-} from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, TextInput } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router, useLocalSearchParams } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
+
 import Animated from "react-native-reanimated";
-import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { createStyles } from "@/features/auth/otp.styles";
+import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { Button } from "@/components/ui/Button";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
+import { fadeInUp } from "@/motion/presets";
+import { OtpCallRow } from "@/features/auth/components/OtpCallRow";
+import { OtpResendRow } from "@/features/auth/components/OtpResendRow";
+import { OtpHeroBlock } from "@/features/auth/components/OtpHeroBlock";
+import { OtpOtpRow } from "@/features/auth/components/OtpOtpRow";
+import { OtpHeaderRow } from "@/features/auth/components/OtpHeaderRow";
 
 const RESEND_SECONDS = 30;
 
@@ -167,15 +161,12 @@ export default function OTPScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       {/* Back button — same treatment as screen 2 */}
-      <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
-          activeOpacity={0.7}
-        >
-          <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
-        </TouchableOpacity>
-      </View>
+      <OtpHeaderRow
+        insets={insets}
+        name={name}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <ScrollView
         contentContainerStyle={[styles.scrollContainer, { minHeight: "100%" }]}
@@ -183,62 +174,30 @@ export default function OTPScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Same centered hero treatment as screens 1 & 2 */}
-        <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
-          <Text style={styles.headline} numberOfLines={1}>Verify your number</Text>
-          <Text style={styles.subhead}>
-            We sent a 6-digit code to{" "}
-            <Text style={styles.subheadStrong}>+91 {formatPhone(phone || "")}</Text>.{" "}
-            <Text style={styles.subheadLink} onPress={() => router.back()}>
-              Change
-            </Text>
-          </Text>
-        </Animated.View>
+        <OtpHeroBlock
+          formatPhone={formatPhone}
+          phone={phone}
+          styles={styles}
+        />
 
-        <View style={styles.otpRow}>
-          {otp.map((digit, i) => (
-            <Animated.View key={i} style={{ flex: 1 }} entering={staggerListItem(i)}>
-              <TextInput
-                ref={(ref) => {
-                  inputs.current[i] = ref;
-                }}
-                style={[
-                  styles.otpCell,
-                  (digit.length > 0 || focusedIndex === i) && styles.otpCellActive,
-                ]}
-                value={digit}
-                onChangeText={(text) => handleChange(text, i)}
-                onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, i)}
-                onFocus={() => setFocusedIndex(i)}
-                keyboardType="number-pad"
-                // No maxLength: the platform enforces it before onChangeText
-                // runs, so a pasted/autofilled code would arrive here already
-                // cut to one digit. The controlled `value` above is what keeps
-                // each box showing a single character.
-                textContentType="oneTimeCode"
-                // Android only forwards autoComplete; hinting just the first box
-                // keeps the SMS autofill from firing into all six at once.
-                autoComplete={i === 0 ? "one-time-code" : "off"}
-                selectTextOnFocus
-                textAlign="center"
-                selectionColor={accent.accent}
-              />
-            </Animated.View>
-          ))}
-        </View>
+        <OtpOtpRow
+          accent={accent}
+          focusedIndex={focusedIndex}
+          handleChange={handleChange}
+          handleKeyPress={handleKeyPress}
+          inputs={inputs}
+          otp={otp}
+          setFocusedIndex={setFocusedIndex}
+          styles={styles}
+        />
 
-        <Animated.View style={styles.resendRow} entering={fadeInUp(280)}>
-          {secondsLeft > 0 ? (
-            <Text style={styles.resendMuted}>Resend code in 0:{String(secondsLeft).padStart(2, "0")}</Text>
-          ) : (
-            <TouchableOpacity onPress={handleResend} disabled={resending} activeOpacity={0.7}>
-              {resending ? (
-                <ActivityIndicator size="small" color={accent.accent} />
-              ) : (
-                <Text style={styles.resendActive}>Resend</Text>
-              )}
-            </TouchableOpacity>
-          )}
-        </Animated.View>
+        <OtpResendRow
+          accent={accent}
+          handleResend={handleResend}
+          resending={resending}
+          secondsLeft={secondsLeft}
+          styles={styles}
+        />
 
         <Animated.View entering={fadeInUp(340)}>
           <Button
@@ -252,135 +211,12 @@ export default function OTPScreen() {
         </Animated.View>
 
         <Animated.View entering={fadeInUp(400)}>
-          <TouchableOpacity style={styles.callRow} onPress={handleCallInstead} activeOpacity={0.7}>
-            <Text style={styles.callText}>
-              Didn&apos;t get it? <Text style={styles.callHighlight}>Get a call instead</Text>
-            </Text>
-          </TouchableOpacity>
+          <OtpCallRow
+            handleCallInstead={handleCallInstead}
+            styles={styles}
+          />
         </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: tokens.bg,
-  },
-  headerRow: {
-    paddingHorizontal: 16,
-    paddingBottom: 4,
-  },
-  backBtn: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: tokens.surface,
-    borderWidth: 1,
-    borderColor: tokens.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-  },
-  heroBlock: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    // Same cap as screens 1 & 2's hero blocks.
-    maxHeight: moderateScale(200),
-    minHeight: moderateScale(120),
-  },
-  headline: {
-    // Same size as screens 1 & 2's headlines — kept identical on purpose.
-    fontFamily: fontFamilies.heading.bold,
-    fontSize: moderateScale(38),
-    lineHeight: moderateScale(40),
-    letterSpacing: -1.4,
-    color: tokens.text,
-    textAlign: "center",
-  },
-  subhead: {
-    fontFamily: fontFamilies.body.regular,
-    marginTop: 12,
-    fontSize: moderateScale(15),
-    lineHeight: moderateScale(21),
-    color: tokens.sec,
-    textAlign: "center",
-  },
-  subheadStrong: {
-    fontFamily: fontFamilies.body.semibold,
-    color: tokens.text,
-  },
-  subheadLink: {
-    fontFamily: fontFamilies.body.semibold,
-    color: accent.accent,
-  },
-  otpRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  otpCell: {
-    flex: 1,
-    height: moderateScale(58),
-    borderRadius: moderateScale(14),
-    borderWidth: 1,
-    borderColor: tokens.borderStrong,
-    backgroundColor: tokens.surface,
-    fontFamily: fontFamilies.heading.bold,
-    fontSize: moderateScale(24),
-    color: tokens.text,
-  },
-  otpCellActive: {
-    borderWidth: 2,
-    borderColor: accent.accent,
-  },
-  resendRow: {
-    marginTop: 18,
-    alignItems: "center",
-  },
-  resendMuted: {
-    fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(14),
-    color: tokens.sec,
-  },
-  resendActive: {
-    fontFamily: fontFamilies.body.semibold,
-    fontSize: moderateScale(14),
-    color: accent.accent,
-  },
-  verifyBtn: {
-    marginTop: 24,
-    height: moderateScale(52),
-    borderRadius: moderateScale(14),
-    backgroundColor: accent.accent,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  verifyBtnDisabled: {
-    opacity: 0.5,
-  },
-  verifyBtnText: {
-    fontFamily: fontFamilies.body.bold,
-    color: accent.on,
-    fontSize: moderateScale(15),
-  },
-  callRow: {
-    marginTop: 16,
-    alignItems: "center",
-  },
-  callText: {
-    fontFamily: fontFamilies.body.regular,
-    fontSize: moderateScale(14),
-    color: tokens.sec,
-  },
-  callHighlight: {
-    fontFamily: fontFamilies.body.semibold,
-    color: accent.accent,
-  },
-});

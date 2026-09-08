@@ -1,21 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import Animated from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+import { CheckoutBody } from "@/features/food/components/CheckoutBody";
+import { CheckoutFooter } from "@/features/food/components/CheckoutFooter";
+import { Alert } from "react-native";
+
 import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+
+import { Header } from "@/components/ui/Header";
+import { createStyles } from "@/features/food/checkout.styles";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -24,7 +17,7 @@ import { useServiceAccent } from "@/contexts/homeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import { ScheduleDateTimeSheet } from "@/components/ScheduleDateTimeSheet";
-import { fadeInUp } from "@/motion/presets";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 const TIP_OPTIONS = [0, 20, 30, 50];
 
@@ -316,271 +309,63 @@ export default function FoodCheckoutScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitleSolo}>Checkout</Text>
-      </View>
+    <ScreenShell>
+      <Header
+        title="Checkout"
+        onBack={() => router.back()}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}
+      />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={fadeInUp(0)} style={styles.section}>
-          <TouchableOpacity
-            style={[styles.addressCard, !!addressIssue && styles.addressCardBlocked]}
-            activeOpacity={0.85}
-            onPress={() => router.push("/delivery/saved-addresses")}
-          >
-            <View style={styles.addressAvatar}>
-              <Text style={styles.addressAvatarText}>{(selectedAddress?.label || "H")[0].toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.addressTitle}>Deliver to {selectedAddress?.label || "…"}</Text>
-              <Text style={styles.addressLine} numberOfLines={2}>
-                {selectedAddress?.addressLine || "Select a delivery address"}
-              </Text>
-              {!!selectedAddress?.landmark && (
-                <Text style={styles.addressContact}>Near {selectedAddress.landmark}</Text>
-              )}
-              {(!!receiverName || !!receiverPhone) && (
-                <Text style={styles.addressContact}>{[receiverName, receiverPhone].filter(Boolean).join(" · ")}</Text>
-              )}
-              {!!addressIssue && (
-                <View style={styles.addressWarnRow}>
-                  <Ionicons name="alert-circle" size={moderateScale(14)} color={tokens.error} />
-                  <Text style={styles.addressWarnText}>{addressIssue}</Text>
-                </View>
-              )}
-            </View>
-            <Text style={styles.changeLink}>Change</Text>
-          </TouchableOpacity>
-        </Animated.View>
+      <CheckoutBody
+        TIP_OPTIONS={TIP_OPTIONS}
+        formatSlot={formatSlot}
+        accent={accent}
+        activeTip={activeTip}
+        addressIssue={addressIssue}
+        appliedPromo={appliedPromo}
+        applyCode={applyCode}
+        applyingCode={applyingCode}
+        deliveryFee={deliveryFee}
+        getItemCount={getItemCount}
+        insets={insets}
+        isApplyingPromo={isApplyingPromo}
+        isOtherTip={isOtherTip}
+        items={items}
+        offers={offers}
+        otherTipText={otherTipText}
+        promoCodeText={promoCodeText}
+        promoError={promoError}
+        receiverName={receiverName}
+        receiverPhone={receiverPhone}
+        removeCode={removeCode}
+        scheduledFor={scheduledFor}
+        selectedAddress={selectedAddress}
+        setIsOtherTip={setIsOtherTip}
+        setOtherTipText={setOtherTipText}
+        setPromoCodeText={setPromoCodeText}
+        setScheduledFor={setScheduledFor}
+        setShowPromoInput={setShowPromoInput}
+        setShowScheduleSheet={setShowScheduleSheet}
+        setTipAmount={setTipAmount}
+        showPromoInput={showPromoInput}
+        styles={styles}
+        subtotal={subtotal}
+        tipAmount={tipAmount}
+        tokens={tokens}
+        total={total}
+      />
 
-        <Animated.View entering={fadeInUp(60)} style={styles.section}>
-          <View style={styles.orderCard}>
-            <View style={styles.orderCardHead}>
-              <Text style={styles.orderCardTitle}>Your order · {getItemCount()} items</Text>
-              <TouchableOpacity onPress={() => router.back()}>
-                <Text style={styles.changeLink}>Edit</Text>
-              </TouchableOpacity>
-            </View>
-            {items.map((item) => (
-              <View key={item._id} style={styles.orderLine}>
-                <Text style={styles.orderLineLabel} numberOfLines={1}>{item.quantity} × {item.name}</Text>
-                <Text style={styles.orderLineValue}>₹{item.price * item.quantity}</Text>
-              </View>
-            ))}
-          </View>
-        </Animated.View>
-
-        <Animated.View entering={fadeInUp(90)} style={styles.section}>
-          <Text style={styles.sectionLabel}>Delivery time</Text>
-          <View style={{ gap: 8 }}>
-            <TouchableOpacity
-              style={[styles.couponOptionRow, !scheduledFor && { borderColor: accent.accent, backgroundColor: accent.skin }]}
-              activeOpacity={0.85}
-              onPress={() => setScheduledFor(null)}
-            >
-              <View style={styles.radioSelected}>{!scheduledFor && <View style={[styles.radioDot, { backgroundColor: accent.accent }]} />}</View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.couponCode}>Deliver now</Text>
-                <Text style={styles.couponDesc}>We start preparing as soon as you order.</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.couponOptionRow, !!scheduledFor && { borderColor: accent.accent, backgroundColor: accent.skin }]}
-              activeOpacity={0.85}
-              onPress={() => setShowScheduleSheet(true)}
-            >
-              <View style={styles.radioSelected}>{!!scheduledFor && <View style={[styles.radioDot, { backgroundColor: accent.accent }]} />}</View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.couponCode}>Schedule for later</Text>
-                <Text style={styles.couponDesc}>
-                  {scheduledFor ? formatSlot(scheduledFor) : "Pick a future date and time"}
-                </Text>
-              </View>
-              <Text style={styles.changeLink}>{scheduledFor ? "Edit" : "Pick"}</Text>
-            </TouchableOpacity>
-          </View>
-          {!!scheduledFor && (
-            <Text style={styles.scheduleNote}>
-              The restaurant confirms scheduled slots — you&apos;ll see it as pending under Scheduled in My orders.
-            </Text>
-          )}
-        </Animated.View>
-
-        <Animated.View entering={fadeInUp(120)} style={styles.section}>
-          <Text style={styles.sectionLabel}>Offers &amp; coupons</Text>
-          {appliedPromo ? (
-            <View style={[styles.couponOptionRow, { borderColor: accent.accent, backgroundColor: accent.skin }]}>
-              <View style={styles.radioSelected}><View style={[styles.radioDot, { backgroundColor: accent.accent }]} /></View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.couponCode}>{appliedPromo.code}</Text>
-                <Text style={styles.couponDesc}>You saved ₹{appliedPromo.discountAmount}</Text>
-              </View>
-              <TouchableOpacity onPress={removeCode}>
-                <Text style={styles.changeLink}>Remove</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={{ gap: 8 }}>
-              {offers.map((offer) => {
-                const locked = offer.isApplicable === false;
-                return (
-                  <View key={offer.code} style={[styles.couponOptionRow, locked && styles.couponOptionRowLocked]}>
-                    <View style={styles.couponIconCircle}>
-                      <Ionicons name="pricetag" size={moderateScale(15)} color={accent.accent} />
-                    </View>
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text style={styles.couponCode}>{offer.code}</Text>
-                      <Text style={styles.couponDesc}>{offer.title}</Text>
-                      <Text style={styles.couponSaving}>
-                        {locked
-                          ? `Add ₹${Math.max(0, Math.round(offer.amountToUnlock ?? offer.minOrder - subtotal))} more to use this`
-                          : `Saves ₹${offer.discountAmount} on this order`}
-                      </Text>
-                    </View>
-                    <TouchableOpacity disabled={locked || isApplyingPromo} onPress={() => applyCode(offer.code)}>
-                      {applyingCode === offer.code ? (
-                        <ActivityIndicator size="small" color={accent.accent} />
-                      ) : (
-                        <Text style={[styles.changeLink, locked && { color: tokens.muted }]}>Apply</Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                );
-              })}
-
-              {showPromoInput ? (
-                <View style={styles.promoInputRow}>
-                  <TextInput
-                    style={styles.promoInput}
-                    placeholder="Enter promo code"
-                    placeholderTextColor={tokens.muted}
-                    autoCapitalize="characters"
-                    value={promoCodeText}
-                    onChangeText={setPromoCodeText}
-                  />
-                  <TouchableOpacity style={styles.promoApplyBtn} onPress={() => applyCode(promoCodeText)} disabled={isApplyingPromo}>
-                    {isApplyingPromo && !applyingCode ? (
-                      <ActivityIndicator size="small" color={accent.on} />
-                    ) : (
-                      <Text style={styles.promoApplyBtnText}>Apply</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity style={styles.couponOptionRow} activeOpacity={0.85} onPress={() => setShowPromoInput(true)}>
-                  <Ionicons name="pricetag-outline" size={moderateScale(18)} color={tokens.sec} />
-                  <Text style={[styles.couponCode, { flex: 1 }]}>Have a promo code?</Text>
-                  <Text style={styles.changeLink}>Add</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-          {!!promoError && <Text style={styles.promoError}>{promoError}</Text>}
-        </Animated.View>
-
-        <Animated.View entering={fadeInUp(180)} style={styles.section}>
-          <Text style={styles.sectionLabel}>Tip your delivery partner</Text>
-          <Text style={styles.tipSub}>100% of the tip goes to the partner.</Text>
-          <View style={styles.tipRow}>
-            {TIP_OPTIONS.map((opt) => {
-              const isSelected = !isOtherTip && tipAmount === opt;
-              return (
-                <TouchableOpacity
-                  key={opt}
-                  style={[styles.tipPill, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                  onPress={() => { setIsOtherTip(false); setTipAmount(opt); }}
-                >
-                  <Text style={[styles.tipPillText, isSelected && { color: accent.on }]}>{opt === 0 ? "None" : `₹${opt}`}</Text>
-                </TouchableOpacity>
-              );
-            })}
-            <TouchableOpacity
-              style={[styles.tipPill, isOtherTip && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-              onPress={() => setIsOtherTip(true)}
-            >
-              <Text style={[styles.tipPillText, isOtherTip && { color: accent.on }]}>Other</Text>
-            </TouchableOpacity>
-          </View>
-          {isOtherTip && (
-            <TextInput
-              style={styles.otherTipInput}
-              placeholder="Enter amount"
-              placeholderTextColor={tokens.muted}
-              keyboardType="numeric"
-              value={otherTipText}
-              onChangeText={setOtherTipText}
-            />
-          )}
-        </Animated.View>
-
-        <Animated.View entering={fadeInUp(240)} style={styles.section}>
-          <Text style={styles.sectionLabel}>Bill details</Text>
-          <View style={styles.billCard}>
-            <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Item total</Text>
-              <Text style={styles.billValue}>₹{subtotal}</Text>
-            </View>
-            {deliveryFee != null ? (
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Delivery fee</Text>
-                <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
-              </View>
-            ) : (
-              <Text style={styles.billNote}>Delivery fee is confirmed with your order.</Text>
-            )}
-            {activeTip > 0 && (
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Delivery tip</Text>
-                <Text style={styles.billValue}>₹{activeTip}</Text>
-              </View>
-            )}
-            {appliedPromo && (
-              <View style={styles.billRow}>
-                <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {appliedPromo.code}</Text>
-                <Text style={[styles.billValue, { color: tokens.success }]}>−₹{appliedPromo.discountAmount}</Text>
-              </View>
-            )}
-            <View style={styles.billDivider} />
-            <View style={styles.billRow}>
-              <Text style={styles.billTotalLabel}>To pay</Text>
-              <Text style={styles.billTotalValue}>₹{total}</Text>
-            </View>
-          </View>
-        </Animated.View>
-      </ScrollView>
-
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        {!!addressIssue && (
-          <TouchableOpacity
-            style={styles.blockedNote}
-            activeOpacity={0.8}
-            onPress={() => router.push("/delivery/saved-addresses")}
-          >
-            <Ionicons name="alert-circle" size={moderateScale(14)} color={tokens.error} />
-            <Text style={styles.blockedNoteText}>{addressIssue}</Text>
-            <Text style={styles.changeLink}>Fix</Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={[styles.placeOrderBtn, (isPlacingOrder || !!addressIssue) && styles.placeOrderBtnDisabled]}
-          activeOpacity={0.9}
-          onPress={placeOrder}
-          disabled={isPlacingOrder || !!addressIssue}
-        >
-          {isPlacingOrder ? (
-            <ActivityIndicator size="small" color={accent.on} />
-          ) : (
-            <>
-              <Text style={styles.placeOrderBtnText}>{scheduledFor ? "Schedule order" : "Place order"}</Text>
-              <Text style={styles.placeOrderBtnPrice}>· ₹{total}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+      <CheckoutFooter
+        accent={accent}
+        addressIssue={addressIssue}
+        insets={insets}
+        isPlacingOrder={isPlacingOrder}
+        placeOrder={placeOrder}
+        scheduledFor={scheduledFor}
+        styles={styles}
+        tokens={tokens}
+        total={total}
+      />
 
       <ScheduleDateTimeSheet
         visible={showScheduleSheet}
@@ -595,88 +380,6 @@ export default function FoodCheckoutScreen() {
         initialDate={scheduledFor ?? undefined}
         accent={accent.accent}
       />
-    </View>
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 12 },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitleSolo: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    section: { paddingHorizontal: 16, paddingTop: 18 },
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
-
-    addressCard: { flexDirection: "row", alignItems: "flex-start", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, padding: 14 },
-    addressCardBlocked: { borderColor: tokens.error, backgroundColor: tokens.errorSkin },
-    addressAvatar: { width: 34, height: 34, borderRadius: 11, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    addressAvatarText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.accent },
-    addressTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    addressLine: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec, marginTop: 3 },
-    addressContact: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 5 },
-    addressWarnRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
-    addressWarnText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.error },
-    changeLink: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.5, textTransform: "uppercase", color: accent.accent, flexShrink: 0 },
-
-    orderCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, padding: 14 },
-    orderCardHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-    orderCardTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    orderLine: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
-    orderLineLabel: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), color: tokens.sec, marginRight: 10 },
-    orderLineValue: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
-
-    couponOptionRow: { flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 13, minHeight: 56 },
-    couponOptionRowLocked: { opacity: 0.55 },
-    couponIconCircle: { width: 32, height: 32, borderRadius: 10, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    couponSaving: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: tokens.success, marginTop: 3 },
-    radioSelected: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: accent.accent, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    radioDot: { width: 10, height: 10, borderRadius: 5 },
-    couponCode: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    couponDesc: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
-    scheduleNote: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 10 },
-    promoInputRow: { flexDirection: "row", gap: 10 },
-    promoInput: {
-      flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 12,
-      paddingHorizontal: 14, height: moderateScale(44), fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text,
-    },
-    promoApplyBtn: { backgroundColor: accent.accent, borderRadius: 12, paddingHorizontal: 18, alignItems: "center", justifyContent: "center" },
-    promoApplyBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(13), color: accent.on },
-    promoError: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.error, marginTop: 8 },
-
-    tipSub: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(19), color: tokens.sec, marginTop: -6, marginBottom: 12 },
-    tipRow: { flexDirection: "row", gap: 8 },
-    tipPill: { flex: 1, borderWidth: 1, borderColor: tokens.borderStrong, backgroundColor: tokens.surface, borderRadius: 12, paddingVertical: 12, alignItems: "center", minHeight: 44 },
-    tipPillText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-    otherTipInput: {
-      marginTop: 10, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 12,
-      paddingHorizontal: 14, height: moderateScale(44), fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text,
-    },
-
-    billCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, padding: 16, gap: 11 },
-    billRow: { flexDirection: "row", justifyContent: "space-between" },
-    billLabel: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), color: tokens.sec },
-    billValue: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    billNote: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.muted },
-    billDivider: { borderTopWidth: 1, borderTopColor: tokens.borderStrong, borderStyle: "dashed", marginTop: 3, paddingTop: 1 },
-    billTotalLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-    billTotalValue: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(24), letterSpacing: -0.3, color: tokens.text },
-
-    footer: {
-      position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: tokens.surface,
-      borderTopWidth: 1, borderTopColor: tokens.border, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 16, paddingTop: 14,
-    },
-    blockedNote: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
-    blockedNoteText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.error },
-    placeOrderBtn: {
-      backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52),
-      flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    },
-    placeOrderBtnDisabled: { opacity: 0.5 },
-    placeOrderBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-    placeOrderBtnPrice: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on, opacity: 0.85 },
-  });

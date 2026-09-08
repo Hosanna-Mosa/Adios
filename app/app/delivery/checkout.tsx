@@ -1,18 +1,9 @@
 import React, { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import Animated from "react-native-reanimated";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -20,7 +11,14 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { fadeIn, fadeInUp } from "@/motion/presets";
+
+import { DeliveryCheckoutFooter } from "@/features/delivery/components/DeliveryCheckoutFooter";
+import { DeliveryCheckoutSection } from "@/features/delivery/components/DeliveryCheckoutSection";
+import { DeliveryCheckoutSection2 } from "@/features/delivery/components/DeliveryCheckoutSection2";
+import { DeliveryCheckoutSection3 } from "@/features/delivery/components/DeliveryCheckoutSection3";
+import { DeliveryCheckoutSection4 } from "@/features/delivery/components/DeliveryCheckoutSection4";
+import { DeliveryCheckoutHeader } from "@/features/delivery/components/DeliveryCheckoutHeader";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 export default function DeliveryCheckoutScreen() {
   const insets = useSafeAreaInsets();
@@ -91,133 +89,61 @@ export default function DeliveryCheckoutScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <View style={{ minWidth: 0 }}>
-          <Text style={styles.headerTitle}>Review route</Text>
-          <Text style={styles.headerSub}>
-            {stops.length} {stops.length === 1 ? "stop" : "stops"}
-            {route?.totalDistance != null ? ` · ${route.totalDistance} km` : ""}
-            {route?.estimatedTime != null ? ` · about ${route.estimatedTime} min` : ""}
-          </Text>
-        </View>
-      </Animated.View>
+    <ScreenShell>
+      <DeliveryCheckoutHeader
+        insets={insets}
+        route={route}
+        stops={stops}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <Animated.View style={styles.section} entering={fadeInUp(60)}>
-          <Text style={styles.sectionLabel}>Active route</Text>
-          {stops.length === 0 ? (
-            <View style={styles.emptyStops}>
-              <Ionicons name="location-outline" size={20} color={tokens.muted} />
-              <Text style={styles.emptyStopsText}>No stops added</Text>
-            </View>
-          ) : (
-            <View style={styles.routeCard}>
-              <View style={styles.routeRail}>
-                <View style={styles.pickupDot} />
-                {stops.map((_, i) => (
-                  <React.Fragment key={i}>
-                    <View style={styles.railLine} />
-                    <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{i + 1}</Text></View>
-                  </React.Fragment>
-                ))}
-                <View style={styles.railLine} />
-                <View style={styles.dropSquare} />
-              </View>
-              <View style={{ flex: 1, minWidth: 0, gap: 12 }}>
-                <Text style={styles.routeStartEnd}>Start</Text>
-                {stops.map((stop) => (
-                  <View key={stop.id}>
-                    <Text style={styles.stopName} numberOfLines={1}>{stop.storeName || stop.address}</Text>
-                    {stop.items && stop.items.length > 0 && (
-                      <Text style={styles.stopMeta}>
-                        {stop.items.length} {stop.items.length === 1 ? "item" : "items"}
-                        {stop.items.some((i) => i.estimatedPrice != null) ? ` · ₹${stop.items.reduce((s, i) => s + (i.estimatedPrice || 0) * i.quantity, 0)} est.` : ""}
-                      </Text>
-                    )}
-                  </View>
-                ))}
-                <Text style={styles.routeStartEnd}>Drop</Text>
-              </View>
-            </View>
-          )}
-        </Animated.View>
+        <DeliveryCheckoutSection
+          route={route}
+          stops={stops}
+          styles={styles}
+          tokens={tokens}
+        />
 
         {itemsEstimate > 0 && (
-          <Animated.View style={styles.section} entering={fadeInUp(120)}>
-            <Text style={styles.sectionLabel}>Store payment</Text>
-            <View style={styles.storePaymentCard}>
-              <View style={styles.storePaymentRow}>
-                <Text style={styles.storePaymentLabel}>Your estimate for items</Text>
-                <Text style={styles.storePaymentValue}>₹{itemsEstimate}</Text>
-              </View>
-              <Text style={styles.storePaymentNote}>
-                The rider pays at each counter and shares the bill photo. Items are verified on-site and the difference is settled after delivery — this amount is not charged now.
-              </Text>
-            </View>
-          </Animated.View>
+          <DeliveryCheckoutSection2
+            itemsEstimate={itemsEstimate}
+            styles={styles}
+          />
         )}
 
-        <Animated.View style={styles.section} entering={fadeInUp(180)}>
-          <Text style={styles.sectionLabel}>Delivery charges</Text>
-          <View style={styles.billCard}>
-            <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Delivery fee{route?.totalDistance != null ? ` · ${route.totalDistance} km` : ""}</Text>
-              <Text style={styles.billValue}>₹{deliveryFee}</Text>
-            </View>
-            {stopCharges > 0 && (
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Multi-stop charge · {stops.length} stops</Text>
-                <Text style={styles.billValue}>₹{stopCharges}</Text>
-              </View>
-            )}
-            <View style={styles.billDivider} />
-            <View style={styles.billRow}>
-              <Text style={styles.billTotalLabel}>To pay now</Text>
-              <Text style={styles.billTotalValue}>₹{price?.total ?? 0}</Text>
-            </View>
-          </View>
-        </Animated.View>
+        <DeliveryCheckoutSection3
+          deliveryFee={deliveryFee}
+          price={price}
+          route={route}
+          stopCharges={stopCharges}
+          stops={stops}
+          styles={styles}
+        />
 
-        <Animated.View style={styles.section} entering={fadeInUp(240)}>
-          <View style={styles.methodRow}>
-            <View style={styles.methodIcon}>
-              <Ionicons name="card-outline" size={moderateScale(17)} color={tokens.sec} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.methodTitle}>Razorpay</Text>
-              <Text style={styles.methodSub}>UPI, cards, wallets — choose on the next step</Text>
-            </View>
-          </View>
-        </Animated.View>
+        <DeliveryCheckoutSection4
+          styles={styles}
+          tokens={tokens}
+        />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <View style={styles.trustRow}>
-          <Ionicons name="lock-closed" size={13} color={tokens.success} />
-          <Text style={styles.trustText}>Encrypted and secure transaction · Razorpay</Text>
-        </View>
-        <TouchableOpacity style={[styles.payBtn, (isProcessing || stops.length === 0) && { opacity: 0.6 }]} onPress={handleConfirm} disabled={isProcessing || stops.length === 0}>
-          {isProcessing ? (
-            <ActivityIndicator size="small" color={accent.on} />
-          ) : (
-            <>
-              <Text style={styles.payBtnText}>Pay securely</Text>
-              <Text style={styles.payBtnPrice}>· ₹{price?.total ?? 0}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+      <DeliveryCheckoutFooter
+        accent={accent}
+        handleConfirm={handleConfirm}
+        insets={insets}
+        isProcessing={isProcessing}
+        price={price}
+        stops={stops}
+        styles={styles}
+        tokens={tokens}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["delivery"]) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
     iconBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),

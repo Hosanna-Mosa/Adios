@@ -1,15 +1,17 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated from "react-native-reanimated";
+import React, { useMemo, useState } from "react";
+import { Linking, Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router, useFocusEffect } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { Header } from "@/components/ui/Header";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
+
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { SupportBody } from "@/features/support/components/SupportBody";
 
 const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
   food: { label: "Food", accent: "food" },
@@ -98,108 +100,30 @@ export default function SupportScreen() {
   const toggleFAQ = (index: number) => setExpandedFAQ(expandedFAQ === index ? null : index);
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }]}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help &amp; support</Text>
-      </View>
+    <ScreenShell style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }}>
+      <Header title="Help & support" onBack={() => router.back()} />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={fadeInUp(0)}>
-          <Text style={styles.heroTitle}>How can we help?</Text>
-        </Animated.View>
-
-        {recentOrder && (
-          <Animated.View entering={fadeInUp(60)}>
-            <TouchableOpacity
-              style={styles.recentCard}
-              activeOpacity={0.85}
-              onPress={() => router.push({ pathname: "/tracking", params: { orderId: recentOrder._id } })}
-            >
-              <View style={[styles.recentIcon, { backgroundColor: accent.skin }]}>
-                <Ionicons name={meta?.accent === "ride" ? "car" : meta?.accent === "task" ? "construct" : meta?.accent === "delivery" ? "cube" : "fast-food"} size={19} color={accent.accent} />
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={[styles.recentEyebrow, { color: accent.accent }]}>{isActive ? "Active order" : "Recent order"}</Text>
-                <Text style={styles.recentTitle} numberOfLines={1}>{recentTitle} · ₹{Math.round(recentOrder.totalPrice || 0)}</Text>
-                <Text style={styles.recentMeta}>{formatRelativeDate(recentOrder.createdAt)}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-            </TouchableOpacity>
-          </Animated.View>
-        )}
-        <Text style={styles.recentHint}>Most issues are about a specific order — start there and we&apos;ll skip the questions.</Text>
-
-        <Text style={styles.sectionLabel}>Contact us</Text>
-        <Animated.View entering={fadeInUp(120)} style={{ gap: 10 }}>
-          <TouchableOpacity style={styles.contactRow} onPress={() => router.push("/support-chat")}>
-            <View style={[styles.contactIcon, { backgroundColor: tokens.brandSkin }]}>
-              <Ionicons name="chatbubble-ellipses" size={17} color={tokens.brand} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.contactLabel}>Live chat</Text>
-              <Text style={styles.contactDesc}>Message our support team</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.contactRow} onPress={() => Linking.openURL("tel:18002024477")}>
-            <View style={[styles.contactIcon, { backgroundColor: tokens.sunken }]}>
-              <Ionicons name="call" size={16} color={tokens.sec} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.contactLabel}>Call helpline</Text>
-              <Text style={styles.contactDesc}>1800 202 4477 · 7 AM – 1 AM</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.contactRow} onPress={() => Linking.openURL("mailto:care@flavour.in")}>
-            <View style={[styles.contactIcon, { backgroundColor: tokens.sunken }]}>
-              <Ionicons name="mail" size={16} color={tokens.sec} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.contactLabel}>Email us</Text>
-              <Text style={styles.contactDesc}>care@flavour.in · within 24 hours</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-          </TouchableOpacity>
-        </Animated.View>
-
-        <Text style={[styles.sectionLabel, { marginTop: 22 }]}>Common questions</Text>
-        <View style={styles.faqCard}>
-          {FAQS.map((faq, idx) => {
-            const isExpanded = expandedFAQ === idx;
-            return (
-              <Animated.View key={faq.question} entering={staggerListItem(idx)}>
-                <TouchableOpacity
-                  style={[styles.faqRow, idx < FAQS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
-                  activeOpacity={0.7}
-                  onPress={() => toggleFAQ(idx)}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                    <Text style={styles.faqQuestion}>{faq.question}</Text>
-                    <Ionicons name={isExpanded ? "remove" : "add"} size={18} color={accent.accent} />
-                  </View>
-                  {isExpanded && <Text style={styles.faqAnswer}>{faq.answer}</Text>}
-                </TouchableOpacity>
-              </Animated.View>
-            );
-          })}
-        </View>
-      </ScrollView>
-    </View>
+      <SupportBody
+        FAQS={FAQS}
+        Linking={Linking}
+        formatRelativeDate={formatRelativeDate}
+        accent={accent}
+        expandedFAQ={expandedFAQ}
+        insets={insets}
+        isActive={isActive}
+        meta={meta}
+        recentOrder={recentOrder}
+        recentTitle={recentTitle}
+        styles={styles}
+        toggleFAQ={toggleFAQ}
+        tokens={tokens}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
-    backBtn: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
 
     heroTitle: { fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(28), lineHeight: moderateScale(32), letterSpacing: -0.5, color: tokens.text, paddingHorizontal: 16, paddingTop: 16 },
 

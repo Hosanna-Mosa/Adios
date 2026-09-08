@@ -1,31 +1,37 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  Dimensions,
-  Linking,
-  Modal,
-  Platform,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import { Alert, Dimensions, Linking, ScrollView, Share, StyleSheet, View } from "react-native";
+import { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router, useLocalSearchParams } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
+
+import { TripCompleteScreen } from "@/features/ride/components/TripCompleteScreen";
+import { createStyles } from "@/features/ride/tracking.styles";
+
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+
 import { useDeliveryStore, OrderStatus } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { MapBackground, MapBackgroundRef } from "@/components/MapBackground";
 import { BottomSheet } from "@/components/BottomSheet";
+
+import { TrackingFooterBtnOutline } from "@/features/ride/components/TrackingFooterBtnOutline";
+import { TrackingFooterBtnOutline2 } from "@/features/ride/components/TrackingFooterBtnOutline2";
+import { TrackingFooterBtnOutline3 } from "@/features/ride/components/TrackingFooterBtnOutline3";
+import { TrackingFooterBtnOutline4 } from "@/features/ride/components/TrackingFooterBtnOutline4";
+import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
+import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
+import { TrackingPinCard } from "@/features/ride/components/TrackingPinCard";
+import { TrackingPinCard2 } from "@/features/ride/components/TrackingPinCard2";
+import { TrackingPinCard3 } from "@/features/ride/components/TrackingPinCard3";
+import { TrackingPartnerRow } from "@/features/ride/components/TrackingPartnerRow";
+import { TrackingTimelineBlock } from "@/features/ride/components/TrackingTimelineBlock";
+import { TrackingFindingWrap } from "@/features/ride/components/TrackingFindingWrap";
+import { TrackingTopBar } from "@/features/ride/components/TrackingTopBar";
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { TripDetailsModal } from "@/features/ride/components/TripDetailsModal";
 
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
@@ -139,140 +145,6 @@ function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean):
   const done = [true, at("en_route_delivery"), at("arrived_delivery"), at("delivered")];
   const currentIdx = done.lastIndexOf(false);
   return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
-}
-
-function OrderReviewCard({
-  orderId,
-  isRide,
-  isHelper,
-  tokens,
-  accent,
-}: {
-  orderId: string;
-  isRide: boolean;
-  isHelper: boolean;
-  tokens: ThemeTokens;
-  accent: ThemeTokens["services"]["food"];
-}) {
-  const styles = useMemo(() => createStyles(tokens, accent), [tokens, accent]);
-  const [rating, setRating] = useState(5);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [existingReview, setExistingReview] = useState<any>(null);
-
-  const availableTags = isRide
-    ? ["On time", "Smooth ride", "Polite captain", "Clean vehicle", "Great route"]
-    : isHelper
-      ? ["On time", "Careful with items", "Polite", "Hard working"]
-      : ["Fast delivery", "Fresh & hot", "Well packaged", "Friendly partner"];
-
-  useEffect(() => {
-    if (!orderId) return;
-    customFetch<any>(`/reviews/order/${orderId}`)
-      .then((res) => {
-        if (res && res.review) {
-          setIsSubmitted(true);
-          setExistingReview(res.review);
-        }
-      })
-      .catch(() => {});
-  }, [orderId]);
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
-  };
-
-  const handleSubmit = async () => {
-    if (!orderId) return;
-    try {
-      setIsSubmitting(true);
-      const res = await customFetch<any>("/reviews", {
-        method: "POST",
-        body: JSON.stringify({ orderId, rating, comment, tags: selectedTags }),
-      });
-      if (res) {
-        setIsSubmitted(true);
-        setExistingReview(res.review || { rating, comment, tags: selectedTags });
-      }
-    } catch (err: any) {
-      Alert.alert("Couldn't submit", err.message || "Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (isSubmitted && existingReview) {
-    return (
-      <View style={styles.reviewCard}>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={styles.reviewTitle}>Your feedback</Text>
-          <View style={styles.submittedPill}>
-            <Ionicons name="checkmark" size={12} color={tokens.success} />
-            <Text style={[styles.submittedPillText, { color: tokens.success }]}>Submitted</Text>
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", gap: 6, marginTop: 10 }}>
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Ionicons key={star} name="star" size={20} color={star <= existingReview.rating ? "#F59E0B" : tokens.border} />
-          ))}
-        </View>
-        {existingReview.tags?.length > 0 && (
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-            {existingReview.tags.map((tag: string, idx: number) => (
-              <View key={idx} style={[styles.reviewTagChip, { backgroundColor: accent.skin }]}>
-                <Text style={[styles.reviewTagChipText, { color: accent.accent }]}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-        {existingReview.comment ? <Text style={styles.reviewComment}>&quot;{existingReview.comment}&quot;</Text> : null}
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.reviewCard}>
-      <Text style={[styles.reviewTitle, { alignSelf: "center" }]}>Rate your experience</Text>
-      <View style={{ flexDirection: "row", gap: 10, marginTop: 12, alignSelf: "center" }}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7}>
-            <Ionicons name="star" size={32} color={star <= rating ? "#F59E0B" : tokens.border} />
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 16, justifyContent: "center" }}>
-        {availableTags.map((tag) => {
-          const selected = selectedTags.includes(tag);
-          return (
-            <TouchableOpacity
-              key={tag}
-              style={[styles.reviewTagChip, { backgroundColor: selected ? accent.skin : tokens.surface, borderWidth: 1, borderColor: selected ? accent.accent : tokens.borderStrong }]}
-              onPress={() => toggleTag(tag)}
-            >
-              <Text style={[styles.reviewTagChipText, { color: selected ? accent.accent : tokens.sec }]}>{tag}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <TextInput
-        style={styles.reviewCommentInput}
-        placeholder="Write a comment (optional)"
-        placeholderTextColor={tokens.muted}
-        value={comment}
-        onChangeText={setComment}
-        multiline
-      />
-      <TouchableOpacity
-        style={[styles.reviewSubmitBtn, { backgroundColor: accent.accent, opacity: isSubmitting ? 0.6 : 1 }]}
-        onPress={handleSubmit}
-        disabled={isSubmitting}
-      >
-        <Text style={[styles.reviewSubmitBtnText, { color: accent.on }]}>{isSubmitting ? "Submitting…" : "Submit rating"}</Text>
-      </TouchableOpacity>
-    </View>
-  );
 }
 
 export default function TrackingScreen() {
@@ -564,68 +436,22 @@ export default function TrackingScreen() {
         : `Delivered by ${driver?.name || "your delivery partner"}${elapsed ? ` in ${elapsed}` : ""}.`;
 
     return (
-      <View style={[styles.doneRoot, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 16 }]}>
-        <View style={styles.doneHead}>
-          <View style={styles.doneCheck}>
-            <Ionicons name="checkmark" size={moderateScale(28)} color="#fff" />
-          </View>
-          <Text style={styles.doneTitle}>{headline}</Text>
-          <Text style={styles.doneSubtitle}>{subline}</Text>
-          {totalPrice != null && <Text style={styles.donePrice}>₹{Math.round(totalPrice)} paid</Text>}
-        </View>
-
-        <ScrollView style={{ flex: 1, width: "100%" }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
-          {isRide ? (
-            <View style={styles.doneCard}>
-              <Text style={styles.doneCardTitle}>Route</Text>
-              <View style={{ gap: 8, paddingVertical: 4 }}>
-                <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                  <View style={[styles.dotSmall, { backgroundColor: tokens.success }]} />
-                  <Text style={styles.doneAddrText} numberOfLines={2}>{stops?.find((s) => s.type === "pickup")?.address || "Pickup location"}</Text>
-                </View>
-                <View style={{ width: 2, height: 12, backgroundColor: tokens.border, marginLeft: 3 }} />
-                <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                  <View style={[styles.dotSmall, { backgroundColor: tokens.error, borderRadius: 2 }]} />
-                  <Text style={styles.doneAddrText} numberOfLines={2}>{deliveryStop?.address || "Destination"}</Text>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <>
-              <View style={styles.doneCard}>
-                <Text style={styles.doneCardTitle}>{isHelper ? "Task details" : "Delivered items"}</Text>
-                {isHelper ? (
-                  <Text style={styles.doneAddrText}>Booked location: {stops?.[0]?.address || "—"}</Text>
-                ) : foodItems.length > 0 ? (
-                  foodItems.map((item: any, idx: number) => (
-                    <View key={idx} style={{ flexDirection: "row", gap: 8, paddingVertical: 4 }}>
-                      <Text style={[styles.doneAddrText, { fontFamily: fontFamilies.body.bold, color: accent.accent }]}>{item.quantity}x</Text>
-                      <Text style={styles.doneAddrText}>{item.name}</Text>
-                    </View>
-                  ))
-                ) : (
-                  <Text style={styles.doneAddrText}>Items successfully handed over.</Text>
-                )}
-              </View>
-              {deliveryStop?.address && (
-                <View style={styles.doneCard}>
-                  <Text style={styles.doneCardTitle}>Delivery address</Text>
-                  <Text style={styles.doneAddrText}>{deliveryStop.address}</Text>
-                </View>
-              )}
-            </>
-          )}
-
-          <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} tokens={tokens} accent={accent} />
-          <View style={{ height: 8 }} />
-        </ScrollView>
-
-        <View style={{ width: "100%", paddingHorizontal: 20, paddingTop: 8 }}>
-          <TouchableOpacity style={[styles.doneHomeBtn, { backgroundColor: accent.accent }]} onPress={handleBack}>
-            <Text style={[styles.doneHomeBtnText, { color: accent.on }]}>Back to orders</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <TripCompleteScreen
+        foodItems={foodItems}
+        headline={headline}
+        subline={subline}
+        accent={accent}
+        currentOrderId={currentOrderId}
+        deliveryStop={deliveryStop}
+        handleBack={handleBack}
+        insets={insets}
+        isHelper={isHelper}
+        isRide={isRide}
+        stops={stops}
+        styles={styles}
+        tokens={tokens}
+        totalPrice={totalPrice}
+      />
     );
   }
 
@@ -641,7 +467,7 @@ export default function TrackingScreen() {
   const pickupLabel = vendorName || pickupStop?.address || stops?.[0]?.address || "Pickup location";
 
   return (
-    <View style={styles.root}>
+    <ScreenShell>
       <MapBackground
         ref={mapRef}
         stops={stops}
@@ -653,168 +479,120 @@ export default function TrackingScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>
-          <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${eta} min`}</Text>
-        </View>
-        <View style={{ width: moderateScale(40) }} />
-      </View>
+      <TrackingTopBar
+        bannerText={bannerText}
+        accent={accent}
+        eta={eta}
+        insets={insets}
+        status={status}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <BottomSheet style={styles.bottomSheet} defaultHeight={Dimensions.get("window").height * 0.5} disableExpand={false}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {!driver ? (
-            <View style={styles.findingWrap}>
-              <View style={styles.radarWrap}>
-                <Animated.View style={[styles.radarRing, { borderColor: accent.accent }, pulse1Style]} />
-                <Animated.View style={[styles.radarRing, { borderColor: accent.accent }, pulse2Style]} />
-                <View style={[styles.radarCenter, { backgroundColor: accent.accent }]}>
-                  <Ionicons name="search" size={22} color={accent.on} />
-                </View>
-              </View>
-              <Text style={styles.findingTitle}>{isRide ? "Finding your captain…" : isHelper ? "Finding your helper…" : "Finding your delivery partner…"}</Text>
-              <Text style={styles.findingSubtitle}>This usually takes under a minute.</Text>
-            </View>
+            <TrackingFindingWrap
+              accent={accent}
+              isHelper={isHelper}
+              isRide={isRide}
+              pulse1Style={pulse1Style}
+              pulse2Style={pulse2Style}
+              styles={styles}
+            />
           ) : (
             <>
               {/* Timeline */}
-              <View style={styles.timelineBlock}>
-                {timeline.map((step, i) => (
-                  <View key={step.label} style={{ flexDirection: "row", gap: 12 }}>
-                    <View style={{ alignItems: "center" }}>
-                      {step.done ? (
-                        <View style={[styles.stepDotDone, { backgroundColor: accent.accent }]}>
-                          <Ionicons name="checkmark" size={11} color={accent.on} />
-                        </View>
-                      ) : step.current ? (
-                        <View style={styles.stepDotCurrentWrap}>
-                          <View style={[styles.stepDotCurrentPulse, { backgroundColor: accent.accent }]} />
-                          <View style={[styles.stepDotCurrent, { backgroundColor: accent.accent }]} />
-                        </View>
-                      ) : (
-                        <View style={styles.stepDotFuture} />
-                      )}
-                      {i < timeline.length - 1 && <View style={[styles.stepLine, { backgroundColor: step.done ? accent.accent : tokens.borderStrong }]} />}
-                    </View>
-                    <View style={{ paddingBottom: 14 }}>
-                      <Text style={[styles.stepLabel, { color: step.current ? accent.accent : step.done ? tokens.text : tokens.muted }]}>{step.label}</Text>
-                      {i === 0 && orderCreatedAt && <Text style={styles.stepSub}>{formatClock(orderCreatedAt)}</Text>}
-                      {step.current && !isHelper && <Text style={styles.stepSub}>{eta} min away</Text>}
-                      {step.current && isHelper && helperStatus ? <Text style={styles.stepSub}>{helperStatus}</Text> : null}
-                    </View>
-                  </View>
-                ))}
-              </View>
+              <TrackingTimelineBlock
+                formatClock={formatClock}
+                accent={accent}
+                eta={eta}
+                helperStatus={helperStatus}
+                isHelper={isHelper}
+                orderCreatedAt={orderCreatedAt}
+                styles={styles}
+                timeline={timeline}
+                tokens={tokens}
+              />
 
               {/* Partner card */}
-              <View style={styles.partnerRow}>
-                <View style={styles.partnerAvatar}>
-                  <Ionicons name="person" size={22} color={tokens.sec} />
-                </View>
-                <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={styles.partnerName} numberOfLines={1}>{driver.name || "Assigned partner"}</Text>
-                  <Text style={styles.partnerMeta}>{driver.vehicle && driver.vehicle !== "unknown" ? driver.vehicle.charAt(0).toUpperCase() + driver.vehicle.slice(1) : isHelper ? "Helper" : "Delivery partner"}</Text>
-                </View>
-                <TouchableOpacity style={[styles.circleBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver.phone || ""}`)}>
-                  <Ionicons name="call" size={17} color={accent.on} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.circleBtnOutline} onPress={() => router.push("/chat")}>
-                  <Ionicons name="chatbubble-outline" size={17} color={tokens.text} />
-                  {unreadCount > 0 && (
-                    <View style={[styles.badge, { backgroundColor: tokens.error }]}>
-                      <Text style={styles.badgeText}>{unreadCount}</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-              </View>
+              <TrackingPartnerRow
+                Linking={Linking}
+                accent={accent}
+                driver={driver}
+                isHelper={isHelper}
+                styles={styles}
+                tokens={tokens}
+                unreadCount={unreadCount}
+              />
 
               {/* PIN blocks */}
               {isRide && startOtp && ["confirmed", "driver_assigned", "en_route_pickup", "arrived_pickup"].includes(status) && (
-                <View style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}>
-                  <Text style={[styles.pinLabel, { color: accent.accent }]}>Start ride PIN</Text>
-                  <View style={styles.pinBoxes}>
-                    {String(startOtp).split("").map((digit, i) => (
-                      <View key={i} style={[styles.pinBox, { borderColor: accent.accent }]}>
-                        <Text style={styles.pinDigit}>{digit}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <Text style={styles.pinHint}>Give this to your captain to start the trip.</Text>
-                </View>
+                <TrackingPinCard
+                  accent={accent}
+                  startOtp={startOtp}
+                  styles={styles}
+                />
               )}
               {isRide && deliveryOtp && status === "arrived_delivery" && (
-                <View style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}>
-                  <Text style={[styles.pinLabel, { color: accent.accent }]}>End ride PIN</Text>
-                  <View style={styles.pinBoxes}>
-                    {String(deliveryOtp).split("").map((digit, i) => (
-                      <View key={i} style={[styles.pinBox, { borderColor: accent.accent }]}>
-                        <Text style={styles.pinDigit}>{digit}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
+                <TrackingPinCard2
+                  accent={accent}
+                  deliveryOtp={deliveryOtp}
+                  styles={styles}
+                />
               )}
               {!isRide && !isHelper && deliveryOtp && (
-                <View style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}>
-                  <Text style={[styles.pinLabel, { color: accent.accent }]}>Delivery PIN</Text>
-                  <View style={styles.pinBoxes}>
-                    {String(deliveryOtp).split("").map((digit, i) => (
-                      <View key={i} style={[styles.pinBox, { borderColor: accent.accent }]}>
-                        <Text style={styles.pinDigit}>{digit}</Text>
-                      </View>
-                    ))}
-                  </View>
-                  <Text style={styles.pinHint}>Only give this code when your items are safely received.</Text>
-                </View>
+                <TrackingPinCard3
+                  accent={accent}
+                  deliveryOtp={deliveryOtp}
+                  styles={styles}
+                />
               )}
 
               {/* Helper live status */}
               {isHelper && helperStatus ? (
-                <View style={[styles.helperUpdate, { backgroundColor: accent.skin }]}>
-                  <Text style={[styles.helperUpdateLabel, { color: accent.accent }]}>Helper update</Text>
-                  <Text style={styles.helperUpdateText}>{helperStatus}</Text>
-                </View>
+                <TrackingHelperUpdate
+                  accent={accent}
+                  helperStatus={helperStatus}
+                  styles={styles}
+                />
               ) : null}
 
               {/* Addresses */}
-              <View style={styles.addrCard}>
-                <View style={styles.addrRail}>
-                  <View style={[styles.addrDot, { borderColor: accent.accent }]} />
-                  <View style={styles.addrLine} />
-                  <View style={[styles.addrDot, { backgroundColor: tokens.text, borderWidth: 0 }]} />
-                </View>
-                <View style={{ flex: 1, minWidth: 0, gap: 12 }}>
-                  <View>
-                    <Text style={styles.addrLabel}>{isRide ? "Pickup" : "Picked up from"}</Text>
-                    <Text style={styles.addrText} numberOfLines={1}>{pickupLabel}</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.addrLabel}>{isRide ? "Drop-off" : "Delivering to"}</Text>
-                    <Text style={styles.addrText} numberOfLines={1}>{deliveryStop?.address || stops?.[stops.length - 1]?.address || "—"}</Text>
-                  </View>
-                </View>
-              </View>
+              <TrackingAddrCard
+                accent={accent}
+                deliveryStop={deliveryStop}
+                isRide={isRide}
+                pickupLabel={pickupLabel}
+                stops={stops}
+                styles={styles}
+                tokens={tokens}
+              />
 
               {/* Footer actions */}
               {isRide ? (
                 <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-                  <TouchableOpacity style={styles.footerBtnOutline} onPress={handleShareTrip}>
-                    <Text style={styles.footerBtnOutlineText}>Share trip</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.footerBtnOutline, { borderColor: tokens.error }]} onPress={handleSOS}>
-                    <Text style={[styles.footerBtnOutlineText, { color: tokens.error }]}>Emergency</Text>
-                  </TouchableOpacity>
+                  <TrackingFooterBtnOutline
+                    handleShareTrip={handleShareTrip}
+                    styles={styles}
+                  />
+                  <TrackingFooterBtnOutline2
+                    handleSOS={handleSOS}
+                    styles={styles}
+                    tokens={tokens}
+                  />
                 </View>
               ) : (
                 <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-                  <TouchableOpacity style={styles.footerBtnOutline} onPress={() => setTripModalVisible(true)}>
-                    <Text style={styles.footerBtnOutlineText}>Order details</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.footerBtnOutline, { borderColor: tokens.error }]} onPress={handleSOS}>
-                    <Text style={[styles.footerBtnOutlineText, { color: tokens.error }]}>Help</Text>
-                  </TouchableOpacity>
+                  <TrackingFooterBtnOutline3
+                    setTripModalVisible={setTripModalVisible}
+                    styles={styles}
+                  />
+                  <TrackingFooterBtnOutline4
+                    handleSOS={handleSOS}
+                    styles={styles}
+                    tokens={tokens}
+                  />
                 </View>
               )}
               <View style={{ height: 12 }} />
@@ -823,143 +601,18 @@ export default function TrackingScreen() {
         </ScrollView>
       </BottomSheet>
 
-      <Modal visible={tripModalVisible} animationType="slide" transparent onRequestClose={() => setTripModalVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setTripModalVisible(false)} />
-          <View style={styles.modalContent}>
-            <View style={styles.sheetHandle} />
-            <Text style={styles.modalTitle}>Order details</Text>
-            <View style={{ flexDirection: "row", gap: 12, marginTop: 16, marginBottom: 20 }}>
-              <View style={styles.addrRail}>
-                <View style={[styles.addrDot, { borderColor: accent.accent }]} />
-                <View style={styles.addrLine} />
-                <View style={[styles.addrDot, { backgroundColor: tokens.text, borderWidth: 0 }]} />
-              </View>
-              <View style={{ flex: 1, gap: 20 }}>
-                <View>
-                  <Text style={styles.addrLabel}>PICKUP</Text>
-                  <Text style={[styles.addrText, { marginTop: 2 }]}>{pickupLabel}</Text>
-                </View>
-                <View>
-                  <Text style={styles.addrLabel}>DROP-OFF</Text>
-                  <Text style={[styles.addrText, { marginTop: 2 }]}>{stops?.[stops.length - 1]?.address || "—"}</Text>
-                </View>
-              </View>
-            </View>
-            <View style={styles.modalOrderIdRow}>
-              <Text style={styles.addrLabel}>ORDER ID</Text>
-              <Text style={styles.modalOrderIdValue}>{currentOrderId?.substring(0, 8).toUpperCase()}</Text>
-            </View>
-            {totalPrice != null && (
-              <View style={styles.modalOrderIdRow}>
-                <Text style={styles.addrLabel}>TOTAL</Text>
-                <Text style={styles.modalOrderIdValue}>₹{Math.round(totalPrice)}</Text>
-              </View>
-            )}
-            <View style={{ height: insets.bottom + 16 }} />
-          </View>
-        </View>
-      </Modal>
-    </View>
+      <TripDetailsModal
+        accent={accent}
+        currentOrderId={currentOrderId}
+        insets={insets}
+        pickupLabel={pickupLabel}
+        setTripModalVisible={setTripModalVisible}
+        stops={stops}
+        styles={styles}
+        tokens={tokens}
+        totalPrice={totalPrice}
+        tripModalVisible={tripModalVisible}
+      />
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    topBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", zIndex: 10, paddingHorizontal: 16 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-      shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5,
-    },
-    etaChip: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 9, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 5 },
-    etaChipText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(13) },
-
-    bottomSheet: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 0 },
-
-    findingWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 28 },
-    radarWrap: { width: 110, height: 110, alignItems: "center", justifyContent: "center", marginBottom: 18 },
-    radarRing: { position: "absolute", width: 76, height: 76, borderRadius: 999, borderWidth: 2 },
-    radarCenter: { width: 56, height: 56, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-    findingTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(19), color: tokens.text, textAlign: "center" },
-    findingSubtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginTop: 6, textAlign: "center" },
-
-    timelineBlock: { paddingTop: 14, marginBottom: 8 },
-    stepDotDone: { width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-    stepDotCurrentWrap: { width: 20, height: 20, alignItems: "center", justifyContent: "center" },
-    stepDotCurrentPulse: { position: "absolute", width: 20, height: 20, borderRadius: 10, opacity: 0.3 },
-    stepDotCurrent: { width: 11, height: 11, borderRadius: 6 },
-    stepDotFuture: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: tokens.borderStrong, backgroundColor: tokens.surface },
-    stepLine: { width: 2, flex: 1, minHeight: 16, marginTop: 2 },
-    stepLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14) },
-    stepSub: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.sec, marginTop: 2 },
-
-    partnerRow: {
-      flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 14, marginBottom: 10,
-      borderTopWidth: 1, borderBottomWidth: 1, borderColor: tokens.border,
-    },
-    partnerAvatar: { width: 46, height: 46, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    partnerName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    partnerMeta: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.sec, marginTop: 2 },
-    circleBtn: { width: 40, height: 40, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-    circleBtnOutline: { width: 40, height: 40, borderRadius: 999, borderWidth: 1, borderColor: tokens.borderStrong, alignItems: "center", justifyContent: "center", position: "relative" },
-    badge: { position: "absolute", top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: tokens.surface, paddingHorizontal: 2 },
-    badgeText: { color: "#fff", fontSize: 9, fontFamily: fontFamilies.body.bold },
-
-    pinCard: { borderWidth: 1, borderRadius: 16, padding: 14, marginBottom: 12 },
-    pinLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase" },
-    pinBoxes: { flexDirection: "row", gap: 8, marginTop: 10 },
-    pinBox: { flex: 1, borderWidth: 1, borderRadius: 10, paddingVertical: 10, alignItems: "center", backgroundColor: tokens.surface },
-    pinDigit: { fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(18), color: tokens.text },
-    pinHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.sec, marginTop: 10, lineHeight: 17 },
-
-    helperUpdate: { borderRadius: 14, padding: 13, marginBottom: 14 },
-    helperUpdateLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 1, textTransform: "uppercase" },
-    helperUpdateText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text, marginTop: 4 },
-
-    addrCard: { flexDirection: "row", gap: 12, backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 14, marginBottom: 16 },
-    addrRail: { width: 12, alignItems: "center", paddingTop: 4 },
-    addrDot: { width: 9, height: 9, borderRadius: 999, borderWidth: 2.5 },
-    addrLine: { width: 2, flex: 1, minHeight: 20, backgroundColor: tokens.borderStrong, marginVertical: 4 },
-    addrLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
-    addrText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text, marginTop: 3 },
-
-    footerBtnOutline: { flex: 1, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    footerBtnOutlineText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.sec },
-
-    modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
-    modalContent: { backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 12 },
-    sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 14 },
-    modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(20), color: tokens.text },
-    modalOrderIdRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderTopWidth: 1, borderColor: tokens.border, paddingVertical: 14 },
-    modalOrderIdValue: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: tokens.text },
-
-    // Completed screen
-    doneRoot: { flex: 1, backgroundColor: tokens.bg, alignItems: "center" },
-    doneHead: { alignItems: "center", paddingHorizontal: 24, marginBottom: 8 },
-    doneCheck: { width: 64, height: 64, borderRadius: 999, backgroundColor: tokens.success, alignItems: "center", justifyContent: "center", marginBottom: 14 },
-    doneTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(24), letterSpacing: -0.3, color: tokens.text, textAlign: "center" },
-    doneSubtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec, textAlign: "center", marginTop: 8, paddingHorizontal: 12 },
-    donePrice: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text, marginTop: 8 },
-    doneCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 16, marginTop: 14 },
-    doneCardTitle: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 0.6, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
-    doneAddrText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), lineHeight: moderateScale(19), color: tokens.text },
-    dotSmall: { width: 8, height: 8, borderRadius: 4 },
-    doneHomeBtn: { borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    doneHomeBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15) },
-
-    reviewCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 16, marginTop: 14 },
-    reviewTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(17), color: tokens.text },
-    submittedPill: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: tokens.successSkin, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
-    submittedPillText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(11) },
-    reviewTagChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
-    reviewTagChipText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12) },
-    reviewComment: { fontFamily: fontFamilies.body.regular, fontStyle: "italic", fontSize: moderateScale(13), color: tokens.sec, marginTop: 10 },
-    reviewCommentInput: {
-      borderWidth: 1, borderColor: tokens.border, borderRadius: 12, padding: 12, fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13),
-      color: tokens.text, marginTop: 14, minHeight: 60, textAlignVertical: "top",
-    },
-    reviewSubmitBtn: { borderRadius: 14, minHeight: moderateScale(50), alignItems: "center", justifyContent: "center", marginTop: 14 },
-    reviewSubmitBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15) },
-  });

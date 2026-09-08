@@ -1,30 +1,28 @@
-import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Image } from "expo-image";
+import React, { useMemo, useState } from "react";
+import { Alert, ScrollView } from "react-native";
+
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router, useFocusEffect } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+
+import { Header } from "@/components/ui/Header";
+import { createStyles } from "@/features/profile/profile.styles";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
-import { fadeInDown, fadeInUp, staggerListItem } from "@/motion/presets";
+import { fadeInDown, fadeInUp } from "@/motion/presets";
+
+import { ProfileSignOutAllBtn } from "@/features/profile/components/ProfileSignOutAllBtn";
+import { ProfileSignOutBtn } from "@/features/profile/components/ProfileSignOutBtn";
+import { ProfileMenuCard } from "@/features/profile/components/ProfileMenuCard";
+import { ProfileStatsRow } from "@/features/profile/components/ProfileStatsRow";
+import { ProfileProfileCard } from "@/features/profile/components/ProfileProfileCard";
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { SecuritySheet } from "@/features/profile/components/SecuritySheet";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
@@ -185,171 +183,71 @@ export default function ProfileScreen() {
   ] as const;
 
   return (
-    <View style={styles.root}>
-      <Animated.View style={[styles.header, { paddingTop: insets.top + 12 }]} entering={fadeInDown(0)}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-      </Animated.View>
+    <ScreenShell>
+      <Header
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+        style={{ paddingTop: insets.top + 12 }}
+        entering={fadeInDown(0)}
+      />
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
-        <Animated.View style={styles.profileCard} entering={fadeInUp(0)}>
-          <TouchableOpacity onPress={handlePickImage} activeOpacity={0.85}>
-            {user?.profilePic ? (
-              <Image source={{ uri: user.profilePic }} style={styles.avatar} contentFit="cover" transition={200} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarInitial}>{(user?.name || "U").charAt(0).toUpperCase()}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.profileName} numberOfLines={1}>{user?.name || "Your name"}</Text>
-            <Text style={styles.profilePhone}>{user?.phone || ""}</Text>
-          </View>
-        </Animated.View>
+        <ProfileProfileCard
+          handlePickImage={handlePickImage}
+          styles={styles}
+          user={user}
+        />
 
-        <Animated.View style={styles.statsRow} entering={fadeInUp(70)}>
-          <View style={styles.statTile}>
-            <Text style={styles.statValue}>{ordersCount}</Text>
-            <Text style={styles.statLabel}>orders</Text>
-          </View>
-          <View style={styles.statTile}>
-            <Text style={styles.statValue}>₹{totalSpent >= 1000 ? `${(totalSpent / 1000).toFixed(1)}k` : Math.round(totalSpent)}</Text>
-            <Text style={styles.statLabel}>spent</Text>
-          </View>
-          <View style={styles.statTile}>
-            <Text style={styles.statValue}>{memberSinceYear || "—"}</Text>
-            <Text style={styles.statLabel}>member since</Text>
-          </View>
-        </Animated.View>
+        <ProfileStatsRow
+          memberSinceYear={memberSinceYear}
+          ordersCount={ordersCount}
+          styles={styles}
+          totalSpent={totalSpent}
+        />
 
-        <View style={styles.menuCard}>
-          {MENU_ITEMS.map((item, idx) => (
-            <Animated.View key={item.key} entering={staggerListItem(idx, 30)}>
-              <TouchableOpacity
-                style={[styles.menuRow, idx < MENU_ITEMS.length - 1 && { borderBottomWidth: 1, borderBottomColor: tokens.border }]}
-                activeOpacity={0.7}
-                onPress={item.onPress}
-              >
-                <View style={[styles.menuIcon, { backgroundColor: item.key === "orders" ? accent.skin : tokens.sunken }]}>
-                  <Ionicons name={item.icon as any} size={17} color={item.key === "orders" ? accent.accent : tokens.sec} />
-                </View>
-                <Text style={styles.menuLabel}>{item.label}</Text>
-                {"badge" in item && item.badge && <Text style={styles.menuBadgeText}>{item.badge}</Text>}
-                {"countBadge" in item && item.countBadge ? (
-                  <View style={styles.menuCountBadge}>
-                    <Text style={styles.menuCountBadgeText}>{item.countBadge}</Text>
-                  </View>
-                ) : null}
-                <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
-
-          {/* Appearance — a switch rather than a navigation row, so it sits
-              outside MENU_ITEMS and carries its own top divider. */}
-          <Animated.View entering={staggerListItem(MENU_ITEMS.length, 30)}>
-            <View style={[styles.menuRow, { borderTopWidth: 1, borderTopColor: tokens.border }]}>
-              <View style={[styles.menuIcon, { backgroundColor: tokens.sunken }]}>
-                <Ionicons name={theme === "dark" ? "moon" : "sunny"} size={17} color={tokens.sec} />
-              </View>
-              <Text style={styles.menuLabel}>Dark mode</Text>
-              <Switch
-                value={theme === "dark"}
-                onValueChange={toggleTheme}
-                trackColor={{ false: tokens.sunken, true: accent.accent }}
-                thumbColor={tokens.surface}
-                ios_backgroundColor={tokens.sunken}
-              />
-            </View>
-          </Animated.View>
-        </View>
+        <ProfileMenuCard
+          MENU_ITEMS={MENU_ITEMS}
+          accent={accent}
+          styles={styles}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          tokens={tokens}
+        />
 
         <Animated.View entering={fadeInUp(280)}>
-          <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout} disabled={loading} activeOpacity={0.8}>
-            {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>Sign out</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.signOutAllBtn} onPress={handleSignOutAllDevices} disabled={signingOutAll || loading} activeOpacity={0.8}>
-            {signingOutAll ? <ActivityIndicator size="small" color={tokens.sec} /> : <Text style={styles.signOutAllBtnText}>Sign out of all devices</Text>}
-          </TouchableOpacity>
+          <ProfileSignOutBtn
+            handleLogout={handleLogout}
+            loading={loading}
+            styles={styles}
+            tokens={tokens}
+          />
+          <ProfileSignOutAllBtn
+            handleSignOutAllDevices={handleSignOutAllDevices}
+            loading={loading}
+            signingOutAll={signingOutAll}
+            styles={styles}
+            tokens={tokens}
+          />
         </Animated.View>
       </ScrollView>
 
       <AppTabBar active="account" />
 
       {/* Security modal */}
-      <Modal visible={securityVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBody}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Change password</Text>
-              <TouchableOpacity onPress={() => { setSecurityVisible(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}>
-                <Ionicons name="close" size={moderateScale(22)} color={tokens.text} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView style={{ marginBottom: 16 }}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Current password</Text>
-                <TextInput style={styles.textInput} value={currentPassword} onChangeText={setCurrentPassword} secureTextEntry placeholder="Enter current password" placeholderTextColor={tokens.muted} />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>New password</Text>
-                <TextInput style={styles.textInput} value={newPassword} onChangeText={setNewPassword} secureTextEntry placeholder="Min. 8 characters" placeholderTextColor={tokens.muted} />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Confirm new password</Text>
-                <TextInput style={styles.textInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry placeholder="Confirm new password" placeholderTextColor={tokens.muted} />
-              </View>
-            </ScrollView>
-            <TouchableOpacity style={[styles.saveBtn, { opacity: changingPassword ? 0.7 : 1 }]} onPress={handleChangePassword} disabled={changingPassword}>
-              {changingPassword ? <ActivityIndicator color={accent.on} /> : <Text style={styles.saveBtnText}>Update password</Text>}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-    </View>
+      <SecuritySheet
+        accent={accent}
+        changingPassword={changingPassword}
+        confirmPassword={confirmPassword}
+        currentPassword={currentPassword}
+        handleChangePassword={handleChangePassword}
+        newPassword={newPassword}
+        securityVisible={securityVisible}
+        setConfirmPassword={setConfirmPassword}
+        setCurrentPassword={setCurrentPassword}
+        setNewPassword={setNewPassword}
+        setSecurityVisible={setSecurityVisible}
+        styles={styles}
+        tokens={tokens}
+      />
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingBottom: 8 },
-    backBtn: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-
-    profileCard: { flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 20, padding: 18, marginTop: 12 },
-    avatar: { width: 64, height: 64, borderRadius: 999 },
-    avatarPlaceholder: { width: 64, height: 64, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    avatarInitial: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(24), color: tokens.sec },
-    profileName: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.3, color: tokens.text },
-    profilePhone: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 4 },
-
-    statsRow: { flexDirection: "row", gap: 10, marginTop: 16 },
-    statTile: { flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, paddingVertical: 12, alignItems: "center" },
-    statValue: { fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(19), letterSpacing: -0.3, color: tokens.text },
-    statLabel: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12), color: tokens.sec, marginTop: 2 },
-
-    menuCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, overflow: "hidden", marginTop: 20 },
-    menuRow: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, minHeight: 56 },
-    menuIcon: { width: 36, height: 36, borderRadius: 11, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    menuLabel: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    menuBadgeText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec },
-    menuCountBadge: { minWidth: 20, height: 20, borderRadius: 10, backgroundColor: tokens.error, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-    menuCountBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), color: "#fff" },
-
-    signOutBtn: { marginTop: 14, borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    signOutBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.error },
-    signOutAllBtn: { marginTop: 10, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
-    signOutAllBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.sec },
-
-    modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
-    modalBody: { backgroundColor: tokens.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: "88%" },
-    modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
-    modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(20), color: tokens.text },
-    inputGroup: { gap: 8, marginBottom: 18 },
-    inputLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
-    textInput: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, minHeight: 48, paddingHorizontal: 14, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    saveBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-  });

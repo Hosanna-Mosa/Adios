@@ -1,20 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Image } from "expo-image";
-import Animated from "react-native-reanimated";
+import { FlatList, RefreshControl, StyleSheet } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
+
+import { useFocusEffect } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { FavoriteCard } from "@/features/food/components/FavoriteCard";
+import { ItemFavoriteCard } from "@/features/food/components/ItemFavoriteCard";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -22,85 +14,14 @@ import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
-import { Button } from "@/components/ui/Button";
-import { fadeInDown, fadeInUp, staggerListItem } from "@/motion/presets";
 
-function FavoriteCard({ item, index, tokens, styles }: { item: any; index: number; tokens: ThemeTokens; styles: any }) {
-  const isMeat = item.partnerType === "meat";
-  const accent = tokens.services[isMeat ? "meat" : "food"];
-  const categoryLabel = Array.isArray(item.categories) ? item.categories.slice(0, 2).join(", ") : item.categories;
-
-  return (
-    <Animated.View style={styles.card} entering={staggerListItem(index)}>
-      <TouchableOpacity
-        style={styles.cardThumb}
-        activeOpacity={0.85}
-        onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item._id, name: item.name, image: item.image || "", isMeat: isMeat ? "true" : "false" } })}
-      >
-        <Image source={{ uri: item.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
-      </TouchableOpacity>
-      <View style={styles.cardBody}>
-        <View style={styles.cardTitleRow}>
-          <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-          <Ionicons name="heart" size={moderateScale(16)} color={accent.accent} />
-        </View>
-        {isMeat && (
-          <View style={[styles.serviceTag, { backgroundColor: accent.skin }]}>
-            <Text style={[styles.serviceTagText, { color: accent.accent }]}>Meat</Text>
-          </View>
-        )}
-        <Text style={styles.cardMeta} numberOfLines={1}>
-          {categoryLabel}{item.deliveryFee != null ? ` · ₹${item.deliveryFee} delivery` : ""}
-        </Text>
-        <TouchableOpacity
-          style={[styles.reorderBtn, { backgroundColor: accent.accent }]}
-          activeOpacity={0.85}
-          onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item._id, name: item.name, image: item.image || "", isMeat: isMeat ? "true" : "false" } })}
-        >
-          <Text style={[styles.reorderBtnText, { color: accent.on }]}>Reorder</Text>
-        </TouchableOpacity>
-      </View>
-    </Animated.View>
-  );
-}
-
-function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: { item: any; index: number; tokens: ThemeTokens; styles: any; onUnfavorite: (itemId: string) => void }) {
-  const isMeat = !!item.isMeat;
-  const accent = tokens.services[isMeat ? "meat" : "food"];
-
-  return (
-    <Animated.View style={styles.card} entering={staggerListItem(index)}>
-      <TouchableOpacity
-        style={styles.cardThumb}
-        activeOpacity={0.85}
-        onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item.vendorId, isMeat: isMeat ? "true" : "false", highlightDishId: item._id } })}
-      >
-        <Image source={{ uri: item.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
-      </TouchableOpacity>
-      <View style={styles.cardBody}>
-        <View style={styles.cardTitleRow}>
-          <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-          <TouchableOpacity onPress={() => onUnfavorite(item._id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Ionicons name="heart" size={moderateScale(16)} color={accent.accent} />
-          </TouchableOpacity>
-        </View>
-        {isMeat && (
-          <View style={[styles.serviceTag, { backgroundColor: accent.skin }]}>
-            <Text style={[styles.serviceTagText, { color: accent.accent }]}>Meat</Text>
-          </View>
-        )}
-        <Text style={styles.cardMeta} numberOfLines={1}>₹{item.price}</Text>
-        <TouchableOpacity
-          style={[styles.reorderBtn, { backgroundColor: accent.accent }]}
-          activeOpacity={0.85}
-          onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item.vendorId, isMeat: isMeat ? "true" : "false", highlightDishId: item._id } })}
-        >
-          <Text style={[styles.reorderBtnText, { color: accent.on }]}>View dish</Text>
-        </TouchableOpacity>
-      </View>
-    </Animated.View>
-  );
-}
+import { FavoritesEmptyContainer } from "@/features/food/components/FavoritesEmptyContainer";
+import { FavoritesEmptyContainer2 } from "@/features/food/components/FavoritesEmptyContainer2";
+import { FavoritesSegmentWrap } from "@/features/food/components/FavoritesSegmentWrap";
+import { FavoritesCenterContainer } from "@/features/food/components/FavoritesCenterContainer";
+import { FavoritesCenterContainer2 } from "@/features/food/components/FavoritesCenterContainer2";
+import { FavoritesHeaderRow } from "@/features/food/components/FavoritesHeaderRow";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 export default function FavoritesScreen() {
   const insets = useSafeAreaInsets();
@@ -167,31 +88,27 @@ export default function FavoritesScreen() {
   );
 
   return (
-    <View style={styles.root}>
-      <Animated.View style={[styles.headerRow, { paddingTop: insets.top + 4 }]} entering={fadeInDown(0)}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}>
-          <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Favorites</Text>
-      </Animated.View>
+    <ScreenShell>
+      <FavoritesHeaderRow
+        insets={insets}
+        styles={styles}
+        tokens={tokens}
+      />
 
-      <Animated.View style={styles.segmentWrap} entering={fadeInUp(60)}>
-        <View style={styles.segmentTrack}>
-          <View style={[styles.segmentThumb, activeTab === "items" && { left: "50%" }]} />
-          <TouchableOpacity style={styles.segmentCell} onPress={() => setActiveTab("outlets")}>
-            <Text style={[styles.segmentLabel, activeTab === "outlets" && styles.segmentLabelActive]}>Outlets · {activeFavorites.length}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.segmentCell} onPress={() => setActiveTab("items")}>
-            <Text style={[styles.segmentLabel, activeTab === "items" && styles.segmentLabelActive]}>Items · {activeFavoriteItems.length}</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
+      <FavoritesSegmentWrap
+        activeFavoriteItems={activeFavoriteItems}
+        activeFavorites={activeFavorites}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        styles={styles}
+      />
 
       {activeTab === "items" ? (
         itemsLoading && activeFavoriteItems.length === 0 ? (
-          <View style={styles.centerContainer}>
-            <ActivityIndicator size="large" color={accent.accent} />
-          </View>
+          <FavoritesCenterContainer
+            accent={accent}
+            styles={styles}
+          />
         ) : (
           <FlatList
             data={activeFavoriteItems}
@@ -201,22 +118,20 @@ export default function FavoritesScreen() {
             )}
             refreshControl={<RefreshControl refreshing={itemsLoading} onRefresh={fetchFavoriteItems} tintColor={accent.accent} />}
             ListEmptyComponent={() => (
-              <Animated.View style={styles.emptyContainer} entering={fadeInUp(0)}>
-                <View style={styles.heartCircle}>
-                  <Ionicons name="heart-outline" size={moderateScale(28)} color={accent.accent} />
-                </View>
-                <Text style={styles.emptyTitle}>No favorite dishes yet</Text>
-                <Text style={styles.emptySubtitle}>Tap the heart on any dish and it lands here.</Text>
-              </Animated.View>
+              <FavoritesEmptyContainer
+                accent={accent}
+                styles={styles}
+              />
             )}
             contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + 24 }]}
             showsVerticalScrollIndicator={false}
           />
         )
       ) : loading && activeFavorites.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={accent.accent} />
-        </View>
+        <FavoritesCenterContainer2
+          accent={accent}
+          styles={styles}
+        />
       ) : (
         <FlatList
           data={activeFavorites}
@@ -224,39 +139,12 @@ export default function FavoritesScreen() {
           renderItem={({ item, index }) => <FavoriteCard item={item} index={index} tokens={tokens} styles={styles} />}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchFavorites} tintColor={accent.accent} />}
           ListEmptyComponent={() => (
-            <Animated.View style={styles.emptyContainer} entering={fadeInUp(0)}>
-              <View style={styles.heartCircle}>
-                <Ionicons name="heart" size={moderateScale(28)} color={accent.accent} />
-              </View>
-              <Text style={styles.emptyTitle}>No favorites yet</Text>
-              <Text style={styles.emptySubtitle}>
-                Tap the heart on any outlet and it lands here — across food, meat, and everything else.
-              </Text>
-              <Button title="Explore outlets" onPress={() => router.replace("/(tabs)")} fullWidth />
-
-              {popularNearby.length > 0 && (
-                <View style={styles.popularSection}>
-                  <Text style={styles.popularLabel}>Popular near you</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-                    {popularNearby.map((r, index) => (
-                      <Animated.View key={r._id} entering={staggerListItem(index)}>
-                        <TouchableOpacity
-                          style={styles.popularCard}
-                          activeOpacity={0.85}
-                          onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: r._id, name: r.name, image: r.image || "" } })}
-                        >
-                          <Image source={{ uri: r.image }} style={styles.popularImage} contentFit="cover" transition={200} />
-                          <Text style={styles.popularName} numberOfLines={1}>{r.name}</Text>
-                          <Text style={styles.popularMeta} numberOfLines={1}>
-                            {[r.rating ? `${r.rating} ★` : "New", r.time].filter(Boolean).join(" · ")}
-                          </Text>
-                        </TouchableOpacity>
-                      </Animated.View>
-                    ))}
-                  </ScrollView>
-                </View>
-              )}
-            </Animated.View>
+            <FavoritesEmptyContainer2
+              accent={accent}
+              favorites={favorites}
+              popularNearby={popularNearby}
+              styles={styles}
+            />
           )}
           contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight + 24 }]}
           showsVerticalScrollIndicator={false}
@@ -264,13 +152,12 @@ export default function FavoritesScreen() {
       )}
 
       <AppTabBar active="account" />
-    </View>
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
     backBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),

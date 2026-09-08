@@ -1,27 +1,19 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Alert } from "react-native";
+
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
-import Animated from "react-native-reanimated";
 import MapView, { PROVIDER_GOOGLE } from "@/components/maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { createStyles } from "@/features/ride/pickup-confirmation.styles";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { modalSlideUp } from "@/motion/presets";
 
-const { height } = Dimensions.get("window");
+import { PickupConfirmPanel } from "@/features/ride/components/PickupConfirmPanel";
+import { PickupConfirmMapArea } from "@/features/ride/components/PickupConfirmMapArea";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 type FareEstimate = {
   distanceInKm: number;
@@ -223,241 +215,30 @@ export default function PickupConfirmationScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={styles.mapArea}>
-        <MapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={StyleSheet.absoluteFill}
-          initialRegion={{
-            ...pickupCoords,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-          showsCompass={false}
-          showsMyLocationButton={false}
-          showsUserLocation
-        />
+    <ScreenShell>
+      <PickupConfirmMapArea
+        MapView={MapView}
+        PROVIDER_GOOGLE={PROVIDER_GOOGLE}
+        pickupCoords={pickupCoords}
+        accent={accent}
+        insets={insets}
+        mapRef={mapRef}
+        styles={styles}
+        tokens={tokens}
+        useCurrentLocation={useCurrentLocation}
+      />
 
-        <View pointerEvents="none" style={styles.centerMarker}>
-          <View style={styles.markerWrap}>
-            <View style={styles.pickupBubble}>
-              <Text style={styles.pickupBubbleText}>Pickup Point</Text>
-            </View>
-            <View style={styles.pin}>
-              <Ionicons name="navigate" size={18} color={accent.on} />
-            </View>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={[styles.backButton, { top: insets.top + 16 }]}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={22} color={tokens.text} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.locateButton} onPress={useCurrentLocation}>
-          <Ionicons name="locate" size={22} color={accent.accent} />
-        </TouchableOpacity>
-      </View>
-
-      <Animated.View entering={modalSlideUp} style={styles.panel}>
-        <View style={styles.handle} />
-        <Text style={styles.title}>Double check pickup point</Text>
-
-        <TouchableOpacity style={styles.addressCard} onPress={recenter} activeOpacity={0.85}>
-          <Text style={styles.addressTitle} numberOfLines={1}>
-            {firstLine(confirmedPickup.name)}
-          </Text>
-          <Text style={styles.addressSubtitle} numberOfLines={1}>
-            {confirmedPickup.name}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.metaRow}>
-          <Text style={styles.metaText}>{params.rideName || "Ride"}</Text>
-          <View style={styles.metaValue}>
-            {loadingEstimate ? (
-              <ActivityIndicator size="small" color={tokens.sec} />
-            ) : (
-              <Text style={styles.metaText}>
-                {estimate ? `₹${estimate.fareBreakdown.total.toFixed(2)}` : params.ridePrice}
-              </Text>
-            )}
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.updateButton} onPress={updatePickup}>
-          <Text style={styles.updateButtonText}>Update pickup</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+      <PickupConfirmPanel
+        firstLine={firstLine}
+        confirmedPickup={confirmedPickup}
+        estimate={estimate}
+        loadingEstimate={loadingEstimate}
+        params={params}
+        recenter={recenter}
+        styles={styles}
+        tokens={tokens}
+        updatePickup={updatePickup}
+      />
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, insets: any) =>
-  StyleSheet.create({
-    root: {
-      flex: 1,
-      backgroundColor: tokens.bg,
-    },
-    mapArea: {
-      height: height * 0.64,
-      backgroundColor: "#eef1f4",
-    },
-    backButton: {
-      position: "absolute",
-      left: 16,
-      width: 42,
-      height: 42,
-      borderRadius: 21,
-      backgroundColor: tokens.surface,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    locateButton: {
-      position: "absolute",
-      right: 16,
-      bottom: 18,
-      width: 42,
-      height: 42,
-      borderRadius: 21,
-      backgroundColor: tokens.surface,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    centerMarker: {
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      marginLeft: -75,
-      marginTop: -58,
-      width: 150,
-      height: 92,
-      alignItems: "center",
-      justifyContent: "flex-start",
-      zIndex: 8,
-      elevation: 8,
-    },
-    markerWrap: {
-      alignItems: "center",
-      width: 150,
-      height: 92,
-    },
-    pickupBubble: {
-      backgroundColor: accent.accent,
-      paddingHorizontal: 16,
-      paddingVertical: 9,
-      borderRadius: 18,
-      marginBottom: 6,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 4,
-      minWidth: 116,
-      alignItems: "center",
-    },
-    pickupBubbleText: {
-      color: accent.on,
-      fontSize: 13,
-      fontWeight: "800",
-    },
-    pin: {
-      width: 26,
-      height: 26,
-      borderRadius: 13,
-      backgroundColor: accent.accent,
-      alignItems: "center",
-      justifyContent: "center",
-      borderWidth: 2,
-      borderColor: tokens.surface,
-    },
-    panel: {
-      flex: 1,
-      marginTop: -18,
-      backgroundColor: tokens.surface,
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
-      paddingHorizontal: 14,
-      paddingTop: 10,
-      paddingBottom: insets.bottom > 0 ? insets.bottom + 22 : 34,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: -6 },
-      shadowOpacity: 0.08,
-      shadowRadius: 14,
-      elevation: 16,
-    },
-    handle: {
-      width: 38,
-      height: 4,
-      borderRadius: 2,
-      backgroundColor: tokens.border,
-      alignSelf: "center",
-      marginBottom: 14,
-    },
-    title: {
-      fontSize: 16,
-      fontWeight: "800",
-      color: tokens.text,
-      marginBottom: 18,
-    },
-    addressCard: {
-      borderWidth: 2,
-      borderColor: accent.accent,
-      borderRadius: 10,
-      backgroundColor: tokens.sunken,
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-      marginBottom: 12,
-    },
-    addressTitle: {
-      fontSize: 16,
-      fontWeight: "800",
-      color: tokens.text,
-      marginBottom: 1,
-    },
-    addressSubtitle: {
-      fontSize: 13,
-      color: tokens.sec,
-    },
-    metaRow: {
-      minHeight: 28,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginBottom: 26,
-    },
-    metaText: {
-      fontSize: 13,
-      fontWeight: "700",
-      color: tokens.sec,
-    },
-    metaValue: {
-      minWidth: 62,
-      alignItems: "flex-end",
-    },
-    updateButton: {
-      height: 46,
-      borderRadius: 23,
-      backgroundColor: accent.accent,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    updateButtonText: {
-      color: accent.on,
-      fontSize: 15,
-      fontWeight: "800",
-    },
-  });

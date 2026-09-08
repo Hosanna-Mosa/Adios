@@ -1,18 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet, Text } from "react-native";
 import Animated from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
+
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
+import { Header } from "@/components/ui/Header";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -22,6 +15,13 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import { fadeInUp } from "@/motion/presets";
+import { PaymentFooter } from "@/features/food/components/PaymentFooter";
+import { PaymentTrustNote } from "@/features/food/components/PaymentTrustNote";
+import { PaymentMethodRow } from "@/features/food/components/PaymentMethodRow";
+import { PaymentAddressCard } from "@/features/food/components/PaymentAddressCard";
+import { PaymentBillCard } from "@/features/food/components/PaymentBillCard";
+import { PaymentAmountHeader } from "@/features/food/components/PaymentAmountHeader";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 type VendorDetails = { _id: string; name: string; address: string; location?: { coordinates?: number[] } };
 
@@ -163,116 +163,73 @@ export default function PaymentScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitleSolo}>Payment</Text>
-      </View>
+    <ScreenShell>
+      <Header
+        title="Payment"
+        onBack={() => router.back()}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}
+      />
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={fadeInUp(0)} style={styles.payingBlock}>
-          <Text style={styles.payingEyebrow}>Paying</Text>
-          <Text style={styles.payingAmount}>₹{total}</Text>
-          <Text style={styles.payingSub}>{vendorName} · {getItemCount()} items</Text>
-        </Animated.View>
+        <PaymentAmountHeader
+          getItemCount={getItemCount}
+          items={items}
+          styles={styles}
+          total={total}
+          vendorName={vendorName}
+        />
 
         <Animated.View entering={fadeInUp(60)} style={styles.section}>
-          <View style={styles.billCard}>
-            <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Item total</Text>
-              <Text style={styles.billValue}>₹{subtotal}</Text>
-            </View>
-            {deliveryFee != null ? (
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Delivery fee</Text>
-                <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
-              </View>
-            ) : (
-              <Text style={styles.billNote}>Delivery fee is confirmed with your order.</Text>
-            )}
-            {tip > 0 && (
-              <View style={styles.billRow}>
-                <Text style={styles.billLabel}>Delivery tip</Text>
-                <Text style={styles.billValue}>₹{tip}</Text>
-              </View>
-            )}
-            {discount > 0 && (
-              <View style={styles.billRow}>
-                <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {couponCode}</Text>
-                <Text style={[styles.billValue, { color: tokens.success }]}>−₹{discount}</Text>
-              </View>
-            )}
-            <View style={styles.billDivider} />
-            <View style={styles.billRow}>
-              <Text style={styles.billTotalLabel}>To pay</Text>
-              <Text style={styles.billTotalValue}>₹{total}</Text>
-            </View>
-          </View>
+          <PaymentBillCard
+            couponCode={couponCode}
+            deliveryFee={deliveryFee}
+            discount={discount}
+            styles={styles}
+            subtotal={subtotal}
+            tip={tip}
+            tokens={tokens}
+            total={total}
+          />
         </Animated.View>
 
         <Animated.View entering={fadeInUp(120)} style={styles.section}>
-          <View style={styles.addressCard}>
-            <View style={styles.addressAvatar}>
-              <Text style={styles.addressAvatarText}>{(selectedAddress?.label || "A")[0].toUpperCase()}</Text>
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.addressTitle}>Deliver to {selectedAddress?.label || "…"}</Text>
-              <Text style={styles.addressLine} numberOfLines={2}>{selectedAddress?.addressLine || "No address selected"}</Text>
-              {!!receiverContact && <Text style={styles.addressContact}>{receiverContact}</Text>}
-            </View>
-          </View>
+          <PaymentAddressCard
+            receiverContact={receiverContact}
+            selectedAddress={selectedAddress}
+            styles={styles}
+          />
         </Animated.View>
 
         <Animated.View entering={fadeInUp(180)} style={styles.section}>
           <Text style={styles.sectionLabel}>Payment</Text>
-          <View style={styles.methodRow}>
-            <View style={styles.methodIcon}>
-              <Ionicons name="card-outline" size={moderateScale(18)} color={tokens.sec} />
-            </View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.methodTitle}>Razorpay</Text>
-              <Text style={styles.methodSub}>UPI, cards, wallets and net banking — choose on the next step</Text>
-            </View>
-          </View>
+          <PaymentMethodRow
+            styles={styles}
+            tokens={tokens}
+          />
         </Animated.View>
 
         <Animated.View entering={fadeInUp(240)} style={styles.section}>
-          <View style={styles.trustRow}>
-            <Ionicons name="lock-closed" size={moderateScale(14)} color={tokens.success} />
-            <Text style={styles.trustText}>
-              Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.
-            </Text>
-          </View>
+          <PaymentTrustNote
+            styles={styles}
+            tokens={tokens}
+          />
         </Animated.View>
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <TouchableOpacity style={styles.payBtn} activeOpacity={0.9} onPress={handlePayment} disabled={processing}>
-          {processing ? (
-            <ActivityIndicator size="small" color={accent.on} />
-          ) : (
-            <>
-              <Text style={styles.payBtnText}>Pay securely</Text>
-              <Text style={styles.payBtnPrice}>· ₹{total}</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
+      <PaymentFooter
+        accent={accent}
+        handlePayment={handlePayment}
+        insets={insets}
+        processing={processing}
+        styles={styles}
+        total={total}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 12 },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitleSolo: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
 
     payingBlock: { alignItems: "center", paddingHorizontal: 16, paddingTop: 18 },
     payingEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },

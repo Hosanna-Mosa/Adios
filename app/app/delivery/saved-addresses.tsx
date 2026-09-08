@@ -1,30 +1,25 @@
 import React, { useState, useCallback, useMemo } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  ActivityIndicator,
-  Platform,
-  Alert,
-  KeyboardAvoidingView,
-} from "react-native";
+import { ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
+
 import { router, useFocusEffect } from "expo-router";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Animated from "react-native-reanimated";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { createStyles } from "@/features/delivery/saved-addresses.styles";
+import { Header } from "@/components/ui/Header";
+import { designTokens } from "@/constants/colors";
+
 import { useThemeStore } from "@/contexts/themeStore";
-import { staggerListItem } from "@/motion/presets";
+
+import { SavedAddressesSection } from "@/features/delivery/components/SavedAddressesSection";
+import { SavedAddressesSection2 } from "@/features/delivery/components/SavedAddressesSection2";
+import { SavedAddressesSection3 } from "@/features/delivery/components/SavedAddressesSection3";
+import { SavedAddressesEmptyWrap } from "@/features/delivery/components/SavedAddressesEmptyWrap";
+import { ScreenShell } from "@/components/ui/ScreenShell";
 
 const RECENT_LOCATIONS_KEY = "recent_locations";
 
@@ -204,148 +199,59 @@ export default function SavedAddressesScreen() {
   const isEmpty = !loading && addresses.length === 0;
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} disabled={selectingId !== null}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Places</Text>
-      </View>
+    <ScreenShell keyboardAvoiding>
+      <Header
+        title="Places"
+        onBack={() => router.back()}
+        backDisabled={selectingId !== null}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
+      />
 
       {isEmpty ? (
-        <View style={styles.emptyWrap}>
-          <View style={styles.emptyIconCircle}>
-            <Ionicons name="location" size={moderateScale(28)} color={accent.accent} />
-          </View>
-          <Text style={styles.emptyTitle}>No saved places</Text>
-          <Text style={styles.emptySubtitle}>
-            Save the addresses you use often — home, work, your parents&apos; place — and every flow in Flavour gets one tap shorter.
-          </Text>
-          <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push("/delivery/add-address")}>
-            <Text style={styles.primaryBtnText}>Add your first address</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryBtn} onPress={handleUseCurrentLocation} disabled={currentLocLoading}>
-            {currentLocLoading ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={styles.secondaryBtnText}>Use current location</Text>}
-          </TouchableOpacity>
-        </View>
+        <SavedAddressesEmptyWrap
+          accent={accent}
+          addresses={addresses}
+          currentLocLoading={currentLocLoading}
+          handleUseCurrentLocation={handleUseCurrentLocation}
+          styles={styles}
+        />
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-          <View style={styles.section}>
-            <TouchableOpacity style={styles.addBtn} onPress={() => router.push("/delivery/add-address")} disabled={selectingId !== null}>
-              <Text style={styles.addBtnText}>+ Add new address</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.currentLocRow} onPress={handleUseCurrentLocation} disabled={selectingId !== null || currentLocLoading}>
-              {currentLocLoading ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="locate" size={15} color={accent.accent} />}
-              <Text style={styles.currentLocText}>{currentLocLoading ? "Fetching location…" : "Use current location"}</Text>
-            </TouchableOpacity>
-          </View>
+          <SavedAddressesSection
+            accent={accent}
+            currentLocLoading={currentLocLoading}
+            handleUseCurrentLocation={handleUseCurrentLocation}
+            selectingId={selectingId}
+            styles={styles}
+          />
 
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Saved</Text>
-            {loading && addresses.length === 0 ? (
-              <ActivityIndicator color={accent.accent} style={{ paddingVertical: 20 }} />
-            ) : (
-              <View style={styles.card}>
-                {addresses.map((addr, idx) => {
-                  const isSelecting = selectingId === addr._id;
-                  const instructions = parseInstructions(addr.addressLine);
-                  const contact = [addr.receiverName, addr.receiverPhone].filter(Boolean).join(" · ");
-                  return (
-                    <Animated.View key={addr._id} entering={staggerListItem(idx)}>
-                    <TouchableOpacity
-                      style={[styles.addressRow, idx < addresses.length - 1 && styles.addressRowDivider, isSelecting && { opacity: 0.6 }]}
-                      onPress={() => handleSelectAddress(addr)}
-                      disabled={selectingId !== null}
-                    >
-                      <View style={[styles.avatar, addr.label === "Home" && { backgroundColor: accent.skin }]}>
-                        {isSelecting ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={[styles.avatarText, addr.label === "Home" && { color: accent.accent }]}>{(addr.label || "?")[0].toUpperCase()}</Text>}
-                      </View>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={styles.addrLabel}>{addr.label}</Text>
-                        <Text style={styles.addrLine} numberOfLines={1}>{stripMeta(addr.addressLine)}</Text>
-                        {!!addr.landmark && <Text style={styles.addrInstructions} numberOfLines={1}>Near {addr.landmark}</Text>}
-                        {instructions && <Text style={styles.addrInstructions} numberOfLines={1}>{instructions}</Text>}
-                        {!!contact && <Text style={styles.addrContact} numberOfLines={1}>{contact}</Text>}
-                      </View>
-                      <TouchableOpacity onPress={() => handleMoreOptions(addr)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} disabled={selectingId !== null || deletingId !== null}>
-                        {deletingId === addr._id ? <ActivityIndicator size="small" color={tokens.error} /> : <Ionicons name="ellipsis-horizontal" size={18} color={tokens.muted} />}
-                      </TouchableOpacity>
-                    </TouchableOpacity>
-                    </Animated.View>
-                  );
-                })}
-              </View>
-            )}
-          </View>
+          <SavedAddressesSection2
+            accent={accent}
+            addresses={addresses}
+            deletingId={deletingId}
+            handleMoreOptions={handleMoreOptions}
+            handleSelectAddress={handleSelectAddress}
+            loading={loading}
+            parseInstructions={parseInstructions}
+            selectingId={selectingId}
+            stripMeta={stripMeta}
+            styles={styles}
+            tokens={tokens}
+          />
 
           {(recentLoading || recentLocations.length > 0) && (
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Recent</Text>
-              {recentLoading && recentLocations.length === 0 ? (
-                <ActivityIndicator color={accent.accent} style={{ paddingVertical: 16 }} />
-              ) : (
-                recentLocations.map((item, idx) => (
-                  <Animated.View key={item.id || idx} entering={staggerListItem(idx)}>
-                  <TouchableOpacity
-                    style={[styles.recentRow, idx < recentLocations.length - 1 && styles.recentRowDivider]}
-                    onPress={() => handleSelectRecentLocation(item)}
-                    disabled={selectingId !== null}
-                  >
-                    <View style={styles.recentIcon}><Ionicons name="time-outline" size={16} color={tokens.sec} /></View>
-                    <Text style={styles.recentName} numberOfLines={1}>{item.name}{item.address ? `, ${item.address}` : ""}</Text>
-                    <Text style={styles.recentSave}>Save</Text>
-                  </TouchableOpacity>
-                  </Animated.View>
-                ))
-              )}
-            </View>
+            <SavedAddressesSection3
+              accent={accent}
+              handleSelectRecentLocation={handleSelectRecentLocation}
+              recentLoading={recentLoading}
+              recentLocations={recentLocations}
+              selectingId={selectingId}
+              styles={styles}
+              tokens={tokens}
+            />
           )}
         </ScrollView>
       )}
-    </KeyboardAvoidingView>
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["delivery"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
-    iconBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    section: { paddingHorizontal: 16, paddingTop: 18 },
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
-
-    addBtn: { backgroundColor: tokens.surface, borderWidth: 1, borderStyle: "dashed", borderColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    addBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: accent.accent },
-    currentLocRow: { flexDirection: "row", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 12, paddingVertical: 6 },
-    currentLocText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: accent.accent },
-
-    card: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, overflow: "hidden" },
-    addressRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, padding: 14 },
-    addressRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
-    avatar: { width: 36, height: 36, borderRadius: 11, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    avatarText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(13), color: tokens.sec },
-    addrLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    addrLine: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 3 },
-    addrInstructions: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.sec, marginTop: 5 },
-    addrContact: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 5 },
-
-    recentRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 11, minHeight: 52 },
-    recentRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
-    recentIcon: { width: 36, height: 36, borderRadius: 999, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    recentName: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text },
-    recentSave: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(13), color: accent.accent },
-
-    emptyWrap: { alignItems: "center", paddingTop: 76, paddingHorizontal: 32 },
-    emptyIconCircle: { width: 76, height: 76, borderRadius: 24, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginBottom: 20 },
-    emptyTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(22), letterSpacing: -0.2, color: tokens.text, textAlign: "center" },
-    emptySubtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(21), color: tokens.sec, textAlign: "center", marginTop: 10, marginBottom: 22 },
-    primaryBtn: { width: "100%", backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    primaryBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
-    secondaryBtn: { width: "100%", marginTop: 10, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
-    secondaryBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: accent.accent },
-  });

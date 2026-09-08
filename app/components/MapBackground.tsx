@@ -36,7 +36,6 @@ export interface MapBackgroundRef {
   fitToMarkers: (markers: any[]) => void;
 }
 
-
 const FALLBACK_REGION: Region = {
   latitude: 16.9891,
   longitude: 82.2475,
