@@ -24,10 +24,15 @@ export function MenuHeader({ restaurant }: Props) {
         animate={{ y: 0, opacity: 1 }}
         className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm px-4 py-3 flex items-center justify-between md:hidden"
       >
-        <Link to="/" className="p-2 -ml-2 rounded-full hover:bg-slate-100/50 text-primary transition-colors">
+        <Link
+          to="/"
+          className="p-2 -ml-2 rounded-full hover:bg-slate-100/50 text-primary transition-colors"
+        >
           <Icon name="arrow_back" />
         </Link>
-        <h1 className="font-bold text-primary truncate px-2">{restaurant.name}</h1>
+        <h1 className="font-bold text-primary truncate px-2">
+          {restaurant.name}
+        </h1>
         <div className="w-10"></div> {/* Spacer for centering */}
       </motion.div>
 
@@ -49,7 +54,10 @@ export function MenuHeader({ restaurant }: Props) {
             to="/"
             className="hidden md:inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-semibold mb-8 group"
           >
-            <Icon name="arrow_back" className="text-lg group-hover:-translate-x-1 transition-transform" />
+            <Icon
+              name="arrow_back"
+              className="text-lg group-hover:-translate-x-1 transition-transform"
+            />
             Back to Home
           </Link>
 
@@ -62,29 +70,42 @@ export function MenuHeader({ restaurant }: Props) {
             >
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                 <span className="bg-white/10 backdrop-blur-md text-white text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-white/10 flex items-center gap-1">
-                  <Icon name="restaurant" className="text-xs md:text-sm" /> Restaurant
+                  <Icon name="restaurant" className="text-xs md:text-sm" />{" "}
+                  Restaurant
                 </span>
                 {restaurant.isPureVeg ? (
                   <span className="bg-green-500/20 text-green-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-green-500/30 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-green-400 animate-pulse" /> Pure Veg
+                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-green-400 animate-pulse" />{" "}
+                    Pure Veg
                   </span>
                 ) : (
                   <span className="bg-orange-500/20 text-orange-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-orange-500/30 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-orange-400" /> Veg & Non-Veg
+                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-orange-400" />{" "}
+                    Veg & Non-Veg
                   </span>
                 )}
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-black tracking-tight">{restaurant.name}</h1>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tight">
+                {restaurant.name}
+              </h1>
 
               <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center md:justify-start gap-y-1.5 gap-x-6 text-xs md:text-sm text-white/80">
                 <div className="flex items-center gap-1">
-                  <Icon name="map_pin" className="text-sm md:text-base text-white/60" />
-                  <span className="truncate max-w-[250px]">{restaurant.address}</span>
+                  <Icon
+                    name="map_pin"
+                    className="text-sm md:text-base text-white/60"
+                  />
+                  <span className="truncate max-w-[250px]">
+                    {restaurant.address}
+                  </span>
                 </div>
                 {restaurant.phone && (
                   <div className="flex items-center gap-1">
-                    <Icon name="call" className="text-sm md:text-base text-white/60" />
+                    <Icon
+                      name="call"
+                      className="text-sm md:text-base text-white/60"
+                    />
                     <span>{restaurant.phone}</span>
                   </div>
                 )}
@@ -99,15 +120,26 @@ export function MenuHeader({ restaurant }: Props) {
             >
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-amber-400">
-                  <Icon name="star" className="fill-current text-lg md:text-xl" />
-                  <span className="text-lg md:text-xl font-black">{restaurant.rating || "4.0"}</span>
+                  <Icon
+                    name="star"
+                    className="fill-current text-lg md:text-xl"
+                  />
+                  <span className="text-lg md:text-xl font-black">
+                    {restaurant.rating || "4.0"}
+                  </span>
                 </div>
-                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">Rating</span>
+                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
+                  Rating
+                </span>
               </div>
               <div className="w-[1px] h-10 bg-white/20" />
               <div className="text-center px-2">
-                <div className="text-lg md:text-xl font-black text-white">{restaurant.reviews || "100+"}</div>
-                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">Reviews</span>
+                <div className="text-lg md:text-xl font-black text-white">
+                  {restaurant.reviews || "100+"}
+                </div>
+                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
+                  Reviews
+                </span>
               </div>
             </motion.div>
           </div>

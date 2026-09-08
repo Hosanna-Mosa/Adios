@@ -5,7 +5,10 @@ type Props = { activeMode: "food" | "ride" };
 
 export function CtaBand({ activeMode }: Props) {
   return (
-    <section id="download" className="py-24 bg-white border-t border-surface-container relative">
+    <section
+      id="download"
+      className="py-24 bg-white border-t border-surface-container relative"
+    >
       <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
         <div className="relative min-h-[350px]">
           {/* FOOD CTA */}
@@ -20,28 +23,44 @@ export function CtaBand({ activeMode }: Props) {
               Step Into the World of Flavor
             </h2>
             <p className="text-secondary-app text-base max-w-lg mb-8 leading-relaxed font-body">
-              Elevate your standards. Join a community of discerning individuals who value time, quality, and the art of living well.
+              Elevate your standards. Join a community of discerning individuals
+              who value time, quality, and the art of living well.
             </p>
 
             {/* App Store Badges */}
             <div className="flex gap-4 mb-6">
-              <a href="#download" className="flex items-center gap-3 bg-on-surface text-white px-6 py-3 rounded hover:bg-primary transition-all">
+              <a
+                href="#download"
+                className="flex items-center gap-3 bg-on-surface text-white px-6 py-3 rounded hover:bg-primary transition-all"
+              >
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Download on the</span>
-                  <span className="text-[15px] font-bold mt-0.5">App Store</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Download on the
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    App Store
+                  </span>
                 </div>
               </a>
-              <a href="#download" className="flex items-center gap-3 bg-on-surface text-white px-6 py-3 rounded hover:bg-primary transition-all">
+              <a
+                href="#download"
+                className="flex items-center gap-3 bg-on-surface text-white px-6 py-3 rounded hover:bg-primary transition-all"
+              >
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Get it on</span>
-                  <span className="text-[15px] font-bold mt-0.5">Google Play</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Get it on
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    Google Play
+                  </span>
                 </div>
               </a>
             </div>
             <span className="text-xs text-secondary-app font-medium font-body">
-              Serving major global hubs. Movement, Taste, and Logistics, Refined.
+              Serving major global hubs. Movement, Taste, and Logistics,
+              Refined.
             </span>
           </div>
 
@@ -58,7 +77,8 @@ export function CtaBand({ activeMode }: Props) {
               <div
                 className="w-full h-full"
                 style={{
-                  backgroundImage: "radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)",
+                  backgroundImage:
+                    "radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)",
                   backgroundSize: "20px 20px",
                 }}
               />
@@ -69,7 +89,8 @@ export function CtaBand({ activeMode }: Props) {
                 Ready for the Next Level?
               </h2>
               <p className="text-white/70 text-base max-w-lg mb-8 leading-relaxed font-body">
-                Join the exclusive circle of executives who trust Flavor for their daily mobility and culinary needs.
+                Join the exclusive circle of executives who trust Flavor for
+                their daily mobility and culinary needs.
               </p>
 
               {/* Custom CTA Action Buttons */}

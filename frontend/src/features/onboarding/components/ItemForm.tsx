@@ -16,9 +16,13 @@ export function ItemForm({
   const isMeatItem = partnerType === "meat";
   const [name, setName] = useState(initialItem?.name || "");
   const [price, setPrice] = useState(initialItem?.price || "");
-  const [description, setDescription] = useState(initialItem?.description || "");
+  const [description, setDescription] = useState(
+    initialItem?.description || "",
+  );
   const [isVeg, setIsVeg] = useState(initialItem?.isVeg ?? !isMeatItem);
-  const [isBestseller, setIsBestseller] = useState(initialItem?.isBestseller || false);
+  const [isBestseller, setIsBestseller] = useState(
+    initialItem?.isBestseller || false,
+  );
   const [photo, setPhoto] = useState<File | null>(initialItem?.photo || null);
 
   const handleSave = () => {
@@ -39,18 +43,23 @@ export function ItemForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold mb-1.5">
-            {isMeatItem ? "Product Name" : "Item Name"} <span className="text-brand-kinetic">*</span>
+            {isMeatItem ? "Product Name" : "Item Name"}{" "}
+            <span className="text-brand-kinetic">*</span>
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={isMeatItem ? "e.g. Chicken Curry Cut 500g" : "e.g. Butter Chicken"}
+            placeholder={
+              isMeatItem ? "e.g. Chicken Curry Cut 500g" : "e.g. Butter Chicken"
+            }
             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold mb-1.5">Price (₹) <span className="text-brand-kinetic">*</span></label>
+          <label className="block text-sm font-semibold mb-1.5">
+            Price (₹) <span className="text-brand-kinetic">*</span>
+          </label>
           <input
             type="text"
             value={price}
@@ -62,11 +71,18 @@ export function ItemForm({
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-1.5">Description <span className="text-gray-400 font-normal">(Optional)</span></label>
+        <label className="block text-sm font-semibold mb-1.5">
+          Description{" "}
+          <span className="text-gray-400 font-normal">(Optional)</span>
+        </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder={isMeatItem ? "e.g. Fresh cut pieces, cleaned and packed" : "e.g. Creamy tomato-based curry with tender chicken pieces"}
+          placeholder={
+            isMeatItem
+              ? "e.g. Fresh cut pieces, cleaned and packed"
+              : "e.g. Creamy tomato-based curry with tender chicken pieces"
+          }
           rows={2}
           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm resize-none"
         />
@@ -130,14 +146,21 @@ export function ItemForm({
       {/* Photo Upload */}
       <div>
         <label className="block text-sm font-semibold mb-1.5">
-          {isMeatItem ? "Product Photo" : "Item Photo"} <span className="text-gray-400 font-normal">(Optional)</span>
+          {isMeatItem ? "Product Photo" : "Item Photo"}{" "}
+          <span className="text-gray-400 font-normal">(Optional)</span>
         </label>
         <div className="flex items-center gap-3">
           {photo ? (
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
               <Icon name="image" className="text-lg text-brand-kinetic" />
-              <span className="text-xs font-medium truncate max-w-[120px]">{photo.name}</span>
-              <button type="button" onClick={() => setPhoto(null)} className="text-gray-400 hover:text-red-500">
+              <span className="text-xs font-medium truncate max-w-[120px]">
+                {photo.name}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPhoto(null)}
+                className="text-gray-400 hover:text-red-500"
+              >
                 <Icon name="close" className="text-sm" />
               </button>
             </div>
@@ -155,7 +178,13 @@ export function ItemForm({
               </label>
               <button
                 type="button"
-                onClick={() => setPhoto(new File(["dummy photo data"], "item_photo_dummy.png", { type: "image/png" }))}
+                onClick={() =>
+                  setPhoto(
+                    new File(["dummy photo data"], "item_photo_dummy.png", {
+                      type: "image/png",
+                    }),
+                  )
+                }
                 className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium text-secondary-app hover:text-brand-kinetic hover:border-brand-kinetic/30 transition-all"
               >
                 Use Dummy Photo
@@ -180,7 +209,11 @@ export function ItemForm({
           disabled={!name.trim() || !price}
           className="px-5 py-2.5 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {initialItem ? "Update Item" : isMeatItem ? "Add Product" : "Add to Menu"}
+          {initialItem
+            ? "Update Item"
+            : isMeatItem
+              ? "Add Product"
+              : "Add to Menu"}
         </button>
       </div>
     </div>

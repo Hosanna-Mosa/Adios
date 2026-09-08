@@ -1,4 +1,8 @@
-export function TimePicker({ value, onChange, label }: {
+export function TimePicker({
+  value,
+  onChange,
+  label,
+}: {
   value: string;
   onChange: (v: string) => void;
   label: string;
@@ -15,4 +19,3 @@ export function TimePicker({ value, onChange, label }: {
     </div>
   );
 }
-

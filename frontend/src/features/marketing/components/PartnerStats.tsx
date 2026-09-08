@@ -13,8 +13,12 @@ export function PartnerStats() {
             ["4.8★", "Partner Rating"],
           ].map(([value, label]) => (
             <StaggerItem key={label}>
-              <p className="font-display text-3xl lg:text-4xl font-extrabold text-brand-kinetic">{value}</p>
-              <p className="text-sm text-secondary-app font-medium mt-1">{label}</p>
+              <p className="font-display text-3xl lg:text-4xl font-extrabold text-brand-kinetic">
+                {value}
+              </p>
+              <p className="text-sm text-secondary-app font-medium mt-1">
+                {label}
+              </p>
             </StaggerItem>
           ))}
         </div>

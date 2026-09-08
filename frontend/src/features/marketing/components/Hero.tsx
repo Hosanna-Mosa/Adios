@@ -14,7 +14,6 @@ type Props = {
 export function Hero({ activeMode, setActiveMode }: Props) {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
-
       {/* Desktop-only full-bleed shaded background images */}
       <div className="hidden lg:block absolute inset-x-0 bottom-0 top-[100px] z-0 pointer-events-none">
         {/* Food background on the right */}
@@ -54,7 +53,6 @@ export function Hero({ activeMode, setActiveMode }: Props) {
         </div>
       </div>
 
-
       {/* State Toggle Buttons */}
       <div className="absolute top-28 left-1/2 -translate-x-1/2 z-30">
         <div className="bg-surface-container p-1 rounded-lg flex items-center gap-1 shadow-sm border border-secondary-fixed-dim">
@@ -83,7 +81,6 @@ export function Hero({ activeMode, setActiveMode }: Props) {
 
       {/* Hero Content Container (Flips columns layout with transitions) */}
       <FadeIn className="max-w-[1440px] mx-auto w-full px-10 md:px-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-16 relative z-10 min-h-[80vh] lg:min-h-screen pt-32 lg:pt-0">
-
         {/* Column 1 (Left) - Displays Food Text in Food mode, Rides Image in Ride mode */}
         <div className="relative h-[420px] lg:h-[550px] flex flex-col justify-center">
           {/* Food Mode Left Content: Text Block */}
@@ -102,7 +99,9 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               and Taste, Refined.
             </h1>
             <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              Navigate your day with executive-level precision. From world-class dining to seamless transportation and expert logistics, your world is now delivered and driven.
+              Navigate your day with executive-level precision. From world-class
+              dining to seamless transportation and expert logistics, your world
+              is now delivered and driven.
             </p>
 
             {/* App Store Badges */}
@@ -113,8 +112,12 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               >
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Download on the</span>
-                  <span className="text-[15px] font-bold mt-0.5">App Store</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Download on the
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    App Store
+                  </span>
                 </div>
               </a>
               <a
@@ -123,8 +126,12 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               >
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Get it on</span>
-                  <span className="text-[15px] font-bold mt-0.5">Google Play</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Get it on
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    Google Play
+                  </span>
                 </div>
               </a>
             </div>
@@ -183,7 +190,9 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               Redefined.
             </h1>
             <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              Professional transportation at your command. From airport transfers to city commutes, experience the gold standard of travel.
+              Professional transportation at your command. From airport
+              transfers to city commutes, experience the gold standard of
+              travel.
             </p>
 
             {/* App Store Badges */}
@@ -194,8 +203,12 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               >
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Download on the</span>
-                  <span className="text-[15px] font-bold mt-0.5">App Store</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Download on the
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    App Store
+                  </span>
                 </div>
               </a>
               <a
@@ -204,14 +217,17 @@ export function Hero({ activeMode, setActiveMode }: Props) {
               >
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">Get it on</span>
-                  <span className="text-[15px] font-bold mt-0.5">Google Play</span>
+                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
+                    Get it on
+                  </span>
+                  <span className="text-[15px] font-bold mt-0.5">
+                    Google Play
+                  </span>
                 </div>
               </a>
             </div>
           </div>
         </div>
-
       </FadeIn>
     </section>
   );

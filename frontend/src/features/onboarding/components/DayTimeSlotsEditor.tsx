@@ -6,13 +6,21 @@ type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function DayTimeSlotsEditor({ form }: Props) {
   const {
-    copy, selectedDays, activeTimingDay, setActiveTimingDay, dayTimeSlots,
-    addTimeSlot, updateTimeSlot, removeTimeSlot,
+    copy,
+    selectedDays,
+    activeTimingDay,
+    setActiveTimingDay,
+    dayTimeSlots,
+    addTimeSlot,
+    updateTimeSlot,
+    removeTimeSlot,
   } = form;
   return (
     <div className="border-t border-gray-100 pt-5">
       <div className="flex items-center justify-between mb-3">
-        <label className="text-sm font-semibold">Opening &amp; Closing Hours</label>
+        <label className="text-sm font-semibold">
+          Opening &amp; Closing Hours
+        </label>
         <button
           type="button"
           onClick={() => addTimeSlot(activeTimingDay)}

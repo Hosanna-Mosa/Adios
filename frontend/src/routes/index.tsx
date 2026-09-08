@@ -22,7 +22,6 @@ export default function Home() {
 
       {/* CTA Section */}
       <CtaBand activeMode={activeMode} />
-
     </div>
   );
 }

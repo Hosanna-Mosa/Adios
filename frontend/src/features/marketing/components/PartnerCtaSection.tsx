@@ -5,7 +5,10 @@ type Props = { onGetStarted: () => void };
 export function PartnerCtaSection({ onGetStarted }: Props) {
   return (
     <section className="py-20 bg-gradient-to-br from-brand-kinetic via-gradient-flame to-brand-kinetic">
-      <FadeIn inView className="container max-w-[700px] mx-auto px-6 text-center">
+      <FadeIn
+        inView
+        className="container max-w-[700px] mx-auto px-6 text-center"
+      >
         <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
           Ready to Grow with Us?
         </h2>

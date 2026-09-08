@@ -26,10 +26,15 @@ const steps = [
 
 export function HowItWorksSteps() {
   return (
-    <section id="how-it-works" className="py-20 lg:py-28 bg-surface-container-low/30">
+    <section
+      id="how-it-works"
+      className="py-20 lg:py-28 bg-surface-container-low/30"
+    >
       <div className="container max-w-[900px] mx-auto px-6">
         <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+            How It Works
+          </h2>
           <p className="text-secondary-app max-w-lg mx-auto">
             Get your business on Hybrid in four simple steps.
           </p>
@@ -46,8 +51,12 @@ export function HowItWorksSteps() {
                 )}
               </div>
               <div className="pt-3">
-                <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
-                <p className="text-secondary-app text-sm leading-relaxed">{step.desc}</p>
+                <h3 className="font-display text-lg font-bold mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-secondary-app text-sm leading-relaxed">
+                  {step.desc}
+                </p>
               </div>
             </StaggerItem>
           ))}

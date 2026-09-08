@@ -21,7 +21,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
@@ -32,7 +35,10 @@ export default tseslint.config(
     files: ["src/routes/**/*.{ts,tsx}"],
     ignores: ["src/components/ui/**"],
     rules: {
-      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+      "max-lines": [
+        "error",
+        { max: 300, skipBlankLines: false, skipComments: false },
+      ],
     },
   },
   {
@@ -53,7 +59,11 @@ export default tseslint.config(
         { type: "features", partialMatch: false, pattern: "src/features/**" },
         { type: "lib", partialMatch: false, pattern: "src/lib/**" },
         { type: "hooks", partialMatch: false, pattern: "src/hooks/**" },
-        { type: "components", partialMatch: false, pattern: "src/components/**" },
+        {
+          type: "components",
+          partialMatch: false,
+          pattern: "src/components/**",
+        },
       ],
     },
     rules: {
@@ -67,7 +77,13 @@ export default tseslint.config(
             // src/lib/** must stay pure — no importing features, components, or routes.
             {
               from: { element: { type: "lib" } },
-              disallow: { to: { element: { types: { anyOf: ["features", "components", "routes"] } } } },
+              disallow: {
+                to: {
+                  element: {
+                    types: { anyOf: ["features", "components", "routes"] },
+                  },
+                },
+              },
             },
           ],
         },

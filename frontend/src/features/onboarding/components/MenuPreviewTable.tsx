@@ -12,7 +12,8 @@ export function MenuPreviewTable({ form }: Props) {
         <div>
           <p className="text-sm font-semibold text-on-surface">Item images</p>
           <p className="text-xs text-secondary-app">
-            {menuUploadRows.filter((row) => row.image).length}/{menuUploadRows.length} images added
+            {menuUploadRows.filter((row) => row.image).length}/
+            {menuUploadRows.length} images added
           </p>
         </div>
         <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-secondary-app">
@@ -33,10 +34,18 @@ export function MenuPreviewTable({ form }: Props) {
           <tbody className="divide-y divide-gray-100 bg-white">
             {menuUploadRows.map((row) => (
               <tr key={row.id}>
-                <td className="px-4 py-3 text-secondary-app">{row.category || "-"}</td>
-                <td className="px-4 py-3 font-semibold text-on-surface">{row.itemName || "-"}</td>
-                <td className="px-4 py-3 text-secondary-app">{row.price || "-"}</td>
-                <td className="px-4 py-3 text-secondary-app">{row.type || "-"}</td>
+                <td className="px-4 py-3 text-secondary-app">
+                  {row.category || "-"}
+                </td>
+                <td className="px-4 py-3 font-semibold text-on-surface">
+                  {row.itemName || "-"}
+                </td>
+                <td className="px-4 py-3 text-secondary-app">
+                  {row.price || "-"}
+                </td>
+                <td className="px-4 py-3 text-secondary-app">
+                  {row.type || "-"}
+                </td>
                 <td className="px-4 py-3">
                   {row.image ? (
                     <div className="flex items-center gap-2">
@@ -61,7 +70,12 @@ export function MenuPreviewTable({ form }: Props) {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={(e) => updateMenuUploadRowImage(row.id, e.target.files?.[0] || null)}
+                        onChange={(e) =>
+                          updateMenuUploadRowImage(
+                            row.id,
+                            e.target.files?.[0] || null,
+                          )
+                        }
                       />
                     </label>
                   )}

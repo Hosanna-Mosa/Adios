@@ -1,13 +1,30 @@
-const normalizeHeader = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+const normalizeHeader = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 const toCanonicalHeader = (value: string) => {
   const normalized = normalizeHeader(value);
-  if (["category", "menucategory", "productcategory"].includes(normalized)) return "category";
-  if (["itemname", "item", "name", "productname", "product"].includes(normalized)) return "itemName";
-  if (["price", "priceinr", "price₹", "price rs", "rate"].map(normalizeHeader).includes(normalized)) return "price";
-  if (["description", "desc", "details"].includes(normalized)) return "description";
-  if (["type", "veg/nonveg", "cuttype", "producttype"].map(normalizeHeader).includes(normalized)) return "type";
-  if (["isbestseller", "bestseller", "tags", "tag"].includes(normalized)) return "isBestseller";
+  if (["category", "menucategory", "productcategory"].includes(normalized))
+    return "category";
+  if (
+    ["itemname", "item", "name", "productname", "product"].includes(normalized)
+  )
+    return "itemName";
+  if (
+    ["price", "priceinr", "price₹", "price rs", "rate"]
+      .map(normalizeHeader)
+      .includes(normalized)
+  )
+    return "price";
+  if (["description", "desc", "details"].includes(normalized))
+    return "description";
+  if (
+    ["type", "veg/nonveg", "cuttype", "producttype"]
+      .map(normalizeHeader)
+      .includes(normalized)
+  )
+    return "type";
+  if (["isbestseller", "bestseller", "tags", "tag"].includes(normalized))
+    return "isBestseller";
   return normalized;
 };
 
@@ -44,13 +61,16 @@ const rowsFromTable = (rows: string[][], requiredColumns: string[]) => {
 
   const headers = rows[0].map(toCanonicalHeader);
   const headerIndex = new Map(headers.map((header, index) => [header, index]));
-  const missingColumns = requiredColumns.filter((column) => !headerIndex.has(column));
+  const missingColumns = requiredColumns.filter(
+    (column) => !headerIndex.has(column),
+  );
 
   if (missingColumns.length > 0) {
     throw new Error(`Missing columns: ${missingColumns.join(", ")}`);
   }
 
-  const parsedRows = rows.slice(1)
+  const parsedRows = rows
+    .slice(1)
     .map((row) => ({
       id: crypto.randomUUID(),
       category: row[headerIndex.get("category") ?? -1]?.trim() || "",
@@ -61,7 +81,15 @@ const rowsFromTable = (rows: string[][], requiredColumns: string[]) => {
       isBestseller: row[headerIndex.get("isBestseller") ?? -1]?.trim() || "",
       image: null,
     }))
-    .filter((row) => row.category || row.itemName || row.price || row.description || row.type || row.isBestseller);
+    .filter(
+      (row) =>
+        row.category ||
+        row.itemName ||
+        row.price ||
+        row.description ||
+        row.type ||
+        row.isBestseller,
+    );
 
   if (parsedRows.length === 0) {
     throw new Error("Add at least one item row to the uploaded sheet.");
@@ -74,7 +102,8 @@ const readFileAsText = (file: File) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("Unable to read the uploaded menu sheet."));
+    reader.onerror = () =>
+      reject(new Error("Unable to read the uploaded menu sheet."));
     reader.readAsText(file);
   });
 
@@ -91,7 +120,11 @@ const parseCsvRows = async (file: File, requiredColumns: string[]) => {
 
 const getCellColumnIndex = (cellRef: string) => {
   const letters = (cellRef.match(/[A-Z]+/i)?.[0] || "").toUpperCase();
-  return letters.split("").reduce((sum, letter) => sum * 26 + letter.charCodeAt(0) - 64, 0) - 1;
+  return (
+    letters
+      .split("")
+      .reduce((sum, letter) => sum * 26 + letter.charCodeAt(0) - 64, 0) - 1
+  );
 };
 
 const getXmlText = async (bytes: Uint8Array, method: number) => {
@@ -101,11 +134,18 @@ const getXmlText = async (bytes: Uint8Array, method: number) => {
 
   const DecompressionCtor = (window as any).DecompressionStream;
   if (!DecompressionCtor) {
-    throw new Error("This browser cannot read XLSX files here. Please upload a CSV file.");
+    throw new Error(
+      "This browser cannot read XLSX files here. Please upload a CSV file.",
+    );
   }
 
-  const blobBuffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
-  const stream = new Blob([blobBuffer]).stream().pipeThrough(new DecompressionCtor("deflate-raw"));
+  const blobBuffer = bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+  const stream = new Blob([blobBuffer])
+    .stream()
+    .pipeThrough(new DecompressionCtor("deflate-raw"));
   return new TextDecoder().decode(await new Response(stream).arrayBuffer());
 };
 
@@ -138,7 +178,10 @@ const readZipEntries = async (buffer: ArrayBuffer) => {
     const extraLength = view.getUint16(centralOffset + 30, true);
     const commentLength = view.getUint16(centralOffset + 32, true);
     const localOffset = view.getUint32(centralOffset + 42, true);
-    const nameBytes = data.slice(centralOffset + 46, centralOffset + 46 + fileNameLength);
+    const nameBytes = data.slice(
+      centralOffset + 46,
+      centralOffset + 46 + fileNameLength,
+    );
     const name = new TextDecoder().decode(nameBytes);
 
     const localNameLength = view.getUint16(localOffset + 26, true);
@@ -157,7 +200,9 @@ const parseSharedStrings = (xmlText?: string) => {
   if (!xmlText) return [];
   const xml = new DOMParser().parseFromString(xmlText, "application/xml");
   return Array.from(xml.getElementsByTagName("si")).map((item) =>
-    Array.from(item.getElementsByTagName("t")).map((textNode) => textNode.textContent || "").join("")
+    Array.from(item.getElementsByTagName("t"))
+      .map((textNode) => textNode.textContent || "")
+      .join(""),
   );
 };
 
@@ -172,7 +217,10 @@ const parseXlsxRows = async (file: File, requiredColumns: string[]) => {
   const sharedStrings = entries.get("xl/sharedStrings.xml")
     ? parseSharedStrings(await entries.get("xl/sharedStrings.xml")!())
     : [];
-  const sheetXml = new DOMParser().parseFromString(await sheetEntry(), "application/xml");
+  const sheetXml = new DOMParser().parseFromString(
+    await sheetEntry(),
+    "application/xml",
+  );
   const rows = Array.from(sheetXml.getElementsByTagName("row")).map((row) => {
     const values: string[] = [];
     Array.from(row.getElementsByTagName("c")).forEach((cell) => {
@@ -182,7 +230,8 @@ const parseXlsxRows = async (file: File, requiredColumns: string[]) => {
       const valueNode = cell.getElementsByTagName("v")[0];
       const inlineNode = cell.getElementsByTagName("t")[0];
       const rawValue = valueNode?.textContent || inlineNode?.textContent || "";
-      values[index] = type === "s" ? sharedStrings[Number(rawValue)] || "" : rawValue;
+      values[index] =
+        type === "s" ? sharedStrings[Number(rawValue)] || "" : rawValue;
     });
     return values.map((value) => value || "");
   });
@@ -201,4 +250,4 @@ export {
   readZipEntries,
   parseSharedStrings,
   parseXlsxRows,
-};
+};

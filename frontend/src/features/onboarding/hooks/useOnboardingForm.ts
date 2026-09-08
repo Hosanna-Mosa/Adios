@@ -3,8 +3,21 @@ import { useSearchParams } from "react-router-dom";
 import { useGoogleMaps } from "../../../hooks/useGoogleMaps";
 import { apiFetch } from "../../../lib/api-client";
 import { parseCsvRows, parseXlsxRows } from "../../../lib/spreadsheet";
-import { STEPS, PARTNER_COPY, CUISINE_OPTIONS, MEAT_CATEGORY_OPTIONS, DAYS, MENU_UPLOAD_COLUMNS } from "../constants";
-import type { PartnerType, MenuItem, MenuCategory, UploadedMenuRow, DayTimeSlots } from "../types";
+import {
+  STEPS,
+  PARTNER_COPY,
+  CUISINE_OPTIONS,
+  MEAT_CATEGORY_OPTIONS,
+  DAYS,
+  MENU_UPLOAD_COLUMNS,
+} from "../constants";
+import type {
+  PartnerType,
+  MenuItem,
+  MenuCategory,
+  UploadedMenuRow,
+  DayTimeSlots,
+} from "../types";
 
 const createDefaultDayTimeSlots = (): DayTimeSlots =>
   DAYS.reduce((acc, day) => {
@@ -14,16 +27,22 @@ const createDefaultDayTimeSlots = (): DayTimeSlots =>
 
 export function useOnboardingForm() {
   const [searchParams] = useSearchParams();
-  const partnerType: PartnerType = searchParams.get("type") === "meat" ? "meat" : "food";
+  const partnerType: PartnerType =
+    searchParams.get("type") === "meat" ? "meat" : "food";
   const isMeatPartner = partnerType === "meat";
   const copy = PARTNER_COPY[partnerType];
-  const categoryOptions = isMeatPartner ? MEAT_CATEGORY_OPTIONS : CUISINE_OPTIONS;
+  const categoryOptions = isMeatPartner
+    ? MEAT_CATEGORY_OPTIONS
+    : CUISINE_OPTIONS;
   const onboardingSteps = STEPS.map((stepItem) =>
     stepItem.num === 1
       ? { ...stepItem, label: copy.infoTitle }
       : stepItem.num === 2
-        ? { ...stepItem, label: isMeatPartner ? "Operational Details" : stepItem.label }
-        : stepItem
+        ? {
+            ...stepItem,
+            label: isMeatPartner ? "Operational Details" : stepItem.label,
+          }
+        : stepItem,
   );
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
@@ -51,17 +70,20 @@ export function useOnboardingForm() {
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
       );
       const data = await response.json();
       if (data && data.address) {
         const addr = data.address;
-        const sublocality = addr.suburb || addr.neighbourhood || addr.village || "";
+        const sublocality =
+          addr.suburb || addr.neighbourhood || addr.village || "";
         const cityVal = addr.city || addr.town || addr.county || "";
         const landmarkVal = addr.amenity || addr.shop || addr.road || "";
         const shopNoVal = addr.house_number || "";
 
-        const areaName = [sublocality, addr.subdistrict].filter(Boolean).join(", ");
+        const areaName = [sublocality, addr.subdistrict]
+          .filter(Boolean)
+          .join(", ");
         if (areaName) setArea(areaName);
         if (cityVal) setCity(cityVal);
         if (landmarkVal) setLandmark(landmarkVal);
@@ -91,12 +113,17 @@ export function useOnboardingForm() {
         const types = component.types;
         if (types.includes("street_number")) streetNo = component.long_name;
         if (types.includes("route")) route = component.long_name;
-        if (types.includes("sublocality") || types.includes("sublocality_level_1")) {
+        if (
+          types.includes("sublocality") ||
+          types.includes("sublocality_level_1")
+        ) {
           sublocality = component.long_name;
         }
         if (types.includes("locality")) locality = component.long_name;
-        if (types.includes("administrative_area_level_2")) currentCity = component.long_name;
-        if (types.includes("administrative_area_level_1")) state = component.long_name;
+        if (types.includes("administrative_area_level_2"))
+          currentCity = component.long_name;
+        if (types.includes("administrative_area_level_1"))
+          state = component.long_name;
         if (types.includes("country")) country = component.long_name;
         if (types.includes("postal_code")) postalCode = component.long_name;
       }
@@ -127,9 +154,10 @@ export function useOnboardingForm() {
 
     const defaultLat = parseFloat(gpsLat) || 16.932539;
     const defaultLng = parseFloat(gpsLng) || 81.752708;
-    const tileUrl = mapView === "satellite"
-      ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    const tileUrl =
+      mapView === "satellite"
+        ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     const map = L.map(mapRef.current, {
       zoomControl: false,
@@ -182,9 +210,12 @@ export function useOnboardingForm() {
 
     const google = (window as any).google;
     if (google && searchInputRef.current) {
-      const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current, {
-        types: ["geocode", "establishment"],
-      });
+      const autocomplete = new google.maps.places.Autocomplete(
+        searchInputRef.current,
+        {
+          types: ["geocode", "establishment"],
+        },
+      );
 
       autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
@@ -222,9 +253,10 @@ export function useOnboardingForm() {
       mapInstanceRef.current.removeLayer(tileLayerRef.current);
     }
 
-    const tileUrl = mapView === "satellite"
-      ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    const tileUrl =
+      mapView === "satellite"
+        ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
       maxZoom: 19,
@@ -259,7 +291,7 @@ export function useOnboardingForm() {
 
   const toggleCuisine = (c: string) => {
     setCuisines((prev) =>
-      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
+      prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
     );
   };
 
@@ -293,7 +325,8 @@ export function useOnboardingForm() {
 
           reverseGeocode(lat, lng);
         },
-        () => alert("Unable to retrieve your location. Please search manually.")
+        () =>
+          alert("Unable to retrieve your location. Please search manually."),
       );
     }
   };
@@ -309,24 +342,39 @@ export function useOnboardingForm() {
 
   // ── Step 2: Menu & Operational Details ──────────────────────────────────
 
-  const [selectedDays, setSelectedDays] = useState<string[]>(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+  ]);
   const [activeTimingDay, setActiveTimingDay] = useState("Monday");
-  const [dayTimeSlots, setDayTimeSlots] = useState<DayTimeSlots>(() => createDefaultDayTimeSlots());
+  const [dayTimeSlots, setDayTimeSlots] = useState<DayTimeSlots>(() =>
+    createDefaultDayTimeSlots(),
+  );
 
   // Menu Builder State
-  const [menuSetupMode, setMenuSetupMode] = useState<"upload" | "manual">("manual");
+  const [menuSetupMode, setMenuSetupMode] = useState<"upload" | "manual">(
+    "manual",
+  );
   const [menuReferenceFile, setMenuReferenceFile] = useState<File | null>(null);
   const [menuUploadValid, setMenuUploadValid] = useState(false);
   const [menuUploadError, setMenuUploadError] = useState("");
   const [menuUploadRows, setMenuUploadRows] = useState<UploadedMenuRow[]>([]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
-  const [editingItem, setEditingItem] = useState<{ categoryId: string; item?: MenuItem } | null>(null);
+  const [editingItem, setEditingItem] = useState<{
+    categoryId: string;
+    item?: MenuItem;
+  } | null>(null);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
   const toggleDay = (day: string) => {
     setSelectedDays((prev) => {
-      const next = prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day];
+      const next = prev.includes(day)
+        ? prev.filter((d) => d !== day)
+        : [...prev, day];
       if (!next.includes(activeTimingDay)) {
         setActiveTimingDay(next[0] || day);
       }
@@ -348,7 +396,12 @@ export function useOnboardingForm() {
     }));
   };
 
-  const updateTimeSlot = (day: string, i: number, key: "open" | "close", val: string) => {
+  const updateTimeSlot = (
+    day: string,
+    i: number,
+    key: "open" | "close",
+    val: string,
+  ) => {
     setDayTimeSlots((prev) => {
       const updated = [...(prev[day] || [])];
       updated[i] = { ...updated[i], [key]: val };
@@ -382,18 +435,23 @@ export function useOnboardingForm() {
     }
 
     try {
-      const rows = extension === "csv" ? await parseCsvRows(file, MENU_UPLOAD_COLUMNS) : await parseXlsxRows(file, MENU_UPLOAD_COLUMNS);
+      const rows =
+        extension === "csv"
+          ? await parseCsvRows(file, MENU_UPLOAD_COLUMNS)
+          : await parseXlsxRows(file, MENU_UPLOAD_COLUMNS);
       setMenuUploadRows(rows);
       setMenuUploadValid(true);
     } catch (err: any) {
-      setMenuUploadError(err?.message || "Unable to read the uploaded menu sheet.");
+      setMenuUploadError(
+        err?.message || "Unable to read the uploaded menu sheet.",
+      );
       setMenuUploadValid(false);
     }
   };
 
   const updateMenuUploadRowImage = (rowId: string, image: File | null) => {
     setMenuUploadRows((rows) =>
-      rows.map((row) => row.id === rowId ? { ...row, image } : row)
+      rows.map((row) => (row.id === rowId ? { ...row, image } : row)),
     );
   };
 
@@ -411,7 +469,9 @@ export function useOnboardingForm() {
 
   const [bankAccount, setBankAccount] = useState("");
   const [bankConfirm, setBankConfirm] = useState("");
-  const [accountType, setAccountType] = useState<"savings" | "current">("savings");
+  const [accountType, setAccountType] = useState<"savings" | "current">(
+    "savings",
+  );
   const [ifsc, setIfsc] = useState("");
   const [ifscFetched, setIfscFetched] = useState(false);
   const [chequeFile, setChequeFile] = useState<File | null>(null);
@@ -446,17 +506,27 @@ export function useOnboardingForm() {
   };
 
   const canProceedStep2 = () => {
-    const timingsComplete = selectedDays.length > 0 && selectedDays.every((day) =>
-      (dayTimeSlots[day] || []).some((slot) => slot.open && slot.close)
-    );
+    const timingsComplete =
+      selectedDays.length > 0 &&
+      selectedDays.every((day) =>
+        (dayTimeSlots[day] || []).some((slot) => slot.open && slot.close),
+      );
 
     if (!timingsComplete) return false;
     if (isMeatPartner) return true;
 
     if (menuSetupMode === "upload") {
-      return menuReferenceFile !== null && menuUploadValid && menuUploadRows.length > 0 && menuUploadRows.every((row) => row.image);
+      return (
+        menuReferenceFile !== null &&
+        menuUploadValid &&
+        menuUploadRows.length > 0 &&
+        menuUploadRows.every((row) => row.image)
+      );
     }
-    return menuCategories.length > 0 && menuCategories.some((c) => c.items.length > 0);
+    return (
+      menuCategories.length > 0 &&
+      menuCategories.some((c) => c.items.length > 0)
+    );
   };
 
   const canProceedStep3 = () => {
@@ -484,7 +554,10 @@ export function useOnboardingForm() {
   };
 
   const getPayload = (status: "draft" | "submitted") => {
-    const selectedDayTimeSlots: Record<string, { open: string; close: string }[]> = {};
+    const selectedDayTimeSlots: Record<
+      string,
+      { open: string; close: string }[]
+    > = {};
     selectedDays.forEach((day) => {
       selectedDayTimeSlots[day] = dayTimeSlots[day] || [];
     });
@@ -516,7 +589,9 @@ export function useOnboardingForm() {
       selectedDays,
       dayTimeSlots: selectedDayTimeSlots,
       menuSetupMode,
-      menuReferenceFile: menuReferenceFile ? { name: menuReferenceFile.name } : null,
+      menuReferenceFile: menuReferenceFile
+        ? { name: menuReferenceFile.name }
+        : null,
       menuUploadValid,
       menuUploadRows: menuUploadRows.map((row) => ({
         category: row.category,
@@ -593,26 +668,139 @@ export function useOnboardingForm() {
   };
 
   return {
-    partnerType, isMeatPartner, copy, categoryOptions, onboardingSteps,
-    step, setStep, submitted, setSubmitted, showSaveModal, setShowSaveModal, saveEmail, setSaveEmail, draftSaved, setDraftSaved,
-    isMapsLoaded, mapRef, searchInputRef, mapInstanceRef, markerInstanceRef, tileLayerRef, mapView, setMapView, isSaving, isSubmitting,
-    handleUseCurrentLocation, handleMapZoom,
-    restaurantName, setRestaurantName, cuisines, setCuisines,
-    ownerName, setOwnerName, ownerEmail, setOwnerEmail, portalPassword, setPortalPassword, confirmPortalPassword, setConfirmPortalPassword,
-    ownerPhone, setOwnerPhone, otpSent, setOtpSent, otp, setOtp, otpVerified, setOtpVerified, primaryContact, setPrimaryContact, sameAsOwner, setSameAsOwner,
-    gpsLat, gpsLng, locationSearch, setLocationSearch,
-    shopNo, setShopNo, floor, setFloor, area, setArea, city, setCity, landmark, setLandmark,
-    toggleCuisine, sendOtp, verifyOtp,
-    selectedDays, setSelectedDays, activeTimingDay, setActiveTimingDay, dayTimeSlots,
-    menuSetupMode, setMenuSetupMode, menuReferenceFile, menuUploadValid, menuUploadError, menuUploadRows, menuCategories, setMenuCategories,
-    editingItem, setEditingItem, showCategoryDialog, setShowCategoryDialog, newCategoryName, setNewCategoryName,
-    toggleDay, addTimeSlot, removeTimeSlot, updateTimeSlot, addCategory, validateMenuReferenceFile, updateMenuUploadRowImage,
-    panNumber, setPanNumber, panFile, setPanFile, gstin, setGstin, gstFile, setGstFile, gstExempt, setGstExempt,
-    fssaiNumber, setFssaiNumber, fssaiExpiry, setFssaiExpiry, fssaiFile, setFssaiFile,
-    bankAccount, setBankAccount, bankConfirm, setBankConfirm, accountType, setAccountType, ifsc, setIfsc, ifscFetched, setIfscFetched, chequeFile, setChequeFile,
+    partnerType,
+    isMeatPartner,
+    copy,
+    categoryOptions,
+    onboardingSteps,
+    step,
+    setStep,
+    submitted,
+    setSubmitted,
+    showSaveModal,
+    setShowSaveModal,
+    saveEmail,
+    setSaveEmail,
+    draftSaved,
+    setDraftSaved,
+    isMapsLoaded,
+    mapRef,
+    searchInputRef,
+    mapInstanceRef,
+    markerInstanceRef,
+    tileLayerRef,
+    mapView,
+    setMapView,
+    isSaving,
+    isSubmitting,
+    handleUseCurrentLocation,
+    handleMapZoom,
+    restaurantName,
+    setRestaurantName,
+    cuisines,
+    setCuisines,
+    ownerName,
+    setOwnerName,
+    ownerEmail,
+    setOwnerEmail,
+    portalPassword,
+    setPortalPassword,
+    confirmPortalPassword,
+    setConfirmPortalPassword,
+    ownerPhone,
+    setOwnerPhone,
+    otpSent,
+    setOtpSent,
+    otp,
+    setOtp,
+    otpVerified,
+    setOtpVerified,
+    primaryContact,
+    setPrimaryContact,
+    sameAsOwner,
+    setSameAsOwner,
+    gpsLat,
+    gpsLng,
+    locationSearch,
+    setLocationSearch,
+    shopNo,
+    setShopNo,
+    floor,
+    setFloor,
+    area,
+    setArea,
+    city,
+    setCity,
+    landmark,
+    setLandmark,
+    toggleCuisine,
+    sendOtp,
+    verifyOtp,
+    selectedDays,
+    setSelectedDays,
+    activeTimingDay,
+    setActiveTimingDay,
+    dayTimeSlots,
+    menuSetupMode,
+    setMenuSetupMode,
+    menuReferenceFile,
+    menuUploadValid,
+    menuUploadError,
+    menuUploadRows,
+    menuCategories,
+    setMenuCategories,
+    editingItem,
+    setEditingItem,
+    showCategoryDialog,
+    setShowCategoryDialog,
+    newCategoryName,
+    setNewCategoryName,
+    toggleDay,
+    addTimeSlot,
+    removeTimeSlot,
+    updateTimeSlot,
+    addCategory,
+    validateMenuReferenceFile,
+    updateMenuUploadRowImage,
+    panNumber,
+    setPanNumber,
+    panFile,
+    setPanFile,
+    gstin,
+    setGstin,
+    gstFile,
+    setGstFile,
+    gstExempt,
+    setGstExempt,
+    fssaiNumber,
+    setFssaiNumber,
+    fssaiExpiry,
+    setFssaiExpiry,
+    fssaiFile,
+    setFssaiFile,
+    bankAccount,
+    setBankAccount,
+    bankConfirm,
+    setBankConfirm,
+    accountType,
+    setAccountType,
+    ifsc,
+    setIfsc,
+    ifscFetched,
+    setIfscFetched,
+    chequeFile,
+    setChequeFile,
     fetchBankDetails,
-    acceptedTos, setAcceptedTos, signature, setSignature,
-    canProceedStep1, canProceedStep2, canProceedStep3,
-    handleNext, handleBack, handleSaveDraft, handleFinalSubmit,
+    acceptedTos,
+    setAcceptedTos,
+    signature,
+    setSignature,
+    canProceedStep1,
+    canProceedStep2,
+    canProceedStep3,
+    handleNext,
+    handleBack,
+    handleSaveDraft,
+    handleFinalSubmit,
   };
 }

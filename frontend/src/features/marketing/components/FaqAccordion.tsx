@@ -34,7 +34,9 @@ export function FaqAccordion() {
     <section className="py-20 lg:py-28 bg-surface-container-low/30">
       <div className="container max-w-[800px] mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+            Frequently Asked Questions
+          </h2>
           <p className="text-secondary-app max-w-md mx-auto">
             Everything you need to know about partnering with Hybrid.
           </p>

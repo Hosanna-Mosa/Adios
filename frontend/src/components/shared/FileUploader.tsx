@@ -24,15 +24,30 @@ export function FileUploader({
     e.stopPropagation();
     const ext = accept.includes(".csv") ? "csv" : "png";
     const dummyName = `${label.toLowerCase().replace(/[^a-z0-9]/g, "_")}_dummy.${ext}`;
-    const fileContent = ext === "csv" 
-      ? ["category", "itemName", "price", "description", "type", "isBestseller"].join(",") 
-      : "dummy data";
-    onChange(new File([fileContent], dummyName, { type: ext === "csv" ? "text/csv" : "image/png" }));
+    const fileContent =
+      ext === "csv"
+        ? [
+            "category",
+            "itemName",
+            "price",
+            "description",
+            "type",
+            "isBestseller",
+          ].join(",")
+        : "dummy data";
+    onChange(
+      new File([fileContent], dummyName, {
+        type: ext === "csv" ? "text/csv" : "image/png",
+      }),
+    );
   };
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
       onDragLeave={() => setDragOver(false)}
       onDrop={(e) => {
         e.preventDefault();
@@ -59,12 +74,19 @@ export function FileUploader({
         <div className="flex items-center justify-center gap-3">
           <Icon name="description" className="text-2xl text-green-600" />
           <div className="text-left">
-            <p className="text-sm font-semibold text-green-700 truncate max-w-[200px]">{file.name}</p>
-            <p className="text-xs text-green-500">{(file.size / 1024).toFixed(0)} KB</p>
+            <p className="text-sm font-semibold text-green-700 truncate max-w-[200px]">
+              {file.name}
+            </p>
+            <p className="text-xs text-green-500">
+              {(file.size / 1024).toFixed(0)} KB
+            </p>
           </div>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); onChange(null); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange(null);
+            }}
             className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
           >
             <Icon name="close" className="text-lg" />
@@ -77,10 +99,16 @@ export function FileUploader({
           </div>
           <p className="text-sm font-semibold text-on-surface mb-1">{label}</p>
           {desc && <p className="text-xs text-secondary-app mb-2">{desc}</p>}
-          
+
           <div className="flex flex-col items-center justify-center gap-2 mt-2">
-            <label htmlFor={fileInputId} className="text-xs text-secondary-app/60 cursor-pointer">
-              <span className="text-brand-kinetic font-medium hover:underline">Click to upload</span> or drag & drop
+            <label
+              htmlFor={fileInputId}
+              className="text-xs text-secondary-app/60 cursor-pointer"
+            >
+              <span className="text-brand-kinetic font-medium hover:underline">
+                Click to upload
+              </span>{" "}
+              or drag & drop
             </label>
             <button
               type="button"
@@ -92,7 +120,9 @@ export function FileUploader({
           </div>
 
           <p className="text-[10px] text-secondary-app/40 mt-2">
-            {accept.includes(".xlsx") ? "CSV, XLSX (max 10MB)" : "PDF, JPG, PNG (max 10MB)"}
+            {accept.includes(".xlsx")
+              ? "CSV, XLSX (max 10MB)"
+              : "PDF, JPG, PNG (max 10MB)"}
           </p>
         </div>
       )}

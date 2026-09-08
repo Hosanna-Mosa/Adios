@@ -32,7 +32,10 @@ function MarketingHeader() {
     >
       <div className="max-w-[1440px] mx-auto px-10 md:px-20 flex justify-between items-center w-full">
         <div className="flex items-center gap-16">
-          <Link to="/" className="text-[28px] font-black tracking-tight text-primary font-display">
+          <Link
+            to="/"
+            className="text-[28px] font-black tracking-tight text-primary font-display"
+          >
             Flavor
           </Link>
 
@@ -43,13 +46,22 @@ function MarketingHeader() {
             >
               Services
             </a>
-            <a href="#experience" className="text-sm font-medium text-secondary-app hover:text-primary transition-colors">
+            <a
+              href="#experience"
+              className="text-sm font-medium text-secondary-app hover:text-primary transition-colors"
+            >
               Experience
             </a>
-            <a href="#logistics" className="text-sm font-medium text-secondary-app hover:text-primary transition-colors">
+            <a
+              href="#logistics"
+              className="text-sm font-medium text-secondary-app hover:text-primary transition-colors"
+            >
               Logistics
             </a>
-            <Link to="/partner" className="text-sm font-medium text-secondary-app hover:text-primary transition-colors">
+            <Link
+              to="/partner"
+              className="text-sm font-medium text-secondary-app hover:text-primary transition-colors"
+            >
               Partners
             </Link>
           </div>
@@ -72,7 +84,10 @@ function MinimalHeader() {
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-surface-container py-4">
       <div className="flex justify-between items-center px-6 max-w-[1280px] mx-auto">
-        <Link to="/" className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter">
+        <Link
+          to="/"
+          className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter"
+        >
           HYBRID
         </Link>
         <Link

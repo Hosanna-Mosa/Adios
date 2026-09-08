@@ -5,7 +5,10 @@ type Props = { activeMode: "food" | "ride" };
 
 export function FeatureGrid({ activeMode }: Props) {
   return (
-    <section id="services" className="py-24 bg-white border-y border-surface-container">
+    <section
+      id="services"
+      className="py-24 bg-white border-y border-surface-container"
+    >
       <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
         {/* Header text container */}
         <div className="text-center mb-16 max-w-2xl mx-auto h-[120px] relative">
@@ -21,7 +24,8 @@ export function FeatureGrid({ activeMode }: Props) {
               One Platform, Refined Life
             </h2>
             <p className="text-secondary-app text-sm md:text-base leading-relaxed font-body">
-              Flavor integrates three essential pillars of the modern lifestyle into a single, seamless executive experience.
+              Flavor integrates three essential pillars of the modern lifestyle
+              into a single, seamless executive experience.
             </p>
           </div>
 
@@ -37,7 +41,8 @@ export function FeatureGrid({ activeMode }: Props) {
               Movement, Restructured
             </h2>
             <p className="text-secondary-app text-sm md:text-base leading-relaxed font-body">
-              Our custom mobility workflows ensure you travel with max efficiency and zero friction.
+              Our custom mobility workflows ensure you travel with max
+              efficiency and zero friction.
             </p>
           </div>
         </div>
@@ -56,9 +61,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="restaurant" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">Culinary Excellence</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                Culinary Excellence
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Access a curated selection of the city's finest kitchens. Every meal is handled with white-glove care from chef to table.
+                Access a curated selection of the city's finest kitchens. Every
+                meal is handled with white-glove care from chef to table.
               </p>
             </div>
 
@@ -66,9 +74,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="directions_car" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">Executive Motion</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                Executive Motion
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Premium transportation for the discerning professional. Professional chauffeurs and high-end vehicles at your command.
+                Premium transportation for the discerning professional.
+                Professional chauffeurs and high-end vehicles at your command.
               </p>
             </div>
 
@@ -76,9 +87,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="local_shipping" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">Swift Logistics</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                Swift Logistics
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Secure, real-time parcel delivery and personal tasks managed by our elite logistics network with total discretion.
+                Secure, real-time parcel delivery and personal tasks managed by
+                our elite logistics network with total discretion.
               </p>
             </div>
           </div>
@@ -95,9 +109,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="flight" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">Airport Transfers</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                Airport Transfers
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Punctual, stress-free transit to and from major hubs. Real-time flight tracking ensures we're always there before you land.
+                Punctual, stress-free transit to and from major hubs. Real-time
+                flight tracking ensures we're always there before you land.
               </p>
             </div>
 
@@ -105,9 +122,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="apartment" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">City Commutes</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                City Commutes
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Reliable point-to-point travel within the metropolitan core. Turn transit time into productive working minutes.
+                Reliable point-to-point travel within the metropolitan core.
+                Turn transit time into productive working minutes.
               </p>
             </div>
 
@@ -115,9 +135,12 @@ export function FeatureGrid({ activeMode }: Props) {
               <div className="w-12 h-12 bg-primary/5 text-primary flex items-center justify-center rounded mb-6">
                 <Icon name="schedule" className="text-2xl" />
               </div>
-              <h3 className="text-xl font-semibold text-primary font-display mb-3">Hourly Hire</h3>
+              <h3 className="text-xl font-semibold text-primary font-display mb-3">
+                Hourly Hire
+              </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Dedicated vehicle and chauffeur at your disposal for multi-stop meetings or full-day itineraries.
+                Dedicated vehicle and chauffeur at your disposal for multi-stop
+                meetings or full-day itineraries.
               </p>
             </div>
           </div>

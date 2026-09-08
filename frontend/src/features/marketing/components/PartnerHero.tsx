@@ -21,7 +21,9 @@ export function PartnerHero({ onGetStarted }: Props) {
             <span className="text-brand-kinetic">Hybrid</span>
           </h1>
           <p className="text-lg text-white/70 max-w-xl mx-auto mb-10 leading-relaxed">
-            Join India's fastest-growing urban platform. Whether you run a restaurant, a fleet, or a service — we help you reach more customers and earn more.
+            Join India's fastest-growing urban platform. Whether you run a
+            restaurant, a fleet, or a service — we help you reach more customers
+            and earn more.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <button

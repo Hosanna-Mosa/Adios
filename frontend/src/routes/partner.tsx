@@ -36,7 +36,9 @@ export default function PartnerPage() {
         <FaqAccordion />
 
         {/* CTA */}
-        <PartnerCtaSection onGetStarted={() => setShowPartnerTypeDialog(true)} />
+        <PartnerCtaSection
+          onGetStarted={() => setShowPartnerTypeDialog(true)}
+        />
       </main>
 
       <PartnerTypeCards
@@ -44,7 +46,6 @@ export default function PartnerPage() {
         onClose={() => setShowPartnerTypeDialog(false)}
         onSelect={startOnboarding}
       />
-
     </div>
   );
 }

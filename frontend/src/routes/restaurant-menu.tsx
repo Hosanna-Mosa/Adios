@@ -45,7 +45,9 @@ export default function RestaurantMenuFront() {
     const fetchRestaurantData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE_URL}/food/restaurant-menu/restaurants/${id}`);
+        const res = await fetch(
+          `${API_BASE_URL}/food/restaurant-menu/restaurants/${id}`,
+        );
         if (!res.ok) {
           throw new Error("Restaurant not found or database error");
         }
@@ -94,8 +96,12 @@ export default function RestaurantMenuFront() {
     return (
       <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
         <Icon name="error" className="text-red-500 text-6xl mb-4" />
-        <h1 className="text-2xl font-bold text-primary">Oops! Something went wrong</h1>
-        <p className="text-slate-500 mt-2 max-w-md">{error || "We couldn't find the restaurant you were looking for."}</p>
+        <h1 className="text-2xl font-bold text-primary">
+          Oops! Something went wrong
+        </h1>
+        <p className="text-slate-500 mt-2 max-w-md">
+          {error || "We couldn't find the restaurant you were looking for."}
+        </p>
         <Link
           to="/"
           className="mt-6 inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-all shadow-md"
@@ -107,34 +113,41 @@ export default function RestaurantMenuFront() {
   }
 
   // Get unique categories
-  const categories = ["All", ...Array.from(new Set(menu.map((item) => item.category || "General")))];
+  const categories = [
+    "All",
+    ...Array.from(new Set(menu.map((item) => item.category || "General"))),
+  ];
 
   // Filter menu items
   const filteredMenu = menu.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.description &&
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory =
+      selectedCategory === "All" || item.category === selectedCategory;
     const matchesVeg = !vegOnly || item.isVeg;
     return matchesSearch && matchesCategory && matchesVeg;
   });
 
   const groupedMenu = Object.entries(
-    filteredMenu.reduce((acc, item) => {
-      const cat = item.category || "General";
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(item);
-      return acc;
-    }, {} as Record<string, MenuItem[]>)
+    filteredMenu.reduce(
+      (acc, item) => {
+        const cat = item.category || "General";
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(item);
+        return acc;
+      },
+      {} as Record<string, MenuItem[]>,
+    ),
   );
 
   return (
     <div className="bg-menu-surface min-h-[100dvh] text-menu-ink font-sans pb-24 relative selection:bg-primary selection:text-white">
-
       <MenuHeader restaurant={restaurant} />
 
       {/* Main Content Area */}
       <div className="max-w-[1280px] mx-auto px-4 md:px-20 mt-6 grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
-
         <CategoryNav
           categories={categories}
           selectedCategory={selectedCategory}
@@ -147,7 +160,6 @@ export default function RestaurantMenuFront() {
 
         {/* Menu Items List - Right Side */}
         <div className="lg:col-span-3 space-y-8 md:space-y-12">
-
           <AnimatePresence mode="wait">
             {filteredMenu.length === 0 ? (
               <motion.div
@@ -159,10 +171,18 @@ export default function RestaurantMenuFront() {
                 <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Icon name="search_off" className="text-slate-300 text-4xl" />
                 </div>
-                <h3 className="text-xl font-black text-slate-700">No Dishes Found</h3>
-                <p className="text-slate-400 text-sm font-medium">Try adjusting your filters or search query.</p>
+                <h3 className="text-xl font-black text-slate-700">
+                  No Dishes Found
+                </h3>
+                <p className="text-slate-400 text-sm font-medium">
+                  Try adjusting your filters or search query.
+                </p>
                 <button
-                  onClick={() => { setSearchQuery(""); setVegOnly(false); setSelectedCategory("All"); }}
+                  onClick={() => {
+                    setSearchQuery("");
+                    setVegOnly(false);
+                    setSelectedCategory("All");
+                  }}
                   className="mt-4 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-bold transition-colors"
                 >
                   Clear Filters
@@ -191,21 +211,24 @@ export default function RestaurantMenuFront() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                     {items.map((item, idx) => (
-                      <MenuItemCard key={item._id || idx} item={item} idx={idx} highlightedItemId={highlightedItemId} />
+                      <MenuItemCard
+                        key={item._id || idx}
+                        item={item}
+                        idx={idx}
+                        highlightedItemId={highlightedItemId}
+                      />
                     ))}
                   </div>
                 </motion.div>
               ))
             )}
           </AnimatePresence>
-
         </div>
-
       </div>
 
-
-
-      <style dangerouslySetInnerHTML={{__html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -213,7 +236,9 @@ export default function RestaurantMenuFront() {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }

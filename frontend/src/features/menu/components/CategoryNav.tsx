@@ -12,14 +12,18 @@ type Props = {
 };
 
 export function CategoryNav({
-  categories, selectedCategory, setSelectedCategory,
-  searchQuery, setSearchQuery, vegOnly, setVegOnly,
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+  searchQuery,
+  setSearchQuery,
+  vegOnly,
+  setVegOnly,
 }: Props) {
   return (
     <>
       {/* Mobile-Only Horizontal Category & Filters Nav */}
       <div className="lg:hidden sticky top-[53px] z-40 bg-menu-surface pt-2 pb-3 -mx-4 px-4 space-y-3">
-
         {/* Mobile Search & Veg Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -38,10 +42,14 @@ export function CategoryNav({
           </div>
           <button
             onClick={() => setVegOnly(!vegOnly)}
-            className={`shrink-0 flex items-center justify-center h-10 w-10 rounded-xl transition-all shadow-sm ${vegOnly ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white border-slate-100 text-slate-400'}`}
+            className={`shrink-0 flex items-center justify-center h-10 w-10 rounded-xl transition-all shadow-sm ${vegOnly ? "bg-green-100 border-green-200 text-green-700" : "bg-white border-slate-100 text-slate-400"}`}
           >
-            <div className={`h-4 w-4 rounded-sm border-2 flex items-center justify-center ${vegOnly ? 'border-green-600' : 'border-slate-400'}`}>
-              <div className={`h-2 w-2 rounded-full ${vegOnly ? 'bg-green-600' : 'bg-transparent'}`} />
+            <div
+              className={`h-4 w-4 rounded-sm border-2 flex items-center justify-center ${vegOnly ? "border-green-600" : "border-slate-400"}`}
+            >
+              <div
+                className={`h-2 w-2 rounded-full ${vegOnly ? "bg-green-600" : "bg-transparent"}`}
+              />
             </div>
           </button>
         </motion.div>
@@ -95,14 +103,16 @@ export function CategoryNav({
           >
             <div className="flex items-center gap-3">
               <div className="h-5 w-5 rounded-sm border-2 border-green-600 flex items-center justify-center bg-green-50">
-                 <div className="h-2.5 w-2.5 rounded-full bg-green-600" />
+                <div className="h-2.5 w-2.5 rounded-full bg-green-600" />
               </div>
               <span className="text-sm font-bold text-slate-700">Veg Only</span>
             </div>
-            <div className={`w-10 h-6 rounded-full p-1 transition-colors ${vegOnly ? 'bg-green-500' : 'bg-slate-200'}`}>
+            <div
+              className={`w-10 h-6 rounded-full p-1 transition-colors ${vegOnly ? "bg-green-500" : "bg-slate-200"}`}
+            >
               <motion.div
                 layout
-                className={`bg-white w-4 h-4 rounded-full shadow-sm ${vegOnly ? 'ml-auto' : 'mr-auto'}`}
+                className={`bg-white w-4 h-4 rounded-full shadow-sm ${vegOnly ? "ml-auto" : "mr-auto"}`}
               />
             </div>
           </div>
@@ -111,7 +121,9 @@ export function CategoryNav({
 
           {/* Categories list */}
           <div className="space-y-3">
-            <label className="text-xs font-black text-slate-300 uppercase tracking-widest block">Categories</label>
+            <label className="text-xs font-black text-slate-300 uppercase tracking-widest block">
+              Categories
+            </label>
             <div className="flex flex-col gap-1.5">
               {categories.map((cat) => (
                 <button
@@ -124,7 +136,9 @@ export function CategoryNav({
                   }`}
                 >
                   <span>{cat}</span>
-                  {selectedCategory === cat && <Icon name="check" className="text-base" />}
+                  {selectedCategory === cat && (
+                    <Icon name="check" className="text-base" />
+                  )}
                 </button>
               ))}
             </div>
