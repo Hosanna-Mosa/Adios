@@ -38,9 +38,11 @@ export default tseslint.config(
   {
     // Import-direction boundaries: routes/ is a leaf (nothing may import a
     // route back), and lib/ stays pure — no reaching into features,
-    // components, or routes.
+    // components, or routes. Test files are exempt — reaching into
+    // features/constants for realistic fixtures is normal test scaffolding,
+    // not a production import.
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/components/ui/**"],
+    ignores: ["src/components/ui/**", "**/*.test.{ts,tsx}"],
     plugins: { boundaries },
     settings: {
       "import/resolver": {
