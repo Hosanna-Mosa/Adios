@@ -141,6 +141,19 @@
   --color-secondary-fixed-dim: #e1e3e4;
   --color-primary: #002045;
   --color-accent: #c5a47e;
+  --color-surface-soft: #f8f9fa;
+  --color-menu-surface: #f4f6f8;
+  --color-menu-ink: #0f172a;
+  --color-menu-glow: #3b82f6;
+  --color-menu-highlight: #0651ed;
+  --color-navy-deep: #01356e;
+  --color-navy-mid: #0d2844;
+  --color-navy-light: #162d4a;
+  --color-onboarding-surface: #f8f9fc;
+  --color-map-marker: #f97316;
+  --color-device-frame: #e5e7eb;
+  --color-device-screen: #e4e9f0;
+  --color-gradient-flame: #ff5733;
   --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
@@ -151,7 +164,7 @@
   }
 
   body {
-    background-color: #ffffff;
+    background-color: var(--background);
     color: var(--color-on-surface);
     font-family: var(--font-body);
   }

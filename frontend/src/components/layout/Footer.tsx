@@ -13,7 +13,7 @@ export function Footer({ variant }: FooterProps) {
 
 function MarketingFooter() {
   return (
-    <footer className="bg-[#0a1128] text-white pt-20 pb-10 border-t border-white/10">
+    <footer className="bg-on-surface text-white pt-20 pb-10 border-t border-white/10">
       <div className="max-w-[1440px] mx-auto px-10 md:px-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 text-left">
@@ -34,20 +34,20 @@ function MarketingFooter() {
           <div className="text-left">
             <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">Solutions</h4>
             <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#food">Executive Food</a></li>
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#rides">Executive Motion</a></li>
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#corporate">Corporate Accounts</a></li>
-              <li><Link className="hover:text-[#c5a47e] transition-colors" to="/partner">Partner with Us</Link></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#food">Executive Food</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#rides">Executive Motion</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#corporate">Corporate Accounts</a></li>
+              <li><Link className="hover:text-brand-kinetic transition-colors" to="/partner">Partner with Us</Link></li>
             </ul>
           </div>
 
           <div className="text-left">
             <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">Support</h4>
             <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#help">Help Center</a></li>
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#safety">Safety Protocols</a></li>
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#privacy">Privacy Policy</a></li>
-              <li><a className="hover:text-[#c5a47e] transition-colors" href="#terms">Terms of Service</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#help">Help Center</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#safety">Safety Protocols</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#privacy">Privacy Policy</a></li>
+              <li><a className="hover:text-brand-kinetic transition-colors" href="#terms">Terms of Service</a></li>
             </ul>
           </div>
 
