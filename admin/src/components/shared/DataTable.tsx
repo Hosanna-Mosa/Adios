@@ -15,9 +15,12 @@ interface DataTableProps<T> {
   data: T[];
   rowKey: (item: T) => string | number;
   isLoading?: boolean;
-  loadingLabel?: string;
-  emptyLabel?: string;
-  rowClassName?: string;
+  loadingLabel?: ReactNode;
+  emptyLabel?: ReactNode;
+  /** Either a fixed class for every row, or a function for per-row classes (e.g. Zones.tsx's selected-row highlight). */
+  rowClassName?: string | ((item: T) => string);
+  /** Row click handler, e.g. Zones.tsx's click-to-select-on-map. Omitted by default (rows aren't clickable). */
+  onRowClick?: (item: T) => void;
   /** Class for the `<thead><tr>` wrapper. Defaults to Users.tsx's original value. */
   headerRowClassName?: string;
   /** Class for the loading/empty state's single colSpan `<td>`. Defaults to Users.tsx's original value. */
@@ -49,6 +52,7 @@ export function DataTable<T>({
   loadingLabel = "Loading...",
   emptyLabel = "No results found.",
   rowClassName,
+  onRowClick,
   headerRowClassName,
   stateCellClassName,
   tbodyClassName,
@@ -87,7 +91,8 @@ export function DataTable<T>({
                 initial="hidden"
                 animate="visible"
                 exit={{ opacity: 0 }}
-                className={rowClassName ?? DEFAULT_ROW_CLASS}
+                onClick={onRowClick ? () => onRowClick(item) : undefined}
+                className={typeof rowClassName === "function" ? rowClassName(item) : (rowClassName ?? DEFAULT_ROW_CLASS)}
               >
                 {columns.map((column) => (
                   <td key={column.key} className={column.cellClassName ?? DEFAULT_CELL_CLASS}>
