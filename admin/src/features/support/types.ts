@@ -9,7 +9,10 @@ export interface Ticket {
   ticketId: string;
   title: string;
   category: string;
-  status: "OPEN" | "RESOLVED";
+  // Widened from Support.tsx's original "OPEN" | "RESOLVED": SupportIssues.tsx
+  // (work queue item #12), reading the same /admin/tickets data, shows a
+  // real third status this type didn't account for.
+  status: "OPEN" | "RESOLVED" | "PENDING_RESOLVE";
   message: string;
   user: string;
   // Used throughout the page's JSX (role badges on the ticket card and chat
@@ -17,6 +20,7 @@ export interface Ticket {
   // it's a real field the page reads, not a new one.
   userRole?: string;
   time: string;
+  createdAt: string;
   messages: TicketMessage[];
 }
 
