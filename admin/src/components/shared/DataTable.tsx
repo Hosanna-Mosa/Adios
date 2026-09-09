@@ -27,6 +27,10 @@ interface DataTableProps<T> {
   stateCellClassName?: string;
   /** Class for the `<tbody>` itself, e.g. Drivers.tsx's `"divide-y divide-border"` row dividers. Omitted by default, matching Users.tsx (which had none). */
   tbodyClassName?: string;
+  /** Class for the `<table>` element itself. Defaults to Users.tsx's original value. */
+  tableClassName?: string;
+  /** Class for the `<thead>` element itself, e.g. RestaurantMenu.tsx's header background/text styling (which lives on `<thead>` there, not the header `<tr>`). Omitted by default, matching Users.tsx (which had none). */
+  theadClassName?: string;
 }
 
 const DEFAULT_HEADER_CLASS = "table-header-text text-left px-6 py-3";
@@ -56,10 +60,12 @@ export function DataTable<T>({
   headerRowClassName,
   stateCellClassName,
   tbodyClassName,
+  tableClassName,
+  theadClassName,
 }: DataTableProps<T>) {
   return (
-    <table className="w-full">
-      <thead>
+    <table className={tableClassName ?? "w-full"}>
+      <thead className={theadClassName}>
         <tr className={headerRowClassName ?? DEFAULT_HEADER_ROW_CLASS}>
           {columns.map((column) => (
             <th key={column.key} className={column.headerClassName ?? DEFAULT_HEADER_CLASS}>
