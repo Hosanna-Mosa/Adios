@@ -9,7 +9,7 @@ import { DriverDetailStats } from "@/features/drivers/components/DriverDetailSta
 import { DriverDocsApprovalPanel } from "@/features/drivers/components/DriverDocsApprovalPanel";
 import { DriverTripsTable } from "@/features/drivers/components/DriverTripsTable";
 import { DriverDetailZoneDialog } from "@/features/drivers/components/DriverDetailZoneDialog";
-import { DriverTripChatDialog } from "@/features/drivers/components/DriverTripChatDialog";
+import { OrderChatDialog } from "@/components/shared/OrderChatDialog";
 
 export default function DriverDetail() {
   const { id } = useParams<{ id: string }>();
@@ -107,7 +107,7 @@ export default function DriverDetail() {
         isSaving={isUpdating}
       />
 
-      <DriverTripChatDialog orderId={selectedOrderChat} onOpenChange={(open) => !open && setSelectedOrderChat(null)} messages={chatMessages} isLoading={isChatLoading} />
+      <OrderChatDialog orderId={selectedOrderChat} onOpenChange={(open) => !open && setSelectedOrderChat(null)} messages={chatMessages} isLoading={isChatLoading} />
     </DashboardLayout>
   );
 }

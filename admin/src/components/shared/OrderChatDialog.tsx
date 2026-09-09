@@ -1,15 +1,29 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { OrderChatMessage } from "../driverDetailTypes";
 
-interface DriverTripChatDialogProps {
+export interface OrderChatMessage {
+  _id: string;
+  role: string;
+  text: string;
+  time?: string;
+  createdAt: string;
+  senderId?: { name?: string };
+}
+
+interface OrderChatDialogProps {
   orderId: string | null;
   onOpenChange: (open: boolean) => void;
   messages: OrderChatMessage[];
   isLoading: boolean;
 }
 
-/** Chat log dialog for one trip, opened directly from the trips table (no order picker -- the order is already known). */
-export function DriverTripChatDialog({ orderId, onOpenChange, messages, isLoading }: DriverTripChatDialogProps) {
+/**
+ * Chat log dialog for one order, opened directly (no order picker -- the
+ * order is already known). Promoted here from features/drivers/ once
+ * UserDetail (item #11) needed the exact same dialog, byte-for-byte --
+ * DriverDetail's (item #6) trips table and UserDetail's order history both
+ * open this from a "View Chat" button per row.
+ */
+export function OrderChatDialog({ orderId, onOpenChange, messages, isLoading }: OrderChatDialogProps) {
   return (
     <Dialog open={!!orderId} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px] rounded-3xl">

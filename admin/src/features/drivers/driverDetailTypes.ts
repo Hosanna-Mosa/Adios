@@ -54,11 +54,6 @@ export interface DetailZoneOption {
   name: string;
 }
 
-export interface OrderChatMessage {
-  _id: string;
-  role: string;
-  text: string;
-  time?: string;
-  createdAt: string;
-  senderId?: { name?: string };
-}
+// OrderChatMessage moved to components/shared/OrderChatDialog.tsx once
+// UserDetail (item #11) needed the exact same chat dialog.
+export type { OrderChatMessage } from "@/components/shared/OrderChatDialog";
