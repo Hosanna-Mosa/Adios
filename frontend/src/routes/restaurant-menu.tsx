@@ -54,8 +54,11 @@ export default function RestaurantMenuFront() {
         const data = await res.json();
         setRestaurant(data.restaurant);
         setMenu(data.menu || []);
-      } catch (err: any) {
-        setError(err.message || "Failed to load restaurant menu");
+      } catch (err) {
+        setError(
+          (err as { message?: string })?.message ||
+            "Failed to load restaurant menu",
+        );
       } finally {
         setLoading(false);
       }

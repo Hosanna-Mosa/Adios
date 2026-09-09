@@ -6,13 +6,22 @@ interface StaggerListProps extends HTMLMotionProps<"div"> {
   inView?: boolean;
 }
 
-export function StaggerList({ children, inView = false, ...props }: StaggerListProps) {
+export function StaggerList({
+  children,
+  inView = false,
+  ...props
+}: StaggerListProps) {
   const triggerProps = inView
     ? { whileInView: "visible", viewport: { once: true, margin: "-80px" } }
     : { animate: "visible" };
 
   return (
-    <motion.div initial="hidden" variants={staggerContainer} {...triggerProps} {...props}>
+    <motion.div
+      initial="hidden"
+      variants={staggerContainer}
+      {...triggerProps}
+      {...props}
+    >
       {children}
     </motion.div>
   );

@@ -15,7 +15,13 @@ type PageTransitionProps = HTMLMotionProps<"div">;
  */
 export function PageTransition({ children, ...props }: PageTransitionProps) {
   return (
-    <motion.div initial="hidden" animate="visible" exit="hidden" variants={fadeInUp} {...props}>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      variants={fadeInUp}
+      {...props}
+    >
       {children}
     </motion.div>
   );

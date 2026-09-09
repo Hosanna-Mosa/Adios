@@ -132,7 +132,7 @@ const getXmlText = async (bytes: Uint8Array, method: number) => {
     return new TextDecoder().decode(bytes);
   }
 
-  const DecompressionCtor = (window as any).DecompressionStream;
+  const DecompressionCtor = window.DecompressionStream;
   if (!DecompressionCtor) {
     throw new Error(
       "This browser cannot read XLSX files here. Please upload a CSV file.",

@@ -19,6 +19,84 @@ import type {
   DayTimeSlots,
 } from "../types";
 
+// Minimal structural types for the Leaflet (window.L) and Google Maps
+// (window.google) globals, both loaded via <script> tags in useGoogleMaps —
+// no @types/leaflet or @types/google.maps package is installed, and these
+// describe only the shape this file actually calls.
+interface LeafletLatLng {
+  lat: number;
+  lng: number;
+}
+
+interface LeafletMouseEvent {
+  latlng: LeafletLatLng;
+}
+
+interface LeafletTileLayer {
+  addTo: (map: LeafletMap) => LeafletTileLayer;
+}
+
+interface LeafletMarker {
+  getLatLng: () => LeafletLatLng;
+  setLatLng: (latlng: LeafletLatLng | [number, number]) => void;
+  on: (event: "dragend", handler: () => void) => void;
+  addTo: (map: LeafletMap) => LeafletMarker;
+}
+
+interface LeafletMap {
+  setView: (center: [number, number], zoom: number) => LeafletMap;
+  on: (event: "click", handler: (e: LeafletMouseEvent) => void) => void;
+  removeLayer: (layer: LeafletTileLayer) => void;
+  remove: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+}
+
+interface LeafletNamespace {
+  map: (
+    element: HTMLElement,
+    options: { zoomControl: boolean; attributionControl: boolean },
+  ) => LeafletMap;
+  tileLayer: (url: string, options: { maxZoom: number }) => LeafletTileLayer;
+  divIcon: (options: {
+    html: string;
+    className: string;
+    iconSize: [number, number];
+    iconAnchor: [number, number];
+  }) => object;
+  marker: (
+    latlng: [number, number],
+    options: { draggable: boolean; icon: object },
+  ) => LeafletMarker;
+}
+
+interface GooglePlaceAddressComponent {
+  types: string[];
+  long_name: string;
+}
+
+interface GooglePlace {
+  address_components?: GooglePlaceAddressComponent[];
+  formatted_address?: string;
+  geometry?: { location?: { lat: () => number; lng: () => number } };
+}
+
+interface GoogleAutocomplete {
+  addListener: (event: "place_changed", handler: () => void) => void;
+  getPlace: () => GooglePlace;
+}
+
+interface GoogleNamespace {
+  maps: {
+    places: {
+      Autocomplete: new (
+        input: HTMLInputElement,
+        options: { types: string[] },
+      ) => GoogleAutocomplete;
+    };
+  };
+}
+
 const createDefaultDayTimeSlots = (): DayTimeSlots =>
   DAYS.reduce((acc, day) => {
     acc[day] = [{ open: "09:00", close: "22:00" }];
@@ -60,10 +138,15 @@ export function useOnboardingForm() {
 
   const mapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markerInstanceRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const markerInstanceRef = useRef<LeafletMarker | null>(null);
+  const tileLayerRef = useRef<LeafletTileLayer | null>(null);
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
+  // Mirrors mapView for the map-init effect below, which intentionally reads
+  // only the current value once (on mount) and must not re-run when it
+  // changes — see that effect's comment for why.
+  const mapViewRef = useRef(mapView);
+  mapViewRef.current = mapView;
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -98,7 +181,7 @@ export function useOnboardingForm() {
     }
   };
 
-  const parseAddressComponents = (place: any) => {
+  const parseAddressComponents = (place: GooglePlace) => {
     let streetNo = "";
     let route = "";
     let locality = "";
@@ -144,18 +227,24 @@ export function useOnboardingForm() {
     }
   };
 
+  // Creates the map exactly once, when isMapsLoaded first becomes true (the
+  // mapInstanceRef guard above makes this body a no-op on any later run).
+  // gpsLat/gpsLng/mapView are read only to seed the initial center/tile
+  // layer, via the *Ref mirrors above, so this intentionally does not
+  // re-run when they change afterwards (e.g. on marker drag) — doing so
+  // would tear down and recreate the whole map on every interaction.
   useEffect(() => {
     if (!isMapsLoaded || !mapRef.current) return;
 
     if (mapInstanceRef.current) return;
 
-    const L = (window as any).L;
+    const L = (window as unknown as { L?: LeafletNamespace }).L;
     if (!L) return;
 
-    const defaultLat = parseFloat(gpsLat) || 16.932539;
-    const defaultLng = parseFloat(gpsLng) || 81.752708;
+    const defaultLat = parseFloat(gpsLatRef.current) || 16.932539;
+    const defaultLng = parseFloat(gpsLngRef.current) || 81.752708;
     const tileUrl =
-      mapView === "satellite"
+      mapViewRef.current === "satellite"
         ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
@@ -197,7 +286,7 @@ export function useOnboardingForm() {
       reverseGeocode(pos.lat, pos.lng);
     });
 
-    map.on("click", (e: any) => {
+    map.on("click", (e: LeafletMouseEvent) => {
       if (e.latlng) {
         marker.setLatLng(e.latlng);
         const newLat = e.latlng.lat.toFixed(6);
@@ -208,7 +297,7 @@ export function useOnboardingForm() {
       }
     });
 
-    const google = (window as any).google;
+    const google = (window as unknown as { google?: GoogleNamespace }).google;
     if (google && searchInputRef.current) {
       const autocomplete = new google.maps.places.Autocomplete(
         searchInputRef.current,
@@ -246,7 +335,7 @@ export function useOnboardingForm() {
   }, [isMapsLoaded]);
 
   useEffect(() => {
-    const L = (window as any).L;
+    const L = (window as unknown as { L?: LeafletNamespace }).L;
     if (!L || !mapInstanceRef.current) return;
 
     if (tileLayerRef.current) {
@@ -281,6 +370,11 @@ export function useOnboardingForm() {
 
   const [gpsLat, setGpsLat] = useState("");
   const [gpsLng, setGpsLng] = useState("");
+  // Mirror gpsLat/gpsLng for the same reason as mapViewRef above.
+  const gpsLatRef = useRef(gpsLat);
+  const gpsLngRef = useRef(gpsLng);
+  gpsLatRef.current = gpsLat;
+  gpsLngRef.current = gpsLng;
   const [locationSearch, setLocationSearch] = useState("");
 
   const [shopNo, setShopNo] = useState("");
@@ -441,9 +535,10 @@ export function useOnboardingForm() {
           : await parseXlsxRows(file, MENU_UPLOAD_COLUMNS);
       setMenuUploadRows(rows);
       setMenuUploadValid(true);
-    } catch (err: any) {
+    } catch (err) {
       setMenuUploadError(
-        err?.message || "Unable to read the uploaded menu sheet.",
+        (err as { message?: string })?.message ||
+          "Unable to read the uploaded menu sheet.",
       );
       setMenuUploadValid(false);
     }
@@ -645,8 +740,8 @@ export function useOnboardingForm() {
         setShowSaveModal(false);
         setDraftSaved(false);
       }, 2500);
-    } catch (err: any) {
-      alert("Error saving draft: " + err.message);
+    } catch (err) {
+      alert("Error saving draft: " + (err as { message?: string }).message);
     } finally {
       setIsSaving(false);
     }
@@ -660,8 +755,11 @@ export function useOnboardingForm() {
         body: JSON.stringify(getPayload("submitted")),
       });
       setSubmitted(true);
-    } catch (err: any) {
-      alert("Error submitting application: " + err.message);
+    } catch (err) {
+      alert(
+        "Error submitting application: " +
+          (err as { message?: string }).message,
+      );
     } finally {
       setIsSubmitting(false);
     }
