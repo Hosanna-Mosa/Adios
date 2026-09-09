@@ -18,11 +18,19 @@ interface DataTableProps<T> {
   loadingLabel?: string;
   emptyLabel?: string;
   rowClassName?: string;
+  /** Class for the `<thead><tr>` wrapper. Defaults to Users.tsx's original value. */
+  headerRowClassName?: string;
+  /** Class for the loading/empty state's single colSpan `<td>`. Defaults to Users.tsx's original value. */
+  stateCellClassName?: string;
+  /** Class for the `<tbody>` itself, e.g. Drivers.tsx's `"divide-y divide-border"` row dividers. Omitted by default, matching Users.tsx (which had none). */
+  tbodyClassName?: string;
 }
 
 const DEFAULT_HEADER_CLASS = "table-header-text text-left px-6 py-3";
 const DEFAULT_CELL_CLASS = "px-6 py-4";
 const DEFAULT_ROW_CLASS = "border-t border-border hover:bg-muted/30 transition-colors";
+const DEFAULT_HEADER_ROW_CLASS = "border-t border-border";
+const DEFAULT_STATE_CELL_CLASS = "px-6 py-10 text-center text-muted-foreground";
 
 /**
  * Plain `<table>` list renderer — replaces the raw `.map()` most list pages
@@ -41,11 +49,14 @@ export function DataTable<T>({
   loadingLabel = "Loading...",
   emptyLabel = "No results found.",
   rowClassName,
+  headerRowClassName,
+  stateCellClassName,
+  tbodyClassName,
 }: DataTableProps<T>) {
   return (
     <table className="w-full">
       <thead>
-        <tr className="border-t border-border">
+        <tr className={headerRowClassName ?? DEFAULT_HEADER_ROW_CLASS}>
           {columns.map((column) => (
             <th key={column.key} className={column.headerClassName ?? DEFAULT_HEADER_CLASS}>
               {column.header}
@@ -53,16 +64,16 @@ export function DataTable<T>({
           ))}
         </tr>
       </thead>
-      <tbody>
+      <tbody className={tbodyClassName}>
         {isLoading ? (
           <tr>
-            <td colSpan={columns.length} className="px-6 py-10 text-center text-muted-foreground">
+            <td colSpan={columns.length} className={stateCellClassName ?? DEFAULT_STATE_CELL_CLASS}>
               {loadingLabel}
             </td>
           </tr>
         ) : data.length === 0 ? (
           <tr>
-            <td colSpan={columns.length} className="px-6 py-10 text-center text-muted-foreground">
+            <td colSpan={columns.length} className={stateCellClassName ?? DEFAULT_STATE_CELL_CLASS}>
               {emptyLabel}
             </td>
           </tr>
