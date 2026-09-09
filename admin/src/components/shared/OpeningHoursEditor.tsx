@@ -1,8 +1,11 @@
 import { Input } from "@/components/ui/input";
-import { WEEK_DAYS } from "../hoursUtils";
-import type { DayKey, HoursDraft } from "../types";
+import { WEEK_DAYS } from "./hoursUtils";
+import type { DayKey, HoursDraft } from "./hoursUtils";
 
-/** Moved verbatim from Vendors.tsx, where it was already its own component. */
+/**
+ * Promoted here from features/vendors/ once features/catalog/ (MeatCenters)
+ * needed the exact same component.
+ */
 export function OpeningHoursEditor({ draft, onChange }: { draft: HoursDraft; onChange: (next: HoursDraft) => void }) {
   const setDay = (key: DayKey, patch: Partial<HoursDraft[DayKey]>) => onChange({ ...draft, [key]: { ...draft[key], ...patch } });
 

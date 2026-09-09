@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { hasWeeklyHours, toHoursDraft, toWeeklyHours } from "../hoursUtils";
+import { hasWeeklyHours, toHoursDraft, toWeeklyHours } from "@/components/shared/hoursUtils";
 import type { EditVendorForm, HoursDraft, Vendor } from "../types";
 
 const EMPTY_FORM: EditVendorForm = { name: "", email: "", phone: "", isPureVeg: false, address: "", isManuallyClosed: false };

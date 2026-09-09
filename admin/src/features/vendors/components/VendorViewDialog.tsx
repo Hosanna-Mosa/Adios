@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AvailabilityPill } from "./AvailabilityPill";
+import { AvailabilityPill } from "@/components/shared/AvailabilityPill";
 import type { Vendor } from "../types";
 
 interface VendorViewDialogProps {

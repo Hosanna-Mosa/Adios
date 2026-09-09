@@ -1,21 +1,7 @@
-export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-
-export interface DayHours {
-  open: string;
-  close: string;
-  closed?: boolean;
-}
-
-export type WeeklyHours = Partial<Record<DayKey, DayHours>>;
-
-/** Server-evaluated open/closed verdict returned on every vendor row. */
-export interface OpenState {
-  isOpen: boolean;
-  label: string;
-  opensAt: string | null;
-  today: string | null;
-  week: { day: string; hours: string }[];
-}
+// DayKey/WeeklyHours/OpenState/HoursDraft moved to components/shared/hoursUtils.ts
+// once features/catalog/ (MeatCenters) needed the exact same shapes.
+import type { HoursDraft, OpenState, WeeklyHours } from "@/components/shared/hoursUtils";
+export type { HoursDraft, OpenState, WeeklyHours } from "@/components/shared/hoursUtils";
 
 export interface VendorLegal {
   gstin?: string;
@@ -42,8 +28,6 @@ export interface Vendor {
   openState?: OpenState;
   legal?: VendorLegal;
 }
-
-export type HoursDraft = Record<DayKey, { open: string; close: string; closed: boolean }>;
 
 export interface EditVendorForm {
   name: string;

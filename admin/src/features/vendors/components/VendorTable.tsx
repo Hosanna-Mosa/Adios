@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Store, MoreVertical, Star, Edit2, Trash2, Eye } from "lucide-react";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AvailabilityPill } from "./AvailabilityPill";
+import { AvailabilityPill } from "@/components/shared/AvailabilityPill";
 import type { Vendor } from "../types";
 
 const STATUS_BADGE_CLASS: Record<string, string> = {

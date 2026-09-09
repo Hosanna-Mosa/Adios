@@ -1,6 +1,10 @@
-import type { OpenState } from "../types";
+import type { OpenState } from "./hoursUtils";
 
-/** Moved verbatim from Vendors.tsx, where it was already its own component. Used by VendorTable and VendorViewDialog. */
+/**
+ * Promoted here from features/vendors/ once features/catalog/ (MeatCenters)
+ * needed the exact same component. Used by both features' tables and View
+ * dialogs.
+ */
 export function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
   // A manual close always wins, exactly as the server evaluates it — so the pill is
   // right the instant the toggle is flipped, before the list has refetched.

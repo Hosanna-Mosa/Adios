@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { OpeningHoursEditor } from "./OpeningHoursEditor";
+import { OpeningHoursEditor } from "@/components/shared/OpeningHoursEditor";
 import type { EditVendorForm, HoursDraft } from "../types";
 
 interface VendorEditDialogProps {
