@@ -1,6 +1,7 @@
 // Animated must come from react-native, not reanimated: the opacity/translate
 // values below are RN Animated.Value instances created in app/index.tsx.
 import { View, Animated } from "react-native";
+import { typography } from "@/constants/typography";
 
 // Moved out of app/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -23,7 +24,7 @@ export function LandingLoadingBody({
         <Animated.Text
           key={idx}
           style={{
-            fontSize: 48,
+            fontSize: typography.sizes.extraLarge,
             fontWeight: "900",
             color: "#ffffff",
             marginHorizontal: 4,

@@ -3,6 +3,7 @@ import { staggerListItem, modalSlideUp } from "@/motion/presets";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
+import { typography } from "@/constants/typography";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -63,7 +64,7 @@ export function TripChooserSheet({
                   onPress={() => setSelectedTier(tier.id)}
                   activeOpacity={0.85}
                 >
-                  <View style={styles.tierIconCircle}><Text style={{ fontSize: 20 }}>{tier.icon}</Text></View>
+                  <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{tier.icon}</Text></View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={styles.tierName}>{tier.name}</Text>
                     <Text style={styles.tierMeta}>

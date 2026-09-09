@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { Button } from "./Button";
 
@@ -68,13 +68,13 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     title: {
       fontFamily: fontFamilies.heading.semibold,
-      fontSize: moderateScale(17),
+      fontSize: typography.sizes.large,
       color: tokens.text,
       textAlign: "center",
     },
     subtitle: {
       fontFamily: fontFamilies.body.regular,
-      fontSize: moderateScale(14),
+      fontSize: typography.sizes.medium,
       color: tokens.sec,
       textAlign: "center",
     },

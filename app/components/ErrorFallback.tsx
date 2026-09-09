@@ -5,7 +5,7 @@ import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpac
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 
@@ -130,20 +130,20 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     container: { flex: 1, width: "100%", height: "100%", alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: tokens.bg },
     content: { alignItems: "center", justifyContent: "center", width: "100%", maxWidth: 340 },
     icon: { width: 48, height: 48, borderRadius: 16, backgroundColor: tokens.errorSkin, alignItems: "center", justifyContent: "center", marginBottom: 14 },
-    title: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text, textAlign: "center" },
-    message: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 20 },
+    title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },
+    message: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 20 },
     topButton: { position: "absolute", right: 16, width: 44, height: 44, borderRadius: 8, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", zIndex: 10 },
     button: { width: "100%", minHeight: moderateScale(48), borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    buttonText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.on },
+    buttonText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
     reportButton: { width: "100%", minHeight: moderateScale(44), borderRadius: 14, borderWidth: 1, borderColor: tokens.borderStrong, alignItems: "center", justifyContent: "center", marginTop: 8 },
-    reportButtonText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: tokens.sec },
-    refText: { fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }), fontSize: moderateScale(10), color: tokens.muted, marginTop: 12 },
+    reportButtonText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
+    refText: { fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }), fontSize: typography.sizes.small, color: tokens.muted, marginTop: 12 },
 
     modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
     modalContainer: { width: "100%", height: "90%", backgroundColor: tokens.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
     modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    modalTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(18), color: tokens.text },
+    modalTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     closeButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
     errorContainer: { width: "100%", borderRadius: 12, overflow: "hidden", padding: 16, backgroundColor: tokens.sunken },
-    errorText: { fontSize: 12, lineHeight: 18, width: "100%", color: tokens.text },
+    errorText: { fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, width: "100%", color: tokens.text },
   });

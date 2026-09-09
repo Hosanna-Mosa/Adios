@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Styles for app/meat-centers.tsx. Moved out of the screen unchanged -- every value
 // is exactly as it was, so nothing renders differently. Lives here rather
@@ -17,9 +17,9 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
     },
     addressBlock: { flex: 1, minWidth: 0 },
-    addressEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
+    addressEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
     addressLabelRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
-    addressLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text, flexShrink: 1 },
+    addressLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, flexShrink: 1 },
     iconBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
@@ -30,11 +30,11 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(14), height: moderateScale(48),
       paddingHorizontal: 14, marginHorizontal: 16, marginBottom: 14,
     },
-    searchInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.text },
+    searchInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
 
     headline: { paddingHorizontal: 16, paddingTop: 18 },
-    headlineText: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(24), letterSpacing: -0.3, color: tokens.text },
-    headlineSub: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 6 },
+    headlineText: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
+    headlineSub: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 6 },
 
     typesRow: { paddingHorizontal: 16, paddingVertical: 18, gap: 16 },
     typeItem: { alignItems: "center", gap: 8, width: moderateScale(64) },
@@ -43,7 +43,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center",
     },
     typeCircleActive: { borderWidth: 2, borderColor: accent.accent, backgroundColor: accent.skin },
-    typeLabel: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(12), color: tokens.text, textAlign: "center" },
+    typeLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text, textAlign: "center" },
 
     chipsRow: { flexDirection: "row", gap: 8, paddingHorizontal: 16, marginBottom: 4 },
     chip: {
@@ -51,6 +51,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9,
     },
     chipActive: { backgroundColor: accent.accent, borderColor: accent.accent },
-    chipText: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec },
+    chipText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
     chipTextActive: { fontFamily: fontFamilies.body.semibold, color: accent.on },
   });

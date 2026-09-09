@@ -2,6 +2,7 @@ import React from "react";
 import { staggerListItem } from "@/motion/presets";
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
+import { typography } from "@/constants/typography";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -101,7 +102,7 @@ export function SchedulePickerSheet({
           </View>
 
           <View style={styles.scheduleSummaryRow}>
-            <View style={styles.tierIconCircle}><Text style={{ fontSize: 17 }}>{ENABLED_TIERS.find((t) => t.id === selectedTier)?.icon}</Text></View>
+            <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{ENABLED_TIERS.find((t) => t.id === selectedTier)?.icon}</Text></View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.tierName}>{ENABLED_TIERS.find((t) => t.id === selectedTier)?.name}</Text>
               <Text style={styles.tierMeta}>

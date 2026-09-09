@@ -5,7 +5,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
@@ -74,13 +74,13 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
     },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
+    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     scrollContent: { paddingHorizontal: 16, paddingBottom: 160 },
     headline: {
-      fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(28), lineHeight: moderateScale(31),
+      fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,
       letterSpacing: -0.6, color: tokens.text, marginTop: 18,
     },
-    subhead: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(21), color: tokens.sec, marginTop: 8 },
+    subhead: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 8 },
     tierGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 20 },
     tierCard: {
       width: "47%", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
@@ -90,10 +90,10 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       width: moderateScale(52), height: moderateScale(52), borderRadius: moderateScale(16),
       backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginBottom: 14,
     },
-    tierName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), letterSpacing: -0.1, color: tokens.text },
-    tierDescription: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 3 },
+    tierName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },
+    tierDescription: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 3 },
     sectionLabel: {
-      fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase",
+      fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase",
       color: tokens.muted, marginTop: 28, marginBottom: 12,
     },
     crossPromoList: { gap: 10 },
@@ -103,8 +103,8 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     },
     crossPromoIcon: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(12), alignItems: "center", justifyContent: "center" },
     crossPromoTextWrap: { flex: 1 },
-    crossPromoTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    crossPromoSubtitle: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
+    crossPromoTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
+    crossPromoSubtitle: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
     betaBadge: { backgroundColor: tokens.sunken, borderRadius: moderateScale(5), paddingHorizontal: 7, paddingVertical: 4 },
-    betaBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec },
+    betaBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec },
   });

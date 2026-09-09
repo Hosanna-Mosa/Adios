@@ -8,9 +8,9 @@ import { designTokens, gradients, radius, type ThemeTokens } from "@/constants/c
 import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { usePressScale } from "@/motion/presets";
+import { createStyles, Size } from "./Button.styles";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
-type Size = "md" | "sm";
 
 interface Props {
   title: string;
@@ -102,51 +102,3 @@ function labelColor(styles: ReturnType<typeof createStyles>, variant: Variant) {
   if (variant === "secondary" || variant === "ghost") return styles.labelOnSurface;
   return styles.labelOnBrand;
 }
-
-const createStyles = (tokens: ThemeTokens, size: Size) => {
-  const height = size === "sm" ? moderateScale(40) : moderateScale(52);
-  return StyleSheet.create({
-    base: {
-      height,
-      borderRadius: radius.pill,
-      backgroundColor: tokens.brand,
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      paddingHorizontal: moderateScale(20),
-    },
-    secondary: {
-      backgroundColor: tokens.surface,
-      borderWidth: 1.5,
-      borderColor: tokens.border,
-    },
-    ghost: {
-      backgroundColor: "transparent",
-    },
-    danger: {
-      backgroundColor: tokens.error,
-    },
-    fullWidth: {
-      width: "100%",
-    },
-    disabled: {
-      opacity: 0.5,
-    },
-    content: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-    },
-    label: {
-      fontFamily: fontFamilies.body.bold,
-      fontSize: size === "sm" ? moderateScale(14) : moderateScale(16),
-    },
-    labelOnBrand: {
-      color: tokens.onBrand,
-    },
-    labelOnSurface: {
-      color: tokens.text,
-    },
-  });
-};

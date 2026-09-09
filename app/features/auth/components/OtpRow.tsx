@@ -16,7 +16,7 @@ interface Props {
   styles: any;
 }
 
-export function OtpOtpRow({
+export function OtpRow({
   accent,
   focusedIndex,
   handleChange,

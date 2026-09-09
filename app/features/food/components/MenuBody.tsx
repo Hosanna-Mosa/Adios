@@ -6,79 +6,15 @@ import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { MenuVegOnly } from "./MenuVegOnly";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
-interface Props {
-  CategoryTabs: any;
-  accent: any;
-  activeCategory: any;
-  categoryPositions: any;
-  categoryTabs: any[];
-  groupedMenu: Record<string, any[]>;
-  handleAddToCart: any;
-  handleCategoryPress: any;
-  handleScroll: any;
-  handleUpdateQuantity: any;
-  highlightedItemId: any;
-  id: any;
-  image: any;
-  isMeat: any;
-  items: any[];
-  loading: any;
-  loadingItems: any;
-  metaLine1Parts: any;
-  metaLine2Parts: any;
-  name: any;
-  rating: any;
-  reviews: any;
-  scrollViewRef: any;
-  scrolledPast: any;
-  searchQuery: any;
-  setSearchQuery: React.Dispatch<React.SetStateAction<any>>;
-  setSelectedDishDetail: React.Dispatch<React.SetStateAction<any>>;
-  setVegOnly: React.Dispatch<React.SetStateAction<boolean>>;
-  styles: any;
-  tabBarHeight: any;
-  tokens: any;
-  vegOnly: any;
-}
+import type { Props } from "./MenuBody.props";
 
-export function MenuBody({
-  CategoryTabs,
-  accent,
-  activeCategory,
-  categoryPositions,
-  categoryTabs,
-  groupedMenu,
-  handleAddToCart,
-  handleCategoryPress,
-  handleScroll,
-  handleUpdateQuantity,
-  highlightedItemId,
-  id,
-  image,
-  isMeat,
-  items,
-  loading,
-  loadingItems,
-  metaLine1Parts,
-  metaLine2Parts,
-  name,
-  rating,
-  reviews,
-  scrollViewRef,
-  scrolledPast,
-  searchQuery,
-  setSearchQuery,
-  setSelectedDishDetail,
-  setVegOnly,
-  styles,
-  tabBarHeight,
-  tokens,
-  vegOnly,
-}: Props) {
+export function MenuBody(props: Props) {
+  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   return (
     <ScrollView
       ref={scrollViewRef}
@@ -87,69 +23,7 @@ export function MenuBody({
       onScroll={handleScroll}
       scrollEventThrottle={16}
     >
-      <Image source={{ uri: (image as string) || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600" }} style={styles.heroImage} contentFit="cover" transition={200} />
-
-      <View style={styles.sheet}>
-        <TouchableOpacity
-          style={styles.titleRow}
-          activeOpacity={0.7}
-          onPress={() =>
-            router.push({
-              pathname: "/restaurant-details",
-              params: { id: id as string, name: name as string, image: image as string, rating: rating as string, reviews: reviews as string, isMeat: isMeat as string },
-            })
-          }
-        >
-          <View style={{ flex: 1 }}>
-            <View style={styles.nameRow}>
-              <Text style={styles.name}>{name}</Text>
-              <Ionicons name="chevron-forward" size={moderateScale(16)} color={tokens.sec} />
-            </View>
-            {metaLine1Parts.length > 0 && (
-              <Text style={styles.metaLine} numberOfLines={1}>{metaLine1Parts.join(" · ")}</Text>
-            )}
-            {metaLine2Parts.length > 0 && (
-              <Text style={styles.metaLine} numberOfLines={1}>{metaLine2Parts.join(" · ")}</Text>
-            )}
-          </View>
-          <View style={styles.ratingPill}>
-            <Text style={styles.ratingPillValue}>{rating || "—"} ★</Text>
-            {!!reviews && <Text style={styles.ratingPillCount}>{reviews}</Text>}
-          </View>
-        </TouchableOpacity>
-
-        {isMeat !== "true" && (
-          <View style={styles.vegRow}>
-            <View style={styles.vegLeft}>
-              <View style={styles.vegIconBox}><View style={styles.vegDot} /></View>
-              <Text style={styles.vegLabel}>Veg only</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.vegSwitch, vegOnly && { backgroundColor: tokens.veg }]}
-              activeOpacity={0.8}
-              onPress={() => setVegOnly((v) => !v)}
-            >
-              <View style={[styles.vegSwitchKnob, vegOnly && { alignSelf: "flex-end" }]} />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <View style={styles.searchRow}>
-          <Ionicons name="search" size={moderateScale(15)} color={tokens.sec} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={`Search in ${name}`}
-            placeholderTextColor={tokens.muted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={moderateScale(15)} color={tokens.sec} />
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
+      <MenuVegOnly {...props} />
 
       {!scrolledPast && categoryTabs.length > 0 && (
         <View style={styles.inlineTabsBar}>

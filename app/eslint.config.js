@@ -32,6 +32,64 @@ const apiLayer = ["**/utils/api", "**/utils/api/**", "**/utils/socketService"];
 
 const featureInternals = ["**/features/*/**"];
 
+
+// ---------------------------------------------------------------------------
+// Exactly four text sizes.
+//
+// Every fontSize/lineHeight in the app must come from constants/typography.ts
+// (small | medium | large | extraLarge). Raw numbers and moderateScale() calls
+// are rejected: they are what let ~45 different sizes accumulate, and they were
+// only hidden at runtime by a patch in app/_layout.tsx that bucketed
+// already-scaled values -- so the same declaration rendered differently
+// depending on screen width. Hero/display text clamps to extraLarge; there is
+// deliberately no fifth size.
+// ---------------------------------------------------------------------------
+const typographyTokens = {
+  rules: {
+    "typography-tokens": {
+      meta: {
+        type: "problem",
+        schema: [],
+        docs: { description: "fontSize/lineHeight must use the four typography tokens" },
+      },
+      create(context) {
+        const tables = { fontSize: "sizes", lineHeight: "lineHeights" };
+        const isToken = (n, table) =>
+          n &&
+          n.type === "MemberExpression" &&
+          n.object &&
+          n.object.type === "MemberExpression" &&
+          n.object.object &&
+          n.object.object.name === "typography" &&
+          n.object.property &&
+          n.object.property.name === table;
+        // A ternary is fine as long as both branches are tokens (e.g. Button's sm/md).
+        const ok = (n, table) =>
+          n.type === "ConditionalExpression"
+            ? isToken(n.consequent, table) && isToken(n.alternate, table)
+            : isToken(n, table);
+        return {
+          "ObjectExpression > Property"(node) {
+            const key = node.key && (node.key.name || node.key.value);
+            const table = tables[key];
+            if (!table || node.computed) return;
+            if (!ok(node.value, table)) {
+              context.report({
+                node: node.value,
+                message:
+                  key +
+                  " must be typography." +
+                  table +
+                  ".<small|medium|large|extraLarge> from @/constants/typography (no numbers, no moderateScale()).",
+              });
+            }
+          },
+        };
+      },
+    },
+  },
+};
+
 module.exports = defineConfig([
   expoConfig,
   {
@@ -116,5 +174,12 @@ module.exports = defineConfig([
         ],
       }],
     },
+  },
+  // Exactly four text sizes -- see the comment on typographyTokens above.
+  {
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["constants/typography.ts", "dist/*"],
+    plugins: { flavour: typographyTokens },
+    rules: { "flavour/typography-tokens": "error" },
   },
 ]);

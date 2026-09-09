@@ -1,0 +1,90 @@
+import * as Location from "expo-location";
+import { Alert } from "react-native";
+import { router } from "expo-router";
+import { customFetch } from "@/utils/api/custom-fetch";
+
+// Part 4 of useLocationSelection, kept under the 150-line file limit. The parts run in
+// the order they were written, so React sees the same hook sequence.
+
+export function useLocationSelectionSelectSavedAddress(params: any, serviceId: any, name: any, pickup: any, setPickup: any, drop: any, stops: any, bookingFor: any, someoneContact: any, setFetchingLocation: any, pickupRef: any, dropRef: any, handleSelection: any) {
+  const selectSavedAddress = (addr: any) => {
+    const lat = addr.coordinates?.lat ?? addr.location?.coordinates?.[1];
+    const lng = addr.coordinates?.lng ?? addr.location?.coordinates?.[0];
+    if (lat == null || lng == null) return;
+    const data = { id: addr._id, name: addr.label, description: addr.addressLine, lat, lng };
+    if (!pickup) {
+      pickupRef.current?.setAddressText(addr.addressLine);
+      handleSelection('pickup', data, null);
+    } else {
+      dropRef.current?.setAddressText(addr.addressLine);
+      handleSelection('drop', data, null);
+    }
+  };
+
+  const handleCurrentLocation = async () => {
+    try {
+      setFetchingLocation(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required.');
+        setFetchingLocation(false);
+        return;
+      }
+      const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+
+      // Check zone for current location
+      try {
+        const checkRes = await customFetch<any>(`/zones/check?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
+        if (!checkRes || !checkRes.inZone) {
+          Alert.alert("No Service", "No service at current pickup location.");
+          pickupRef.current?.setAddressText("");
+          setPickup(null);
+          return;
+        }
+      } catch (err) {
+        console.error("Zone check failed:", err);
+      }
+
+      const geocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (geocode.length > 0) {
+        const addr = geocode[0];
+        const displayAddr = `${addr.name || ''} ${addr.street || ''}, ${addr.city || ''}`.trim();
+        pickupRef.current?.setAddressText(displayAddr);
+        const newPickup = {
+          name: displayAddr,
+          lat: location.coords.latitude,
+          lng: location.coords.longitude
+        };
+        setPickup(newPickup);
+
+        if (drop) {
+          router.push({
+            pathname: "/ride-confirmation",
+            params: {
+              serviceId,
+              pickupName: displayAddr,
+              dropName: drop.name,
+              pickupLat: newPickup.lat.toString(),
+              pickupLng: newPickup.lng.toString(),
+              dropLat: drop.lat.toString(),
+              dropLng: drop.lng.toString(),
+              stops: JSON.stringify(stops),
+              bookingForType: bookingFor,
+              riderContact: someoneContact,
+            }
+          });
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not get current location');
+    } finally {
+      setFetchingLocation(false);
+    }
+  };
+
+  return { selectSavedAddress, handleCurrentLocation };
+}

@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
+import { typography } from "@/constants/typography";
 
 interface Props {
   image: ImageSourcePropType;
@@ -80,7 +81,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     shadowRadius: 4,
   },
   ratingText: {
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: colors.text,
   },
@@ -89,7 +90,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     gap: 4,
   },
   name: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: colors.text,
   },
@@ -99,12 +100,12 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     gap: 4,
   },
   metaText: {
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     fontWeight: "500",
     color: colors.textSecondary,
   },
   dot: {
-    fontSize: 11,
+    fontSize: typography.sizes.small,
     color: colors.textMuted,
   },
 });

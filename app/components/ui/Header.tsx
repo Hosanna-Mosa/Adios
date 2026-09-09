@@ -11,7 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 // The screen header: a circular surface-filled back chip, a left-aligned title,
@@ -113,7 +113,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     title: {
       fontFamily: fontFamilies.body.semibold,
-      fontSize: moderateScale(17),
+      fontSize: typography.sizes.large,
       color: tokens.text,
     },
   });

@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, radius, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 interface BadgeProps {
@@ -63,7 +63,7 @@ const createBadgeStyles = (tokens: ThemeTokens) =>
     },
     label: {
       fontFamily: fontFamilies.body.bold,
-      fontSize: moderateScale(11),
+      fontSize: typography.sizes.small,
       letterSpacing: 0.4,
       textTransform: "uppercase",
     },
@@ -88,7 +88,7 @@ const createChipStyles = (tokens: ThemeTokens) =>
     },
     label: {
       fontFamily: fontFamilies.body.semibold,
-      fontSize: moderateScale(13),
+      fontSize: typography.sizes.medium,
       color: tokens.text,
     },
     labelSelected: {

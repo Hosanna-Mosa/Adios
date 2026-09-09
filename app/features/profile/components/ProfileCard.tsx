@@ -12,7 +12,7 @@ interface Props {
   user: any;
 }
 
-export function ProfileProfileCard({
+export function ProfileCard({
   handlePickImage,
   styles,
   user,

@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import { moderateScale } from "react-native-size-matters";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Styles for app/otp.tsx. Moved out of the screen unchanged -- every value
 // is exactly as it was, so nothing renders differently. Lives here rather
@@ -43,8 +43,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   headline: {
     // Same size as screens 1 & 2's headlines — kept identical on purpose.
     fontFamily: fontFamilies.heading.bold,
-    fontSize: moderateScale(38),
-    lineHeight: moderateScale(40),
+    fontSize: typography.sizes.extraLarge,
+    lineHeight: typography.lineHeights.extraLarge,
     letterSpacing: -1.4,
     color: tokens.text,
     textAlign: "center",
@@ -52,8 +52,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   subhead: {
     fontFamily: fontFamilies.body.regular,
     marginTop: 12,
-    fontSize: moderateScale(15),
-    lineHeight: moderateScale(21),
+    fontSize: typography.sizes.medium,
+    lineHeight: typography.lineHeights.medium,
     color: tokens.sec,
     textAlign: "center",
   },
@@ -77,7 +77,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
     borderColor: tokens.borderStrong,
     backgroundColor: tokens.surface,
     fontFamily: fontFamilies.heading.bold,
-    fontSize: moderateScale(24),
+    fontSize: typography.sizes.extraLarge,
     color: tokens.text,
   },
   otpCellActive: {
@@ -90,12 +90,12 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   },
   resendMuted: {
     fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: tokens.sec,
   },
   resendActive: {
     fontFamily: fontFamilies.body.semibold,
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: accent.accent,
   },
   verifyBtn: {
@@ -113,7 +113,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   verifyBtnText: {
     fontFamily: fontFamilies.body.bold,
     color: accent.on,
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
   },
   callRow: {
     marginTop: 16,
@@ -121,7 +121,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   },
   callText: {
     fontFamily: fontFamilies.body.regular,
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: tokens.sec,
   },
   callHighlight: {

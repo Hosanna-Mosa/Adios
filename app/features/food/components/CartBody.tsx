@@ -6,6 +6,7 @@ import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { CartBillSummary } from "./CartBillSummary";
 
 // Moved out of app/cart.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -37,32 +38,8 @@ interface Props {
   vendorId: any;
 }
 
-export function CartBody({
-  accent,
-  addItem,
-  appliedPromo,
-  clearSyncNotices,
-  complements,
-  deliveryFee,
-  discount,
-  handleApplyPromo,
-  insets,
-  isApplyingPromo,
-  items,
-  promoCode,
-  promoError,
-  setAppliedPromo,
-  setPromoCode,
-  setShowPromoInput,
-  showPromoInput,
-  styles,
-  subtotal,
-  syncNotices,
-  tokens,
-  total,
-  updateQuantity,
-  vendorId,
-}: Props) {
+export function CartBody(props: Props) {
+  const { accent, addItem, clearSyncNotices, complements, insets, items, styles, syncNotices, tokens, updateQuantity, vendorId } = props;
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>
       {syncNotices.length > 0 && (
@@ -151,70 +128,7 @@ export function CartBody({
         </View>
       )}
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.couponRow}
-          activeOpacity={0.85}
-          onPress={() => (appliedPromo ? setAppliedPromo(null) : setShowPromoInput((s) => !s))}
-        >
-          <View style={styles.couponIconCircle}>
-            <Ionicons name="pricetag" size={moderateScale(15)} color={accent.accent} />
-          </View>
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.couponTitle}>{appliedPromo ? `${appliedPromo.code} applied` : "Have a promo code?"}</Text>
-            <Text style={styles.couponSub}>
-              {appliedPromo ? `You saved ₹${Math.round(discount)}` : "Tap to add it at checkout"}
-            </Text>
-          </View>
-          <Text style={styles.couponAction}>{appliedPromo ? "Remove" : "Apply"}</Text>
-        </TouchableOpacity>
-
-        {showPromoInput && !appliedPromo && (
-          <View style={styles.promoInputRow}>
-            <TextInput
-              style={styles.promoInput}
-              placeholder="Enter code"
-              placeholderTextColor={tokens.muted}
-              autoCapitalize="characters"
-              value={promoCode}
-              onChangeText={setPromoCode}
-            />
-            <TouchableOpacity style={styles.promoApplyBtn} onPress={handleApplyPromo} disabled={isApplyingPromo}>
-              {isApplyingPromo ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.promoApplyBtnText}>Apply</Text>}
-            </TouchableOpacity>
-          </View>
-        )}
-        {!!promoError && <Text style={styles.promoError}>{promoError}</Text>}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionLabel}>Bill summary</Text>
-        <View style={styles.billCard}>
-          <View style={styles.billRow}>
-            <Text style={styles.billLabel}>Item total</Text>
-            <Text style={styles.billValue}>₹{subtotal}</Text>
-          </View>
-          {deliveryFee != null ? (
-            <View style={styles.billRow}>
-              <Text style={styles.billLabel}>Delivery fee</Text>
-              <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
-            </View>
-          ) : (
-            <Text style={styles.billNote}>Delivery fee is confirmed at checkout.</Text>
-          )}
-          {appliedPromo && (
-            <View style={styles.billRow}>
-              <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {appliedPromo.code}</Text>
-              <Text style={[styles.billValue, { color: tokens.success }]}>−₹{Math.round(discount)}</Text>
-            </View>
-          )}
-          <View style={styles.billDivider} />
-          <View style={styles.billRow}>
-            <Text style={styles.billTotalLabel}>To pay</Text>
-            <Text style={styles.billTotalValue}>₹{total}</Text>
-          </View>
-        </View>
-      </View>
+      <CartBillSummary {...props} />
     </ScrollView>
   );
 }

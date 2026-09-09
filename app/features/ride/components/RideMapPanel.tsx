@@ -12,63 +12,14 @@ import Animated from "react-native-reanimated";
 // the screen's scope is now a prop of the same name, so the markup did not
 // have to be touched.
 
-interface Props {
-  VEHICLE_BIKE_3D: any;
-  VEHICLE_AUTO_3D: any;
-  GOOGLE_MAPS_APIKEY: any;
-  dropCoords: any;
-  dropIsValid: any;
-  fitTripToMap: any;
-  getDisplayName: any;
-  handleAddStopFromMap: any;
-  handleRecenter: any;
-  handleShareRoute: any;
-  initialRegion: any;
-  insets: any;
-  mapRef: any;
-  nearbyDrivers: any[];
-  params: any;
-  pickupCoords: any;
-  pickupIsValid: any;
-  routeCoordinates: any;
-  selectedFare: any;
-  selectedTier: any;
-  setMapReady: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
-  tripCoordinates: any;
-  userLocation: any;
-  validStops: any[];
-}
+import type { Props } from "./RideMapPanel.props";
 
-export function RideMapPanel({
-  VEHICLE_BIKE_3D,
-  VEHICLE_AUTO_3D,
-  GOOGLE_MAPS_APIKEY,
-  dropCoords,
-  dropIsValid,
-  fitTripToMap,
-  getDisplayName,
-  handleAddStopFromMap,
-  handleRecenter,
-  handleShareRoute,
-  initialRegion,
-  insets,
-  mapRef,
-  nearbyDrivers,
-  params,
-  pickupCoords,
-  pickupIsValid,
-  routeCoordinates,
-  selectedFare,
-  selectedTier,
-  setMapReady,
-  styles,
-  tokens,
-  tripCoordinates,
-  userLocation,
-  validStops,
-}: Props) {
+export function RideMapPanel(props: Props) {
+  const { VEHICLE_BIKE_3D, VEHICLE_AUTO_3D, GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
+  fitTripToMap, getDisplayName, handleAddStopFromMap, handleRecenter, handleShareRoute,
+  initialRegion, insets, mapRef, nearbyDrivers, params, pickupCoords, pickupIsValid,
+  routeCoordinates, selectedFare, selectedTier, setMapReady, styles, tokens, tripCoordinates,
+  userLocation, validStops } = props;
   return (
     <View style={styles.mapContainer}>
       <MapView

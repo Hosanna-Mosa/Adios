@@ -10,125 +10,26 @@ import { PromoCarousel } from "./PromoCarousel";
 import { CuisineStrip } from "./CuisineStrip";
 import { Store149Card } from "./Store149Card";
 import { ServiceTiles } from "./ServiceTiles";
+import { HomeIntro } from "./HomeIntro";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
-interface Props {
-  hasRidersButNoVendors: any;
-  accent: any;
-  activeFilterCount: any;
-  activeService: any;
-  appliedDistanceKm: any;
-  areaLabel: any;
-  areaLine: any;
-  bannerIndexRef: any;
-  bannerScrollX: any;
-  carouselRef: any;
-  cuisineChips: any;
-  filterCostRange: any;
-  filterFastDelivery: any;
-  filterMinRating: any;
-  filterOffers: any;
-  filterOpenNow: any;
-  filterVegNonVeg: any;
-  filteredAndSortedItems: any;
-  greetingAds: any[];
-  handleServiceSwitch: any;
-  insets: any;
-  onBannerScroll: any;
-  promoCards: any;
-  restaurants: any;
-  searchBarAnimatedStyle: any;
-  selectedCuisines: any;
-  setActiveFilterTab: any;
-  setFilterCostRange: any;
-  setFilterFastDelivery: any;
-  setFilterMinRating: any;
-  setFilterOffers: any;
-  setFilterOpenNow: any;
-  setFilterVegNonVeg: any;
-  setIsDistanceSheetOpen: any;
-  setIsFilterModalVisible: any;
-  setIsSearchActive: any;
-  setSelectedCuisines: any;
-  store149Items: any[];
-  styles: any;
-  tokens: any;
-}
+import type { Props } from "./HomeBody.props";
 
-export function HomeBody({
-  hasRidersButNoVendors,
-  accent,
-  activeFilterCount,
-  activeService,
-  appliedDistanceKm,
-  areaLabel,
-  areaLine,
-  bannerIndexRef,
-  bannerScrollX,
-  carouselRef,
-  cuisineChips,
-  filterCostRange,
-  filterFastDelivery,
-  filterMinRating,
-  filterOffers,
-  filterOpenNow,
-  filterVegNonVeg,
-  filteredAndSortedItems,
-  greetingAds,
-  handleServiceSwitch,
-  insets,
-  onBannerScroll,
-  promoCards,
-  restaurants,
-  searchBarAnimatedStyle,
-  selectedCuisines,
-  setActiveFilterTab,
-  setFilterCostRange,
-  setFilterFastDelivery,
-  setFilterMinRating,
-  setFilterOffers,
-  setFilterOpenNow,
-  setFilterVegNonVeg,
-  setIsDistanceSheetOpen,
-  setIsFilterModalVisible,
-  setIsSearchActive,
-  setSelectedCuisines,
-  store149Items,
-  styles,
-  tokens,
-}: Props) {
+export function HomeBody(props: Props) {
+  const { hasRidersButNoVendors, accent, activeFilterCount, activeService, appliedDistanceKm,
+  areaLabel, areaLine, bannerIndexRef, bannerScrollX, carouselRef, cuisineChips, filterCostRange,
+  filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg,
+  filteredAndSortedItems, greetingAds, handleServiceSwitch, insets, onBannerScroll, promoCards,
+  restaurants, searchBarAnimatedStyle, selectedCuisines, setActiveFilterTab, setFilterCostRange,
+  setFilterFastDelivery, setFilterMinRating, setFilterOffers, setFilterOpenNow,
+  setFilterVegNonVeg, setIsDistanceSheetOpen, setIsFilterModalVisible, setIsSearchActive,
+  setSelectedCuisines, store149Items, styles, tokens } = props;
   return (
     <>
     <View>
-      {/* Top row: delivery address + avatar. Needs the safe-area inset since
-          this now scrolls under the status bar/notch with no hero banner
-          behind it to absorb that space (the old gradient carousel had its
-          own insets.top padding baked in). */}
-      <HomeTopBar
-        styles={styles}
-        insets={insets}
-        tokens={tokens}
-        areaLabel={areaLabel}
-        areaLine={areaLine}
-        setIsDistanceSheetOpen={setIsDistanceSheetOpen}
-      />
-
-      {/* Headline */}
-      <Text style={styles.headline}>
-        {activeService === "Meat" ? "Fresh Meat Daily!" : "Craving something\ndelicious?"}
-      </Text>
-
-      {/* Search bar */}
-      <Animated.View style={searchBarAnimatedStyle}>
-        <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
-          <Ionicons name="search" size={moderateScale(16)} color={accent.accent} />
-          <Text style={styles.searchPlaceholder} numberOfLines={1}>
-            {activeService === "Meat" ? "Search “mutton curry cut”, “prawns”" : "Search “biryani”, “Bawarchi”"}
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
+      <HomeIntro {...props} />
 
       {/* Service tiles: Food/Meat toggle + Ride/Task launchers */}
       <ServiceTiles
