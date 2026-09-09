@@ -12,7 +12,7 @@ export const CART_CARD_HEIGHT = moderateScale(60);
 
 export const TAB_PILL_HEIGHT = moderateScale(62);
 
-export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => StyleSheet.create({
+export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: ServiceTokens = accent) => StyleSheet.create({
   tabPill: {
     position: "absolute",
     left: SIDE_MARGIN,
@@ -48,14 +48,14 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
     width: moderateScale(32),
     height: moderateScale(32),
     borderRadius: moderateScale(10),
-    backgroundColor: accent.skin,
+    backgroundColor: cart.skin,
     alignItems: "center",
     justifyContent: "center",
   },
   cartCountText: {
     fontFamily: fontFamilies.body.bold,
     fontSize: typography.sizes.medium,
-    color: accent.accent,
+    color: cart.accent,
   },
   cartInfo: {
     flex: 1,
@@ -75,8 +75,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   cartCta: {
     fontFamily: fontFamilies.body.bold,
     fontSize: typography.sizes.small,
-    color: accent.on,
-    backgroundColor: accent.accent,
+    color: cart.on,
+    backgroundColor: cart.accent,
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: radius.pill,

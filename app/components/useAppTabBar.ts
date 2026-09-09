@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { designTokens, type ServiceTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
+import { useServiceAccent } from "@/contexts/homeStore";
 import { SPRING } from "@/motion/presets";
 import { createStyles } from "./AppTabBar.styles";
 import { ALL_TAB_KEYS } from "./AppTabBar";
@@ -21,7 +22,12 @@ export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
   const accentTokens: ServiceTokens = accent
     ? tokens.services[accent as keyof typeof tokens.services]
     : { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = React.useMemo(() => createStyles(tokens, accentTokens), [theme, accent]);
+  // The cart row shows what is in the cart, so it takes the shopping service's
+  // colour — the same one app/cart.tsx uses — rather than the screen's accent.
+  // Without this it fell back to brand purple on screens that pass no accent.
+  const cartAccent = useServiceAccent();
+  const styles = React.useMemo(() => createStyles(tokens, accentTokens, cartAccent),
+    [theme, accent, cartAccent]);
 
   const itemCount = useCartStore((s) => s.getItemCount());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
