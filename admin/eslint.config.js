@@ -13,7 +13,7 @@ const crossFeatureOverrides = featureNames.map((name) => ({
   files: [`src/features/${name}/**/*.{ts,tsx}`],
   rules: {
     "no-restricted-imports": [
-      "warn",
+      "error",
       {
         patterns: featureNames
           .filter((other) => other !== name)
@@ -45,21 +45,31 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
-  // --- Refactor scaffolding added in Phase 1 (warn-only for now; the plan's
-  // Phase 4 "Lock it" step flips these to error once the work queue is done).
+  // --- Refactor scaffolding added in Phase 1, locked to error in Phase 4
+  // ("Lock it") now that the work queue (section 04, items 1-18) is done.
   // components/ui/** is generated shadcn — excluded from the page line-count
   // rule below and forbidden from reaching into app-specific code.
   {
     files: ["src/pages/**/*.{ts,tsx}"],
     rules: {
-      "max-lines": ["warn", { max: 300, skipBlankLines: false, skipComments: false }],
+      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+      // Phase 4: pages must not call useQuery/useMutation directly — that
+      // logic belongs in a feature hook (features/<feature>/hooks/*).
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            { name: "@tanstack/react-query", message: "pages/ must not call useQuery/useMutation directly — wrap the query in a features/<feature>/hooks/* hook instead." },
+          ],
+        },
+      ],
     },
   },
   {
     files: ["src/components/ui/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
-        "warn",
+        "error",
         {
           paths: [
             { name: "react-router-dom", message: "components/ui is generated shadcn primitives — it must not import the router." },
@@ -78,7 +88,7 @@ export default tseslint.config(
     files: ["src/components/shared/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
-        "warn",
+        "error",
         {
           paths: [
             { name: "@/lib/api-client", message: "components/shared is generic — accept data via props instead of calling the API client directly." },
