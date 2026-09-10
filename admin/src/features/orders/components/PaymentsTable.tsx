@@ -1,6 +1,5 @@
-import { motion, AnimatePresence } from "framer-motion";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { fadeIn } from "@/components/motion/variants";
+import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { SlidersHorizontal, Download, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -18,6 +17,56 @@ interface PaymentsTableProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
   onViewTxn: (txn: Transaction) => void;
+}
+
+function buildColumns(onViewTxn: (txn: Transaction) => void): DataTableColumn<Transaction>[] {
+  return [
+    {
+      key: "id",
+      header: "Transaction ID",
+      cellClassName: "px-6 py-4 text-sm font-medium text-primary",
+      cell: (t) => t.id,
+    },
+    {
+      key: "date",
+      header: "Date & Time",
+      cell: (t) => (
+        <>
+          <p className="text-sm text-foreground">{t.date}</p>
+          <p className="text-xs text-muted-foreground">{t.time}</p>
+        </>
+      ),
+    },
+    {
+      key: "route",
+      header: "Route Details",
+      cellClassName: "px-6 py-4 text-sm text-foreground",
+      cell: (t) => t.route,
+    },
+    {
+      key: "fee",
+      header: "Delivery Fee",
+      cellClassName: "px-6 py-4 text-sm font-semibold text-foreground",
+      cell: (t) => t.fee,
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (t) => <StatusBadge status={t.status} variant={t.statusVariant} />,
+    },
+    {
+      key: "action",
+      header: "Action",
+      cell: (t) => (
+        <button
+          onClick={() => onViewTxn(t)}
+          className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+        >
+          <Eye className="h-4 w-4" />
+        </button>
+      ),
+    },
+  ];
 }
 
 /** The "Recent Delivery Fees" table (filter/export header, rows, pagination) on Payments. */
@@ -48,60 +97,14 @@ export function PaymentsTable({ isLoading, filteredTxns, totalCount, statusFilte
         </div>
       </div>
 
-      <table className="w-full">
-        <thead>
-          <tr className="border-t border-border">
-            <th className="table-header-text text-left px-6 py-3">Transaction ID</th>
-            <th className="table-header-text text-left px-6 py-3">Date & Time</th>
-            <th className="table-header-text text-left px-6 py-3">Route Details</th>
-            <th className="table-header-text text-left px-6 py-3">Delivery Fee</th>
-            <th className="table-header-text text-left px-6 py-3">Status</th>
-            <th className="table-header-text text-left px-6 py-3">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            <tr>
-              <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">Loading payments...</td>
-            </tr>
-          ) : filteredTxns.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No transactions found matching the filter.</td>
-            </tr>
-          ) : (
-            <AnimatePresence mode="popLayout" initial={false}>
-            {filteredTxns.map((t) => (
-              <motion.tr
-                key={t.id}
-                layout
-                variants={fadeIn}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0 }}
-                className="border-t border-border hover:bg-muted/30 transition-colors"
-              >
-                <td className="px-6 py-4 text-sm font-medium text-primary">{t.id}</td>
-                <td className="px-6 py-4">
-                  <p className="text-sm text-foreground">{t.date}</p>
-                  <p className="text-xs text-muted-foreground">{t.time}</p>
-                </td>
-                <td className="px-6 py-4 text-sm text-foreground">{t.route}</td>
-                <td className="px-6 py-4 text-sm font-semibold text-foreground">{t.fee}</td>
-                <td className="px-6 py-4"><StatusBadge status={t.status} variant={t.statusVariant} /></td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => onViewTxn(t)}
-                    className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </td>
-              </motion.tr>
-            ))}
-            </AnimatePresence>
-          )}
-        </tbody>
-      </table>
+      <DataTable
+        columns={buildColumns(onViewTxn)}
+        data={filteredTxns}
+        rowKey={(t) => t.id}
+        isLoading={isLoading}
+        loadingLabel="Loading payments..."
+        emptyLabel="No transactions found matching the filter."
+      />
 
       <div className="flex items-center justify-between px-6 py-4 border-t border-border">
         <p className="text-sm text-muted-foreground">Showing {totalCount} of 285 transactions</p>
