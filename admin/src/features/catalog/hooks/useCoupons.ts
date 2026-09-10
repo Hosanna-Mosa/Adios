@@ -1,0 +1,121 @@
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { adminFetch } from "@/lib/api-client";
+import type { Coupon, NewCouponForm } from "../couponTypes";
+
+const EMPTY_FORM: NewCouponForm = {
+  code: "",
+  discountType: "PERCENTAGE",
+  discountValue: 0,
+  maxDiscount: 0,
+  minOrderValue: 0,
+  expiryDate: "",
+};
+
+const ITEMS_PER_PAGE = 8;
+
+/** All state/query/mutation logic for Coupons.tsx (work queue item #16). */
+export function useCoupons() {
+  const queryClient = useQueryClient();
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [newCoupon, setNewCoupon] = useState<NewCouponForm>(EMPTY_FORM);
+
+  const { data: coupons = [], isLoading } = useQuery<Coupon[]>({
+    queryKey: ["admin-coupons"],
+    queryFn: () => adminFetch<Coupon[]>("/admin/coupons"),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: Record<string, unknown>) =>
+      adminFetch("/admin/coupons", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => {
+      toast.success("Coupon created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
+      setIsAddOpen(false);
+      setNewCoupon(EMPTY_FORM);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to create coupon");
+    },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: (id: string) =>
+      adminFetch(`/admin/coupons/${id}/toggle`, {
+        method: "PUT",
+      }),
+    onSuccess: () => {
+      toast.success("Coupon status updated");
+      queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to update status");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      adminFetch(`/admin/coupons/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      toast.success("Coupon deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to delete coupon");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCoupon.code || !newCoupon.discountValue) {
+      toast.error("Please enter code and discount value");
+      return;
+    }
+    createMutation.mutate({
+      ...newCoupon,
+      code: newCoupon.code.toUpperCase(),
+      maxDiscount: newCoupon.discountType === "PERCENTAGE" ? newCoupon.maxDiscount : undefined,
+      // A bare "YYYY-MM-DD" is read as UTC midnight, so a coupon dated today would
+      // already be past its expiry and never reach the app's offer list. Run it to
+      // the end of the chosen day so "expires on" means "valid through".
+      expiryDate: newCoupon.expiryDate ? new Date(`${newCoupon.expiryDate}T23:59:59`).toISOString() : undefined,
+    });
+  };
+
+  const isExpired = (coupon: Coupon) => !!coupon.expiryDate && new Date(coupon.expiryDate) <= new Date();
+
+  const handleDelete = (id: string, code: string) => {
+    if (confirm(`Are you sure you want to delete coupon ${code}?`)) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const totalPages = Math.ceil(coupons.length / ITEMS_PER_PAGE) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedCoupons = coupons.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+
+  return {
+    coupons,
+    isLoading,
+    isAddOpen,
+    setIsAddOpen,
+    newCoupon,
+    setNewCoupon,
+    handleSubmit,
+    isCreating: createMutation.isPending,
+    isExpired,
+    handleDelete,
+    toggleStatus: (id: string) => toggleMutation.mutate(id),
+    currentPage: safePage,
+    setCurrentPage,
+    totalPages,
+    paginatedCoupons,
+  };
+}
