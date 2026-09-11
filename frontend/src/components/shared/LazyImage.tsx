@@ -10,7 +10,13 @@ interface LazyImageProps {
   fallbackSrc?: string;
 }
 
-export function LazyImage({ src, alt, className, wrapperClassName, fallbackSrc }: LazyImageProps) {
+export function LazyImage({
+  src,
+  alt,
+  className,
+  wrapperClassName,
+  fallbackSrc,
+}: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 
@@ -18,7 +24,14 @@ export function LazyImage({ src, alt, className, wrapperClassName, fallbackSrc }
 
   return (
     <div className={cn("relative overflow-hidden", wrapperClassName)}>
-      {!loaded && <div className={cn("absolute inset-0 animate-pulse bg-primary/10", className)} />}
+      {!loaded && (
+        <div
+          className={cn(
+            "absolute inset-0 animate-pulse bg-primary/10",
+            className,
+          )}
+        />
+      )}
       <motion.img
         src={resolvedSrc}
         alt={alt}

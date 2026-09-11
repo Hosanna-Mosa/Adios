@@ -8,7 +8,13 @@ interface FadeInProps extends HTMLMotionProps<"div"> {
   inView?: boolean;
 }
 
-export function FadeIn({ delay = 0, transition, children, inView = false, ...props }: FadeInProps) {
+export function FadeIn({
+  delay = 0,
+  transition,
+  children,
+  inView = false,
+  ...props
+}: FadeInProps) {
   const triggerProps = inView
     ? { whileInView: "visible", viewport: { once: true, margin: "-80px" } }
     : { animate: "visible" };
