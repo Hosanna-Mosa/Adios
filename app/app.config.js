@@ -99,8 +99,9 @@ export default {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
       webUrl: process.env.EXPO_PUBLIC_WEB_URL,
+      // Previous (triozen-tech): b53cf032-dea6-4aff-835e-b3cd717e54a3
       eas: {
-        projectId: 'b53cf032-dea6-4aff-835e-b3cd717e54a3',
+        projectId: 'e3e714ab-ffe7-4ea4-bf62-b317be38497c',
       },
     },
   },

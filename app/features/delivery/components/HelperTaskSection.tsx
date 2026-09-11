@@ -1,0 +1,37 @@
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
+import { fadeInUp } from "@/motion/presets";
+
+// Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
+// scope is now a prop of the same name.
+
+interface Props {
+  accent: any;
+  calculatedFare: any;
+  setOffer: React.Dispatch<React.SetStateAction<number | null>>;
+  styles: any;
+}
+
+export function HelperTaskSection({
+  accent,
+  calculatedFare,
+  setOffer,
+  styles,
+}: Props) {
+  return (
+    <Animated.View style={styles.section} entering={fadeInUp(80)}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <TouchableOpacity style={styles.offerStepBtn} onPress={() => setOffer((o) => Math.max(0, (o ?? calculatedFare) - 20))}>
+          <Text style={styles.offerStepBtnText}>−</Text>
+        </TouchableOpacity>
+        <View style={styles.offerStepsMid}>
+          <Text style={styles.offerStepsMidText}>₹20 steps</Text>
+        </View>
+        <TouchableOpacity style={[styles.offerStepBtn, { backgroundColor: accent.accent, borderWidth: 0 }]} onPress={() => setOffer((o) => (o ?? calculatedFare) + 20)}>
+          <Text style={[styles.offerStepBtnText, { color: accent.on }]}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
+  );
+}

@@ -70,13 +70,19 @@ import { typography, fontFamilies } from "@/constants/typography";
 import { TextInput } from "react-native";
 
 // --- Global Typography Patch ---
+// Sizes are NOT touched here any more: every fontSize in the codebase is one of
+// the four tokens in constants/typography.ts, so there is nothing left to snap.
+// (The old version bucketed already-scaled numbers, which made the same
+// declaration render at different sizes depending on screen width.)
+//
+// What remains is the font-family pairing: static font files mean each weight is
+// its own family, so the family has to be derived from the weight at render time.
 const patchComponentStyle = (Component: any) => {
   const originalRender = Component.render;
   if (!originalRender) return;
 
-  // Picks the weight-matched family variant for a text role — heading sizes
-  // (>=18) get Familjen Grotesk, everything else gets Figtree, per the
-  // pairing documented in constants/typography.ts.
+  // Picks the weight-matched family variant for a text role — heading sizes get
+  // Familjen Grotesk, everything else Figtree, per constants/typography.ts.
   const familyFor = (isHeading: boolean, weight: any) => {
     const set = isHeading ? fontFamilies.heading : fontFamilies.body;
     if (weight === "800" || weight === "900" || weight === "bold" || weight === "700") return set.bold;
@@ -89,52 +95,30 @@ const patchComponentStyle = (Component: any) => {
     if (props && props.style) {
       const flat = StyleSheet.flatten(props.style);
       const updated = { ...flat };
-      let changed = false;
-      let isHeading = false;
 
-      // 1. Intercept Font Size & Weight mapping to Typography
-      if (typeof flat.fontSize === "number") {
-        const size = flat.fontSize;
-        if (size >= 24) {
-          updated.fontSize = typography.heading1.fontSize;
-          if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "900" || flat.fontWeight === "bold") {
-            updated.fontWeight = typography.heading1.fontWeight;
-          }
-          isHeading = true;
-          changed = true;
-        } else if (size >= 18) {
-          updated.fontSize = typography.heading2.fontSize;
-          if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "bold") {
-            updated.fontWeight = typography.heading2.fontWeight;
-          }
-          isHeading = true;
-          changed = true;
-        } else if (size >= 15) {
-          updated.fontSize = typography.sizes.bodyLarge;
-          changed = true;
-        } else if (size >= 13) {
-          updated.fontSize = typography.body.fontSize;
-          changed = true;
-        } else if (size >= 11) {
-          updated.fontSize = typography.bodySecondary.fontSize;
-          changed = true;
-        } else {
-          updated.fontSize = typography.sizes.caption;
-          changed = true;
+      // "Heading" is an identity check against the very token the style used, so
+      // it gives the same answer on every device width — no thresholds involved.
+      const isHeading =
+        flat.fontSize === typography.sizes.large || flat.fontSize === typography.sizes.extraLarge;
+
+      // Keep the weights the old buckets forced, so headings look unchanged:
+      // extraLarge was heading1 (600), large was heading2 (700).
+      if (flat.fontSize === typography.sizes.extraLarge) {
+        if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "900" || flat.fontWeight === "bold") {
+          updated.fontWeight = "600";
+        }
+      } else if (flat.fontSize === typography.sizes.large) {
+        if (flat.fontWeight === undefined || flat.fontWeight === "700" || flat.fontWeight === "800" || flat.fontWeight === "bold") {
+          updated.fontWeight = "700";
         }
       }
 
-      // 2. Set font family — Familjen Grotesk for headings, Figtree for body —
-      // by weight, using the (possibly just-updated) target weight.
       updated.fontFamily = familyFor(isHeading, updated.fontWeight ?? flat.fontWeight);
-      changed = true;
 
-      if (changed) {
-        props = {
-          ...props,
-          style: updated,
-        };
-      }
+      props = {
+        ...props,
+        style: updated,
+      };
     } else {
       // No style at all: default to regular Figtree (body is the common case).
       props = {

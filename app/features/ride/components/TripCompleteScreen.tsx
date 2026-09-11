@@ -1,0 +1,108 @@
+import { OrderReviewCard } from "./OrderReviewCard";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { moderateScale } from "react-native-size-matters";
+import { fontFamilies } from "@/constants/typography";
+
+// Moved out of app/tracking.tsx. The JSX is unchanged; every value it used to read from
+// the screen's scope is now a prop of the same name, so the markup did not
+// have to be touched.
+
+interface Props {
+  subline: any;
+  headline: any;
+  foodItems: any[];
+  accent: any;
+  currentOrderId: any;
+  deliveryStop: any;
+  handleBack: any;
+  insets: any;
+  isHelper: any;
+  isRide: any;
+  stops: any[];
+  styles: any;
+  tokens: any;
+  totalPrice: any;
+}
+
+export function TripCompleteScreen({
+  subline,
+  headline,
+  foodItems,
+  accent,
+  currentOrderId,
+  deliveryStop,
+  handleBack,
+  insets,
+  isHelper,
+  isRide,
+  stops,
+  styles,
+  tokens,
+  totalPrice,
+}: Props) {
+  return (
+    <View style={[styles.doneRoot, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 16 }]}>
+      <View style={styles.doneHead}>
+        <View style={styles.doneCheck}>
+          <Ionicons name="checkmark" size={moderateScale(28)} color="#fff" />
+        </View>
+        <Text style={styles.doneTitle}>{headline}</Text>
+        <Text style={styles.doneSubtitle}>{subline}</Text>
+        {totalPrice != null && <Text style={styles.donePrice}>₹{Math.round(totalPrice)} paid</Text>}
+      </View>
+
+      <ScrollView style={{ flex: 1, width: "100%" }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
+        {isRide ? (
+          <View style={styles.doneCard}>
+            <Text style={styles.doneCardTitle}>Route</Text>
+            <View style={{ gap: 8, paddingVertical: 4 }}>
+              <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                <View style={[styles.dotSmall, { backgroundColor: tokens.success }]} />
+                <Text style={styles.doneAddrText} numberOfLines={2}>{stops?.find((s) => s.type === "pickup")?.address || "Pickup location"}</Text>
+              </View>
+              <View style={{ width: 2, height: 12, backgroundColor: tokens.border, marginLeft: 3 }} />
+              <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                <View style={[styles.dotSmall, { backgroundColor: tokens.error, borderRadius: 2 }]} />
+                <Text style={styles.doneAddrText} numberOfLines={2}>{deliveryStop?.address || "Destination"}</Text>
+              </View>
+            </View>
+          </View>
+        ) : (
+          <>
+            <View style={styles.doneCard}>
+              <Text style={styles.doneCardTitle}>{isHelper ? "Task details" : "Delivered items"}</Text>
+              {isHelper ? (
+                <Text style={styles.doneAddrText}>Booked location: {stops?.[0]?.address || "—"}</Text>
+              ) : foodItems.length > 0 ? (
+                foodItems.map((item: any, idx: number) => (
+                  <View key={idx} style={{ flexDirection: "row", gap: 8, paddingVertical: 4 }}>
+                    <Text style={[styles.doneAddrText, { fontFamily: fontFamilies.body.bold, color: accent.accent }]}>{item.quantity}x</Text>
+                    <Text style={styles.doneAddrText}>{item.name}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.doneAddrText}>Items successfully handed over.</Text>
+              )}
+            </View>
+            {deliveryStop?.address && (
+              <View style={styles.doneCard}>
+                <Text style={styles.doneCardTitle}>Delivery address</Text>
+                <Text style={styles.doneAddrText}>{deliveryStop.address}</Text>
+              </View>
+            )}
+          </>
+        )}
+
+        <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} tokens={tokens} accent={accent} />
+        <View style={{ height: 8 }} />
+      </ScrollView>
+
+      <View style={{ width: "100%", paddingHorizontal: 20, paddingTop: 8 }}>
+        <TouchableOpacity style={[styles.doneHomeBtn, { backgroundColor: accent.accent }]} onPress={handleBack}>
+          <Text style={[styles.doneHomeBtnText, { color: accent.on }]}>Back to orders</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}

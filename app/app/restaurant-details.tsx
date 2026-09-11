@@ -1,358 +1,79 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  Linking,
-  Platform,
-} from "react-native";
-import Animated from "react-native-reanimated";
-import { useLocalSearchParams, router } from "expo-router";
-import { Ionicons, Feather } from "@expo/vector-icons";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
-import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
-import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
-import { fadeInUp } from "@/motion/presets";
-
-// Only used to highlight today's row; the authoritative window is openState.today.
-const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-interface VendorDetails {
-  _id: string;
-  name: string;
-  email?: string;
-  phone: string;
-  address: string;
-  detailedAddress?: { landmark?: string };
-  rating: number;
-  reviews: string;
-  categories: string[];
-  isPureVeg: boolean;
-  isOpen: boolean;
-  /** Server-evaluated schedule — see backend utils/openingHours.ts. */
-  openState?: {
-    isOpen: boolean;
-    label: string;
-    opensAt: string | null;
-    today: string | null;
-    week: { day: string; hours: string }[];
-  };
-  legal?: { fssaiNumber?: string };
-  location?: { type: string; coordinates: number[] };
-}
-
-interface VendorOffer {
-  code: string;
-  title: string;
-  description: string;
-  minOrder: number;
-}
+import { View, ScrollView, ActivityIndicator } from "react-native";
+import { router } from "expo-router";
+import { AppTabBar } from "@/components/AppTabBar";
+import { Header } from "@/components/ui/Header";
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { VendorIdentityCard } from "@/features/food/components/VendorIdentityCard";
+import { VendorOffersSection } from "@/features/food/components/VendorOffersSection";
+import { VendorTimingsSection } from "@/features/food/components/VendorTimingsSection";
+import { VendorHygieneSection } from "@/features/food/components/VendorHygieneSection";
+import { VendorAddressSection } from "@/features/food/components/VendorAddressSection";
+import { VendorContactRow } from "@/features/food/components/VendorContactRow";
+import { MeatDetailsNotice } from "@/features/food/components/MeatDetailsNotice";
+import { useRestaurantDetails } from "@/features/food/useRestaurantDetails";
 
 export default function RestaurantDetails() {
-  const { id, name: searchName, rating: searchRating, reviews: searchReviews, isMeat } = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useAppTabBarHeight();
-  const { theme } = useThemeStore();
-  const tokens = designTokens[theme];
-  const accent = tokens.services[isMeat === "true" ? "meat" : "food"];
-  const styles = useMemo(() => createStyles(tokens, accent), [theme, isMeat]);
-
-  const [loading, setLoading] = useState(true);
-  const [vendor, setVendor] = useState<VendorDetails | null>(null);
-  const [offers, setOffers] = useState<VendorOffer[]>([]);
-
-  useEffect(() => {
-    // There's no public by-id endpoint for meat centers today, only for
-    // food vendors — skip the doomed fetch for meat and fall back to
-    // whatever the previous screen already passed along.
-    if (!id || isMeat === "true") {
-      setLoading(false);
-      return;
-    }
-    const fetchVendorDetails = async () => {
-      try {
-        setVendor(await customFetch<VendorDetails>(`/vendors/${id}`));
-      } catch (error) {
-        console.error("Error fetching vendor details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchVendorDetails();
-  }, [id, isMeat]);
-
-  // Offers are their own request: /coupons/applicable is authenticated (so it has
-  // to go through customFetch, not a bare fetch) and platform-wide coupons apply
-  // to meat centers too, which the vendor lookup above skips.
-  useEffect(() => {
-    if (!id) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await customFetch<{ coupons: VendorOffer[] }>(`/coupons/applicable?vendorId=${id}&subtotal=0`);
-        if (!cancelled) setOffers(Array.isArray(data?.coupons) ? data.coupons : []);
-      } catch (error) {
-        // An unauthenticated or offline session simply shows no offers.
-        console.error("Error fetching offers:", error);
-        if (!cancelled) setOffers([]);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [id]);
-
-  const handleCall = (phoneNumber: string) => {
-    Linking.openURL(`tel:${phoneNumber}`).catch((err) => console.error("Failed to call:", err));
-  };
-
-  const handleEmail = (emailAddress: string) => {
-    Linking.openURL(`mailto:${emailAddress}`).catch((err) => console.error("Failed to email:", err));
-  };
-
-  const handleNavigate = () => {
-    const targetName = vendor?.name || (searchName as string) || "Restaurant";
-    if (vendor?.location?.coordinates && vendor.location.coordinates.length === 2) {
-      const [lng, lat] = vendor.location.coordinates;
-      const label = encodeURIComponent(targetName);
-      const url = Platform.select({
-        ios: `maps://app?daddr=${lat},${lng}&q=${label}`,
-        android: `google.navigation:q=${lat},${lng}`,
-        default: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
-      });
-      Linking.canOpenURL(url).then((supported) => {
-        if (supported) Linking.openURL(url);
-        else Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
-      }).catch((err) => console.error("Error launching navigation:", err));
-    } else {
-      const addressQuery = encodeURIComponent(vendor?.address || targetName);
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${addressQuery}`).catch((err) =>
-        console.error("Failed to open map query:", err)
-      );
-    }
-  };
-
-  const openState = vendor?.openState;
-  const isOpenNow = openState ? openState.isOpen : vendor?.isOpen !== false;
-  const openLabel = openState?.label || (isOpenNow ? "Open now" : "Closed");
-  const todayName = WEEKDAY_NAMES[new Date().getDay()];
-
-  const displayName = vendor?.name || (searchName as string) || "Restaurant";
-  const displayRating = vendor?.rating || parseFloat(searchRating as string) || undefined;
-  const displayReviews = vendor?.reviews || (searchReviews as string) || undefined;
+  const {
+  isMeat, insets, tabBarHeight, tokens, accent, styles, loading, vendor, offers, handleCall,
+  handleEmail, handleNavigate, openState, isOpenNow, openLabel, todayName, displayName,
+  displayRating, displayReviews
+  } = useRestaurantDetails();
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isMeat === "true" ? "Meat center info" : "Restaurant info"}</Text>
-      </View>
+    <ScreenShell>
+      <Header
+        title={isMeat === "true" ? "Meat center info" : "Restaurant info"}
+        onBack={() => router.back()}
+        style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
+      />
 
       {loading ? (
         <ActivityIndicator size="large" color={accent.accent} style={{ marginTop: 60 }} />
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
-          <Animated.View entering={fadeInUp(0)} style={styles.section}>
-            <Text style={styles.name}>{displayName}</Text>
-            <View style={styles.badgeRow}>
-              {vendor?.isPureVeg && (
-                <View style={styles.vegBadge}>
-                  <View style={styles.vegIconBox}><View style={styles.vegDot} /></View>
-                  <Text style={styles.vegBadgeText}>Pure veg</Text>
-                </View>
-              )}
-              {displayRating != null && (
-                <View style={styles.ratingBadge}>
-                  <Text style={styles.ratingBadgeText}>
-                    {displayRating} ★{displayReviews ? ` · ${displayReviews}` : ""}
-                  </Text>
-                </View>
-              )}
-              {vendor && (
-                <View style={[styles.statusBadge, { backgroundColor: isOpenNow ? tokens.successSkin : tokens.errorSkin }]}>
-                  <Text style={[styles.statusBadgeText, { color: isOpenNow ? tokens.success : tokens.error }]}>
-                    {openLabel}
-                  </Text>
-                </View>
-              )}
-            </View>
-            {!!vendor?.categories?.length && (
-              <Text style={styles.cuisineLine}>{vendor.categories.join(" · ")}</Text>
-            )}
-          </Animated.View>
+          <VendorIdentityCard
+            vendor={vendor}
+            displayName={displayName}
+            displayRating={displayRating}
+            displayReviews={displayReviews}
+            isOpenNow={isOpenNow}
+            openLabel={openLabel}
+            tokens={tokens}
+            styles={styles}
+          />
 
           <View style={styles.divider} />
 
-          {offers.length > 0 && (
-            <Animated.View entering={fadeInUp(30)} style={styles.section}>
-              <Text style={styles.sectionLabel}>Offers</Text>
-              <View style={styles.card}>
-                {offers.map((offer, index) => (
-                  <View key={offer.code} style={[styles.offerRow, index > 0 && styles.offerRowDivider]}>
-                    <View style={styles.offerCodeChip}>
-                      <Text style={styles.offerCodeText}>{offer.code}</Text>
-                    </View>
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text style={styles.offerTitle}>{offer.title}</Text>
-                      <Text style={styles.offerDescription}>{offer.description}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
-            </Animated.View>
-          )}
+          <VendorOffersSection offers={offers} styles={styles} />
 
-          {!!openState?.week?.length && (
-            <Animated.View entering={fadeInUp(45)} style={styles.section}>
-              <Text style={styles.sectionLabel}>Timings</Text>
-              <View style={styles.card}>
-                <View style={styles.timingTodayRow}>
-                  <Text style={styles.timingTodayLabel}>Today</Text>
-                  <Text style={styles.timingTodayValue}>{openState.today || (isOpenNow ? "Open now" : "Closed today")}</Text>
-                </View>
-                {openState.week.map((entry) => {
-                  const isToday = entry.day === todayName;
-                  return (
-                    <View key={entry.day} style={styles.timingRow}>
-                      <Text style={[styles.timingDay, isToday && styles.timingRowToday]}>{entry.day}</Text>
-                      <Text style={[styles.timingHours, isToday && styles.timingRowToday]}>{entry.hours}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </Animated.View>
-          )}
+          <VendorTimingsSection
+            openState={openState}
+            isOpenNow={isOpenNow}
+            todayName={todayName}
+            styles={styles}
+          />
 
-          {vendor?.legal?.fssaiNumber && (
-            <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Hygiene &amp; safety</Text>
-              <View style={styles.hygieneCard}>
-                <View style={styles.hygieneRow}>
-                  <Ionicons name="checkmark" size={14} color={tokens.success} />
-                  <Text style={styles.hygieneText}>Kitchen audited by FSSAI · licence {vendor.legal.fssaiNumber}</Text>
-                </View>
-                <View style={styles.hygieneRow}>
-                  <Ionicons name="checkmark" size={14} color={tokens.success} />
-                  <Text style={styles.hygieneText}>Tamper-proof packaging on every order</Text>
-                </View>
-              </View>
-            </View>
-          )}
+          <VendorHygieneSection
+            fssaiNumber={vendor?.legal?.fssaiNumber}
+            tokens={tokens}
+            styles={styles}
+          />
 
-          {vendor?.address && (
-            <Animated.View entering={fadeInUp(60)} style={styles.section}>
-              <Text style={styles.sectionLabel}>Address</Text>
-              <View style={styles.card}>
-                <Text style={styles.addressText}>
-                  {vendor.address}
-                  {vendor.detailedAddress?.landmark ? ` · Near ${vendor.detailedAddress.landmark}` : ""}
-                </Text>
-                <TouchableOpacity style={styles.navigateBtn} activeOpacity={0.85} onPress={handleNavigate}>
-                  <Text style={styles.navigateBtnText}>Navigate in Google Maps</Text>
-                </TouchableOpacity>
-              </View>
-            </Animated.View>
-          )}
+          <VendorAddressSection vendor={vendor} onNavigate={handleNavigate} styles={styles} />
 
-          {(vendor?.phone || vendor?.email) && (
-            <View style={[styles.section, { flexDirection: "row", gap: 10 }]}>
-              {vendor?.phone && (
-                <TouchableOpacity style={styles.contactCard} activeOpacity={0.85} onPress={() => handleCall(vendor.phone)}>
-                  <Feather name="phone" size={15} color={tokens.sec} />
-                  <View style={{ minWidth: 0 }}>
-                    <Text style={styles.contactLabel}>Phone</Text>
-                    <Text style={styles.contactValue} numberOfLines={1}>{vendor.phone}</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-              {vendor?.email && (
-                <TouchableOpacity style={styles.contactCard} activeOpacity={0.85} onPress={() => handleEmail(vendor.email!)}>
-                  <Feather name="mail" size={15} color={tokens.sec} />
-                  <View style={{ minWidth: 0 }}>
-                    <Text style={styles.contactLabel}>Email</Text>
-                    <Text style={styles.contactValue} numberOfLines={1}>{vendor.email}</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
+          <VendorContactRow
+            vendor={vendor}
+            onCall={handleCall}
+            onEmail={handleEmail}
+            tokens={tokens}
+            styles={styles}
+          />
 
-          {isMeat === "true" && !vendor && (
-            <View style={styles.section}>
-              <Text style={styles.hygieneText}>
-                Full details for meat centers aren&apos;t available yet — there&apos;s no public lookup endpoint for them, only the nearby-search listing.
-              </Text>
-            </View>
-          )}
+          {isMeat === "true" && !vendor && <MeatDetailsNotice styles={styles} />}
         </ScrollView>
       )}
 
       <AppTabBar accent={isMeat === "true" ? "meat" : "food"} cartVendorName={displayName} />
-    </View>
+    </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
-  StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 10 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
-
-    section: { paddingHorizontal: 16, paddingTop: 20 },
-    name: { fontFamily: fontFamilies.heading.semibold, fontSize: moderateScale(24), letterSpacing: -0.3, color: tokens.text },
-    badgeRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" },
-    vegBadge: { flexDirection: "row", alignItems: "center", gap: 6, borderWidth: 1, borderColor: tokens.veg, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    vegIconBox: { width: 13, height: 13, borderWidth: 1.5, borderColor: tokens.veg, borderRadius: 3, alignItems: "center", justifyContent: "center" },
-    vegDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: tokens.veg },
-    vegBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.veg },
-    ratingBadge: { backgroundColor: tokens.successSkin, borderRadius: 6, paddingHorizontal: 9, paddingVertical: 5 },
-    ratingBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.success },
-    statusBadge: { borderRadius: 6, paddingHorizontal: 9, paddingVertical: 5 },
-    statusBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase" },
-    cuisineLine: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(23), color: tokens.sec, marginTop: 14 },
-
-    divider: { height: 1, backgroundColor: tokens.border, marginHorizontal: 16, marginTop: 20 },
-
-    sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
-    hygieneCard: { backgroundColor: tokens.successSkin, borderRadius: 16, padding: 14, gap: 9 },
-    hygieneRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
-    hygieneText: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: moderateScale(14), lineHeight: moderateScale(20), color: tokens.sec },
-
-    card: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 14 },
-
-    offerRow: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-    offerRowDivider: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: tokens.border },
-    offerCodeChip: { backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 5 },
-    offerCodeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(12), letterSpacing: 0.6, color: accent.accent },
-    offerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-    offerDescription: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), color: tokens.sec, marginTop: 3 },
-
-    timingTodayRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingBottom: 12, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    timingTodayLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
-    timingTodayValue: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-    timingRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 5 },
-    timingDay: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
-    timingHours: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(14), color: tokens.sec },
-    timingRowToday: { fontFamily: fontFamilies.body.bold, color: tokens.text },
-    addressText: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(22), color: tokens.text },
-    navigateBtn: { marginTop: 12, backgroundColor: accent.skin, borderWidth: 1, borderColor: accent.accent, borderRadius: 12, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
-    navigateBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: accent.accent },
-
-    contactCard: {
-      flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16,
-      paddingHorizontal: 14, paddingVertical: 13, minHeight: moderateScale(56), flexDirection: "row", alignItems: "center", gap: 10,
-    },
-    contactLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
-    contactValue: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text, marginTop: 2 },
-  });

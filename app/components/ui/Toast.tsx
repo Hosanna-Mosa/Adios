@@ -5,7 +5,7 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, elevation, radius, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { fadeOut, modalSlideUp } from "@/motion/presets";
 
@@ -97,7 +97,7 @@ const createStyles = (tokens: ThemeTokens) =>
     message: {
       flex: 1,
       fontFamily: fontFamilies.body.medium,
-      fontSize: moderateScale(14),
+      fontSize: typography.sizes.medium,
       color: tokens.text,
     },
   });

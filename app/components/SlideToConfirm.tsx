@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BUTTON_WIDTH, MAX_SLIDE, SLIDER_WIDTH, styles } from "./SlideToConfirm.styles";
+import { useSlideToConfirm } from "./useSlideToConfirm";
 
 interface SlideToConfirmProps {
   onConfirm: () => void;
@@ -16,84 +18,11 @@ interface SlideToConfirmProps {
   colors: any;
 }
 
-const BUTTON_WIDTH = Dimensions.get('window').width - 80;
-const SLIDER_WIDTH = 56;
-const MAX_SLIDE = BUTTON_WIDTH - SLIDER_WIDTH - 8;
 
 export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title, colors }) => {
-  const [isConfirmed, setIsConfirmed] = useState(false);
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const pulseAnim = useRef(new Animated.Value(0)).current;
-  
-  const onConfirmRef = useRef(onConfirm);
-  useEffect(() => {
-    onConfirmRef.current = onConfirm;
-  }, [onConfirm]);
-
-  // Loop animation for guiding arrows
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(pulseAnim, {
-        toValue: 3,
-        duration: 2000,
-        useNativeDriver: true,
-      })
-    ).start();
-  }, []);
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        if (isConfirmed) return;
-        let newValue = gestureState.dx;
-        if (newValue < 0) newValue = 0;
-        if (newValue > MAX_SLIDE) newValue = MAX_SLIDE;
-        slideAnim.setValue(newValue);
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (isConfirmed) return;
-        if (gestureState.dx > MAX_SLIDE * 0.8) {
-          Animated.spring(slideAnim, {
-            toValue: MAX_SLIDE,
-            useNativeDriver: false,
-            bounciness: 0,
-          }).start(() => {
-            setIsConfirmed(true);
-            onConfirmRef.current();
-          });
-        } else {
-          Animated.spring(slideAnim, {
-            toValue: 0,
-            useNativeDriver: false,
-            bounciness: 10,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  const activeWidth = slideAnim.interpolate({
-    inputRange: [0, MAX_SLIDE],
-    outputRange: [SLIDER_WIDTH + 8, BUTTON_WIDTH],
-    extrapolate: 'clamp',
-  });
-
-  // Calculate chevrons opacity based on loop value
-  const opacities = [0, 1, 2].map((index) => {
-    return pulseAnim.interpolate({
-      inputRange: [index, index + 1, index + 2],
-      outputRange: [0.2, 1, 0.2],
-      extrapolate: 'clamp',
-    });
-  });
-
-  // Text opacity fades out as user slides it
-  const textOpacity = slideAnim.interpolate({
-    inputRange: [0, MAX_SLIDE * 0.5],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
+  const {
+  isConfirmed, slideAnim, panResponder, activeWidth, opacities, textOpacity
+  } = useSlideToConfirm(onConfirm);
 
   return (
     <View style={[styles.container, { borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' }]}>
@@ -161,79 +90,3 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    width: BUTTON_WIDTH,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: 'center',
-    overflow: 'hidden',
-    position: 'relative',
-    marginVertical: 4,
-    borderWidth: 1.5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  track: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  guideRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: SLIDER_WIDTH / 2 + 12,
-  },
-  chevronsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  activeTrack: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    borderRadius: 32,
-    overflow: 'hidden',
-  },
-  activeTextContainer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: BUTTON_WIDTH,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '900',
-    letterSpacing: 1.5,
-    textAlign: 'center',
-  },
-  thumb: {
-    width: SLIDER_WIDTH,
-    height: SLIDER_WIDTH,
-    borderRadius: SLIDER_WIDTH / 2,
-    position: 'absolute',
-    left: 4,
-    top: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 10,
-    backgroundColor: '#ffffff',
-  },
-  thumbGradient: {
-    flex: 1,
-    borderRadius: SLIDER_WIDTH / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

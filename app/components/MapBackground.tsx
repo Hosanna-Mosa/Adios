@@ -6,6 +6,7 @@ import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DeliveryStop, useDeliveryStore } from '@/contexts/deliveryStore';
 import Colors from '@/constants/colors';
 import { customFetch } from '@/utils/api/custom-fetch';
+import { typography } from "@/constants/typography";
 
 const DRIVER_MARKER_IMAGE = require('@/assets/images/driver-marker.png');
 const VEHICLE_BIKE_3D = require('@/assets/images/services/scooter_blue_top_view_2.png');
@@ -35,7 +36,6 @@ export interface MapBackgroundRef {
   fitToRoute: () => void;
   fitToMarkers: (markers: any[]) => void;
 }
-
 
 const FALLBACK_REGION: Region = {
   latitude: 16.9891,
@@ -337,7 +337,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
                 shadowRadius: 4,
                 elevation: 5,
               }}>
-                <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 12 }}>
+                <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: typography.sizes.small }}>
                   {radiusMeters >= 1000 ? `${radiusMeters / 1000} KM` : `${radiusMeters} M`}
                 </Text>
               </View>
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   markerBadgeText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     fontWeight: 'bold',
   },
   markerPin: {

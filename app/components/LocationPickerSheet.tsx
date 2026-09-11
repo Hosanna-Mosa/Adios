@@ -10,12 +10,13 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import * as Location from "expo-location";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { typography } from "@/constants/typography";
 
 interface Props {
   isOpen: boolean;
@@ -64,11 +65,9 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
     }
   };
 
-
   const [locationLoading, setLocationLoading] = useState(false);
   const [detectedLocation, setDetectedLocation] = useState<any | null>(null);
   const [savingLocation, setSavingLocation] = useState(false);
-
 
   const handleSearch = async (text: string) => {
     setSearch(text);
@@ -137,11 +136,6 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       setSelectingAddressId(null);
     }
   };
-
-
-
-
-
 
   const handleEditAddress = (item: any) => {
     onClose();
@@ -404,7 +398,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     padding: 4,
   },
   title: {
-    fontSize: 18,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: colors.text,
   },
@@ -430,7 +424,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
     color: colors.text,
   },
@@ -450,13 +444,13 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     justifyContent: "center",
   },
   actionTitle: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.primary,
     marginBottom: 2,
   },
   actionSubtitle: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary,
   },
   divider: {
@@ -471,7 +465,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 16,
   },
   sectionText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.textSecondary,
     textTransform: "uppercase",
@@ -515,17 +509,17 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 4,
   },
   addressType: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.text,
   },
   addressText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary, 
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
   },
   addressPhone: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textMuted,
     marginTop: 4,
   },
@@ -541,20 +535,20 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   searchResultName: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.text,
     marginBottom: 2,
   },
   searchResultAddress: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary,
   },
   emptyText: {
     textAlign: "center",
     color: colors.textMuted,
     marginTop: 20,
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
   },
   detectedBox: {
     backgroundColor: colors.surfaceSecondary,
@@ -564,7 +558,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 20,
   },
   detectedTitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: "#BE123C",
     marginBottom: 8,
@@ -579,7 +573,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   saveActionText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
   },
 });

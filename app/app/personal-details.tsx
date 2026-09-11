@@ -1,17 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import Animated from "react-native-reanimated";
+import { Header } from "@/components/ui/Header";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { Button } from "@/components/ui/Button";
-import { fadeInDown, staggerListItem } from "@/motion/presets";
+
+import { fadeInDown } from "@/motion/presets";
+
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { PersonalDetailsBody } from "@/features/auth/components/PersonalDetailsBody";
 
 export default function PersonalDetailsScreen() {
   const insets = useSafeAreaInsets();
@@ -72,66 +74,48 @@ export default function PersonalDetailsScreen() {
   };
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
-      <Animated.View style={styles.header} entering={fadeInDown(0)}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Personal details</Text>
-      </Animated.View>
+    <ScreenShell style={{ paddingTop: insets.top }}>
+      <Header
+        title="Personal details"
+        onBack={() => router.back()}
+        style={{ paddingTop: 12, paddingBottom: 12 }}
+        entering={fadeInDown(0)}
+      />
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
-        <View style={{ gap: 12 }}>
-          <Animated.View entering={staggerListItem(0)}>
-            <Text style={styles.label}>Full name</Text>
-            <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder="Your name" placeholderTextColor={tokens.muted} />
-          </Animated.View>
-          <Animated.View entering={staggerListItem(1)}>
-            <Text style={styles.label}>Username</Text>
-            <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder="@handle" autoCapitalize="none" placeholderTextColor={tokens.muted} />
-          </Animated.View>
-          <Animated.View entering={staggerListItem(2)}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
-          </Animated.View>
-          <Animated.View entering={staggerListItem(3)}>
-            <Text style={styles.label}>Phone</Text>
-            <View style={styles.phoneField}>
-              <Text style={styles.phoneText}>{user?.phone || "—"}</Text>
-              <View style={styles.verifiedPill}>
-                <Text style={styles.verifiedPillText}>Verified</Text>
-              </View>
-            </View>
-            <Text style={styles.phoneHint}>This is your login number. Contact <Text style={styles.phoneHintLink} onPress={() => router.push("/support")}>support</Text> to change it — there&apos;s no self-serve way to re-verify a new number yet.</Text>
-          </Animated.View>
-        </View>
-      </ScrollView>
-
-      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <Button title="Update profile" onPress={handleSave} loading={saving} fullWidth />
-      </View>
-    </View>
+      <PersonalDetailsBody
+        accent={accent}
+        editField={editField}
+        email={email}
+        handleSave={handleSave}
+        insets={insets}
+        name={name}
+        saving={saving}
+        setEmail={setEmail}
+        setName={setName}
+        setUsername={setUsername}
+        styles={styles}
+        tokens={tokens}
+        user={user}
+        username={username}
+      />
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
-    backBtn: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
 
-    label: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
-    field: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, minHeight: 52, paddingHorizontal: 14, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.text, backgroundColor: tokens.surface },
+    label: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
+    field: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, minHeight: 52, paddingHorizontal: 14, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text, backgroundColor: tokens.surface },
 
     phoneField: { flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: tokens.border, backgroundColor: tokens.sunken, borderRadius: 12, minHeight: 52, paddingHorizontal: 14 },
-    phoneText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(15), color: tokens.sec },
+    phoneText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
     verifiedPill: { backgroundColor: tokens.successSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
-    verifiedPillText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 0.5, textTransform: "uppercase", color: tokens.success },
-    phoneHint: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(18), color: tokens.sec, marginTop: 6 },
+    verifiedPillText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.success },
+    phoneHint: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 6 },
     phoneHintLink: { color: accent.accent, fontFamily: fontFamilies.body.semibold },
 
     footer: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: tokens.surface, borderTopWidth: 1, borderTopColor: tokens.border, paddingHorizontal: 16, paddingTop: 14 },
     saveBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(15), color: accent.on },
+    saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
   });

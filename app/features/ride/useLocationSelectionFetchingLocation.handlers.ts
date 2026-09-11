@@ -1,0 +1,108 @@
+import { Alert } from "react-native";
+import { router } from "expo-router";
+import { customFetch } from "@/utils/api/custom-fetch";
+
+// Handlers lifted out of useLocationSelectionFetchingLocation: factories over the values they closed
+// over, rebuilt every render exactly as the inline versions were.
+
+export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPlace: any, params: any, serviceId: any, name: any, pickup: any, setPickup: any, drop: any, setDrop: any, stops: any, bookingFor: any, someoneContact: any, setIsNavigating: any) =>
+  async (type: 'pickup' | 'drop', data: any, details: any = null) => {
+    const lat = details?.geometry?.location?.lat || data.lat;
+    const lng = details?.geometry?.location?.lng || data.lng;
+    const addrName = data.description || data.name;
+    const placeId = data.place_id || data.id || details?.place_id;
+    const placeName = data.structured_formatting?.main_text || data.name || addrName?.split(",")?.[0]?.trim();
+
+    if (lat && lng) {
+      try {
+        const checkRes = await customFetch<any>(`/zones/check?lat=${lat}&lng=${lng}`);
+        if (!checkRes || !checkRes.inZone) {
+          Alert.alert("No Service", `No service at current ${type} location.`);
+          if (type === 'pickup') {
+            pickupRef.current?.setAddressText("");
+            setPickup(null);
+          } else {
+            dropRef.current?.setAddressText("");
+            setDrop(null);
+          }
+          return;
+        }
+      } catch (err) {
+        console.error("Zone check failed:", err);
+      }
+    }
+
+    saveRecentPlace({
+      id: placeId || addrName,
+      name: placeName,
+      address: addrName,
+      lat,
+      lng,
+    });
+
+    if (type === 'pickup') {
+      setPickup({ name: addrName, lat, lng });
+    } else {
+      setDrop({ name: addrName, lat, lng });
+    }
+
+    const currentPickup = type === 'pickup' ? { name: addrName, lat, lng } : pickup;
+    const currentDrop = type === 'drop' ? { name: addrName, lat, lng } : drop;
+
+    if (currentPickup && currentDrop && currentPickup.lat && currentDrop.lat) {
+        setIsNavigating(true);
+        router.push({
+            pathname: "/ride-confirmation",
+            params: {
+                serviceId,
+                pickupName: currentPickup.name,
+                dropName: currentDrop.name,
+                pickupLat: currentPickup.lat.toString(),
+                pickupLng: currentPickup.lng.toString(),
+                dropLat: currentDrop.lat.toString(),
+                dropLng: currentDrop.lng.toString(),
+                stops: JSON.stringify(stops),
+                bookingForType: bookingFor,
+                riderContact: someoneContact,
+            }
+        });
+    }
+  };
+
+export const buildHandleSearch = (setSearchResults: any, setIsSearching: any, setSearchLoading: any, setSearchText: any, setSearchError: any, setFocusedInput: any, searchRequestIdRef: any, pickup: any) =>
+  async (text: string, type: 'pickup' | 'drop' | 'stop', id?: string) => {
+    setFocusedInput({ type, id });
+    setSearchText(text);
+    setSearchError("");
+    if (!text || text.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      setSearchLoading(false);
+      return;
+    }
+    const requestId = ++searchRequestIdRef.current;
+    setIsSearching(true);
+    setSearchLoading(true);
+    try {
+      const locationQuery = pickup?.lat && pickup?.lng
+        ? `&lat=${encodeURIComponent(String(pickup.lat))}&lng=${encodeURIComponent(String(pickup.lng))}`
+        : "";
+      const data = await customFetch<any[]>(
+        `/places/autocomplete?input=${encodeURIComponent(text)}${locationQuery}`,
+        { responseType: "json" },
+      );
+      if (requestId === searchRequestIdRef.current) {
+        setSearchResults(Array.isArray(data) ? data : []);
+      }
+    } catch (e) {
+      console.error("Search error:", e);
+      if (requestId === searchRequestIdRef.current) {
+        setSearchResults([]);
+        setSearchError("Could not load places. Check your connection and try again.");
+      }
+    } finally {
+      if (requestId === searchRequestIdRef.current) {
+        setSearchLoading(false);
+      }
+    }
+  };

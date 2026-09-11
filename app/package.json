@@ -7,10 +7,11 @@
     "start": "expo start --tunnel",
     "start-web": "expo start --web --tunnel",
     "start-web-dev": "DEBUG=expo* expo start --web --tunnel",
-    "lint": "expo lint",
+    "lint": "expo lint && npm run lint:typography",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint:typography": "eslint app components features constants contexts utils --rule 'no-restricted-imports: off' --rule 'react/display-name: off' --quiet"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

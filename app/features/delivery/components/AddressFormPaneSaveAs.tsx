@@ -1,0 +1,89 @@
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Animated from "react-native-reanimated";
+import { fadeInUp, staggerListItem } from "@/motion/presets";
+import { AddressFormPaneSaveAsStreetAddress } from "./AddressFormPaneSaveAsStreetAddress";
+
+// Section of AddressFormPane, split out to keep every file under 150 lines.
+// The JSX is unchanged and the props keep the parent's types.
+
+interface Props {
+  PROVIDER_GOOGLE: any;
+  PROVIDER_DEFAULT: any;
+  MapView: any;
+  accent: any;
+  addressLine: any;
+  completeAddress: any;
+  handleSave: any;
+  handleUseCurrentLocation: any;
+  insets: any;
+  instructions: any;
+  isEditMode: any;
+  isResolvingAddress: any;
+  label: any;
+  landmark: any;
+  latLabel: any;
+  lngLabel: any;
+  loading: any;
+  receiverName: any;
+  receiverPhone: any;
+  region: any;
+  selectedChip: any;
+  setAddressLine: React.Dispatch<React.SetStateAction<any>>;
+  setCompleteAddress: React.Dispatch<React.SetStateAction<any>>;
+  setInstructions: React.Dispatch<React.SetStateAction<any>>;
+  setLabel: React.Dispatch<React.SetStateAction<any>>;
+  setLandmark: React.Dispatch<React.SetStateAction<any>>;
+  setReceiverName: React.Dispatch<React.SetStateAction<any>>;
+  setReceiverPhone: React.Dispatch<React.SetStateAction<any>>;
+  setSelectedChip: React.Dispatch<React.SetStateAction<any>>;
+  setStep: React.Dispatch<React.SetStateAction<any>>;
+  shortAddress: any;
+  styles: any;
+  tokens: any;
+}
+
+export function AddressFormPaneSaveAs(props: Props) {
+  const { MapView, PROVIDER_DEFAULT, PROVIDER_GOOGLE, accent, handleSave, insets, isEditMode, isResolvingAddress, label, latLabel, lngLabel, loading, region, selectedChip, setLabel, setSelectedChip, setStep, shortAddress, styles, tokens } = props;
+  return (
+    <>
+    <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
+      <Animated.View entering={fadeInUp(60)}>
+        <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
+          <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
+          <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
+          <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
+        </TouchableOpacity>
+        <Text style={styles.mapPreviewCoords}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
+      </Animated.View>
+
+      <Animated.View style={styles.section} entering={fadeInUp(120)}>
+        <Text style={styles.sectionLabel}>Save as</Text>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          {(["Home", "Work", "Other"] as const).map((chip, i) => {
+            const isActive = selectedChip === chip;
+            return (
+              <Animated.View key={chip} entering={staggerListItem(i, 30)} style={{ flex: 1 }}>
+                <TouchableOpacity style={[styles.chip, isActive && { backgroundColor: accent.skin, borderColor: accent.accent }]} onPress={() => setSelectedChip(chip)}>
+                  <Text style={[styles.chipText, isActive && { color: accent.accent }]}>{chip}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
+        </View>
+        {selectedChip === "Other" && (
+          <TextInput style={styles.customLabelInput} placeholder="Custom label (e.g. Friend's house)" placeholderTextColor={tokens.muted} value={label} onChangeText={setLabel} />
+        )}
+      </Animated.View>
+
+      <AddressFormPaneSaveAsStreetAddress {...props} />
+    </ScrollView>
+
+    <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
+      <TouchableOpacity style={[styles.saveBtn, loading && { opacity: 0.7 }]} onPress={handleSave} disabled={loading}>
+        {loading ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.saveBtnText}>{isEditMode ? "Update address" : "Save address"}</Text>}
+      </TouchableOpacity>
+    </View>
+    </>
+  );
+}

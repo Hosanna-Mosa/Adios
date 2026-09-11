@@ -1,0 +1,39 @@
+import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { moderateScale } from "react-native-size-matters";
+
+// Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
+// scope is now a prop of the same name.
+
+interface Props {
+  bannerText: any;
+  accent: any;
+  eta: any;
+  insets: any;
+  status: any;
+  styles: any;
+  tokens: any;
+}
+
+export function TrackingTopBar({
+  bannerText,
+  accent,
+  eta,
+  insets,
+  status,
+  styles,
+  tokens,
+}: Props) {
+  return (
+    <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
+      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
+      </TouchableOpacity>
+      <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>
+        <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${eta} min`}</Text>
+      </View>
+      <View style={{ width: moderateScale(40) }} />
+    </View>
+  );
+}

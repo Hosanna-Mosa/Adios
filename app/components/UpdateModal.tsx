@@ -3,7 +3,7 @@ import { Alert, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, Vi
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 interface UpdateModalProps {
@@ -92,11 +92,11 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 24 },
     card: { width: "100%", maxWidth: 340, backgroundColor: tokens.surface, borderRadius: 20, padding: 22, alignItems: "center" },
     iconContainer: { width: 44, height: 44, borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", marginBottom: 14 },
-    title: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text, textAlign: "center" },
-    subtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(19), color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 18 },
+    title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },
+    subtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 18 },
     updateButton: { width: "100%", minHeight: moderateScale(48), borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    updateText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.on },
+    updateText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
     laterButton: { width: "100%", minHeight: moderateScale(44), alignItems: "center", justifyContent: "center", marginTop: 4 },
-    laterText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: tokens.sec },
-    forceNote: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, marginTop: 12 },
+    laterText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
+    forceNote: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, marginTop: 12 },
   });

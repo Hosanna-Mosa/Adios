@@ -1,0 +1,118 @@
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import Animated from "react-native-reanimated";
+import { fadeInUp } from "@/motion/presets";
+import { moderateScale } from "react-native-size-matters";
+
+// Section of CheckoutBody, split out to keep every file under 150 lines.
+// The JSX is unchanged and the props keep the parent's types.
+
+interface Props {
+  accent: any;
+  appliedPromo: any;
+  applyCode: any;
+  applyingCode: any;
+  isApplyingPromo: any;
+  offers: any[];
+  promoCodeText: any;
+  promoError: any;
+  removeCode: any;
+  setPromoCodeText: React.Dispatch<React.SetStateAction<any>>;
+  setShowPromoInput: React.Dispatch<React.SetStateAction<any>>;
+  showPromoInput: any;
+  styles: any;
+  subtotal: any;
+  tokens: any;
+}
+
+export function CheckoutSection({
+  accent,
+  appliedPromo,
+  applyCode,
+  applyingCode,
+  isApplyingPromo,
+  offers,
+  promoCodeText,
+  promoError,
+  removeCode,
+  setPromoCodeText,
+  setShowPromoInput,
+  showPromoInput,
+  styles,
+  subtotal,
+  tokens,
+}: Props) {
+  return (
+    <Animated.View entering={fadeInUp(120)} style={styles.section}>
+      <Text style={styles.sectionLabel}>Offers &amp; coupons</Text>
+      {appliedPromo ? (
+        <View style={[styles.couponOptionRow, { borderColor: accent.accent, backgroundColor: accent.skin }]}>
+          <View style={styles.radioSelected}><View style={[styles.radioDot, { backgroundColor: accent.accent }]} /></View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={styles.couponCode}>{appliedPromo.code}</Text>
+            <Text style={styles.couponDesc}>You saved ₹{appliedPromo.discountAmount}</Text>
+          </View>
+          <TouchableOpacity onPress={removeCode}>
+            <Text style={styles.changeLink}>Remove</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={{ gap: 8 }}>
+          {offers.map((offer) => {
+            const locked = offer.isApplicable === false;
+            return (
+              <View key={offer.code} style={[styles.couponOptionRow, locked && styles.couponOptionRowLocked]}>
+                <View style={styles.couponIconCircle}>
+                  <Ionicons name="pricetag" size={moderateScale(15)} color={accent.accent} />
+                </View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={styles.couponCode}>{offer.code}</Text>
+                  <Text style={styles.couponDesc}>{offer.title}</Text>
+                  <Text style={styles.couponSaving}>
+                    {locked
+                      ? `Add ₹${Math.max(0, Math.round(offer.amountToUnlock ?? offer.minOrder - subtotal))} more to use this`
+                      : `Saves ₹${offer.discountAmount} on this order`}
+                  </Text>
+                </View>
+                <TouchableOpacity disabled={locked || isApplyingPromo} onPress={() => applyCode(offer.code)}>
+                  {applyingCode === offer.code ? (
+                    <ActivityIndicator size="small" color={accent.accent} />
+                  ) : (
+                    <Text style={[styles.changeLink, locked && { color: tokens.muted }]}>Apply</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+
+          {showPromoInput ? (
+            <View style={styles.promoInputRow}>
+              <TextInput
+                style={styles.promoInput}
+                placeholder="Enter promo code"
+                placeholderTextColor={tokens.muted}
+                autoCapitalize="characters"
+                value={promoCodeText}
+                onChangeText={setPromoCodeText}
+              />
+              <TouchableOpacity style={styles.promoApplyBtn} onPress={() => applyCode(promoCodeText)} disabled={isApplyingPromo}>
+                {isApplyingPromo && !applyingCode ? (
+                  <ActivityIndicator size="small" color={accent.on} />
+                ) : (
+                  <Text style={styles.promoApplyBtnText}>Apply</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.couponOptionRow} activeOpacity={0.85} onPress={() => setShowPromoInput(true)}>
+              <Ionicons name="pricetag-outline" size={moderateScale(18)} color={tokens.sec} />
+              <Text style={[styles.couponCode, { flex: 1 }]}>Have a promo code?</Text>
+              <Text style={styles.changeLink}>Add</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+      {!!promoError && <Text style={styles.promoError}>{promoError}</Text>}
+    </Animated.View>
+  );
+}
