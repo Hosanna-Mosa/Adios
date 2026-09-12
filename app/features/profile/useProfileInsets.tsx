@@ -5,17 +5,22 @@ import { createStyles } from "./profile.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
+import { getUnreadCount } from "@/services/notifications.service";
+import { getProfile } from "@/services/users.service";
+import { getOrders } from "@/services/orders.service";
 
-// Part 1 of useProfile, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useProfile so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useProfileInsets() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { user, logout, setUser } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+  const setUser = useAuthStore((s) => s.setUser);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -35,7 +40,7 @@ export function useProfileInsets() {
   useFocusEffect(
     React.useCallback(() => {
       fetchProfile();
-      customFetch<{ unreadCount: number }>("/notifications/unread-count")
+      getUnreadCount()
         .then((res) => setUnreadCount(res?.unreadCount || 0))
         .catch(() => {});
     }, [])
@@ -44,10 +49,10 @@ export function useProfileInsets() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any>("/users/profile");
+      const data = await getProfile();
       if (data) setUser(data);
       try {
-        const ordersData = await customFetch<any[]>("/orders");
+        const ordersData = await getOrders();
         if (ordersData && Array.isArray(ordersData)) {
           setOrdersCount(ordersData.length);
           setTotalSpent(ordersData.reduce((sum, o) => sum + (o.totalPrice || 0), 0));

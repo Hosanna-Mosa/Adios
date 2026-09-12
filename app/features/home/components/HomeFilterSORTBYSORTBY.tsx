@@ -4,23 +4,25 @@ import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
 import { HomeFilterSORTBYSORTBYRATINGS } from "./HomeFilterSORTBYSORTBYRATINGS";
 import { HomeFilterSORTBYSORTBYCUISINES } from "./HomeFilterSORTBYSORTBYCUISINES";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Section of HomeFilterSORTBY, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
-  activeFilterTab: any;
+  accent: ServiceTokens;
+  activeFilterTab: string;
   availableCuisines: any[];
-  filter99Store: any;
-  filterCostRange: any;
-  filterFastDelivery: any;
-  filterMinRating: any;
-  filterOffers: any;
-  filterOpenNow: any;
-  filterVegNonVeg: any;
+  filter99Store: boolean;
+  filterCostRange: string;
+  filterFastDelivery: boolean;
+  filterMinRating: number;
+  filterOffers: boolean;
+  filterOpenNow: boolean;
+  filterVegNonVeg: string;
   selectedCuisines: any[];
-  selectedSort: any;
+  selectedSort: string;
   setFilter99Store: React.Dispatch<React.SetStateAction<any>>;
   setFilterCostRange: React.Dispatch<React.SetStateAction<any>>;
   setFilterFastDelivery: React.Dispatch<React.SetStateAction<any>>;
@@ -30,8 +32,8 @@ interface Props {
   setFilterVegNonVeg: React.Dispatch<React.SetStateAction<any>>;
   setSelectedCuisines: React.Dispatch<React.SetStateAction<any>>;
   setSelectedSort: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeFilterSORTBYSORTBY(props: Props) {

@@ -12,9 +12,9 @@ interface BadgeProps {
 
 /** Small, non-interactive status pill. */
 export function Badge({ label, tone = "neutral" }: BadgeProps) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createBadgeStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createBadgeStyles(tokens), [theme, tokens]);
   const toneStyle = toneStyles(tokens)[tone];
 
   return (
@@ -33,9 +33,9 @@ interface ChipProps {
 
 /** Interactive filter/tag chip — used in cuisine rows, filter sheets. */
 export function Chip({ label, selected = false, onPress, icon }: ChipProps) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createChipStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createChipStyles(tokens), [theme, tokens]);
 
   return (
     <Pressable onPress={onPress} style={[styles.base, selected && styles.selected]}>

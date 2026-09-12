@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
 import { useFocusEffect } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { ApplicableCoupon } from "./useFoodCheckout.shared";
+import { getApplicableCoupons } from "@/services/payments.service";
 
-// Part 3 of useFoodCheckout, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useFoodCheckout so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useFoodCheckoutRemoveCode(vendorId: any, hydrateSelectedAddress: any, appliedPromo: any, setAppliedPromo: any, setPromoError: any, setOffers: any, subtotal: any) {
   const removeCode = () => {
@@ -19,7 +19,7 @@ export function useFoodCheckoutRemoveCode(vendorId: any, hydrateSelectedAddress:
     if (subtotal <= 0) return;
     let cancelled = false;
     const query = `?subtotal=${encodeURIComponent(String(subtotal))}${vendorId ? `&vendorId=${encodeURIComponent(vendorId)}` : ""}`;
-    customFetch<{ coupons: ApplicableCoupon[] }>(`/coupons/applicable${query}`)
+    getApplicableCoupons<{ coupons: ApplicableCoupon[] }>(query)
       .then((res) => {
         if (cancelled) return;
         const list = Array.isArray(res?.coupons) ? res.coupons : [];

@@ -3,6 +3,9 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { fontFamilies } from "@/constants/typography";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -12,17 +15,17 @@ interface Props {
   subline: any;
   headline: any;
   foodItems: any[];
-  accent: any;
-  currentOrderId: any;
+  accent: ServiceTokens;
+  currentOrderId: string | null;
   deliveryStop: any;
-  handleBack: any;
-  insets: any;
-  isHelper: any;
-  isRide: any;
+  handleBack: () => void;
+  insets: EdgeInsets;
+  isHelper: boolean;
+  isRide: boolean;
   stops: any[];
-  styles: any;
-  tokens: any;
-  totalPrice: any;
+  styles: TrackingStyles;
+  tokens: ThemeTokens;
+  totalPrice: number | null;
 }
 
 export function TripCompleteScreen({

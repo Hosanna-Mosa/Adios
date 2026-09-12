@@ -2,13 +2,14 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ProfileStyles } from "@/features/profile/profile.styles";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  handlePickImage: any;
-  styles: any;
+  handlePickImage: () => void;
+  styles: ProfileStyles;
   user: any;
 }
 

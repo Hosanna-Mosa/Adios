@@ -9,10 +9,10 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { NotFoundBody } from "@/features/home/components/NotFoundBody";
 
 export default function NotFoundScreen() {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
 
   return (
     <>

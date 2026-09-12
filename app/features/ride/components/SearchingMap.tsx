@@ -2,6 +2,7 @@ import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "@/components/maps";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -17,7 +18,7 @@ interface Props {
   mapRef: any;
   onlineDrivers: any[];
   pickupCoords: any;
-  styles: any;
+  styles: RideSearchingStyles;
 }
 
 export function SearchingMap({

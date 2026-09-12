@@ -3,8 +3,8 @@ import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { calculateBearing, calculateDynamicETA, normalizeStatus } from "./useTracking.shared";
 
-// Part 5 of useTracking, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useTracking so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useTrackingHandleBack(status: any, setStatus: any, currentOrderId: any, stops: any, setDriver: any, isRide: any, isHelper: any, eta: any, setEta: any, setDeliveredAt: any, setHelperStatus: any, setDriverLocation: any, handleOrderCancelledByDriver: any, deliveryStop: any, pickupStop: any) {
   useEffect(() => {

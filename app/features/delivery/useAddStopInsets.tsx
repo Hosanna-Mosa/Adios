@@ -6,12 +6,12 @@ import { createStyles } from "./add-stop.styles";
 import { designTokens } from "@/constants/colors";
 import { BACKEND_URL } from "./useAddStop.shared";
 
-// Part 1 of useAddStop, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddStop so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddStopInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -29,7 +29,11 @@ export function useAddStopInsets() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [previewDelta, setPreviewDelta] = useState<{ distanceKm: number; newTotal: number } | null>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
-  const { addStop, currentCoords, stops, route, price } = useDeliveryStore();
+  const addStop = useDeliveryStore((s) => s.addStop);
+  const currentCoords = useDeliveryStore((s) => s.currentCoords);
+  const stops = useDeliveryStore((s) => s.stops);
+  const route = useDeliveryStore((s) => s.route);
+  const price = useDeliveryStore((s) => s.price);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {

@@ -1,9 +1,10 @@
-import { ActivityIndicator, Animated } from "react-native";
+import { Animated } from "react-native";
 import Reanimated from "react-native-reanimated";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { LandingBody } from "@/features/home/components/LandingBody";
 import { LandingLoadingBody } from "@/features/home/components/LandingLoadingBody";
 import { useAuth } from "@/features/home/useAuth";
+import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 
 export default function AuthScreen() {
   const {
@@ -34,7 +35,7 @@ export default function AuthScreen() {
   if (!isInitialized) {
     return (
       <ScreenShell style={{ justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={tokens.brand} />
+        <FullScreenLoader color={tokens.brand} />
       </ScreenShell>
     );
   }

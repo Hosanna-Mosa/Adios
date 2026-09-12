@@ -1,23 +1,26 @@
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type ServiceKey, type ThemeTokens } from "@/constants/colors";
+import { type OrdersStyles } from "@/features/orders/orders.styles";
+import type { Order } from "@/types/models";
 
 // Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
-  SERVICE_META: Record<string, any>;
+  SERVICE_META: Record<string, { label: string; accent: ServiceKey }>;
   applyFilters: any;
-  orders: any;
-  pendingCount: any;
+  orders: Order[];
+  pendingCount: number;
   pendingServiceFilters: any;
   serviceCounts: any;
   setPendingServiceFilters: React.Dispatch<React.SetStateAction<any>>;
   setShowFilterSheet: React.Dispatch<React.SetStateAction<any>>;
-  showFilterSheet: any;
-  styles: any;
+  showFilterSheet: boolean;
+  styles: OrdersStyles;
   toggleServiceFilter: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function OrdersFilterSheet({

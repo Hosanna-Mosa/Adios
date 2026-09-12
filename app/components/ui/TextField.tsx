@@ -15,9 +15,9 @@ interface Props extends TextInputProps {
 
 /** Text input with an animated focus border and inline error state. */
 export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens), [theme, tokens]);
   const focus = useSharedValue(0);
 
   const animatedBorder = useAnimatedStyle(() => ({

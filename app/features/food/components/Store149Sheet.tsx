@@ -5,28 +5,30 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { DietMarker } from "./DietMarker";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type Store149Styles } from "@/features/food/149-store.styles";
 
 // Moved out of app/149-store.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   buildFoodItem: any;
-  accent: any;
+  accent: ServiceTokens;
   activeCategory: any;
   addCartItem: any;
-  areaLabel: any;
+  areaLabel: string;
   areaLine: any;
   cartItems: any[];
   categories: any[];
   lat: any;
   lng: any;
-  loading: any;
+  loading: boolean;
   setActiveCategory: any;
   setIsSheetVisible: any;
   setSelectedItem: any;
   store149Items: any;
-  styles: any;
-  tokens: any;
+  styles: Store149Styles;
+  tokens: ThemeTokens;
   updateCartQuantity: any;
   visibleItems: any[];
 }

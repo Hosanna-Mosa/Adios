@@ -1,19 +1,23 @@
 import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type ChatStyles } from "@/features/support/useChat.shared";
+import type { Driver } from "@/types/models";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  driver: any;
-  inputText: any;
-  insets: any;
-  partnerLabel: any;
+  accent: ServiceTokens;
+  driver: Driver;
+  inputText: string;
+  insets: EdgeInsets;
+  partnerLabel: string;
   sendMessage: any;
   setInputText: any;
-  styles: any;
-  tokens: any;
+  styles: ChatStyles;
+  tokens: ThemeTokens;
 }
 
 export function ChatInputBar({

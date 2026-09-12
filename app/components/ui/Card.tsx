@@ -13,9 +13,9 @@ interface Props {
 
 /** Surface container with the shared radius/elevation tokens baked in. */
 export function Card({ children, style, elevationLevel = "sm", padding = 16, bordered = false }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens), [theme, tokens]);
 
   return (
     <View

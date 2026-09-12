@@ -34,8 +34,11 @@ export function useSignup() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const { requestOTP, loading, token, isInitialized } = useAuthStore();
-  const { theme } = useThemeStore();
+  const requestOTP = useAuthStore((s) => s.requestOTP);
+  const loading = useAuthStore((s) => s.loading);
+  const token = useAuthStore((s) => s.token);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);

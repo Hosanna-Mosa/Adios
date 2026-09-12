@@ -2,24 +2,27 @@ import React from "react";
 import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type OrdersStyles } from "@/features/orders/orders.styles";
+import type { Order } from "@/types/models";
 
 // Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
   REVIEW_TAGS: any[];
-  handleSubmitReview: any;
+  handleSubmitReview: () => void;
   reviewComment: any;
   reviewRating: any;
   reviewTags: any[];
-  selectedOrderForReview: any;
+  selectedOrderForReview: Order;
   setReviewComment: React.Dispatch<React.SetStateAction<any>>;
   setReviewRating: React.Dispatch<React.SetStateAction<any>>;
   setReviewTags: React.Dispatch<React.SetStateAction<any[]>>;
   setSelectedOrderForReview: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: OrdersStyles;
   submittingReview: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function OrderReviewSheet({

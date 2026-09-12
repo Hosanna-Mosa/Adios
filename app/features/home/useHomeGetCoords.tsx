@@ -2,8 +2,8 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 
-// Part 6 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeGetCoords(selectedAddress: any) {
   const getCoords = async () => {

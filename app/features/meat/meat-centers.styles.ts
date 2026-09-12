@@ -54,3 +54,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     chipText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
     chipTextActive: { fontFamily: fontFamilies.body.semibold, color: accent.on },
   });
+
+/** Exact shape of this feature's stylesheet, for components that take it as a prop. */
+export type MeatStyles = ReturnType<typeof createStyles>;

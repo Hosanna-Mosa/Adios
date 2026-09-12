@@ -1,18 +1,19 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 
 // Section of BookAgainOverlay, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
   colors: any;
-  dropTitle: any;
-  fare: any;
+  dropTitle: string;
+  fare: number;
   params: any;
-  pickupTitle: any;
+  pickupTitle: string;
   setTripDetailsVisible: React.Dispatch<React.SetStateAction<any>>;
   showCancelReasons: any;
-  styles: any;
+  styles: RideSearchingStyles;
 }
 
 export function BookAgainOverlayBike({

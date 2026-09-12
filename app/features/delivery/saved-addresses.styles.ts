@@ -44,3 +44,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     secondaryBtn: { width: "100%", marginTop: 10, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
     secondaryBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: accent.accent },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type SavedAddressesStyles = ReturnType<typeof createStyles>;

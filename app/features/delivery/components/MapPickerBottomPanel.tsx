@@ -2,19 +2,21 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { modalSlideUp } from "@/motion/presets";
 import { router } from "expo-router";
+import { type ServiceTokens } from "@/constants/colors";
+import { type MapPickerStyles } from "@/features/delivery/useMapPicker.shared";
 
 // Moved out of app/map-picker.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   address: any;
-  handleConfirm: any;
-  latLabel: any;
-  lngLabel: any;
-  loading: any;
-  step: any;
-  styles: any;
+  handleConfirm: () => void;
+  latLabel: string;
+  lngLabel: string;
+  loading: boolean;
+  step: string;
+  styles: MapPickerStyles;
 }
 
 export function MapPickerBottomPanel({

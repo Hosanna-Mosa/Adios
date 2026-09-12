@@ -4,8 +4,8 @@ import * as Location from "expo-location";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
 
-// Part 2 of useSavedAddresses, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSavedAddresses so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setSelectingId: any, deletingId: any, currentLocLoading: any, setCurrentLocLoading: any) {
   const handleUseCurrentLocation = async () => {

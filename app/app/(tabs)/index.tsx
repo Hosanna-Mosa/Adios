@@ -1,30 +1,11 @@
-import { Text, View, ActivityIndicator } from "react-native";
 import Animated from "react-native-reanimated";
 import { StickyHeader } from "@/features/home/components/StickyHeader";
-import { EmptySearchState } from "@/features/home/components/EmptySearchState";
-import { NoRidersState } from "@/features/home/components/NoRidersState";
-import { DistanceSheet } from "@/features/home/components/DistanceSheet";
-import { HomeSearchOverlay } from "@/features/home/components/HomeSearchOverlay";
-import { HomeFilterModal } from "@/features/home/components/HomeFilterModal";
-import { DishSearchResultItem } from "@/features/home/components/DishSearchResultItem";
-import { HomeSkeletonCard } from "@/features/home/components/HomeSkeletonCard";
-import { RestaurantListItem } from "@/components/RestaurantListItem";
-import { AppTabBar } from "@/components/AppTabBar";
-import { staggerListItem } from "@/motion/presets";
-import { HomeNoServiceContainer } from "@/features/home/components/HomeNoServiceContainer";
-import { HomeNoServiceContainer2 } from "@/features/home/components/HomeNoServiceContainer2";
-import { HomeNoServiceContainer3 } from "@/features/home/components/HomeNoServiceContainer3";
-import { HomeEmptySearchContainer } from "@/features/home/components/HomeEmptySearchContainer";
 import { ScreenShell } from "@/components/ui/ScreenShell";
-import { StartupAdModal } from "@/features/home/components/StartupAdModal";
 import { useHome } from "@/features/home/useHome";
 import { FlashList } from "@shopify/flash-list";
-import { IndexSection } from "@/features/home/components/IndexSection";
-import { IndexSection2 } from "@/features/home/components/IndexSection2";
-import { IndexSection3 } from "@/features/home/components/IndexSection3";
-import { IndexSection4 } from "@/features/home/components/IndexSection4";
-import { IndexSection5 } from "@/features/home/components/IndexSection5";
-import { IndexSection6 } from "@/features/home/components/IndexSection6";
+import { HomeListSection } from "@/features/home/components/HomeListSection";
+import { HomeOverlays } from "@/features/home/components/HomeOverlays";
+import { HomeFilterModal } from "@/features/home/components/HomeFilterModal";
 
 export default function HomeScreen() {
   const home = useHome();
@@ -43,7 +24,7 @@ export default function HomeScreen() {
         <StickyHeader {...home} />
       )}
 
-      <IndexSection
+      <HomeListSection
         nearbyDriversCount={nearbyDriversCount}
         loadingDrivers={loadingDrivers}
         activeService={activeService}
@@ -78,8 +59,8 @@ export default function HomeScreen() {
         renderHeader={renderHeader}
         AnimatedFlashList={AnimatedFlashList}
       />
-      <IndexSection5 {...home} />
-      <IndexSection6 {...home} />
+      <HomeOverlays {...home} />
+      <HomeFilterModal {...home} />
     </ScreenShell>
   );
 }

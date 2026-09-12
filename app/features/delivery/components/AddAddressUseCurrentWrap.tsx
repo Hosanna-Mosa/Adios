@@ -2,14 +2,16 @@ import { Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
+import { type ServiceTokens } from "@/constants/colors";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  handleUseCurrentLocation: any;
-  styles: any;
+  accent: ServiceTokens;
+  handleUseCurrentLocation: () => void;
+  styles: AddAddressStyles;
 }
 
 export function AddAddressUseCurrentWrap({

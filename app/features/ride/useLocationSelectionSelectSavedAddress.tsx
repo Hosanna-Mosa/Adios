@@ -1,10 +1,10 @@
 import * as Location from "expo-location";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { checkZone } from "@/services/places.service";
 
-// Part 4 of useLocationSelection, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useLocationSelection so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useLocationSelectionSelectSavedAddress(params: any, serviceId: any, name: any, pickup: any, setPickup: any, drop: any, stops: any, bookingFor: any, someoneContact: any, setFetchingLocation: any, pickupRef: any, dropRef: any, handleSelection: any) {
   const selectSavedAddress = (addr: any) => {
@@ -34,7 +34,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
 
       // Check zone for current location
       try {
-        const checkRes = await customFetch<any>(`/zones/check?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
+        const checkRes = await checkZone(location.coords.latitude, location.coords.longitude);
         if (!checkRes || !checkRes.inZone) {
           Alert.alert("No Service", "No service at current pickup location.");
           pickupRef.current?.setAddressText("");

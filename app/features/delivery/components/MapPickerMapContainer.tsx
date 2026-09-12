@@ -5,6 +5,9 @@ import { fadeIn } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import AppMapView from "@/components/AppMapView";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type MapPickerStyles } from "@/features/delivery/useMapPicker.shared";
 
 // Moved out of app/map-picker.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -12,13 +15,13 @@ import AppMapView from "@/components/AppMapView";
 interface Props {
   LIGHT_GREEN_MAP_STYLE: any;
   handleRegionChangeComplete: any;
-  handleUseCurrentLocation: any;
-  insets: any;
+  handleUseCurrentLocation: () => void;
+  insets: EdgeInsets;
   mapRef: any;
   recentering: any;
   region: any;
-  styles: any;
-  tokens: any;
+  styles: MapPickerStyles;
+  tokens: ThemeTokens;
 }
 
 export function MapPickerMapContainer({

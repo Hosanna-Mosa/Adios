@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -9,7 +10,7 @@ import { moderateScale } from "react-native-size-matters";
 interface Props {
   confirmedDriver: any;
   dateTimeStr: any;
-  styles: any;
+  styles: FindingDriverStyles;
 }
 
 export function FindingDriverBody({

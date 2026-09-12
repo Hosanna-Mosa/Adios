@@ -1,11 +1,10 @@
 import { useEffect, useMemo } from "react";
 import { router } from "expo-router";
 import { useHomeStore } from "@/contexts/homeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { buildCheckNearbyDrivers, buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
 
-// Part 7 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: any, setNearbyDriversCount: any, loading: any, setLoading: any, loadingDrivers: any, setLoadingDrivers: any, setStore149Items: any, activeService: any, setActiveService: any, searchQuery: any, setAppliedSearchTerm: any, loadingMore: any, setLoadingMore: any, isRetryingDrivers: any, page: any, setPage: any, hasMore: any, setHasMore: any, token: any, selectedAddress: any, isAddressLoaded: any, setHasNoLocation: any, addressResolveRef: any, hasRedirectedRef: any, setIsDistanceSheetOpen: any, distanceOption: any, customDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, distanceRefreshKey: any, setDistanceRefreshKey: any, setLoading149: any, selectedSort: any, filterMinRating: any, filterOpenNow: any, getCoords: any) {
   const selectedDistanceKm = distanceOption === "custom"

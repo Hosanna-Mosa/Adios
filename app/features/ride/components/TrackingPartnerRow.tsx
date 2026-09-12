@@ -1,18 +1,21 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
+import type { Driver } from "@/types/models";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   Linking: any;
-  accent: any;
-  driver: any;
-  isHelper: any;
-  styles: any;
-  tokens: any;
-  unreadCount: any;
+  accent: ServiceTokens;
+  driver: Driver;
+  isHelper: boolean;
+  styles: TrackingStyles;
+  tokens: ThemeTokens;
+  unreadCount: number;
 }
 
 export function TrackingPartnerRow({

@@ -1,11 +1,13 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { type ServiceTokens } from "@/constants/colors";
+import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  styles: any;
+  accent: ServiceTokens;
+  styles: DropLocationStyles;
 }
 
 export function DropLocationLoadingOverlay({

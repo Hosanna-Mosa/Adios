@@ -1,9 +1,9 @@
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { changePassword, uploadProfilePicture } from "@/services/users.service";
 
-// Part 2 of useProfile, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useProfile so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecurityVisible: any, currentPassword: any, setCurrentPassword: any, newPassword: any, setNewPassword: any, confirmPassword: any, setConfirmPassword: any, setChangingPassword: any) {
   const handlePickImage = async () => {
@@ -19,7 +19,7 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
       const match = /\.(\w+)$/.exec(filename || "");
       const type = match ? `image/${match[1]}` : "image";
       fd.append("image", { uri, name: filename, type } as any);
-      const data = await customFetch<any>("/users/profile-pic", { method: "POST", body: fd, isFormData: true });
+      const data = await uploadProfilePicture(fd);
       if (data && data.user) setUser(data.user);
     } catch (err) {
       Alert.alert("Error", "Failed to upload image");
@@ -45,10 +45,7 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
       setChangingPassword(true);
       // customFetch rather than a hand-built fetch, so an expired session here
       // goes through the same 401 interceptor as every other call.
-      await customFetch("/users/change-password", {
-        method: "POST",
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+      await changePassword({ currentPassword, newPassword });
       Alert.alert("Success", "Password changed successfully.");
       setSecurityVisible(false);
       setCurrentPassword("");

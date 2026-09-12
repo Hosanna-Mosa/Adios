@@ -4,19 +4,22 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type Store149Styles } from "@/features/food/149-store.styles";
 
 // Moved out of app/149-store.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  areaLabel: any;
+  accent: ServiceTokens;
+  areaLabel: string;
   areaLine: any;
   farthestKm: any;
-  insets: any;
-  outletCount: any;
+  insets: EdgeInsets;
+  outletCount: number;
   store149Items: any;
-  styles: any;
+  styles: Store149Styles;
 }
 
 export function Store149HeroHeader({

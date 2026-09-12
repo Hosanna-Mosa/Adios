@@ -3,6 +3,9 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -10,15 +13,15 @@ import { router } from "expo-router";
 interface Props {
   Linking: any;
   activeDriver: any;
-  currentTaskPrice: any;
+  currentTaskPrice: number | null;
   dropoffLocation: any;
-  handleCancel: any;
-  insets: any;
+  handleCancel: () => void;
+  insets: EdgeInsets;
   offer: any;
   pickupLocation: any;
   startOtp: any;
-  styles: any;
-  tokens: any;
+  styles: HelperTaskStyles;
+  tokens: ThemeTokens;
 }
 
 export function TaskAssignedPanel({

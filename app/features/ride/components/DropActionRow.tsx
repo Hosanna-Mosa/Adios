@@ -3,6 +3,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens } from "@/constants/colors";
+import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -11,10 +13,10 @@ import { fadeInUp } from "@/motion/presets";
 interface Props {
   serviceId: any;
   drop: any;
-  handleAddStop: any;
+  handleAddStop: () => void;
   pickup: any;
-  styles: any;
-  tokens: any;
+  styles: DropLocationStyles;
+  tokens: ThemeTokens;
 }
 
 export function DropActionRow({

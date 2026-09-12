@@ -1,8 +1,8 @@
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { cancelOrder } from "@/services/orders.service";
 
-// Part 5 of useRideSearching, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideSearching so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideSearchingKeepSearching(currentOrderId: any, setCurrentOrderId: any, params: any, setTripDetailsVisible: any, setCancelReasonVisible: any, setCancelConfirmVisible: any, fare: any) {
   const keepSearching = () => {
@@ -19,10 +19,7 @@ export function useRideSearchingKeepSearching(currentOrderId: any, setCurrentOrd
 
     if (orderIdToCancel) {
       try {
-        await customFetch(`/orders/${orderIdToCancel}/status`, {
-          method: "PATCH",
-          body: JSON.stringify({ status: "CANCELLED" }),
-        });
+        await cancelOrder(orderIdToCancel);
       } catch (error) {
         console.error("Failed to cancel order on backend:", error);
       }

@@ -1,23 +1,9 @@
-import { OrdersBody } from "@/features/orders/components/OrdersBody";
-import { OrdersFilterSheet } from "@/features/orders/components/OrdersFilterSheet";
-import { OrderReviewSheet } from "@/features/orders/components/OrderReviewSheet";
-import { ScrollView, Text } from "react-native";
-import Animated from "react-native-reanimated";
-import { AppTabBar } from "@/components/AppTabBar";
-import { fadeInDown, fadeInUp } from "@/motion/presets";
-import { OrdersSection } from "@/features/orders/components/OrdersSection";
-import { OrdersSection2 } from "@/features/orders/components/OrdersSection2";
-import { OrdersSection3 } from "@/features/orders/components/OrdersSection3";
-import { OrdersEmptyWrap } from "@/features/orders/components/OrdersEmptyWrap";
-import { OrdersChip } from "@/features/orders/components/OrdersChip";
-import { OrdersChip2 } from "@/features/orders/components/OrdersChip2";
-import { OrdersChip3 } from "@/features/orders/components/OrdersChip3";
+import { OrdersHeader } from "@/features/orders/components/OrdersHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useOrders } from "@/features/orders/useOrders";
 import type { ThemeTokens } from "@/constants/colors";
-import { RIDE_TYPES } from "@/features/orders/useOrders";
-import { OrdersSection4 } from "@/features/orders/components/OrdersSection4";
-import { OrdersSection5 } from "@/features/orders/components/OrdersSection5";
+import { OrdersScreenBody } from "@/features/orders/components/OrdersScreenBody";
+import { OrdersSheets } from "@/features/orders/components/OrdersSheets";
 
 export default function OrdersScreen() {
   const {
@@ -31,16 +17,14 @@ export default function OrdersScreen() {
 
   return (
     <ScreenShell>
-      <Animated.View style={[styles.header, { paddingTop: insets.top + 14 }]} entering={fadeInDown(0)}>
-        <Text style={styles.headline}>My orders</Text>
-        <OrdersChip
-          openFilterSheet={openFilterSheet}
-          styles={styles}
-          tokens={tokens}
-        />
-      </Animated.View>
+      <OrdersHeader
+        insets={insets}
+        openFilterSheet={openFilterSheet}
+        styles={styles}
+        tokens={tokens}
+      />
 
-      <OrdersSection4
+      <OrdersScreenBody
         tabBarHeight={tabBarHeight}
         tokens={tokens}
         styles={styles}
@@ -60,7 +44,7 @@ export default function OrdersScreen() {
         SERVICE_META={SERVICE_META}
         activeStatusCaption={activeStatusCaption}
       />
-      <OrdersSection5
+      <OrdersSheets
         tokens={tokens}
         styles={styles}
         orders={orders}

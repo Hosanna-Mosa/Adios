@@ -4,8 +4,10 @@ import Constants from "expo-constants";
 
 // The API URL should be retrieved from app.json/Constants
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
+import { createCredentialActions } from "@/contexts/auth.credentials";
+import { isSessionExpiryHandled, markSessionExpiryHandled, resetSessionExpiry } from "@/contexts/auth.session";
 
-interface AuthState {
+export interface AuthState {
   user: any | null;
   token: string | null;
   loading: boolean;
@@ -33,7 +35,6 @@ interface AuthState {
 // Guards the one-shot session-expiry path against a redirect storm: several
 // in-flight requests can all come back 401 at once. Reset whenever a new token
 // is stored, so a later session can expire again.
-let sessionExpiryHandled = false;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -52,7 +53,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setToken: (token) => {
-    sessionExpiryHandled = false;
+    resetSessionExpiry();
     set({ token });
     AsyncStorage.setItem("token", token);
   },
@@ -165,8 +166,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   handleUnauthorized: () => {
-    if (sessionExpiryHandled || !get().token) return false;
-    sessionExpiryHandled = true;
+    if (isSessionExpiryHandled() || !get().token) return false;
+    markSessionExpiryHandled();
     void get().logout();
     return true;
   },
@@ -183,78 +184,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  requestOTP: async (phone: string) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await fetch(`${apiUrl}/auth/request-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
-      });
-      const data = await response.json();
-      set({ loading: false });
-      if (!response.ok) throw new Error(data.message || "Something went wrong");
-      return { success: true, message: data.message };
-    } catch (err: any) {
-      set({ loading: false, error: err.message });
-      throw err;
-    }
-  },
-
-  verifyOTP: async (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await fetch(`${apiUrl}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code, role, name, email, password }),
-      });
-      const data = await response.json();
-      set({ loading: false });
-
-      if (!response.ok) throw new Error(data.message || "Verification failed");
-
-      if (data.isNewUser) {
-        return { success: true, isNewUser: true };
-      }
-
-      sessionExpiryHandled = false;
-      set({ user: data.user, token: data.token });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-      ]);
-      return { success: true, isNewUser: false };
-    } catch (err: any) {
-      set({ loading: false, error: err.message });
-      throw err;
-    }
-  },
-
-  loginWithPassword: async (phoneOrEmail: string, password: string, role: string) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await fetch(`${apiUrl}/auth/login-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneOrEmail, password, role }),
-      });
-      const data = await response.json();
-      set({ loading: false });
-
-      if (!response.ok) throw new Error(data.message || "Login failed");
-
-      sessionExpiryHandled = false;
-      set({ user: data.user, token: data.token });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-      ]);
-      return { success: true };
-    } catch (err: any) {
-      set({ loading: false, error: err.message });
-      throw err;
-    }
-  },
-
+  ...createCredentialActions(set),
 }));

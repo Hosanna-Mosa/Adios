@@ -2,17 +2,19 @@ import { Switch, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type ProfileStyles } from "@/features/profile/profile.styles";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   MENU_ITEMS: readonly any[];
-  accent: any;
-  styles: any;
+  accent: ServiceTokens;
+  styles: ProfileStyles;
   theme: any;
   toggleTheme: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function ProfileMenuCard({

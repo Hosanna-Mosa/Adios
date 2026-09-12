@@ -99,3 +99,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     dropSquareSmall: { width: 9, height: 9, borderRadius: 2, backgroundColor: tokens.text },
     routeAddr: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type HelperTaskStyles = ReturnType<typeof createStyles>;

@@ -2,8 +2,8 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import { RESEND_SECONDS } from "./useOTP.shared";
 
-// Part 2 of useOTP, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useOTP so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useOTPHandleKeyPress(phone: any, name: any, email: any, password: any, otp: any, setOtp: any, secondsLeft: any, setSecondsLeft: any, setResending: any, inputs: any, verifyOTP: any, requestOTP: any) {
   const handleKeyPress = (key: string, index: number) => {

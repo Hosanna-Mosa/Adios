@@ -2,18 +2,21 @@ import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  bannerText: any;
-  accent: any;
-  eta: any;
-  insets: any;
-  status: any;
-  styles: any;
-  tokens: any;
+  bannerText: string;
+  accent: ServiceTokens;
+  eta: number;
+  insets: EdgeInsets;
+  status: string;
+  styles: TrackingStyles;
+  tokens: ThemeTokens;
 }
 
 export function TrackingTopBar({

@@ -8,8 +8,8 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RecentPlace } from "./useLocationSelection.shared";
 
-// Part 1 of useLocationSelection, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useLocationSelection so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useLocationSelectionInsets() {
   const insets = useSafeAreaInsets();
@@ -27,11 +27,11 @@ export function useLocationSelectionInsets() {
   }>();
   const { serviceId, name } = params;
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.ride;
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const setServiceType = useDeliveryStore((state) => state.setServiceType);
 
   useEffect(() => {

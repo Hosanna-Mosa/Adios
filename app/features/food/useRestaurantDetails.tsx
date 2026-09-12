@@ -4,10 +4,11 @@ import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 import { createStyles } from "./restaurant-details.styles";
 import { VendorDetails, VendorOffer } from "./vendor-details.types";
+import { getVendor } from "@/services/catalog.service";
+import { getApplicableCoupons } from "@/services/payments.service";
 
 // State, data loading and handlers for app/restaurant-details.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -20,7 +21,7 @@ export function useRestaurantDetails() {
   const { id, name: searchName, rating: searchRating, reviews: searchReviews, isMeat } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services[isMeat === "true" ? "meat" : "food"];
   const styles = useMemo(() => createStyles(tokens, accent), [theme, isMeat]);
@@ -39,7 +40,7 @@ export function useRestaurantDetails() {
     }
     const fetchVendorDetails = async () => {
       try {
-        setVendor(await customFetch<VendorDetails>(`/vendors/${id}`));
+        setVendor(await getVendor<VendorDetails>(id));
       } catch (error) {
         console.error("Error fetching vendor details:", error);
       } finally {
@@ -57,7 +58,7 @@ export function useRestaurantDetails() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await customFetch<{ coupons: VendorOffer[] }>(`/coupons/applicable?vendorId=${id}&subtotal=0`);
+        const data = await getApplicableCoupons<{ coupons: VendorOffer[] }>(`?vendorId=${id}&subtotal=0`);
         if (!cancelled) setOffers(Array.isArray(data?.coupons) ? data.coupons : []);
       } catch (error) {
         // An unauthenticated or offline session simply shows no offers.

@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
+import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -9,10 +10,10 @@ import Animated from "react-native-reanimated";
 interface Props {
   colors: any;
   dotStyle: any;
-  fare: any;
+  fare: number;
   progressBarStyle: any;
   showTripDetails: any;
-  styles: any;
+  styles: RideSearchingStyles;
 }
 
 export function SearchingPanel({

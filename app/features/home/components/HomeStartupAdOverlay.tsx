@@ -2,6 +2,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -9,8 +11,8 @@ import { moderateScale } from "react-native-size-matters";
 interface Props {
   activeStartupAd: any;
   setActiveStartupAd: any;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeStartupAdOverlay({

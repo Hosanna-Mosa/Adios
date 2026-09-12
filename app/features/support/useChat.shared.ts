@@ -51,3 +51,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     textInput: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text, paddingVertical: 10 },
     sendBtn: { width: moderateScale(44), height: moderateScale(44), borderRadius: moderateScale(22), alignItems: "center", justifyContent: "center" },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type ChatStyles = ReturnType<typeof createStyles>;

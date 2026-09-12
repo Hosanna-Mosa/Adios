@@ -1,15 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  PanResponder,
-  Dimensions,
-} from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BUTTON_WIDTH, MAX_SLIDE, SLIDER_WIDTH, styles } from "./SlideToConfirm.styles";
+import { styles } from "./SlideToConfirm.styles";
 import { useSlideToConfirm } from "./useSlideToConfirm";
 
 interface SlideToConfirmProps {

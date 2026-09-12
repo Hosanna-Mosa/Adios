@@ -3,8 +3,8 @@ import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 
-// Part 2 of useChat, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useChat so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useChatSendMessage(currentOrderId: any, driver: any, addChatMessage: any, setUnreadCount: any, setIsChatActive: any, setInputText: any, flatListRef: any) {
   useEffect(() => {

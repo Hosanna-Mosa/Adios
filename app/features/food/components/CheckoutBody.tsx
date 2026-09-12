@@ -9,6 +9,9 @@ import { CheckoutDeliveryTime } from "./CheckoutDeliveryTime";
 import { CheckoutSection } from "./CheckoutSection";
 import { CheckoutTipYourDelivery } from "./CheckoutTipYourDelivery";
 import { CheckoutBillDetails } from "./CheckoutBillDetails";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -16,24 +19,24 @@ import { CheckoutBillDetails } from "./CheckoutBillDetails";
 interface Props {
   formatSlot: any;
   TIP_OPTIONS: any[];
-  accent: any;
+  accent: ServiceTokens;
   activeTip: any;
   addressIssue: any;
   appliedPromo: any;
   applyCode: any;
   applyingCode: any;
-  deliveryFee: any;
+  deliveryFee: number | null;
   getItemCount: any;
-  insets: any;
-  isApplyingPromo: any;
-  isOtherTip: any;
+  insets: EdgeInsets;
+  isApplyingPromo: boolean;
+  isOtherTip: boolean;
   items: any[];
   offers: any[];
-  otherTipText: any;
-  promoCodeText: any;
-  promoError: any;
-  receiverName: any;
-  receiverPhone: any;
+  otherTipText: string;
+  promoCodeText: string;
+  promoError: string | null;
+  receiverName: string;
+  receiverPhone: string;
   removeCode: any;
   scheduledFor: any;
   selectedAddress: any;
@@ -44,12 +47,12 @@ interface Props {
   setShowPromoInput: React.Dispatch<React.SetStateAction<any>>;
   setShowScheduleSheet: React.Dispatch<React.SetStateAction<any>>;
   setTipAmount: React.Dispatch<React.SetStateAction<any>>;
-  showPromoInput: any;
-  styles: any;
-  subtotal: any;
+  showPromoInput: boolean;
+  styles: CheckoutStyles;
+  subtotal: number;
   tipAmount: any;
-  tokens: any;
-  total: any;
+  tokens: ThemeTokens;
+  total: number;
 }
 
 export function CheckoutBody(props: Props) {

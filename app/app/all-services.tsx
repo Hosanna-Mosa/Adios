@@ -34,10 +34,10 @@ const RIDE_TIERS: RideTier[] = [
 export default function AllServicesScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.ride;
-  const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens, accent), [theme, accent, tokens]);
   const setServiceType = useDeliveryStore((state) => state.setServiceType);
 
   const selectTier = (tier: RideTier) => {

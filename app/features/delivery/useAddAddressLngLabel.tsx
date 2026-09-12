@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import * as Location from "expo-location";
 
-// Part 2 of useAddAddress, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddAddress so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddAddressLngLabel(params: any, mapRef: any, isEditMode: any, setSelectedChip: any, setLabel: any, setAddressLine: any, setCompleteAddress: any, setInstructions: any, setShortAddress: any, setCityOrCountry: any, setLoading: any, region: any, setRegion: any, setIsResolvingAddress: any) {
   const lngLabel = region.longitude.toFixed(6);

@@ -1,18 +1,23 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type DeliveryCheckoutStyles } from "@/features/delivery/useDeliveryCheckout";
+import type { OrderStop } from "@/types/models";
+import type { PriceBreakdown } from "@/contexts/delivery.types";
 
 // Moved out of app/delivery/checkout.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  handleConfirm: any;
-  insets: any;
-  isProcessing: any;
-  price: any;
-  stops: any;
-  styles: any;
-  tokens: any;
+  accent: ServiceTokens;
+  handleConfirm: () => void;
+  insets: EdgeInsets;
+  isProcessing: boolean;
+  price: PriceBreakdown | null;
+  stops: OrderStop[];
+  styles: DeliveryCheckoutStyles;
+  tokens: ThemeTokens;
 }
 
 export function DeliveryCheckoutFooter({

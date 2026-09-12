@@ -2,8 +2,8 @@ import React, { useMemo } from "react";
 import { Platform } from "react-native";
 import { isValidCoordinate } from "./useRideConfirmation.shared";
 
-// Part 2 of useRideConfirmation, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideConfirmation so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideConfirmationValidStops(pickupCoords: any, dropCoords: any, mapRef: any, stops: any) {
   const validStops = useMemo(

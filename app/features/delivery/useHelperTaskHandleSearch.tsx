@@ -1,9 +1,9 @@
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { getDistanceFromLatLonInKm } from "./useHelperTask.shared";
+import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
 
-// Part 3 of useHelperTask, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHelperTask so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPickupLocation: any, setDropoffLocation: any, setPickupCoords: any, setDropoffCoords: any, activeField: any, setActiveField: any, setSearchResults: any, setIsPickupValid: any, setIsDropoffValid: any) {
   const handleSearch = async (text: string, type: "pickup" | "dropoff") => {
@@ -12,7 +12,7 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
     setActiveField(type);
     if (text.trim().length < 2) { setSearchResults([]); return; }
     try {
-      const data = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}`, { responseType: "json" });
+      const data = await searchPlacesJson(text);
       setSearchResults(Array.isArray(data) ? data : []);
     } catch {
       setSearchResults([]);
@@ -27,7 +27,7 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
         lat = Number(result.lat);
         lng = Number(result.lng);
       } else if (result.id) {
-        const details = await customFetch<{ lat: number; lng: number }>(`/places/details/${result.id}`);
+        const details = await getPlaceDetails(result.id);
         if (details?.lat) { lat = details.lat; lng = details.lng; }
       }
       if (currentCoords && radius && lat !== null && lng !== null) {

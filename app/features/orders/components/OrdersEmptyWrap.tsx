@@ -5,14 +5,17 @@ import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { Button } from "@/components/ui/Button";
+import { type ThemeTokens } from "@/constants/colors";
+import { type OrdersStyles } from "@/features/orders/orders.styles";
+import type { Order } from "@/types/models";
 
 // Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  orders: any;
-  styles: any;
-  tokens: any;
+  orders: Order[];
+  styles: OrdersStyles;
+  tokens: ThemeTokens;
 }
 
 export function OrdersEmptyWrap({

@@ -3,13 +3,14 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
+import { type ServiceTokens } from "@/constants/colors";
 
 // Moved out of app/all-services.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   RIDE_TIERS: any[];
-  accent: any;
+  accent: ServiceTokens;
   selectTier: any;
   styles: any;
 }

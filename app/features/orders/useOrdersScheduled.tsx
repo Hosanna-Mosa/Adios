@@ -1,13 +1,14 @@
 import { useMemo } from "react";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useCartStore } from "@/contexts/cartStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { isScheduledOrder, isTerminalOrder, readOrderLines, toCartItem } from "./useOrders.shared";
+import { submitReview } from "@/services/support.service";
+import { reorder } from "@/services/orders.service";
 
-// Part 2 of useOrders, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useOrders so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId: any, selectedOrderForReview: any, setSelectedOrderForReview: any, reviewRating: any, setReviewRating: any, reviewComment: any, setReviewComment: any, reviewTags: any, setReviewTags: any, setSubmittingReview: any, withKey: any, filtered: any) {
   const scheduled = filtered.filter((o: any) => isScheduledOrder(o) && !isTerminalOrder(o));
@@ -31,10 +32,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
     if (!selectedOrderForReview) return;
     try {
       setSubmittingReview(true);
-      await customFetch("/reviews", {
-        method: "POST",
-        body: JSON.stringify({ orderId: selectedOrderForReview._id, rating: reviewRating, comment: reviewComment, tags: reviewTags }),
-      });
+      await submitReview({ orderId: selectedOrderForReview._id, rating: reviewRating, comment: reviewComment, tags: reviewTags });
       setOrders((prev: any) => prev.map((o: any) => (o._id === selectedOrderForReview._id ? { ...o, isReviewed: true } : o)));
       setSelectedOrderForReview(null);
     } catch (err: any) {
@@ -60,10 +58,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       let cartItems = [] as ReturnType<typeof toCartItem>[];
 
       try {
-        const cart = await customFetch<{ vendorId: string | null; items: any[] }>(
-          `/orders/${order._id}/reorder`,
-          { method: "POST" }
-        );
+        const cart = await reorder(order._id);
         cartItems = (cart?.items || []).map(toCartItem).filter((item) => !!item._id);
         cartVendorId = cart?.vendorId ?? cartVendorId;
       } catch {

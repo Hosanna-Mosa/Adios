@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { customFetch } from "@/utils/api/custom-fetch";
 import * as Location from "expo-location";
+import { searchPlaces } from "@/services/places.service";
 
-// Part 3 of useAddAddress, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddAddress so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddAddressOnRegionChangeComplete(isEditMode: any, setShortAddress: any, setCityOrCountry: any, setRegion: any, setSearchQuery: any, setSearchResults: any, setSearching: any, userCoords: any, setUserCoords: any, setIsResolvingAddress: any, isMapReady: any, fetchAddressForCoords: any) {
   useEffect(() => {
@@ -43,7 +43,7 @@ export function useAddAddressOnRegionChangeComplete(isEditMode: any, setShortAdd
       setSearching(true);
       try {
         const locQuery = userCoords ? `&lat=${userCoords.lat}&lng=${userCoords.lng}&radius=50000` : "";
-        const results = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}${locQuery}`);
+        const results = await searchPlaces(text, locQuery);
         setSearchResults(results || []);
       } catch (error) {
         console.error("Search error:", error);

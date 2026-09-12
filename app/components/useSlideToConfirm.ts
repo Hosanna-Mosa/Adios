@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Text, Animated, PanResponder } from "react-native";
+import { Animated, PanResponder } from "react-native";
 import { BUTTON_WIDTH, MAX_SLIDE, SLIDER_WIDTH } from "./SlideToConfirm.styles";
 
 // State and animation wiring for SlideToConfirm, moved out so both files stay
@@ -24,7 +24,7 @@ export function useSlideToConfirm(onConfirm: any) {
         useNativeDriver: true,
       })
     ).start();
-  }, []);
+  }, [pulseAnim]);
 
   const panResponder = useRef(
     PanResponder.create({

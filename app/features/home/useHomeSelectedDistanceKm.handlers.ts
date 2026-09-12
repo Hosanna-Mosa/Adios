@@ -1,4 +1,4 @@
-import { customFetch } from "@/utils/api/custom-fetch";
+import { getNearbyMeatCentres, getNearbyVendors, getStore149 } from "@/services/catalog.service";
 
 // Handlers lifted out of useHomeSelectedDistanceKm: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -10,7 +10,7 @@ export const buildFetchVendors = (discoveryParams: any, setRestaurants: any, set
       // The server matches a restaurant through its menu items too, which is the
       // only way a dish word like "Dosa" can surface the outlets that serve it.
       const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : "";
-      const data = await customFetch<any>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${discoveryParams}${searchParam}`);
+      const data = await getNearbyVendors<any>(lat, lng, pageNum, `${discoveryParams}${searchParam}`);
       setAppliedSearchTerm(searchQuery);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
@@ -35,7 +35,7 @@ export const buildFetchMeatCenters = (discoveryParams: any, setMeatCenters: any,
   async (lat: number, lng: number, pageNum: number = 1) => {
     try {
       if (pageNum === 1) setLoading(true); else setLoadingMore(true);
-      const data = await customFetch<any>(`/meat/nearby?lat=${lat}&lng=${lng}&page=${pageNum}&limit=20${discoveryParams}`);
+      const data = await getNearbyMeatCentres<any>(lat, lng, pageNum, discoveryParams);
       if (Array.isArray(data)) {
         if (data.length < 20) setHasMore(false); else setHasMore(true);
         if (pageNum === 1) {
@@ -78,7 +78,7 @@ export const buildFetch149StoreItems = (setStore149Items: any, setLoading149: an
   async (lat: number, lng: number) => {
     try {
       setLoading149(true);
-      const data = await customFetch<any>(`/food/store-149?lat=${lat}&lng=${lng}`);
+      const data = await getStore149(lat, lng);
       setStore149Items(data);
     } catch (error) {
       console.error("Error fetching 149 store items:", error);

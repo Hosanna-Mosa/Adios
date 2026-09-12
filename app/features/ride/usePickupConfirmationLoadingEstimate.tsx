@@ -1,9 +1,9 @@
 import React from "react";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { FareEstimate, normalizeServiceType } from "./usePickupConfirmation.shared";
+import { estimateFare } from "@/services/orders.service";
 
-// Part 2 of usePickupConfirmation, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of usePickupConfirmation so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function usePickupConfirmationLoadingEstimate(params: any, confirmedPickup: any, estimate: any, setEstimate: any) {
   const [loadingEstimate, setLoadingEstimate] = React.useState(false);
@@ -27,10 +27,7 @@ export function usePickupConfirmationLoadingEstimate(params: any, confirmedPicku
           dropLng: String(params.dropLng),
           serviceType: normalizeServiceType(params.serviceId),
         });
-        const result = await customFetch<FareEstimate>(
-          `/orders/estimate-fare?${query.toString()}`,
-          { responseType: "json" },
-        );
+        const result = await estimateFare<FareEstimate>(query.toString());
         setEstimate(result);
       } catch (error) {
         console.error("Pickup estimate error:", error);

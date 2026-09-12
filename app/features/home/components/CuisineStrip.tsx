@@ -1,5 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to
 // read from the screen's scope is now passed in as props. CUISINE_EMOJI came
@@ -13,7 +14,7 @@ const CUISINE_EMOJI: { [key: string]: string } = {
 };
 
 interface Props {
-  styles: any;
+  styles: HomeStyles;
   activeService: string;
   cuisineChips: string[];
   selectedCuisines: string[];

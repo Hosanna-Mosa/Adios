@@ -2,16 +2,18 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ServiceTokens } from "@/constants/colors";
+import { type SavedAddressesStyles } from "@/features/delivery/saved-addresses.styles";
 
 // Moved out of app/delivery/saved-addresses.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   addresses: any;
   currentLocLoading: any;
-  handleUseCurrentLocation: any;
-  styles: any;
+  handleUseCurrentLocation: () => void;
+  styles: SavedAddressesStyles;
 }
 
 export function SavedAddressesEmptyWrap({

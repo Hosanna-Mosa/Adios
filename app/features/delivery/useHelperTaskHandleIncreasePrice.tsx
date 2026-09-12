@@ -1,18 +1,15 @@
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { cancelOrder, increaseOrderPrice } from "@/services/orders.service";
 
-// Part 4 of useHelperTask, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHelperTask so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, pickupCoords: any, isPickupValid: any, description: any, setOffer: any, localOrderId: any, setLocalOrderId: any, setIsIncreasingPrice: any, setCurrentTaskPrice: any, setAssignedDriver: any, calculatedFare: any) {
   const handleIncreasePrice = async (amount: number) => {
     if (!localOrderId) return;
     setIsIncreasingPrice(amount);
     try {
-      const updatedOrder = await customFetch<any>(`/orders/${localOrderId}/increase-price`, {
-        method: "PATCH",
-        body: JSON.stringify({ amount }),
-      });
+      const updatedOrder = await increaseOrderPrice(localOrderId, amount);
       if (updatedOrder?.customerPrice) setCurrentTaskPrice(updatedOrder.customerPrice);
       else if (updatedOrder?.totalPrice) setCurrentTaskPrice(updatedOrder.totalPrice);
     } catch {
@@ -31,7 +28,7 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
         onPress: async () => {
           if (localOrderId) {
             try {
-              await customFetch(`/orders/${localOrderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+              await cancelOrder(localOrderId);
             } catch (error) {
               console.warn("Failed to cancel order on backend", error);
             }

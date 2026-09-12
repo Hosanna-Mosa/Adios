@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { FoodItem } from "./useRestaurantMenu.shared";
 
-// Part 4 of useRestaurantMenu, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRestaurantMenu so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRestaurantMenuFilteredMenu(isMeat: any, categories: any, minOrderValue: any, time: any, distance: any, address: any, menu: any, activeCategory: any, setActiveCategory: any, searchQuery: any, vegOnly: any) {
   const filteredMenu = useMemo(() => {

@@ -2,6 +2,7 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BookAgainOverlayBike } from "./BookAgainOverlayBike";
+import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -11,23 +12,23 @@ interface Props {
   CANCEL_REASONS: any[];
   cancelConfirmVisible: any;
   cancelLocationAddress: any;
-  cancelLocationLabel: any;
-  cancelLocationTitle: any;
+  cancelLocationLabel: string;
+  cancelLocationTitle: string;
   cancelReasonVisible: any;
   cancelRide: any;
   cancelUsesDrop: any;
   colors: any;
-  dropTitle: any;
-  fare: any;
+  dropTitle: string;
+  fare: number;
   keepSearching: any;
   params: any;
-  pickupTitle: any;
+  pickupTitle: string;
   selectCancelReason: any;
   selectedCancelReason: any;
   setCancelReasonVisible: React.Dispatch<React.SetStateAction<any>>;
   setTripDetailsVisible: React.Dispatch<React.SetStateAction<any>>;
   showCancelReasons: any;
-  styles: any;
+  styles: RideSearchingStyles;
 }
 
 export function BookAgainOverlay(props: Props) {

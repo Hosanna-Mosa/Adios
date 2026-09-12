@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, PanResponder, Dimensions } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BUTTON_WIDTH, MAX_SLIDE, SLIDER_WIDTH, isStandardOrSmall, styles } from "./DeliverySlider.styles";
+import { isStandardOrSmall, styles } from "./DeliverySlider.styles";
 import { useDeliverySlider } from "./useDeliverySlider";
 
 interface DeliverySliderProps {

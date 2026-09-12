@@ -1,5 +1,3 @@
-import { Text, TouchableOpacity } from "react-native";
-import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 import { RideMapPanel } from "@/features/ride/components/RideMapPanel";
 import { TripChooserSheet } from "@/features/ride/components/TripChooserSheet";
@@ -8,8 +6,8 @@ import { fadeInUp } from "@/motion/presets";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { RideConfirmBody } from "@/features/ride/components/RideConfirmBody";
 import { RideConfirmFooterActions } from "@/features/ride/components/RideConfirmFooterActions";
-import { ENABLED_TIERS } from "@/features/ride/useRideConfirmation";
-import { useRideConfirmation } from "@/features/ride/useRideConfirmation";
+import { ENABLED_TIERS, useRideConfirmation } from "@/features/ride/useRideConfirmation";
+import { BackToHomeButton } from "@/features/ride/components/BackToHomeButton";
 
 export default function RideConfirmationScreen() {
   const {
@@ -36,9 +34,7 @@ export default function RideConfirmationScreen() {
           <RideConfirmFooterActions
             styles={styles}
           />
-          <TouchableOpacity style={styles.footerSecondaryBtn} onPress={() => router.replace("/(tabs)")}>
-            <Text style={styles.footerSecondaryBtnText}>Back to home</Text>
-          </TouchableOpacity>
+          <BackToHomeButton styles={styles} />
         </Animated.View>
       </ScreenShell>
     );

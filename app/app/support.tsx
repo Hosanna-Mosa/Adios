@@ -1,18 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { Linking, Platform, StyleSheet } from "react-native";
+import { Linking, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { router, useFocusEffect } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
 import { Header } from "@/components/ui/Header";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
+import { getOrders } from "@/services/orders.service";
 
 const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
   food: { label: "Food", accent: "food" },
@@ -73,16 +71,16 @@ const FAQS: FAQItem[] = [
 
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = useMemo(() => createStyles(tokens), [theme]);
+  const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
 
   const [recentOrder, setRecentOrder] = useState<any | null>(null);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
-      customFetch<any[]>("/orders")
+      getOrders()
         .then((data) => setRecentOrder(data && data.length > 0 ? data[0] : null))
         .catch(() => {});
     }, [])

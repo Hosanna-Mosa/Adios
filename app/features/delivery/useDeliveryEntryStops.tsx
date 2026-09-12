@@ -7,20 +7,27 @@ import { MapBackgroundRef } from "@/components/MapBackground";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { createStyles } from "./useDeliveryEntry.shared";
 
-// Part 1 of useDeliveryEntry, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useDeliveryEntry so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useDeliveryEntryStops() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
-  const {
-    stops, route, price, currentLocation, currentCoords,
-    setCurrentLocation, setCurrentCoords, removeStop, setStops, setRoute, calculatePrice,
-  } = useDeliveryStore();
+  const stops = useDeliveryStore((s) => s.stops);
+  const route = useDeliveryStore((s) => s.route);
+  const price = useDeliveryStore((s) => s.price);
+  const currentLocation = useDeliveryStore((s) => s.currentLocation);
+  const currentCoords = useDeliveryStore((s) => s.currentCoords);
+  const setCurrentLocation = useDeliveryStore((s) => s.setCurrentLocation);
+  const setCurrentCoords = useDeliveryStore((s) => s.setCurrentCoords);
+  const removeStop = useDeliveryStore((s) => s.removeStop);
+  const setStops = useDeliveryStore((s) => s.setStops);
+  const setRoute = useDeliveryStore((s) => s.setRoute);
+  const calculatePrice = useDeliveryStore((s) => s.calculatePrice);
 
   const [isCalculating, setIsCalculating] = useState(false);
   const [isLocating, setIsLocating] = useState(false);

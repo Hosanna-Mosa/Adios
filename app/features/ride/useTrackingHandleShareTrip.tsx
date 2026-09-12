@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Share } from "react-native";
 import { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 
-// Part 3 of useTracking, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useTracking so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useTrackingHandleShareTrip(status: any, currentOrderId: any, setOrderId: any, stops: any, driver: any, params: any, isRide: any, cancellationAlerted: any, handleOrderCancelledByDriver: any) {
   const handleShareTrip = async () => {

@@ -52,3 +52,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     confirmBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     confirmBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type MapPickerStyles = ReturnType<typeof createStyles>;

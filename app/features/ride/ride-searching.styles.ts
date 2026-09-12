@@ -25,3 +25,6 @@ export const createStyles = (colors: typeof Colors.light, insets: any) => ({
   ...createCancelSheetHandleStyles(colors, insets),
   ...createCurrentAddressLabelStyles(colors, insets),
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type RideSearchingStyles = ReturnType<typeof createStyles>;

@@ -106,3 +106,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     reviewSubmitBtn: { borderRadius: 14, minHeight: moderateScale(50), alignItems: "center", justifyContent: "center", marginTop: 14 },
     reviewSubmitBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type TrackingStyles = ReturnType<typeof createStyles>;

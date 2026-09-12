@@ -3,9 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 
 import Animated from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, gradients, radius, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { designTokens, gradients } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { usePressScale } from "@/motion/presets";
 import { createStyles, Size } from "./Button.styles";
@@ -38,9 +36,9 @@ export function Button({
   fullWidth = false,
   style,
 }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createStyles(tokens, size), [theme, size]);
+  const styles = React.useMemo(() => createStyles(tokens, size), [theme, size, tokens]);
   const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.97);
 
   const isDisabled = disabled || loading;

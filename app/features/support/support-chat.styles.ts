@@ -72,3 +72,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     resolveYesBtn: { flex: 1, borderRadius: 14, minHeight: 48, alignItems: "center", justifyContent: "center" },
     resolveYesText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type SupportChatStyles = ReturnType<typeof createStyles>;
