@@ -1,7 +1,9 @@
+export { ActiveTasksSection } from "./ActiveTasksSection";
+export { ScheduledRidesSection } from "./ScheduledRidesSection";
+export { SectionHeading } from "./SectionHeading";
 export { ActiveOrderHeader } from "./ActiveOrderHeader";
 export { ActiveOrderMap } from "./ActiveOrderMap";
 export { ActiveTaskCard } from "./ActiveTaskCard";
-export { ChatComposer } from "./ChatComposer";
 export { ChatMessageBubble } from "./ChatMessageBubble";
 export type { ChatMessage } from "./ChatMessageBubble";
 export { CustomerChatHeader } from "./CustomerChatHeader";

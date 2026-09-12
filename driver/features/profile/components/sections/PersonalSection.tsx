@@ -7,7 +7,8 @@ import { modalStyles } from "../../profile-tab.styles";
 import { EditField } from "../EditField";
 import { ModalActionButton, ModalFormActions } from "../ModalFormActions";
 import { SectionFieldRows } from "../SectionFieldRows";
-import { GenderPicker, type GenderOption } from "./GenderPicker";
+import { GenderPicker } from "./GenderPicker";
+import type { GenderOption } from "./GenderPicker";
 
 export interface PersonalValues {
   name: string;

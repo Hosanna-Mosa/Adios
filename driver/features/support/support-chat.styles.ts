@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   root: {
     flex: 1,
   },
@@ -26,10 +30,6 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-  },
   headerCenter: {
     flex: 1,
     flexDirection: "row",
@@ -49,17 +49,17 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.success,
     borderWidth: 1.5,
-    borderColor: "#fff",
+    borderColor: Colors.white,
     position: "absolute",
     bottom: 0,
     right: 0,
   },
   headerName: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
   },
   headerStatus: {
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     color: Colors.success,
     fontWeight: "600",
   },
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
     paddingTop: 10,
   },
   label: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     marginBottom: 8,
   },
@@ -89,7 +89,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 14,
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
   },
   textArea: {
@@ -98,7 +98,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingTop: 12,
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
   },
   submitBtn: {
@@ -109,8 +109,8 @@ export const styles = StyleSheet.create({
     marginTop: 32,
   },
   submitBtnText: {
-    color: "#fff",
-    fontSize: 15,
+    color: Colors.white,
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
   },
   messagesList: {
@@ -124,7 +124,7 @@ export const styles = StyleSheet.create({
     marginVertical: 8,
   },
   systemMessageText: {
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 1,
@@ -140,6 +140,7 @@ export const styles = StyleSheet.create({
   messageRowAgent: {
     justifyContent: "flex-start",
   },
+
   avatar: {
     width: 24,
     height: 24,
@@ -162,57 +163,26 @@ export const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   bubbleTextUser: {
-    fontSize: 14,
-    color: "#fff",
+    fontSize: typography.sizes.medium,
+    color: Colors.white,
     fontWeight: "500",
-    lineHeight: 19,
+    lineHeight: typography.lineHeights.medium,
   },
   bubbleTextAgent: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
-    lineHeight: 19,
+    lineHeight: typography.lineHeights.medium,
   },
   timeUser: {
-    fontSize: 9,
+    fontSize: typography.sizes.small,
     color: "rgba(255,255,255,0.7)",
     alignSelf: "flex-end",
   },
   timeAgent: {
-    fontSize: 9,
+    fontSize: typography.sizes.small,
     alignSelf: "flex-end",
   },
-  inputBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    backgroundColor: Colors.surface,
-  },
-  inputContainer: {
-    flex: 1,
-    borderRadius: 22,
-    minHeight: 44,
-    maxHeight: 100,
-    paddingHorizontal: 14,
-    justifyContent: "center",
-  },
-  textInput: {
-    fontSize: 14,
-    fontWeight: "500",
-    paddingVertical: 8,
-  },
-  sendBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sendBtnDisabled: {
-    opacity: 0.5,
-  },
+
   resolvedNotice: {
     alignItems: "center",
     justifyContent: "center",
@@ -221,7 +191,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   resolvedText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -233,7 +203,7 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
   reopenBtnText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
   },
   resolveRequestContainer: {
@@ -242,12 +212,12 @@ export const styles = StyleSheet.create({
     borderTopWidth: 1,
   },
   resolveRequestTitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.large,
     fontWeight: "bold",
     marginTop: 8,
   },
   resolveRequestDesc: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     textAlign: "center",
     marginTop: 4,
     marginBottom: 16,
@@ -267,9 +237,9 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   resolveBtnTextConfirm: {
-    color: "#fff",
+    color: Colors.white,
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
   },
   resolveBtnDecline: {
     flex: 1,
@@ -281,6 +251,6 @@ export const styles = StyleSheet.create({
   },
   resolveBtnTextDecline: {
     fontWeight: "600",
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
   },
 });

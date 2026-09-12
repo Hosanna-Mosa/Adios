@@ -1,9 +1,12 @@
 import { StyleSheet } from "react-native";
-import { Colors } from "@/constants/colors";
 import { moderateScale } from "react-native-size-matters";
-import { fontFamilies } from "@/constants/typography";
+import { Colors } from "@/constants/colors";
+import { fontFamilies, typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   safe: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -22,9 +25,9 @@ export const styles = StyleSheet.create({
     borderRadius: moderateScale(20),
   },
   startRideBtnText: {
-    color: '#fff',
-    fontFamily: 'Inter_600SemiBold',
-    fontSize: moderateScale(14),
+    color: Colors.white,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
   },
   headerGradient: {
     borderBottomLeftRadius: moderateScale(24),
@@ -50,27 +53,18 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     zIndex: 2,
   },
-  menuButton: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
   headerCopy: {
     flex: 1,
     minWidth: 0,
   },
   greeting: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(20),
-    color: '#fff',
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
+    color: Colors.white,
   },
   subGreeting: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(13),
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: 'rgba(255,255,255,0.9)',
     marginTop: 2,
   },
@@ -102,17 +96,17 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.success,
   },
   onlineBadgeText: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(9),
+    fontWeight: "700",
+    fontSize: typography.sizes.small,
     color: Colors.success,
   },
   statusCard: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     borderRadius: moderateScale(16),
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -133,16 +127,17 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   statusCardTitle: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(15),
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 2,
   },
   statusCardDesc: {
-    fontFamily: 'Inter_500Medium',
-    fontSize: moderateScale(12),
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
+
   powerButton: {
     width: moderateScale(48),
     height: moderateScale(48),
@@ -150,11 +145,6 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  powerButtonOnline: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   homeModeRow: {
     flexDirection: "row",
@@ -191,8 +181,8 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   homeModeLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(14),
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 2,
   },
@@ -200,8 +190,8 @@ export const styles = StyleSheet.create({
     color: Colors.primaryDark,
   },
   homeModeDesc: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(12),
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
   homeModeSwitch: {
@@ -235,8 +225,8 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(15),
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   sectionSpacing: {
@@ -260,17 +250,18 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   emptyTasksTitle: {
-    fontFamily: 'Inter_700Bold',
-    fontSize: moderateScale(15),
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 4,
   },
   emptyTasksDesc: {
-    fontFamily: 'Inter_400Regular',
-    fontSize: moderateScale(12),
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.small,
   },
+
   calendarBtn: {
     width: moderateScale(40),
     height: moderateScale(40),
@@ -297,15 +288,15 @@ export const styles = StyleSheet.create({
   },
   safetyTitle: {
     fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
     color: Colors.warning,
     marginBottom: 4,
   },
   safetyText: {
     fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.warning,
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.small,
   },
   safetyImg: {
     width: 80,
@@ -320,7 +311,7 @@ export const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1,
     borderColor: Colors.border,
-    shadowColor: "#000",
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
@@ -336,13 +327,13 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   scheduledTime: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(14),
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   scheduledPrice: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(15),
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.success,
   },
   scheduledBody: {
@@ -360,8 +351,8 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
   },
   addressText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     flex: 1,
   },
@@ -382,8 +373,8 @@ export const styles = StyleSheet.create({
     paddingTop: 10,
   },
   customerName: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(12),
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
   badge: {
@@ -393,8 +384,8 @@ export const styles = StyleSheet.create({
     borderRadius: moderateScale(6),
   },
   badgeText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(10),
+    fontWeight: "700",
+    fontSize: typography.sizes.small,
     color: Colors.primaryDark,
   },
 });

@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -16,7 +20,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   pageTitle: {
-    fontSize: 28,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.text,
   },
@@ -45,7 +49,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatarText: {
-    fontSize: 26,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.white,
   },
@@ -54,12 +58,12 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   profileName: {
-    fontSize: 20,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: Colors.text,
   },
   profilePhone: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     fontWeight: "500",
   },
@@ -78,13 +82,14 @@ export const styles = StyleSheet.create({
     borderRadius: 3.5,
   },
   statusText: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     fontWeight: "600",
   },
   statsRow: {
     flexDirection: "row",
     gap: 12,
   },
+
   statCard: {
     flex: 1,
     backgroundColor: Colors.surface,
@@ -94,12 +99,12 @@ export const styles = StyleSheet.create({
     gap: 4,
   },
   statValue: {
-    fontSize: 22,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.text,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     fontWeight: "500",
   },
@@ -116,12 +121,12 @@ export const styles = StyleSheet.create({
   },
   earningsItemLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     fontWeight: "500",
   },
   earningsItemValue: {
-    fontSize: 18,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: Colors.primary,
   },
@@ -133,7 +138,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   menuSectionTitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.textSecondary,
     textTransform: "uppercase",
@@ -160,7 +165,7 @@ export const styles = StyleSheet.create({
   },
   menuLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
     color: Colors.text,
   },
@@ -169,6 +174,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.border,
     marginLeft: 68,
   },
+
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -181,13 +187,13 @@ export const styles = StyleSheet.create({
     borderColor: Colors.error + "30",
   },
   logoutText: {
-    fontSize: 17,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: Colors.error,
   },
   versionText: {
     textAlign: "center",
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     fontWeight: "500",
   },

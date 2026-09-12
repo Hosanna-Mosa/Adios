@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const bannerStyles = StyleSheet.create({
   banner: {
@@ -10,5 +11,5 @@ export const bannerStyles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
   },
-  text: { fontSize: 13, color: Colors.primaryDark, flex: 1, lineHeight: 18 },
+  text: { fontSize: typography.sizes.medium, color: Colors.primaryDark, flex: 1, lineHeight: typography.lineHeights.medium },
 });

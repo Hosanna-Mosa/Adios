@@ -5,7 +5,7 @@ import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { Colors, elevation, radius } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { fadeOut, modalSlideUp } from "@/motion/presets";
 
 type ToastVariant = "success" | "error" | "info";
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   message: {
     flex: 1,
     fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
 });

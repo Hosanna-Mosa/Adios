@@ -1,3 +1,4 @@
+export { SectionContent } from "./SectionContent";
 export { BankSection } from "./BankSection";
 export type { BankAccount } from "./BankSection";
 export { DocumentsSection } from "./DocumentsSection";

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const coordinateStyles = StyleSheet.create({
   banner: {
@@ -14,6 +15,6 @@ export const coordinateStyles = StyleSheet.create({
     marginTop: 8,
   },
   copy: { flex: 1 },
-  title: { fontSize: 13, fontWeight: "600", color: Colors.success },
-  coords: { fontSize: 11, color: Colors.success, marginTop: 2 },
+  title: { fontSize: typography.sizes.medium, fontWeight: "600", color: Colors.success },
+  coords: { fontSize: typography.sizes.small, color: Colors.success, marginTop: 2 },
 });

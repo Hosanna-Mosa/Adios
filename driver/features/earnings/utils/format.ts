@@ -1,8 +1,9 @@
-/** Money and time formatting for the earnings screen. */
+/** Time formatting for the earnings screen.
+ *
+ * `formatCurrency` now lives in utils/format.ts so the rest of the app can use
+ * it too; it is re-exported here so existing imports keep working. */
 
-export function formatCurrency(amount: number) {
-  return `₹${Number(amount || 0).toFixed(2)}`;
-}
+export { formatCurrency } from "@/utils/format";
 
 export function formatRelativeTime(dateString: string) {
   const date = new Date(dateString);

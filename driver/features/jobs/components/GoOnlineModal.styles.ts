@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   overlay: {
     flex: 1,
     backgroundColor: "transparent",
@@ -25,17 +29,17 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   title: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 22,
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     marginBottom: 24,
-    lineHeight: 20,
+    lineHeight: typography.lineHeights.medium,
   },
   servicesContainer: {
     gap: 12,
@@ -91,8 +95,8 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.primaryLight,
   },
   serviceName: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 15,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 2,
   },
@@ -100,8 +104,8 @@ export const styles = StyleSheet.create({
     color: Colors.primaryDark,
   },
   serviceDesc: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
   selectedBadge: {
@@ -111,13 +115,13 @@ export const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   selectedBadgeText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 11,
+    fontWeight: "600",
+    fontSize: typography.sizes.small,
     color: Colors.white,
   },
   errorText: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 13,
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: Colors.error,
     textAlign: "center",
     marginBottom: 8,
@@ -125,36 +129,14 @@ export const styles = StyleSheet.create({
   actions: {
     gap: 12,
   },
-  goOnlineBtn: {
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 16,
-    borderRadius: 14,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  goOnlineBtnDisabled: {
-    backgroundColor: Colors.textMuted,
-    opacity: 0.5,
-  },
-  goOnlineBtnText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
-    color: Colors.white,
-  },
+
   cancelBtn: {
     alignItems: "center",
     paddingVertical: 12,
   },
   cancelBtnText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   successContainer: {
@@ -165,16 +147,16 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   successTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 22,
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.text,
     marginBottom: 8,
   },
   successText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     textAlign: "center",
-    lineHeight: 20,
+    lineHeight: typography.lineHeights.medium,
   },
 });

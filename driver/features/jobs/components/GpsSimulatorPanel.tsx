@@ -22,8 +22,8 @@ export function GpsSimulatorPanel({
   speed: number | string;
   eta: number | string;
   remainingDistance: number | string;
-  idleEta: string;
-  idleDistance: string;
+  idleEta?: string;
+  idleDistance?: string;
   onToggle: () => void;
 }) {
   return (

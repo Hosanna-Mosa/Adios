@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 interface StatItem {
   label: string;
@@ -79,8 +80,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 14,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   dropdown: {
@@ -93,8 +94,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   dropdownText: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 12,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
   },
   statsRow: {
@@ -118,14 +119,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   statValue: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 20,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
     marginBottom: 2,
   },
   statLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 12,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
 });

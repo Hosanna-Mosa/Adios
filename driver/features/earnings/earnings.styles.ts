@@ -1,8 +1,12 @@
 import { StyleSheet } from "react-native";
-import { Colors } from "@/constants/colors";
 import { moderateScale } from "react-native-size-matters";
+import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   safe: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -15,8 +19,8 @@ export const styles = StyleSheet.create({
     gap: 16,
   },
   headerTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(24),
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.text,
     marginBottom: 4,
   },
@@ -35,8 +39,8 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   balanceLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(13),
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     marginBottom: 8,
   },
@@ -46,8 +50,8 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   balanceAmount: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(32),
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.text,
   },
   trendBadge: {
@@ -60,13 +64,13 @@ export const styles = StyleSheet.create({
     gap: 2,
   },
   trendText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(12),
+    fontWeight: "600",
+    fontSize: typography.sizes.small,
     color: Colors.success,
   },
   availableText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(12),
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     marginTop: 8,
   },
@@ -78,15 +82,15 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   sectionTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     textTransform: "uppercase",
     marginBottom: 4,
   },
   emptyText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     paddingVertical: 12,
   },
@@ -102,78 +106,32 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   statValue: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(20),
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
     marginBottom: 4,
   },
   statLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(12),
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 18,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
   modalTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(18),
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
     marginBottom: 6,
   },
   modalText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     marginBottom: 14,
   },
-  passwordInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(10),
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontFamily: "Inter_500Medium",
-    color: Colors.text,
-    marginBottom: 14,
-  },
+
   modalActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 10,
-  },
-  secondaryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.surfaceContainerLow,
-  },
-  secondaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-  },
-  primaryButton: {
-    minWidth: 88,
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.primary,
-  },
-  primaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.white,
   },
 });

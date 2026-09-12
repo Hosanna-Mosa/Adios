@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const validationErrorStyles = StyleSheet.create({
   // values lifted verbatim from the three inline copies on identity-verify
@@ -12,7 +13,7 @@ export const validationErrorStyles = StyleSheet.create({
   },
   text: {
     color: Colors.error,
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: typography.sizes.medium,
+    lineHeight: typography.lineHeights.medium,
   },
 });

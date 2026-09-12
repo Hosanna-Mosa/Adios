@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   container: { flex: 1, backgroundColor: Colors.background },
   inner: { flex: 1, paddingHorizontal: 20 },
   topBar: {
@@ -18,7 +22,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  skipText: { fontSize: 14, fontWeight: "600", color: Colors.textMuted },
+  skipText: { fontSize: typography.sizes.medium, fontWeight: "600", color: Colors.textMuted },
   sectionProgress: {
     flexDirection: "row",
     gap: 6,
@@ -46,6 +50,7 @@ export const styles = StyleSheet.create({
 });
 
 export const dlStyles = StyleSheet.create({
+
   dateButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -57,8 +62,8 @@ export const dlStyles = StyleSheet.create({
     gap: 12,
     backgroundColor: Colors.surface,
   },
-  dateText: { flex: 1, fontSize: 16, color: Colors.text },
-  datePlaceholder: { flex: 1, fontSize: 16, color: Colors.textMuted },
+  dateText: { flex: 1, fontSize: typography.sizes.large, color: Colors.text },
+  datePlaceholder: { flex: 1, fontSize: typography.sizes.large, color: Colors.textMuted },
   errorBox: {
     backgroundColor: "#fef2f2",
     padding: 12,
@@ -66,10 +71,11 @@ export const dlStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#fecaca",
   },
-  errorText: { color: Colors.error, fontSize: 13, lineHeight: 18 },
+  errorText: { color: Colors.error, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium },
 });
 
 export const bankStyles = StyleSheet.create({
+
   wrap: {
     gap: 16,
   },
@@ -96,13 +102,13 @@ export const bankStyles = StyleSheet.create({
     gap: 3,
   },
   noticeTitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
   noticeText: {
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: typography.sizes.medium,
+    lineHeight: typography.lineHeights.medium,
     color: Colors.textSecondary,
   },
   card: {
@@ -127,12 +133,13 @@ export const bankStyles = StyleSheet.create({
   errorText: {
     flex: 1,
     color: Colors.error,
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
   },
 });
 
 export const selfieSectionStyles = StyleSheet.create({
+
   viewfinder: {
     width: 220,
     height: 280,
@@ -146,7 +153,7 @@ export const selfieSectionStyles = StyleSheet.create({
     overflow: "hidden",
   },
   viewfinderInner: { alignItems: "center", gap: 12, zIndex: 1 },
-  viewfinderText: { fontSize: 12, color: Colors.textMuted, textAlign: "center", paddingHorizontal: 20 },
+  viewfinderText: { fontSize: typography.sizes.small, color: Colors.textMuted, textAlign: "center", paddingHorizontal: 20 },
   oval: {
     position: "absolute",
     top: 40,
@@ -172,10 +179,10 @@ export const selfieSectionStyles = StyleSheet.create({
     elevation: 8,
   },
   guidelines: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     textAlign: "center",
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
     paddingHorizontal: 20,
   },
 });

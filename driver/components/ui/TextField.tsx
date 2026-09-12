@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { Colors, radius } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { TIMING_FAST } from "@/motion/presets";
 
 interface Props extends TextInputProps {
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   field: {
@@ -68,12 +68,12 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontFamily: fontFamilies.body.regular,
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   error: {
     fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.error,
   },
 });

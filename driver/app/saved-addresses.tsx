@@ -14,10 +14,10 @@ import {
   AddAddressButton,
   NoAddressesState,
   SavedAddressCard,
-  SavedAddressesHeader,
 } from "@/features/profile/components";
 import { styles } from "@/features/profile/saved-addresses.styles";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
 
 export default function SavedAddressesScreen() {
   const insets = useSafeAreaInsets();
@@ -82,7 +82,7 @@ export default function SavedAddressesScreen() {
 
   return (
     <View style={styles.root}>
-      <SavedAddressesHeader
+      <ScreenHeader
         title="Saved Addresses"
         paddingTop={insets.top + (Platform.OS === "web" ? 20 : 0)}
         onBack={() => router.back()}

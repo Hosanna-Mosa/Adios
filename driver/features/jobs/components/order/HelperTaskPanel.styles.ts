@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 /** Values lifted verbatim from the inline styles on the helper task stage. */
 export const helperTaskStyles = StyleSheet.create({
@@ -9,7 +10,7 @@ export const helperTaskStyles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: "center",
   },
-  timerText: { fontSize: 24, fontWeight: "900", marginLeft: 8 },
+  timerText: { fontSize: typography.sizes.extraLarge, fontWeight: "900", marginLeft: 8 },
   progressTrack: {
     height: 8,
     backgroundColor: Colors.border,
@@ -24,9 +25,9 @@ export const helperTaskStyles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  progressLabel: { fontSize: 12, color: Colors.textSecondary, fontWeight: "600" },
+  progressLabel: { fontSize: typography.sizes.small, color: Colors.textSecondary, fontWeight: "600" },
   updatesHeading: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     fontWeight: "700",
     marginBottom: 8,
@@ -42,5 +43,5 @@ export const helperTaskStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primaryLight,
   },
-  updateChipText: { color: Colors.brand, fontSize: 13, fontWeight: "600" },
+  updateChipText: { color: Colors.brand, fontSize: typography.sizes.medium, fontWeight: "600" },
 });

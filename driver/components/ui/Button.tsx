@@ -3,10 +3,9 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from 
 import Animated from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import { moderateScale } from "react-native-size-matters";
-import { Colors, gradients, radius } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { Colors, gradients } from "@/constants/colors";
 import { usePressScale } from "@/motion/presets";
+import { styles } from "./Button.styles";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "md" | "sm";
@@ -28,6 +27,7 @@ interface Props {
   icon?: React.ReactNode;
   fullWidth?: boolean;
   style?: ViewStyle;
+  testID?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -47,6 +47,7 @@ export function Button({
   icon,
   fullWidth = false,
   style,
+  testID,
 }: Props) {
   const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.97);
   const isDisabled = disabled || loading;
@@ -86,6 +87,7 @@ export function Button({
 
   return (
     <AnimatedPressable
+      testID={testID}
       onPress={isDisabled ? undefined : onPress}
       onPressIn={handlePressIn}
       onPressOut={onPressOut}
@@ -118,65 +120,3 @@ export function Button({
     </AnimatedPressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.pill,
-    backgroundColor: Colors.brand,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    paddingHorizontal: moderateScale(20),
-  },
-  baseMd: {
-    height: moderateScale(52),
-  },
-  baseSm: {
-    height: moderateScale(40),
-  },
-  secondary: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-  },
-  ghost: {
-    backgroundColor: "transparent",
-  },
-  danger: {
-    backgroundColor: Colors.error,
-  },
-  fullWidth: {
-    width: "100%",
-  },
-  iconOnlyMd: {
-    width: moderateScale(52),
-    paddingHorizontal: 0,
-  },
-  iconOnlySm: {
-    width: moderateScale(40),
-    paddingHorizontal: 0,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  label: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(16),
-  },
-  labelSm: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(14),
-  },
-  labelOnBrand: {
-    color: Colors.onBrand,
-  },
-  labelOnSurface: {
-    color: Colors.text,
-  },
-});

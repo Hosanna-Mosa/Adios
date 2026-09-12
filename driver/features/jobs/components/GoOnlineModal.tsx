@@ -10,7 +10,8 @@ import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
-import { fadeIn, fadeInUp, usePressScale } from "@/motion/presets";
+import { fadeInUp, usePressScale } from "@/motion/presets";
+import { ServiceOptionCard } from "./ServiceOptionCard";
 import { styles } from "./GoOnlineModal.styles";
 
 interface GoOnlineModalProps {
@@ -87,91 +88,24 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
 
               {/* Service Options */}
               <View style={styles.servicesContainer}>
-                <Animated.View style={ridePress.animatedStyle}>
-                <Pressable
-                  style={[
-                    styles.serviceCard,
-                    selectedServices.includes("ride") && styles.serviceCardActive,
-                  ]}
-                  onPress={() => toggleService("ride")}
-                  onPressIn={ridePress.onPressIn}
-                  onPressOut={ridePress.onPressOut}
-                >
-                  <View style={styles.serviceLeft}>
-                    <View
-                      style={[
-                        styles.checkbox,
-                        selectedServices.includes("ride") && styles.checkboxActive,
-                      ]}
-                    >
-                      {selectedServices.includes("ride") && (
-                        <Feather name="check" size={14} color={Colors.white} />
-                      )}
-                    </View>
-                    <View style={styles.serviceInfo}>
-                      <View style={styles.serviceIconWrap}>
-                        <Feather name="navigation" size={18} color={selectedServices.includes("ride") ? Colors.primary : Colors.textMuted} />
-                      </View>
-                      <View>
-                        <Text style={[styles.serviceName, selectedServices.includes("ride") && styles.serviceNameActive]}>
-                          Ride Hailing
-                        </Text>
-                        <Text style={styles.serviceDesc}>
-                          Passenger pick-up & drop-off
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  {selectedServices.includes("ride") && (
-                    <Animated.View entering={fadeIn()} style={styles.selectedBadge}>
-                      <Text style={styles.selectedBadgeText}>Selected</Text>
-                    </Animated.View>
-                  )}
-                </Pressable>
-                </Animated.View>
+                <ServiceOptionCard
+                  icon="navigation"
+                  name="Ride Hailing"
+                  description="Passenger pick-up & drop-off"
+                  selected={selectedServices.includes("ride")}
+                  onToggle={() => toggleService("ride")}
+                  press={ridePress}
+                />
 
-                <Animated.View style={foodPress.animatedStyle}>
-                <Pressable
-                  style={[
-                    styles.serviceCard,
-                    selectedServices.includes("food") && styles.serviceCardActive,
-                  ]}
-                  onPress={() => toggleService("food")}
-                  onPressIn={foodPress.onPressIn}
-                  onPressOut={foodPress.onPressOut}
-                >
-                  <View style={styles.serviceLeft}>
-                    <View
-                      style={[
-                        styles.checkbox,
-                        selectedServices.includes("food") && styles.checkboxActive,
-                      ]}
-                    >
-                      {selectedServices.includes("food") && (
-                        <Feather name="check" size={14} color={Colors.white} />
-                      )}
-                    </View>
-                    <View style={styles.serviceInfo}>
-                      <View style={[styles.serviceIconWrap, styles.serviceIconFood]}>
-                        <Feather name="shopping-bag" size={18} color={selectedServices.includes("food") ? Colors.primary : Colors.textMuted} />
-                      </View>
-                      <View>
-                        <Text style={[styles.serviceName, selectedServices.includes("food") && styles.serviceNameActive]}>
-                          Food Delivery
-                        </Text>
-                        <Text style={styles.serviceDesc}>
-                          Restaurant orders to customers
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  {selectedServices.includes("food") && (
-                    <Animated.View entering={fadeIn()} style={styles.selectedBadge}>
-                      <Text style={styles.selectedBadgeText}>Selected</Text>
-                    </Animated.View>
-                  )}
-                </Pressable>
-                </Animated.View>
+                <ServiceOptionCard
+                  icon="shopping-bag"
+                  name="Food Delivery"
+                  description="Restaurant orders to customers"
+                  selected={selectedServices.includes("food")}
+                  onToggle={() => toggleService("food")}
+                  press={foodPress}
+                  iconStyle={styles.serviceIconFood}
+                />
               </View>
 
               {/* Info note */}

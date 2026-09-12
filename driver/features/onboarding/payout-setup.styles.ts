@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const styles = StyleSheet.create({
   safe: {
@@ -8,26 +9,6 @@ export const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.surfaceContainerLow,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 18,
-    color: Colors.text,
   },
   content: {
     padding: 16,
@@ -56,14 +37,14 @@ export const styles = StyleSheet.create({
     gap: 3,
   },
   noticeTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 14,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   noticeText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
-    lineHeight: 18,
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
+    lineHeight: typography.lineHeights.medium,
     color: Colors.textSecondary,
   },
   card: {
@@ -78,8 +59,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   inputContainer: {
@@ -95,8 +76,8 @@ export const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: "Inter_500Medium",
-    fontSize: 16,
+    fontWeight: "500",
+    fontSize: typography.sizes.large,
     color: Colors.text,
   },
   errorRow: {
@@ -113,8 +94,8 @@ export const styles = StyleSheet.create({
   errorText: {
     flex: 1,
     color: Colors.error,
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
   },
   bottomBar: {
     padding: 16,
@@ -138,8 +119,8 @@ export const styles = StyleSheet.create({
     opacity: 0.5,
   },
   saveButtonText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 17,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.white,
   },
 });

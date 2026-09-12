@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 interface ServiceToggleProps {
   active: "ride" | "delivery";
@@ -71,8 +72,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   optionText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   optionTextActive: {

@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 interface TransactionItemProps {
   icon: keyof typeof Feather.glyphMap;
@@ -53,19 +54,19 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   label: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 14,
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   time: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     marginTop: 2,
   },
   amount: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 15,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginLeft: 8,
   },

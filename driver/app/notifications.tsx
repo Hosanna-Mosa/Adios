@@ -1,12 +1,10 @@
 import React, { useCallback, useState } from "react";
-import { ActivityIndicator, FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
-import { NotificationRow, NotificationsHeader } from "@/features/profile/components";
+import { NotificationRow, NotificationsEmpty, NotificationsHeader, NotificationsLoading } from "@/features/profile/components";
 import { styles } from "@/features/profile/notifications.styles";
 import type { NotificationItem } from "@/features/profile/utils/notifications";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -70,14 +68,9 @@ export default function DriverNotificationsScreen() {
       />
 
       {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-        </View>
+        <NotificationsLoading />
       ) : items.length === 0 ? (
-        <View style={styles.center}>
-          <Feather name="bell-off" size={32} color={Colors.textMuted} />
-          <Text style={styles.emptyText}>Nothing here yet. Job and account updates will show up in this list.</Text>
-        </View>
+        <NotificationsEmpty message="Nothing here yet. Job and account updates will show up in this list." />
       ) : (
         <FlatList
           data={items}

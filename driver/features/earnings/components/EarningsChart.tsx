@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
 import Colors from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 interface EarningsChartProps {
   data: { day: string; amount: number }[];
@@ -62,8 +63,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   title: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 0.05,
@@ -77,13 +78,13 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   label: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 11,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     textAlign: "center",
   },
   labelToday: {
     color: Colors.primary,
-    fontFamily: "Inter_600SemiBold",
+    fontWeight: "600",
   },
 });

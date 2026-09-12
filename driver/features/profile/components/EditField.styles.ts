@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 /** Note: `fieldLabel` here is the edit-modal variant (13px / text colour).
  * FieldRow has its own, smaller, muted label — the two must not be merged. */
@@ -8,8 +9,8 @@ export const editFieldStyles = StyleSheet.create({
     marginBottom: 14,
   },
   fieldLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 6,
   },
@@ -26,8 +27,8 @@ export const editFieldStyles = StyleSheet.create({
   },
   editInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     color: Colors.text,
-    fontFamily: "Inter_500Medium",
+    fontWeight: "500",
   },
 });

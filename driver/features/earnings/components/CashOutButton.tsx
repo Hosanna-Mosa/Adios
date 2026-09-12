@@ -2,6 +2,7 @@ import React from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 interface CashOutButtonProps {
   onPress: () => void;
@@ -56,8 +57,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   text: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 16,
+    fontWeight: "600",
+    fontSize: typography.sizes.large,
     color: Colors.white,
     flex: 1,
   },

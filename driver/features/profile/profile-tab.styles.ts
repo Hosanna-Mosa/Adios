@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   safe: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -31,7 +35,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   emptyText: {
-    fontFamily: "Inter_500Medium",
+    fontWeight: "500",
     color: Colors.textMuted,
   },
   header: {
@@ -56,8 +60,8 @@ export const styles = StyleSheet.create({
     borderRadius: 42,
   },
   avatarText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 30,
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.primary,
   },
   onlineDot: {
@@ -72,14 +76,14 @@ export const styles = StyleSheet.create({
     borderColor: Colors.white,
   },
   name: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 22,
+    fontWeight: "700",
+    fontSize: typography.sizes.extraLarge,
     color: Colors.text,
     marginBottom: 4,
   },
   memberSince: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 13,
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   ratingBadge: {
@@ -93,8 +97,8 @@ export const styles = StyleSheet.create({
     marginTop: 10,
   },
   ratingText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 13,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.white,
   },
   statsCard: {
@@ -118,20 +122,21 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   statValueBold: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
     marginBottom: 4,
   },
   statLabelMuted: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 11,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
   docsRow: {
     flexDirection: "row",
     gap: 12,
   },
+
   docCard: {
     flex: 1,
     borderRadius: 16,
@@ -142,8 +147,8 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   docTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     textAlign: "center",
     marginBottom: 12,
@@ -154,8 +159,8 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
   },
   statusPillText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 11,
+    fontWeight: "700",
+    fontSize: typography.sizes.small,
   },
   currentVehicleCard: {
     flexDirection: "row",
@@ -182,19 +187,19 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   vehicleTitleSmall: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 12,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     marginBottom: 4,
   },
   vehicleValue: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   sectionHeader: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
     marginTop: 8,
     marginBottom: -4,
@@ -220,14 +225,14 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   menuLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 15,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 4,
   },
   menuSubtitle: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 12,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
   signOutButtonWrap: {
@@ -241,8 +246,8 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   signOutText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.white,
   },
   devButton: {
@@ -253,8 +258,8 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   devBadge: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 10,
+    fontWeight: "700",
+    fontSize: typography.sizes.small,
     color: Colors.surface,
     backgroundColor: Colors.textMuted,
     paddingHorizontal: 6,
@@ -263,11 +268,12 @@ export const styles = StyleSheet.create({
     overflow: "hidden",
   },
   devButtonText: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 13,
+    fontWeight: "500",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     textDecorationLine: "underline",
   },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.35)",
@@ -290,8 +296,8 @@ export const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   modalTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 18,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
   },
   closeButton: {
@@ -308,13 +314,13 @@ export const styles = StyleSheet.create({
 });
 
 export const modalStyles = StyleSheet.create({
+
   fieldLabel: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 13,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 6,
   },
-  // ── Edit mode ────────────────────────────────────────────────────────────
   formWrap: {
     paddingVertical: 8,
     gap: 4,
@@ -341,89 +347,18 @@ export const modalStyles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   genderText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
   },
   genderTextActive: {
     color: Colors.white,
   },
-  editActions: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 8,
-  },
-  cancelBtn: {
-    flex: 1,
-    height: 48,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cancelBtnText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: Colors.textMuted,
-  },
-  saveBtn: {
-    flex: 2,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: Colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveBtnText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 14,
-    color: Colors.white,
-  },
 
-  // ── Edit button (view mode) ──────────────────────────────────────────────
-  editButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    marginTop: 8,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    backgroundColor: Colors.surface,
-  },
-  editButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: Colors.primary,
-  },
-
-  // ── Document actions ─────────────────────────────────────────────────────
   docActions: {
     gap: 10,
     marginTop: 12,
   },
-  docAddBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Colors.primary,
-    borderStyle: "dashed",
-    backgroundColor: Colors.surface,
-  },
-  docAddText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
-    color: Colors.primary,
-  },
-
-  // ── Info box (vehicle) ───────────────────────────────────────────────────
   infoBox: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -435,19 +370,17 @@ export const modalStyles = StyleSheet.create({
   },
   infoText: {
     flex: 1,
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
   },
-
-  // ── Bank accounts ────────────────────────────────────────────────────────
   bankList: {
     marginTop: 12,
   },
   bankListTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 8,
   },
@@ -473,16 +406,17 @@ export const modalStyles = StyleSheet.create({
     flex: 1,
   },
   bankItemNumber: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   bankItemIfsc: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
+    fontWeight: "400",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     marginTop: 2,
   },
+
   defaultBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
@@ -490,8 +424,8 @@ export const modalStyles = StyleSheet.create({
     backgroundColor: Colors.primaryLight,
   },
   defaultBadgeText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 11,
+    fontWeight: "600",
+    fontSize: typography.sizes.small,
     color: Colors.primary,
   },
   bankFormWrap: {
@@ -501,21 +435,17 @@ export const modalStyles = StyleSheet.create({
     borderTopColor: Colors.border,
   },
   bankFormTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 15,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     marginBottom: 12,
   },
-
-  // ── Password form ────────────────────────────────────────────────────────
   passwordForm: {
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
-
-  // ── Support ──────────────────────────────────────────────────────────────
   supportBox: {
     alignItems: "center",
     gap: 8,
@@ -525,15 +455,15 @@ export const modalStyles = StyleSheet.create({
     borderRadius: 12,
   },
   supportTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 16,
+    fontWeight: "700",
+    fontSize: typography.sizes.large,
     color: Colors.text,
   },
   supportText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 13,
+    fontWeight: "400",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
     textAlign: "center",
-    lineHeight: 19,
+    lineHeight: typography.lineHeights.medium,
   },
 });

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const styles = StyleSheet.create({
   container: {
@@ -19,12 +20,12 @@ export const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 12,
-    fontSize: 16,
+    fontSize: typography.sizes.large,
     color: Colors.error,
     textAlign: "center",
   },
@@ -38,7 +39,7 @@ export const styles = StyleSheet.create({
   backButtonText: {
     color: Colors.white,
     fontWeight: "700",
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
   },
   headerOverlay: {
     position: "absolute",
@@ -69,12 +70,12 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: Colors.text,
   },
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     marginTop: 2,
   },

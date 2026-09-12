@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const consentStyles = StyleSheet.create({
   wrap: {
@@ -29,8 +30,8 @@ export const consentStyles = StyleSheet.create({
   },
   label: {
     flex: 1,
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.text,
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
   },
 });

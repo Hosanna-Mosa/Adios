@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -7,9 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import Colors, { radius, elevation } from "@/constants/colors";
+import Colors from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { SPRING } from "@/motion/presets";
+import { BOTTOM_GAP, TAB_PILL_HEIGHT, TOP_CLEARANCE } from "./DriverTabBar.constants";
+import { styles } from "./DriverTabBar.styles";
 
 type TabKey = "home" | "earnings" | "profile";
 
@@ -17,10 +19,6 @@ interface DriverTabBarProps {
   active: TabKey;
 }
 
-const SIDE_MARGIN = moderateScale(16);
-const BOTTOM_GAP = moderateScale(14);
-const TOP_CLEARANCE = moderateScale(14);
-const TAB_PILL_HEIGHT = moderateScale(62);
 const ALL_TAB_KEYS: TabKey[] = ["home", "earnings", "profile"];
 
 /**
@@ -112,48 +110,3 @@ export function DriverTabBar({ active }: DriverTabBarProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  tabPill: {
-    position: "absolute",
-    left: SIDE_MARGIN,
-    right: SIDE_MARGIN,
-    height: TAB_PILL_HEIGHT,
-    borderRadius: radius.pill,
-    overflow: "hidden",
-    backgroundColor: Platform.OS === "android" ? Colors.surface : `${Colors.surface}E6`,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    ...elevation.lg,
-  },
-  tabRow: {
-    flex: 1,
-    flexDirection: "row",
-    paddingHorizontal: 4,
-  },
-  indicator: {
-    position: "absolute",
-    top: moderateScale(7),
-    bottom: moderateScale(7),
-    left: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  indicatorPill: {
-    width: "82%",
-    height: "100%",
-    borderRadius: radius.pill,
-    backgroundColor: Colors.brandSkin,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 3,
-  },
-  tabLabel: {
-    fontFamily: fontFamilies.body.medium,
-    fontSize: moderateScale(10.5),
-    color: Colors.tabInactive,
-  },
-});

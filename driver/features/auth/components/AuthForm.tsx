@@ -6,9 +6,8 @@ import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { fadeInUp } from "@/motion/presets";
+import { AuthModeTabs, type AuthMode } from "./AuthModeTabs";
 import { styles } from "../auth.styles";
-
-export type AuthMode = "signin" | "signup";
 
 interface Props {
   mode: AuthMode;
@@ -44,21 +43,7 @@ export function AuthForm({
 }: Props) {
   return (
     <View style={styles.formSection}>
-      {/* Tabs */}
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signin" && styles.tabActive]}
-          onPress={() => onSwitchMode("signin")}
-        >
-          <Text style={[styles.tabText, mode === "signin" && styles.tabTextActive]}>Sign In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signup" && styles.tabActive]}
-          onPress={() => onSwitchMode("signup")}
-        >
-          <Text style={[styles.tabText, mode === "signup" && styles.tabTextActive]}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
+      <AuthModeTabs mode={mode} onSwitchMode={onSwitchMode} />
 
       <Text style={styles.formTitle}>
         {mode === "signin" ? "Welcome Back!" : "Join as Driver"}

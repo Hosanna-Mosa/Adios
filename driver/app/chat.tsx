@@ -11,13 +11,13 @@ import { useDriverStore } from "@/store/driverStore";
 import { socketService } from "@/utils/socketService";
 import { formatCustomerChatMessage } from "@/utils/chatMessages";
 import {
-  ChatComposer,
   ChatMessageBubble,
   CustomerChatHeader,
   QuickReplyBar,
   TaskAssignmentBanner,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/chat.styles";
+import { MessageComposer } from "@/components/shared/MessageComposer";
 
 const QUICK_REPLIES = [
   "On my way!",
@@ -123,7 +123,7 @@ export default function DriverChatScreen() {
 
       <QuickReplyBar replies={QUICK_REPLIES} onSelect={handleSend} />
 
-      <ChatComposer
+      <MessageComposer
         value={inputText}
         onChangeText={setInputText}
         onSend={() => handleSend(inputText)}

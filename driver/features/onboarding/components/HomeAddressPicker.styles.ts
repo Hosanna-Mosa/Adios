@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 /** Values lifted verbatim from the inline styles on the onboarding address
  * step. These are NOT the same as the add-address screen's equivalents —
@@ -26,8 +27,8 @@ export const homeAddressStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.neutral100,
   },
-  name: { fontSize: 14, color: Colors.neutral800, fontWeight: "600" },
-  address: { fontSize: 12, color: Colors.neutral500 },
+  name: { fontSize: typography.sizes.medium, color: Colors.neutral800, fontWeight: "600" },
+  address: { fontSize: typography.sizes.small, color: Colors.neutral500 },
 
   verifiedBox: {
     flexDirection: "row",
@@ -40,6 +41,6 @@ export const homeAddressStyles = StyleSheet.create({
     gap: 10,
   },
   verifiedCopy: { flex: 1 },
-  verifiedTitle: { fontSize: 13, fontWeight: "600", color: Colors.successDeep },
-  verifiedCoords: { fontSize: 11, color: Colors.successStrong, marginTop: 2 },
+  verifiedTitle: { fontSize: typography.sizes.medium, fontWeight: "600", color: Colors.successDeep },
+  verifiedCoords: { fontSize: typography.sizes.small, color: Colors.successStrong, marginTop: 2 },
 });

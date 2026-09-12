@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDriverStore } from "@/store/driverStore";
 import { socketService } from "@/utils/socketService";
 import { Alert } from "react-native";
@@ -7,7 +7,6 @@ import { formatCustomerChatMessage } from "@/utils/chatMessages";
 export function GlobalSocketHandler() {
   const currentOrderId = useDriverStore((s) => s.currentOrder?.id);
   const addChatMessage = useDriverStore((s) => s.addChatMessage);
-  const incrementUnreadCount = useDriverStore((s) => s.incrementUnreadCount);
 
   useEffect(() => {
     if (!currentOrderId) return;

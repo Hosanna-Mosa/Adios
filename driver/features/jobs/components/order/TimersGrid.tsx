@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View } from "react-native";
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
+import { formatCurrency } from "@/utils/format";
 
 /** Prep countdown and the waiting compensation earned while at the restaurant. */
 export function TimersGrid({
@@ -25,7 +26,7 @@ export function TimersGrid({
       <View style={styles.timerBlock}>
         <Text style={styles.timerBlockLabel}>Waiting Fee Earned</Text>
         <Text style={[styles.timerBlockVal, { color: Colors.success }]}>
-          +₹{waitingComp.toFixed(2)}
+          +{formatCurrency(waitingComp)}
         </Text>
       </View>
     </View>

@@ -1,26 +1,9 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: Colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: 16,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: { fontSize: 14, fontWeight: "800", color: Colors.text },
   container: { padding: 20, gap: 20 },
   addBtn: {
     flexDirection: "row",
@@ -41,7 +24,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  addText: { fontSize: 16, fontWeight: "700", color: Colors.primary },
+  addText: { fontSize: typography.sizes.large, fontWeight: "700", color: Colors.primary },
   addressList: { gap: 12 },
   addressCard: {
     flexDirection: "row",
@@ -74,14 +57,14 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   addressInfo: { flex: 1, gap: 2 },
-  addressLabel: { fontSize: 13, fontWeight: "700", color: Colors.text },
-  addressLine: { fontSize: 11, color: Colors.textSecondary },
-  addressPhone: { fontSize: 10, color: Colors.textMuted },
+  addressLabel: { fontSize: typography.sizes.medium, fontWeight: "700", color: Colors.text },
+  addressLine: { fontSize: typography.sizes.small, color: Colors.textSecondary },
+  addressPhone: { fontSize: typography.sizes.small, color: Colors.textMuted },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 60,
     gap: 12,
   },
-  emptyText: { color: Colors.textMuted, fontSize: 16, fontWeight: "500" },
+  emptyText: { color: Colors.textMuted, fontSize: typography.sizes.large, fontWeight: "500" },
 });

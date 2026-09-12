@@ -8,13 +8,15 @@ interface Props {
   elevationLevel?: "none" | "sm" | "md" | "lg";
   padding?: number;
   bordered?: boolean;
+  testID?: string;
 }
 
 /** Surface container with the shared radius/elevation tokens baked in.
  * Mirrors app/components/ui/Card.tsx. */
-export function Card({ children, style, elevationLevel = "sm", padding = 16, bordered = false }: Props) {
+export function Card({ children, style, elevationLevel = "sm", padding = 16, bordered = false, testID }: Props) {
   return (
     <View
+      testID={testID}
       style={[
         styles.base,
         { padding },

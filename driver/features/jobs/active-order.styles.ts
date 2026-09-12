@@ -1,12 +1,14 @@
 import { Dimensions, StyleSheet } from "react-native";
-
-// Same screen dimension the screen file reads — the sheet is capped at 58% of it.
-const { height } = Dimensions.get("window");
-import { Colors } from "@/constants/colors";
 import { moderateScale } from "react-native-size-matters";
+import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+const { height } = Dimensions.get("window");
+
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
-  // lifted verbatim from the inline styles they replaced
+
   sosBtn: {
     backgroundColor: Colors.error,
     borderRadius: 16,
@@ -37,8 +39,7 @@ export const styles = StyleSheet.create({
     zIndex: 10,
   },
   backBtn: { padding: 4 },
-  headerTitle: { fontSize: moderateScale(17), fontWeight: "700", color: Colors.text },
-  headerRightSpacer: { width: 32, height: 32 },
+  headerTitle: { fontSize: typography.sizes.large, fontWeight: "700", color: Colors.text },
   mapContainer: { flex: 1 },
   userMarkerWrap: {
     alignItems: 'center',
@@ -52,9 +53,9 @@ export const styles = StyleSheet.create({
     height: 26,
     borderRadius: 13,
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: Colors.white,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -67,14 +68,14 @@ export const styles = StyleSheet.create({
     borderRadius: 7,
     backgroundColor: Colors.error,
     borderWidth: 2,
-    borderColor: '#fff',
+    borderColor: Colors.white,
     elevation: 4,
   },
   bottomCard: {
     backgroundColor: Colors.surface,
     borderTopLeftRadius: moderateScale(24),
     borderTopRightRadius: moderateScale(24),
-    shadowColor: "#000",
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -84,6 +85,7 @@ export const styles = StyleSheet.create({
     paddingTop: 18,
     paddingHorizontal: 20,
   },
+
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -91,37 +93,9 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   orderLabel: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.textSecondary,
-  },
-  statusPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: moderateScale(6),
-  },
-  statusPillText: {
-    color: "#fff",
-    fontSize: moderateScale(10),
-    fontWeight: "800",
-    letterSpacing: 0.5,
-  },
-  badgeTop: {
-    position: "absolute",
-    top: -4,
-    right: -4,
-    backgroundColor: Colors.error,
-    minWidth: 16,
-    height: 16,
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 4,
-  },
-  badgeText: {
-    color: "#fff",
-    fontSize: moderateScale(9),
-    fontWeight: "800",
   },
   stepContainer: {
     flex: 1,
@@ -130,7 +104,7 @@ export const styles = StyleSheet.create({
     gap: 16,
   },
   stepTitle: {
-    fontSize: moderateScale(20),
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.text,
     marginBottom: 12,
@@ -152,6 +126,7 @@ export const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
+
   pulseDot: {
     width: 10,
     height: 10,
@@ -170,19 +145,19 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   infoLabel: {
-    fontSize: moderateScale(10),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textMuted,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   infoText: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
   subText: {
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     marginTop: 1,
   },
@@ -199,8 +174,8 @@ export const styles = StyleSheet.create({
     elevation: 3,
   },
   actionBtnText: {
-    color: "#fff",
-    fontSize: moderateScale(15),
+    color: Colors.white,
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
   },
   simPanel: {
@@ -219,16 +194,16 @@ export const styles = StyleSheet.create({
     width: "30%",
   },
   simStatLabel: {
-    fontSize: moderateScale(10),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textMuted,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   simStatValue: {
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
-    color: "#fff",
+    color: Colors.white,
   },
   simToggleBtn: {
     backgroundColor: Colors.text,
@@ -243,21 +218,18 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.error,
   },
   simToggleText: {
-    color: "#fff",
-    fontSize: moderateScale(13),
+    color: Colors.white,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
   },
-  locationDetails: {
-    marginBottom: 16,
-  },
   restaurantName: {
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
     color: Colors.text,
     marginBottom: 2,
   },
   addressText: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   gpsVerifiedBox: {
@@ -271,12 +243,12 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   gpsVerifiedTitle: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.success,
   },
   gpsVerifiedDesc: {
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.success,
     marginTop: 1,
   },
@@ -287,11 +259,12 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   waitNotifyText: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
-    lineHeight: moderateScale(18),
+    lineHeight: typography.lineHeights.medium,
     textAlign: "center",
   },
+
   timersGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -307,14 +280,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
   timerBlockLabel: {
-    fontSize: moderateScale(10),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textSecondary,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   timerBlockVal: {
-    fontSize: moderateScale(16),
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.text,
   },
@@ -322,7 +295,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   checklistHeader: {
-    fontSize: moderateScale(11),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textMuted,
     letterSpacing: 0.8,
@@ -338,7 +311,7 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   checkText: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     fontWeight: "600",
     flex: 1,
@@ -357,29 +330,30 @@ export const styles = StyleSheet.create({
     marginBottom: 6,
   },
   otpLabel: {
-    fontSize: moderateScale(10),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textSecondary,
     marginBottom: 6,
   },
   otpInput: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: moderateScale(8),
     paddingHorizontal: 12,
     paddingVertical: 8,
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
+
   otpInputError: {
     borderColor: Colors.error,
     backgroundColor: Colors.errorLight,
   },
   errorText: {
     color: Colors.error,
-    fontSize: moderateScale(11),
+    fontSize: typography.sizes.small,
     fontWeight: "600",
     marginTop: 4,
   },
@@ -402,7 +376,7 @@ export const styles = StyleSheet.create({
   issueBtnText: {
     color: Colors.error,
     fontWeight: "700",
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
   },
   pickupConfirmBtn: {
     flex: 1,
@@ -431,20 +405,21 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
   },
   customerInitialsInside: {
-    fontSize: moderateScale(16),
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.brand,
   },
   customerNameInside: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
     color: Colors.text,
   },
   customerPhoneInside: {
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     marginTop: 1,
   },
+
   communicationBtns: {
     flexDirection: "row",
     gap: 8,
@@ -475,15 +450,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   commBadgeText: {
-    color: "#fff",
-    fontSize: moderateScale(9),
+    color: Colors.white,
+    fontSize: typography.sizes.small,
     fontWeight: "800",
   },
   optionsBlock: {
     marginBottom: 14,
   },
   blockLabel: {
-    fontSize: moderateScale(10),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textMuted,
     marginBottom: 8,
@@ -505,7 +480,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.brandSkin,
   },
   optionBtnText: {
-    fontSize: moderateScale(11),
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textSecondary,
   },
@@ -519,13 +494,13 @@ export const styles = StyleSheet.create({
     marginVertical: 12,
   },
   successTitle: {
-    fontSize: moderateScale(18),
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.text,
     marginTop: 6,
   },
   successSubtitle: {
-    fontSize: moderateScale(12),
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     marginTop: 2,
     textAlign: "center",
@@ -539,7 +514,7 @@ export const styles = StyleSheet.create({
     marginBottom: 14,
   },
   breakdownHeader: {
-    fontSize: moderateScale(11),
+    fontSize: typography.sizes.small,
     fontWeight: "800",
     color: Colors.textSecondary,
     letterSpacing: 0.5,
@@ -551,11 +526,11 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   breakdownLabel: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
   },
   breakdownVal: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
@@ -568,17 +543,18 @@ export const styles = StyleSheet.create({
     paddingTop: 10,
   },
   breakdownTotalLabel: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "800",
     color: Colors.text,
   },
   breakdownTotalVal: {
-    fontSize: moderateScale(18),
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.success,
   },
+
   feedbackSection: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: Colors.border,
@@ -595,7 +571,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: moderateScale(8),
     padding: 10,
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     height: moderateScale(60),
     color: Colors.text,
     textAlignVertical: "top",
@@ -615,7 +591,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   hotspotText: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.text,
   },

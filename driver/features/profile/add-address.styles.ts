@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const styles = StyleSheet.create({
   // lifted verbatim from the inline styles on the address field header
@@ -15,35 +16,13 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   locateText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.primary,
   },
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.surface,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: 16,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: Colors.text,
   },
   scrollContent: {
     padding: 20,
@@ -58,7 +37,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
@@ -84,7 +63,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   labelChipText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.textSecondary,
   },
@@ -95,7 +74,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   inputLabel: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.textSecondary,
   },
@@ -105,7 +84,7 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     color: Colors.text,
     backgroundColor: Colors.background,
     minHeight: 48,
@@ -130,7 +109,7 @@ export const styles = StyleSheet.create({
   },
   saveBtnText: {
     color: Colors.white,
-    fontSize: 17,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
   },
 });

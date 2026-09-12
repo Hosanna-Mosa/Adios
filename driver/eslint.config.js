@@ -7,6 +7,47 @@ const expoConfig = require("eslint-config-expo/flat");
 // Everything here is a `warn` for now: the codebase does not satisfy these
 // rules yet, and the refactor drives the violation count down file by file.
 // Phase 4 flips them to `error` once the count reaches zero — see the plan.
+// ---------------------------------------------------------------------
+// The app has exactly four text sizes. This is a plugin rule rather than an
+// entry in `no-restricted-syntax` because flat config replaces a rule's
+// options per file, so adding to a shared rule would silently drop whichever
+// block loses. Unlike the architectural rules below this one is an `error`
+// from the start: the codemod drove its violation count to zero in one pass,
+// so there is no backlog to work down.
+// ---------------------------------------------------------------------
+const typographyTokens = {
+  rules: {
+    "typography-tokens": {
+      meta: { type: "problem", schema: [] },
+      create(context) {
+        const tables = { fontSize: "sizes", lineHeight: "lineHeights" };
+        const isToken = (n, table) =>
+          n && n.type === "MemberExpression" &&
+          n.object?.type === "MemberExpression" &&
+          n.object.object?.name === "typography" &&
+          n.object.property?.name === table;
+        // a ternary is fine as long as both branches are tokens
+        const ok = (n, table) =>
+          n.type === "ConditionalExpression"
+            ? isToken(n.consequent, table) && isToken(n.alternate, table)
+            : isToken(n, table);
+        return {
+          "ObjectExpression > Property"(node) {
+            const key = node.key && (node.key.name || node.key.value);
+            const table = tables[key];
+            if (!table || node.computed) return;
+            if (!ok(node.value, table))
+              context.report({
+                node: node.value,
+                message: key + " must be typography." + table + ".<small|medium|large|extraLarge>",
+              });
+          },
+        };
+      },
+    },
+  },
+};
+
 module.exports = defineConfig([
   expoConfig,
   {
@@ -93,6 +134,29 @@ module.exports = defineConfig([
           },
         ],
       }],
+    },
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["constants/typography.ts", "dist/*"],
+    plugins: { flavour: typographyTokens },
+    rules: { "flavour/typography-tokens": "error" },
+  },
+  // ---------------------------------------------------------------------
+  // scripts/ is build tooling that runs in Node, not app code shipped to a
+  // device, so it gets Node globals rather than the React Native environment.
+  // ---------------------------------------------------------------------
+  {
+    files: ["scripts/**/*.js"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        __dirname: "readonly",
+        require: "readonly",
+        module: "readonly",
+        process: "readonly",
+        console: "readonly",
+      },
     },
   },
 ]);

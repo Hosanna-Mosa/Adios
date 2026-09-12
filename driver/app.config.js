@@ -81,8 +81,13 @@ export default {
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
 
-      // eas.projectId is written by `eas init` for the signed-in account.
-      // Previous (triozen-tech): 484db5ff-50ce-4d0e-8705-8876148638a7
+      // eas init cannot write to a dynamic config, so the id is set by hand.
+      // Signed-in account (hosanna4190). Previous (triozen-tech):
+      // 484db5ff-50ce-4d0e-8705-8876148638a7 — note that account's builds use
+      // different signing keys, so the two cannot upgrade over each other.
+      eas: {
+        projectId: '8105f2ed-0656-417f-9922-bbf9c40869a1',
+      },
     },
   },
 };

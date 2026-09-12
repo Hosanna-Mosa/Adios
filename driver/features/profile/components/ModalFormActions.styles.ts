@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 /** Lifted verbatim from the profile tab's modalStyles. */
 export const modalActionStyles = StyleSheet.create({
@@ -18,8 +19,8 @@ export const modalActionStyles = StyleSheet.create({
     justifyContent: "center",
   },
   cancelBtnText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.textMuted,
   },
   saveBtn: {
@@ -31,8 +32,8 @@ export const modalActionStyles = StyleSheet.create({
     justifyContent: "center",
   },
   saveBtnText: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 14,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
     color: Colors.white,
   },
   editButton: {
@@ -48,8 +49,8 @@ export const modalActionStyles = StyleSheet.create({
     backgroundColor: Colors.surface,
   },
   editButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.primary,
   },
 });

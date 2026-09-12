@@ -3,7 +3,8 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../notifications.styles";
-import { CATEGORY_ICON, formatWhen, type NotificationItem } from "../utils/notifications";
+import { CATEGORY_ICON, formatWhen } from "../utils/notifications";
+import type { NotificationItem } from "../utils/notifications";
 
 /** One notification: category icon, title with unread dot, body, and age. */
 export function NotificationRow({

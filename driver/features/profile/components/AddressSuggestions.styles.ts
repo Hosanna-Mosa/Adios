@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const suggestionStyles = StyleSheet.create({
   dropdown: {
@@ -23,6 +24,6 @@ export const suggestionStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.surfaceContainer,
   },
-  name: { fontSize: 14, color: Colors.text, fontWeight: "600" },
-  address: { fontSize: 12, color: Colors.textSecondary },
+  name: { fontSize: typography.sizes.medium, color: Colors.text, fontWeight: "600" },
+  address: { fontSize: typography.sizes.small, color: Colors.textSecondary },
 });

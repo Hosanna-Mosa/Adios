@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const taskBannerStyles = StyleSheet.create({
   banner: {
@@ -12,8 +13,8 @@ export const taskBannerStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   copy: { flex: 1, paddingRight: 10 },
-  title: { fontSize: 13, fontWeight: "700", color: Colors.success },
-  subtitle: { fontSize: 11, color: Colors.success },
+  title: { fontSize: typography.sizes.medium, fontWeight: "700", color: Colors.success },
+  subtitle: { fontSize: typography.sizes.small, color: Colors.success },
   button: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -21,5 +22,5 @@ export const taskBannerStyles = StyleSheet.create({
   },
   buttonEnabled: { backgroundColor: Colors.success },
   buttonDisabled: { backgroundColor: Colors.textMuted },
-  buttonText: { color: Colors.white, fontSize: 12, fontWeight: "700" },
+  buttonText: { color: Colors.white, fontSize: typography.sizes.small, fontWeight: "700" },
 });

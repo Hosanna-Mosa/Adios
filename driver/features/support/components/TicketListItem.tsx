@@ -1,8 +1,8 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "@/constants/colors";
-import { ticketStyles as styles } from "./TicketListItem.styles";
 import type { SupportTicket } from "../types";
+import { ticketStyles as styles } from "./TicketListItem.styles";
 
 /** One past or ongoing support case in the sessions list. */
 export function TicketListItem({

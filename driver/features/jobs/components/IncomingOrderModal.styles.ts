@@ -1,7 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors, elevation, radius } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   overlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -26,18 +30,18 @@ export const styles = StyleSheet.create({
     minWidth: 0,
   },
   title: {
-    fontSize: 22,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.text,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     fontWeight: "600",
     marginTop: 2,
   },
   earnings: {
-    fontSize: 24,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.success,
   },
@@ -58,7 +62,7 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.error,
   },
   timerText: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     fontWeight: "600",
     color: Colors.error,
   },
@@ -82,7 +86,7 @@ export const styles = StyleSheet.create({
     gap: 6,
   },
   detailText: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.textSecondary,
   },
@@ -90,7 +94,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     color: Colors.textMuted,
     letterSpacing: 1,
@@ -102,12 +106,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   stopLocationName: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
   },
   stopAddress: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     marginTop: 1,
   },
@@ -120,17 +124,18 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   itemsRestaurantName: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.textSecondary,
     marginBottom: 4,
   },
   itemRowText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     paddingLeft: 4,
     paddingVertical: 1,
   },
+
   paymentRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -142,7 +147,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.successLight,
   },
   paymentText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.success,
   },

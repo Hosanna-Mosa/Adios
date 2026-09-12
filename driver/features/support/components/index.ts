@@ -1,12 +1,13 @@
+export { TicketChatView } from "./TicketChatView";
+export { CreateTicketView } from "./CreateTicketView";
+export { TicketListView } from "./TicketListView";
+export { SupportLoading } from "./SupportLoading";
 export { ContactOptionCard } from "./ContactOptionCard";
 export { CreateTicketForm } from "./CreateTicketForm";
 export { FaqAccordion } from "./FaqAccordion";
 export { ResolveRequestPrompt } from "./ResolveRequestPrompt";
 export { ResolvedNotice } from "./ResolvedNotice";
 export { SupportChatHeader } from "./SupportChatHeader";
-export { SupportComposer } from "./SupportComposer";
-export { SupportHeader } from "./SupportHeader";
 export { SupportHero } from "./SupportHero";
 export { SupportMessageBubble } from "./SupportMessageBubble";
-export { SupportScreenHeader } from "./SupportScreenHeader";
 export { TicketListItem } from "./TicketListItem";

@@ -5,6 +5,8 @@ import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { staggerListItem } from "@/motion/presets";
 import { styles } from "../home.styles";
+import { formatCurrency } from "@/utils/format";
+import { formatReservedAt } from "../utils/offer";
 
 /** A ride reserved for later: when, where, who, and what it pays. */
 export function ScheduledRideCard({
@@ -20,15 +22,7 @@ export function ScheduledRideCard({
 }) {
   const pickup = ride.stops?.[0]?.address || "Pickup Location";
   const drop = ride.stops?.[ride.stops.length - 1]?.address || "Drop Location";
-  const dateStr = ride.reservedAt
-    ? new Date(ride.reservedAt).toLocaleString([], {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "N/A";
+  const dateStr = formatReservedAt(ride.reservedAt);
 
   return (
     <Animated.View entering={staggerListItem(index)} style={styles.scheduledCard}>
@@ -37,7 +31,7 @@ export function ScheduledRideCard({
           <Feather name="calendar" size={16} color={Colors.primary} />
           <Text style={styles.scheduledTime}>{dateStr}</Text>
         </View>
-        <Text style={styles.scheduledPrice}>₹{Math.round(ride.totalPrice * 0.8)}</Text>
+        <Text style={styles.scheduledPrice}>{formatCurrency(Math.round(ride.totalPrice * 0.8), { decimals: false })}</Text>
       </View>
 
       <View style={styles.scheduledBody}>

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const btnStyles = StyleSheet.create({
   button: {
@@ -17,5 +18,5 @@ export const btnStyles = StyleSheet.create({
     elevation: 6,
   },
   disabled: { opacity: 0.5 },
-  text: { color: Colors.white, fontSize: 17, fontWeight: "700" },
+  text: { color: Colors.white, fontSize: typography.sizes.large, fontWeight: "700" },
 });

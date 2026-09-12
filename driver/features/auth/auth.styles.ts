@@ -1,8 +1,12 @@
 import { StyleSheet } from "react-native";
-import { Colors } from "@/constants/colors";
 import { moderateScale } from "react-native-size-matters";
+import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
 export const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: Colors.white,
@@ -31,13 +35,13 @@ export const styles = StyleSheet.create({
     elevation: 8,
   },
   appName: {
-    fontSize: moderateScale(26),
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "800",
     color: Colors.text,
     letterSpacing: -0.5,
   },
   tagline: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     fontWeight: "500",
   },
@@ -50,18 +54,18 @@ export const styles = StyleSheet.create({
     gap: 10,
   },
   formTitle: {
-    fontSize: moderateScale(22),
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "700",
     color: Colors.text,
   },
   formSubtitle: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: typography.lineHeights.medium,
     marginTop: -6,
   },
   demoHint: {
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.primary,
     backgroundColor: Colors.primaryLight,
     paddingHorizontal: 12,
@@ -84,41 +88,22 @@ export const styles = StyleSheet.create({
   },
   tabActive: {
     backgroundColor: Colors.white,
-    shadowColor: "#000",
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
   tabText: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: Colors.textSecondary,
   },
   tabTextActive: {
     color: Colors.primary,
   },
-  inputGroup: {
-    gap: 5,
-  },
-  inputLabel: {
-    fontSize: moderateScale(13),
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(12),
-    paddingHorizontal: 14,
-    height: moderateScale(48),
-    gap: 10,
-    backgroundColor: Colors.surface,
-  },
   countryCode: {
-    fontSize: moderateScale(16),
+    fontSize: typography.sizes.large,
     fontWeight: "600",
     color: Colors.text,
   },
@@ -127,34 +112,7 @@ export const styles = StyleSheet.create({
     height: 24,
     backgroundColor: Colors.border,
   },
-  input: {
-    flex: 1,
-    fontSize: moderateScale(16),
-    color: Colors.text,
-  },
-  primaryButton: {
-    height: moderateScale(50),
-    borderRadius: moderateScale(25),
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-    marginTop: 4,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-  primaryButtonText: {
-    color: Colors.white,
-    fontSize: moderateScale(16),
-    fontWeight: "700",
-  },
+
   otpContainer: {
     flexDirection: "row",
     gap: 8,
@@ -169,7 +127,7 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
     backgroundColor: Colors.surface,
     textAlign: "center",
-    fontSize: moderateScale(20),
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: Colors.text,
   },
@@ -191,7 +149,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   resendText: {
-    fontSize: moderateScale(15),
+    fontSize: typography.sizes.medium,
     color: Colors.primary,
     fontWeight: "600",
   },
@@ -200,7 +158,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   switchText: {
-    fontSize: moderateScale(14),
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     fontWeight: "500",
   },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -11,12 +11,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
 import {
   BankAccountForm,
-  PayoutHeader,
   SaveBar,
   SecureNotice,
 } from "@/features/onboarding/components";
 import { styles } from "@/features/onboarding/payout-setup.styles";
 import { API_URL } from "@/utils/apiUrl";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
 
 
 export default function PayoutSetupScreen() {
@@ -89,7 +89,7 @@ export default function PayoutSetupScreen() {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <PayoutHeader
+        <ScreenHeader
           title="Payout Setup"
           paddingTop={insets.top + 16}
           onBack={() => router.back()}

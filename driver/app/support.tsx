@@ -5,11 +5,11 @@ import { router } from "expo-router";
 import {
   ContactOptionCard,
   FaqAccordion,
-  SupportHeader,
   SupportHero,
 } from "@/features/support/components";
 import { FAQS } from "@/features/support/faqs";
 import { styles } from "@/features/support/support.styles";
+import { ScreenHeader } from "@/components/shared/ScreenHeader";
 
 const CONTACT_OPTIONS = [
   { id: "chat", icon: "message-square" as const, label: "Live Chat", description: "Instant support" },
@@ -32,7 +32,7 @@ export default function SupportScreen() {
 
   return (
     <View style={styles.root}>
-      <SupportHeader
+      <ScreenHeader
         title="Partner Support"
         paddingTop={insets.top + 16}
         onBack={() => router.back()}

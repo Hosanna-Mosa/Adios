@@ -1,27 +1,11 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    backgroundColor: Colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "900",
-    color: Colors.text,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -41,26 +25,26 @@ export const styles = StyleSheet.create({
   },
   heroBadgeText: {
     color: Colors.primaryDark,
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     fontWeight: "800",
     letterSpacing: 1,
   },
   heroTitle: {
-    fontSize: 24,
+    fontSize: typography.sizes.extraLarge,
     fontWeight: "900",
     color: Colors.text,
     textAlign: "center",
     marginBottom: 10,
   },
   heroSubtitle: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: Colors.textSecondary,
     textAlign: "center",
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
     paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: typography.sizes.large,
     fontWeight: "800",
     color: Colors.text,
     marginBottom: 16,
@@ -94,14 +78,14 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
   contactLabel: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
     marginBottom: 4,
     textAlign: "center",
   },
   contactDesc: {
-    fontSize: 10,
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
     textAlign: "center",
   },
@@ -122,7 +106,7 @@ export const styles = StyleSheet.create({
     padding: 16,
   },
   faqQuestion: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "700",
     color: Colors.text,
     flex: 1,
@@ -135,9 +119,9 @@ export const styles = StyleSheet.create({
     borderTopColor: Colors.border,
   },
   faqAnswer: {
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     color: Colors.textSecondary,
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.small,
     marginTop: 12,
   },
 });

@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 
 export const fieldRowStyles = StyleSheet.create({
   fieldRow: {
@@ -8,14 +9,14 @@ export const fieldRowStyles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   fieldLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: 12,
+    fontWeight: "500",
+    fontSize: typography.sizes.small,
     color: Colors.textMuted,
     marginBottom: 4,
   },
   fieldValue: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
 });

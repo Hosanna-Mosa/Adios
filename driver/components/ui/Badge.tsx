@@ -2,11 +2,12 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { moderateScale } from "react-native-size-matters";
 import { Colors, radius } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 
 interface BadgeProps {
   label: string;
   tone?: "brand" | "success" | "warning" | "error" | "neutral";
+  testID?: string;
 }
 
 const toneStyles = {
@@ -18,10 +19,10 @@ const toneStyles = {
 };
 
 /** Mirrors app/components/ui/Badge.tsx. */
-export function Badge({ label, tone = "neutral" }: BadgeProps) {
+export function Badge({ label, tone = "neutral", testID }: BadgeProps) {
   const toneStyle = toneStyles[tone];
   return (
-    <View style={[styles.badgeBase, { backgroundColor: toneStyle.bg }]}>
+    <View testID={testID} style={[styles.badgeBase, { backgroundColor: toneStyle.bg }]}>
       <Text style={[styles.badgeLabel, { color: toneStyle.fg }]}>{label}</Text>
     </View>
   );
@@ -32,12 +33,13 @@ interface ChipProps {
   selected?: boolean;
   onPress?: () => void;
   icon?: React.ReactNode;
+  testID?: string;
 }
 
 /** Mirrors app/components/ui/Badge.tsx (Chip). */
-export function Chip({ label, selected = false, onPress, icon }: ChipProps) {
+export function Chip({ label, selected = false, onPress, icon, testID }: ChipProps) {
   return (
-    <Pressable onPress={onPress} style={[styles.chipBase, selected && styles.chipSelected]}>
+    <Pressable testID={testID} onPress={onPress} style={[styles.chipBase, selected && styles.chipSelected]}>
       {icon}
       <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{label}</Text>
     </Pressable>
@@ -53,7 +55,7 @@ const styles = StyleSheet.create({
   },
   badgeLabel: {
     fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(11),
+    fontSize: typography.sizes.small,
     letterSpacing: 0.4,
     textTransform: "uppercase",
   },
@@ -74,7 +76,7 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     fontFamily: fontFamilies.body.semibold,
-    fontSize: moderateScale(13),
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   chipLabelSelected: {

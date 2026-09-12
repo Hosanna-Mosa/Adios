@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import Animated, { interpolate, SharedValue, useAnimatedStyle } from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 
 interface Props {
   title?: string;
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     fontFamily: fontFamilies.heading.semibold,
-    fontSize: moderateScale(18),
+    fontSize: typography.sizes.large,
     color: Colors.text,
     textAlign: "center",
     marginHorizontal: 4,
