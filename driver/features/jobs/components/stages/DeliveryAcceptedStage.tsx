@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
-import { Linking, View } from "react-native";
+import { Linking } from "react-native";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -16,6 +16,7 @@ import {
 } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { PickupNavButton } from "./PickupNavButton";
+import { Box } from "@/components/ui/Box";
 
 export function DeliveryAcceptedStage() {
   const {
@@ -23,7 +24,7 @@ export function DeliveryAcceptedStage() {
   } = useActiveOrderCtx();
 
   return (
-    <View style={styles.stepContainer}>
+    <Box style={styles.stepContainer}>
       <StageTitleRow
         title="Order Accepted"
         actions={
@@ -61,6 +62,6 @@ export function DeliveryAcceptedStage() {
 
       <StageActionButton label="Start Travel to Restaurant" onPress={handleStatusTransition} />
       <CancelDeliveryButton />
-    </View>
+    </Box>
   );
 }

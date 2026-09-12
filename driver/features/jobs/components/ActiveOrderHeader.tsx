@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../active-order.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Back, the job's title for its service type, and the SOS button. */
 export function ActiveOrderHeader({
@@ -15,15 +18,15 @@ export function ActiveOrderHeader({
   onSOS: () => void;
 }) {
   return (
-    <View style={styles.header}>
-      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+    <Box style={styles.header}>
+      <Touchable style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={24} color={Colors.text} />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>{title}</Text>
+      </Touchable>
+      <AppText style={styles.headerTitle}>{title}</AppText>
       {/* original was [styles.backBtn, {…overrides}] — keep both layers */}
-      <TouchableOpacity style={[styles.backBtn, styles.sosBtn]} onPress={onSOS}>
+      <Touchable style={[styles.backBtn, styles.sosBtn]} onPress={onSOS}>
         <Ionicons name="alert-circle" size={18} color={Colors.white} />
-      </TouchableOpacity>
-    </View>
+      </Touchable>
+    </Box>
   );
 }

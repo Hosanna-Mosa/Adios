@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../support.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Badge, headline and blurb at the top of the support screen. */
 export function SupportHero({
@@ -13,12 +15,12 @@ export function SupportHero({
   subtitle: string;
 }) {
   return (
-    <View style={styles.heroSection}>
-      <View style={styles.heroBadge}>
-        <Text style={styles.heroBadgeText}>{badge}</Text>
-      </View>
-      <Text style={styles.heroTitle}>{title}</Text>
-      <Text style={styles.heroSubtitle}>{subtitle}</Text>
-    </View>
+    <Box style={styles.heroSection}>
+      <Box style={styles.heroBadge}>
+        <AppText style={styles.heroBadgeText}>{badge}</AppText>
+      </Box>
+      <AppText style={styles.heroTitle}>{title}</AppText>
+      <AppText style={styles.heroSubtitle}>{subtitle}</AppText>
+    </Box>
   );
 }

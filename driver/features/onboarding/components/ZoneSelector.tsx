@@ -1,9 +1,12 @@
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { FormInput } from "./FormInput";
 import { zoneSelectorStyles as styles } from "./ZoneSelector.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface Zone {
   _id: string;
@@ -35,7 +38,7 @@ export function ZoneSelector({
   const selected = zones.find((z) => z._id === selectedZoneId);
 
   return (
-    <View style={styles.wrap}>
+    <Box style={styles.wrap}>
       <FormInput
         label="Search Zone"
         value={searchText}
@@ -45,39 +48,39 @@ export function ZoneSelector({
       />
 
       {isDropdownOpen && (
-        <View style={styles.dropdown}>
-          <ScrollView nestedScrollEnabled={true} style={styles.scroll}>
+        <Box style={styles.dropdown}>
+          <ScrollBox nestedScrollEnabled={true} style={styles.scroll}>
             {filtered.length === 0 ? (
-              <Text style={styles.empty}>No matching zones found.</Text>
+              <AppText style={styles.empty}>No matching zones found.</AppText>
             ) : (
               filtered.map((z) => (
-                <TouchableOpacity key={z._id} onPress={() => onSelectZone(z._id)} style={styles.row}>
-                  <Text style={styles.rowText}>{z.name}</Text>
-                </TouchableOpacity>
+                <Touchable key={z._id} onPress={() => onSelectZone(z._id)} style={styles.row}>
+                  <AppText style={styles.rowText}>{z.name}</AppText>
+                </Touchable>
               ))
             )}
-          </ScrollView>
-        </View>
+          </ScrollBox>
+        </Box>
       )}
 
       {selected && (
-        <View style={styles.selectedWrap}>
-          <Text style={styles.selectedLabel}>Selected Preferred Zone:</Text>
-          <TouchableOpacity onPress={() => onOpenZoneMap(selected)} style={styles.selectedCard}>
-            <View style={styles.selectedIconWrap}>
+        <Box style={styles.selectedWrap}>
+          <AppText style={styles.selectedLabel}>Selected Preferred Zone:</AppText>
+          <Touchable onPress={() => onOpenZoneMap(selected)} style={styles.selectedCard}>
+            <Box style={styles.selectedIconWrap}>
               <Feather name="map-pin" size={20} color={Colors.info} />
-            </View>
-            <View style={styles.selectedCopy}>
-              <Text style={styles.selectedName}>{selected.name}</Text>
-              <Text style={styles.selectedDesc}>
+            </Box>
+            <Box style={styles.selectedCopy}>
+              <AppText style={styles.selectedName}>{selected.name}</AppText>
+              <AppText style={styles.selectedDesc}>
                 {selected.description || "Operational geofence area."}
-              </Text>
-              <Text style={styles.selectedLink}>🗺️ View Zone Coverage Map</Text>
-            </View>
+              </AppText>
+              <AppText style={styles.selectedLink}>🗺️ View Zone Coverage Map</AppText>
+            </Box>
             <Feather name="chevron-right" size={20} color={Colors.info} />
-          </TouchableOpacity>
-        </View>
+          </Touchable>
+        </Box>
       )}
-    </View>
+    </Box>
   );
 }

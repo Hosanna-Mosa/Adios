@@ -1,13 +1,16 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { fadeInUp } from "@/motion/presets";
 import { AuthModeTabs, type AuthMode } from "./AuthModeTabs";
 import { styles } from "../auth.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 interface Props {
   mode: AuthMode;
@@ -42,21 +45,21 @@ export function AuthForm({
   onSendOTP,
 }: Props) {
   return (
-    <View style={styles.formSection}>
+    <Box style={styles.formSection}>
       <AuthModeTabs mode={mode} onSwitchMode={onSwitchMode} />
 
-      <Text style={styles.formTitle}>
+      <AppText style={styles.formTitle}>
         {mode === "signin" ? "Welcome Back!" : "Join as Driver"}
-      </Text>
-      <Text style={styles.formSubtitle}>
+      </AppText>
+      <AppText style={styles.formSubtitle}>
         {mode === "signin"
           ? "Sign in with your phone number and password"
           : "Create your account to start delivering"}
-      </Text>
+      </AppText>
 
       {/* Name field — sign up only */}
       {mode === "signup" && (
-        <Animated.View entering={fadeInUp(0)}>
+        <AnimatedBox entering={fadeInUp(0)}>
           <TextField
             label="Your Name"
             icon={<Feather name="user" size={18} color={Colors.brand} />}
@@ -65,28 +68,28 @@ export function AuthForm({
             onChangeText={onNameChange}
             autoCapitalize="words"
           />
-        </Animated.View>
+        </AnimatedBox>
       )}
 
       {/* Phone */}
-      <Animated.View entering={fadeInUp(40)}>
+      <AnimatedBox entering={fadeInUp(40)}>
         <TextField
           label="Phone Number"
           icon={
-            <View style={styles.countryCodeGroup}>
-              <Text style={styles.countryCode}>+91</Text>
-              <View style={styles.phoneDivider} />
-            </View>
+            <Box style={styles.countryCodeGroup}>
+              <AppText style={styles.countryCode}>+91</AppText>
+              <Box style={styles.phoneDivider} />
+            </Box>
           }
           placeholder="Enter 10-digit number"
           value={phone}
           onChangeText={(t) => onPhoneChange(t.replace(/[^0-9]/g, "").slice(0, 10))}
           keyboardType="phone-pad"
         />
-      </Animated.View>
+      </AnimatedBox>
 
       {/* Password */}
-      <Animated.View entering={fadeInUp(80)}>
+      <AnimatedBox entering={fadeInUp(80)}>
         <TextField
           label="Password"
           icon={<Feather name="lock" size={18} color={Colors.brand} />}
@@ -95,11 +98,11 @@ export function AuthForm({
           onChangeText={onPasswordChange}
           secureTextEntry
         />
-      </Animated.View>
+      </AnimatedBox>
 
       {/* Confirm Password — sign up only */}
       {mode === "signup" && (
-        <Animated.View entering={fadeInUp(120)}>
+        <AnimatedBox entering={fadeInUp(120)}>
           <TextField
             label="Confirm Password"
             icon={<Feather name="shield" size={18} color={Colors.brand} />}
@@ -108,7 +111,7 @@ export function AuthForm({
             onChangeText={onConfirmPasswordChange}
             secureTextEntry
           />
-        </Animated.View>
+        </AnimatedBox>
       )}
 
       {/* Submit button */}
@@ -126,16 +129,16 @@ export function AuthForm({
       />
 
       {/* Bottom switch hint */}
-      <TouchableOpacity
+      <Touchable
         style={styles.switchButton}
         onPress={() => onSwitchMode(mode === "signin" ? "signup" : "signin")}
       >
-        <Text style={styles.switchText}>
+        <AppText style={styles.switchText}>
           {mode === "signin"
             ? "Don't have an account? Sign Up"
             : "Already have an account? Sign In"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        </AppText>
+      </Touchable>
+    </Box>
   );
 }

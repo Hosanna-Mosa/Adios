@@ -1,16 +1,20 @@
 import React from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../zone-map.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Loader } from "@/components/ui/Loader";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Full-screen state shown while the geofence loads. */
 export function ZoneMapLoading({ message }: { message: string }) {
   return (
-    <View style={styles.centerContainer}>
-      <ActivityIndicator size="large" color={Colors.brand} />
-      <Text style={styles.loadingText}>{message}</Text>
-    </View>
+    <Box style={styles.centerContainer}>
+      <Loader size="large" color={Colors.brand} />
+      <AppText style={styles.loadingText}>{message}</AppText>
+    </Box>
   );
 }
 
@@ -25,12 +29,12 @@ export function ZoneMapError({
   onAction: () => void;
 }) {
   return (
-    <View style={styles.centerContainer}>
+    <Box style={styles.centerContainer}>
       <Feather name="alert-triangle" size={48} color={Colors.error} />
-      <Text style={styles.errorText}>{message}</Text>
-      <TouchableOpacity style={styles.backButton} onPress={onAction}>
-        <Text style={styles.backButtonText}>{actionLabel}</Text>
-      </TouchableOpacity>
-    </View>
+      <AppText style={styles.errorText}>{message}</AppText>
+      <Touchable style={styles.backButton} onPress={onAction}>
+        <AppText style={styles.backButtonText}>{actionLabel}</AppText>
+      </Touchable>
+    </Box>
   );
 }

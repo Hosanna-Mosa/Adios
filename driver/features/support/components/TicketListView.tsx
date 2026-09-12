@@ -1,10 +1,14 @@
 import React from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { TicketListItem } from "./TicketListItem";
 import type { SupportTicket } from "../types";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { List } from "@/components/ui/List";
 
 /** All of the driver's support cases, with a button to open a fresh one. */
 export function TicketListView({
@@ -21,10 +25,10 @@ export function TicketListView({
   onStartNew: () => void;
 }) {
   return (
-    <View style={[styles.root, { backgroundColor: Colors.background }]}>
+    <Box style={[styles.root, { backgroundColor: Colors.background }]}>
       <ScreenHeader title="Support Sessions" paddingTop={paddingTop} onBack={onBack} />
 
-      <FlatList
+      <List
         data={tickets}
         keyExtractor={(item) => item._id}
         contentContainerStyle={{ padding: 16, gap: 16 }}
@@ -32,17 +36,17 @@ export function TicketListView({
           <TicketListItem ticket={item} onPress={() => onOpenTicket(item)} />
         )}
         ListFooterComponent={() => (
-          <TouchableOpacity
+          <Touchable
             style={[
               styles.submitBtn,
               { backgroundColor: Colors.primary, marginTop: 8, marginBottom: 24 },
             ]}
             onPress={onStartNew}
           >
-            <Text style={styles.submitBtnText}>+ Start New Support Chat</Text>
-          </TouchableOpacity>
+            <AppText style={styles.submitBtnText}>+ Start New Support Chat</AppText>
+          </Touchable>
         )}
       />
-    </View>
+    </Box>
   );
 }

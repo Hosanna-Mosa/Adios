@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { dlStyles } from "../../onboarding.styles";
@@ -9,6 +9,7 @@ import { FieldColumn } from "../FieldColumn";
 import { FormInput } from "../FormInput";
 import { InfoBanner } from "../InfoBanner";
 import { ExpiryDateField, LicenseFormatError } from "../LicenseFields";
+import { Box } from "@/components/ui/Box";
 
 const FORMAT_HINT = (
   <>
@@ -34,9 +35,9 @@ export function LicenseSection() {
         (validateDLFormat(docs.dlNumber) ? (
           <InfoBanner icon="check-circle" text="Valid license number format" type="success" />
         ) : (
-          <View style={dlStyles.errorBox}>
+          <Box style={dlStyles.errorBox}>
             <LicenseFormatError message={FORMAT_HINT} />
-          </View>
+          </Box>
         ))}
 
       <ExpiryDateField

@@ -1,6 +1,7 @@
 import React from "react";
-import { View } from "react-native";
+
 import { styles } from "../onboarding.styles";
+import { Box } from "@/components/ui/Box";
 
 /** One bar per section in the current step; filled behind, highlighted at. */
 export function SectionProgressBar({
@@ -11,9 +12,9 @@ export function SectionProgressBar({
   currentIndex: number;
 }) {
   return (
-    <View style={styles.sectionProgress}>
+    <Box style={styles.sectionProgress}>
       {sections.map((section, i) => (
-        <View
+        <Box
           key={section.key}
           style={[
             styles.sectionBar,
@@ -22,6 +23,6 @@ export function SectionProgressBar({
           ]}
         />
       ))}
-    </View>
+    </Box>
   );
 }

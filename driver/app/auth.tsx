@@ -1,9 +1,11 @@
 import React from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthBrandHeader, AuthForm, OtpForm } from "@/features/auth/components";
 import { useAuthFlow } from "@/features/auth/hooks/useAuthFlow";
 import { styles } from "@/features/auth/auth.styles";
+import { Box } from "@/components/ui/Box";
+import { KeyboardView } from "@/components/ui/KeyboardView";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
@@ -18,11 +20,11 @@ export default function AuthScreen() {
   } = useAuthFlow();
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View
+      <Box
         style={[
           styles.inner,
           {
@@ -67,7 +69,7 @@ export default function AuthScreen() {
             animatedStyle={slideAnimatedStyle}
           />
         )}
-      </View>
-    </KeyboardAvoidingView>
+      </Box>
+    </KeyboardView>
   );
 }

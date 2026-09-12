@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TextInput, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { editFieldStyles as modalStyles } from "./EditField.styles";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Editable labelled field inside the profile edit modal. */
 export function EditField({
@@ -25,11 +28,11 @@ export function EditField({
   secureTextEntry?: boolean;
 }) {
   return (
-    <View style={modalStyles.editFieldGroup}>
-      <Text style={modalStyles.fieldLabel}>{label}</Text>
-      <View style={modalStyles.editFieldContainer}>
+    <Box style={modalStyles.editFieldGroup}>
+      <AppText style={modalStyles.fieldLabel}>{label}</AppText>
+      <Box style={modalStyles.editFieldContainer}>
         {icon && <Feather name={icon} size={16} color={Colors.primary} />}
-        <TextInput
+        <AppTextInput
           style={modalStyles.editInput}
           value={value}
           onChangeText={onChangeText}
@@ -39,7 +42,7 @@ export function EditField({
           autoCapitalize={autoCapitalize || "none"}
           secureTextEntry={secureTextEntry}
         />
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

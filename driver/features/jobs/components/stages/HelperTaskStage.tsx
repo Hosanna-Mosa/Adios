@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Alert, Linking, Platform, Text, View } from "react-native";
+import { Alert, Linking, Platform } from "react-native";
 
 import Colors from "@/constants/colors";
 import { socketService } from "@/utils/socketService";
@@ -14,6 +14,8 @@ import {
   TaskProgressBar,
   TaskTimerDisplay,
 } from "../order";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 const QUICK_UPDATES = [
   "Heading to you",
@@ -51,7 +53,7 @@ export function HelperTaskStage() {
   };
 
   return (
-    <View style={styles.stepContainer}>
+    <Box style={styles.stepContainer}>
       <TaskTimerDisplay time={formatClock(taskTimerSeconds)} isOvertime={isOvertime} />
 
       <TaskProgressBar
@@ -71,7 +73,7 @@ export function HelperTaskStage() {
         style={{ backgroundColor: Colors.brand, marginBottom: 16 }}
       >
         <Ionicons name="navigate" size={18} color={Colors.white} style={{ marginRight: 8 }} />
-        <Text style={styles.actionBtnText}>Google Directions</Text>
+        <AppText style={styles.actionBtnText}>Google Directions</AppText>
       </StageActionButton>
 
       <OtpEntry
@@ -93,6 +95,6 @@ export function HelperTaskStage() {
         onPress={handleStatusTransition}
         style={isOvertime ? { backgroundColor: Colors.error } : null}
       />
-    </View>
+    </Box>
   );
 }

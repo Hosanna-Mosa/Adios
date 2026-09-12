@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PerformanceCard } from "@/features/earnings/components/PerformanceCard";
@@ -24,6 +24,8 @@ import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
 import { useOnlineActions } from "@/features/jobs/hooks/useOnlineActions";
 import { useScooterAnimation } from "@/features/jobs/hooks/useScooterAnimation";
 import { formatCurrency } from "@/utils/format";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -57,8 +59,8 @@ export default function HomeScreen() {
   } = useOnlineActions({ onServicesChosen: setMode });
 
   return (
-    <View style={styles.safe}>
-      <ScrollView
+    <Box style={styles.safe}>
+      <ScrollBox
         style={styles.container}
         contentContainerStyle={{ paddingBottom: tabBarHeight }}
         bounces={false}
@@ -70,15 +72,15 @@ export default function HomeScreen() {
           paddingTop={insets.top + 16}
         />
 
-        <View style={styles.content}>
-          <View style={{ position: 'relative', zIndex: 10, marginTop: overlapMargin, marginBottom: 8 }}>
+        <Box style={styles.content}>
+          <Box style={{ position: 'relative', zIndex: 10, marginTop: overlapMargin, marginBottom: 8 }}>
             <OnlineStatusCard
               isOnline={isOnline}
               activeServices={activeServices}
               onToggle={handleToggleOnline}
               scooterAnimatedStyle={scooterAnimatedStyle}
             />
-          </View>
+          </Box>
 
           {/* Head Home Mode — visible only when online */}
           {isOnline && <HeadHomeToggle homeMode={homeMode} onToggle={toggleHomeMode} />}
@@ -103,21 +105,21 @@ export default function HomeScreen() {
           />
 
           {/* High Demand Areas */}
-          <View style={styles.sectionSpacing}>
+          <Box style={styles.sectionSpacing}>
             <HighDemandAreas
               hotspots={hotspots}
               isLoading={isLoadingHotspots}
               onAreaPress={openDemandAreaInMaps}
             />
-          </View>
+          </Box>
 
           {/* Safety Alerts */}
           <SafetyAlertCard
             title="Safety Alert"
             message="Road closure reported on Main St due to construction. Use alternate route."
           />
-        </View>
-      </ScrollView>
+        </Box>
+      </ScrollBox>
 
       <DriverTabBar active="home" />
 
@@ -128,6 +130,6 @@ export default function HomeScreen() {
       />
 
       <IncomingOrderModal />
-    </View>
+    </Box>
   );
 }

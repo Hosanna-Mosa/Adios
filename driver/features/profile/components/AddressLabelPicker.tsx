@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../add-address.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 const ICON_FOR: Record<string, keyof typeof Feather.glyphMap> = {
   Home: "home",
@@ -20,13 +23,13 @@ export function AddressLabelPicker({
   onSelect: (label: string) => void;
 }) {
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Save as</Text>
-      <View style={styles.labelRow}>
+    <Box style={styles.section}>
+      <AppText style={styles.sectionTitle}>Save as</AppText>
+      <Box style={styles.labelRow}>
         {options.map((opt) => {
           const isActive = selected === opt;
           return (
-            <TouchableOpacity
+            <Touchable
               key={opt}
               style={[styles.labelChip, isActive && styles.labelChipActive]}
               onPress={() => onSelect(opt)}
@@ -36,13 +39,13 @@ export function AddressLabelPicker({
                 size={14}
                 color={isActive ? Colors.white : Colors.textSecondary}
               />
-              <Text style={[styles.labelChipText, isActive && styles.labelChipTextActive]}>
+              <AppText style={[styles.labelChipText, isActive && styles.labelChipTextActive]}>
                 {opt}
-              </Text>
-            </TouchableOpacity>
+              </AppText>
+            </Touchable>
           );
         })}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

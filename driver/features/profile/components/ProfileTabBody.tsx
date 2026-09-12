@@ -1,6 +1,5 @@
 import React from "react";
-import { Text } from "react-native";
-import Animated from "react-native-reanimated";
+
 import { router } from "expo-router";
 import { Colors } from "@/constants/colors";
 import { fadeInUp } from "@/motion/presets";
@@ -12,6 +11,8 @@ import { DocumentStatusCard } from "./DocumentStatusCard";
 import { ProfileHeaderCard } from "./ProfileHeaderCard";
 import { ProfileStatsCard } from "./ProfileStatsCard";
 import { RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** Everything on the profile tab above the section sheet. */
 export function ProfileTabBody({
@@ -40,7 +41,7 @@ export function ProfileTabBody({
               ]}
             />
 
-            <Animated.View entering={fadeInUp(120)} style={styles.docsRow}>
+            <AnimatedBox entering={fadeInUp(120)} style={styles.docsRow}>
               <DocumentStatusCard
                 icon="file-text"
                 title="Driving License"
@@ -55,7 +56,7 @@ export function ProfileTabBody({
                 tone={Colors.success}
                 toneSurface={Colors.successLight}
               />
-            </Animated.View>
+            </AnimatedBox>
 
             <CurrentVehicleRow
               label="Current Vehicle"
@@ -63,7 +64,7 @@ export function ProfileTabBody({
               onPress={() => onOpenSection("vehicle")}
             />
 
-            <Text style={styles.sectionHeader}>Account</Text>
+            <AppText style={styles.sectionHeader}>Account</AppText>
 
             <AccountMenuList
               entries={sections}

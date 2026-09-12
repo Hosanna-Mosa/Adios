@@ -1,19 +1,21 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { styles } from "../auth.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Logo, app name and tagline above the sign-in form. */
 export function AuthBrandHeader({ appName, tagline }: { appName: string; tagline: string }) {
   return (
-    <View style={styles.logoSection}>
-      <View style={styles.logoContainer}>
+    <Box style={styles.logoSection}>
+      <Box style={styles.logoContainer}>
         <Feather name="truck" size={moderateScale(40)} color={Colors.white} />
-      </View>
-      <Text style={styles.appName}>{appName}</Text>
-      <Text style={styles.tagline}>{tagline}</Text>
-    </View>
+      </Box>
+      <AppText style={styles.appName}>{appName}</AppText>
+      <AppText style={styles.tagline}>{tagline}</AppText>
+    </Box>
   );
 }

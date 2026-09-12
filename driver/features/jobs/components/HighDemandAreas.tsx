@@ -1,8 +1,13 @@
 import React from "react";
-import { ActivityIndicator, Pressable, Text, View, TouchableOpacity } from "react-native";
+
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { styles } from "./HighDemandAreas.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Loader } from "@/components/ui/Loader";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface Hotspot {
   id: string;
@@ -22,46 +27,46 @@ interface HighDemandAreasProps {
 
 export function HighDemandAreas({ hotspots, isLoading = false, onAreaPress }: HighDemandAreasProps) {
   return (
-    <View style={styles.section}>
-      <View style={styles.header}>
-        <Text style={styles.sectionTitle}>High Demand Areas</Text>
-        <TouchableOpacity style={styles.viewAllBtn}>
-          <Text style={styles.viewAllText}>View all</Text>
+    <Box style={styles.section}>
+      <Box style={styles.header}>
+        <AppText style={styles.sectionTitle}>High Demand Areas</AppText>
+        <Touchable style={styles.viewAllBtn}>
+          <AppText style={styles.viewAllText}>View all</AppText>
           <Feather name="chevron-right" size={14} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.hotspotList}>
+        </Touchable>
+      </Box>
+      <Box style={styles.hotspotList}>
         {isLoading && (
-          <View style={styles.loadingItem}>
-            <ActivityIndicator size="small" color={Colors.primary} />
-          </View>
+          <Box style={styles.loadingItem}>
+            <Loader size="small" color={Colors.primary} />
+          </Box>
         )}
         {hotspots.map((spot) => (
-          <Pressable
+          <PressBox
             key={spot.id}
             style={styles.hotspotItem}
             onPress={() => onAreaPress?.(spot)}
           >
-            <View style={styles.iconContainer}>
-              <View style={styles.iconCircle}>
+            <Box style={styles.iconContainer}>
+              <Box style={styles.iconCircle}>
                 <MaterialCommunityIcons name="map-marker" size={16} color={Colors.primary} />
-              </View>
-            </View>
-            <View style={styles.hotspotCopy}>
-              <Text style={styles.hotspotName} numberOfLines={1}>
+              </Box>
+            </Box>
+            <Box style={styles.hotspotCopy}>
+              <AppText style={styles.hotspotName} numberOfLines={1}>
                 {spot.name}
-              </Text>
-              <Text style={styles.hotspotAddress} numberOfLines={1}>
+              </AppText>
+              <AppText style={styles.hotspotAddress} numberOfLines={1}>
                 {spot.address}
-              </Text>
-            </View>
-            <View style={styles.surgeChip}>
-              <Text style={styles.surgeChipText}>{spot.surge}</Text>
-            </View>
+              </AppText>
+            </Box>
+            <Box style={styles.surgeChip}>
+              <AppText style={styles.surgeChipText}>{spot.surge}</AppText>
+            </Box>
             <Feather name="chevron-right" size={20} color={Colors.textSecondary} />
-          </Pressable>
+          </PressBox>
         ))}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

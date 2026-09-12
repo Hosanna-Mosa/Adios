@@ -1,8 +1,11 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../profile-tab.styles";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Tappable summary of the vehicle currently attached to the driver. */
 export function CurrentVehicleRow({
@@ -15,15 +18,15 @@ export function CurrentVehicleRow({
   onPress: () => void;
 }) {
   return (
-    <Pressable style={styles.currentVehicleCard} onPress={onPress}>
-      <View style={styles.vehicleIconBg}>
+    <PressBox style={styles.currentVehicleCard} onPress={onPress}>
+      <Box style={styles.vehicleIconBg}>
         <Feather name="truck" size={18} color={Colors.text} />
-      </View>
-      <View style={styles.vehicleCopy}>
-        <Text style={styles.vehicleTitleSmall}>{label}</Text>
-        <Text style={styles.vehicleValue}>{detail}</Text>
-      </View>
+      </Box>
+      <Box style={styles.vehicleCopy}>
+        <AppText style={styles.vehicleTitleSmall}>{label}</AppText>
+        <AppText style={styles.vehicleValue}>{detail}</AppText>
+      </Box>
       <Feather name="chevron-right" size={18} color={Colors.textMuted} />
-    </Pressable>
+    </PressBox>
   );
 }

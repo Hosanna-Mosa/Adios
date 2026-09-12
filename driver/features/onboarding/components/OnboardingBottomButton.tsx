@@ -1,8 +1,8 @@
 import React from "react";
-import { View } from "react-native";
 
 import { useOnboardingCtx } from "../OnboardingContext";
 import { PrimaryButton } from "./PrimaryButton";
+import { Box } from "@/components/ui/Box";
 
 /** Sections that save, then advance one section within the same step. */
 const SAVE_THEN_NEXT = ["gender", "vehicle", "zone", "aadhaar", "pan", "license", "bank"];
@@ -60,7 +60,7 @@ export function OnboardingBottomButton() {
 
   // Bank waits on verification; Aadhaar/PAN use their own inline skip links.
   if (currentKey === "bank" || currentKey === "aadhaar" || currentKey === "pan") {
-    return <View />;
+    return <Box />;
   }
 
   return (

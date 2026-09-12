@@ -1,12 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
-import {
-  Alert,
-  Platform,
-  ScrollView,
-  Text,
-} from "react-native";
+import { Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
@@ -19,6 +14,8 @@ import {
   ProfileStatsRow,
 } from "@/features/profile/components";
 import { styles } from "@/features/profile/profile.styles";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { AppText } from "@/components/ui/AppText";
 
 const MENU_ITEMS = [
   {
@@ -97,7 +94,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <ScrollView
+    <ScrollBox
       style={styles.container}
       contentContainerStyle={[
         styles.content,
@@ -141,7 +138,7 @@ export default function ProfileScreen() {
 
       <LogoutButton onPress={handleLogout} />
 
-      <Text style={styles.versionText}>Flavour Driver v1.0.0</Text>
-    </ScrollView>
+      <AppText style={styles.versionText}>Flavour Driver v1.0.0</AppText>
+    </ScrollBox>
   );
 }

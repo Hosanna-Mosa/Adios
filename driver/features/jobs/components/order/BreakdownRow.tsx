@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** One label/amount line in an earnings or payout breakdown.
  * Written out eleven times across the ride and delivery summaries. */
@@ -12,9 +14,9 @@ export function BreakdownRow({
   value: React.ReactNode;
 }) {
   return (
-    <View style={styles.breakdownRow}>
-      <Text style={styles.breakdownLabel}>{label}</Text>
-      <Text style={styles.breakdownVal}>{value}</Text>
-    </View>
+    <Box style={styles.breakdownRow}>
+      <AppText style={styles.breakdownLabel}>{label}</AppText>
+      <AppText style={styles.breakdownVal}>{value}</AppText>
+    </Box>
   );
 }

@@ -1,8 +1,12 @@
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { homeAddressStyles as styles } from "./HomeAddressPicker.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface HomeAddressSuggestion {
   id: string;
@@ -23,16 +27,16 @@ export function HomeAddressSuggestions({
   if (suggestions.length === 0) return null;
 
   return (
-    <View style={styles.dropdown}>
-      <ScrollView nestedScrollEnabled={true} style={styles.scroll}>
+    <Box style={styles.dropdown}>
+      <ScrollBox nestedScrollEnabled={true} style={styles.scroll}>
         {suggestions.map((item) => (
-          <TouchableOpacity key={item.id} onPress={() => onSelect(item)} style={styles.row}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.address}>{item.address}</Text>
-          </TouchableOpacity>
+          <Touchable key={item.id} onPress={() => onSelect(item)} style={styles.row}>
+            <AppText style={styles.name}>{item.name}</AppText>
+            <AppText style={styles.address}>{item.address}</AppText>
+          </Touchable>
         ))}
-      </ScrollView>
-    </View>
+      </ScrollBox>
+    </Box>
   );
 }
 
@@ -41,14 +45,14 @@ export function LocationVerifiedBox({ lat, lng }: { lat: number | null; lng: num
   if (lat === null || lng === null) return null;
 
   return (
-    <View style={styles.verifiedBox}>
+    <Box style={styles.verifiedBox}>
       <Feather name="check-circle" size={18} color={Colors.successBright} />
-      <View style={styles.verifiedCopy}>
-        <Text style={styles.verifiedTitle}>Location Verified Geometrically</Text>
-        <Text style={styles.verifiedCoords}>
+      <Box style={styles.verifiedCopy}>
+        <AppText style={styles.verifiedTitle}>Location Verified Geometrically</AppText>
+        <AppText style={styles.verifiedCoords}>
           Coords: [${lng.toFixed(4)}, ${lat.toFixed(4)}]
-        </Text>
-      </View>
-    </View>
+        </AppText>
+      </Box>
+    </Box>
   );
 }

@@ -1,7 +1,9 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Colors } from "@/constants/colors";
 import { styles } from "../profile.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Avatar initials, name, phone, and the online/offline badge. */
 export function ProfileIdentityCard({
@@ -23,35 +25,35 @@ export function ProfileIdentityCard({
     : "DR";
 
   return (
-    <View style={styles.profileCard}>
-      <View style={styles.avatarContainer}>
-        <Text style={styles.avatarText}>{initials}</Text>
-      </View>
-      <View style={styles.profileInfo}>
-        <Text style={styles.profileName}>{driverName || "Driver"}</Text>
-        <Text style={styles.profilePhone}>{driverPhone || "+91 XXXXX XXXXX"}</Text>
-        <View
+    <Box style={styles.profileCard}>
+      <Box style={styles.avatarContainer}>
+        <AppText style={styles.avatarText}>{initials}</AppText>
+      </Box>
+      <Box style={styles.profileInfo}>
+        <AppText style={styles.profileName}>{driverName || "Driver"}</AppText>
+        <AppText style={styles.profilePhone}>{driverPhone || "+91 XXXXX XXXXX"}</AppText>
+        <Box
           style={[
             styles.statusBadge,
             { backgroundColor: isOnline ? Colors.successLight : Colors.surfaceAlt },
           ]}
         >
-          <View
+          <Box
             style={[
               styles.statusDot,
               { backgroundColor: isOnline ? Colors.success : Colors.textMuted },
             ]}
           />
-          <Text
+          <AppText
             style={[
               styles.statusText,
               { color: isOnline ? Colors.success : Colors.textMuted },
             ]}
           >
             {isOnline ? "Online" : "Offline"}
-          </Text>
-        </View>
-      </View>
-    </View>
+          </AppText>
+        </Box>
+      </Box>
+    </Box>
   );
 }

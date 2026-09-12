@@ -1,11 +1,14 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { staggerListItem } from "@/motion/presets";
 import { declineStyles as styles } from "./DeclineReasonList.styles";
 import { typography } from "@/constants/typography";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 const REASONS = [
   "Fare is too low",
@@ -23,21 +26,21 @@ export function DeclineReasonList({
   onBack: () => void;
 }) {
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.heading}>Why are you declining?</Text>
+    <Box style={styles.wrap}>
+      <AppText style={styles.heading}>Why are you declining?</AppText>
       {REASONS.map((reason, idx) => (
-        <Animated.View key={reason} entering={staggerListItem(idx)}>
-          <TouchableOpacity style={styles.row} onPress={() => onDecline(reason)}>
-            <Text style={styles.rowText}>{reason}</Text>
+        <AnimatedBox key={reason} entering={staggerListItem(idx)}>
+          <Touchable style={styles.row} onPress={() => onDecline(reason)}>
+            <AppText style={styles.rowText}>{reason}</AppText>
             <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
-          </TouchableOpacity>
-        </Animated.View>
+          </Touchable>
+        </AnimatedBox>
       ))}
-      <TouchableOpacity style={styles.back} onPress={onBack}>
-        <Text style={{ fontSize: typography.sizes.large, fontWeight: "700", color: Colors.textSecondary }}>
+      <Touchable style={styles.back} onPress={onBack}>
+        <AppText style={{ fontSize: typography.sizes.large, fontWeight: "700", color: Colors.textSecondary }}>
           Back to Order
-        </Text>
-      </TouchableOpacity>
-    </View>
+        </AppText>
+      </Touchable>
+    </Box>
   );
 }

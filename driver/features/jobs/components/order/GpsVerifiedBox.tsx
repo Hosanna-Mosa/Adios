@@ -1,18 +1,20 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Green confirmation that the driver's GPS puts them at the stop. */
 export function GpsVerifiedBox({ title, description }: { title: string; description: string }) {
   return (
-    <View style={styles.gpsVerifiedBox}>
+    <Box style={styles.gpsVerifiedBox}>
       <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-      <View style={{ marginLeft: 10 }}>
-        <Text style={styles.gpsVerifiedTitle}>{title}</Text>
-        <Text style={styles.gpsVerifiedDesc}>{description}</Text>
-      </View>
-    </View>
+      <Box style={{ marginLeft: 10 }}>
+        <AppText style={styles.gpsVerifiedTitle}>{title}</AppText>
+        <AppText style={styles.gpsVerifiedDesc}>{description}</AppText>
+      </Box>
+    </Box>
   );
 }

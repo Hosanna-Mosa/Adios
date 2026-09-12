@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { bannerStyles } from "./InfoBanner.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Inline success/info notice under a form field.
  * Both screens carried their own copy; the only difference was a base
@@ -20,9 +22,9 @@ export function InfoBanner({
   const txtColor = type === "success" ? Colors.successForest : Colors.primaryDark;
   const iconColor = type === "success" ? Colors.successForest : Colors.primary;
   return (
-    <View style={[bannerStyles.banner, { backgroundColor: bgColor }]}>
+    <Box style={[bannerStyles.banner, { backgroundColor: bgColor }]}>
       <Feather name={icon} size={16} color={iconColor} />
-      <Text style={[bannerStyles.text, { color: txtColor }]}>{text}</Text>
-    </View>
+      <AppText style={[bannerStyles.text, { color: txtColor }]}>{text}</AppText>
+    </Box>
   );
 }

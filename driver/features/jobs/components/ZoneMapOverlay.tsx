@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../zone-map.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Floating card over the map naming the zone being viewed. */
 export function ZoneMapOverlay({
@@ -15,16 +18,16 @@ export function ZoneMapOverlay({
   onBack: () => void;
 }) {
   return (
-    <View style={styles.headerOverlay}>
-      <TouchableOpacity style={styles.roundBackBtn} onPress={onBack}>
+    <Box style={styles.headerOverlay}>
+      <Touchable style={styles.roundBackBtn} onPress={onBack}>
         <Feather name="arrow-left" size={24} color={Colors.text} />
-      </TouchableOpacity>
-      <View style={styles.titleContainer}>
-        <Text style={styles.headerTitle}>{name}</Text>
-        <Text style={styles.headerSubtitle} numberOfLines={2}>
+      </Touchable>
+      <Box style={styles.titleContainer}>
+        <AppText style={styles.headerTitle}>{name}</AppText>
+        <AppText style={styles.headerSubtitle} numberOfLines={2}>
           {description || "Operational geofence coverage area."}
-        </Text>
-      </View>
-    </View>
+        </AppText>
+      </Box>
+    </Box>
   );
 }

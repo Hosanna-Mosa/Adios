@@ -1,8 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import Svg, { Rect } from "react-native-svg";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface EarningsChartProps {
   data: { day: string; amount: number }[];
@@ -16,9 +18,9 @@ export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
   const chartWidth = data.length * (barWidth + gap) - gap;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>This Week</Text>
-      <View style={styles.chartArea}>
+    <Box style={styles.container}>
+      <AppText style={styles.title}>This Week</AppText>
+      <Box style={styles.chartArea}>
         <Svg width={chartWidth} height={height - 30}>
           {data.map((item, index) => {
             const barHeight = (item.amount / maxAmount) * (height - 50);
@@ -40,17 +42,17 @@ export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
             );
           })}
         </Svg>
-        <View style={styles.labelsRow}>
+        <Box style={styles.labelsRow}>
           {data.map((item, index) => (
-            <View key={item.day} style={{ width: barWidth, marginHorizontal: gap / 2 }}>
-              <Text style={[styles.label, index === data.length - 1 && styles.labelToday]}>
+            <Box key={item.day} style={{ width: barWidth, marginHorizontal: gap / 2 }}>
+              <AppText style={[styles.label, index === data.length - 1 && styles.labelToday]}>
                 {item.day}
-              </Text>
-            </View>
+              </AppText>
+            </Box>
           ))}
-        </View>
-      </View>
-    </View>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

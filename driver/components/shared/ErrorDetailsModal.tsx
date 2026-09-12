@@ -1,7 +1,12 @@
 import React from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { styles } from "./ErrorFallback.styles";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { ModalBox } from "@/components/ui/ModalBox";
 
 /** Development-only sheet showing the raw error and stack.
  * Rendered by ErrorFallback; never shown in a release build. */
@@ -23,10 +28,10 @@ export function ErrorDetailsModal({
   bottomInset: number;
 }) {
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.modalOverlay}>
-        <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
-          <View
+    <ModalBox visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <Box style={styles.modalOverlay}>
+        <Box style={[styles.modalContainer, { backgroundColor: theme.background }]}>
+          <Box
             style={[
               styles.modalHeader,
               {
@@ -36,33 +41,33 @@ export function ErrorDetailsModal({
               },
             ]}
           >
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Error Details</Text>
-            <Pressable
+            <AppText style={[styles.modalTitle, { color: theme.text }]}>Error Details</AppText>
+            <PressBox
               onPress={onClose}
               accessibilityLabel="Close error details"
               accessibilityRole="button"
               style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}
             >
               <Feather name="x" size={24} color={theme.text} />
-            </Pressable>
-          </View>
+            </PressBox>
+          </Box>
 
-          <ScrollView
+          <ScrollBox
             style={styles.modalScrollView}
             contentContainerStyle={[styles.modalScrollContent, { paddingBottom: bottomInset + 16 }]}
             showsVerticalScrollIndicator
           >
-            <View style={[styles.errorContainer, { backgroundColor: theme.backgroundSecondary }]}>
-              <Text
+            <Box style={[styles.errorContainer, { backgroundColor: theme.backgroundSecondary }]}>
+              <AppText
                 style={[styles.errorText, { color: theme.text, fontFamily: monoFont }]}
                 selectable
               >
                 {details}
-              </Text>
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+              </AppText>
+            </Box>
+          </ScrollBox>
+        </Box>
+      </Box>
+    </ModalBox>
   );
 }

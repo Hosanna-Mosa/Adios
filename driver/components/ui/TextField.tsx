@@ -1,10 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { StyleSheet, TextInputProps } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { Colors, radius } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { TIMING_FAST } from "@/motion/presets";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface Props extends TextInputProps {
   label?: string;
@@ -22,11 +25,11 @@ export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest 
   }));
 
   return (
-    <View style={styles.wrap}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+    <Box style={styles.wrap}>
+      {label ? <AppText style={styles.label}>{label}</AppText> : null}
       <Animated.View style={[styles.field, animatedBorder]}>
         {icon}
-        <TextInput
+        <AppTextInput
           {...rest}
           placeholderTextColor={Colors.textMuted}
           style={[styles.input, style]}
@@ -40,8 +43,8 @@ export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest 
           }}
         />
       </Animated.View>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-    </View>
+      {error ? <AppText style={styles.error}>{error}</AppText> : null}
+    </Box>
   );
 }
 

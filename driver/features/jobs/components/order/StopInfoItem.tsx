@@ -1,7 +1,9 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import type { StyleProp, TextStyle } from "react-native";
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** One stop in the job's info panel: what it is, who's there, and where.
  *
@@ -26,22 +28,22 @@ export function StopInfoItem({
 }) {
   const copy = (
     <>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={[styles.infoText, nameStyle]}>{name}</Text>
-      {address !== undefined && <Text style={styles.subText}>{address}</Text>}
+      <AppText style={styles.infoLabel}>{label}</AppText>
+      <AppText style={[styles.infoText, nameStyle]}>{name}</AppText>
+      {address !== undefined && <AppText style={styles.subText}>{address}</AppText>}
     </>
   );
 
   return (
-    <View style={styles.infoItem}>
+    <Box style={styles.infoItem}>
       {layout === "row" ? (
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <View style={{ flex: 1, marginRight: 8 }}>{copy}</View>
+        <Box style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <Box style={{ flex: 1, marginRight: 8 }}>{copy}</Box>
           {actions}
-        </View>
+        </Box>
       ) : (
         copy
       )}
-    </View>
+    </Box>
   );
 }

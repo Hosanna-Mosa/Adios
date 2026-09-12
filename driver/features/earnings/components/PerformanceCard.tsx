@@ -1,8 +1,11 @@
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { Touchable } from "@/components/ui/Touchable";
 
 interface StatItem {
   label: string;
@@ -19,49 +22,49 @@ export function PerformanceCard({ stats }: PerformanceCardProps) {
     switch (label.toLowerCase()) {
       case 'trips':
         return (
-          <View style={[styles.iconCircle, { backgroundColor: '#eefaff' }]}>
+          <Box style={[styles.iconCircle, { backgroundColor: '#eefaff' }]}>
             <Feather name="navigation" size={18} color="#0ea5e9" />
-          </View>
+          </Box>
         );
       case 'balance':
         return (
-          <View style={[styles.iconCircle, { backgroundColor: '#ebfaf0' }]}>
+          <Box style={[styles.iconCircle, { backgroundColor: '#ebfaf0' }]}>
             <MaterialCommunityIcons name="wallet-outline" size={20} color={Colors.success} />
-          </View>
+          </Box>
         );
       case 'this week':
       default:
         return (
-          <View style={[styles.iconCircle, { backgroundColor: '#fff5e6' }]}>
+          <Box style={[styles.iconCircle, { backgroundColor: '#fff5e6' }]}>
             <Feather name="trending-up" size={18} color="#f59e0b" />
-          </View>
+          </Box>
         );
     }
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Today&apos;s Performance</Text>
-        <TouchableOpacity style={styles.dropdown}>
-          <Text style={styles.dropdownText}>This Week</Text>
+    <Box style={styles.card}>
+      <Box style={styles.header}>
+        <AppText style={styles.title}>Today&apos;s Performance</AppText>
+        <Touchable style={styles.dropdown}>
+          <AppText style={styles.dropdownText}>This Week</AppText>
           <Feather name="chevron-down" size={14} color={Colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.statsRow}>
+        </Touchable>
+      </Box>
+      <Box style={styles.statsRow}>
         {stats.map((stat) => (
-          <View key={stat.label} style={styles.statItem}>
-            <View style={styles.statIconContainer}>
+          <Box key={stat.label} style={styles.statItem}>
+            <Box style={styles.statIconContainer}>
               {getIconForStat(stat.label)}
-            </View>
-            <Text style={styles.statValue}>
+            </Box>
+            <AppText style={styles.statValue}>
               {stat.value}
-            </Text>
-            <Text style={styles.statLabel}>{stat.label}</Text>
-          </View>
+            </AppText>
+            <AppText style={styles.statLabel}>{stat.label}</AppText>
+          </Box>
         ))}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }
 

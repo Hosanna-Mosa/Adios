@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Frame around one stage of a job: the container, its title, and the pulse
  * dot that shows while the GPS simulator is running. */
@@ -14,16 +16,16 @@ export function OrderStage({
   children: React.ReactNode;
 }) {
   return (
-    <View style={styles.stepContainer}>
+    <Box style={styles.stepContainer}>
       {showPulse === undefined ? (
-        <Text style={styles.stepTitle}>{title}</Text>
+        <AppText style={styles.stepTitle}>{title}</AppText>
       ) : (
-        <View style={styles.stepHeaderRow}>
-          <Text style={styles.stepTitle}>{title}</Text>
-          {showPulse && <View style={styles.pulseDot} />}
-        </View>
+        <Box style={styles.stepHeaderRow}>
+          <AppText style={styles.stepTitle}>{title}</AppText>
+          {showPulse && <Box style={styles.pulseDot} />}
+        </Box>
       )}
       {children}
-    </View>
+    </Box>
   );
 }

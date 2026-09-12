@@ -1,8 +1,13 @@
 import React from "react";
-import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Loader } from "@/components/ui/Loader";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AppTextInput } from "@/components/ui/AppTextInput";
 
 const CATEGORIES: { label: string; value: string }[] = [
   { label: "Operational Issue", value: "OPERATIONAL ISSUE" },
@@ -39,18 +44,18 @@ export function CreateTicketForm({
   };
 
   return (
-    <View style={styles.formContainer}>
-      <Text style={[styles.label, { color: Colors.textSecondary }]}>Issue Category</Text>
-      <View style={[styles.pickerContainer, { backgroundColor: Colors.surface, borderColor: Colors.border }]}>
-        <TextInput style={{ display: "none" }} />
-        <TouchableOpacity style={styles.pickerButton} onPress={pickCategory}>
-          <Text style={{ color: Colors.text, fontWeight: "600" }}>{category}</Text>
+    <Box style={styles.formContainer}>
+      <AppText style={[styles.label, { color: Colors.textSecondary }]}>Issue Category</AppText>
+      <Box style={[styles.pickerContainer, { backgroundColor: Colors.surface, borderColor: Colors.border }]}>
+        <AppTextInput style={{ display: "none" }} />
+        <Touchable style={styles.pickerButton} onPress={pickCategory}>
+          <AppText style={{ color: Colors.text, fontWeight: "600" }}>{category}</AppText>
           <Feather name="chevron-down" size={16} color={Colors.textSecondary} />
-        </TouchableOpacity>
-      </View>
+        </Touchable>
+      </Box>
 
-      <Text style={[styles.label, { color: Colors.textSecondary, marginTop: 20 }]}>Summary / Title</Text>
-      <TextInput
+      <AppText style={[styles.label, { color: Colors.textSecondary, marginTop: 20 }]}>Summary / Title</AppText>
+      <AppTextInput
         style={[styles.input, { backgroundColor: Colors.surface, borderColor: Colors.border, color: Colors.text }]}
         placeholder="e.g. Weekly payout delayed"
         placeholderTextColor={Colors.textMuted}
@@ -59,8 +64,8 @@ export function CreateTicketForm({
         maxLength={60}
       />
 
-      <Text style={[styles.label, { color: Colors.textSecondary, marginTop: 20 }]}>Describe your issue</Text>
-      <TextInput
+      <AppText style={[styles.label, { color: Colors.textSecondary, marginTop: 20 }]}>Describe your issue</AppText>
+      <AppTextInput
         style={[styles.textArea, { backgroundColor: Colors.surface, borderColor: Colors.border, color: Colors.text }]}
         placeholder="Tell us what went wrong. Include order number, item detail, or billing adjustments needed..."
         placeholderTextColor={Colors.textMuted}
@@ -71,17 +76,17 @@ export function CreateTicketForm({
         textAlignVertical="top"
       />
 
-      <TouchableOpacity
+      <Touchable
         style={[styles.submitBtn, { backgroundColor: Colors.primary }, submitting && { opacity: 0.7 }]}
         onPress={onSubmit}
         disabled={submitting}
       >
         {submitting ? (
-          <ActivityIndicator color={Colors.white} />
+          <Loader color={Colors.white} />
         ) : (
-          <Text style={styles.submitBtnText}>Start Live Chat</Text>
+          <AppText style={styles.submitBtnText}>Start Live Chat</AppText>
         )}
-      </TouchableOpacity>
-    </View>
+      </Touchable>
+    </Box>
   );
 }

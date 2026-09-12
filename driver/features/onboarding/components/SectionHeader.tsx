@@ -1,19 +1,21 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Colors } from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Title + optional subtitle above a form section.
  * Was defined identically in both onboarding.tsx and identity-verify.tsx. */
 export function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <View style={{ marginBottom: 16 }}>
-      <Text style={{ fontSize: typography.sizes.extraLarge, fontWeight: "700", color: Colors.text }}>{title}</Text>
+    <Box style={{ marginBottom: 16 }}>
+      <AppText style={{ fontSize: typography.sizes.extraLarge, fontWeight: "700", color: Colors.text }}>{title}</AppText>
       {subtitle && (
-        <Text style={{ fontSize: typography.sizes.medium, color: Colors.textSecondary, marginTop: 4, lineHeight: typography.lineHeights.medium }}>
+        <AppText style={{ fontSize: typography.sizes.medium, color: Colors.textSecondary, marginTop: 4, lineHeight: typography.lineHeights.medium }}>
           {subtitle}
-        </Text>
+        </AppText>
       )}
-    </View>
+    </Box>
   );
 }

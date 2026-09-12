@@ -1,8 +1,11 @@
 import React from "react";
-import { Modal, Pressable, StyleSheet, View, ViewStyle } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { ModalBox } from "@/components/ui/ModalBox";
 
 type Presentation = "sheet" | "card";
 
@@ -21,7 +24,7 @@ interface Props {
 
 /** The two modal shapes this app actually uses, in one component.
  *
- * Six files each wrote their own `<Modal>` plus overlay and container styles.
+ * Six files each wrote their own `<ModalBox>` plus overlay and container styles.
  * The values below are copied from those call sites unchanged — a sheet is the
  * slide-up bottom panel from GoOnlineModal, a card is the centred fade-in
  * dialog from the earnings and profile screens. */
@@ -38,9 +41,9 @@ export function AppModal({
   const isSheet = presentation === "sheet";
 
   const backdrop = (
-    <View style={isSheet ? styles.sheetOverlay : styles.cardOverlay}>
+    <Box style={isSheet ? styles.sheetOverlay : styles.cardOverlay}>
       {isSheet ? (
-        <View
+        <Box
           style={[
             styles.sheet,
             { paddingBottom: Math.max(insets.bottom, 16) + 16 },
@@ -48,36 +51,36 @@ export function AppModal({
           ]}
         >
           {showHandle ? (
-            <View style={styles.handleRow}>
-              <View style={styles.handle} />
-            </View>
+            <Box style={styles.handleRow}>
+              <Box style={styles.handle} />
+            </Box>
           ) : null}
           {children}
-        </View>
+        </Box>
       ) : (
-        <View style={[styles.card, contentStyle]}>{children}</View>
+        <Box style={[styles.card, contentStyle]}>{children}</Box>
       )}
-    </View>
+    </Box>
   );
 
   return (
-    <Modal
+    <ModalBox
       visible={visible}
       transparent
       animationType={isSheet ? "slide" : "fade"}
       onRequestClose={onClose}
     >
       {dismissOnBackdropPress ? (
-        <Pressable style={styles.fill} onPress={onClose}>
+        <PressBox style={styles.fill} onPress={onClose}>
           {/* Swallow taps on the panel itself so only the backdrop dismisses. */}
-          <Pressable style={styles.fill} onPress={(e) => e.stopPropagation()}>
+          <PressBox style={styles.fill} onPress={(e) => e.stopPropagation()}>
             {backdrop}
-          </Pressable>
-        </Pressable>
+          </PressBox>
+        </PressBox>
       ) : (
         backdrop
       )}
-    </Modal>
+    </ModalBox>
   );
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { FlatList, View } from "react-native";
+
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
@@ -8,7 +8,8 @@ import { NotificationRow, NotificationsEmpty, NotificationsHeader, Notifications
 import { styles } from "@/features/profile/notifications.styles";
 import type { NotificationItem } from "@/features/profile/utils/notifications";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
-
+import { List } from "@/components/ui/List";
+import { Box } from "@/components/ui/Box";
 
 export default function DriverNotificationsScreen() {
   const insets = useSafeAreaInsets();
@@ -60,7 +61,7 @@ export default function DriverNotificationsScreen() {
   const unreadCount = items.filter((n) => !n.isRead).length;
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
+    <Box style={[styles.root, { paddingTop: insets.top }]}>
       <NotificationsHeader
         unreadCount={unreadCount}
         onBack={() => router.back()}
@@ -72,7 +73,7 @@ export default function DriverNotificationsScreen() {
       ) : items.length === 0 ? (
         <NotificationsEmpty message="Nothing here yet. Job and account updates will show up in this list." />
       ) : (
-        <FlatList
+        <List
           data={items}
           keyExtractor={(item) => item._id}
           contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: insets.bottom + 24, gap: 10 }}
@@ -82,6 +83,6 @@ export default function DriverNotificationsScreen() {
           )}
         />
       )}
-    </View>
+    </Box>
   );
 }

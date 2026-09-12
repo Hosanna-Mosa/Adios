@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, Text, View, Alert } from "react-native";
+import { Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import {
@@ -10,6 +10,9 @@ import {
 import { FAQS } from "@/features/support/faqs";
 import { styles } from "@/features/support/support.styles";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 const CONTACT_OPTIONS = [
   { id: "chat", icon: "message-square" as const, label: "Live Chat", description: "Instant support" },
@@ -31,14 +34,14 @@ export default function SupportScreen() {
   };
 
   return (
-    <View style={styles.root}>
+    <Box style={styles.root}>
       <ScreenHeader
         title="Partner Support"
         paddingTop={insets.top + 16}
         onBack={() => router.back()}
       />
 
-      <ScrollView
+      <ScrollBox
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
       >
@@ -48,8 +51,8 @@ export default function SupportScreen() {
           subtitle="Get dynamic support resolution for active manifests, pricing adjustments, or document verifications."
         />
 
-        <Text style={styles.sectionTitle}>Get in Touch</Text>
-        <View style={styles.contactGrid}>
+        <AppText style={styles.sectionTitle}>Get in Touch</AppText>
+        <Box style={styles.contactGrid}>
           {CONTACT_OPTIONS.map((option) => (
             <ContactOptionCard
               key={option.id}
@@ -59,11 +62,11 @@ export default function SupportScreen() {
               onPress={() => handleContactOption(option.id)}
             />
           ))}
-        </View>
+        </Box>
 
-        <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Frequently Asked Questions</Text>
+        <AppText style={[styles.sectionTitle, { marginTop: 32 }]}>Frequently Asked Questions</AppText>
         <FaqAccordion faqs={FAQS} />
-      </ScrollView>
-    </View>
+      </ScrollBox>
+    </Box>
   );
 }

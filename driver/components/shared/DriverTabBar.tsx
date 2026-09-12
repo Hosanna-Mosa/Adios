@@ -1,8 +1,8 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,6 +12,10 @@ import { fontFamilies } from "@/constants/typography";
 import { SPRING } from "@/motion/presets";
 import { BOTTOM_GAP, TAB_PILL_HEIGHT, TOP_CLEARANCE } from "./DriverTabBar.constants";
 import { styles } from "./DriverTabBar.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 type TabKey = "home" | "earnings" | "profile";
 
@@ -75,20 +79,20 @@ export function DriverTabBar({ active }: DriverTabBarProps) {
   };
 
   return (
-    <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-      <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
+    <Box style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
+      <Box style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
         <BlurView intensity={90} tint="light" style={StyleSheet.absoluteFillObject} />
-        <View style={styles.tabRow} onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}>
+        <Box style={styles.tabRow} onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}>
           {pillWidth > 0 && (
-            <Animated.View style={[styles.indicator, indicatorStyle]}>
-              <View style={styles.indicatorPill} />
-            </Animated.View>
+            <AnimatedBox style={[styles.indicator, indicatorStyle]}>
+              <Box style={styles.indicatorPill} />
+            </AnimatedBox>
           )}
 
           {TABS.map((tab) => {
             const isActive = tab.key === active;
             return (
-              <TouchableOpacity
+              <Touchable
                 key={tab.key}
                 style={styles.tabItem}
                 activeOpacity={0.7}
@@ -99,14 +103,14 @@ export function DriverTabBar({ active }: DriverTabBarProps) {
                   size={moderateScale(20)}
                   color={isActive ? Colors.brand : Colors.tabInactive}
                 />
-                <Text style={[styles.tabLabel, isActive && { color: Colors.brand, fontFamily: fontFamilies.body.semibold }]}>
+                <AppText style={[styles.tabLabel, isActive && { color: Colors.brand, fontFamily: fontFamilies.body.semibold }]}>
                   {tab.label}
-                </Text>
-              </TouchableOpacity>
+                </AppText>
+              </Touchable>
             );
           })}
-        </View>
-      </View>
-    </View>
+        </Box>
+      </Box>
+    </Box>
   );
 }

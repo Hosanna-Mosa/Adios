@@ -1,8 +1,12 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, Linking } from "react-native";
+import { Linking } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { styles } from "./UpdateModal.styles";
 import { Colors } from "@/constants/colors";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { ModalBox } from "@/components/ui/ModalBox";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -19,7 +23,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
   };
 
   return (
-    <Modal
+    <ModalBox
       visible={visible}
       transparent={true}
       animationType="fade"
@@ -28,33 +32,33 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
         onDismiss();
       }}
     >
-      <View style={styles.overlay}>
-        <View style={styles.card}>
-          <View style={styles.iconContainer}>
+      <Box style={styles.overlay}>
+        <Box style={styles.card}>
+          <Box style={styles.iconContainer}>
             <Feather name="download-cloud" size={40} color={Colors.white} />
-          </View>
+          </Box>
 
-          <Text style={styles.title}>New Driver App Version!</Text>
-          <Text style={styles.subtitle}>Update the FLAVOUR Driver app to continue receiving orders smoothly.</Text>
+          <AppText style={styles.title}>New Driver App Version!</AppText>
+          <AppText style={styles.subtitle}>Update the FLAVOUR Driver app to continue receiving orders smoothly.</AppText>
 
           {forceUpdate && (
-            <View style={styles.warningContainer}>
+            <Box style={styles.warningContainer}>
               <Feather name="alert-triangle" size={16} color="#ef4444" />
-              <Text style={styles.warningText}>This update is mandatory to continue online duties.</Text>
-            </View>
+              <AppText style={styles.warningText}>This update is mandatory to continue online duties.</AppText>
+            </Box>
           )}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.updateButton} onPress={handleUpdate} activeOpacity={0.85}>
-              <Text style={styles.updateText}>Update Now</Text>
-            </TouchableOpacity>
+          <Box style={styles.buttonContainer}>
+            <Touchable style={styles.updateButton} onPress={handleUpdate} activeOpacity={0.85}>
+              <AppText style={styles.updateText}>Update Now</AppText>
+            </Touchable>
 
-            <TouchableOpacity style={styles.laterButton} onPress={onDismiss} activeOpacity={0.8}>
-              <Text style={styles.laterText}>Maybe Later</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
+            <Touchable style={styles.laterButton} onPress={onDismiss} activeOpacity={0.8}>
+              <AppText style={styles.laterText}>Maybe Later</AppText>
+            </Touchable>
+          </Box>
+        </Box>
+      </Box>
+    </ModalBox>
   );
 }

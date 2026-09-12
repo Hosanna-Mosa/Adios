@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TextInput, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../payout-setup.styles";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** One labelled bank-detail input. The caller owns the value rules
  * (digits only, uppercase, max length), so this stays presentational. */
@@ -24,11 +27,11 @@ export function BankField({
   autoCapitalize?: "none" | "characters";
 }) {
   return (
-    <View style={styles.fieldGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputContainer}>
+    <Box style={styles.fieldGroup}>
+      <AppText style={styles.label}>{label}</AppText>
+      <Box style={styles.inputContainer}>
         <Feather name={icon} size={18} color={Colors.primary} />
-        <TextInput
+        <AppTextInput
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
@@ -37,7 +40,7 @@ export function BankField({
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
         />
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

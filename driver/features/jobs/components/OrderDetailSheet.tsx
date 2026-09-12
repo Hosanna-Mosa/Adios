@@ -1,6 +1,9 @@
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+
 import { styles } from "../active-order.styles";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Bottom sheet carrying the job's details. It grows for the stages that
  * have more to show — item checklists, payout breakdowns, ratings. */
@@ -16,17 +19,17 @@ export function OrderDetailSheet({
   children: React.ReactNode;
 }) {
   return (
-    <View style={[styles.bottomCard, { height }]}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.orderLabel}>Order ID: {orderId}</Text>
-      </View>
-      <ScrollView
+    <Box style={[styles.bottomCard, { height }]}>
+      <Box style={styles.cardHeader}>
+        <AppText style={styles.orderLabel}>Order ID: {orderId}</AppText>
+      </Box>
+      <ScrollBox
         style={styles.cardScroll}
         contentContainerStyle={[styles.cardScrollContent, { paddingBottom }]}
         showsVerticalScrollIndicator={false}
       >
         {children}
-      </ScrollView>
-    </View>
+      </ScrollBox>
+    </Box>
   );
 }

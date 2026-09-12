@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, router } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
@@ -11,6 +11,7 @@ import {
   ZoneMapOverlay,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/zone-map.styles";
+import { Box } from "@/components/ui/Box";
 
 // Default fallback to Rajahmundry coordinates if undefined
 const DEFAULT_LAT = 16.9891;
@@ -97,7 +98,7 @@ export default function ZoneMapScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <Box style={styles.container}>
       <MapView
         provider={PROVIDER_GOOGLE}
         style={styles.map}
@@ -116,6 +117,6 @@ export default function ZoneMapScreen() {
         description={zone.description}
         onBack={() => router.back()}
       />
-    </View>
+    </Box>
   );
 }

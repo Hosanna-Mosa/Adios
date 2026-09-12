@@ -1,9 +1,12 @@
 import React from "react";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Touchable } from "@/components/ui/Touchable";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import { Box } from "@/components/ui/Box";
 
 interface Props {
   value: string;
@@ -36,9 +39,9 @@ export function MessageComposer({
   const canSend = !!value.trim() && !disabled;
 
   return (
-    <View style={[styles.inputBar, { paddingBottom }]} testID={testID}>
-      <View style={styles.inputContainer}>
-        <TextInput
+    <Box style={[styles.inputBar, { paddingBottom }]} testID={testID}>
+      <Box style={styles.inputContainer}>
+        <AppTextInput
           style={styles.textInput}
           placeholder={placeholder}
           placeholderTextColor={Colors.textMuted}
@@ -47,19 +50,19 @@ export function MessageComposer({
           multiline
           maxLength={maxLength}
         />
-      </View>
-      <TouchableOpacity
+      </Box>
+      <Touchable
         style={[styles.sendBtn, !canSend && styles.sendBtnDisabled]}
         onPress={onSend}
         disabled={!canSend}
         accessibilityRole="button"
         accessibilityLabel="Send message"
       >
-        <View style={styles.sendIcon}>
+        <Box style={styles.sendIcon}>
           <Feather name="send" size={moderateScale(19)} color={Colors.white} />
-        </View>
-      </TouchableOpacity>
-    </View>
+        </Box>
+      </Touchable>
+    </Box>
   );
 }
 

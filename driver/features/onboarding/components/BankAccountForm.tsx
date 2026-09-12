@@ -1,9 +1,11 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../payout-setup.styles";
 import { BankField } from "./BankField";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** The three bank-detail fields plus the mismatch warning between them. */
 export function BankAccountForm({
@@ -24,7 +26,7 @@ export function BankAccountForm({
   onIfscChange: (t: string) => void;
 }) {
   return (
-    <View style={styles.card}>
+    <Box style={styles.card}>
       <BankField
         label="Account Number"
         icon="credit-card"
@@ -44,10 +46,10 @@ export function BankAccountForm({
       />
 
       {confirmAccount.length > 0 && !accountsMatch && (
-        <View style={styles.errorRow}>
+        <Box style={styles.errorRow}>
           <Feather name="alert-circle" size={15} color={Colors.error} />
-          <Text style={styles.errorText}>Account numbers don&apos;t match</Text>
-        </View>
+          <AppText style={styles.errorText}>Account numbers don&apos;t match</AppText>
+        </Box>
       )}
 
       <BankField
@@ -58,6 +60,6 @@ export function BankAccountForm({
         placeholder="SBIN0001234"
         autoCapitalize="characters"
       />
-    </View>
+    </Box>
   );
 }

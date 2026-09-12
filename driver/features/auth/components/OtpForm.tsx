@@ -1,11 +1,16 @@
 import React from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
 import type { StyleProp, ViewStyle } from "react-native";
 import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
 import { styles } from "../auth.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import type { TextInput } from "react-native";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 interface Props {
   phone: string;
@@ -36,20 +41,20 @@ export function OtpForm({
   animatedStyle,
 }: Props) {
   return (
-    <Animated.View style={[styles.formSection, animatedStyle]}>
-      <TouchableOpacity style={styles.backButton} onPress={onBack}>
+    <AnimatedBox style={[styles.formSection, animatedStyle]}>
+      <Touchable style={styles.backButton} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
-      </TouchableOpacity>
+      </Touchable>
 
-      <Text style={styles.formTitle}>Verify Phone</Text>
-      <Text style={styles.formSubtitle}>
+      <AppText style={styles.formTitle}>Verify Phone</AppText>
+      <AppText style={styles.formSubtitle}>
         Enter the 6-digit code sent to{'\n'}+91 {phone}
-      </Text>
-      <Text style={styles.demoHint}>Demo OTP: {mockOtp}</Text>
+      </AppText>
+      <AppText style={styles.demoHint}>Demo OTP: {mockOtp}</AppText>
 
-      <View style={styles.otpContainer}>
+      <Box style={styles.otpContainer}>
         {otp.map((digit, idx) => (
-          <TextInput
+          <AppTextInput
             key={idx}
             ref={(r) => { otpRefs.current[idx] = r; }}
             style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
@@ -61,7 +66,7 @@ export function OtpForm({
             selectTextOnFocus
           />
         ))}
-      </View>
+      </Box>
 
       <Button
         title={loading ? "Creating account..." : "Verify & Create Account"}
@@ -72,9 +77,9 @@ export function OtpForm({
         fullWidth
       />
 
-      <TouchableOpacity style={styles.resendButton} onPress={onResend}>
-        <Text style={styles.resendText}>Resend OTP</Text>
-      </TouchableOpacity>
-    </Animated.View>
+      <Touchable style={styles.resendButton} onPress={onResend}>
+        <AppText style={styles.resendText}>Resend OTP</AppText>
+      </Touchable>
+    </AnimatedBox>
   );
 }

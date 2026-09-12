@@ -1,17 +1,18 @@
 import React from "react";
-import { Text, View } from "react-native";
 
 import Colors from "@/constants/colors";
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { StageActionButton, StopInfoItem, StopsPanel } from "../order";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export function HelperCompleteStage() {
   const { taskTimerSeconds, currentOrder, handleStatusTransition } = useActiveOrderCtx();
 
   return (
-    <View style={styles.stepContainer}>
-      <Text style={[styles.stepTitle, { color: Colors.success }]}>Task Complete!</Text>
+    <Box style={styles.stepContainer}>
+      <AppText style={[styles.stepTitle, { color: Colors.success }]}>Task Complete!</AppText>
       <StopsPanel>
         <StopInfoItem
           label="Time Logged"
@@ -24,6 +25,6 @@ export function HelperCompleteStage() {
         />
       </StopsPanel>
       <StageActionButton label="Finish & Return to Home" onPress={handleStatusTransition} />
-    </View>
+    </Box>
   );
 }

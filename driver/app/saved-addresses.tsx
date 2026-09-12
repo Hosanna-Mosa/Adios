@@ -1,12 +1,6 @@
 import { router, useFocusEffect } from "expo-router";
 import React, { useState, useCallback } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Platform,
-  ScrollView,
-  View,
-} from "react-native";
+import { Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
@@ -18,6 +12,9 @@ import {
 import { styles } from "@/features/profile/saved-addresses.styles";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { Loader } from "@/components/ui/Loader";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
 
 export default function SavedAddressesScreen() {
   const insets = useSafeAreaInsets();
@@ -81,20 +78,20 @@ export default function SavedAddressesScreen() {
   };
 
   return (
-    <View style={styles.root}>
+    <Box style={styles.root}>
       <ScreenHeader
         title="Saved Addresses"
         paddingTop={insets.top + (Platform.OS === "web" ? 20 : 0)}
         onBack={() => router.back()}
       />
 
-      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 20 }]}>
+      <ScrollBox contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 20 }]}>
         <AddAddressButton onPress={() => router.push("/add-address")} />
 
         {loading && addresses.length === 0 ? (
-          <ActivityIndicator style={{ marginTop: 40 }} color={Colors.primary} />
+          <Loader style={{ marginTop: 40 }} color={Colors.primary} />
         ) : (
-          <View style={styles.addressList}>
+          <Box style={styles.addressList}>
             {addresses.length === 0 ? (
               <NoAddressesState />
             ) : (
@@ -108,9 +105,9 @@ export default function SavedAddressesScreen() {
                 />
               ))
             )}
-          </View>
+          </Box>
         )}
-      </ScrollView>
-    </View>
+      </ScrollBox>
+    </Box>
   );
 }

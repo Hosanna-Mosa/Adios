@@ -1,6 +1,10 @@
 import React from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+
 import { styles } from "../chat.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { List } from "@/components/ui/List";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Horizontal row of canned replies above the composer. */
 export function QuickReplyBar({
@@ -11,19 +15,19 @@ export function QuickReplyBar({
   onSelect: (reply: string) => void;
 }) {
   return (
-    <View style={styles.quickRepliesContainer}>
-      <FlatList
+    <Box style={styles.quickRepliesContainer}>
+      <List
         data={replies}
         keyExtractor={(item) => item}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.quickRepliesList}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.quickReplyChip} onPress={() => onSelect(item)}>
-            <Text style={styles.quickReplyText}>{item}</Text>
-          </TouchableOpacity>
+          <Touchable style={styles.quickReplyChip} onPress={() => onSelect(item)}>
+            <AppText style={styles.quickReplyText}>{item}</AppText>
+          </Touchable>
         )}
       />
-    </View>
+    </Box>
   );
 }

@@ -1,8 +1,10 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface TransactionItemProps {
   icon: keyof typeof Feather.glyphMap;
@@ -15,20 +17,20 @@ export function TransactionItem({ icon, label, amount, time }: TransactionItemPr
   const isPositive = amount.startsWith("+");
 
   return (
-    <View style={styles.container}>
-      <View style={styles.iconContainer}>
+    <Box style={styles.container}>
+      <Box style={styles.iconContainer}>
         <Feather name={icon} size={18} color={isPositive ? Colors.primary : Colors.textMuted} />
-      </View>
-      <View style={styles.details}>
-        <Text style={styles.label} numberOfLines={1}>
+      </Box>
+      <Box style={styles.details}>
+        <AppText style={styles.label} numberOfLines={1}>
           {label}
-        </Text>
-        {time && <Text style={styles.time}>{time}</Text>}
-      </View>
-      <Text style={[styles.amount, isPositive && styles.amountPositive]}>
+        </AppText>
+        {time && <AppText style={styles.time}>{time}</AppText>}
+      </Box>
+      <AppText style={[styles.amount, isPositive && styles.amountPositive]}>
         {amount}
-      </Text>
-    </View>
+      </AppText>
+    </Box>
   );
 }
 

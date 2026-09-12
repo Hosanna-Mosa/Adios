@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
 import { formatCurrency } from "@/utils/format";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Prep countdown and the waiting compensation earned while at the restaurant. */
 export function TimersGrid({
@@ -18,17 +20,17 @@ export function TimersGrid({
       : "Food Ready";
 
   return (
-    <View style={styles.timersGrid}>
-      <View style={styles.timerBlock}>
-        <Text style={styles.timerBlockLabel}>Prep Status</Text>
-        <Text style={styles.timerBlockVal}>{prep}</Text>
-      </View>
-      <View style={styles.timerBlock}>
-        <Text style={styles.timerBlockLabel}>Waiting Fee Earned</Text>
-        <Text style={[styles.timerBlockVal, { color: Colors.success }]}>
+    <Box style={styles.timersGrid}>
+      <Box style={styles.timerBlock}>
+        <AppText style={styles.timerBlockLabel}>Prep Status</AppText>
+        <AppText style={styles.timerBlockVal}>{prep}</AppText>
+      </Box>
+      <Box style={styles.timerBlock}>
+        <AppText style={styles.timerBlockLabel}>Waiting Fee Earned</AppText>
+        <AppText style={[styles.timerBlockVal, { color: Colors.success }]}>
           +{formatCurrency(waitingComp)}
-        </Text>
-      </View>
-    </View>
+        </AppText>
+      </Box>
+    </Box>
   );
 }

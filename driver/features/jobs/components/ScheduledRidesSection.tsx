@@ -1,9 +1,10 @@
 import React from "react";
-import { View } from "react-native";
+
 import { useDriverStore } from "@/store/driverStore";
 import { styles } from "../home.styles";
 import { ScheduledRideCard } from "./ScheduledRideCard";
 import { SectionHeading } from "./SectionHeading";
+import { Box } from "@/components/ui/Box";
 
 /** Rides booked for later. Hidden when there are none. */
 export function ScheduledRidesSection({
@@ -16,9 +17,9 @@ export function ScheduledRidesSection({
   if (rides.length === 0) return null;
 
   return (
-    <View style={styles.sectionSpacing}>
+    <Box style={styles.sectionSpacing}>
       <SectionHeading title={`Scheduled Rides (${rides.length})`} />
-      <View style={{ gap: 12, marginTop: 8 }}>
+      <Box style={{ gap: 12, marginTop: 8 }}>
         {rides.map((ride, idx) => (
           <ScheduledRideCard
             key={ride._id}
@@ -31,7 +32,7 @@ export function ScheduledRidesSection({
             }}
           />
         ))}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

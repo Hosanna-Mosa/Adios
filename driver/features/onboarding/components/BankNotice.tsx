@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { bankStyles } from "../onboarding.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Reassurance panel above the bank fields during onboarding.
  *
@@ -11,14 +13,14 @@ import { bankStyles } from "../onboarding.styles";
  * so sharing them would change how one of the two screens looks. */
 export function BankNotice({ title, text }: { title: string; text: string }) {
   return (
-    <View style={bankStyles.notice}>
-      <View style={bankStyles.noticeIcon}>
+    <Box style={bankStyles.notice}>
+      <Box style={bankStyles.noticeIcon}>
         <Feather name="shield" size={17} color={Colors.success} />
-      </View>
-      <View style={bankStyles.noticeCopy}>
-        <Text style={bankStyles.noticeTitle}>{title}</Text>
-        <Text style={bankStyles.noticeText}>{text}</Text>
-      </View>
-    </View>
+      </Box>
+      <Box style={bankStyles.noticeCopy}>
+        <AppText style={bankStyles.noticeTitle}>{title}</AppText>
+        <AppText style={bankStyles.noticeText}>{text}</AppText>
+      </Box>
+    </Box>
   );
 }

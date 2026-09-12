@@ -1,9 +1,12 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface Props {
   title: string;
@@ -24,15 +27,15 @@ interface Props {
  * screens stop drifting apart. */
 export function ScreenHeader({ title, onBack, paddingTop, right, testID }: Props) {
   return (
-    <View style={[styles.header, { paddingTop }]} testID={testID}>
-      <TouchableOpacity style={styles.backBtn} onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back">
+    <Box style={[styles.header, { paddingTop }]} testID={testID}>
+      <Touchable style={styles.backBtn} onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back">
         <Ionicons name="arrow-back" size={moderateScale(22)} color={Colors.text} />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle} numberOfLines={1}>
+      </Touchable>
+      <AppText style={styles.headerTitle} numberOfLines={1}>
         {title}
-      </Text>
-      {right ? <View style={styles.right}>{right}</View> : null}
-    </View>
+      </AppText>
+      {right ? <Box style={styles.right}>{right}</Box> : null}
+    </Box>
   );
 }
 

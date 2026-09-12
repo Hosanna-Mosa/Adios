@@ -1,28 +1,30 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** The two stops on a job, split by a hairline. */
 export function StopsPanel({ children }: { children: React.ReactNode }) {
-  return <View style={styles.infoBox}>{children}</View>;
+  return <Box style={styles.infoBox}>{children}</Box>;
 }
 
 /** Hairline between the two stops. */
 export function StopsDivider() {
-  return <View style={styles.divider} />;
+  return <Box style={styles.divider} />;
 }
 
 /** Row of contact buttons beside a stop. */
 export function ContactActions({ children }: { children: React.ReactNode }) {
-  return <View style={styles.rideContactActions}>{children}</View>;
+  return <Box style={styles.rideContactActions}>{children}</Box>;
 }
 
 /** Notice while waiting at the restaurant. */
 export function WaitNotification({ message }: { message: React.ReactNode }) {
   return (
-    <View style={styles.waitNotification}>
-      <Text style={styles.waitNotifyText}>{message}</Text>
-    </View>
+    <Box style={styles.waitNotification}>
+      <AppText style={styles.waitNotifyText}>{message}</AppText>
+    </Box>
   );
 }
 
@@ -36,7 +38,7 @@ export function ChecklistGroup({
 }) {
   return (
     <>
-      <Text style={styles.checklistHeader}>{title}</Text>
+      <AppText style={styles.checklistHeader}>{title}</AppText>
       {children}
     </>
   );
@@ -44,10 +46,10 @@ export function ChecklistGroup({
 
 /** Scrollable body of a completed job. */
 export function CompletedScroll({ children }: { children: React.ReactNode }) {
-  return <View style={styles.deliveredScroll}>{children}</View>;
+  return <Box style={styles.deliveredScroll}>{children}</Box>;
 }
 
 /** Rating and comments block after a job. */
 export function FeedbackSection({ children }: { children: React.ReactNode }) {
-  return <View style={styles.feedbackSection}>{children}</View>;
+  return <Box style={styles.feedbackSection}>{children}</Box>;
 }

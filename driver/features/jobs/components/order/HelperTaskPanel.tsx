@@ -1,8 +1,12 @@
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { helperTaskStyles as styles } from "./HelperTaskPanel.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Elapsed time on a helper booking, red once it runs over. */
 export function TaskTimerDisplay({
@@ -13,12 +17,12 @@ export function TaskTimerDisplay({
   isOvertime: boolean;
 }) {
   return (
-    <View style={styles.timerRow}>
+    <Box style={styles.timerRow}>
       <Ionicons name="time" size={28} color={isOvertime ? Colors.error : Colors.success} />
-      <Text style={[styles.timerText, { color: isOvertime ? Colors.error : Colors.text }]}>
+      <AppText style={[styles.timerText, { color: isOvertime ? Colors.error : Colors.text }]}>
         {time}
-      </Text>
-    </View>
+      </AppText>
+    </Box>
   );
 }
 
@@ -34,19 +38,19 @@ export function TaskProgressBar({
 }) {
   return (
     <>
-      <View style={styles.progressTrack}>
-        <View
+      <Box style={styles.progressTrack}>
+        <Box
           style={{
             flex: Math.round(progress),
             backgroundColor: isOvertime ? Colors.error : Colors.success,
           }}
         />
-        <View style={[{ flex: Math.max(0, 100 - Math.round(progress)) }, styles.progressRest]} />
-      </View>
-      <View style={styles.progressLabels}>
-        <Text style={styles.progressLabel}>{isOvertime ? "Overtime" : "Elapsed"}</Text>
-        <Text style={styles.progressLabel}>{hoursBooked} Hours Booked</Text>
-      </View>
+        <Box style={[{ flex: Math.max(0, 100 - Math.round(progress)) }, styles.progressRest]} />
+      </Box>
+      <Box style={styles.progressLabels}>
+        <AppText style={styles.progressLabel}>{isOvertime ? "Overtime" : "Elapsed"}</AppText>
+        <AppText style={styles.progressLabel}>{hoursBooked} Hours Booked</AppText>
+      </Box>
     </>
   );
 }
@@ -63,14 +67,14 @@ export function QuickUpdateChips({
 }) {
   return (
     <>
-      <Text style={styles.updatesHeading}>{heading}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.updatesScroll}>
+      <AppText style={styles.updatesHeading}>{heading}</AppText>
+      <ScrollBox horizontal showsHorizontalScrollIndicator={false} style={styles.updatesScroll}>
         {updates.map((text, idx) => (
-          <TouchableOpacity key={idx} style={styles.updateChip} onPress={() => onSend(text)}>
-            <Text style={styles.updateChipText}>{text}</Text>
-          </TouchableOpacity>
+          <Touchable key={idx} style={styles.updateChip} onPress={() => onSend(text)}>
+            <AppText style={styles.updateChipText}>{text}</AppText>
+          </Touchable>
         ))}
-      </ScrollView>
+      </ScrollBox>
     </>
   );
 }

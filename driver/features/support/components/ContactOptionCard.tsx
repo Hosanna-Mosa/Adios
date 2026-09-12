@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** One way to reach support: icon, label, and how fast it responds. */
 export function ContactOptionCard({
@@ -17,12 +20,12 @@ export function ContactOptionCard({
   onPress: () => void;
 }) {
   return (
-    <TouchableOpacity style={styles.contactCard} onPress={onPress}>
-      <View style={styles.iconWrapper}>
+    <Touchable style={styles.contactCard} onPress={onPress}>
+      <Box style={styles.iconWrapper}>
         <Feather name={icon} size={22} color={Colors.primary} />
-      </View>
-      <Text style={styles.contactLabel}>{label}</Text>
-      <Text style={styles.contactDesc}>{description}</Text>
-    </TouchableOpacity>
+      </Box>
+      <AppText style={styles.contactLabel}>{label}</AppText>
+      <AppText style={styles.contactDesc}>{description}</AppText>
+    </Touchable>
   );
 }

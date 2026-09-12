@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../chat.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface ChatMessage {
   id?: string;
@@ -17,30 +19,30 @@ export function ChatMessageBubble({ message }: { message: ChatMessage }) {
   const isDriver = message.from === "driver";
 
   return (
-    <View
+    <Box
       style={[
         styles.messageRow,
         isDriver ? styles.messageRowUser : styles.messageRowDriver,
       ]}
     >
       {!isDriver && (
-        <View style={styles.driverAvatar}>
+        <Box style={styles.driverAvatar}>
           <Feather name="user" size={14} color={Colors.textSecondary} />
-        </View>
+        </Box>
       )}
-      <View
+      <Box
         style={[
           styles.bubble,
           isDriver ? styles.bubbleUser : styles.bubbleDriver,
         ]}
       >
-        <Text style={isDriver ? styles.bubbleTextUser : styles.bubbleTextDriver}>
+        <AppText style={isDriver ? styles.bubbleTextUser : styles.bubbleTextDriver}>
           {message.text}
-        </Text>
-        <Text style={isDriver ? styles.timeUser : styles.timeDriver}>
+        </AppText>
+        <AppText style={isDriver ? styles.timeUser : styles.timeDriver}>
           {message.time || ""}
-        </Text>
-      </View>
-    </View>
+        </AppText>
+      </Box>
+    </Box>
   );
 }

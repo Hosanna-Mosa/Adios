@@ -1,12 +1,14 @@
 import { router } from "expo-router";
 import React from "react";
-import { Alert, Text, View } from "react-native";
+import { Alert } from "react-native";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { CustomerRow, OrderStage, RoundCommButton, StageActionButton } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { SimPanel } from "./SimPanel";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export function DeliveryEnRouteStage() {
   const { currentOrder, deliveryStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
@@ -19,7 +21,7 @@ export function DeliveryEnRouteStage() {
         initial={(currentOrder.customerName || "C").charAt(0).toUpperCase()}
         name={currentOrder.customerName || "Customer"}
         trailing={
-          <View style={styles.communicationBtns}>
+          <Box style={styles.communicationBtns}>
             <RoundCommButton
               icon="call"
               onPress={() =>
@@ -35,10 +37,10 @@ export function DeliveryEnRouteStage() {
                 router.push({ pathname: "/chat", params: { orderId: currentOrder.id } })
               }
             />
-          </View>
+          </Box>
         }
       >
-        <Text style={styles.customerPhoneInside}>{currentOrder.customerPhone || "..."}</Text>
+        <AppText style={styles.customerPhoneInside}>{currentOrder.customerPhone || "..."}</AppText>
       </CustomerRow>
 
       <StageActionButton label="Arrived at Customer" onPress={handleStatusTransition} />

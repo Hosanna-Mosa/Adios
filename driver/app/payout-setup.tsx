@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { Alert, Platform } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -17,7 +12,8 @@ import {
 import { styles } from "@/features/onboarding/payout-setup.styles";
 import { API_URL } from "@/utils/apiUrl";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
-
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { KeyboardView } from "@/components/ui/KeyboardView";
 
 export default function PayoutSetupScreen() {
   const insets = useSafeAreaInsets();
@@ -85,7 +81,7 @@ export default function PayoutSetupScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <KeyboardAvoidingView
+      <KeyboardView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
@@ -95,7 +91,7 @@ export default function PayoutSetupScreen() {
           onBack={() => router.back()}
         />
 
-        <ScrollView
+        <ScrollBox
           style={styles.flex}
           contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 120 }]}
           keyboardShouldPersistTaps="handled"
@@ -114,7 +110,7 @@ export default function PayoutSetupScreen() {
             ifsc={ifsc}
             onIfscChange={(t) => setIfsc(t.toUpperCase().slice(0, 11))}
           />
-        </ScrollView>
+        </ScrollBox>
 
         <SaveBar
           label="Save Bank Details"
@@ -123,7 +119,7 @@ export default function PayoutSetupScreen() {
           saving={saving}
           paddingBottom={Math.max(insets.bottom, 12)}
         />
-      </KeyboardAvoidingView>
+      </KeyboardView>
     </SafeAreaView>
   );
 }

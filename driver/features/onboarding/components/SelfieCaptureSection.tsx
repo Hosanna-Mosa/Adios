@@ -1,10 +1,13 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Colors } from "@/constants/colors";
 import { selfieSectionStyles } from "../onboarding.styles";
 import { InfoBanner } from "./InfoBanner";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Selfie step: the framing viewfinder, the shutter, and the captured state. */
 export function SelfieCaptureSection({
@@ -15,20 +18,20 @@ export function SelfieCaptureSection({
   onCapture: () => void;
 }) {
   return (
-    <View style={{ gap: 20, alignItems: "center" }}>
-      <View style={selfieSectionStyles.viewfinder}>
-        <View style={selfieSectionStyles.viewfinderInner}>
+    <Box style={{ gap: 20, alignItems: "center" }}>
+      <Box style={selfieSectionStyles.viewfinder}>
+        <Box style={selfieSectionStyles.viewfinderInner}>
           <Feather name="camera" size={36} color={Colors.textMuted} />
-          <Text style={selfieSectionStyles.viewfinderText}>
+          <AppText style={selfieSectionStyles.viewfinderText}>
             Position your face within the frame
-          </Text>
-        </View>
+          </AppText>
+        </Box>
         {/* Oval cutout guidelines */}
-        <View style={selfieSectionStyles.oval} />
-      </View>
+        <Box style={selfieSectionStyles.oval} />
+      </Box>
 
       {!captured ? (
-        <TouchableOpacity
+        <Touchable
           style={selfieSectionStyles.captureBtn}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -37,16 +40,16 @@ export function SelfieCaptureSection({
           activeOpacity={0.8}
         >
           <Feather name="camera" size={24} color={Colors.white} />
-        </TouchableOpacity>
+        </Touchable>
       ) : (
-        <View style={{ alignItems: "center", gap: 12 }}>
+        <Box style={{ alignItems: "center", gap: 12 }}>
           <InfoBanner icon="check-circle" text="Photo captured successfully!" />
-        </View>
+        </Box>
       )}
 
-      <Text style={selfieSectionStyles.guidelines}>
+      <AppText style={selfieSectionStyles.guidelines}>
         Make sure your face is clearly visible, well-lit, and without hats or sunglasses.
-      </Text>
-    </View>
+      </AppText>
+    </Box>
   );
 }

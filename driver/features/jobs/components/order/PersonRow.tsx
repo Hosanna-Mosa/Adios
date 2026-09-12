@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Avatar initial beside a person's name and where they're headed.
  * Used at the ride and delivery in-transit stages. */
@@ -17,16 +19,16 @@ export function CustomerRow({
   trailing?: React.ReactNode;
 }) {
   return (
-    <View style={styles.customerRowInside}>
-      <View style={styles.customerAvatarInside}>
-        <Text style={styles.customerInitialsInside}>{initial}</Text>
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.customerNameInside}>{name}</Text>
+    <Box style={styles.customerRowInside}>
+      <Box style={styles.customerAvatarInside}>
+        <AppText style={styles.customerInitialsInside}>{initial}</AppText>
+      </Box>
+      <Box style={{ flex: 1 }}>
+        <AppText style={styles.customerNameInside}>{name}</AppText>
         {children}
-      </View>
+      </Box>
       {trailing}
-    </View>
+    </Box>
   );
 }
 
@@ -41,7 +43,7 @@ export function ContactHeaderRow({
   actions: React.ReactNode;
 }) {
   return (
-    <View
+    <Box
       style={{
         flexDirection: "row",
         justifyContent: "space-between",
@@ -49,11 +51,11 @@ export function ContactHeaderRow({
         marginBottom: 16,
       }}
     >
-      <View style={{ flex: 1, marginRight: 8 }}>
-        <Text style={styles.restaurantName}>{name}</Text>
-        <Text style={styles.addressText}>{address}</Text>
-      </View>
-      <View style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>{actions}</View>
-    </View>
+      <Box style={{ flex: 1, marginRight: 8 }}>
+        <AppText style={styles.restaurantName}>{name}</AppText>
+        <AppText style={styles.addressText}>{address}</AppText>
+      </Box>
+      <Box style={{ flexDirection: "row", gap: 12, alignItems: "center" }}>{actions}</Box>
+    </Box>
   );
 }

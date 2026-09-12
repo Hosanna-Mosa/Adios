@@ -1,8 +1,13 @@
 import React from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../profile-tab.styles";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { ModalBox } from "@/components/ui/ModalBox";
 
 /** Centred dialog that shows the details of one profile section.
  *
@@ -21,20 +26,20 @@ export function ProfileSectionModal({
   children: React.ReactNode;
 }) {
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalCard}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{title}</Text>
-            <Pressable style={styles.closeButton} onPress={onClose}>
+    <ModalBox visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Box style={styles.modalOverlay}>
+        <Box style={styles.modalCard}>
+          <Box style={styles.modalHeader}>
+            <AppText style={styles.modalTitle}>{title}</AppText>
+            <PressBox style={styles.closeButton} onPress={onClose}>
               <Feather name="x" size={18} color={Colors.text} />
-            </Pressable>
-          </View>
-          <ScrollView style={styles.modalScroll} keyboardShouldPersistTaps="handled">
+            </PressBox>
+          </Box>
+          <ScrollBox style={styles.modalScroll} keyboardShouldPersistTaps="handled">
             {children}
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+          </ScrollBox>
+        </Box>
+      </Box>
+    </ModalBox>
   );
 }

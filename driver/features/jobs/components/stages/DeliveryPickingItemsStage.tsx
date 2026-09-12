@@ -1,5 +1,4 @@
 import React from "react";
-import { View } from "react-native";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -12,6 +11,7 @@ import {
 } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { RestaurantOtpEntry } from "./RestaurantOtpEntry";
+import { Box } from "@/components/ui/Box";
 
 export function DeliveryPickingItemsStage() {
   const {
@@ -25,7 +25,7 @@ export function DeliveryPickingItemsStage() {
     <OrderStage title="Wait & Verify Order">
       <TimersGrid prepTimeRemaining={prepTimeRemaining} waitingComp={waitingComp} />
 
-      <View style={styles.checklistScroll}>
+      <Box style={styles.checklistScroll}>
         <ChecklistGroup title="ITEMS IN ORDER" />
         {foodItems.map((item: any, idx: number) => (
           <ChecklistRow
@@ -52,7 +52,7 @@ export function DeliveryPickingItemsStage() {
         />
 
         <RestaurantOtpEntry />
-      </View>
+      </Box>
 
       <PickupActionRow
         onReportIssue={handleReportIssue}

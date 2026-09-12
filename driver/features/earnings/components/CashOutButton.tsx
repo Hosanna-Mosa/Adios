@@ -1,8 +1,12 @@
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { Loader } from "@/components/ui/Loader";
+import { PressBox } from "@/components/ui/PressBox";
 
 interface CashOutButtonProps {
   onPress: () => void;
@@ -12,21 +16,21 @@ interface CashOutButtonProps {
 
 export function CashOutButton({ onPress, disabled = false, isLoading = false }: CashOutButtonProps) {
   return (
-    <Pressable
+    <PressBox
       style={[styles.button, disabled && styles.buttonDisabled]}
       onPress={onPress}
       disabled={disabled || isLoading}
     >
-      <View style={styles.iconContainer}>
+      <Box style={styles.iconContainer}>
         <Feather name="dollar-sign" size={18} color={Colors.white} />
-      </View>
-      <Text style={styles.text}>Cash Out</Text>
+      </Box>
+      <AppText style={styles.text}>Cash Out</AppText>
       {isLoading ? (
-        <ActivityIndicator size="small" color={Colors.white} />
+        <Loader size="small" color={Colors.white} />
       ) : (
         <Feather name="chevron-right" size={20} color={Colors.white} />
       )}
-    </Pressable>
+    </PressBox>
   );
 }
 

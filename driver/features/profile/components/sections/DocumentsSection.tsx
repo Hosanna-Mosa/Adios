@@ -1,11 +1,12 @@
 import React from "react";
-import { View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import type { Field } from "../../utils/format";
 import { modalStyles } from "../../profile-tab.styles";
 import { ModalActionButton } from "../ModalFormActions";
 import { SectionFieldRows } from "../SectionFieldRows";
+import { Box } from "@/components/ui/Box";
 
 /** Documents on file, plus shortcuts to add the ones that are missing. */
 export function DocumentsSection({
@@ -24,10 +25,10 @@ export function DocumentsSection({
   const showActions = !hasPan || !hasLicense;
 
   return (
-    <View>
+    <Box>
       <SectionFieldRows fields={fields} />
       {showActions && (
-        <View style={modalStyles.docActions}>
+        <Box style={modalStyles.docActions}>
           {!hasPan && (
             <ModalActionButton
               icon={<Feather name="plus-circle" size={16} color={Colors.primary} />}
@@ -42,8 +43,8 @@ export function DocumentsSection({
               onPress={onAddLicense}
             />
           )}
-        </View>
+        </Box>
       )}
-    </View>
+    </Box>
   );
 }

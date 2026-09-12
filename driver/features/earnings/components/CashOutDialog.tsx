@@ -1,10 +1,12 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { AppModal } from "@/components/shared/AppModal";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { styles } from "../earnings.styles";
 import { formatCurrency } from "../utils/format";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Password confirmation before a Razorpay payout. */
 export function CashOutDialog({
@@ -26,10 +28,10 @@ export function CashOutDialog({
 }) {
   return (
     <AppModal visible={visible} onClose={onCancel} presentation="card">
-      <Text style={styles.modalTitle}>Confirm Cash Out</Text>
-      <Text style={styles.modalText}>
+      <AppText style={styles.modalTitle}>Confirm Cash Out</AppText>
+      <AppText style={styles.modalText}>
         {formatCurrency(amount)} will be transferred through Razorpay.
-      </Text>
+      </AppText>
       <TextField
         value={password}
         onChangeText={onPasswordChange}
@@ -37,7 +39,7 @@ export function CashOutDialog({
         secureTextEntry
         style={{ marginBottom: 14 }}
       />
-      <View style={styles.modalActions}>
+      <Box style={styles.modalActions}>
         <Button
           title="Cancel"
           variant="secondary"
@@ -46,7 +48,7 @@ export function CashOutDialog({
           disabled={isCashingOut}
         />
         <Button title="Confirm" size="sm" onPress={onConfirm} loading={isCashingOut} />
-      </View>
+      </Box>
     </AppModal>
   );
 }

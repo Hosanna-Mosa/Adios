@@ -1,9 +1,12 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Colors } from "@/constants/colors";
 import { selectStyles } from "./SelectCard.styles";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Radio-style option card — vehicle type, gender, preferred zone. */
 export function SelectCard({
@@ -20,7 +23,7 @@ export function SelectCard({
   desc?: string;
 }) {
   return (
-    <Pressable
+    <PressBox
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onSelect();
@@ -30,30 +33,30 @@ export function SelectCard({
         selected && selectStyles.cardSelected,
       ]}
     >
-      <View style={selectStyles.row}>
+      <Box style={selectStyles.row}>
         {icon && (
-          <View style={[selectStyles.iconWrap, selected && selectStyles.iconWrapSelected]}>
+          <Box style={[selectStyles.iconWrap, selected && selectStyles.iconWrapSelected]}>
             <Feather
               name={icon}
               size={20}
               color={selected ? Colors.white : Colors.primary}
             />
-          </View>
+          </Box>
         )}
-        <View style={selectStyles.textWrap}>
-          <Text style={[selectStyles.label, selected && selectStyles.labelSelected]}>
+        <Box style={selectStyles.textWrap}>
+          <AppText style={[selectStyles.label, selected && selectStyles.labelSelected]}>
             {label}
-          </Text>
+          </AppText>
           {desc && (
-            <Text style={[selectStyles.desc, selected && selectStyles.descSelected]}>
+            <AppText style={[selectStyles.desc, selected && selectStyles.descSelected]}>
               {desc}
-            </Text>
+            </AppText>
           )}
-        </View>
-        <View style={[selectStyles.radio, selected && selectStyles.radioSelected]}>
+        </Box>
+        <Box style={[selectStyles.radio, selected && selectStyles.radioSelected]}>
           {selected && <Feather name="check" size={14} color={Colors.white} />}
-        </View>
-      </View>
-    </Pressable>
+        </Box>
+      </Box>
+    </PressBox>
   );
 }

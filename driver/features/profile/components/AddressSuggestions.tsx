@@ -1,6 +1,10 @@
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+
 import { suggestionStyles as styles } from "./AddressSuggestions.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface AddressSuggestion {
   id: string;
@@ -22,15 +26,15 @@ export function AddressSuggestions({
   if (suggestions.length === 0) return null;
 
   return (
-    <View style={styles.dropdown}>
-      <ScrollView nestedScrollEnabled={true} style={styles.scroll}>
+    <Box style={styles.dropdown}>
+      <ScrollBox nestedScrollEnabled={true} style={styles.scroll}>
         {suggestions.map((item) => (
-          <TouchableOpacity key={item.id} onPress={() => onSelect(item)} style={styles.row}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.address}>{item.address}</Text>
-          </TouchableOpacity>
+          <Touchable key={item.id} onPress={() => onSelect(item)} style={styles.row}>
+            <AppText style={styles.name}>{item.name}</AppText>
+            <AppText style={styles.address}>{item.address}</AppText>
+          </Touchable>
         ))}
-      </ScrollView>
-    </View>
+      </ScrollBox>
+    </Box>
   );
 }

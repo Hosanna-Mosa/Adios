@@ -1,18 +1,15 @@
 import { router } from "expo-router";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  View,
-} from "react-native";
-import Animated from "react-native-reanimated";
+import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { OnboardingTopBar, SectionHeader, IdentitySection, SectionProgressBar } from "@/features/onboarding/components";
 
 import { styles } from "./identity-verify.styles";
 import { useIdentityVerify } from "@/features/onboarding/hooks/useIdentityVerify";
 import { IdentityBottomButton } from "@/features/onboarding/components";
-
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { KeyboardView } from "@/components/ui/KeyboardView";
+import { Box } from "@/components/ui/Box";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  IDENTITY VERIFICATION SCREEN (Standalone — only Aadhaar / PAN)
@@ -35,11 +32,11 @@ export default function IdentityVerifyScreen() {
 
   // ── Bottom button logic ──────────────────────────────────────────────────────
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={[styles.inner, { paddingTop: insets.top + 16 }]}>
+      <Box style={[styles.inner, { paddingTop: insets.top + 16 }]}>
         <OnboardingTopBar
           canGoBack={sectionIdx > 0}
           onBack={goPrev}
@@ -56,14 +53,14 @@ export default function IdentityVerifyScreen() {
         />
 
         {/* Content */}
-        <ScrollView
+        <ScrollBox
           ref={scrollRef}
           style={styles.scroll}
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View style={slideAnimatedStyle}>
+          <AnimatedBox style={slideAnimatedStyle}>
             <IdentitySection
               currentKey={currentKey}
               saving={saving}
@@ -86,11 +83,11 @@ export default function IdentityVerifyScreen() {
               goNext={goNext}
               goPrev={goPrev}
             />
-          </Animated.View>
-        </ScrollView>
+          </AnimatedBox>
+        </ScrollBox>
 
         {/* Bottom Bar */}
-        <View
+        <Box
           style={[
             styles.bottomBar,
             { paddingBottom: Math.max(insets.bottom, 12) },
@@ -108,9 +105,9 @@ export default function IdentityVerifyScreen() {
             goNext={goNext}
             totalSections={totalSections}
           />
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+        </Box>
+      </Box>
+    </KeyboardView>
   );
 }
 

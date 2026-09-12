@@ -1,9 +1,11 @@
 import React from "react";
-import { Text, View } from "react-native";
-import Animated from "react-native-reanimated";
+
 import type { StyleProp, ViewStyle } from "react-native";
 import { Colors } from "@/constants/colors";
 import { styles } from "./IncomingOrderModal.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** Job title, payout, and the sub-line that differs for scheduled and
  * helper offers. */
@@ -21,19 +23,19 @@ export function OfferHeader({
   isHelper: boolean;
 }) {
   return (
-    <View style={styles.header}>
-      <View style={styles.headerCopy}>
-        <Text style={styles.title}>{title}</Text>
+    <Box style={styles.header}>
+      <Box style={styles.headerCopy}>
+        <AppText style={styles.title}>{title}</AppText>
         {isReserved ? (
-          <Text style={[styles.subtitle, { color: Colors.brand, fontWeight: "700" }]}>
+          <AppText style={[styles.subtitle, { color: Colors.brand, fontWeight: "700" }]}>
             Scheduled: {scheduledFor}
-          </Text>
+          </AppText>
         ) : (
-          isHelper && <Text style={styles.subtitle}>Hours Book / Task Specialist</Text>
+          isHelper && <AppText style={styles.subtitle}>Hours Book / Task Specialist</AppText>
         )}
-      </View>
-      <Text style={styles.earnings}>₹{earnings}</Text>
-    </View>
+      </Box>
+      <AppText style={styles.earnings}>₹{earnings}</AppText>
+    </Box>
   );
 }
 
@@ -46,11 +48,11 @@ export function OfferCountdown({
   barStyle: StyleProp<ViewStyle>;
 }) {
   return (
-    <View style={styles.timerContainer}>
-      <View style={styles.timerBarBg}>
-        <Animated.View style={[styles.timerBar, barStyle]} />
-      </View>
-      <Text style={styles.timerText}>Decline auto-triggers in {secondsLeft} seconds</Text>
-    </View>
+    <Box style={styles.timerContainer}>
+      <Box style={styles.timerBarBg}>
+        <AnimatedBox style={[styles.timerBar, barStyle]} />
+      </Box>
+      <AppText style={styles.timerText}>Decline auto-triggers in {secondsLeft} seconds</AppText>
+    </Box>
   );
 }

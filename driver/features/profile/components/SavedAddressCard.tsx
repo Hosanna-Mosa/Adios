@@ -1,10 +1,13 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { staggerListItem } from "@/motion/presets";
 import { styles } from "../saved-addresses.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** One saved address with edit and delete actions. */
 export function SavedAddressCard({
@@ -19,8 +22,8 @@ export function SavedAddressCard({
   onDelete: () => void;
 }) {
   return (
-    <Animated.View entering={staggerListItem(index)} style={styles.addressCard}>
-      <View style={styles.addressIconBox}>
+    <AnimatedBox entering={staggerListItem(index)} style={styles.addressCard}>
+      <Box style={styles.addressIconBox}>
         <Feather
           name={
             address.label === "Home"
@@ -32,22 +35,22 @@ export function SavedAddressCard({
           size={20}
           color={Colors.textSecondary}
         />
-      </View>
-      <View style={styles.addressInfo}>
-        <Text style={styles.addressLabel}>{address.label}</Text>
-        <Text style={styles.addressLine} numberOfLines={2}>
+      </Box>
+      <Box style={styles.addressInfo}>
+        <AppText style={styles.addressLabel}>{address.label}</AppText>
+        <AppText style={styles.addressLine} numberOfLines={2}>
           {address.addressLine}
-        </Text>
-        {address.phone && <Text style={styles.addressPhone}>{address.phone}</Text>}
-      </View>
-      <View style={styles.addressActions}>
-        <TouchableOpacity style={styles.actionBtn} onPress={onEdit}>
+        </AppText>
+        {address.phone && <AppText style={styles.addressPhone}>{address.phone}</AppText>}
+      </Box>
+      <Box style={styles.addressActions}>
+        <Touchable style={styles.actionBtn} onPress={onEdit}>
           <Feather name="edit-2" size={18} color={Colors.primary} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={onDelete}>
+        </Touchable>
+        <Touchable style={styles.actionBtn} onPress={onDelete}>
           <Feather name="trash-2" size={18} color={Colors.error} />
-        </TouchableOpacity>
-      </View>
-    </Animated.View>
+        </Touchable>
+      </Box>
+    </AnimatedBox>
   );
 }

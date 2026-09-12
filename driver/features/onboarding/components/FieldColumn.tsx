@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { Box } from "@/components/ui/Box";
 
 /** Evenly spaced stack of fields inside one onboarding step. */
 export function FieldColumn({
@@ -9,5 +9,5 @@ export function FieldColumn({
   gap?: number;
   children: React.ReactNode;
 }) {
-  return <View style={{ gap }}>{children}</View>;
+  return <Box style={{ gap }}>{children}</Box>;
 }

@@ -1,9 +1,12 @@
 import React from "react";
-import { FlatList, KeyboardAvoidingView, Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { CreateTicketForm } from "./CreateTicketForm";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { Box } from "@/components/ui/Box";
+import { KeyboardView } from "@/components/ui/KeyboardView";
+import { List } from "@/components/ui/List";
 
 /** The new-ticket screen. The form sits in a FlatList so it scrolls clear of
  * the keyboard on both platforms. */
@@ -31,14 +34,14 @@ export function CreateTicketView({
   onSubmit: () => void;
 }) {
   return (
-    <View style={[styles.root, { backgroundColor: Colors.background }]}>
+    <Box style={[styles.root, { backgroundColor: Colors.background }]}>
       <ScreenHeader title="Create Support Ticket" paddingTop={paddingTop} onBack={onBack} />
 
-      <KeyboardAvoidingView
+      <KeyboardView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <FlatList
+        <List
           data={[{ key: "form" }]}
           renderItem={() => (
             <CreateTicketForm
@@ -55,7 +58,7 @@ export function CreateTicketView({
           keyExtractor={(item) => item.key}
           contentContainerStyle={{ paddingVertical: 12 }}
         />
-      </KeyboardAvoidingView>
-    </View>
+      </KeyboardView>
+    </Box>
   );
 }

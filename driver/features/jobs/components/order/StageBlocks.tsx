@@ -1,21 +1,24 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Surge hotspots suggested after a job completes. */
 export function HighDemandZones({ title, zones }: { title: string; zones: string[] }) {
   return (
-    <View style={styles.heatmapZones}>
-      <Text style={styles.checklistHeader}>{title}</Text>
+    <Box style={styles.heatmapZones}>
+      <AppText style={styles.checklistHeader}>{title}</AppText>
       {zones.map((zone) => (
-        <View key={zone} style={styles.hotspotItem}>
+        <Box key={zone} style={styles.hotspotItem}>
           <Ionicons name="flame" size={16} color={Colors.brand} />
-          <Text style={styles.hotspotText}>{zone}</Text>
-        </View>
+          <AppText style={styles.hotspotText}>{zone}</AppText>
+        </Box>
       ))}
-    </View>
+    </Box>
   );
 }
 
@@ -32,25 +35,25 @@ export function OptionPicker<T extends string>({
   onSelect: (value: T) => void;
 }) {
   return (
-    <View style={styles.optionsBlock}>
-      <Text style={styles.blockLabel}>{label}</Text>
-      <View style={styles.optionsRow}>
+    <Box style={styles.optionsBlock}>
+      <AppText style={styles.blockLabel}>{label}</AppText>
+      <Box style={styles.optionsRow}>
         {options.map((opt) => {
           const active = selected === opt;
           return (
-            <TouchableOpacity
+            <Touchable
               key={opt}
               style={[styles.optionBtn, active ? styles.optionBtnSelected : null]}
               onPress={() => onSelect(opt)}
             >
-              <Text style={[styles.optionBtnText, active ? styles.optionBtnTextSelected : null]}>
+              <AppText style={[styles.optionBtnText, active ? styles.optionBtnTextSelected : null]}>
                 {opt.toUpperCase()}
-              </Text>
-            </TouchableOpacity>
+              </AppText>
+            </Touchable>
           );
         })}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }
 
@@ -65,24 +68,24 @@ export function PickupActionRow({
   confirmLabel: string;
 }) {
   return (
-    <View style={styles.pickupActionRow}>
-      <TouchableOpacity style={styles.issueBtn} onPress={onReportIssue}>
+    <Box style={styles.pickupActionRow}>
+      <Touchable style={styles.issueBtn} onPress={onReportIssue}>
         <Ionicons name="warning-outline" size={20} color={Colors.error} />
-        <Text style={styles.issueBtnText}>Issue</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.pickupConfirmBtn]} onPress={onConfirm}>
-        <Text style={styles.actionBtnText}>{confirmLabel}</Text>
-      </TouchableOpacity>
-    </View>
+        <AppText style={styles.issueBtnText}>Issue</AppText>
+      </Touchable>
+      <Touchable style={[styles.pickupConfirmBtn]} onPress={onConfirm}>
+        <AppText style={styles.actionBtnText}>{confirmLabel}</AppText>
+      </Touchable>
+    </Box>
   );
 }
 
 /** Stage title with contact buttons on the same line. */
 export function StageTitleRow({ title, actions }: { title: string; actions: React.ReactNode }) {
   return (
-    <View style={styles.stepTitleRow}>
-      <Text style={[styles.stepTitle, styles.stepTitleInRow]}>{title}</Text>
+    <Box style={styles.stepTitleRow}>
+      <AppText style={[styles.stepTitle, styles.stepTitleInRow]}>{title}</AppText>
       {actions}
-    </View>
+    </Box>
   );
 }

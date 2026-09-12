@@ -1,7 +1,9 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+
 import type { StyleProp, ViewStyle } from "react-native";
 import { styles } from "../../active-order.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { AppText } from "@/components/ui/AppText";
 
 /** The primary "advance the job" button. Every stage ends with one; only the
  * label changes, so it was written out ten times before this. */
@@ -22,8 +24,8 @@ export function StageActionButton({
   style?: StyleProp<ViewStyle>;
 }) {
   return (
-    <TouchableOpacity style={[styles.actionBtn, style]} onPress={onPress} disabled={disabled}>
-      {children ?? <Text style={styles.actionBtnText}>{label}</Text>}
-    </TouchableOpacity>
+    <Touchable style={[styles.actionBtn, style]} onPress={onPress} disabled={disabled}>
+      {children ?? <AppText style={styles.actionBtnText}>{label}</AppText>}
+    </Touchable>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import type { Field } from "../../utils/format";
@@ -7,6 +7,8 @@ import { modalStyles } from "../../profile-tab.styles";
 import { EditField } from "../EditField";
 import { ModalActionButton, ModalFormActions } from "../ModalFormActions";
 import { SectionFieldRows } from "../SectionFieldRows";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 export interface BankAccount {
   accountNumber: string;
@@ -42,38 +44,38 @@ export function BankSection({
   onSubmit: () => void;
 }) {
   return (
-    <View>
+    <Box>
       <SectionFieldRows fields={fields} />
 
       {accounts.length > 0 && (
-        <View style={modalStyles.bankList}>
-          <Text style={modalStyles.bankListTitle}>Your Bank Accounts</Text>
+        <Box style={modalStyles.bankList}>
+          <AppText style={modalStyles.bankListTitle}>Your Bank Accounts</AppText>
           {accounts.map((ba, idx) => (
-            <View key={idx} style={modalStyles.bankItem}>
-              <View style={modalStyles.bankItemDot}>
+            <Box key={idx} style={modalStyles.bankItem}>
+              <Box style={modalStyles.bankItemDot}>
                 <Feather
                   name={ba.verified ? "check-circle" : "clock"}
                   size={16}
                   color={ba.verified ? Colors.success : Colors.warning}
                 />
-              </View>
-              <View style={modalStyles.bankItemCopy}>
-                <Text style={modalStyles.bankItemNumber}>{ba.accountNumber}</Text>
-                <Text style={modalStyles.bankItemIfsc}>IFSC: {ba.ifsc}</Text>
-              </View>
+              </Box>
+              <Box style={modalStyles.bankItemCopy}>
+                <AppText style={modalStyles.bankItemNumber}>{ba.accountNumber}</AppText>
+                <AppText style={modalStyles.bankItemIfsc}>IFSC: {ba.ifsc}</AppText>
+              </Box>
               {ba.isDefault && (
-                <View style={modalStyles.defaultBadge}>
-                  <Text style={modalStyles.defaultBadgeText}>Default</Text>
-                </View>
+                <Box style={modalStyles.defaultBadge}>
+                  <AppText style={modalStyles.defaultBadgeText}>Default</AppText>
+                </Box>
               )}
-            </View>
+            </Box>
           ))}
-        </View>
+        </Box>
       )}
 
       {showForm ? (
-        <View style={modalStyles.bankFormWrap}>
-          <Text style={modalStyles.bankFormTitle}>Add Bank Account</Text>
+        <Box style={modalStyles.bankFormWrap}>
+          <AppText style={modalStyles.bankFormTitle}>Add Bank Account</AppText>
           <EditField
             label="Account Number"
             value={accountNumber}
@@ -97,7 +99,7 @@ export function BankSection({
             busyLabel="Adding..."
             busy={isSaving}
           />
-        </View>
+        </Box>
       ) : (
         <ModalActionButton
           icon={<Feather name="plus-circle" size={15} color={Colors.primary} />}
@@ -105,6 +107,6 @@ export function BankSection({
           onPress={onOpenForm}
         />
       )}
-    </View>
+    </Box>
   );
 }

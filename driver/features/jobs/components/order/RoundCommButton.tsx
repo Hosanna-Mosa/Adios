@@ -1,8 +1,9 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
+
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
+import { Touchable } from "@/components/ui/Touchable";
 
 /** Round call / chat / navigate button beside a stop.
  * Appeared eleven times across the job stages. `children` carries the unread
@@ -17,9 +18,9 @@ export function RoundCommButton({
   children?: React.ReactNode;
 }) {
   return (
-    <TouchableOpacity style={styles.roundCommBtn} onPress={onPress}>
+    <Touchable style={styles.roundCommBtn} onPress={onPress}>
       <Ionicons name={icon} size={18} color={Colors.brand} />
       {children}
-    </TouchableOpacity>
+    </Touchable>
   );
 }

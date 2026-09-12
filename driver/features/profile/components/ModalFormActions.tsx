@@ -1,6 +1,9 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+
 import { modalActionStyles as styles } from "./ModalFormActions.styles";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Cancel / confirm pair at the foot of an edit form.
  * The same row closed the profile, bank and password forms. */
@@ -18,18 +21,18 @@ export function ModalFormActions({
   busy: boolean;
 }) {
   return (
-    <View style={styles.editActions}>
-      <Pressable style={styles.cancelBtn} onPress={onCancel}>
-        <Text style={styles.cancelBtnText}>Cancel</Text>
-      </Pressable>
-      <Pressable
+    <Box style={styles.editActions}>
+      <PressBox style={styles.cancelBtn} onPress={onCancel}>
+        <AppText style={styles.cancelBtnText}>Cancel</AppText>
+      </PressBox>
+      <PressBox
         style={[styles.saveBtn, busy && { opacity: 0.6 }]}
         onPress={onConfirm}
         disabled={busy}
       >
-        <Text style={styles.saveBtnText}>{busy ? busyLabel : confirmLabel}</Text>
-      </Pressable>
-    </View>
+        <AppText style={styles.saveBtnText}>{busy ? busyLabel : confirmLabel}</AppText>
+      </PressBox>
+    </Box>
   );
 }
 
@@ -44,9 +47,9 @@ export function ModalActionButton({
   onPress: () => void;
 }) {
   return (
-    <Pressable style={styles.editButton} onPress={onPress}>
+    <PressBox style={styles.editButton} onPress={onPress}>
       {icon}
-      <Text style={styles.editButtonText}>{label}</Text>
-    </Pressable>
+      <AppText style={styles.editButtonText}>{label}</AppText>
+    </PressBox>
   );
 }

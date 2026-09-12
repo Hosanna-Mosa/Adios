@@ -1,11 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { Button } from "./Button";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface Props {
   title: string;
@@ -22,20 +24,20 @@ interface Props {
 /** Mirrors app/components/ui/EmptyState.tsx. */
 export function EmptyState({ title, subtitle, icon = "file-tray-outline", lottieSource, actionLabel, onAction }: Props) {
   return (
-    <View style={styles.wrap}>
+    <Box style={styles.wrap}>
       {lottieSource ? (
         <LottieView source={lottieSource} autoPlay loop style={styles.lottie} />
       ) : (
-        <View style={styles.iconCircle}>
+        <Box style={styles.iconCircle}>
           <Ionicons name={icon} size={moderateScale(32)} color={Colors.textMuted} />
-        </View>
+        </Box>
       )}
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      <AppText style={styles.title}>{title}</AppText>
+      {subtitle ? <AppText style={styles.subtitle}>{subtitle}</AppText> : null}
       {actionLabel && onAction ? (
         <Button title={actionLabel} onPress={onAction} variant="secondary" style={styles.action} />
       ) : null}
-    </View>
+    </Box>
   );
 }
 

@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  Linking,
-} from "react-native";
+import { FlatList, Platform, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
@@ -18,6 +13,8 @@ import {
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/chat.styles";
 import { MessageComposer } from "@/components/shared/MessageComposer";
+import { KeyboardView } from "@/components/ui/KeyboardView";
+import { List } from "@/components/ui/List";
 
 const QUICK_REPLIES = [
   "On my way!",
@@ -94,7 +91,7 @@ export default function DriverChatScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       style={styles.root}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={0}
@@ -110,7 +107,7 @@ export default function DriverChatScreen() {
         <TaskAssignmentBanner canStartTask={canStartTask} onStartTask={handleStartTask} />
       )}
 
-      <FlatList
+      <List
         ref={flatListRef}
         data={activeChat || []}
         keyExtractor={(item, index) => item.id || index.toString()}
@@ -129,6 +126,6 @@ export default function DriverChatScreen() {
         onSend={() => handleSend(inputText)}
         paddingBottom={insets.bottom + 8}
       />
-    </KeyboardAvoidingView>
+    </KeyboardView>
   );
 }

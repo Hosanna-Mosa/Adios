@@ -1,7 +1,8 @@
 import React from "react";
-import { View } from "react-native";
+
 import { router } from "expo-router";
 import { PrimaryButton } from "./PrimaryButton";
+import { Box } from "@/components/ui/Box";
 
 /** Which action the identity screen offers next.
  *
@@ -25,10 +26,10 @@ export function IdentityBottomButton({
       // Only one section left (the other was already verified and filtered out)
       // or both are on the same section — user is done
       if (currentKey === "aadhaar" && panVerified && !canProceedAadhaar()) {
-        return <View />;
+        return <Box />;
       }
       if (currentKey === "pan" && aadhaarVerified && !canProceedPAN()) {
-        return <View />;
+        return <Box />;
       }
       // If the formality-mode fields are valid, show Done
       if (canProceedSection()) {
@@ -40,7 +41,7 @@ export function IdentityBottomButton({
           />
         );
       }
-      return <View />;
+      return <Box />;
     }
 
     if (currentKey === "aadhaar" && aadhaarVerified) {
@@ -86,5 +87,5 @@ export function IdentityBottomButton({
     }
 
     // Default: hide bottom bar for verify-mode sections (inline verify button handles it)
-    return <View />;
+    return <Box />;
 }

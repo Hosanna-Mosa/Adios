@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
-import { Linking, View } from "react-native";
+import { Linking } from "react-native";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -13,6 +13,7 @@ import {
   StopsDivider,
   UnreadBadge,
 } from "../order";
+import { Box } from "@/components/ui/Box";
 
 export function RideAcceptedStage() {
   const {
@@ -22,7 +23,7 @@ export function RideAcceptedStage() {
 
   return (
     <OrderStage title="Ride Accepted">
-      <View style={styles.infoBox}>
+      <Box style={styles.infoBox}>
         <StopInfoItem
           label="Pickup Rider From"
           name={currentOrder.customerName || "Rider"}
@@ -54,7 +55,7 @@ export function RideAcceptedStage() {
           name={deliveryStop?.locationName || "Destination"}
           address={deliveryStop?.address}
         />
-      </View>
+      </Box>
 
       <StageActionButton label="Start Travel to Pickup" onPress={handleStatusTransition} />
     </OrderStage>

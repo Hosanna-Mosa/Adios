@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import type { Field } from "../../utils/format";
@@ -8,6 +8,7 @@ import { EditField } from "../EditField";
 import { FieldRow } from "../FieldRow";
 import { ModalActionButton, ModalFormActions } from "../ModalFormActions";
 import { SectionFieldRows } from "../SectionFieldRows";
+import { Box } from "@/components/ui/Box";
 
 export interface SavedAddress {
   label: string;
@@ -45,7 +46,7 @@ export function SettingsSection({
   onSubmit: () => void;
 }) {
   return (
-    <View>
+    <Box>
       <SectionFieldRows fields={fields} />
       {addresses.map((address, index) => (
         <FieldRow
@@ -56,7 +57,7 @@ export function SettingsSection({
       ))}
 
       {showPasswordForm ? (
-        <View style={modalStyles.passwordForm}>
+        <Box style={modalStyles.passwordForm}>
           <EditField
             label="Current Password"
             value={currentPassword}
@@ -88,7 +89,7 @@ export function SettingsSection({
             busyLabel="Updating..."
             busy={isSaving}
           />
-        </View>
+        </Box>
       ) : (
         <ModalActionButton
           icon={<Feather name="lock" size={15} color={Colors.primary} />}
@@ -96,6 +97,6 @@ export function SettingsSection({
           onPress={onOpenForm}
         />
       )}
-    </View>
+    </Box>
   );
 }

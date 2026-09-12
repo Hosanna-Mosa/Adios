@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../onboarding.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Back arrow (only once there is somewhere to go back to) and Skip. */
 export function OnboardingTopBar({
@@ -15,17 +18,17 @@ export function OnboardingTopBar({
   onSkip: () => void;
 }) {
   return (
-    <View style={styles.topBar}>
+    <Box style={styles.topBar}>
       {canGoBack ? (
-        <TouchableOpacity onPress={onBack} style={styles.topBarBtn}>
+        <Touchable onPress={onBack} style={styles.topBarBtn}>
           <Feather name="arrow-left" size={20} color={Colors.text} />
-        </TouchableOpacity>
+        </Touchable>
       ) : (
-        <View style={{ width: 40 }} />
+        <Box style={{ width: 40 }} />
       )}
-      <TouchableOpacity onPress={onSkip} style={styles.topBarBtn}>
-        <Text style={styles.skipText}>Skip</Text>
-      </TouchableOpacity>
-    </View>
+      <Touchable onPress={onSkip} style={styles.topBarBtn}>
+        <AppText style={styles.skipText}>Skip</AppText>
+      </Touchable>
+    </Box>
   );
 }

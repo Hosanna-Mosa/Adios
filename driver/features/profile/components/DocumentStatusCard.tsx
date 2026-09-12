@@ -1,7 +1,9 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { styles } from "../profile-tab.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** One document tile: icon, name, and a validity pill. */
 export function DocumentStatusCard({
@@ -18,14 +20,14 @@ export function DocumentStatusCard({
   toneSurface: string;
 }) {
   return (
-    <View style={[styles.docCard, { backgroundColor: toneSurface }]}>
-      <View style={styles.docIconWrap}>
+    <Box style={[styles.docCard, { backgroundColor: toneSurface }]}>
+      <Box style={styles.docIconWrap}>
         <Feather name={icon} size={24} color={tone} />
-      </View>
-      <Text style={styles.docTitle}>{title}</Text>
-      <View style={[styles.statusPill, { backgroundColor: toneSurface }]}>
-        <Text style={[styles.statusPillText, { color: tone }]}>{status}</Text>
-      </View>
-    </View>
+      </Box>
+      <AppText style={styles.docTitle}>{title}</AppText>
+      <Box style={[styles.statusPill, { backgroundColor: toneSurface }]}>
+        <AppText style={[styles.statusPillText, { color: tone }]}>{status}</AppText>
+      </Box>
+    </Box>
   );
 }

@@ -1,10 +1,12 @@
 import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { Colors } from "@/constants/colors";
 import { styles } from "../active-order.styles";
 import { decodePolyline } from "../utils/polyline";
+import { AppImage } from "@/components/ui/AppImage";
+import { Box } from "@/components/ui/Box";
 
 const VEHICLE_BIKE_3D = require("@/assets/images/scooter_blue_top_view_2.png");
 
@@ -32,7 +34,7 @@ export function ActiveOrderMap({
   const hasCoords = (p?: Point | null) => p != null && p.lat != null && p.lng != null;
 
   return (
-    <View style={styles.mapContainer}>
+    <Box style={styles.mapContainer}>
       <MapView
         ref={mapRef}
         style={StyleSheet.absoluteFill}
@@ -49,11 +51,11 @@ export function ActiveOrderMap({
           <Marker
             coordinate={{ latitude: Number(pickupStop!.lat), longitude: Number(pickupStop!.lng) }}
           >
-            <View style={styles.userMarkerWrap}>
-              <View style={styles.userMarkerBadge}>
+            <Box style={styles.userMarkerWrap}>
+              <Box style={styles.userMarkerBadge}>
                 <Ionicons name="person" size={14} color={Colors.white} />
-              </View>
-            </View>
+              </Box>
+            </Box>
           </Marker>
         ) : null}
 
@@ -61,7 +63,7 @@ export function ActiveOrderMap({
           <Marker
             coordinate={{ latitude: Number(deliveryStop!.lat), longitude: Number(deliveryStop!.lng) }}
           >
-            <View style={styles.redMarkerDot} />
+            <Box style={styles.redMarkerDot} />
           </Marker>
         ) : null}
 
@@ -72,7 +74,7 @@ export function ActiveOrderMap({
             flat={true}
             rotation={driverHeading || 0}
           >
-            <Image source={VEHICLE_BIKE_3D} style={styles.driverMarkerImage} resizeMode="contain" />
+            <AppImage source={VEHICLE_BIKE_3D} style={styles.driverMarkerImage} resizeMode="contain" />
           </Marker>
         ) : null}
 
@@ -84,6 +86,6 @@ export function ActiveOrderMap({
           />
         ) : null}
       </MapView>
-    </View>
+    </Box>
   );
 }

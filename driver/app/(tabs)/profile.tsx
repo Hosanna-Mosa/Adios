@@ -1,4 +1,4 @@
-import { RefreshControl, ScrollView } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,6 +14,8 @@ import { useProfileSections } from "@/features/profile/profileSections";
 import { useProfileTab } from "@/features/profile/hooks/useProfileTab";
 import { GENDERS } from "@/features/profile/genders";
 import { ProfileTabBody } from "@/features/profile/components";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Refresh } from "@/components/ui/Refresh";
 
 // ─── GENDER OPTIONS ───────────────────────────────────────────────────────────
 
@@ -51,10 +53,10 @@ export default function ProfileScreen() {
         colors={[Colors.brandSkin, Colors.background]}
         style={styles.headerGradient}
       />
-      <ScrollView
+      <ScrollBox
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={() => loadProfile(true)} />}
+        refreshControl={<Refresh refreshing={isRefreshing} onRefresh={() => loadProfile(true)} />}
         showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
@@ -76,7 +78,7 @@ export default function ProfileScreen() {
             />
           </>
         )}
-      </ScrollView>
+      </ScrollBox>
 
       <DriverTabBar active="profile" />
 

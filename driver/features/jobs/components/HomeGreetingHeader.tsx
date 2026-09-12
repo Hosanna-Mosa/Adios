@@ -1,8 +1,11 @@
 import React from "react";
-import { Image, Text, View } from "react-native";
+
 import { LinearGradient } from "expo-linear-gradient";
 import { gradients } from "@/constants/colors";
 import { styles } from "../home.styles";
+import { AppImage } from "@/components/ui/AppImage";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 function greetingFor(name?: string | null) {
   const suffix = name ? `, ${name.split(" ")[0]}` : "";
@@ -24,21 +27,21 @@ export function HomeGreetingHeader({
 }) {
   return (
     <LinearGradient colors={gradients.brand} style={[styles.headerGradient, { paddingTop }]}>
-      <Image
+      <AppImage
         source={require("../../../assets/images/cityscape_bg.png")}
         style={styles.headerBgImage}
         resizeMode="cover"
       />
-      <View style={styles.headerContent}>
-        <View style={styles.headerTopRow}>
-          <View style={styles.headerCopy}>
-            <Text style={styles.greeting}>{greetingFor(driverName)} 👋</Text>
-            <Text style={styles.subGreeting} numberOfLines={1}>
+      <Box style={styles.headerContent}>
+        <Box style={styles.headerTopRow}>
+          <Box style={styles.headerCopy}>
+            <AppText style={styles.greeting}>{greetingFor(driverName)} 👋</AppText>
+            <AppText style={styles.subGreeting} numberOfLines={1}>
               {isOnline ? "You're online and receiving orders" : "Ready to start earning"}
-            </Text>
-          </View>
-        </View>
-      </View>
+            </AppText>
+          </Box>
+        </Box>
+      </Box>
     </LinearGradient>
   );
 }

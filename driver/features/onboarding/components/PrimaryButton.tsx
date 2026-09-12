@@ -1,8 +1,10 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { btnStyles } from "./PrimaryButton.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { AppText } from "@/components/ui/AppText";
 
 /** Full-width pill action button for the onboarding forms.
  * Was defined identically in both onboarding.tsx and identity-verify.tsx. */
@@ -20,20 +22,20 @@ export function PrimaryButton({
   loading?: boolean;
 }) {
   return (
-    <TouchableOpacity
+    <Touchable
       style={[btnStyles.button, disabled && btnStyles.disabled]}
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.8}
     >
       {loading ? (
-        <Text style={btnStyles.text}>Please wait...</Text>
+        <AppText style={btnStyles.text}>Please wait...</AppText>
       ) : (
         <>
-          <Text style={btnStyles.text}>{title}</Text>
+          <AppText style={btnStyles.text}>{title}</AppText>
           {icon && <Feather name={icon} size={20} color={Colors.white} />}
         </>
       )}
-    </TouchableOpacity>
+    </Touchable>
   );
 }

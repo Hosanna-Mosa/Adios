@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
+import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import {
@@ -14,6 +14,10 @@ import {
 import { useAddressForm } from "@/features/profile/hooks/useAddressForm";
 import { styles } from "@/features/profile/add-address.styles";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { KeyboardView } from "@/components/ui/KeyboardView";
+import { AppTextInput } from "@/components/ui/AppTextInput";
+import { Box } from "@/components/ui/Box";
 
 const LABEL_OPTIONS = ["Home", "Work", "Other"];
 
@@ -36,7 +40,7 @@ export default function AddAddressScreen() {
   } = useAddressForm();
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
@@ -46,7 +50,7 @@ export default function AddAddressScreen() {
         onBack={() => router.back()}
       />
 
-      <ScrollView
+      <ScrollBox
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 120 }]}
         keyboardShouldPersistTaps="handled"
       >
@@ -54,13 +58,13 @@ export default function AddAddressScreen() {
 
         <AddressSection title="Address Details">
 
-          <View style={styles.inputGroup}>
+          <Box style={styles.inputGroup}>
             <AddressFieldHeader
               label="Full Address *"
               fetching={fetchingLoc}
               onUseCurrentLocation={handleGetCurrentLocation}
             />
-            <TextInput
+            <AppTextInput
               style={styles.input}
               placeholder="e.g. 12, MG Road, Koramangala, Bangalore"
               placeholderTextColor={Colors.textMuted}
@@ -83,7 +87,7 @@ export default function AddAddressScreen() {
             />
 
             <CoordinateBanner lat={addressLat} lng={addressLng} />
-          </View>
+          </Box>
         </AddressSection>
 
         <AddressSection title="Contact Details">
@@ -101,7 +105,7 @@ export default function AddAddressScreen() {
             keyboardType="phone-pad"
           />
         </AddressSection>
-      </ScrollView>
+      </ScrollBox>
 
       <AddressSaveBar
         label={isEditMode ? "Update Address" : "Save Address"}
@@ -109,6 +113,6 @@ export default function AddAddressScreen() {
         onPress={handleSave}
         paddingBottom={insets.bottom + 16}
       />
-    </KeyboardAvoidingView>
+    </KeyboardView>
   );
 }

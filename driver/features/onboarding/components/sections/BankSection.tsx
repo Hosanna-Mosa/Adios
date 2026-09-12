@@ -1,5 +1,4 @@
 import React from "react";
-import { View } from "react-native";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { bankStyles } from "../../onboarding.styles";
@@ -8,6 +7,7 @@ import { BankNotice } from "../BankNotice";
 import { FormInput } from "../FormInput";
 import { InfoBanner } from "../InfoBanner";
 import { PrimaryButton } from "../PrimaryButton";
+import { Box } from "@/components/ui/Box";
 
 const digits = (t: string) => t.replace(/[^0-9]/g, "").slice(0, 18);
 
@@ -15,13 +15,13 @@ export function BankSection() {
   const { docs, handleVerifyBank } = useOnboardingCtx();
 
   return (
-    <View style={bankStyles.wrap}>
+    <Box style={bankStyles.wrap}>
       <BankNotice
         title="Secure payout setup"
         text="Add the account where your delivery earnings should be settled."
       />
 
-      <View style={bankStyles.card}>
+      <Box style={bankStyles.card}>
         <FormInput
           label="Account Number"
           value={docs.bankAccount}
@@ -66,7 +66,7 @@ export function BankSection() {
             text="Bank account verified! Payouts will be sent here."
           />
         )}
-      </View>
-    </View>
+      </Box>
+    </Box>
   );
 }

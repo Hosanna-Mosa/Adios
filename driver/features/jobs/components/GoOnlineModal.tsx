@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Modal,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
-import Animated from "react-native-reanimated";
+
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +7,11 @@ import { Button } from "@/components/ui/Button";
 import { fadeInUp, usePressScale } from "@/motion/presets";
 import { ServiceOptionCard } from "./ServiceOptionCard";
 import { styles } from "./GoOnlineModal.styles";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { ModalBox } from "@/components/ui/ModalBox";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 interface GoOnlineModalProps {
   visible: boolean;
@@ -55,39 +54,39 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
   };
 
   return (
-    <Modal
+    <ModalBox
       visible={visible}
       animationType="slide"
       transparent
       onRequestClose={handleClose}
     >
-      <View style={styles.overlay}>
-        <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}>
+      <Box style={styles.overlay}>
+        <Box style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 16) + 16 }]}>
           {/* Handle */}
-          <View style={styles.handleRow}>
-            <View style={styles.handle} />
-          </View>
+          <Box style={styles.handleRow}>
+            <Box style={styles.handle} />
+          </Box>
 
           {showSuccess ? (
-            <Animated.View entering={fadeInUp(0)} style={styles.successContainer}>
-              <View style={styles.successIconWrap}>
+            <AnimatedBox entering={fadeInUp(0)} style={styles.successContainer}>
+              <Box style={styles.successIconWrap}>
                 <Feather name="check-circle" size={56} color={Colors.success} />
-              </View>
-              <Text style={styles.successTitle}>You&apos;re Online!</Text>
-              <Text style={styles.successText}>
+              </Box>
+              <AppText style={styles.successTitle}>You&apos;re Online!</AppText>
+              <AppText style={styles.successText}>
                 You&apos;ll receive orders for {selectedServices.join(" & ")}
-              </Text>
-            </Animated.View>
+              </AppText>
+            </AnimatedBox>
           ) : (
             <>
               {/* Header */}
-              <Text style={styles.title}>Go Online</Text>
-              <Text style={styles.subtitle}>
+              <AppText style={styles.title}>Go Online</AppText>
+              <AppText style={styles.subtitle}>
                 Select the services you want to be available for
-              </Text>
+              </AppText>
 
               {/* Service Options */}
-              <View style={styles.servicesContainer}>
+              <Box style={styles.servicesContainer}>
                 <ServiceOptionCard
                   icon="navigation"
                   name="Ride Hailing"
@@ -106,17 +105,17 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
                   press={foodPress}
                   iconStyle={styles.serviceIconFood}
                 />
-              </View>
+              </Box>
 
               {/* Info note */}
               {selectedServices.length === 0 && (
-                <Text style={styles.errorText}>
+                <AppText style={styles.errorText}>
                   Please select at least one service
-                </Text>
+                </AppText>
               )}
 
               {/* Actions */}
-              <View style={styles.actions}>
+              <Box style={styles.actions}>
                 <Button
                   title={`Go Online${selectedServices.length > 0 ? ` (${selectedServices.length})` : ""}`}
                   onPress={handleGoOnline}
@@ -124,14 +123,14 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
                   icon={<Feather name="wifi" size={18} color={Colors.onBrand} />}
                   fullWidth
                 />
-                <Pressable style={styles.cancelBtn} onPress={handleClose}>
-                  <Text style={styles.cancelBtnText}>Cancel</Text>
-                </Pressable>
-              </View>
+                <PressBox style={styles.cancelBtn} onPress={handleClose}>
+                  <AppText style={styles.cancelBtnText}>Cancel</AppText>
+                </PressBox>
+              </Box>
             </>
           )}
-        </View>
-      </View>
-    </Modal>
+        </Box>
+      </Box>
+    </ModalBox>
   );
 }

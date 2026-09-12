@@ -1,12 +1,15 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { staggerListItem } from "@/motion/presets";
 import { styles } from "../home.styles";
 import { formatCurrency } from "@/utils/format";
 import { formatReservedAt } from "../utils/offer";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** A ride reserved for later: when, where, who, and what it pays. */
 export function ScheduledRideCard({
@@ -25,42 +28,42 @@ export function ScheduledRideCard({
   const dateStr = formatReservedAt(ride.reservedAt);
 
   return (
-    <Animated.View entering={staggerListItem(index)} style={styles.scheduledCard}>
-      <View style={styles.scheduledHeader}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+    <AnimatedBox entering={staggerListItem(index)} style={styles.scheduledCard}>
+      <Box style={styles.scheduledHeader}>
+        <Box style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
           <Feather name="calendar" size={16} color={Colors.primary} />
-          <Text style={styles.scheduledTime}>{dateStr}</Text>
-        </View>
-        <Text style={styles.scheduledPrice}>{formatCurrency(Math.round(ride.totalPrice * 0.8), { decimals: false })}</Text>
-      </View>
+          <AppText style={styles.scheduledTime}>{dateStr}</AppText>
+        </Box>
+        <AppText style={styles.scheduledPrice}>{formatCurrency(Math.round(ride.totalPrice * 0.8), { decimals: false })}</AppText>
+      </Box>
 
-      <View style={styles.scheduledBody}>
-        <View style={styles.addressLine}>
-          <View style={[styles.dot, { backgroundColor: Colors.success }]} />
-          <Text style={styles.addressText} numberOfLines={1}>{pickup}</Text>
-        </View>
-        <View style={styles.connectorLine} />
-        <View style={styles.addressLine}>
-          <View style={[styles.dot, { backgroundColor: Colors.error }]} />
-          <Text style={styles.addressText} numberOfLines={1}>{drop}</Text>
-        </View>
-      </View>
+      <Box style={styles.scheduledBody}>
+        <Box style={styles.addressLine}>
+          <Box style={[styles.dot, { backgroundColor: Colors.success }]} />
+          <AppText style={styles.addressText} numberOfLines={1}>{pickup}</AppText>
+        </Box>
+        <Box style={styles.connectorLine} />
+        <Box style={styles.addressLine}>
+          <Box style={[styles.dot, { backgroundColor: Colors.error }]} />
+          <AppText style={styles.addressText} numberOfLines={1}>{drop}</AppText>
+        </Box>
+      </Box>
 
-      <View style={styles.scheduledFooter}>
-        <View>
-          <Text style={styles.customerName}>Rider: {ride.user?.name || "Customer"}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{ride.serviceType?.toUpperCase()}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
+      <Box style={styles.scheduledFooter}>
+        <Box>
+          <AppText style={styles.customerName}>Rider: {ride.user?.name || "Customer"}</AppText>
+          <Box style={styles.badge}>
+            <AppText style={styles.badgeText}>{ride.serviceType?.toUpperCase()}</AppText>
+          </Box>
+        </Box>
+        <Touchable
           style={[styles.startRideBtn, disabled && { opacity: 0.5 }]}
           disabled={disabled}
           onPress={onStart}
         >
-          <Text style={styles.startRideBtnText}>Start Ride</Text>
-        </TouchableOpacity>
-      </View>
-    </Animated.View>
+          <AppText style={styles.startRideBtnText}>Start Ride</AppText>
+        </Touchable>
+      </Box>
+    </AnimatedBox>
   );
 }

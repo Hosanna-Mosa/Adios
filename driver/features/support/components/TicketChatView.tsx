@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, KeyboardAvoidingView, Platform } from "react-native";
+import { Platform, FlatList } from "react-native";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { ResolveRequestPrompt } from "./ResolveRequestPrompt";
@@ -8,6 +8,8 @@ import { SupportChatHeader } from "./SupportChatHeader";
 import { SupportMessageBubble } from "./SupportMessageBubble";
 import type { SupportTicket } from "../types";
 import { MessageComposer } from "@/components/shared/MessageComposer";
+import { KeyboardView } from "@/components/ui/KeyboardView";
+import { List } from "@/components/ui/List";
 
 /** The open ticket: its thread, and whichever footer the ticket's state calls
  * for — the composer, the resolve prompt, or the resolved notice. */
@@ -39,7 +41,7 @@ export function TicketChatView({
   onResolve: (approve: boolean) => void;
 }) {
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       style={[styles.root, { backgroundColor: Colors.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={0}
@@ -53,7 +55,7 @@ export function TicketChatView({
 
       {/* Message List */}
       {ticket && (
-        <FlatList
+        <List
           ref={flatListRef}
           data={ticket.messages}
           keyExtractor={(_, index) => index.toString()}
@@ -88,6 +90,6 @@ export function TicketChatView({
           paddingBottom={bottomInset + 8}
         />
       )}
-    </KeyboardAvoidingView>
+    </KeyboardView>
   );
 }

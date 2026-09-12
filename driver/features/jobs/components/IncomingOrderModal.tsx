@@ -1,5 +1,4 @@
-import { Modal, ScrollView, StyleSheet, View } from "react-native";
-import Animated from "react-native-reanimated";
+import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
@@ -24,7 +23,10 @@ import {
   isRideJob,
   offerTitle,
 } from "../utils/offer";
-
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Box } from "@/components/ui/Box";
+import { ModalBox } from "@/components/ui/ModalBox";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export default function IncomingOrderModal() {
   const insets = useSafeAreaInsets();
@@ -45,10 +47,10 @@ export default function IncomingOrderModal() {
   const formattedDate = formatReservedAt(incomingOrder.reservedAt);
 
   return (
-    <Modal visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
-      <View style={styles.overlay}>
+    <ModalBox visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
+      <Box style={styles.overlay}>
         <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
-        <Animated.View
+        <AnimatedBox
           style={[
             styles.sheet,
             {
@@ -79,7 +81,7 @@ export default function IncomingOrderModal() {
             />
           ) : (
             <>
-              <ScrollView
+              <ScrollBox
                 style={styles.body}
                 contentContainerStyle={styles.bodyContent}
                 showsVerticalScrollIndicator={false}
@@ -97,9 +99,9 @@ export default function IncomingOrderModal() {
             )}
 
             <OfferPaymentMode label="Prepaid (Online Payment)" />
-          </ScrollView>
+          </ScrollBox>
 
-          <View style={styles.actionButtons}>
+          <Box style={styles.actionButtons}>
               <Button
                 title="Decline"
                 variant="secondary"
@@ -126,11 +128,11 @@ export default function IncomingOrderModal() {
                   }
                 }}
               />
-            </View>
+            </Box>
           </>
           )}
-        </Animated.View>
-      </View>
-    </Modal>
+        </AnimatedBox>
+      </Box>
+    </ModalBox>
   );
 }

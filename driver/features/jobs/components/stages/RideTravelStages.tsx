@@ -1,5 +1,5 @@
 import React from "react";
-import { Linking, Text } from "react-native";
+import { Linking } from "react-native";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -11,6 +11,7 @@ import {
   StageActionButton,
 } from "../order";
 import { SimPanel } from "./SimPanel";
+import { AppText } from "@/components/ui/AppText";
 
 export function RideEnRoutePickupStage() {
   const { currentOrder, pickupStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
@@ -46,10 +47,10 @@ export function RideInProgressStage() {
         initial={(currentOrder.customerName || "R").charAt(0).toUpperCase()}
         name={currentOrder.customerName || "Rider"}
       >
-        <Text style={styles.infoLabel}>Heading to destination</Text>
-        <Text style={styles.addressText} numberOfLines={1}>
+        <AppText style={styles.infoLabel}>Heading to destination</AppText>
+        <AppText style={styles.addressText} numberOfLines={1}>
           {deliveryStop?.address}
-        </Text>
+        </AppText>
       </CustomerRow>
 
       <StageActionButton label="Arrived at Destination" onPress={handleStatusTransition} />

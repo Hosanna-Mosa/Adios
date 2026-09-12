@@ -1,11 +1,14 @@
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Pressable, StyleSheet, ViewStyle } from "react-native";
 import Animated from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
 import { Colors, gradients } from "@/constants/colors";
 import { usePressScale } from "@/motion/presets";
 import { styles } from "./Button.styles";
+import { Loader } from "@/components/ui/Loader";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "md" | "sm";
@@ -61,16 +64,16 @@ export function Button({
   };
 
   const content = (
-    <View style={styles.content}>
+    <Box style={styles.content}>
       {loading ? (
-        <ActivityIndicator color={variant === "primary" || variant === "danger" ? Colors.onBrand : Colors.brand} />
+        <Loader color={variant === "primary" || variant === "danger" ? Colors.onBrand : Colors.brand} />
       ) : children ? (
         children
       ) : (
         <>
           {icon}
           {title ? (
-          <Text
+          <AppText
             style={[
               size === "sm" ? styles.labelSm : styles.label,
               variant === "secondary" || variant === "ghost" ? styles.labelOnSurface : styles.labelOnBrand,
@@ -78,11 +81,11 @@ export function Button({
             numberOfLines={1}
           >
             {title}
-          </Text>
+          </AppText>
           ) : null}
         </>
       )}
-    </View>
+    </Box>
   );
 
   return (

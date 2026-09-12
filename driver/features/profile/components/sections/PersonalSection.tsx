@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import type { Field } from "../../utils/format";
@@ -9,6 +9,7 @@ import { ModalActionButton, ModalFormActions } from "../ModalFormActions";
 import { SectionFieldRows } from "../SectionFieldRows";
 import { GenderPicker } from "./GenderPicker";
 import type { GenderOption } from "./GenderPicker";
+import { Box } from "@/components/ui/Box";
 
 export interface PersonalValues {
   name: string;
@@ -45,7 +46,7 @@ export function PersonalSection({
 }) {
   if (isEditing) {
     return (
-      <View style={modalStyles.formWrap}>
+      <Box style={modalStyles.formWrap}>
         <EditField
           label="Name"
           value={values.name}
@@ -88,18 +89,18 @@ export function PersonalSection({
           busyLabel="Saving..."
           busy={isSaving}
         />
-      </View>
+      </Box>
     );
   }
 
   return (
-    <View>
+    <Box>
       <SectionFieldRows fields={fields} />
       <ModalActionButton
         icon={<Feather name="edit-2" size={15} color={Colors.primary} />}
         label="Edit Profile"
         onPress={onStartEditing}
       />
-    </View>
+    </Box>
   );
 }

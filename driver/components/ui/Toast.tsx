@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import { moderateScale } from "react-native-size-matters";
 import { Colors, elevation, radius } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { fadeOut, modalSlideUp } from "@/motion/presets";
+import { AppText } from "@/components/ui/AppText";
 
 type ToastVariant = "success" | "error" | "info";
 interface ToastState {
@@ -67,9 +68,9 @@ function ToastHost({ toast }: { toast: ToastState | null }) {
       pointerEvents="none"
     >
       <Ionicons name={name} size={moderateScale(20)} color={color} />
-      <Text style={styles.message} numberOfLines={2}>
+      <AppText style={styles.message} numberOfLines={2}>
         {toast.message}
-      </Text>
+      </AppText>
     </Animated.View>
   );
 }

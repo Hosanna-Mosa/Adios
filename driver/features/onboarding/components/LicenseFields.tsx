@@ -1,16 +1,18 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { dlStyles } from "../onboarding.styles";
 import { inputStyles } from "./FormInput.styles";
+import { Touchable } from "@/components/ui/Touchable";
+import { AppText } from "@/components/ui/AppText";
 
 /** Why a typed licence number was rejected. */
 export function LicenseFormatError({ message }: { message: React.ReactNode }) {
   return (
-    <Text style={dlStyles.errorText} accessibilityRole="alert">
+    <AppText style={dlStyles.errorText} accessibilityRole="alert">
       {message}
-    </Text>
+    </AppText>
   );
 }
 
@@ -28,14 +30,14 @@ export function ExpiryDateField({
 }) {
   return (
     <>
-      <Text style={inputStyles.label}>{label}</Text>
-      <TouchableOpacity onPress={onPress} style={dlStyles.dateButton}>
+      <AppText style={inputStyles.label}>{label}</AppText>
+      <Touchable onPress={onPress} style={dlStyles.dateButton}>
         <Feather name="calendar" size={18} color={Colors.primary} />
-        <Text style={value ? dlStyles.dateText : dlStyles.datePlaceholder}>
+        <AppText style={value ? dlStyles.dateText : dlStyles.datePlaceholder}>
           {value || placeholder}
-        </Text>
+        </AppText>
         {value ? <Feather name="check-circle" size={18} color={Colors.success} /> : null}
-      </TouchableOpacity>
+      </Touchable>
     </>
   );
 }

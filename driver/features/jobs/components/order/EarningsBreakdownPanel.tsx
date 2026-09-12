@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, View } from "react-native";
+
 import { styles } from "../../active-order.styles";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 /** Titled panel wrapping the payout rows on a completed job. */
 export function EarningsBreakdownPanel({
@@ -11,9 +13,9 @@ export function EarningsBreakdownPanel({
   children: React.ReactNode;
 }) {
   return (
-    <View style={styles.earningsBreakdown}>
-      <Text style={styles.breakdownHeader}>{title}</Text>
+    <Box style={styles.earningsBreakdown}>
+      <AppText style={styles.breakdownHeader}>{title}</AppText>
       {children}
-    </View>
+    </Box>
   );
 }

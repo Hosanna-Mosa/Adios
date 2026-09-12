@@ -1,8 +1,11 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface ServiceToggleProps {
   active: "ride" | "delivery";
@@ -11,8 +14,8 @@ interface ServiceToggleProps {
 
 export function ServiceToggle({ active, onToggle }: ServiceToggleProps) {
   return (
-    <View style={styles.container}>
-      <Pressable
+    <Box style={styles.container}>
+      <PressBox
         style={[styles.option, active === "ride" ? styles.optionActive : styles.optionInactive]}
         onPress={() => onToggle("ride")}
       >
@@ -22,12 +25,12 @@ export function ServiceToggle({ active, onToggle }: ServiceToggleProps) {
           color={active === "ride" ? Colors.white : Colors.primary} 
           style={{ marginRight: 8 }} 
         />
-        <Text style={[styles.optionText, active === "ride" && styles.optionTextActive]}>
+        <AppText style={[styles.optionText, active === "ride" && styles.optionTextActive]}>
           Ride
-        </Text>
-      </Pressable>
+        </AppText>
+      </PressBox>
       
-      <Pressable
+      <PressBox
         style={[styles.option, active === "delivery" ? styles.optionActive : styles.optionInactive]}
         onPress={() => onToggle("delivery")}
       >
@@ -37,11 +40,11 @@ export function ServiceToggle({ active, onToggle }: ServiceToggleProps) {
           color={active === "delivery" ? Colors.white : Colors.primary} 
           style={{ marginRight: 8 }} 
         />
-        <Text style={[styles.optionText, active === "delivery" && styles.optionTextActive]}>
+        <AppText style={[styles.optionText, active === "delivery" && styles.optionTextActive]}>
           Delivery
-        </Text>
-      </Pressable>
-    </View>
+        </AppText>
+      </PressBox>
+    </Box>
   );
 }
 
