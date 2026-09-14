@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -33,9 +34,10 @@ export function SavedAddressesSection2({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Saved</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.saved")}</Text>
       {loading && addresses.length === 0 ? (
         <ActivityIndicator color={accent.accent} style={{ paddingVertical: 20 }} />
       ) : (
@@ -57,7 +59,7 @@ export function SavedAddressesSection2({
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.addrLabel}>{addr.label}</Text>
                   <Text style={styles.addrLine} numberOfLines={1}>{stripMeta(addr.addressLine)}</Text>
-                  {!!addr.landmark && <Text style={styles.addrInstructions} numberOfLines={1}>Near {addr.landmark}</Text>}
+                  {!!addr.landmark && <Text style={styles.addrInstructions} numberOfLines={1}>{t("app.delivery.near")} {addr.landmark}</Text>}
                   {instructions && <Text style={styles.addrInstructions} numberOfLines={1}>{instructions}</Text>}
                   {!!contact && <Text style={styles.addrContact} numberOfLines={1}>{contact}</Text>}
                 </View>

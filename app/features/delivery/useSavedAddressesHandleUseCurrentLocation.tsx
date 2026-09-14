@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import * as Location from "expo-location";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
@@ -8,23 +9,24 @@ import { useHomeStore } from "@/contexts/homeStore";
 // the order they were written, so React sees the same hook sequence.
 
 export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setSelectingId: any, deletingId: any, currentLocLoading: any, setCurrentLocLoading: any) {
+  const { t } = useTranslation();
   const handleUseCurrentLocation = async () => {
     if (currentLocLoading || selectingId) return;
     try {
       setCurrentLocLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission denied", "Please enable location services to use current location.");
+        Alert.alert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToUse"));
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const [place] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
       const addressLine = place
         ? [place.name, place.streetNumber, place.street, place.city, place.region].filter(Boolean).join(", ")
-        : "Current location";
+        : t("app.delivery.currentLocationFallback");
       router.push({ pathname: "/delivery/add-address", params: { step: "2", addressLine, lat: String(loc.coords.latitude), lng: String(loc.coords.longitude) } });
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to determine current location.");
+      Alert.alert(t("actions.error"), err.message || t("app.delivery.failedToDetermineCurrentLocation"));
     } finally {
       setCurrentLocLoading(false);
     }

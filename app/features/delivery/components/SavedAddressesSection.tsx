@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -20,14 +21,15 @@ export function SavedAddressesSection({
   selectingId,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
       <TouchableOpacity style={styles.addBtn} onPress={() => router.push("/delivery/add-address")} disabled={selectingId !== null}>
-        <Text style={styles.addBtnText}>+ Add new address</Text>
+        <Text style={styles.addBtnText}>{t("app.delivery.addNewAddress")}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.currentLocRow} onPress={handleUseCurrentLocation} disabled={selectingId !== null || currentLocLoading}>
         {currentLocLoading ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="locate" size={15} color={accent.accent} />}
-        <Text style={styles.currentLocText}>{currentLocLoading ? "Fetching location…" : "Use current location"}</Text>
+        <Text style={styles.currentLocText}>{currentLocLoading ? t("app.delivery.fetchingLocation") : t("app.LocationPickerSheet.useCurrentLocation")}</Text>
       </TouchableOpacity>
     </View>
   );
