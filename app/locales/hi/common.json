@@ -306,7 +306,14 @@
       "scheduleForLater": "बाद के लिए शेड्यूल करें",
       "pickAFutureDateAndTime": "भविष्य की तारीख़ और समय चुनें",
       "pick": "चुनें",
-      "theRestaurantConfirmsScheduledSlotsYouaposll": "रेस्टोरेंट शेड्यूल की गई स्लॉट की पुष्टि करता है — यह आपके ऑर्डर में शेड्यूल्ड के तहत पेंडिंग दिखेगा."
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "रेस्टोरेंट शेड्यूल की गई स्लॉट की पुष्टि करता है — यह आपके ऑर्डर में शेड्यूल्ड के तहत पेंडिंग दिखेगा.",
+      "setADeliveryAddress": "डिलीवरी पता सेट करें",
+      "wePickThe149MealsFrom": "हम आपके पते के आसपास के आउटलेट से ₹149 वाले खाने चुनते हैं, इसलिए पहले एक पता चाहिए.",
+      "chooseAnAddress": "एक पता चुनें",
+      "nothingAt149Near": "₹149 पर पास में कुछ नहीं",
+      "noOutletAround": "आसपास कोई आउटलेट नहीं",
+      "isRunningThe149MenuRight": "अभी ₹149 मेनू चला रहा है. दूसरा पता आज़माएं.",
+      "changeAddress": "पता बदलें"
     },
     "orders": {
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
@@ -395,7 +402,15 @@
       "kmAbout": "किमी · लगभग",
       "addAPickupToSeeDistance": "दूरी देखने के लिए पिकअप जोड़ें",
       "deliveryLower": "डिलीवरी",
-      "reviewRoute": "रूट की समीक्षा करें"
+      "reviewRoute": "रूट की समीक्षा करें",
+      "confirmingLocation": "लोकेशन की पुष्टि हो रही है…",
+      "locationConfirmed": "लोकेशन की पुष्टि हो गई",
+      "lat": "अक्षांश",
+      "lng": "· देशांतर",
+      "saveAs": "इस रूप में सेव करें",
+      "customLabelEgFriendsHouse": "कस्टम लेबल (जैसे दोस्त का घर)",
+      "updateAddress": "पता अपडेट करें",
+      "saveAddress": "पता सेव करें"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -418,7 +433,30 @@
       "pleaseEnterAValidContactNumber": "कृपया राइडर के लिए मान्य संपर्क नंबर दर्ज करें.",
       "saveFailed": "सेव नहीं हो सका",
       "couldNotSaveBookingPreference": "बुकिंग वरीयता सेव नहीं हो सकी.",
-      "done": "हो गया"
+      "done": "हो गया",
+      "reviewTags": {
+        "onTime": "समय पर",
+        "smoothRide": "आरामदायक राइड",
+        "politeCaptain": "विनम्र कैप्टन",
+        "cleanVehicle": "साफ़ वाहन",
+        "greatRoute": "बेहतरीन रूट",
+        "carefulWithItems": "सामान का ध्यान रखा",
+        "polite": "विनम्र",
+        "hardWorking": "मेहनती",
+        "fastDelivery": "तेज़ डिलीवरी",
+        "freshAndHot": "ताज़ा व गरम",
+        "wellPackaged": "अच्छी तरह पैक किया गया",
+        "friendlyPartner": "मिलनसार पार्टनर"
+      },
+      "couldntSubmit": "सबमिट नहीं हो सका",
+      "pleaseTryAgain": "कृपया फिर से प्रयास करें.",
+      "yourFeedback": "आपकी प्रतिक्रिया",
+      "submitted": "सबमिट हो गया",
+      "quot": "\"",
+      "rateYourExperience": "अपना अनुभव रेट करें",
+      "writeACommentOptional": "टिप्पणी लिखें (वैकल्पिक)",
+      "submitting": "सबमिट हो रहा है…",
+      "submitRating": "रेटिंग सबमिट करें"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -429,6 +467,17 @@
       "updateNow": "अभी अपडेट करें",
       "noDismissRequiredRelease": "बंद नहीं किया जा सकता — ज़रूरी अपडेट",
       "maybeLater": "शायद बाद में"
+    },
+    "ErrorFallback": {
+      "viewErrorDetails": "त्रुटि विवरण देखें",
+      "somethingBroke": "कुछ खराब हो गया",
+      "thisScreenCrashedYourCartAnd": "यह स्क्रीन क्रैश हो गई. आपका कार्ट और ऑर्डर सुरक्षित हैं.",
+      "reloadScreen": "स्क्रीन रीलोड करें",
+      "reportedThankYou": "रिपोर्ट कर दिया — धन्यवाद",
+      "sending": "भेजा जा रहा है…",
+      "reportThis": "इसे रिपोर्ट करें",
+      "errorDetails": "त्रुटि विवरण",
+      "closeErrorDetails": "त्रुटि विवरण बंद करें"
     }
   }
 }

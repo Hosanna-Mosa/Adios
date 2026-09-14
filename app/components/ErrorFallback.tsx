@@ -1,6 +1,7 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { reloadAppAsync } from "expo";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
@@ -28,6 +29,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -76,7 +78,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
       {__DEV__ ? (
         <Pressable
           onPress={() => setIsModalVisible(true)}
-          accessibilityLabel="View error details"
+          accessibilityLabel={t("app.ErrorFallback.viewErrorDetails")}
           accessibilityRole="button"
           style={({ pressed }) => [styles.topButton, { top: insets.top + 16, opacity: pressed ? 0.8 : 1 }]}
         >
@@ -88,15 +90,15 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
         <View style={styles.icon}>
           <Ionicons name="warning" size={20} color={tokens.error} />
         </View>
-        <Text style={styles.title}>Something broke</Text>
-        <Text style={styles.message}>This screen crashed. Your cart and orders are safe.</Text>
+        <Text style={styles.title}>{t("app.ErrorFallback.somethingBroke")}</Text>
+        <Text style={styles.message}>{t("app.ErrorFallback.thisScreenCrashedYourCartAnd")}</Text>
 
         <Pressable onPress={handleRestart} style={({ pressed }) => [styles.button, { opacity: pressed ? 0.9 : 1 }]}>
-          <Text style={styles.buttonText}>Reload screen</Text>
+          <Text style={styles.buttonText}>{t("app.ErrorFallback.reloadScreen")}</Text>
         </Pressable>
 
         <TouchableOpacity onPress={handleReport} disabled={reporting || reported} style={styles.reportButton} activeOpacity={0.8}>
-          <Text style={styles.reportButtonText}>{reported ? "Reported — thank you" : reporting ? "Sending…" : "Report this"}</Text>
+          <Text style={styles.reportButtonText}>{reported ? t("app.ErrorFallback.reportedThankYou") : reporting ? t("app.ErrorFallback.sending") : t("app.ErrorFallback.reportThis")}</Text>
         </TouchableOpacity>
 
         <Text style={styles.refText}>ref {crashRef}</Text>
@@ -107,8 +109,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Error details</Text>
-                <Pressable onPress={() => setIsModalVisible(false)} accessibilityLabel="Close error details" accessibilityRole="button" style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}>
+                <Text style={styles.modalTitle}>{t("app.ErrorFallback.errorDetails")}</Text>
+                <Pressable onPress={() => setIsModalVisible(false)} accessibilityLabel={t("app.ErrorFallback.closeErrorDetails")} accessibilityRole="button" style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}>
                   <Feather name="x" size={24} color={tokens.text} />
                 </Pressable>
               </View>

@@ -1,4 +1,5 @@
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
@@ -45,6 +46,7 @@ interface Props {
 
 export function AddressFormPaneSaveAs(props: Props) {
   const { MapView, PROVIDER_DEFAULT, PROVIDER_GOOGLE, accent, handleSave, insets, isEditMode, isResolvingAddress, label, latLabel, lngLabel, loading, region, selectedChip, setLabel, setSelectedChip, setStep, shortAddress, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 100 }} keyboardShouldPersistTaps="handled">
@@ -52,14 +54,19 @@ export function AddressFormPaneSaveAs(props: Props) {
         <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
           <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
           <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
-          <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? "Confirming location…" : shortAddress || "Location confirmed"}</Text></View>
+          <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? t("app.delivery.confirmingLocation") : shortAddress || t("app.delivery.locationConfirmed")}</Text></View>
         </TouchableOpacity>
-        <Text style={styles.mapPreviewCoords}>Lat {latLabel}  ·  Lng {lngLabel}</Text>
+        <Text style={styles.mapPreviewCoords}>{t("app.delivery.lat")} {latLabel}  {t("app.delivery.lng")} {lngLabel}</Text>
       </Animated.View>
 
       <Animated.View style={styles.section} entering={fadeInUp(120)}>
-        <Text style={styles.sectionLabel}>Save as</Text>
+        <Text style={styles.sectionLabel}>{t("app.delivery.saveAs")}</Text>
         <View style={{ flexDirection: "row", gap: 8 }}>
+          {/* "Home"/"Work"/"Other" are deliberately left untranslated: this is
+              the address's `label` field, saved verbatim and later compared
+              (e.g. LocationPickerSheet.tsx picks its icon by
+              `item.label === "Home"`) — translating the chip text would
+              silently break that matching for every address saved from here. */}
           {(["Home", "Work", "Other"] as const).map((chip, i) => {
             const isActive = selectedChip === chip;
             return (
@@ -72,7 +79,7 @@ export function AddressFormPaneSaveAs(props: Props) {
           })}
         </View>
         {selectedChip === "Other" && (
-          <TextInput style={styles.customLabelInput} placeholder="Custom label (e.g. Friend's house)" placeholderTextColor={tokens.muted} value={label} onChangeText={setLabel} />
+          <TextInput style={styles.customLabelInput} placeholder={t("app.delivery.customLabelEgFriendsHouse")} placeholderTextColor={tokens.muted} value={label} onChangeText={setLabel} />
         )}
       </Animated.View>
 
@@ -81,7 +88,7 @@ export function AddressFormPaneSaveAs(props: Props) {
 
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       <TouchableOpacity style={[styles.saveBtn, loading && { opacity: 0.7 }]} onPress={handleSave} disabled={loading}>
-        {loading ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.saveBtnText}>{isEditMode ? "Update address" : "Save address"}</Text>}
+        {loading ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.saveBtnText}>{isEditMode ? t("app.delivery.updateAddress") : t("app.delivery.saveAddress")}</Text>}
       </TouchableOpacity>
     </View>
     </>

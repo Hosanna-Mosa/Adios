@@ -306,7 +306,14 @@
       "scheduleForLater": "తర్వాత కోసం షెడ్యూల్ చేయండి",
       "pickAFutureDateAndTime": "భవిష్యత్తు తేదీ మరియు సమయాన్ని ఎంచుకోండి",
       "pick": "ఎంచుకోండి",
-      "theRestaurantConfirmsScheduledSlotsYouaposll": "రెస్టారెంట్ షెడ్యూల్ చేసిన స్లాట్‌లను నిర్ధారిస్తుంది — మీ ఆర్డర్లలో షెడ్యూల్డ్ కింద ఇది పెండింగ్‌గా కనిపిస్తుంది."
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "రెస్టారెంట్ షెడ్యూల్ చేసిన స్లాట్‌లను నిర్ధారిస్తుంది — మీ ఆర్డర్లలో షెడ్యూల్డ్ కింద ఇది పెండింగ్‌గా కనిపిస్తుంది.",
+      "setADeliveryAddress": "డెలివరీ చిరునామాను సెట్ చేయండి",
+      "wePickThe149MealsFrom": "మేము మీ చిరునామా చుట్టుపక్కల ఉన్న అవుట్‌లెట్‌ల నుండి ₹149 భోజనాలను ఎంచుకుంటాము, కాబట్టి ముందుగా అది అవసరం.",
+      "chooseAnAddress": "ఒక చిరునామాను ఎంచుకోండి",
+      "nothingAt149Near": "₹149 వద్ద ఏమీ లేదు",
+      "noOutletAround": "చుట్టుపక్కల ఏ అవుట్‌లెట్ లేదు",
+      "isRunningThe149MenuRight": "ప్రస్తుతం ₹149 మెనూను నడుపుతోంది. వేరే చిరునామాను ప్రయత్నించండి.",
+      "changeAddress": "చిరునామాను మార్చండి"
     },
     "orders": {
       "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
@@ -395,7 +402,15 @@
       "kmAbout": "కి.మీ · సుమారు",
       "addAPickupToSeeDistance": "దూరాన్ని చూడటానికి పికప్‌ను జోడించండి",
       "deliveryLower": "డెలివరీ",
-      "reviewRoute": "మార్గాన్ని సమీక్షించండి"
+      "reviewRoute": "మార్గాన్ని సమీక్షించండి",
+      "confirmingLocation": "లొకేషన్‌ను నిర్ధారిస్తోంది…",
+      "locationConfirmed": "లొకేషన్ నిర్ధారించబడింది",
+      "lat": "అక్షాంశం",
+      "lng": "· రేఖాంశం",
+      "saveAs": "ఇలా సేవ్ చేయండి",
+      "customLabelEgFriendsHouse": "అనుకూల లేబుల్ (ఉదా. స్నేహితుని ఇల్లు)",
+      "updateAddress": "చిరునామాను అప్‌డేట్ చేయండి",
+      "saveAddress": "చిరునామాను సేవ్ చేయండి"
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",
@@ -418,7 +433,30 @@
       "pleaseEnterAValidContactNumber": "దయచేసి రైడర్ కోసం సరైన సంప్రదింపు నంబర్‌ను నమోదు చేయండి.",
       "saveFailed": "సేవ్ విఫలమైంది",
       "couldNotSaveBookingPreference": "బుకింగ్ ప్రాధాన్యతను సేవ్ చేయలేకపోయాము.",
-      "done": "పూర్తయింది"
+      "done": "పూర్తయింది",
+      "reviewTags": {
+        "onTime": "సమయానికి",
+        "smoothRide": "సాఫీగా ప్రయాణం",
+        "politeCaptain": "మర్యాదపూర్వక కెప్టెన్",
+        "cleanVehicle": "శుభ్రమైన వాహనం",
+        "greatRoute": "అద్భుతమైన మార్గం",
+        "carefulWithItems": "వస్తువుల పట్ల జాగ్రత్త",
+        "polite": "మర్యాదపూర్వకంగా",
+        "hardWorking": "కష్టపడి పనిచేసేవారు",
+        "fastDelivery": "వేగవంతమైన డెలివరీ",
+        "freshAndHot": "తాజాగా & వేడిగా",
+        "wellPackaged": "బాగా ప్యాక్ చేయబడింది",
+        "friendlyPartner": "స్నేహపూర్వక భాగస్వామి"
+      },
+      "couldntSubmit": "సమర్పించలేకపోయాము",
+      "pleaseTryAgain": "దయచేసి మళ్లీ ప్రయత్నించండి.",
+      "yourFeedback": "మీ అభిప్రాయం",
+      "submitted": "సమర్పించబడింది",
+      "quot": "\"",
+      "rateYourExperience": "మీ అనుభవాన్ని రేట్ చేయండి",
+      "writeACommentOptional": "వ్యాఖ్యను రాయండి (ఐచ్ఛికం)",
+      "submitting": "సమర్పిస్తోంది…",
+      "submitRating": "రేటింగ్‌ను సమర్పించండి"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -429,6 +467,17 @@
       "updateNow": "ఇప్పుడే అప్‌డేట్ చేయండి",
       "noDismissRequiredRelease": "మూసివేయలేరు — తప్పనిసరి అప్‌డేట్",
       "maybeLater": "తర్వాత చూద్దాం"
+    },
+    "ErrorFallback": {
+      "viewErrorDetails": "పొరపాటు వివరాలను చూడండి",
+      "somethingBroke": "ఏదో పాడైంది",
+      "thisScreenCrashedYourCartAnd": "ఈ స్క్రీన్ క్రాష్ అయింది. మీ కార్ట్ మరియు ఆర్డర్లు సురక్షితంగా ఉన్నాయి.",
+      "reloadScreen": "స్క్రీన్‌ను రీలోడ్ చేయండి",
+      "reportedThankYou": "నివేదించబడింది — ధన్యవాదాలు",
+      "sending": "పంపుతోంది…",
+      "reportThis": "దీన్ని నివేదించండి",
+      "errorDetails": "పొరపాటు వివరాలు",
+      "closeErrorDetails": "పొరపాటు వివరాలను మూసివేయండి"
     }
   }
 }

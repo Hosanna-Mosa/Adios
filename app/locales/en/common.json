@@ -306,7 +306,14 @@
       "scheduleForLater": "Schedule for later",
       "pickAFutureDateAndTime": "Pick a future date and time",
       "pick": "Pick",
-      "theRestaurantConfirmsScheduledSlotsYouaposll": "The restaurant confirms scheduled slots — you'll see it as pending under Scheduled in My orders."
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "The restaurant confirms scheduled slots — you'll see it as pending under Scheduled in My orders.",
+      "setADeliveryAddress": "Set a delivery address",
+      "wePickThe149MealsFrom": "We pick the ₹149 meals from outlets around your address, so we need one first.",
+      "chooseAnAddress": "Choose an address",
+      "nothingAt149Near": "Nothing at ₹149 near",
+      "noOutletAround": "No outlet around",
+      "isRunningThe149MenuRight": "is running the ₹149 menu right now. Try another address.",
+      "changeAddress": "Change address"
     },
     "orders": {
       "preparingYourOrder": "Preparing your order",
@@ -395,7 +402,15 @@
       "kmAbout": "km · about",
       "addAPickupToSeeDistance": "Add a pickup to see distance",
       "deliveryLower": "delivery",
-      "reviewRoute": "Review route"
+      "reviewRoute": "Review route",
+      "confirmingLocation": "Confirming location…",
+      "locationConfirmed": "Location confirmed",
+      "lat": "Lat",
+      "lng": "· Lng",
+      "saveAs": "Save as",
+      "customLabelEgFriendsHouse": "Custom label (e.g. Friend's house)",
+      "updateAddress": "Update address",
+      "saveAddress": "Save address"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -418,7 +433,30 @@
       "pleaseEnterAValidContactNumber": "Please enter a valid contact number for the rider.",
       "saveFailed": "Save failed",
       "couldNotSaveBookingPreference": "Could not save booking preference.",
-      "done": "Done"
+      "done": "Done",
+      "reviewTags": {
+        "onTime": "On time",
+        "smoothRide": "Smooth ride",
+        "politeCaptain": "Polite captain",
+        "cleanVehicle": "Clean vehicle",
+        "greatRoute": "Great route",
+        "carefulWithItems": "Careful with items",
+        "polite": "Polite",
+        "hardWorking": "Hard working",
+        "fastDelivery": "Fast delivery",
+        "freshAndHot": "Fresh & hot",
+        "wellPackaged": "Well packaged",
+        "friendlyPartner": "Friendly partner"
+      },
+      "couldntSubmit": "Couldn't submit",
+      "pleaseTryAgain": "Please try again.",
+      "yourFeedback": "Your feedback",
+      "submitted": "Submitted",
+      "quot": "\"",
+      "rateYourExperience": "Rate your experience",
+      "writeACommentOptional": "Write a comment (optional)",
+      "submitting": "Submitting…",
+      "submitRating": "Submit rating"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -429,6 +467,17 @@
       "updateNow": "Update now",
       "noDismissRequiredRelease": "No dismiss — required release",
       "maybeLater": "Maybe later"
+    },
+    "ErrorFallback": {
+      "viewErrorDetails": "View error details",
+      "somethingBroke": "Something broke",
+      "thisScreenCrashedYourCartAnd": "This screen crashed. Your cart and orders are safe.",
+      "reloadScreen": "Reload screen",
+      "reportedThankYou": "Reported — thank you",
+      "sending": "Sending…",
+      "reportThis": "Report this",
+      "errorDetails": "Error details",
+      "closeErrorDetails": "Close error details"
     }
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { customFetch } from "@/utils/api/custom-fetch";
@@ -22,6 +23,7 @@ export function OrderReviewCard({
   accent: ThemeTokens["services"]["food"];
 }) {
   const styles = useMemo(() => createStyles(tokens, accent), [tokens, accent]);
+  const { t } = useTranslation();
   const [rating, setRating] = useState(5);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [comment, setComment] = useState("");
@@ -29,11 +31,15 @@ export function OrderReviewCard({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [existingReview, setExistingReview] = useState<any>(null);
 
-  const availableTags = isRide
-    ? ["On time", "Smooth ride", "Polite captain", "Clean vehicle", "Great route"]
+  // Not in the module-level constants inventory (defined inline here, not as
+  // a module const), but the same "freeform review tag, safe to translate"
+  // reasoning as orders.tsx's REVIEW_TAGS applies.
+  const availableTags = useMemo(() => (isRide
+    ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.smoothRide"), t("app.ride.reviewTags.politeCaptain"), t("app.ride.reviewTags.cleanVehicle"), t("app.ride.reviewTags.greatRoute")]
     : isHelper
-      ? ["On time", "Careful with items", "Polite", "Hard working"]
-      : ["Fast delivery", "Fresh & hot", "Well packaged", "Friendly partner"];
+      ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.carefulWithItems"), t("app.ride.reviewTags.polite"), t("app.ride.reviewTags.hardWorking")]
+      : [t("app.ride.reviewTags.fastDelivery"), t("app.ride.reviewTags.freshAndHot"), t("app.ride.reviewTags.wellPackaged"), t("app.ride.reviewTags.friendlyPartner")]
+  ), [isRide, isHelper, t]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -64,7 +70,7 @@ export function OrderReviewCard({
         setExistingReview(res.review || { rating, comment, tags: selectedTags });
       }
     } catch (err: any) {
-      Alert.alert("Couldn't submit", err.message || "Please try again.");
+      Alert.alert(t("app.ride.couldntSubmit"), err.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setIsSubmitting(false);
     }
@@ -74,10 +80,10 @@ export function OrderReviewCard({
     return (
       <View style={styles.reviewCard}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <Text style={styles.reviewTitle}>Your feedback</Text>
+          <Text style={styles.reviewTitle}>{t("app.ride.yourFeedback")}</Text>
           <View style={styles.submittedPill}>
             <Ionicons name="checkmark" size={12} color={tokens.success} />
-            <Text style={[styles.submittedPillText, { color: tokens.success }]}>Submitted</Text>
+            <Text style={[styles.submittedPillText, { color: tokens.success }]}>{t("app.ride.submitted")}</Text>
           </View>
         </View>
         <View style={{ flexDirection: "row", gap: 6, marginTop: 10 }}>
@@ -94,14 +100,14 @@ export function OrderReviewCard({
             ))}
           </View>
         )}
-        {existingReview.comment ? <Text style={styles.reviewComment}>&quot;{existingReview.comment}&quot;</Text> : null}
+        {existingReview.comment ? <Text style={styles.reviewComment}>{t("app.ride.quot")}{existingReview.comment}{t("app.ride.quot")}</Text> : null}
       </View>
     );
   }
 
   return (
     <View style={styles.reviewCard}>
-      <Text style={[styles.reviewTitle, { alignSelf: "center" }]}>Rate your experience</Text>
+      <Text style={[styles.reviewTitle, { alignSelf: "center" }]}>{t("app.ride.rateYourExperience")}</Text>
       <View style={{ flexDirection: "row", gap: 10, marginTop: 12, alignSelf: "center" }}>
         {[1, 2, 3, 4, 5].map((star) => (
           <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7}>
@@ -125,7 +131,7 @@ export function OrderReviewCard({
       </View>
       <TextInput
         style={styles.reviewCommentInput}
-        placeholder="Write a comment (optional)"
+        placeholder={t("app.ride.writeACommentOptional")}
         placeholderTextColor={tokens.muted}
         value={comment}
         onChangeText={setComment}
@@ -136,7 +142,7 @@ export function OrderReviewCard({
         onPress={handleSubmit}
         disabled={isSubmitting}
       >
-        <Text style={[styles.reviewSubmitBtnText, { color: accent.on }]}>{isSubmitting ? "Submitting…" : "Submit rating"}</Text>
+        <Text style={[styles.reviewSubmitBtnText, { color: accent.on }]}>{isSubmitting ? t("app.ride.submitting") : t("app.ride.submitRating")}</Text>
       </TouchableOpacity>
     </View>
   );
