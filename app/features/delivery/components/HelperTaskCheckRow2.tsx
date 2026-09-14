@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -17,10 +18,11 @@ export function HelperTaskCheckRow2({
   styles,
   totalContacted,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.checkRow} entering={fadeInUp(0)}>
       <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
-      <Text style={styles.checkText}>{totalContacted} helpers notified</Text>
+      <Text style={styles.checkText}>{totalContacted} {t("app.delivery.helpersNotified")}</Text>
     </Animated.View>
   );
 }

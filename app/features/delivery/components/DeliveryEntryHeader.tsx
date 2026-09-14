@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
@@ -19,13 +20,14 @@ export function DeliveryEntryHeader({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
       <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Package delivery</Text>
-      <View style={styles.betaBadge}><Text style={styles.betaBadgeText}>Beta</Text></View>
+      <Text style={styles.headerTitle}>{t("app.delivery.packageDelivery")}</Text>
+      <View style={styles.betaBadge}><Text style={styles.betaBadgeText}>{t("app.delivery.beta")}</Text></View>
     </Animated.View>
   );
 }

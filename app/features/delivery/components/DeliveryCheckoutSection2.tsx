@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -14,16 +15,17 @@ export function DeliveryCheckoutSection2({
   itemsEstimate,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.section} entering={fadeInUp(120)}>
-      <Text style={styles.sectionLabel}>Store payment</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.storePayment")}</Text>
       <View style={styles.storePaymentCard}>
         <View style={styles.storePaymentRow}>
-          <Text style={styles.storePaymentLabel}>Your estimate for items</Text>
+          <Text style={styles.storePaymentLabel}>{t("app.delivery.yourEstimateForItems")}</Text>
           <Text style={styles.storePaymentValue}>₹{itemsEstimate}</Text>
         </View>
         <Text style={styles.storePaymentNote}>
-          The rider pays at each counter and shares the bill photo. Items are verified on-site and the difference is settled after delivery — this amount is not charged now.
+          {t("app.delivery.theRiderPaysAtEachCounter")}
         </Text>
       </View>
     </Animated.View>
