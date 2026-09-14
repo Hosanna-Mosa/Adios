@@ -243,7 +243,14 @@
       "forgotPassword": "Forgot Password",
       "passwordRecoveryInstructionsWillBeSent": "Password recovery instructions will be sent to your account.",
       "phoneNumberNeeded": "Phone number needed",
-      "enterYourPhoneNumberAboveTo": "Enter your phone number above to continue with an OTP."
+      "enterYourPhoneNumberAboveTo": "Enter your phone number above to continue with an OTP.",
+      "customizeDistance": "Customize distance",
+      "filteringWithinKm": "Filtering within {{km}} km",
+      "showingAllNearbyOptions": "Showing all nearby options",
+      "enterDistance": "Enter distance",
+      "custom": "Custom",
+      "applyDistance": "Apply distance",
+      "clearAllFilters": "Clear all filters"
     },
     "profile": {
       "menuItems": {
@@ -381,7 +388,13 @@
       "thisIsYourLoginNumberContact": "This is your login number. Contact",
       "supportLinkText": "support",
       "toChangeItThereapossNoSelfserve": "to change it — there's no self-serve way to re-verify a new number yet.",
-      "updateProfile": "Update profile"
+      "updateProfile": "Update profile",
+      "iAgreeToThe": "I agree to the",
+      "terms": "Terms",
+      "privacyPolicy": "Privacy Policy",
+      "createAccount": "Create account",
+      "alreadyHaveOne": "Already have one?",
+      "signIn": "Sign in"
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -418,7 +431,23 @@
       "saveAs": "Save as",
       "customLabelEgFriendsHouse": "Custom label (e.g. Friend's house)",
       "updateAddress": "Update address",
-      "saveAddress": "Save address"
+      "saveAddress": "Save address",
+      "doubleCheck": "Double check",
+      "point": "point",
+      "pickupWord": "pickup",
+      "dropWord": "drop",
+      "moveThePinToWhereYouaposll": "Move the pin to where you'll actually stand. Captains cancel most often when the pin is inside a gated community.",
+      "locating": "Locating…",
+      "fetchingAddressDetails": "Fetching address details…",
+      "confirm": "Confirm",
+      "failedToIncreaseTaskPrice": "Failed to increase task price.",
+      "cancelThisTask": "Cancel this task?",
+      "thisCantBeUndone": "This can't be undone.",
+      "keepTask": "Keep task",
+      "cancelTask": "Cancel task",
+      "missingDetails": "Missing details",
+      "pleaseSelectAValidPickupLocation": "Please select a valid pickup location.",
+      "pleaseProvideABriefDescriptionOf": "Please provide a brief description of the work."
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",

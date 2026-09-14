@@ -1,5 +1,6 @@
 import React from "react";
 import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -36,6 +37,7 @@ export function DistanceSheet({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal visible={isDistanceSheetOpen} transparent animationType="slide" onRequestClose={() => setIsDistanceSheetOpen(false)}>
       <KeyboardAvoidingView style={styles.distanceModalOverlay} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}>
@@ -44,8 +46,8 @@ export function DistanceSheet({
           <View style={styles.distanceSheetHandle} />
           <View style={styles.distanceSheetHeader}>
             <View>
-              <Text style={styles.distanceTitle}>Customize distance</Text>
-              <Text style={styles.distanceSubtitle}>{appliedDistanceKm ? `Filtering within ${appliedDistanceKm} km` : "Showing all nearby options"}</Text>
+              <Text style={styles.distanceTitle}>{t("app.home.customizeDistance")}</Text>
+              <Text style={styles.distanceSubtitle}>{appliedDistanceKm ? t("app.home.filteringWithinKm", { km: appliedDistanceKm, defaultValue: "Filtering within {{km}} km" }) : t("app.home.showingAllNearbyOptions")}</Text>
             </View>
             <TouchableOpacity style={styles.distanceCloseBtn} onPress={() => setIsDistanceSheetOpen(false)}>
               <Ionicons name="close" size={moderateScale(18)} color={tokens.text} />
@@ -59,7 +61,7 @@ export function DistanceSheet({
                 style={styles.distanceInput}
                 value={customDistance}
                 onChangeText={(value) => { setDistanceOption("custom"); setCustomDistance(value.replace(/[^0-9.]/g, "")); }}
-                placeholder="Enter distance"
+                placeholder={t("app.home.enterDistance")}
                 placeholderTextColor={tokens.muted}
                 keyboardType="decimal-pad"
                 autoFocus
@@ -79,15 +81,15 @@ export function DistanceSheet({
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={[styles.distanceChip, distanceOption === "custom" && styles.distanceChipActive]} onPress={() => setDistanceOption("custom")}>
-              <Text style={[styles.distanceChipText, distanceOption === "custom" && styles.distanceChipTextActive]}>Custom</Text>
+              <Text style={[styles.distanceChipText, distanceOption === "custom" && styles.distanceChipTextActive]}>{t("app.home.custom")}</Text>
             </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.distanceApplyBtn} onPress={applyDistanceFilter}>
-            <Text style={styles.distanceApplyText}>Apply distance</Text>
+            <Text style={styles.distanceApplyText}>{t("app.home.applyDistance")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.distanceClearBtn} onPress={clearDistanceFilter}>
-            <Text style={styles.distanceClearText}>Clear all filters</Text>
+            <Text style={styles.distanceClearText}>{t("app.home.clearAllFilters")}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

@@ -243,7 +243,14 @@
       "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా",
       "passwordRecoveryInstructionsWillBeSent": "పాస్‌వర్డ్ రికవరీ సూచనలు మీ ఖాతాకు పంపబడతాయి.",
       "phoneNumberNeeded": "ఫోన్ నంబర్ అవసరం",
-      "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి."
+      "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి.",
+      "customizeDistance": "దూరాన్ని అనుకూలీకరించండి",
+      "filteringWithinKm": "{{km}} కి.మీ లోపల ఫిల్టర్ చేస్తోంది",
+      "showingAllNearbyOptions": "అన్ని సమీప ఎంపికలను చూపిస్తోంది",
+      "enterDistance": "దూరాన్ని నమోదు చేయండి",
+      "custom": "అనుకూలం",
+      "applyDistance": "దూరాన్ని వర్తింపజేయండి",
+      "clearAllFilters": "అన్ని ఫిల్టర్‌లను క్లియర్ చేయండి"
     },
     "profile": {
       "menuItems": {
@@ -381,7 +388,13 @@
       "thisIsYourLoginNumberContact": "ఇది మీ లాగిన్ నంబర్. సంప్రదించండి",
       "supportLinkText": "సపోర్ట్",
       "toChangeItThereapossNoSelfserve": "దీన్ని మార్చడానికి — కొత్త నంబర్‌ను స్వయంగా మళ్లీ ధృవీకరించే మార్గం ఇంకా లేదు.",
-      "updateProfile": "ప్రొఫైల్‌ను అప్‌డేట్ చేయండి"
+      "updateProfile": "ప్రొఫైల్‌ను అప్‌డేట్ చేయండి",
+      "iAgreeToThe": "నేను దీనికి అంగీకరిస్తున్నాను",
+      "terms": "నిబంధనలు",
+      "privacyPolicy": "గోప్యతా విధానం",
+      "createAccount": "ఖాతాను సృష్టించండి",
+      "alreadyHaveOne": "ఇప్పటికే ఖాతా ఉందా?",
+      "signIn": "సైన్ ఇన్"
     },
     "delivery": {
       "streetAddress": "వీధి చిరునామా",
@@ -418,7 +431,23 @@
       "saveAs": "ఇలా సేవ్ చేయండి",
       "customLabelEgFriendsHouse": "అనుకూల లేబుల్ (ఉదా. స్నేహితుని ఇల్లు)",
       "updateAddress": "చిరునామాను అప్‌డేట్ చేయండి",
-      "saveAddress": "చిరునామాను సేవ్ చేయండి"
+      "saveAddress": "చిరునామాను సేవ్ చేయండి",
+      "doubleCheck": "మళ్లీ తనిఖీ చేయండి",
+      "point": "పాయింట్",
+      "pickupWord": "పికప్",
+      "dropWord": "డ్రాప్",
+      "moveThePinToWhereYouaposll": "మీరు నిజంగా నిలబడే చోటుకు పిన్‌ను తరలించండి. పిన్ గేటెడ్ కమ్యూనిటీ లోపల ఉన్నప్పుడు కెప్టెన్‌లు ఎక్కువగా రద్దు చేస్తారు.",
+      "locating": "గుర్తిస్తోంది…",
+      "fetchingAddressDetails": "చిరునామా వివరాలను పొందుతోంది…",
+      "confirm": "నిర్ధారించండి",
+      "failedToIncreaseTaskPrice": "పని ధరను పెంచడంలో విఫలమైంది.",
+      "cancelThisTask": "ఈ పనిని రద్దు చేయాలా?",
+      "thisCantBeUndone": "దీన్ని తిరిగి మార్చలేరు.",
+      "keepTask": "పనిని అలాగే ఉంచండి",
+      "cancelTask": "పనిని రద్దు చేయండి",
+      "missingDetails": "వివరాలు లోపించాయి",
+      "pleaseSelectAValidPickupLocation": "దయచేసి సరైన పికప్ లొకేషన్‌ను ఎంచుకోండి.",
+      "pleaseProvideABriefDescriptionOf": "దయచేసి పని గురించి క్లుప్త వివరణను తెలియజేయండి."
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",

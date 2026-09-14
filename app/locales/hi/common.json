@@ -243,7 +243,14 @@
       "forgotPassword": "पासवर्ड भूल गए",
       "passwordRecoveryInstructionsWillBeSent": "पासवर्ड रिकवरी निर्देश आपके अकाउंट पर भेजे जाएंगे.",
       "phoneNumberNeeded": "फ़ोन नंबर ज़रूरी है",
-      "enterYourPhoneNumberAboveTo": "OTP से जारी रखने के लिए ऊपर अपना फ़ोन नंबर दर्ज करें."
+      "enterYourPhoneNumberAboveTo": "OTP से जारी रखने के लिए ऊपर अपना फ़ोन नंबर दर्ज करें.",
+      "customizeDistance": "दूरी को कस्टमाइज़ करें",
+      "filteringWithinKm": "{{km}} किमी के भीतर फ़िल्टर हो रहा है",
+      "showingAllNearbyOptions": "सभी पास के विकल्प दिखाए जा रहे हैं",
+      "enterDistance": "दूरी दर्ज करें",
+      "custom": "कस्टम",
+      "applyDistance": "दूरी लागू करें",
+      "clearAllFilters": "सभी फ़िल्टर हटाएं"
     },
     "profile": {
       "menuItems": {
@@ -381,7 +388,13 @@
       "thisIsYourLoginNumberContact": "यह आपका लॉगिन नंबर है. संपर्क करें",
       "supportLinkText": "सपोर्ट",
       "toChangeItThereapossNoSelfserve": "इसे बदलने के लिए — नया नंबर खुद फिर से वेरिफ़ाई करने का कोई तरीका अभी नहीं है.",
-      "updateProfile": "प्रोफ़ाइल अपडेट करें"
+      "updateProfile": "प्रोफ़ाइल अपडेट करें",
+      "iAgreeToThe": "मैं सहमत हूं",
+      "terms": "नियम",
+      "privacyPolicy": "गोपनीयता नीति",
+      "createAccount": "अकाउंट बनाएं",
+      "alreadyHaveOne": "पहले से अकाउंट है?",
+      "signIn": "साइन इन करें"
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -418,7 +431,23 @@
       "saveAs": "इस रूप में सेव करें",
       "customLabelEgFriendsHouse": "कस्टम लेबल (जैसे दोस्त का घर)",
       "updateAddress": "पता अपडेट करें",
-      "saveAddress": "पता सेव करें"
+      "saveAddress": "पता सेव करें",
+      "doubleCheck": "दोबारा जांचें",
+      "point": "पॉइंट",
+      "pickupWord": "पिकअप",
+      "dropWord": "ड्रॉप",
+      "moveThePinToWhereYouaposll": "पिन को वहाँ ले जाएं जहाँ आप असल में खड़े होंगे. जब पिन किसी गेटेड कम्युनिटी के अंदर होता है तो कैप्टन सबसे ज़्यादा रद्द करते हैं.",
+      "locating": "लोकेशन ढूंढी जा रही है…",
+      "fetchingAddressDetails": "पते का विवरण लाया जा रहा है…",
+      "confirm": "पुष्टि करें",
+      "failedToIncreaseTaskPrice": "टास्क की कीमत नहीं बढ़ाई जा सकी.",
+      "cancelThisTask": "इस टास्क को रद्द करें?",
+      "thisCantBeUndone": "इसे वापस नहीं किया जा सकता.",
+      "keepTask": "टास्क रखें",
+      "cancelTask": "टास्क रद्द करें",
+      "missingDetails": "विवरण अधूरा है",
+      "pleaseSelectAValidPickupLocation": "कृपया मान्य पिकअप लोकेशन चुनें.",
+      "pleaseProvideABriefDescriptionOf": "कृपया काम का संक्षिप्त विवरण दें."
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
