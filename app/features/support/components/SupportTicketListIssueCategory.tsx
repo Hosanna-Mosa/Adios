@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -36,10 +37,11 @@ export function SupportTicketListIssueCategory({
   ticket,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <Animated.View entering={fadeInUp(0)} style={styles.formCard}>
-      <Text style={styles.formLabel}>Issue category</Text>
+      <Text style={styles.formLabel}>{t("app.support.issueCategory")}</Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         {CATEGORIES.map((c) => {
           const selected = newCategory === c.value;
@@ -55,20 +57,20 @@ export function SupportTicketListIssueCategory({
         })}
       </View>
 
-      <Text style={styles.formLabel}>Title</Text>
+      <Text style={styles.formLabel}>{t("app.support.title")}</Text>
       <TextInput
         style={styles.formInput}
-        placeholder="e.g. Charged twice for one trip"
+        placeholder={t("app.support.egChargedTwiceForOneTrip")}
         placeholderTextColor={tokens.muted}
         value={newTitle}
         onChangeText={setNewTitle}
         maxLength={60}
       />
 
-      <Text style={[styles.formLabel, { marginTop: 14 }]}>Description</Text>
+      <Text style={[styles.formLabel, { marginTop: 14 }]}>{t("app.support.description")}</Text>
       <TextInput
         style={styles.formTextArea}
-        placeholder="Tell us what happened and when…"
+        placeholder={t("app.support.tellUsWhatHappenedAndWhen")}
         placeholderTextColor={tokens.muted}
         multiline
         numberOfLines={4}
@@ -84,7 +86,7 @@ export function SupportTicketListIssueCategory({
         onPress={handleCreateTicket}
         disabled={creatingTicket}
       >
-        {creatingTicket ? <ActivityIndicator color={accent.on} /> : <Text style={[styles.submitBtnText, { color: accent.on }]}>Submit ticket</Text>}
+        {creatingTicket ? <ActivityIndicator color={accent.on} /> : <Text style={[styles.submitBtnText, { color: accent.on }]}>{t("app.support.submitTicket")}</Text>}
       </TouchableOpacity>
     </Animated.View>
     </>

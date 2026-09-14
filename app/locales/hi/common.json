@@ -128,7 +128,19 @@
         "delayedDelivery": "देरी से डिलीवरी",
         "qualityControl": "गुणवत्ता नियंत्रण",
         "billingAdjustment": "बिलिंग समायोजन"
-      }
+      },
+      "howCanWeHelp": "हम कैसे मदद कर सकते हैं?",
+      "activeOrder": "सक्रिय ऑर्डर",
+      "recentOrder": "हालिया ऑर्डर",
+      "mostIssuesAreAboutASpecific": "ज़्यादातर समस्याएं किसी खास ऑर्डर से जुड़ी होती हैं — वहीं से शुरू करें, हम सवाल छोड़ देंगे.",
+      "contactUs": "हमसे संपर्क करें",
+      "commonQuestions": "सामान्य सवाल",
+      "issueCategory": "समस्या की श्रेणी",
+      "title": "शीर्षक",
+      "egChargedTwiceForOneTrip": "जैसे एक ट्रिप के लिए दो बार चार्ज हुआ",
+      "description": "विवरण",
+      "submitTicket": "टिकट सबमिट करें",
+      "tellUsWhatHappenedAndWhen": "हमें बताएं क्या हुआ और कब…"
     },
     "tracking": {
       "rideLabels": {
@@ -415,7 +427,12 @@
       "privacyPolicy": "गोपनीयता नीति",
       "createAccount": "अकाउंट बनाएं",
       "alreadyHaveOne": "पहले से अकाउंट है?",
-      "signIn": "साइन इन करें"
+      "signIn": "साइन इन करें",
+      "rahulVerma": "Rahul Verma",
+      "phoneNumber": "फ़ोन नंबर",
+      "rahulvermagmailcom": "rahul.verma@gmail.com",
+      "password": "पासवर्ड",
+      "min8Characters": "न्यूनतम 8 अक्षर"
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -539,7 +556,13 @@
       "totalFare": "कुल किराया",
       "payingViaCash": "नकद से भुगतान",
       "back": "वापस",
-      "cancelRide": "राइड रद्द करें"
+      "cancelRide": "राइड रद्द करें",
+      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है",
+      "searchingNearby": "पास में {{tier}} खोजा जा रहा है. ",
+      "searchingNearbyCaptains": "पास के कैप्टन खोजे जा रहे हैं. ",
+      "usuallyUnderAMinute": "आमतौर पर एक मिनट से कम में.",
+      "searching": "खोजा जा रहा है",
+      "cancelRideLower": "राइड रद्द करें"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",

@@ -128,7 +128,19 @@
         "delayedDelivery": "Delayed delivery",
         "qualityControl": "Quality control",
         "billingAdjustment": "Billing adjustment"
-      }
+      },
+      "howCanWeHelp": "How can we help?",
+      "activeOrder": "Active order",
+      "recentOrder": "Recent order",
+      "mostIssuesAreAboutASpecific": "Most issues are about a specific order — start there and we'll skip the questions.",
+      "contactUs": "Contact us",
+      "commonQuestions": "Common questions",
+      "issueCategory": "Issue category",
+      "title": "Title",
+      "egChargedTwiceForOneTrip": "e.g. Charged twice for one trip",
+      "description": "Description",
+      "submitTicket": "Submit ticket",
+      "tellUsWhatHappenedAndWhen": "Tell us what happened and when…"
     },
     "tracking": {
       "rideLabels": {
@@ -415,7 +427,12 @@
       "privacyPolicy": "Privacy Policy",
       "createAccount": "Create account",
       "alreadyHaveOne": "Already have one?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "rahulVerma": "Rahul Verma",
+      "phoneNumber": "Phone number",
+      "rahulvermagmailcom": "rahul.verma@gmail.com",
+      "password": "Password",
+      "min8Characters": "Min. 8 characters"
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -539,7 +556,13 @@
       "totalFare": "Total Fare",
       "payingViaCash": "Paying via cash",
       "back": "Back",
-      "cancelRide": "Cancel Ride"
+      "cancelRide": "Cancel Ride",
+      "findingYourCaptain": "Finding your captain",
+      "searchingNearby": "Searching {{tier}} nearby. ",
+      "searchingNearbyCaptains": "Searching nearby captains. ",
+      "usuallyUnderAMinute": "Usually under a minute.",
+      "searching": "Searching",
+      "cancelRideLower": "Cancel ride"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
