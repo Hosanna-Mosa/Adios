@@ -235,7 +235,15 @@
           "headline": "No fee today"
         }
       },
-      "browseByCuisine": "Browse by cuisine"
+      "browseByCuisine": "Browse by cuisine",
+      "pleaseEnterYourPhoneNumberOr": "Please enter your phone number or email",
+      "pleaseEnterYourPassword": "Please enter your password",
+      "loginFailed": "Login Failed",
+      "failedToSignInPleaseCheck": "Failed to sign in. Please check your credentials.",
+      "forgotPassword": "Forgot Password",
+      "passwordRecoveryInstructionsWillBeSent": "Password recovery instructions will be sent to your account.",
+      "phoneNumberNeeded": "Phone number needed",
+      "enterYourPhoneNumberAboveTo": "Enter your phone number above to continue with an OTP."
     },
     "profile": {
       "menuItems": {
@@ -456,7 +464,26 @@
       "rateYourExperience": "Rate your experience",
       "writeACommentOptional": "Write a comment (optional)",
       "submitting": "Submitting…",
-      "submitRating": "Submit rating"
+      "submitRating": "Submit rating",
+      "reservation": "Reservation",
+      "confirmedLower": "confirmed",
+      "weaposllAssignYourCaptainAt": "We'll assign your captain at",
+      "andNotifyYou": "and notify you.",
+      "pickupTime": "Pickup time",
+      "pickup": "Pickup",
+      "estimatedPrice": "Estimated price",
+      "estimatedFinalFareMayChangeWith": "Estimated · final fare may change with route and waiting time.",
+      "service": "Service",
+      "drop": "Drop",
+      "route": "Route",
+      "taskDetails": "Task details",
+      "deliveredItems": "Delivered items",
+      "bookedLocation": "Booked location:",
+      "itemsSuccessfullyHandedOver": "Items successfully handed over.",
+      "deliveryAddress": "Delivery address",
+      "backToOrders": "Back to orders",
+      "pickupLocation": "Pickup location",
+      "destination": "Destination"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -478,6 +505,16 @@
       "reportThis": "Report this",
       "errorDetails": "Error details",
       "closeErrorDetails": "Close error details"
+    },
+    "CartConflictDialog": {
+      "startANewCart": "Start a new cart?",
+      "yourCartHasItemsFrom": "Your cart has items from",
+      "adding": ". Adding",
+      "willEmptyIt": "will empty it.",
+      "clearCart": "Clear cart",
+      "keepMyCart": "Keep my cart",
+      "anotherOutlet": "another outlet",
+      "thisOutlet": "this outlet"
     }
   }
 }

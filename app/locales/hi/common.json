@@ -235,7 +235,15 @@
           "headline": "आज कोई शुल्क नहीं"
         }
       },
-      "browseByCuisine": "व्यंजन के अनुसार देखें"
+      "browseByCuisine": "व्यंजन के अनुसार देखें",
+      "pleaseEnterYourPhoneNumberOr": "कृपया अपना फ़ोन नंबर या ईमेल दर्ज करें",
+      "pleaseEnterYourPassword": "कृपया अपना पासवर्ड दर्ज करें",
+      "loginFailed": "लॉगिन विफल",
+      "failedToSignInPleaseCheck": "साइन इन नहीं हो सका. कृपया अपनी जानकारी जांचें.",
+      "forgotPassword": "पासवर्ड भूल गए",
+      "passwordRecoveryInstructionsWillBeSent": "पासवर्ड रिकवरी निर्देश आपके अकाउंट पर भेजे जाएंगे.",
+      "phoneNumberNeeded": "फ़ोन नंबर ज़रूरी है",
+      "enterYourPhoneNumberAboveTo": "OTP से जारी रखने के लिए ऊपर अपना फ़ोन नंबर दर्ज करें."
     },
     "profile": {
       "menuItems": {
@@ -456,7 +464,26 @@
       "rateYourExperience": "अपना अनुभव रेट करें",
       "writeACommentOptional": "टिप्पणी लिखें (वैकल्पिक)",
       "submitting": "सबमिट हो रहा है…",
-      "submitRating": "रेटिंग सबमिट करें"
+      "submitRating": "रेटिंग सबमिट करें",
+      "reservation": "रिज़र्वेशन",
+      "confirmedLower": "पुष्टि हो गई",
+      "weaposllAssignYourCaptainAt": "हम आपका कैप्टन असाइन करेंगे",
+      "andNotifyYou": "और आपको सूचित करेंगे.",
+      "pickupTime": "पिकअप का समय",
+      "pickup": "पिकअप",
+      "estimatedPrice": "अनुमानित कीमत",
+      "estimatedFinalFareMayChangeWith": "अनुमानित · रूट और प्रतीक्षा समय के अनुसार अंतिम किराया बदल सकता है.",
+      "service": "सेवा",
+      "drop": "ड्रॉप",
+      "route": "रूट",
+      "taskDetails": "टास्क विवरण",
+      "deliveredItems": "डिलीवर किए गए आइटम",
+      "bookedLocation": "बुक की गई लोकेशन:",
+      "itemsSuccessfullyHandedOver": "आइटम सफलतापूर्वक सौंप दिए गए.",
+      "deliveryAddress": "डिलीवरी का पता",
+      "backToOrders": "ऑर्डर पर वापस जाएं",
+      "pickupLocation": "पिकअप लोकेशन",
+      "destination": "गंतव्य"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -478,6 +505,16 @@
       "reportThis": "इसे रिपोर्ट करें",
       "errorDetails": "त्रुटि विवरण",
       "closeErrorDetails": "त्रुटि विवरण बंद करें"
+    },
+    "CartConflictDialog": {
+      "startANewCart": "नया कार्ट शुरू करें?",
+      "yourCartHasItemsFrom": "आपके कार्ट में सामान है",
+      "adding": ". जोड़ रहे हैं",
+      "willEmptyIt": "यह इसे खाली कर देगा.",
+      "clearCart": "कार्ट खाली करें",
+      "keepMyCart": "मेरा कार्ट रखें",
+      "anotherOutlet": "किसी अन्य आउटलेट",
+      "thisOutlet": "इस आउटलेट"
     }
   }
 }

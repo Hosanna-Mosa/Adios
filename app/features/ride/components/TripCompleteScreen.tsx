@@ -1,5 +1,6 @@
 import { OrderReviewCard } from "./OrderReviewCard";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { fontFamilies } from "@/constants/typography";
@@ -41,6 +42,7 @@ export function TripCompleteScreen({
   tokens,
   totalPrice,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.doneRoot, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 16 }]}>
       <View style={styles.doneHead}>
@@ -55,25 +57,25 @@ export function TripCompleteScreen({
       <ScrollView style={{ flex: 1, width: "100%" }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20 }}>
         {isRide ? (
           <View style={styles.doneCard}>
-            <Text style={styles.doneCardTitle}>Route</Text>
+            <Text style={styles.doneCardTitle}>{t("app.ride.route")}</Text>
             <View style={{ gap: 8, paddingVertical: 4 }}>
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                 <View style={[styles.dotSmall, { backgroundColor: tokens.success }]} />
-                <Text style={styles.doneAddrText} numberOfLines={2}>{stops?.find((s) => s.type === "pickup")?.address || "Pickup location"}</Text>
+                <Text style={styles.doneAddrText} numberOfLines={2}>{stops?.find((s) => s.type === "pickup")?.address || t("app.ride.pickupLocation")}</Text>
               </View>
               <View style={{ width: 2, height: 12, backgroundColor: tokens.border, marginLeft: 3 }} />
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                 <View style={[styles.dotSmall, { backgroundColor: tokens.error, borderRadius: 2 }]} />
-                <Text style={styles.doneAddrText} numberOfLines={2}>{deliveryStop?.address || "Destination"}</Text>
+                <Text style={styles.doneAddrText} numberOfLines={2}>{deliveryStop?.address || t("app.ride.destination")}</Text>
               </View>
             </View>
           </View>
         ) : (
           <>
             <View style={styles.doneCard}>
-              <Text style={styles.doneCardTitle}>{isHelper ? "Task details" : "Delivered items"}</Text>
+              <Text style={styles.doneCardTitle}>{isHelper ? t("app.ride.taskDetails") : t("app.ride.deliveredItems")}</Text>
               {isHelper ? (
-                <Text style={styles.doneAddrText}>Booked location: {stops?.[0]?.address || "—"}</Text>
+                <Text style={styles.doneAddrText}>{t("app.ride.bookedLocation")} {stops?.[0]?.address || "—"}</Text>
               ) : foodItems.length > 0 ? (
                 foodItems.map((item: any, idx: number) => (
                   <View key={idx} style={{ flexDirection: "row", gap: 8, paddingVertical: 4 }}>
@@ -82,12 +84,12 @@ export function TripCompleteScreen({
                   </View>
                 ))
               ) : (
-                <Text style={styles.doneAddrText}>Items successfully handed over.</Text>
+                <Text style={styles.doneAddrText}>{t("app.ride.itemsSuccessfullyHandedOver")}</Text>
               )}
             </View>
             {deliveryStop?.address && (
               <View style={styles.doneCard}>
-                <Text style={styles.doneCardTitle}>Delivery address</Text>
+                <Text style={styles.doneCardTitle}>{t("app.ride.deliveryAddress")}</Text>
                 <Text style={styles.doneAddrText}>{deliveryStop.address}</Text>
               </View>
             )}
@@ -100,7 +102,7 @@ export function TripCompleteScreen({
 
       <View style={{ width: "100%", paddingHorizontal: 20, paddingTop: 8 }}>
         <TouchableOpacity style={[styles.doneHomeBtn, { backgroundColor: accent.accent }]} onPress={handleBack}>
-          <Text style={[styles.doneHomeBtnText, { color: accent.on }]}>Back to orders</Text>
+          <Text style={[styles.doneHomeBtnText, { color: accent.on }]}>{t("app.ride.backToOrders")}</Text>
         </TouchableOpacity>
       </View>
     </View>

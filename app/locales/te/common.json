@@ -235,7 +235,15 @@
           "headline": "ఈరోజు ఛార్జీ లేదు"
         }
       },
-      "browseByCuisine": "వంటకాల రకం ప్రకారం చూడండి"
+      "browseByCuisine": "వంటకాల రకం ప్రకారం చూడండి",
+      "pleaseEnterYourPhoneNumberOr": "దయచేసి మీ ఫోన్ నంబర్ లేదా ఇమెయిల్‌ను నమోదు చేయండి",
+      "pleaseEnterYourPassword": "దయచేసి మీ పాస్‌వర్డ్‌ను నమోదు చేయండి",
+      "loginFailed": "లాగిన్ విఫలమైంది",
+      "failedToSignInPleaseCheck": "సైన్ ఇన్ కాలేకపోయాము. దయచేసి మీ వివరాలను తనిఖీ చేయండి.",
+      "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా",
+      "passwordRecoveryInstructionsWillBeSent": "పాస్‌వర్డ్ రికవరీ సూచనలు మీ ఖాతాకు పంపబడతాయి.",
+      "phoneNumberNeeded": "ఫోన్ నంబర్ అవసరం",
+      "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి."
     },
     "profile": {
       "menuItems": {
@@ -456,7 +464,26 @@
       "rateYourExperience": "మీ అనుభవాన్ని రేట్ చేయండి",
       "writeACommentOptional": "వ్యాఖ్యను రాయండి (ఐచ్ఛికం)",
       "submitting": "సమర్పిస్తోంది…",
-      "submitRating": "రేటింగ్‌ను సమర్పించండి"
+      "submitRating": "రేటింగ్‌ను సమర్పించండి",
+      "reservation": "రిజర్వేషన్",
+      "confirmedLower": "నిర్ధారించబడింది",
+      "weaposllAssignYourCaptainAt": "మేము మీ కెప్టెన్‌ను కేటాయిస్తాము",
+      "andNotifyYou": "మరియు మీకు తెలియజేస్తాము.",
+      "pickupTime": "పికప్ సమయం",
+      "pickup": "పికప్",
+      "estimatedPrice": "అంచనా ధర",
+      "estimatedFinalFareMayChangeWith": "అంచనా · మార్గం మరియు వేచి ఉండే సమయాన్ని బట్టి చివరి ఛార్జీ మారవచ్చు.",
+      "service": "సర్వీస్",
+      "drop": "డ్రాప్",
+      "route": "మార్గం",
+      "taskDetails": "పని వివరాలు",
+      "deliveredItems": "డెలివరీ చేసిన వస్తువులు",
+      "bookedLocation": "బుక్ చేసిన లొకేషన్:",
+      "itemsSuccessfullyHandedOver": "వస్తువులు విజయవంతంగా అందించబడ్డాయి.",
+      "deliveryAddress": "డెలివరీ చిరునామా",
+      "backToOrders": "ఆర్డర్లకు తిరిగి వెళ్లండి",
+      "pickupLocation": "పికప్ లొకేషన్",
+      "destination": "గమ్యస్థానం"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -478,6 +505,16 @@
       "reportThis": "దీన్ని నివేదించండి",
       "errorDetails": "పొరపాటు వివరాలు",
       "closeErrorDetails": "పొరపాటు వివరాలను మూసివేయండి"
+    },
+    "CartConflictDialog": {
+      "startANewCart": "కొత్త కార్ట్‌ను ప్రారంభించాలా?",
+      "yourCartHasItemsFrom": "మీ కార్ట్‌లో వస్తువులు ఉన్నాయి",
+      "adding": ". జోడిస్తున్నారు",
+      "willEmptyIt": "దీన్ని ఖాళీ చేస్తుంది.",
+      "clearCart": "కార్ట్‌ను ఖాళీ చేయండి",
+      "keepMyCart": "నా కార్ట్‌ను అలాగే ఉంచండి",
+      "anotherOutlet": "వేరే అవుట్‌లెట్",
+      "thisOutlet": "ఈ అవుట్‌లెట్"
     }
   }
 }

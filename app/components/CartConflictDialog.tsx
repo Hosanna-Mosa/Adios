@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -14,6 +15,7 @@ import { useCartStore } from "@/contexts/cartStore";
  * add-to-cart entry point is covered without per-screen wiring.
  */
 export default function CartConflictDialog() {
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
@@ -25,8 +27,8 @@ export default function CartConflictDialog() {
 
   if (!pending) return null;
 
-  const fromOutlet = currentVendorName || "another outlet";
-  const toOutlet = pending.vendorName || "this outlet";
+  const fromOutlet = currentVendorName || t("app.CartConflictDialog.anotherOutlet");
+  const toOutlet = pending.vendorName || t("app.CartConflictDialog.thisOutlet");
 
   return (
     <Modal
@@ -42,17 +44,17 @@ export default function CartConflictDialog() {
           <View style={styles.iconContainer}>
             <Ionicons name="swap-horizontal" size={22} color={tokens.error} />
           </View>
-          <Text style={styles.title}>Start a new cart?</Text>
+          <Text style={styles.title}>{t("app.CartConflictDialog.startANewCart")}</Text>
           <Text style={styles.subtitle}>
-            Your cart has items from {fromOutlet}. Adding {pending.item.name} from {toOutlet} will empty it.
+            {t("app.CartConflictDialog.yourCartHasItemsFrom")} {fromOutlet}{t("app.CartConflictDialog.adding")} {pending.item.name} from {toOutlet} {t("app.CartConflictDialog.willEmptyIt")}
           </Text>
 
           <TouchableOpacity style={styles.clearButton} onPress={() => resolveConflict("clear")} activeOpacity={0.85}>
-            <Text style={styles.clearText}>Clear cart</Text>
+            <Text style={styles.clearText}>{t("app.CartConflictDialog.clearCart")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.keepButton} onPress={() => resolveConflict("keep")} activeOpacity={0.8}>
-            <Text style={styles.keepText}>Keep my cart</Text>
+            <Text style={styles.keepText}>{t("app.CartConflictDialog.keepMyCart")}</Text>
           </TouchableOpacity>
         </View>
       </View>
