@@ -9,5 +9,285 @@
     "save": "Save",
     "retry": "Retry",
     "loading": "Loading..."
+  },
+  "app": {
+    "schedulePill": {
+      "awaitingRestaurant": "Awaiting restaurant",
+      "confirmed": "Confirmed",
+      "rejected": "Rejected"
+    },
+    "serviceMeta": {
+      "food": "Food",
+      "meat": "Meat",
+      "ride": "Ride",
+      "task": "Task",
+      "delivery": "Delivery"
+    },
+    "reviewTags": {
+      "onTime": "⚡ On time",
+      "politePartner": "😊 Polite partner",
+      "greatQuality": "🍱 Great quality",
+      "wellPackaged": "📦 Well packaged",
+      "safeTrip": "🚗 Safe trip"
+    },
+    "rideTierNames": {
+      "bike": "Bike",
+      "auto": "Auto",
+      "cab": "Cab Economy",
+      "cabPrime": "Cab Prime"
+    },
+    "allServices": {
+      "rideTierDesc": {
+        "bike": "1 seat · fastest",
+        "auto": "3 seats · metered"
+      }
+    },
+    "rideConfirmation": {
+      "capacity": {
+        "bike": "1 seat",
+        "auto": "3 seats"
+      }
+    },
+    "quickReplies": {
+      "onMyWay": "On my way",
+      "waitingAtPickup": "Waiting at pickup",
+      "locationAsPerMap": "My location is as per map",
+      "messageWhenClose": "Message when you're close"
+    },
+    "chat": {
+      "statusLabel": {
+        "confirmed": "Order confirmed",
+        "driverAssigned": "Assigned to you",
+        "enRoutePickup": "Heading to pickup",
+        "arrivedPickup": "Arrived at pickup",
+        "pickingItems": "Picking your order",
+        "enRouteDelivery": "On the way",
+        "arrivedDelivery": "Arrived",
+        "delivered": "Completed"
+      },
+      "safetyBanner": "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+      "contextTask": "task",
+      "contextRide": "ride",
+      "contextOrder": "order"
+    },
+    "taskTypes": {
+      "shifting": "Shifting",
+      "cleaning": "Cleaning",
+      "queueErrands": "Queue & errands",
+      "loading": "Loading"
+    },
+    "rideSearching": {
+      "cancelReasons": {
+        "wrongPickup": "Selected Wrong Pickup Location",
+        "wrongDrop": "Selected Wrong Drop Location",
+        "bookedByMistake": "Booked by mistake",
+        "selectedDifferentService": "Selected different service/vehicle",
+        "tooLongToConfirm": "Taking too long to confirm the ride",
+        "gotRideElsewhere": "Got a ride elsewhere",
+        "others": "Others"
+      }
+    },
+    "findingDriver": {
+      "cancelReasons": {
+        "waitingTooLong": "Waiting too long",
+        "bookedByMistake": "Booked by mistake",
+        "fareTooHigh": "Fare is too high",
+        "foundAnotherRide": "Found another ride",
+        "other": "Other"
+      }
+    },
+    "supportChat": {
+      "statusLabel": {
+        "open": "Open",
+        "resolved": "Resolved",
+        "pendingResolve": "Awaiting your reply"
+      }
+    },
+    "support": {
+      "faqs": {
+        "lateOrder": {
+          "question": "My order is late. What now?",
+          "answer": "Check the live map on the Track screen first — most delays are traffic on the partner's leg. If it's running well past the estimate, open Live chat with the order in mind and we'll look into it."
+        },
+        "refunds": {
+          "question": "How do refunds work?",
+          "answer": "If a payment needs to be refunded, our support team reviews it and processes the refund back to your original payment method through Razorpay. Raise it via Live chat or a ticket and we'll confirm once it's done."
+        },
+        "cancelOrder": {
+          "question": "Can I cancel my order?",
+          "answer": "Yes — cancel anytime from the Orders or Track screen before it's completed. If a partner has already started on it, a quick message in chat helps them stop before making an unnecessary trip."
+        },
+        "pinSafety": {
+          "question": "Is my PIN safe to share?",
+          "answer": "Only hand it over once your items are physically in hand, or once your captain has arrived for a ride. Nobody from Flavour will ever ask for it over a call."
+        }
+      },
+      "categories": {
+        "operationalIssue": "Operational issue",
+        "delayedDelivery": "Delayed delivery",
+        "qualityControl": "Quality control",
+        "billingAdjustment": "Billing adjustment"
+      }
+    },
+    "tracking": {
+      "rideLabels": {
+        "captainAssigned": "Captain assigned",
+        "headingToPickup": "Heading to pickup",
+        "tripInProgress": "Trip in progress",
+        "tripCompleted": "Trip completed"
+      },
+      "helperLabels": {
+        "offerAccepted": "Offer accepted",
+        "helperArrived": "Helper arrived",
+        "taskInProgress": "Task in progress",
+        "taskCompleted": "Task completed"
+      },
+      "deliveryLabels": {
+        "orderPlaced": "Order placed",
+        "prepared": "Prepared",
+        "outForDelivery": "Out for delivery",
+        "delivered": "Delivered"
+      }
+    },
+    "orderStatusTimeline": {
+      "steps": {
+        "orderConfirmed": "Order Confirmed",
+        "driverAssigned": "Driver Assigned",
+        "onTheWayToStore": "On the Way to Store",
+        "arrivedAtStore": "Arrived at Store",
+        "pickingItems": "Picking Items",
+        "onTheWayToYou": "On the Way to You",
+        "arrivedAtDelivery": "Arrived at Delivery",
+        "delivered": "Delivered"
+      },
+      "rideSteps": {
+        "rideBooked": "Ride Booked",
+        "captainAssigned": "Captain Assigned",
+        "captainOnTheWay": "Captain on the Way",
+        "captainArrived": "Captain Arrived",
+        "tripInProgress": "Trip In Progress",
+        "arrivedAtDestination": "Arrived at Destination",
+        "tripCompleted": "Trip Completed"
+      }
+    },
+    "weekdayNames": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    },
+    "foodTags": {
+      "biryani": "Biryani",
+      "dosa": "Dosa",
+      "idly": "Idly",
+      "idli": "Idli",
+      "friedRice": "Fried Rice",
+      "fastFood": "Fast Food",
+      "breakfast": "Breakfast",
+      "healthy": "Healthy",
+      "deals": "Deals",
+      "burgers": "Burgers",
+      "smoothie": "Smoothie",
+      "pizza": "Pizza",
+      "desserts": "Desserts",
+      "teaCoffee": "Tea & Coffee",
+      "noodles": "Noodles",
+      "chicken": "Chicken",
+      "paneer": "Paneer",
+      "fish": "Fish",
+      "tiffins": "Tiffins",
+      "chinese": "Chinese",
+      "sweets": "Sweets",
+      "southIndian": "South Indian",
+      "northIndian": "North Indian",
+      "mughlai": "Mughlai",
+      "kebabs": "Kebabs",
+      "rolls": "Rolls",
+      "mutton": "Mutton",
+      "seafood": "Seafood",
+      "eggs": "Eggs",
+      "prawns": "Prawns"
+    },
+    "home": {
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "First order",
+          "headline": "50% off up to ₹120",
+          "caption": "Code FLAV50 · min ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "Late night",
+          "headline": "Open till 2 AM",
+          "caption": "42 outlets near you"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "Sunday special",
+          "headline": "Country chicken ₹399 / kg"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "Cleaned & cut",
+          "headline": "No fee today"
+        }
+      },
+      "browseByCuisine": "Browse by cuisine"
+    },
+    "profile": {
+      "menuItems": {
+        "myOrders": "My orders",
+        "personalDetails": "Personal details",
+        "places": "Places",
+        "favorites": "Favorites",
+        "notifications": "Notifications",
+        "security": "Security",
+        "language": "Language",
+        "helpSupport": "Help & support"
+      },
+      "signOutOfAllDevices": "Sign out of all devices?",
+      "everyPhoneSignedInToThis": "Every phone signed in to this account gets signed out, including this one.",
+      "signOutEverywhere": "Sign out everywhere",
+      "errorTitle": "Error",
+      "couldntSignOutAllDevices": "Couldn't sign out of all devices."
+    },
+    "food": {
+      "orderFallback": {
+        "restaurantPickup": "Restaurant pickup",
+        "restaurant": "Restaurant"
+      },
+      "categoryFallback": {
+        "store149": "149 Store"
+      },
+      "cartIsEmpty": "Cart is empty",
+      "pleaseAddAtLeastOneItem": "Please add at least one item.",
+      "loginRequired": "Login required",
+      "pleaseLogInBeforePlacingYour": "Please log in before placing your order.",
+      "deliveryDetailsNeeded": "Delivery details needed",
+      "selectADeliveryAddress": "Select a delivery address to continue.",
+      "restaurantMissing": "Restaurant missing",
+      "pleaseChooseARestaurantAgain": "Please choose a restaurant again.",
+      "invalidTime": "Invalid time",
+      "pleaseChooseAFutureDeliveryTime": "Please choose a future delivery time.",
+      "orderFailed": "Order failed",
+      "unableToPlaceYourOrder": "Unable to place your order."
+    },
+    "orders": {
+      "preparingYourOrder": "Preparing your order",
+      "helperOnTheWay": "Helper on the way",
+      "matchingAHelper": "Matching a helper",
+      "riderOnTheRoute": "Rider on the route",
+      "findingYourCaptain": "Finding your captain"
+    },
+    "helperTask": {
+      "title": {
+        "compose": "Hire a helper",
+        "bidding": "Your offer",
+        "searching": "Finding a helper",
+        "assigned": "Task assigned"
+      }
+    }
   }
 }

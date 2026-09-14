@@ -6,7 +6,7 @@ import { createStyles } from "./support-chat.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { CATEGORIES, SupportTicket } from "./useSupportChat.shared";
+import { getSupportCategories, SupportTicket } from "./useSupportChat.shared";
 
 // Part 1 of useSupportChat, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -26,7 +26,7 @@ export function useSupportChatInsets() {
   const [inputText, setInputText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
 
-  const [newCategory, setNewCategory] = useState(CATEGORIES[0].value);
+  const [newCategory, setNewCategory] = useState(getSupportCategories()[0].value);
   const [newTitle, setNewTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [creatingTicket, setCreatingTicket] = useState(false);

@@ -1,7 +1,7 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { ENABLED_TIERS } from "./useRideConfirmation.shared";
+import { getEnabledTiers } from "./useRideConfirmation.shared";
 
 // Part 5 of useRideConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -32,7 +32,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
       if (isReserved) {
         setShowDatePicker(false);
         setConfirmedReservation({
-          tierName: ENABLED_TIERS.find((t) => t.id === selectedTier)?.name,
+          tierName: getEnabledTiers().find((t) => t.id === selectedTier)?.name,
           dateTimeStr: reservedAt?.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }),
           timeStr: reservedAt?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           fare: tierFares[selectedTier]?.fareBreakdown?.total,

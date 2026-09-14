@@ -9,5 +9,285 @@
     "save": "సేవ్ చేయండి",
     "retry": "మళ్లీ ప్రయత్నించండి",
     "loading": "లోడ్ అవుతోంది..."
+  },
+  "app": {
+    "schedulePill": {
+      "awaitingRestaurant": "రెస్టారెంట్ నిర్ధారణ కోసం వేచి ఉంది",
+      "confirmed": "నిర్ధారించబడింది",
+      "rejected": "తిరస్కరించబడింది"
+    },
+    "serviceMeta": {
+      "food": "ఆహారం",
+      "meat": "మాంసం",
+      "ride": "రైడ్",
+      "task": "పని",
+      "delivery": "డెలివరీ"
+    },
+    "reviewTags": {
+      "onTime": "⚡ సమయానికి",
+      "politePartner": "😊 మర్యాదపూర్వక భాగస్వామి",
+      "greatQuality": "🍱 అద్భుతమైన నాణ్యత",
+      "wellPackaged": "📦 బాగా ప్యాక్ చేయబడింది",
+      "safeTrip": "🚗 సురక్షిత ప్రయాణం"
+    },
+    "rideTierNames": {
+      "bike": "బైక్",
+      "auto": "ఆటో",
+      "cab": "క్యాబ్ ఎకానమీ",
+      "cabPrime": "క్యాబ్ ప్రైమ్"
+    },
+    "allServices": {
+      "rideTierDesc": {
+        "bike": "1 సీటు · అత్యంత వేగవంతమైనది",
+        "auto": "3 సీట్లు · మీటర్ ప్రకారం"
+      }
+    },
+    "rideConfirmation": {
+      "capacity": {
+        "bike": "1 సీటు",
+        "auto": "3 సీట్లు"
+      }
+    },
+    "quickReplies": {
+      "onMyWay": "నేను వస్తున్నాను",
+      "waitingAtPickup": "పికప్ వద్ద వేచి ఉన్నాను",
+      "locationAsPerMap": "నా లొకేషన్ మ్యాప్ ప్రకారం ఉంది",
+      "messageWhenClose": "మీరు దగ్గరకు వచ్చినప్పుడు మెసేజ్ చేయండి"
+    },
+    "chat": {
+      "statusLabel": {
+        "confirmed": "ఆర్డర్ నిర్ధారించబడింది",
+        "driverAssigned": "మీకు కేటాయించబడింది",
+        "enRoutePickup": "పికప్‌కి వెళ్తున్నారు",
+        "arrivedPickup": "పికప్‌కి చేరుకున్నారు",
+        "pickingItems": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
+        "enRouteDelivery": "దారిలో ఉన్నారు",
+        "arrivedDelivery": "చేరుకున్నారు",
+        "delivered": "పూర్తయింది"
+      },
+      "safetyBanner": "సంభాషణను Flavour లోనే ఉంచండి. {{context}} ప్రారంభమయ్యే ముందు మీ పిన్‌ను {{partner}}తో పంచుకోవద్దు.",
+      "contextTask": "పని",
+      "contextRide": "రైడ్",
+      "contextOrder": "ఆర్డర్"
+    },
+    "taskTypes": {
+      "shifting": "షిఫ్టింగ్",
+      "cleaning": "క్లీనింగ్",
+      "queueErrands": "క్యూ & ఎర్రండ్స్",
+      "loading": "లోడింగ్"
+    },
+    "rideSearching": {
+      "cancelReasons": {
+        "wrongPickup": "తప్పు పికప్ లొకేషన్ ఎంచుకున్నారు",
+        "wrongDrop": "తప్పు డ్రాప్ లొకేషన్ ఎంచుకున్నారు",
+        "bookedByMistake": "పొరపాటున బుక్ చేశారు",
+        "selectedDifferentService": "వేరే సర్వీస్/వాహనం ఎంచుకున్నారు",
+        "tooLongToConfirm": "రైడ్ నిర్ధారించడానికి చాలా సమయం పడుతోంది",
+        "gotRideElsewhere": "వేరే చోట రైడ్ దొరికింది",
+        "others": "ఇతరాలు"
+      }
+    },
+    "findingDriver": {
+      "cancelReasons": {
+        "waitingTooLong": "చాలాసేపు వేచి ఉన్నాను",
+        "bookedByMistake": "పొరపాటున బుక్ చేశారు",
+        "fareTooHigh": "ఛార్జీ ఎక్కువగా ఉంది",
+        "foundAnotherRide": "వేరే రైడ్ దొరికింది",
+        "other": "ఇతరం"
+      }
+    },
+    "supportChat": {
+      "statusLabel": {
+        "open": "ఓపెన్",
+        "resolved": "పరిష్కరించబడింది",
+        "pendingResolve": "మీ ప్రత్యుత్తరం కోసం వేచి ఉంది"
+      }
+    },
+    "support": {
+      "faqs": {
+        "lateOrder": {
+          "question": "నా ఆర్డర్ ఆలస్యమైంది. ఇప్పుడు ఏం చేయాలి?",
+          "answer": "మొదట ట్రాక్ స్క్రీన్‌లో లైవ్ మ్యాప్‌ను చూడండి — చాలా ఆలస్యాలు భాగస్వామి వైపు ట్రాఫిక్ వల్ల జరుగుతాయి. అంచనా వేసిన సమయం దాటినా ఇంకా రాకపోతే, ఆ ఆర్డర్‌ను దృష్టిలో ఉంచుకుని లైవ్ చాట్ తెరవండి, మేము పరిశీలిస్తాము."
+        },
+        "refunds": {
+          "question": "రీఫండ్‌లు ఎలా పని చేస్తాయి?",
+          "answer": "చెల్లింపును రీఫండ్ చేయాల్సి వస్తే, మా సపోర్ట్ టీమ్ దానిని పరిశీలించి Razorpay ద్వారా మీ అసలు చెల్లింపు విధానానికి రీఫండ్ చేస్తుంది. లైవ్ చాట్ లేదా టికెట్ ద్వారా దీన్ని లేవనెత్తండి, పూర్తయిన తర్వాత మేము నిర్ధారిస్తాము."
+        },
+        "cancelOrder": {
+          "question": "నేను నా ఆర్డర్‌ను రద్దు చేయవచ్చా?",
+          "answer": "అవును — అది పూర్తయ్యే ముందు ఆర్డర్స్ లేదా ట్రాక్ స్క్రీన్ నుండి ఎప్పుడైనా రద్దు చేయవచ్చు. భాగస్వామి ఇప్పటికే దానిపై పని మొదలుపెడితే, చాట్‌లో ఒక చిన్న సందేశం అనవసరమైన ప్రయాణం చేయకుండా వారిని ఆపడానికి సహాయపడుతుంది."
+        },
+        "pinSafety": {
+          "question": "నా పిన్ షేర్ చేయడం సురక్షితమేనా?",
+          "answer": "మీ వస్తువులు భౌతికంగా మీ చేతికి వచ్చిన తర్వాత, లేదా రైడ్ కోసం మీ కెప్టెన్ చేరుకున్న తర్వాత మాత్రమే దానిని ఇవ్వండి. Flavour నుండి ఎవరూ దానిని కాల్‌లో అడగరు."
+        }
+      },
+      "categories": {
+        "operationalIssue": "కార్యాచరణ సమస్య",
+        "delayedDelivery": "ఆలస్యమైన డెలివరీ",
+        "qualityControl": "నాణ్యత నియంత్రణ",
+        "billingAdjustment": "బిల్లింగ్ సర్దుబాటు"
+      }
+    },
+    "tracking": {
+      "rideLabels": {
+        "captainAssigned": "కెప్టెన్ కేటాయించబడ్డారు",
+        "headingToPickup": "పికప్‌కి వెళ్తున్నారు",
+        "tripInProgress": "ప్రయాణం జరుగుతోంది",
+        "tripCompleted": "ప్రయాణం పూర్తయింది"
+      },
+      "helperLabels": {
+        "offerAccepted": "ఆఫర్ అంగీకరించబడింది",
+        "helperArrived": "హెల్పర్ చేరుకున్నారు",
+        "taskInProgress": "పని జరుగుతోంది",
+        "taskCompleted": "పని పూర్తయింది"
+      },
+      "deliveryLabels": {
+        "orderPlaced": "ఆర్డర్ చేయబడింది",
+        "prepared": "సిద్ధం చేయబడింది",
+        "outForDelivery": "డెలివరీకి బయలుదేరింది",
+        "delivered": "డెలివరీ చేయబడింది"
+      }
+    },
+    "orderStatusTimeline": {
+      "steps": {
+        "orderConfirmed": "ఆర్డర్ నిర్ధారించబడింది",
+        "driverAssigned": "డ్రైవర్ కేటాయించబడ్డారు",
+        "onTheWayToStore": "స్టోర్‌కి వెళ్తున్నారు",
+        "arrivedAtStore": "స్టోర్‌కి చేరుకున్నారు",
+        "pickingItems": "వస్తువులు తీసుకుంటున్నారు",
+        "onTheWayToYou": "మీ వద్దకు వస్తున్నారు",
+        "arrivedAtDelivery": "డెలివరీ స్థానానికి చేరుకున్నారు",
+        "delivered": "డెలివరీ చేయబడింది"
+      },
+      "rideSteps": {
+        "rideBooked": "రైడ్ బుక్ చేయబడింది",
+        "captainAssigned": "కెప్టెన్ కేటాయించబడ్డారు",
+        "captainOnTheWay": "కెప్టెన్ దారిలో ఉన్నారు",
+        "captainArrived": "కెప్టెన్ చేరుకున్నారు",
+        "tripInProgress": "ప్రయాణం జరుగుతోంది",
+        "arrivedAtDestination": "గమ్యస్థానానికి చేరుకున్నారు",
+        "tripCompleted": "ప్రయాణం పూర్తయింది"
+      }
+    },
+    "weekdayNames": {
+      "sunday": "ఆదివారం",
+      "monday": "సోమవారం",
+      "tuesday": "మంగళవారం",
+      "wednesday": "బుధవారం",
+      "thursday": "గురువారం",
+      "friday": "శుక్రవారం",
+      "saturday": "శనివారం"
+    },
+    "foodTags": {
+      "biryani": "బిర్యానీ",
+      "dosa": "దోశ",
+      "idly": "ఇడ్లీ",
+      "idli": "ఇడ్లీ",
+      "friedRice": "ఫ్రైడ్ రైస్",
+      "fastFood": "ఫాస్ట్ ఫుడ్",
+      "breakfast": "బ్రేక్‌ఫాస్ట్",
+      "healthy": "ఆరోగ్యకరమైనవి",
+      "deals": "డీల్స్",
+      "burgers": "బర్గర్లు",
+      "smoothie": "స్మూతీ",
+      "pizza": "పిజ్జా",
+      "desserts": "డెజర్ట్‌లు",
+      "teaCoffee": "టీ & కాఫీ",
+      "noodles": "నూడుల్స్",
+      "chicken": "చికెన్",
+      "paneer": "పన్నీర్",
+      "fish": "చేప",
+      "tiffins": "టిఫిన్లు",
+      "chinese": "చైనీస్",
+      "sweets": "స్వీట్లు",
+      "southIndian": "సౌత్ ఇండియన్",
+      "northIndian": "నార్త్ ఇండియన్",
+      "mughlai": "మొఘలై",
+      "kebabs": "కబాబ్‌లు",
+      "rolls": "రోల్స్",
+      "mutton": "మటన్",
+      "seafood": "సీఫుడ్",
+      "eggs": "గుడ్లు",
+      "prawns": "రొయ్యలు"
+    },
+    "home": {
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "మొదటి ఆర్డర్",
+          "headline": "₹120 వరకు 50% తగ్గింపు",
+          "caption": "కోడ్ FLAV50 · కనీసం ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "లేట్ నైట్",
+          "headline": "రాత్రి 2 గంటల వరకు తెరిచి ఉంటుంది",
+          "caption": "మీ దగ్గర్లో 42 అవుట్‌లెట్‌లు"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "ఆదివారం స్పెషల్",
+          "headline": "నాటు కోడి ₹399 / కేజీ"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "క్లీన్ చేసి కట్ చేయబడింది",
+          "headline": "ఈరోజు ఛార్జీ లేదు"
+        }
+      },
+      "browseByCuisine": "వంటకాల రకం ప్రకారం చూడండి"
+    },
+    "profile": {
+      "menuItems": {
+        "myOrders": "నా ఆర్డర్లు",
+        "personalDetails": "వ్యక్తిగత వివరాలు",
+        "places": "ప్రదేశాలు",
+        "favorites": "ఇష్టమైనవి",
+        "notifications": "నోటిఫికేషన్‌లు",
+        "security": "భద్రత",
+        "language": "భాష",
+        "helpSupport": "సహాయం & మద్దతు"
+      },
+      "signOutOfAllDevices": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయాలా?",
+      "everyPhoneSignedInToThis": "ఈ ఖాతాలో సైన్ ఇన్ అయిన ప్రతి ఫోన్ సైన్ అవుట్ అవుతుంది, ఇది కూడా.",
+      "signOutEverywhere": "అన్ని చోట్ల నుండి సైన్ అవుట్ చేయండి",
+      "errorTitle": "పొరపాటు",
+      "couldntSignOutAllDevices": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయలేకపోయాము."
+    },
+    "food": {
+      "orderFallback": {
+        "restaurantPickup": "రెస్టారెంట్ పికప్",
+        "restaurant": "రెస్టారెంట్"
+      },
+      "categoryFallback": {
+        "store149": "149 స్టోర్"
+      },
+      "cartIsEmpty": "కార్ట్ ఖాళీగా ఉంది",
+      "pleaseAddAtLeastOneItem": "దయచేసి కనీసం ఒక వస్తువును జోడించండి.",
+      "loginRequired": "లాగిన్ అవసరం",
+      "pleaseLogInBeforePlacingYour": "మీ ఆర్డర్ చేసే ముందు దయచేసి లాగిన్ అవ్వండి.",
+      "deliveryDetailsNeeded": "డెలివరీ వివరాలు అవసరం",
+      "selectADeliveryAddress": "కొనసాగించడానికి డెలివరీ చిరునామాను ఎంచుకోండి.",
+      "restaurantMissing": "రెస్టారెంట్ లేదు",
+      "pleaseChooseARestaurantAgain": "దయచేసి రెస్టారెంట్‌ను మళ్లీ ఎంచుకోండి.",
+      "invalidTime": "సరైన సమయం కాదు",
+      "pleaseChooseAFutureDeliveryTime": "దయచేసి భవిష్యత్తులో డెలివరీ సమయాన్ని ఎంచుకోండి.",
+      "orderFailed": "ఆర్డర్ విఫలమైంది",
+      "unableToPlaceYourOrder": "మీ ఆర్డర్‌ను ఉంచడం సాధ్యం కాలేదు."
+    },
+    "orders": {
+      "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
+      "helperOnTheWay": "హెల్పర్ దారిలో ఉన్నారు",
+      "matchingAHelper": "హెల్పర్‌ను వెతుకుతున్నాము",
+      "riderOnTheRoute": "రైడర్ మార్గంలో ఉన్నారు",
+      "findingYourCaptain": "మీ కెప్టెన్‌ను వెతుకుతున్నాము"
+    },
+    "helperTask": {
+      "title": {
+        "compose": "హెల్పర్‌ను నియమించండి",
+        "bidding": "మీ ఆఫర్",
+        "searching": "హెల్పర్‌ను వెతుకుతోంది",
+        "assigned": "పని కేటాయించబడింది"
+      }
+    }
   }
 }

@@ -14,6 +14,12 @@ import { VendorDetails, VendorOffer } from "./vendor-details.types";
 // still run exactly as they did inline.
 
 // Only used to highlight today's row; the authoritative window is openState.today.
+// Left untranslated deliberately: `todayName` (derived from this array) is
+// compared against `entry.day` in VendorTimingsSection.tsx, which is the
+// vendor's own opening-hours data from the backend — real day names in
+// English. The rendered row label is `entry.day` itself, not a value from
+// this array, so nothing here actually reaches the screen as visible text;
+// translating it would only break the same-day comparison.
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export function useRestaurantDetails() {

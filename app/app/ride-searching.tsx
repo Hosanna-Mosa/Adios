@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SearchingMap } from "@/features/ride/components/SearchingMap";
 import { SearchingPanel } from "@/features/ride/components/SearchingPanel";
 import { BookAgainOverlay } from "@/features/ride/components/BookAgainOverlay";
@@ -12,6 +14,17 @@ export default function RideSearchingScreen() {
   cancelUsesDrop, cancelLocationTitle, cancelLocationAddress, cancelLocationLabel, fitTripMarkers,
   showTripDetails, showCancelReasons, selectCancelReason, keepSearching, cancelRide
   } = useRideSearching();
+  const { t } = useTranslation();
+
+  const CANCEL_REASONS = useMemo(() => [
+    t("app.rideSearching.cancelReasons.wrongPickup"),
+    t("app.rideSearching.cancelReasons.wrongDrop"),
+    t("app.rideSearching.cancelReasons.bookedByMistake"),
+    t("app.rideSearching.cancelReasons.selectedDifferentService"),
+    t("app.rideSearching.cancelReasons.tooLongToConfirm"),
+    t("app.rideSearching.cancelReasons.gotRideElsewhere"),
+    t("app.rideSearching.cancelReasons.others"),
+  ], [t]);
 
   return (
     <View style={styles.root}>
@@ -69,12 +82,5 @@ const VEHICLE_BIKE_3D = require("@/assets/images/services/scooter_blue_top_view_
 const VEHICLE_AUTO_3D = require("@/assets/images/services/auto_top_view.png");
 const VEHICLE_CAB_3D = require("@/assets/images/services/cab.png");
 
-const CANCEL_REASONS = [
-  "Selected Wrong Pickup Location",
-  "Selected Wrong Drop Location",
-  "Booked by mistake",
-  "Selected different service/vehicle",
-  "Taking too long to confirm the ride",
-  "Got a ride elsewhere",
-  "Others",
-];
+// CANCEL_REASONS moved inside RideSearchingScreen() as a useMemo value — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.

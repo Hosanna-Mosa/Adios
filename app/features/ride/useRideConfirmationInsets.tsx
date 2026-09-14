@@ -7,7 +7,7 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { ENABLED_TIERS, FareEstimate, isValidCoordinate } from "./useRideConfirmation.shared";
+import { getEnabledTiers, FareEstimate, isValidCoordinate } from "./useRideConfirmation.shared";
 
 // Part 1 of useRideConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -90,7 +90,7 @@ export function useRideConfirmationInsets() {
       setLoadingFares(true);
       try {
         const results = await Promise.all(
-          ENABLED_TIERS.map(async (tier) => {
+          getEnabledTiers().map(async (tier) => {
             try {
               const query = new URLSearchParams({
                 pickupLat: String(pickupCoords.latitude),

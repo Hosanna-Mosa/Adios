@@ -9,5 +9,285 @@
     "save": "सेव करें",
     "retry": "पुनः प्रयास करें",
     "loading": "लोड हो रहा है..."
+  },
+  "app": {
+    "schedulePill": {
+      "awaitingRestaurant": "रेस्टोरेंट की पुष्टि की प्रतीक्षा में",
+      "confirmed": "पुष्टि हो गई",
+      "rejected": "अस्वीकृत"
+    },
+    "serviceMeta": {
+      "food": "फ़ूड",
+      "meat": "मीट",
+      "ride": "राइड",
+      "task": "टास्क",
+      "delivery": "डिलीवरी"
+    },
+    "reviewTags": {
+      "onTime": "⚡ समय पर",
+      "politePartner": "😊 विनम्र पार्टनर",
+      "greatQuality": "🍱 बेहतरीन गुणवत्ता",
+      "wellPackaged": "📦 अच्छी तरह पैक किया गया",
+      "safeTrip": "🚗 सुरक्षित यात्रा"
+    },
+    "rideTierNames": {
+      "bike": "बाइक",
+      "auto": "ऑटो",
+      "cab": "कैब इकॉनमी",
+      "cabPrime": "कैब प्राइम"
+    },
+    "allServices": {
+      "rideTierDesc": {
+        "bike": "1 सीट · सबसे तेज़",
+        "auto": "3 सीटें · मीटर के अनुसार"
+      }
+    },
+    "rideConfirmation": {
+      "capacity": {
+        "bike": "1 सीट",
+        "auto": "3 सीटें"
+      }
+    },
+    "quickReplies": {
+      "onMyWay": "मैं आ रहा हूँ",
+      "waitingAtPickup": "पिकअप पर इंतज़ार कर रहा हूँ",
+      "locationAsPerMap": "मेरी लोकेशन मैप के अनुसार है",
+      "messageWhenClose": "आप पास पहुँचें तो मैसेज करें"
+    },
+    "chat": {
+      "statusLabel": {
+        "confirmed": "ऑर्डर की पुष्टि हो गई",
+        "driverAssigned": "आपको असाइन किया गया",
+        "enRoutePickup": "पिकअप की ओर जा रहे हैं",
+        "arrivedPickup": "पिकअप पर पहुँच गए",
+        "pickingItems": "आपका ऑर्डर तैयार किया जा रहा है",
+        "enRouteDelivery": "रास्ते में हैं",
+        "arrivedDelivery": "पहुँच गए",
+        "delivered": "पूरा हुआ"
+      },
+      "safetyBanner": "बातचीत Flavour में ही रखें. {{context}} शुरू होने से पहले अपना पिन {{partner}} के साथ साझा न करें.",
+      "contextTask": "टास्क",
+      "contextRide": "राइड",
+      "contextOrder": "ऑर्डर"
+    },
+    "taskTypes": {
+      "shifting": "शिफ्टिंग",
+      "cleaning": "सफ़ाई",
+      "queueErrands": "कतार व काम-काज",
+      "loading": "लोडिंग"
+    },
+    "rideSearching": {
+      "cancelReasons": {
+        "wrongPickup": "गलत पिकअप लोकेशन चुनी",
+        "wrongDrop": "गलत ड्रॉप लोकेशन चुनी",
+        "bookedByMistake": "गलती से बुक हो गया",
+        "selectedDifferentService": "अलग सेवा/वाहन चुना",
+        "tooLongToConfirm": "राइड कन्फर्म होने में बहुत समय लग रहा है",
+        "gotRideElsewhere": "कहीं और से राइड मिल गई",
+        "others": "अन्य"
+      }
+    },
+    "findingDriver": {
+      "cancelReasons": {
+        "waitingTooLong": "बहुत देर से इंतज़ार कर रहा हूँ",
+        "bookedByMistake": "गलती से बुक हो गया",
+        "fareTooHigh": "किराया बहुत ज़्यादा है",
+        "foundAnotherRide": "दूसरी राइड मिल गई",
+        "other": "अन्य"
+      }
+    },
+    "supportChat": {
+      "statusLabel": {
+        "open": "खुला",
+        "resolved": "समाधान हो गया",
+        "pendingResolve": "आपके जवाब का इंतज़ार है"
+      }
+    },
+    "support": {
+      "faqs": {
+        "lateOrder": {
+          "question": "मेरा ऑर्डर देर से आ रहा है. अब क्या करें?",
+          "answer": "पहले ट्रैक स्क्रीन पर लाइव मैप देखें — ज़्यादातर देरी पार्टनर की तरफ़ के ट्रैफ़िक की वजह से होती है. अगर यह अनुमानित समय से काफ़ी आगे निकल गया है, तो उसी ऑर्डर के लिए लाइव चैट खोलें, हम इसे देखेंगे."
+        },
+        "refunds": {
+          "question": "रिफ़ंड कैसे काम करता है?",
+          "answer": "अगर किसी पेमेंट का रिफ़ंड ज़रूरी हो, तो हमारी सपोर्ट टीम उसकी समीक्षा करके Razorpay के ज़रिए आपके मूल भुगतान तरीक़े में रिफ़ंड कर देती है. लाइव चैट या टिकट के ज़रिए इसे बताएं, पूरा होने पर हम पुष्टि कर देंगे."
+        },
+        "cancelOrder": {
+          "question": "क्या मैं अपना ऑर्डर रद्द कर सकता हूँ?",
+          "answer": "हाँ — पूरा होने से पहले इसे ऑर्डर्स या ट्रैक स्क्रीन से कभी भी रद्द किया जा सकता है. अगर पार्टनर पहले ही उस पर काम शुरू कर चुका है, तो चैट में एक छोटा सा मैसेज उन्हें बेकार की यात्रा से पहले रोकने में मदद करता है."
+        },
+        "pinSafety": {
+          "question": "क्या मेरा पिन शेयर करना सुरक्षित है?",
+          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका कैप्टन पहुँच चुका हो. Flavour से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
+        }
+      },
+      "categories": {
+        "operationalIssue": "परिचालन समस्या",
+        "delayedDelivery": "देरी से डिलीवरी",
+        "qualityControl": "गुणवत्ता नियंत्रण",
+        "billingAdjustment": "बिलिंग समायोजन"
+      }
+    },
+    "tracking": {
+      "rideLabels": {
+        "captainAssigned": "कैप्टन असाइन हुआ",
+        "headingToPickup": "पिकअप की ओर जा रहे हैं",
+        "tripInProgress": "यात्रा जारी है",
+        "tripCompleted": "यात्रा पूरी हुई"
+      },
+      "helperLabels": {
+        "offerAccepted": "ऑफ़र स्वीकार हुआ",
+        "helperArrived": "हेल्पर पहुँच गया",
+        "taskInProgress": "काम जारी है",
+        "taskCompleted": "काम पूरा हुआ"
+      },
+      "deliveryLabels": {
+        "orderPlaced": "ऑर्डर दिया गया",
+        "prepared": "तैयार किया गया",
+        "outForDelivery": "डिलीवरी के लिए निकल गया",
+        "delivered": "डिलीवर हो गया"
+      }
+    },
+    "orderStatusTimeline": {
+      "steps": {
+        "orderConfirmed": "ऑर्डर की पुष्टि हुई",
+        "driverAssigned": "ड्राइवर असाइन हुआ",
+        "onTheWayToStore": "स्टोर की ओर जा रहे हैं",
+        "arrivedAtStore": "स्टोर पर पहुँच गए",
+        "pickingItems": "सामान लिया जा रहा है",
+        "onTheWayToYou": "आपकी ओर आ रहे हैं",
+        "arrivedAtDelivery": "डिलीवरी स्थान पर पहुँच गए",
+        "delivered": "डिलीवर हो गया"
+      },
+      "rideSteps": {
+        "rideBooked": "राइड बुक हुई",
+        "captainAssigned": "कैप्टन असाइन हुआ",
+        "captainOnTheWay": "कैप्टन रास्ते में है",
+        "captainArrived": "कैप्टन पहुँच गया",
+        "tripInProgress": "यात्रा जारी है",
+        "arrivedAtDestination": "गंतव्य पर पहुँच गए",
+        "tripCompleted": "यात्रा पूरी हुई"
+      }
+    },
+    "weekdayNames": {
+      "sunday": "रविवार",
+      "monday": "सोमवार",
+      "tuesday": "मंगलवार",
+      "wednesday": "बुधवार",
+      "thursday": "गुरुवार",
+      "friday": "शुक्रवार",
+      "saturday": "शनिवार"
+    },
+    "foodTags": {
+      "biryani": "बिरयानी",
+      "dosa": "डोसा",
+      "idly": "इडली",
+      "idli": "इडली",
+      "friedRice": "फ्राइड राइस",
+      "fastFood": "फ़ास्ट फ़ूड",
+      "breakfast": "ब्रेकफ़ास्ट",
+      "healthy": "हेल्दी",
+      "deals": "डील्स",
+      "burgers": "बर्गर",
+      "smoothie": "स्मूदी",
+      "pizza": "पिज़्ज़ा",
+      "desserts": "डेज़र्ट",
+      "teaCoffee": "चाय व कॉफ़ी",
+      "noodles": "नूडल्स",
+      "chicken": "चिकन",
+      "paneer": "पनीर",
+      "fish": "मछली",
+      "tiffins": "टिफ़िन",
+      "chinese": "चाइनीज़",
+      "sweets": "मिठाइयाँ",
+      "southIndian": "साउथ इंडियन",
+      "northIndian": "नॉर्थ इंडियन",
+      "mughlai": "मुग़लई",
+      "kebabs": "कबाब",
+      "rolls": "रोल्स",
+      "mutton": "मटन",
+      "seafood": "सीफ़ूड",
+      "eggs": "अंडे",
+      "prawns": "झींगा"
+    },
+    "home": {
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "पहला ऑर्डर",
+          "headline": "₹120 तक 50% छूट",
+          "caption": "कोड FLAV50 · न्यूनतम ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "लेट नाइट",
+          "headline": "रात 2 बजे तक खुला",
+          "caption": "आपके पास 42 आउटलेट"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "संडे स्पेशल",
+          "headline": "देसी चिकन ₹399 / किलो"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "साफ़ करके काटा गया",
+          "headline": "आज कोई शुल्क नहीं"
+        }
+      },
+      "browseByCuisine": "व्यंजन के अनुसार देखें"
+    },
+    "profile": {
+      "menuItems": {
+        "myOrders": "मेरे ऑर्डर",
+        "personalDetails": "व्यक्तिगत विवरण",
+        "places": "पते",
+        "favorites": "पसंदीदा",
+        "notifications": "सूचनाएं",
+        "security": "सुरक्षा",
+        "language": "भाषा",
+        "helpSupport": "सहायता व समर्थन"
+      },
+      "signOutOfAllDevices": "सभी डिवाइस से साइन आउट करें?",
+      "everyPhoneSignedInToThis": "इस अकाउंट में साइन इन हर फ़ोन साइन आउट हो जाएगा, यह वाला भी शामिल है.",
+      "signOutEverywhere": "हर जगह से साइन आउट करें",
+      "errorTitle": "त्रुटि",
+      "couldntSignOutAllDevices": "सभी डिवाइस से साइन आउट नहीं हो सका."
+    },
+    "food": {
+      "orderFallback": {
+        "restaurantPickup": "रेस्टोरेंट पिकअप",
+        "restaurant": "रेस्टोरेंट"
+      },
+      "categoryFallback": {
+        "store149": "149 स्टोर"
+      },
+      "cartIsEmpty": "कार्ट खाली है",
+      "pleaseAddAtLeastOneItem": "कृपया कम से कम एक आइटम जोड़ें.",
+      "loginRequired": "लॉगिन ज़रूरी है",
+      "pleaseLogInBeforePlacingYour": "अपना ऑर्डर देने से पहले कृपया लॉगिन करें.",
+      "deliveryDetailsNeeded": "डिलीवरी विवरण ज़रूरी है",
+      "selectADeliveryAddress": "जारी रखने के लिए डिलीवरी पता चुनें.",
+      "restaurantMissing": "रेस्टोरेंट नहीं मिला",
+      "pleaseChooseARestaurantAgain": "कृपया रेस्टोरेंट फिर से चुनें.",
+      "invalidTime": "अमान्य समय",
+      "pleaseChooseAFutureDeliveryTime": "कृपया भविष्य का डिलीवरी समय चुनें.",
+      "orderFailed": "ऑर्डर विफल हुआ",
+      "unableToPlaceYourOrder": "आपका ऑर्डर नहीं दिया जा सका."
+    },
+    "orders": {
+      "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
+      "helperOnTheWay": "हेल्पर रास्ते में है",
+      "matchingAHelper": "हेल्पर खोजा जा रहा है",
+      "riderOnTheRoute": "राइडर रास्ते में है",
+      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है"
+    },
+    "helperTask": {
+      "title": {
+        "compose": "हेल्पर बुक करें",
+        "bidding": "आपका ऑफ़र",
+        "searching": "हेल्पर खोजा जा रहा है",
+        "assigned": "टास्क असाइन हुआ"
+      }
+    }
   }
 }

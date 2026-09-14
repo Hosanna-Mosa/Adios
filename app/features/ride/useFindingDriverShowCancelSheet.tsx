@@ -1,12 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { CANCEL_REASONS, TIER_LABEL } from "./useFindingDriver.shared";
 
 // Part 2 of useFindingDriver, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
 
 export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnlineDrivers: any, orderSummary: any) {
+  const { t } = useTranslation();
+
+  const TIER_LABEL: Record<string, string> = useMemo(() => ({
+    bike: t("app.rideTierNames.bike"),
+    auto: t("app.rideTierNames.auto"),
+    cab: t("app.rideTierNames.cab"),
+    cab_prime: t("app.rideTierNames.cabPrime"),
+  }), [t]);
+
+  const CANCEL_REASONS = useMemo(() => [
+    t("app.findingDriver.cancelReasons.waitingTooLong"),
+    t("app.findingDriver.cancelReasons.bookedByMistake"),
+    t("app.findingDriver.cancelReasons.fareTooHigh"),
+    t("app.findingDriver.cancelReasons.foundAnotherRide"),
+    t("app.findingDriver.cancelReasons.other"),
+  ], [t]);
+
   const [showCancelSheet, setShowCancelSheet] = useState(false);
   const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0]);
 
@@ -58,5 +75,5 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
   const dropStop = stops.find((s: any) => s.type === "drop");
   const tierLabel = orderSummary.serviceType ? TIER_LABEL[orderSummary.serviceType] || orderSummary.serviceType : null;
 
-  return { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel };
+  return { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS };
 }

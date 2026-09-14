@@ -1,4 +1,6 @@
 import { Dimensions, Linking, ScrollView, StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { TripCompleteScreen } from "@/features/ride/components/TripCompleteScreen";
 import { MapBackground } from "@/components/MapBackground";
 import { BottomSheet } from "@/components/BottomSheet";
@@ -31,6 +33,7 @@ export default function TrackingScreen() {
   mapRef, handleSOS, handleShareTrip, pulse1Style, pulse2Style, deliveryStop, pickupStop,
   handleBack, userLocCoords, bannerText
   } = useTracking();
+  const { t } = useTranslation();
 
   if (status === "delivered") {
     const foodItems = deliveryStop?.items || [];
@@ -65,7 +68,7 @@ export default function TrackingScreen() {
   // --------------------------------------------------------------------- Live tracking state
   // ---------------------------------------------------------------------
 
-  const timeline = buildTimeline(status, isRide, isHelper);
+  const timeline = buildTimeline(status, isRide, isHelper, t);
   const pickupLabel = vendorName || pickupStop?.address || stops?.[0]?.address || "Pickup location";
 
   return (
@@ -126,23 +129,23 @@ function formatDuration(ms: number): string {
  * design calls for, per service group. Every "done"/"current" flag below is
  * derived from the real order status — nothing here is a fabricated
  * timestamp or invented sub-step. */
-function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean): TimelineStep[] {
+function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean, t: TFunction): TimelineStep[] {
   const idx = STATUS_ORDER.indexOf(status === "delivered" ? "delivered" : status);
   const at = (s: OrderStatus) => idx >= STATUS_ORDER.indexOf(s);
 
   if (isRide) {
-    const labels = ["Captain assigned", "Heading to pickup", "Trip in progress", "Trip completed"];
+    const labels = [t("app.tracking.rideLabels.captainAssigned"), t("app.tracking.rideLabels.headingToPickup"), t("app.tracking.rideLabels.tripInProgress"), t("app.tracking.rideLabels.tripCompleted")];
     const done = [at("driver_assigned"), at("arrived_pickup"), at("arrived_delivery"), at("delivered")];
     const currentIdx = done.lastIndexOf(false);
     return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
   }
   if (isHelper) {
-    const labels = ["Offer accepted", "Helper arrived", "Task in progress", "Task completed"];
+    const labels = [t("app.tracking.helperLabels.offerAccepted"), t("app.tracking.helperLabels.helperArrived"), t("app.tracking.helperLabels.taskInProgress"), t("app.tracking.helperLabels.taskCompleted")];
     const done = [at("driver_assigned"), at("arrived_pickup"), at("en_route_delivery"), at("delivered")];
     const currentIdx = done.lastIndexOf(false);
     return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
   }
-  const labels = ["Order placed", "Prepared", "Out for delivery", "Delivered"];
+  const labels = [t("app.tracking.deliveryLabels.orderPlaced"), t("app.tracking.deliveryLabels.prepared"), t("app.tracking.deliveryLabels.outForDelivery"), t("app.tracking.deliveryLabels.delivered")];
   const done = [true, at("en_route_delivery"), at("arrived_delivery"), at("delivered")];
   const currentIdx = done.lastIndexOf(false);
   return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));

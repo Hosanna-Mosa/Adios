@@ -7,14 +7,14 @@ import { MapBackground } from "@/components/MapBackground";
 import { FindingDriverRadarWrap } from "@/features/ride/components/FindingDriverRadarWrap";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { FindingDriverBody } from "@/features/ride/components/FindingDriverBody";
-import { CANCEL_REASONS } from "@/features/ride/useFindingDriver";
 import { useFindingDriver } from "@/features/ride/useFindingDriver";
 
 export default function FindingDriverScreen() {
   const {
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, ring1Style, ring2Style, spinStyle, showCancelSheet,
-  setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel
+  setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
+  CANCEL_REASONS
   } = useFindingDriver();
 
   if (bookingConfirmed && confirmedDriver) {

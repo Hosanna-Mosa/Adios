@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Linking, Platform, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { router, useFocusEffect } from "expo-router";
@@ -14,16 +15,8 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
 
-const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
-  food: { label: "Food", accent: "food" },
-  meat: { label: "Meat", accent: "meat" },
-  bike: { label: "Ride", accent: "ride" },
-  auto: { label: "Ride", accent: "ride" },
-  cab: { label: "Ride", accent: "ride" },
-  cab_prime: { label: "Ride", accent: "ride" },
-  helper: { label: "Task", accent: "task" },
-  delivery: { label: "Delivery", accent: "delivery" },
-};
+// SERVICE_META and FAQS moved inside SupportScreen() as useMemo values — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
 // Same resolution rule used on the Orders screen: the list endpoint never
 // populates `vendor`, so meat can't be told apart from food here — food is
@@ -52,30 +45,30 @@ interface FAQItem {
   answer: string;
 }
 
-const FAQS: FAQItem[] = [
-  {
-    question: "My order is late. What now?",
-    answer: "Check the live map on the Track screen first — most delays are traffic on the partner's leg. If it's running well past the estimate, open Live chat with the order in mind and we'll look into it.",
-  },
-  {
-    question: "How do refunds work?",
-    answer: "If a payment needs to be refunded, our support team reviews it and processes the refund back to your original payment method through Razorpay. Raise it via Live chat or a ticket and we'll confirm once it's done.",
-  },
-  {
-    question: "Can I cancel my order?",
-    answer: "Yes — cancel anytime from the Orders or Track screen before it's completed. If a partner has already started on it, a quick message in chat helps them stop before making an unnecessary trip.",
-  },
-  {
-    question: "Is my PIN safe to share?",
-    answer: "Only hand it over once your items are physically in hand, or once your captain has arrived for a ride. Nobody from Flavour will ever ask for it over a call.",
-  },
-];
-
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
   const styles = useMemo(() => createStyles(tokens), [theme]);
+  const { t } = useTranslation();
+
+  const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = useMemo(() => ({
+    food: { label: t("app.serviceMeta.food"), accent: "food" },
+    meat: { label: t("app.serviceMeta.meat"), accent: "meat" },
+    bike: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    auto: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    cab: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    cab_prime: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    helper: { label: t("app.serviceMeta.task"), accent: "task" },
+    delivery: { label: t("app.serviceMeta.delivery"), accent: "delivery" },
+  }), [t]);
+
+  const FAQS: FAQItem[] = useMemo(() => [
+    { question: t("app.support.faqs.lateOrder.question"), answer: t("app.support.faqs.lateOrder.answer") },
+    { question: t("app.support.faqs.refunds.question"), answer: t("app.support.faqs.refunds.answer") },
+    { question: t("app.support.faqs.cancelOrder.question"), answer: t("app.support.faqs.cancelOrder.answer") },
+    { question: t("app.support.faqs.pinSafety.question"), answer: t("app.support.faqs.pinSafety.answer") },
+  ], [t]);
 
   const [recentOrder, setRecentOrder] = useState<any | null>(null);
   const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
