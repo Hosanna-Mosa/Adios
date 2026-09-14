@@ -548,7 +548,17 @@
       "couldntResend": "Couldn't resend",
       "pleaseTryAgainInAMoment": "Please try again in a moment.",
       "callRequested": "Call requested",
-      "wellRingYouWithYourCode": "We'll ring you with your code shortly."
+      "wellRingYouWithYourCode": "We'll ring you with your code shortly.",
+      "didnapostGetIt": "Didn't get it?",
+      "getACallInstead": "Get a call instead",
+      "verifyYourNumber": "Verify your number",
+      "weSentA6digitCodeTo": "We sent a 6-digit code to",
+      "change": "Change",
+      "resendCodeIn0": "Resend code in 0:",
+      "resend": "Resend",
+      "verified": "Verified",
+      "createYourAccount": "Create your account",
+      "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP."
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -670,7 +680,16 @@
       "orderFailed": "Order failed",
       "unableToProcessYourOrder": "Unable to process your order.",
       "pleaseEnableLocationServicesToFind": "Please enable location services to find your current location.",
-      "couldNotFetchYourCurrentLocation": "Could not fetch your current location. Please type it manually."
+      "couldNotFetchYourCurrentLocation": "Could not fetch your current location. Please type it manually.",
+      "addMoreAddressDetails": "Add more address details",
+      "moveThePinToAdjust": "Move the pin to adjust",
+      "searchForANewAreaLocality": "Search for a new area, locality…",
+      "editAddress": "Edit address",
+      "addAddress": "Add address",
+      "fetchingLocation": "Fetching location…",
+      "updatingAddressForPin": "Updating address for pin…",
+      "nearbySuggestions": "Nearby suggestions",
+      "fromYourStartPoint": "from your start point"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",

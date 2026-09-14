@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -20,16 +21,17 @@ export function OtpResendRow({
   secondsLeft,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.resendRow} entering={fadeInUp(280)}>
       {secondsLeft > 0 ? (
-        <Text style={styles.resendMuted}>Resend code in 0:{String(secondsLeft).padStart(2, "0")}</Text>
+        <Text style={styles.resendMuted}>{t("app.auth.resendCodeIn0")}{String(secondsLeft).padStart(2, "0")}</Text>
       ) : (
         <TouchableOpacity onPress={handleResend} disabled={resending} activeOpacity={0.7}>
           {resending ? (
             <ActivityIndicator size="small" color={accent.accent} />
           ) : (
-            <Text style={styles.resendActive}>Resend</Text>
+            <Text style={styles.resendActive}>{t("app.auth.resend")}</Text>
           )}
         </TouchableOpacity>
       )}

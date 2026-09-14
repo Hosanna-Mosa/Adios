@@ -548,7 +548,17 @@
       "couldntResend": "फिर से नहीं भेजा जा सका",
       "pleaseTryAgainInAMoment": "कृपया थोड़ी देर में फिर से प्रयास करें.",
       "callRequested": "कॉल का अनुरोध किया गया",
-      "wellRingYouWithYourCode": "हम जल्द ही आपके कोड के साथ आपको कॉल करेंगे."
+      "wellRingYouWithYourCode": "हम जल्द ही आपके कोड के साथ आपको कॉल करेंगे.",
+      "didnapostGetIt": "नहीं मिला?",
+      "getACallInstead": "इसके बजाय कॉल पाएं",
+      "verifyYourNumber": "अपना नंबर सत्यापित करें",
+      "weSentA6digitCodeTo": "हमने 6 अंकों का कोड भेजा है",
+      "change": "बदलें",
+      "resendCodeIn0": "0: में कोड फिर से भेजें",
+      "resend": "फिर से भेजें",
+      "verified": "सत्यापित",
+      "createYourAccount": "अपना अकाउंट बनाएं",
+      "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे."
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -670,7 +680,16 @@
       "orderFailed": "ऑर्डर विफल हुआ",
       "unableToProcessYourOrder": "आपका ऑर्डर प्रोसेस नहीं हो सका.",
       "pleaseEnableLocationServicesToFind": "अपनी मौजूदा लोकेशन खोजने के लिए कृपया लोकेशन सेवाएं सक्षम करें.",
-      "couldNotFetchYourCurrentLocation": "आपकी मौजूदा लोकेशन नहीं मिल सकी. कृपया इसे खुद टाइप करें."
+      "couldNotFetchYourCurrentLocation": "आपकी मौजूदा लोकेशन नहीं मिल सकी. कृपया इसे खुद टाइप करें.",
+      "addMoreAddressDetails": "और पता विवरण जोड़ें",
+      "moveThePinToAdjust": "समायोजित करने के लिए पिन को खिसकाएं",
+      "searchForANewAreaLocality": "नया इलाका, लोकैलिटी खोजें…",
+      "editAddress": "पता बदलें",
+      "addAddress": "पता जोड़ें",
+      "fetchingLocation": "लोकेशन लाई जा रही है…",
+      "updatingAddressForPin": "पिन के लिए पता अपडेट हो रहा है…",
+      "nearbySuggestions": "पास के सुझाव",
+      "fromYourStartPoint": "आपके शुरुआती स्थान से"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",

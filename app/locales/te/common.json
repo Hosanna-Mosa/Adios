@@ -548,7 +548,17 @@
       "couldntResend": "మళ్లీ పంపలేకపోయాము",
       "pleaseTryAgainInAMoment": "దయచేసి కొద్ది సేపటిలో మళ్లీ ప్రయత్నించండి.",
       "callRequested": "కాల్ అభ్యర్థించబడింది",
-      "wellRingYouWithYourCode": "మేము మీ కోడ్‌తో త్వరలో మీకు కాల్ చేస్తాము."
+      "wellRingYouWithYourCode": "మేము మీ కోడ్‌తో త్వరలో మీకు కాల్ చేస్తాము.",
+      "didnapostGetIt": "అందుకోలేదా?",
+      "getACallInstead": "బదులుగా కాల్ పొందండి",
+      "verifyYourNumber": "మీ నంబర్‌ను ధృవీకరించండి",
+      "weSentA6digitCodeTo": "మేము 6-అంకెల కోడ్‌ను పంపాము",
+      "change": "మార్చండి",
+      "resendCodeIn0": "0: లో కోడ్‌ను మళ్లీ పంపండి",
+      "resend": "మళ్లీ పంపండి",
+      "verified": "ధృవీకరించబడింది",
+      "createYourAccount": "మీ ఖాతాను సృష్టించండి",
+      "takesAboutAMinuteWeaposllVerify": "సుమారు ఒక నిమిషం పడుతుంది. మేము OTPతో మీ ఫోన్‌ను ధృవీకరిస్తాము."
     },
     "delivery": {
       "streetAddress": "వీధి చిరునామా",
@@ -670,7 +680,16 @@
       "orderFailed": "ఆర్డర్ విఫలమైంది",
       "unableToProcessYourOrder": "మీ ఆర్డర్‌ను ప్రాసెస్ చేయలేకపోయాము.",
       "pleaseEnableLocationServicesToFind": "మీ ప్రస్తుత లొకేషన్‌ను కనుగొనడానికి దయచేసి లొకేషన్ సేవలను ప్రారంభించండి.",
-      "couldNotFetchYourCurrentLocation": "మీ ప్రస్తుత లొకేషన్‌ను పొందలేకపోయాము. దయచేసి మాన్యువల్‌గా టైప్ చేయండి."
+      "couldNotFetchYourCurrentLocation": "మీ ప్రస్తుత లొకేషన్‌ను పొందలేకపోయాము. దయచేసి మాన్యువల్‌గా టైప్ చేయండి.",
+      "addMoreAddressDetails": "మరిన్ని చిరునామా వివరాలను జోడించండి",
+      "moveThePinToAdjust": "సర్దుబాటు చేయడానికి పిన్‌ను తరలించండి",
+      "searchForANewAreaLocality": "కొత్త ప్రాంతం, లొకాలిటీ కోసం వెతకండి…",
+      "editAddress": "చిరునామాను సవరించండి",
+      "addAddress": "చిరునామాను జోడించండి",
+      "fetchingLocation": "లొకేషన్‌ను పొందుతోంది…",
+      "updatingAddressForPin": "పిన్ కోసం చిరునామాను అప్‌డేట్ చేస్తోంది…",
+      "nearbySuggestions": "సమీప సూచనలు",
+      "fromYourStartPoint": "మీ ప్రారంభ స్థానం నుండి"
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",

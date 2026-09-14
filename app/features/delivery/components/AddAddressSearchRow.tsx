@@ -1,4 +1,5 @@
 import { ActivityIndicator, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
@@ -31,6 +32,7 @@ export function AddAddressSearchRow({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={[styles.searchRow, { top: insets.top + 10 }]} entering={fadeIn(0)}>
       <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
@@ -41,7 +43,7 @@ export function AddAddressSearchRow({
         <TextInput
           ref={searchInputRef}
           style={styles.searchInput}
-          placeholder="Search for a new area, locality…"
+          placeholder={t("app.delivery.searchForANewAreaLocality")}
           placeholderTextColor={tokens.muted}
           value={searchQuery}
           onChangeText={handleSearch}
