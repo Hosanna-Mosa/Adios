@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -21,9 +22,10 @@ export function OrdersSection2({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Active now</Text>
+      <Text style={styles.sectionLabel}>{t("app.orders.activeNow")}</Text>
       {active.map((order, index) => {
         const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
         return (
@@ -36,7 +38,7 @@ export function OrdersSection2({
             <Text style={styles.cardTitle} numberOfLines={1}>{typeof order.vendor === "object" ? order.vendor?.name : order.stops?.[0]?.address || "Order"}</Text>
             <Text style={styles.cardMeta}>₹{Math.round(order.totalPrice || 0)}</Text>
             <TouchableOpacity style={[styles.trackBtn, { backgroundColor: accent.accent }]} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
-              <Text style={[styles.trackBtnText, { color: accent.on }]}>Track order</Text>
+              <Text style={[styles.trackBtnText, { color: accent.on }]}>{t("app.orders.trackOrder")}</Text>
             </TouchableOpacity>
           </Animated.View>
         );

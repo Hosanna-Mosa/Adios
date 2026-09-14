@@ -534,7 +534,14 @@
       "rateYourOrder": "Rate your order",
       "addFeedbackOptional": "Add feedback (optional)",
       "cancel": "Cancel",
-      "submit": "Submit"
+      "submit": "Submit",
+      "noOrdersYet": "No orders yet",
+      "foodMeatRidesHelpersAndCourier": "Food, meat, rides, helpers and courier runs will all show up here once you place your first one.",
+      "exploreFlavour": "Explore Flavour",
+      "activeNow": "Active now",
+      "trackOrder": "Track order",
+      "cantReorder": "Can't reorder",
+      "weCouldntFindTheItemsFrom": "We couldn't find the items from this order. Please add them from the menu."
     },
     "helperTask": {
       "title": {
@@ -972,6 +979,12 @@
     "useScheduleDateTimeSheet": {
       "invalidTime": "Invalid time",
       "pleaseChooseAFutureDeliveryTime": "Please choose a future delivery time."
+    },
+    "meat": {
+      "selectLocation": "Select location",
+      "meatCentersNearYou": "Meat centers near you",
+      "openNowCutFreshOnOrder": "open now · cut fresh on order",
+      "searchCentersOrMeatType": "Search centers or meat type"
     }
   }
 }

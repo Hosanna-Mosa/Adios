@@ -534,7 +534,14 @@
       "rateYourOrder": "మీ ఆర్డర్‌ను రేట్ చేయండి",
       "addFeedbackOptional": "అభిప్రాయాన్ని జోడించండి (ఐచ్ఛికం)",
       "cancel": "రద్దు చేయండి",
-      "submit": "సమర్పించండి"
+      "submit": "సమర్పించండి",
+      "noOrdersYet": "ఇంకా ఆర్డర్‌లు లేవు",
+      "foodMeatRidesHelpersAndCourier": "మీరు మీ మొదటి ఆర్డర్ చేసిన తర్వాత ఫుడ్, మీట్, రైడ్‌లు, హెల్పర్‌లు మరియు కొరియర్ రన్‌లు అన్నీ ఇక్కడ కనిపిస్తాయి.",
+      "exploreFlavour": "Flavourను అన్వేషించండి",
+      "activeNow": "ప్రస్తుతం యాక్టివ్‌గా ఉంది",
+      "trackOrder": "ఆర్డర్‌ను ట్రాక్ చేయండి",
+      "cantReorder": "మళ్లీ ఆర్డర్ చేయడం సాధ్యం కాలేదు",
+      "weCouldntFindTheItemsFrom": "ఈ ఆర్డర్ నుండి వస్తువులు కనుగొనబడలేదు. దయచేసి వాటిని మెనూ నుండి జోడించండి."
     },
     "helperTask": {
       "title": {
@@ -972,6 +979,12 @@
     "useScheduleDateTimeSheet": {
       "invalidTime": "సరైన సమయం కాదు",
       "pleaseChooseAFutureDeliveryTime": "దయచేసి భవిష్యత్తులో డెలివరీ సమయాన్ని ఎంచుకోండి."
+    },
+    "meat": {
+      "selectLocation": "స్థానాన్ని ఎంచుకోండి",
+      "meatCentersNearYou": "మీ సమీపంలోని మీట్ సెంటర్‌లు",
+      "openNowCutFreshOnOrder": "ఇప్పుడు తెరిచి ఉంది · ఆర్డర్‌పై తాజాగా కోస్తారు",
+      "searchCentersOrMeatType": "సెంటర్‌లు లేదా మీట్ రకం కోసం శోధించండి"
     }
   }
 }

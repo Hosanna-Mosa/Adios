@@ -534,7 +534,14 @@
       "rateYourOrder": "अपने ऑर्डर को रेट करें",
       "addFeedbackOptional": "फ़ीडबैक जोड़ें (वैकल्पिक)",
       "cancel": "रद्द करें",
-      "submit": "सबमिट करें"
+      "submit": "सबमिट करें",
+      "noOrdersYet": "अभी तक कोई ऑर्डर नहीं",
+      "foodMeatRidesHelpersAndCourier": "आपका पहला ऑर्डर करते ही फ़ूड, मीट, राइड, हेल्पर और कूरियर रन सभी यहाँ दिखने लगेंगे।",
+      "exploreFlavour": "Flavour को एक्सप्लोर करें",
+      "activeNow": "अभी सक्रिय",
+      "trackOrder": "ऑर्डर ट्रैक करें",
+      "cantReorder": "फिर से ऑर्डर नहीं किया जा सका",
+      "weCouldntFindTheItemsFrom": "इस ऑर्डर के आइटम नहीं मिल सके। कृपया उन्हें मेनू से जोड़ें।"
     },
     "helperTask": {
       "title": {
@@ -972,6 +979,12 @@
     "useScheduleDateTimeSheet": {
       "invalidTime": "अमान्य समय",
       "pleaseChooseAFutureDeliveryTime": "कृपया भविष्य का डिलीवरी समय चुनें."
+    },
+    "meat": {
+      "selectLocation": "स्थान चुनें",
+      "meatCentersNearYou": "आपके पास के मीट सेंटर",
+      "openNowCutFreshOnOrder": "अभी खुला है · ऑर्डर पर ताज़ा काटा जाता है",
+      "searchCentersOrMeatType": "सेंटर या मीट के प्रकार खोजें"
     }
   }
 }
