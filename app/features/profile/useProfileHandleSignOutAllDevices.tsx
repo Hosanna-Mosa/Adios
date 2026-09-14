@@ -53,6 +53,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
     { key: "favorites", icon: "heart", label: "Favorites", badge: user?.favorites?.length ? String(user.favorites.length) : undefined, onPress: () => router.push("/favorites") },
     { key: "notifications", icon: "notifications", label: "Notifications", countBadge: unreadCount > 0 ? unreadCount : undefined, onPress: () => router.push("/notifications") },
     { key: "security", icon: "shield-checkmark", label: "Security", onPress: () => setSecurityVisible(true) },
+    { key: "language", icon: "globe", label: "Language", onPress: () => router.push("/language-settings") },
     { key: "support", icon: "mail", label: "Help & support", onPress: () => router.push("/support") },
   ] as const;
 

@@ -1,0 +1,49 @@
+import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n from '@/i18n';
+
+const LANGUAGE_KEY = 'app_language';
+
+export type SupportedLanguage = 'en' | 'te' | 'hi';
+
+interface LanguageState {
+  /** null until hydrateLanguage() resolves and finds nothing stored — the
+   * first-launch routing gate checks specifically for this null case. */
+  language: SupportedLanguage | null;
+  setLanguage: (language: SupportedLanguage) => void;
+  /** Called once on boot, before the splash screen hides — see
+   * app/_layout.tsx's existing Promise.all([...]) hydration call, which this
+   * mirrors exactly for theme (contexts/themeStore.ts). */
+  hydrateLanguage: () => Promise<void>;
+}
+
+// Fire-and-forget: a failed write must never block the UI from switching.
+const persist = (language: SupportedLanguage) => {
+  AsyncStorage.setItem(LANGUAGE_KEY, language).catch(() => {});
+};
+
+function isSupportedLanguage(value: string | null): value is SupportedLanguage {
+  return value === 'en' || value === 'te' || value === 'hi';
+}
+
+export const useLanguageStore = create<LanguageState>((set) => ({
+  language: null,
+  setLanguage: (language) => {
+    persist(language);
+    i18n.changeLanguage(language);
+    set({ language });
+  },
+  hydrateLanguage: async () => {
+    try {
+      const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
+      if (isSupportedLanguage(stored)) {
+        await i18n.changeLanguage(stored);
+        set({ language: stored });
+      }
+      // else: leave `language` as null — the first-launch gate in app/_layout.tsx
+      // treats null as "no language selected yet" and routes to /select-language.
+    } catch {
+      // Storage unavailable — leave `language` as null, same as "not set yet".
+    }
+  },
+}));

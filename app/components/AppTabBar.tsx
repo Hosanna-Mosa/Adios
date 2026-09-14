@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -44,11 +45,23 @@ export const ALL_TAB_KEYS: TabKey[] = ["home", "orders", "account", "cart"];
  * content so the last element never sits under the bar.
  */
 
-const TABS: { key: TabKey; label: string; icon: keyof typeof Ionicons.glyphMap; activeIcon: keyof typeof Ionicons.glyphMap; route: string }[] = [
-  { key: "home", label: "Home", icon: "home-outline", activeIcon: "home", route: "/(tabs)" },
-  { key: "orders", label: "Orders", icon: "receipt-outline", activeIcon: "receipt", route: "/(tabs)/orders" },
-  { key: "account", label: "Account", icon: "person-outline", activeIcon: "person", route: "/(tabs)/profile" },
-];
+type TabDef = { key: TabKey; label: string; icon: keyof typeof Ionicons.glyphMap; activeIcon: keyof typeof Ionicons.glyphMap; route: string };
+
+// Labels moved from a module-level constant into this hook so they can call
+// t() — see ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11 ("Constants
+// Migration Strategy"). `key`/`route`/icon names are technical, not language,
+// and are untouched.
+function useTabs(): TabDef[] {
+  const { t } = useTranslation();
+  return useMemo(
+    () => [
+      { key: "home", label: t("tabs.home"), icon: "home-outline", activeIcon: "home", route: "/(tabs)" },
+      { key: "orders", label: t("tabs.orders"), icon: "receipt-outline", activeIcon: "receipt", route: "/(tabs)/orders" },
+      { key: "account", label: t("tabs.account"), icon: "person-outline", activeIcon: "person", route: "/(tabs)/profile" },
+    ],
+    [t]
+  );
+}
 
 /**
  * Floating pill bar shared across the main tabs (Home / Orders / Cart /
@@ -62,6 +75,7 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
   insets, theme, tokens, accentTokens, styles, itemCount, totalPrice, pillWidth, setPillWidth,
   indicatorStyle, handleTabPress
   } = useAppTabBar(active, accent, cartVendorName);
+  const TABS = useTabs();
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">

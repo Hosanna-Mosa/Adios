@@ -66,6 +66,8 @@ import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { ToastProvider } from "@/components/ui/Toast";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
+import { useLanguageStore } from "@/contexts/languageStore";
+import "@/i18n";
 import { typography, fontFamilies } from "@/constants/typography";
 import { TextInput } from "react-native";
 
@@ -263,24 +265,41 @@ export default function RootLayout() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
+  const language = useLanguageStore((s) => s.language);
   const segments = useSegments();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Initialize auth and restore the saved theme (both read AsyncStorage),
-      // then hide splash — resolving the theme first keeps the app from
-      // flashing light before settling on the user's choice.
-      Promise.all([initializeAuth(), useThemeStore.getState().hydrateTheme()]).then(() => {
+      // Initialize auth, restore the saved theme, and restore the saved
+      // language (all three read AsyncStorage), then hide splash — resolving
+      // these first keeps the app from flashing light/English before settling
+      // on the user's saved choices.
+      Promise.all([
+        initializeAuth(),
+        useThemeStore.getState().hydrateTheme(),
+        useLanguageStore.getState().hydrateLanguage(),
+      ]).then(() => {
         SplashScreen.hideAsync();
       });
     }
   }, [fontsLoaded, fontError]);
 
-  // Once auth is initialized and fonts are ready, redirect based on token
+  // Once auth/language are initialized and fonts are ready, redirect based on
+  // language selection first, then the existing token-based auth gate.
   useEffect(() => {
     if (!(fontsLoaded || fontError) || !isInitialized) return;
 
     const firstSegment = segments[0];
+
+    // Language gate — takes priority over the auth gate, so a user reads the
+    // login screen itself in their chosen language.
+    if (!language) {
+      if (firstSegment !== "select-language") {
+        router.replace("/select-language");
+      }
+      return;
+    }
+
     const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
 
     if (!token && !isAuthScreen) {
@@ -292,7 +311,7 @@ export default function RootLayout() {
       // Token exists → go straight to the main app
       router.replace("/(tabs)");
     }
-  }, [isInitialized, token, fontsLoaded, fontError, segments]);
+  }, [isInitialized, token, fontsLoaded, fontError, segments, language]);
 
   // Register push notifications when authenticated, and listen for tokens & taps (Priority 3 & 4)
   useEffect(() => {

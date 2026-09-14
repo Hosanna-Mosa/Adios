@@ -1,0 +1,13 @@
+{
+  "tabs": {
+    "home": "Home",
+    "orders": "Orders",
+    "account": "Account"
+  },
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "retry": "Retry",
+    "loading": "Loading..."
+  }
+}
