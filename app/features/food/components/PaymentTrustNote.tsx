@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -14,11 +15,12 @@ export function PaymentTrustNote({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.trustRow}>
       <Ionicons name="lock-closed" size={moderateScale(14)} color={tokens.success} />
       <Text style={styles.trustText}>
-        Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.
+        {t("app.food.encryptedAndSecureTransactionFlavourNever")}
       </Text>
     </View>
   );

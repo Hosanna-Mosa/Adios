@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -40,6 +41,7 @@ export function DishDetailSheet({
   toggleFavoriteItem,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal visible={!!selectedDishDetail} transparent animationType="slide" statusBarTranslucent>
       <View style={styles.modalBackdrop}>
@@ -89,7 +91,7 @@ export function DishDetailSheet({
               <Text style={styles.modalDesc}>{selectedDishDetail.description}</Text>
 
               {selectedDishDetail.isAvailable === false ? (
-                <View style={styles.modalSoldOut}><Text style={styles.soldOutText}>Currently sold out</Text></View>
+                <View style={styles.modalSoldOut}><Text style={styles.soldOutText}>{t("app.food.currentlySoldOut")}</Text></View>
               ) : items.find((i) => i._id === selectedDishDetail._id) ? (
                 <View style={styles.modalQtyRow}>
                   <TouchableOpacity
@@ -105,7 +107,7 @@ export function DishDetailSheet({
                 </View>
               ) : (
                 <TouchableOpacity style={styles.modalAddBtn} activeOpacity={0.85} onPress={() => handleAddToCart(selectedDishDetail)}>
-                  <Text style={styles.modalAddBtnText}>Add to cart</Text>
+                  <Text style={styles.modalAddBtnText}>{t("app.food.addToCart")}</Text>
                 </TouchableOpacity>
               )}
             </View>

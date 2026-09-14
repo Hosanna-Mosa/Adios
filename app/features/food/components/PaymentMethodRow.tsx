@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -14,14 +15,15 @@ export function PaymentMethodRow({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.methodRow}>
       <View style={styles.methodIcon}>
         <Ionicons name="card-outline" size={moderateScale(18)} color={tokens.sec} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.methodTitle}>Razorpay</Text>
-        <Text style={styles.methodSub}>UPI, cards, wallets and net banking — choose on the next step</Text>
+        <Text style={styles.methodTitle}>{t("app.delivery.razorpay")}</Text>
+        <Text style={styles.methodSub}>{t("app.food.upiCardsWalletsAndNetBanking")}</Text>
       </View>
     </View>
   );

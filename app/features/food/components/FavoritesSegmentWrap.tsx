@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -20,15 +21,16 @@ export function FavoritesSegmentWrap({
   setActiveTab,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.segmentWrap} entering={fadeInUp(60)}>
       <View style={styles.segmentTrack}>
         <View style={[styles.segmentThumb, activeTab === "items" && { left: "50%" }]} />
         <TouchableOpacity style={styles.segmentCell} onPress={() => setActiveTab("outlets")}>
-          <Text style={[styles.segmentLabel, activeTab === "outlets" && styles.segmentLabelActive]}>Outlets · {activeFavorites.length}</Text>
+          <Text style={[styles.segmentLabel, activeTab === "outlets" && styles.segmentLabelActive]}>{t("app.food.outlets")} {activeFavorites.length}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.segmentCell} onPress={() => setActiveTab("items")}>
-          <Text style={[styles.segmentLabel, activeTab === "items" && styles.segmentLabelActive]}>Items · {activeFavoriteItems.length}</Text>
+          <Text style={[styles.segmentLabel, activeTab === "items" && styles.segmentLabelActive]}>{t("app.food.items")} {activeFavoriteItems.length}</Text>
         </TouchableOpacity>
       </View>
     </Animated.View>

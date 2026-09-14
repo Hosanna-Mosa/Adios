@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -16,13 +17,14 @@ export function FavoritesEmptyContainer({
   accent,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.emptyContainer} entering={fadeInUp(0)}>
       <View style={styles.heartCircle}>
         <Ionicons name="heart-outline" size={moderateScale(28)} color={accent.accent} />
       </View>
-      <Text style={styles.emptyTitle}>No favorite dishes yet</Text>
-      <Text style={styles.emptySubtitle}>Tap the heart on any dish and it lands here.</Text>
+      <Text style={styles.emptyTitle}>{t("app.food.noFavoriteDishesYet")}</Text>
+      <Text style={styles.emptySubtitle}>{t("app.food.tapTheHeartOnAnyDish")}</Text>
     </Animated.View>
   );
 }

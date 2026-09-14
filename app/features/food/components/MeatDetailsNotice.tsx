@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";
 
 // Shown when the screen was opened for a meat center, for which there is no
@@ -11,10 +12,11 @@ interface Props {
 }
 
 export function MeatDetailsNotice({ styles }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
       <Text style={styles.hygieneText}>
-        Full details for meat centers aren&apos;t available yet — there&apos;s no public lookup endpoint for them, only the nearby-search listing.
+        {t("app.food.fullDetailsForMeatCentersArenapost")}
       </Text>
     </View>
   );
