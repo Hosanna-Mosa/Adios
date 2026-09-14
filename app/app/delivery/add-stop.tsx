@@ -1,4 +1,5 @@
 import { ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { Header } from "@/components/ui/Header";
 import { AddStopFooter } from "@/features/delivery/components/AddStopFooter";
@@ -16,11 +17,12 @@ export default function AddStopScreen() {
   currentCoords, stops, route, price, handleAddressInput, handleSelectSuggestion, handleAddStop,
   addItemToLocal, removeItemFromLocal
   } = useAddStop();
+  const { t } = useTranslation();
 
   return (
     <ScreenShell keyboardAvoiding>
       <Header
-        title={`Add stop ${stops.length + 1}`}
+        title={t("app.addstop.addStopVar", { value: stops.length + 1 })}
         onBack={() => router.back()}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
       />

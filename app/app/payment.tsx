@@ -1,4 +1,5 @@
 import { ScrollView, Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { router } from "expo-router";
 import { Header } from "@/components/ui/Header";
@@ -17,11 +18,12 @@ export default function PaymentScreen() {
   insets, tokens, accent, styles, items, getItemCount, selectedAddress, processing, subtotal,
   deliveryFee, tip, discount, couponCode, total, vendorName, receiverContact, handlePayment
   } = usePayment();
+  const { t } = useTranslation();
 
   return (
     <ScreenShell>
       <Header
-        title="Payment"
+        title={t("app.payment.payment")}
         onBack={() => router.back()}
         style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}
       />

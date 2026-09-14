@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -10,6 +11,7 @@ import { getDefaultTimeParts, timePartsOf } from "./ScheduleDateTimeSheet.helper
 // under 150 lines. The statements keep their original order.
 
 export function useScheduleDateTimeSheet(visible: any, onClose: any, onConfirm: any, initialDate: any, accent: any) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const colors = Colors[theme];
@@ -71,7 +73,7 @@ export function useScheduleDateTimeSheet(visible: any, onClose: any, onConfirm: 
   const handleConfirm = () => {
     const selected = buildSelectedDateTime();
     if (selected.getTime() <= Date.now()) {
-      Alert.alert("Invalid time", "Please choose a future delivery time.");
+      Alert.alert(t("app.useScheduleDateTimeSheet.invalidTime"), t("app.useScheduleDateTimeSheet.pleaseChooseAFutureDeliveryTime"));
       return;
     }
     onConfirm(selected);

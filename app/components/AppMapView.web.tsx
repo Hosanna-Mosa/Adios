@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import { View, Text, StyleSheet, type ViewStyle, type StyleProp } from "react-native";
+import { useTranslation } from "react-i18next";
 
 type AppMapViewHandle = { animateToRegion: (region: unknown, duration?: number) => void };
 
@@ -8,10 +9,11 @@ type AppMapViewHandle = { animateToRegion: (region: unknown, duration?: number) 
 // crashing when the user is on web.
 const AppMapView = forwardRef<AppMapViewHandle, { style?: StyleProp<ViewStyle> }>((props, ref) => {
   useImperativeHandle(ref, () => ({ animateToRegion: () => {} }));
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.placeholder, props.style]}>
-      <Text style={styles.text}>Map picking isn&apos;t available on web — use the mobile app.</Text>
+      <Text style={styles.text}>{t("app.mapPickingIsnapostAvailableOnWeb")}</Text>
     </View>
   );
 });

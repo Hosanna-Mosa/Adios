@@ -829,6 +829,40 @@
       "selectYourPreferredDeliveryDay": "Select your preferred delivery day and time",
       "ok": "OK",
       "tomorrow": "Tomorrow"
+    },
+    "notifications": {
+      "nothingHereYetOrderAndAccount": "Nothing here yet. Order and account updates will show up in this list."
+    },
+    "otp": {
+      "verifyContinue": "Verify & continue"
+    },
+    "payment": {
+      "payment": "Payment"
+    },
+    "personaldetails": {
+      "couldntSave": "Couldn't save"
+    },
+    "rideconfirmation": {
+      "backToHome": "Back to home"
+    },
+    "mapPickingIsnapostAvailableOnWeb": "Map picking isn't available on web — use the mobile app.",
+    "mapViewIsnapostAvailableOnWeb": "Map view isn't available on web — use the mobile app.",
+    "GlobalSocketHandler": {
+      "upcomingReservedRide": "Upcoming Reserved Ride!",
+      "yourReservedRideWithVarStarts": "Your reserved ride with {{value}} starts in 15 minutes!",
+      "trackDriver": "Track Driver"
+    },
+    "OfflineBanner": {
+      "youaposreOffline": "You're offline",
+      "checking": "Checking…",
+      "retry": "Retry"
+    },
+    "RestaurantListItem": {
+      "pureVeg": "Pure veg"
+    },
+    "useScheduleDateTimeSheet": {
+      "invalidTime": "Invalid time",
+      "pleaseChooseAFutureDeliveryTime": "Please choose a future delivery time."
     }
   }
 }

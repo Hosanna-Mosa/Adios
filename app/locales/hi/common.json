@@ -829,6 +829,40 @@
       "selectYourPreferredDeliveryDay": "अपनी पसंद का डिलीवरी दिन और समय चुनें",
       "ok": "ठीक है",
       "tomorrow": "कल"
+    },
+    "notifications": {
+      "nothingHereYetOrderAndAccount": "यहाँ अभी कुछ नहीं है. ऑर्डर और अकाउंट अपडेट इस सूची में दिखेंगे."
+    },
+    "otp": {
+      "verifyContinue": "सत्यापित करें व जारी रखें"
+    },
+    "payment": {
+      "payment": "भुगतान"
+    },
+    "personaldetails": {
+      "couldntSave": "सेव नहीं हो सका"
+    },
+    "rideconfirmation": {
+      "backToHome": "होम पर वापस जाएं"
+    },
+    "mapPickingIsnapostAvailableOnWeb": "मैप चुनना वेब पर उपलब्ध नहीं है — मोबाइल ऐप का उपयोग करें.",
+    "mapViewIsnapostAvailableOnWeb": "मैप व्यू वेब पर उपलब्ध नहीं है — मोबाइल ऐप का उपयोग करें.",
+    "GlobalSocketHandler": {
+      "upcomingReservedRide": "आने वाली रिज़र्व राइड!",
+      "yourReservedRideWithVarStarts": "{{value}} के साथ आपकी रिज़र्व राइड 15 मिनट में शुरू होगी!",
+      "trackDriver": "ड्राइवर को ट्रैक करें"
+    },
+    "OfflineBanner": {
+      "youaposreOffline": "आप ऑफ़लाइन हैं",
+      "checking": "जांच हो रही है…",
+      "retry": "फिर से प्रयास करें"
+    },
+    "RestaurantListItem": {
+      "pureVeg": "शुद्ध शाकाहारी"
+    },
+    "useScheduleDateTimeSheet": {
+      "invalidTime": "अमान्य समय",
+      "pleaseChooseAFutureDeliveryTime": "कृपया भविष्य का डिलीवरी समय चुनें."
     }
   }
 }

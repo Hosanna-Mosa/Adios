@@ -829,6 +829,40 @@
       "selectYourPreferredDeliveryDay": "మీకు ఇష్టమైన డెలివరీ రోజు మరియు సమయాన్ని ఎంచుకోండి",
       "ok": "సరే",
       "tomorrow": "రేపు"
+    },
+    "notifications": {
+      "nothingHereYetOrderAndAccount": "ఇక్కడ ఇంకా ఏమీ లేదు. ఆర్డర్ మరియు ఖాతా అప్‌డేట్‌లు ఈ జాబితాలో కనిపిస్తాయి."
+    },
+    "otp": {
+      "verifyContinue": "ధృవీకరించి కొనసాగించండి"
+    },
+    "payment": {
+      "payment": "చెల్లింపు"
+    },
+    "personaldetails": {
+      "couldntSave": "సేవ్ చేయలేకపోయాము"
+    },
+    "rideconfirmation": {
+      "backToHome": "హోమ్‌కు తిరిగి వెళ్లండి"
+    },
+    "mapPickingIsnapostAvailableOnWeb": "వెబ్‌లో మ్యాప్ ఎంపిక అందుబాటులో లేదు — మొబైల్ యాప్‌ను ఉపయోగించండి.",
+    "mapViewIsnapostAvailableOnWeb": "వెబ్‌లో మ్యాప్ వీక్షణ అందుబాటులో లేదు — మొబైల్ యాప్‌ను ఉపయోగించండి.",
+    "GlobalSocketHandler": {
+      "upcomingReservedRide": "రాబోయే రిజర్వ్ చేసిన రైడ్!",
+      "yourReservedRideWithVarStarts": "{{value}}తో మీ రిజర్వ్ చేసిన రైడ్ 15 నిమిషాల్లో ప్రారంభమవుతుంది!",
+      "trackDriver": "డ్రైవర్‌ను ట్రాక్ చేయండి"
+    },
+    "OfflineBanner": {
+      "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
+      "checking": "తనిఖీ చేస్తోంది…",
+      "retry": "మళ్లీ ప్రయత్నించండి"
+    },
+    "RestaurantListItem": {
+      "pureVeg": "ప్యూర్ వెజ్"
+    },
+    "useScheduleDateTimeSheet": {
+      "invalidTime": "సరైన సమయం కాదు",
+      "pleaseChooseAFutureDeliveryTime": "దయచేసి భవిష్యత్తులో డెలివరీ సమయాన్ని ఎంచుకోండి."
     }
   }
 }

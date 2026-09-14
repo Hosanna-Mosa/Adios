@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
@@ -10,6 +11,7 @@ export function GlobalSocketHandler() {
   const addChatMessage = useDeliveryStore((s) => s.addChatMessage);
   const incrementUnreadCount = useDeliveryStore((s) => s.incrementUnreadCount);
   const user = useAuthStore((s) => s.user);
+  const { t } = useTranslation();
 
   // Connection and user room joining effect
   useEffect(() => {
@@ -21,11 +23,11 @@ export function GlobalSocketHandler() {
     const onUpcomingReservedRide = (data: any) => {
       console.log("Customer received upcoming reserved ride:", data);
       Alert.alert(
-        "Upcoming Reserved Ride!",
-        `Your reserved ride with ${data.driverName} starts in 15 minutes!`,
+        t("app.GlobalSocketHandler.upcomingReservedRide"),
+        t("app.GlobalSocketHandler.yourReservedRideWithVarStarts", { value: data.driverName }),
         [
           {
-            text: "Track Driver",
+            text: t("app.GlobalSocketHandler.trackDriver"),
             onPress: () => {
               useDeliveryStore.setState({
                 currentOrderId: data.orderId,

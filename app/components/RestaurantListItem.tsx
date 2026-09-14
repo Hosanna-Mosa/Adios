@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -54,6 +55,7 @@ export function RestaurantListItem({
   openState,
   distanceKm,
 }: Props) {
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
   const accent = tokens.services[isMeat ? "meat" : "food"];
@@ -119,7 +121,7 @@ export function RestaurantListItem({
             <View style={styles.vegIcon}>
               <View style={styles.vegDot} />
             </View>
-            <Text style={styles.vegLabel}>Pure veg</Text>
+            <Text style={styles.vegLabel}>{t("app.RestaurantListItem.pureVeg")}</Text>
           </View>
         )}
 

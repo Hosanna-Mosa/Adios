@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // react-native-maps has no web implementation. This stub keeps every caller's
 // props/ref/children usage safe on web (rendering a plain "not available"
@@ -16,10 +17,11 @@ const MapView = forwardRef<MapViewHandle, any>((props, ref) => {
     props.onMapReady?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.placeholder, props.style]}>
-      <Text style={styles.text}>Map view isn&apos;t available on web — use the mobile app.</Text>
+      <Text style={styles.text}>{t("app.mapViewIsnapostAvailableOnWeb")}</Text>
     </View>
   );
 });

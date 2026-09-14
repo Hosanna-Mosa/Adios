@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { StyleSheet, Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -48,6 +49,7 @@ function formatWhen(iso: string): string {
 }
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
@@ -110,7 +112,7 @@ export default function NotificationsScreen() {
       ) : items.length === 0 ? (
         <Animated.View style={styles.center} entering={fadeInUp(0)}>
           <Ionicons name="notifications-off-outline" size={32} color={tokens.muted} />
-          <Text style={styles.emptyText}>Nothing here yet. Order and account updates will show up in this list.</Text>
+          <Text style={styles.emptyText}>{t("app.notifications.nothingHereYetOrderAndAccount")}</Text>
         </Animated.View>
       ) : (
         <NotificationsBody
