@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";
@@ -13,19 +14,20 @@ interface Props {
 }
 
 export function VendorHygieneSection({ fssaiNumber, tokens, styles }: Props) {
+  const { t } = useTranslation();
   if (!fssaiNumber) return null;
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Hygiene &amp; safety</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.hygieneAmpSafety")}</Text>
       <View style={styles.hygieneCard}>
         <View style={styles.hygieneRow}>
           <Ionicons name="checkmark" size={14} color={tokens.success} />
-          <Text style={styles.hygieneText}>Kitchen audited by FSSAI · licence {fssaiNumber}</Text>
+          <Text style={styles.hygieneText}>{t("app.food.kitchenAuditedByFssaiLicence")} {fssaiNumber}</Text>
         </View>
         <View style={styles.hygieneRow}>
           <Ionicons name="checkmark" size={14} color={tokens.success} />
-          <Text style={styles.hygieneText}>Tamper-proof packaging on every order</Text>
+          <Text style={styles.hygieneText}>{t("app.food.tamperproofPackagingOnEveryOrder")}</Text>
         </View>
       </View>
     </View>

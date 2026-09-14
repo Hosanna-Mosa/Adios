@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -73,6 +74,7 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
   });
 
 export function useDeliveryCheckout() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
@@ -92,7 +94,7 @@ export function useDeliveryCheckout() {
 
   const handleConfirm = async () => {
     if (!user || !token) {
-      Alert.alert("Login required", "Please log in to confirm your order.");
+      Alert.alert(t("app.delivery.loginRequired"), t("app.delivery.pleaseLogInToConfirmYour"));
       return;
     }
     if (!price || stops.length === 0) return;
@@ -134,7 +136,7 @@ export function useDeliveryCheckout() {
       router.push("/tracking");
     } catch (error: any) {
       console.error("Delivery checkout failed:", error);
-      Alert.alert("Order failed", error?.message || "Unable to process your order.");
+      Alert.alert(t("app.delivery.orderFailed"), error?.message || t("app.delivery.unableToProcessYourOrder"));
     } finally {
       setIsProcessing(false);
     }

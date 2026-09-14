@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { DietMarker } from "./DietMarker";
@@ -31,6 +32,7 @@ export function Store149ModalOverlay({
   tokens,
   updateCartQuantity,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.modalOverlay}>
       <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSheetVisible(false)} />
@@ -50,7 +52,7 @@ export function Store149ModalOverlay({
               <View style={styles.sheetRow}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <DietMarker isVeg={!!selectedItem.isVeg} color={selectedItem.isVeg ? tokens.veg : tokens.nonveg} style={{ marginRight: 8 }} />
-                  <Text style={styles.sheetVegLabel}>{selectedItem.isVeg ? "Veg" : "Non-veg"}</Text>
+                  <Text style={styles.sheetVegLabel}>{selectedItem.isVeg ? t("app.food.veg") : t("app.food.nonveg")}</Text>
                 </View>
                 {(() => {
                   const cartItem = cartItems.find((i) => i._id === selectedItem._id);
@@ -66,7 +68,7 @@ export function Store149ModalOverlay({
                     </View>
                   ) : (
                     <TouchableOpacity style={styles.sheetAddBtn} onPress={() => addCartItem(buildFoodItem(selectedItem), selectedItem.vendorId, selectedItem.brand)}>
-                      <Text style={styles.sheetAddBtnText}>Add</Text>
+                      <Text style={styles.sheetAddBtnText}>{t("app.food.add")}</Text>
                     </TouchableOpacity>
                   );
                 })()}
@@ -78,7 +80,7 @@ export function Store149ModalOverlay({
                 {!!selectedItem.originalPrice && <Text style={styles.cardOriginalPrice}>₹{selectedItem.originalPrice}</Text>}
               </View>
               <Text style={styles.sheetRating}>
-                {selectedItem.rating || "4.2"} ★ ({selectedItem.ratingCount || "34"} ratings)
+                {selectedItem.rating || "4.2"} ★ ({selectedItem.ratingCount || "34"} {t("app.food.ratings")}
                 {typeof selectedItem.distanceKm === "number" ? ` · ${selectedItem.distanceKm} km away` : ""}
               </Text>
               <Text style={styles.sheetDescription}>
