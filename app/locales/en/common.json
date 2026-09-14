@@ -250,7 +250,21 @@
       "enterDistance": "Enter distance",
       "custom": "Custom",
       "applyDistance": "Apply distance",
-      "clearAllFilters": "Clear all filters"
+      "clearAllFilters": "Clear all filters",
+      "filter": "Filter",
+      "fastDelivery": "Fast delivery",
+      "ratings40": "Ratings 4.0+",
+      "openNow": "Open now",
+      "offers": "Offers",
+      "under300": "Under ₹300",
+      "pureVeg": "Pure Veg",
+      "servicesArenapostAvailableInThisLocation": "Services aren't available in this location",
+      "weDonapostHave": "We don't have",
+      "outletsOrDeliveryServicesHereYet": "outlets or delivery services here yet. Try another location, or let us know you're waiting.",
+      "changeLocation": "Change location",
+      "thanks": "Thanks!",
+      "wellNotifyYouWhenWeLaunch": "We'll notify you when we launch in your area.",
+      "notifyMeWhenYouLaunch": "Notify me when you launch"
     },
     "profile": {
       "menuItems": {
@@ -276,7 +290,14 @@
       "doesntMatch": "Doesn't match",
       "passwordsDoNotMatch": "Passwords do not match",
       "success": "Success",
-      "passwordChangedSuccessfully": "Password changed successfully."
+      "passwordChangedSuccessfully": "Password changed successfully.",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "enterCurrentPassword": "Enter current password",
+      "newPassword": "New password",
+      "min8Characters": "Min. 8 characters",
+      "confirmNewPassword": "Confirm new password",
+      "updatePassword": "Update password"
     },
     "food": {
       "orderFallback": {
@@ -512,7 +533,13 @@
       "deliveryAddress": "Delivery address",
       "backToOrders": "Back to orders",
       "pickupLocation": "Pickup location",
-      "destination": "Destination"
+      "destination": "Destination",
+      "searchingForBelowServices": "Searching for below services...",
+      "locationDetails": "Location Details",
+      "totalFare": "Total Fare",
+      "payingViaCash": "Paying via cash",
+      "back": "Back",
+      "cancelRide": "Cancel Ride"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",

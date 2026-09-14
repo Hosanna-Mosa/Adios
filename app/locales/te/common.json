@@ -250,7 +250,21 @@
       "enterDistance": "దూరాన్ని నమోదు చేయండి",
       "custom": "అనుకూలం",
       "applyDistance": "దూరాన్ని వర్తింపజేయండి",
-      "clearAllFilters": "అన్ని ఫిల్టర్‌లను క్లియర్ చేయండి"
+      "clearAllFilters": "అన్ని ఫిల్టర్‌లను క్లియర్ చేయండి",
+      "filter": "ఫిల్టర్",
+      "fastDelivery": "వేగవంతమైన డెలివరీ",
+      "ratings40": "రేటింగ్‌లు 4.0+",
+      "openNow": "ఇప్పుడు తెరిచి ఉంది",
+      "offers": "ఆఫర్‌లు",
+      "under300": "₹300 లోపు",
+      "pureVeg": "ప్యూర్ వెజ్",
+      "servicesArenapostAvailableInThisLocation": "ఈ ప్రాంతంలో సేవలు అందుబాటులో లేవు",
+      "weDonapostHave": "మా వద్ద లేవు",
+      "outletsOrDeliveryServicesHereYet": "అవుట్‌లెట్‌లు లేదా డెలివరీ సేవలు ఇక్కడ ఇంకా లేవు. వేరే ప్రాంతాన్ని ప్రయత్నించండి, లేదా మీరు వేచి ఉన్నారని మాకు తెలియజేయండి.",
+      "changeLocation": "లొకేషన్‌ను మార్చండి",
+      "thanks": "ధన్యవాదాలు!",
+      "wellNotifyYouWhenWeLaunch": "మేము మీ ప్రాంతంలో ప్రారంభించినప్పుడు మీకు తెలియజేస్తాము.",
+      "notifyMeWhenYouLaunch": "మీరు ప్రారంభించినప్పుడు నాకు తెలియజేయండి"
     },
     "profile": {
       "menuItems": {
@@ -276,7 +290,14 @@
       "doesntMatch": "సరిపోలడం లేదు",
       "passwordsDoNotMatch": "పాస్‌వర్డ్‌లు సరిపోలడం లేదు",
       "success": "విజయవంతమైంది",
-      "passwordChangedSuccessfully": "పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది."
+      "passwordChangedSuccessfully": "పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది.",
+      "changePassword": "పాస్‌వర్డ్‌ను మార్చండి",
+      "currentPassword": "ప్రస్తుత పాస్‌వర్డ్",
+      "enterCurrentPassword": "ప్రస్తుత పాస్‌వర్డ్‌ను నమోదు చేయండి",
+      "newPassword": "కొత్త పాస్‌వర్డ్",
+      "min8Characters": "కనీసం 8 అక్షరాలు",
+      "confirmNewPassword": "కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి",
+      "updatePassword": "పాస్‌వర్డ్‌ను అప్‌డేట్ చేయండి"
     },
     "food": {
       "orderFallback": {
@@ -512,7 +533,13 @@
       "deliveryAddress": "డెలివరీ చిరునామా",
       "backToOrders": "ఆర్డర్లకు తిరిగి వెళ్లండి",
       "pickupLocation": "పికప్ లొకేషన్",
-      "destination": "గమ్యస్థానం"
+      "destination": "గమ్యస్థానం",
+      "searchingForBelowServices": "కింది సర్వీసుల కోసం వెతుకుతోంది...",
+      "locationDetails": "లొకేషన్ వివరాలు",
+      "totalFare": "మొత్తం ఛార్జీ",
+      "payingViaCash": "నగదు ద్వారా చెల్లిస్తున్నారు",
+      "back": "వెనుకకు",
+      "cancelRide": "రైడ్‌ను రద్దు చేయండి"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",

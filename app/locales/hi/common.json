@@ -250,7 +250,21 @@
       "enterDistance": "दूरी दर्ज करें",
       "custom": "कस्टम",
       "applyDistance": "दूरी लागू करें",
-      "clearAllFilters": "सभी फ़िल्टर हटाएं"
+      "clearAllFilters": "सभी फ़िल्टर हटाएं",
+      "filter": "फ़िल्टर",
+      "fastDelivery": "तेज़ डिलीवरी",
+      "ratings40": "रेटिंग 4.0+",
+      "openNow": "अभी खुला है",
+      "offers": "ऑफ़र",
+      "under300": "₹300 से कम",
+      "pureVeg": "शुद्ध शाकाहारी",
+      "servicesArenapostAvailableInThisLocation": "इस लोकेशन में सेवाएं उपलब्ध नहीं हैं",
+      "weDonapostHave": "हमारे पास नहीं है",
+      "outletsOrDeliveryServicesHereYet": "आउटलेट या डिलीवरी सेवाएं यहाँ अभी नहीं हैं. दूसरी लोकेशन आज़माएं, या हमें बताएं कि आप इंतज़ार कर रहे हैं.",
+      "changeLocation": "लोकेशन बदलें",
+      "thanks": "धन्यवाद!",
+      "wellNotifyYouWhenWeLaunch": "जब हम आपके क्षेत्र में लॉन्च करेंगे तो हम आपको सूचित करेंगे.",
+      "notifyMeWhenYouLaunch": "लॉन्च होने पर मुझे सूचित करें"
     },
     "profile": {
       "menuItems": {
@@ -276,7 +290,14 @@
       "doesntMatch": "मेल नहीं खाता",
       "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते",
       "success": "सफलता",
-      "passwordChangedSuccessfully": "पासवर्ड सफलतापूर्वक बदल दिया गया."
+      "passwordChangedSuccessfully": "पासवर्ड सफलतापूर्वक बदल दिया गया.",
+      "changePassword": "पासवर्ड बदलें",
+      "currentPassword": "मौजूदा पासवर्ड",
+      "enterCurrentPassword": "मौजूदा पासवर्ड दर्ज करें",
+      "newPassword": "नया पासवर्ड",
+      "min8Characters": "न्यूनतम 8 अक्षर",
+      "confirmNewPassword": "नया पासवर्ड की पुष्टि करें",
+      "updatePassword": "पासवर्ड अपडेट करें"
     },
     "food": {
       "orderFallback": {
@@ -512,7 +533,13 @@
       "deliveryAddress": "डिलीवरी का पता",
       "backToOrders": "ऑर्डर पर वापस जाएं",
       "pickupLocation": "पिकअप लोकेशन",
-      "destination": "गंतव्य"
+      "destination": "गंतव्य",
+      "searchingForBelowServices": "नीचे दी गई सेवाओं की खोज हो रही है...",
+      "locationDetails": "लोकेशन विवरण",
+      "totalFare": "कुल किराया",
+      "payingViaCash": "नकद से भुगतान",
+      "back": "वापस",
+      "cancelRide": "राइड रद्द करें"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
