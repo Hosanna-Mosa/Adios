@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -17,22 +18,23 @@ export function FindingDriverBody({
   dateTimeStr,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <View style={styles.confirmedIcon}>
       <Ionicons name="checkmark" size={moderateScale(32)} color="#fff" />
     </View>
-    <Text style={styles.confirmedTitle}>Booking confirmed</Text>
+    <Text style={styles.confirmedTitle}>{t("app.ride.bookingConfirmed")}</Text>
     <Text style={styles.confirmedSub}>
-      A captain has accepted your reserved ride for {dateTimeStr || "the scheduled time"}. We&apos;ll notify you 15 minutes before pickup.
+      {t("app.ride.aCaptainHasAcceptedYourReserved")} {dateTimeStr || t("app.ride.theScheduledTime")}{t("app.ride.weaposllNotifyYou15MinutesBefore")}
     </Text>
     <View style={styles.confirmedCard}>
-      <Text style={styles.confirmedCardTitle}>Captain</Text>
+      <Text style={styles.confirmedCardTitle}>{t("app.ride.captain")}</Text>
       <Text style={styles.confirmedCardRow}>{confirmedDriver.name}</Text>
       <Text style={styles.confirmedCardRowMuted}>{confirmedDriver.vehicle}{confirmedDriver.phone ? ` · ${confirmedDriver.phone}` : ""}</Text>
     </View>
     <TouchableOpacity style={styles.confirmedDoneBtn} onPress={() => router.replace("/(tabs)/orders")}>
-      <Text style={styles.confirmedDoneBtnText}>Done</Text>
+      <Text style={styles.confirmedDoneBtnText}>{t("app.ride.done")}</Text>
     </TouchableOpacity>
     </>
   );

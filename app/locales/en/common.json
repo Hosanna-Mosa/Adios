@@ -140,7 +140,15 @@
       "egChargedTwiceForOneTrip": "e.g. Charged twice for one trip",
       "description": "Description",
       "submitTicket": "Submit ticket",
-      "tellUsWhatHappenedAndWhen": "Tell us what happened and when…"
+      "tellUsWhatHappenedAndWhen": "Tell us what happened and when…",
+      "thisCaseHasBeenMarkedResolved": "This case has been marked resolved.",
+      "reopenCase": "Reopen case",
+      "startNewChat": "Start new chat",
+      "replyToSupport": "Reply to support…",
+      "markThisCaseResolved": "Mark this case resolved?",
+      "youCanReopenItAnytimeBy": "You can reopen it anytime by sending a new message — your chat history stays.",
+      "notYet": "Not yet",
+      "yesResolved": "Yes, resolved"
     },
     "tracking": {
       "rideLabels": {
@@ -427,7 +435,20 @@
       "repeatRoute": "Repeat route",
       "rebook": "Rebook",
       "rate": "Rate",
-      "receipt": "Receipt"
+      "receipt": "Receipt",
+      "scheduled": "Scheduled",
+      "scheduledDot": "· scheduled",
+      "est": "est. ₹",
+      "view": "View",
+      "filterOrders": "Filter orders",
+      "service": "Service",
+      "clearAll": "Clear all",
+      "showOrdersCount_one": "Show {{count}} order",
+      "showOrdersCount_other": "Show {{count}} orders",
+      "rateYourOrder": "Rate your order",
+      "addFeedbackOptional": "Add feedback (optional)",
+      "cancel": "Cancel",
+      "submit": "Submit"
     },
     "helperTask": {
       "title": {
@@ -716,7 +737,22 @@
       "triggerSos": "Trigger SOS",
       "sosDispatched": "SOS dispatched",
       "yourEmergencyAlertHasBeenSent": "Your emergency alert has been sent. Support is on the way.",
-      "failedToTriggerSos": "Failed to trigger SOS. Please call emergency services."
+      "failedToTriggerSos": "Failed to trigger SOS. Please call emergency services.",
+      "driverIsUnavailable": "Driver is unavailable.",
+      "noCaptainFound": "No captain found",
+      "sorryNoCaptainsAreAvailableTo": "Sorry, no captains are available to accept your reservation request right now. Please try scheduling again later.",
+      "savedPlaces": "Saved places",
+      "addressFallback": "Address",
+      "searchResults": "Search results",
+      "recent": "Recent",
+      "searchingPlaces": "Searching places...",
+      "noMatchingPlacesFound": "No matching places found.",
+      "yourSearchedPlacesWillAppearHere": "Your searched places will appear here.",
+      "bookingConfirmed": "Booking confirmed",
+      "aCaptainHasAcceptedYourReserved": "A captain has accepted your reserved ride for",
+      "theScheduledTime": "the scheduled time",
+      "weaposllNotifyYou15MinutesBefore": ". We'll notify you 15 minutes before pickup.",
+      "captain": "Captain"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",

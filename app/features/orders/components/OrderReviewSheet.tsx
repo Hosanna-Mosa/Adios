@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -37,12 +38,13 @@ export function OrderReviewSheet({
   submittingReview,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal visible={!!selectedOrderForReview} transparent animationType="fade" onRequestClose={() => setSelectedOrderForReview(null)}>
       <View style={styles.reviewOverlay}>
         <View style={styles.reviewCard}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <Text style={styles.reviewTitle}>Rate your order</Text>
+            <Text style={styles.reviewTitle}>{t("app.orders.rateYourOrder")}</Text>
             <TouchableOpacity onPress={() => setSelectedOrderForReview(null)}><Ionicons name="close" size={20} color={tokens.sec} /></TouchableOpacity>
           </View>
           <View style={{ flexDirection: "row", gap: 10, justifyContent: "center", marginBottom: 14 }}>
@@ -66,13 +68,13 @@ export function OrderReviewSheet({
               );
             })}
           </View>
-          <TextInput style={styles.reviewInput} placeholder="Add feedback (optional)" placeholderTextColor={tokens.muted} value={reviewComment} onChangeText={setReviewComment} multiline />
+          <TextInput style={styles.reviewInput} placeholder={t("app.orders.addFeedbackOptional")} placeholderTextColor={tokens.muted} value={reviewComment} onChangeText={setReviewComment} multiline />
           <View style={{ flexDirection: "row", gap: 10, marginTop: 16, width: "100%" }}>
             <TouchableOpacity style={styles.reviewCancelBtn} onPress={() => setSelectedOrderForReview(null)}>
-              <Text style={styles.reviewCancelBtnText}>Cancel</Text>
+              <Text style={styles.reviewCancelBtnText}>{t("app.orders.cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.reviewSubmitBtn, { backgroundColor: tokens.brand }]} onPress={handleSubmitReview} disabled={submittingReview}>
-              {submittingReview ? <ActivityIndicator size="small" color={tokens.onBrand} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.onBrand }]}>Submit</Text>}
+              {submittingReview ? <ActivityIndicator size="small" color={tokens.onBrand} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.onBrand }]}>{t("app.orders.submit")}</Text>}
             </TouchableOpacity>
           </View>
         </View>

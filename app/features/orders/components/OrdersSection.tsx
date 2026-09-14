@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -23,9 +24,10 @@ export function OrdersSection({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Scheduled</Text>
+      <Text style={styles.sectionLabel}>{t("app.orders.scheduled")}</Text>
       {scheduled.map((order, index) => {
         const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
         const slot = scheduledSlot(order);
@@ -35,21 +37,21 @@ export function OrdersSection({
         return (
           <Animated.View key={order._id} style={[styles.card, { borderLeftColor: accent.accent, borderLeftWidth: 3, marginBottom: 12 }]} entering={staggerListItem(index)}>
             <View style={styles.liveRow}>
-              <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label} · scheduled</Text>
+              <Text style={[styles.cardEyebrow, { color: accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label} {t("app.orders.scheduledDot")}</Text>
               {!!pillLabel && (
                 <View style={[styles.schedulePill, isAccepted && { backgroundColor: tokens.successSkin }]}>
                   <Text style={[styles.schedulePillText, isAccepted && { color: tokens.success }]}>{pillLabel}</Text>
                 </View>
               )}
             </View>
-            <Text style={styles.cardTitle}>{slot ? slot.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Scheduled"}</Text>
+            <Text style={styles.cardTitle}>{slot ? slot.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : t("app.orders.scheduled")}</Text>
             <Text style={styles.cardMeta} numberOfLines={1}>
               {typeof order.vendor === "object" ? order.vendor?.name : order.stops?.map((s: any) => s.address).join(" → ")}
             </Text>
-            <Text style={styles.cardMeta}>est. ₹{Math.round(order.totalPrice || 0)}</Text>
+            <Text style={styles.cardMeta}>{t("app.orders.est")}{Math.round(order.totalPrice || 0)}</Text>
             <View style={styles.actionRow}>
               <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
-                <Text style={styles.actionBtnOutlineText}>View</Text>
+                <Text style={styles.actionBtnOutlineText}>{t("app.orders.view")}</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>

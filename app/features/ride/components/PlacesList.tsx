@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -44,11 +45,12 @@ export function PlacesList({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <ScrollView style={styles.placesScroll} keyboardShouldPersistTaps="handled">
       {!isSearching && savedAddresses.length > 0 && (
         <View style={styles.savedSection}>
-          <Text style={styles.sectionTitle}>Saved places</Text>
+          <Text style={styles.sectionTitle}>{t("app.ride.savedPlaces")}</Text>
           <View style={styles.savedCard}>
             {savedAddresses.map((addr, idx) => (
               <Animated.View key={addr._id} entering={staggerListItem(idx)}>
@@ -60,7 +62,7 @@ export function PlacesList({
                     <Text style={styles.savedAvatarText}>{(addr.label || "?")[0].toUpperCase()}</Text>
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.savedLabel}>{addr.label || "Address"}</Text>
+                    <Text style={styles.savedLabel}>{addr.label || t("app.ride.addressFallback")}</Text>
                     <Text style={styles.savedAddress} numberOfLines={1}>{addr.addressLine}</Text>
                   </View>
                 </TouchableOpacity>
@@ -71,20 +73,20 @@ export function PlacesList({
       )}
 
       <Text style={styles.sectionTitle}>
-        {isSearching ? "Search results" : "Recent"}
+        {isSearching ? t("app.ride.searchResults") : t("app.ride.recent")}
       </Text>
 
       {isSearching && searchText.trim().length >= 2 && searchResults.length === 0 ? (
         <View style={styles.emptyRecents}>
           <Text style={styles.emptyRecentsText}>
-            {searchLoading ? "Searching places..." : searchError || "No matching places found."}
+            {searchLoading ? t("app.ride.searchingPlaces") : searchError || t("app.ride.noMatchingPlacesFound")}
           </Text>
         </View>
       ) : null}
 
       {!isSearching && recentPlaces.length === 0 ? (
         <View style={styles.emptyRecents}>
-          <Text style={styles.emptyRecentsText}>Your searched places will appear here.</Text>
+          <Text style={styles.emptyRecentsText}>{t("app.ride.yourSearchedPlacesWillAppearHere")}</Text>
         </View>
       ) : (isSearching ? searchResults : recentPlaces).map((place, idx) => (
         <Animated.View key={place.id} entering={staggerListItem(idx)}>

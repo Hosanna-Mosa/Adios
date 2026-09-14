@@ -140,7 +140,15 @@
       "egChargedTwiceForOneTrip": "जैसे एक ट्रिप के लिए दो बार चार्ज हुआ",
       "description": "विवरण",
       "submitTicket": "टिकट सबमिट करें",
-      "tellUsWhatHappenedAndWhen": "हमें बताएं क्या हुआ और कब…"
+      "tellUsWhatHappenedAndWhen": "हमें बताएं क्या हुआ और कब…",
+      "thisCaseHasBeenMarkedResolved": "इस केस को हल किया गया चिह्नित किया गया है.",
+      "reopenCase": "केस फिर से खोलें",
+      "startNewChat": "नई चैट शुरू करें",
+      "replyToSupport": "सपोर्ट को जवाब दें…",
+      "markThisCaseResolved": "इस केस को हल किया गया चिह्नित करें?",
+      "youCanReopenItAnytimeBy": "आप नया मैसेज भेजकर इसे कभी भी फिर से खोल सकते हैं — आपकी चैट हिस्ट्री बनी रहती है.",
+      "notYet": "अभी नहीं",
+      "yesResolved": "हां, हल हो गया"
     },
     "tracking": {
       "rideLabels": {
@@ -427,7 +435,20 @@
       "repeatRoute": "रूट दोहराएं",
       "rebook": "फिर से बुक करें",
       "rate": "रेट करें",
-      "receipt": "रसीद"
+      "receipt": "रसीद",
+      "scheduled": "शेड्यूल्ड",
+      "scheduledDot": "· शेड्यूल्ड",
+      "est": "अनुमानित ₹",
+      "view": "देखें",
+      "filterOrders": "ऑर्डर फ़िल्टर करें",
+      "service": "सेवा",
+      "clearAll": "सभी हटाएं",
+      "showOrdersCount_one": "{{count}} ऑर्डर दिखाएं",
+      "showOrdersCount_other": "{{count}} ऑर्डर दिखाएं",
+      "rateYourOrder": "अपने ऑर्डर को रेट करें",
+      "addFeedbackOptional": "फ़ीडबैक जोड़ें (वैकल्पिक)",
+      "cancel": "रद्द करें",
+      "submit": "सबमिट करें"
     },
     "helperTask": {
       "title": {
@@ -716,7 +737,22 @@
       "triggerSos": "SOS भेजें",
       "sosDispatched": "SOS भेज दिया गया",
       "yourEmergencyAlertHasBeenSent": "आपका आपातकालीन अलर्ट भेज दिया गया है. सपोर्ट रास्ते में है.",
-      "failedToTriggerSos": "SOS भेजने में विफल. कृपया आपातकालीन सेवाओं को कॉल करें."
+      "failedToTriggerSos": "SOS भेजने में विफल. कृपया आपातकालीन सेवाओं को कॉल करें.",
+      "driverIsUnavailable": "ड्राइवर उपलब्ध नहीं है.",
+      "noCaptainFound": "कोई कैप्टन नहीं मिला",
+      "sorryNoCaptainsAreAvailableTo": "माफ़ करें, अभी आपके रिज़र्वेशन अनुरोध को स्वीकार करने के लिए कोई कैप्टन उपलब्ध नहीं है. कृपया बाद में फिर से शेड्यूल करें.",
+      "savedPlaces": "सेव किए गए स्थान",
+      "addressFallback": "पता",
+      "searchResults": "खोज परिणाम",
+      "recent": "हाल के",
+      "searchingPlaces": "जगहें खोजी जा रही हैं...",
+      "noMatchingPlacesFound": "कोई मेल खाती जगह नहीं मिली.",
+      "yourSearchedPlacesWillAppearHere": "आपकी खोजी गई जगहें यहाँ दिखेंगी.",
+      "bookingConfirmed": "बुकिंग की पुष्टि हुई",
+      "aCaptainHasAcceptedYourReserved": "एक कैप्टन ने आपकी रिज़र्व की गई राइड स्वीकार कर ली है",
+      "theScheduledTime": "तय समय",
+      "weaposllNotifyYou15MinutesBefore": ". पिकअप से 15 मिनट पहले हम आपको सूचित करेंगे.",
+      "captain": "कैप्टन"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",

@@ -140,7 +140,15 @@
       "egChargedTwiceForOneTrip": "ఉదా. ఒక ట్రిప్‌కు రెండుసార్లు ఛార్జ్ చేయబడింది",
       "description": "వివరణ",
       "submitTicket": "టికెట్‌ను సమర్పించండి",
-      "tellUsWhatHappenedAndWhen": "ఏమి జరిగిందో, ఎప్పుడు జరిగిందో మాకు తెలియజేయండి…"
+      "tellUsWhatHappenedAndWhen": "ఏమి జరిగిందో, ఎప్పుడు జరిగిందో మాకు తెలియజేయండి…",
+      "thisCaseHasBeenMarkedResolved": "ఈ కేసు పరిష్కరించబడినట్లు గుర్తించబడింది.",
+      "reopenCase": "కేసును తిరిగి తెరవండి",
+      "startNewChat": "కొత్త చాట్‌ను ప్రారంభించండి",
+      "replyToSupport": "సపోర్ట్‌కు ప్రత్యుత్తరం ఇవ్వండి…",
+      "markThisCaseResolved": "ఈ కేసును పరిష్కరించినట్లు గుర్తించాలా?",
+      "youCanReopenItAnytimeBy": "కొత్త సందేశం పంపడం ద్వారా మీరు దీన్ని ఎప్పుడైనా తిరిగి తెరవచ్చు — మీ చాట్ చరిత్ర ఉంటుంది.",
+      "notYet": "ఇంకా కాదు",
+      "yesResolved": "అవును, పరిష్కరించబడింది"
     },
     "tracking": {
       "rideLabels": {
@@ -427,7 +435,20 @@
       "repeatRoute": "మార్గాన్ని పునరావృతం చేయండి",
       "rebook": "మళ్లీ బుక్ చేయండి",
       "rate": "రేట్ చేయండి",
-      "receipt": "రసీదు"
+      "receipt": "రసీదు",
+      "scheduled": "షెడ్యూల్ చేయబడింది",
+      "scheduledDot": "· షెడ్యూల్ చేయబడింది",
+      "est": "అంచనా ₹",
+      "view": "చూడండి",
+      "filterOrders": "ఆర్డర్‌లను ఫిల్టర్ చేయండి",
+      "service": "సర్వీస్",
+      "clearAll": "అన్నీ క్లియర్ చేయండి",
+      "showOrdersCount_one": "{{count}} ఆర్డర్‌ను చూపించు",
+      "showOrdersCount_other": "{{count}} ఆర్డర్‌లను చూపించు",
+      "rateYourOrder": "మీ ఆర్డర్‌ను రేట్ చేయండి",
+      "addFeedbackOptional": "అభిప్రాయాన్ని జోడించండి (ఐచ్ఛికం)",
+      "cancel": "రద్దు చేయండి",
+      "submit": "సమర్పించండి"
     },
     "helperTask": {
       "title": {
@@ -716,7 +737,22 @@
       "triggerSos": "SOSను ప్రేరేపించండి",
       "sosDispatched": "SOS పంపబడింది",
       "yourEmergencyAlertHasBeenSent": "మీ అత్యవసర అలర్ట్ పంపబడింది. సపోర్ట్ దారిలో ఉంది.",
-      "failedToTriggerSos": "SOSను ప్రేరేపించడంలో విఫలమైంది. దయచేసి అత్యవసర సేవలకు కాల్ చేయండి."
+      "failedToTriggerSos": "SOSను ప్రేరేపించడంలో విఫలమైంది. దయచేసి అత్యవసర సేవలకు కాల్ చేయండి.",
+      "driverIsUnavailable": "డ్రైవర్ అందుబాటులో లేరు.",
+      "noCaptainFound": "కెప్టెన్ కనుగొనబడలేదు",
+      "sorryNoCaptainsAreAvailableTo": "క్షమించండి, ప్రస్తుతం మీ రిజర్వేషన్ అభ్యర్థనను అంగీకరించడానికి కెప్టెన్‌లు అందుబాటులో లేరు. దయచేసి తర్వాత మళ్లీ షెడ్యూల్ చేయడానికి ప్రయత్నించండి.",
+      "savedPlaces": "సేవ్ చేసిన ప్రదేశాలు",
+      "addressFallback": "చిరునామా",
+      "searchResults": "శోధన ఫలితాలు",
+      "recent": "ఇటీవలివి",
+      "searchingPlaces": "ప్రదేశాల కోసం వెతుకుతోంది...",
+      "noMatchingPlacesFound": "సరిపోలే ప్రదేశాలు కనుగొనబడలేదు.",
+      "yourSearchedPlacesWillAppearHere": "మీరు శోధించిన ప్రదేశాలు ఇక్కడ కనిపిస్తాయి.",
+      "bookingConfirmed": "బుకింగ్ నిర్ధారించబడింది",
+      "aCaptainHasAcceptedYourReserved": "కెప్టెన్ మీ రిజర్వ్ చేసిన రైడ్‌ను అంగీకరించారు",
+      "theScheduledTime": "షెడ్యూల్ చేసిన సమయం",
+      "weaposllNotifyYou15MinutesBefore": ". పికప్‌కి 15 నిమిషాల ముందు మేము మీకు తెలియజేస్తాము.",
+      "captain": "కెప్టెన్"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
