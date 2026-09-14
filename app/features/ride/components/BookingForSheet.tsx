@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { customFetch } from "@/utils/api/custom-fetch";
 
@@ -36,6 +37,7 @@ export function BookingForSheet({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sheetOverlay}>
       <TouchableOpacity
@@ -45,12 +47,12 @@ export function BookingForSheet({
       />
       <View style={[styles.bookingSheet, { paddingBottom: Math.max(insets.bottom, 18) + 6 }]}>
         <View style={styles.sheetHandle} />
-        <Text style={styles.sheetTitle}>Booking ride for</Text>
+        <Text style={styles.sheetTitle}>{t("app.ride.bookingRideFor")}</Text>
 
         <TouchableOpacity style={styles.bookingOption} onPress={() => setBookingFor("myself")} activeOpacity={0.85}>
           <View style={styles.optionLeft}>
             <MaterialCommunityIcons name="account-circle-outline" size={22} color={tokens.text} />
-            <Text style={styles.optionText}>Myself</Text>
+            <Text style={styles.optionText}>{t("app.ride.myself")}</Text>
           </View>
           <View style={[styles.radioOuter, { borderColor: accent.accent }]}>
             {bookingFor === "myself" && <View style={[styles.radioInner, { backgroundColor: accent.accent }]} />}
@@ -60,7 +62,7 @@ export function BookingForSheet({
         <TouchableOpacity style={styles.bookingOption} onPress={() => setBookingFor("someone_else")} activeOpacity={0.85}>
           <View style={styles.optionLeft}>
             <MaterialCommunityIcons name="account-plus" size={22} color={tokens.text} />
-            <Text style={styles.optionText}>Someone else</Text>
+            <Text style={styles.optionText}>{t("app.ride.someoneElse")}</Text>
           </View>
           <View style={[styles.radioOuter, { borderColor: accent.accent }]}>
             {bookingFor === "someone_else" && <View style={[styles.radioInner, { backgroundColor: accent.accent }]} />}
@@ -69,13 +71,13 @@ export function BookingForSheet({
 
         {bookingFor === "someone_else" && (
           <View style={styles.contactInputWrap}>
-            <Text style={styles.contactInputLabel}>Contact number</Text>
+            <Text style={styles.contactInputLabel}>{t("app.ride.contactNumber")}</Text>
             <TextInput
               style={styles.contactInput}
               value={someoneContact}
               onChangeText={(value) => setSomeoneContact(value.replace(/[^0-9+]/g, ""))}
               keyboardType="phone-pad"
-              placeholder="Enter rider contact number"
+              placeholder={t("app.ride.enterRiderContactNumber")}
               placeholderTextColor={tokens.muted}
             />
           </View>
@@ -83,14 +85,14 @@ export function BookingForSheet({
 
         <View style={styles.infoBox}>
           <Ionicons name="information-circle-outline" size={16} color={tokens.sec} />
-          <Text style={styles.infoText}>Contact name won&apos;t be shared with driver</Text>
+          <Text style={styles.infoText}>{t("app.ride.contactNameWonapostBeSharedWith")}</Text>
         </View>
 
         <TouchableOpacity
           style={[styles.doneButton, { backgroundColor: accent.accent }, savingPreference && { opacity: 0.7 }]}
           onPress={async () => {
             if (bookingFor === "someone_else" && someoneContact.trim().length < 10) {
-              Alert.alert("Contact required", "Please enter a valid contact number for the rider.");
+              Alert.alert(t("app.ride.contactRequired"), t("app.ride.pleaseEnterAValidContactNumber"));
               return;
             }
             if (user?.id) {
@@ -104,7 +106,7 @@ export function BookingForSheet({
                   }),
                 });
               } catch (error: any) {
-                Alert.alert("Save failed", error.message || "Could not save booking preference.");
+                Alert.alert(t("app.ride.saveFailed"), error.message || t("app.ride.couldNotSaveBookingPreference"));
                 return;
               } finally {
                 setSavingPreference(false);
@@ -118,7 +120,7 @@ export function BookingForSheet({
           {savingPreference ? (
             <ActivityIndicator size="small" color={accent.on} />
           ) : (
-            <Text style={[styles.doneButtonText, { color: accent.on }]}>Done</Text>
+            <Text style={[styles.doneButtonText, { color: accent.on }]}>{t("app.ride.done")}</Text>
           )}
         </TouchableOpacity>
       </View>

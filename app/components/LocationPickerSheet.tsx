@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { theme } = useThemeStore();
   const colors = Colors[theme];
@@ -93,7 +95,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
   const handleSaveLocation = async () => {
     if (!detectedLocation) {
-      Alert.alert("Error", "No location detected to save.");
+      Alert.alert(t("actions.error"), t("app.LocationPickerSheet.noLocationDetectedToSave"));
       return;
     }
     
@@ -120,7 +122,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
         await fetchSavedAddresses();
       }
       
-      Alert.alert("Saved!", "Your current location has been added to saved addresses.");
+      Alert.alert(t("app.LocationPickerSheet.saved"), t("app.LocationPickerSheet.yourCurrentLocationHasBeenAdded"));
       
       setSelectingAddressId("detected");
       if (onSelectAddress) {
@@ -130,7 +132,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       onClose();
     } catch (error: any) {
       console.error("Save location error:", error);
-      Alert.alert("Save Failed", error.message || "An error occurred while saving the address.");
+      Alert.alert(t("app.LocationPickerSheet.saveFailed"), error.message || t("app.LocationPickerSheet.anErrorOccurredWhileSaving"));
     } finally {
       setSavingLocation(false);
       setSelectingAddressId(null);
@@ -192,7 +194,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
             <Text style={styles.addressText} numberOfLines={2}>
               {item.addressLine}
             </Text>
-            {item.phone && <Text style={styles.addressPhone}>Phone: {item.phone}</Text>}
+            {item.phone && <Text style={styles.addressPhone}>{t("app.LocationPickerSheet.phone")} {item.phone}</Text>}
           </View>
         </TouchableOpacity>
         <TouchableOpacity 
@@ -266,7 +268,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
         <View style={styles.sheet}>
           <View style={styles.dragHandle} />
           <View style={styles.headerRow}>
-            <Text style={styles.title}>Select a location</Text>
+            <Text style={styles.title}>{t("app.LocationPickerSheet.selectALocation")}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <Feather name="x" size={20} color={colors.text} />
             </TouchableOpacity>
@@ -276,7 +278,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
             <Feather name="search" size={20} color={colors.primary} style={styles.searchIcon} />
             <TextInput 
               style={styles.searchInput} 
-              placeholder="Search for area, street name..."
+              placeholder={t("app.LocationPickerSheet.searchForAreaStreetName")}
               placeholderTextColor={colors.textSecondary}
               value={search}
               onChangeText={handleSearch}
@@ -298,8 +300,8 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
                   <Feather name="crosshair" size={22} color={colors.primary} />
                 </View>
                 <View style={styles.actionTextContainer}>
-                  <Text style={styles.actionTitle}>Use current location</Text>
-                  <Text style={styles.actionSubtitle}>Using GPS</Text>
+                  <Text style={styles.actionTitle}>{t("app.LocationPickerSheet.useCurrentLocation")}</Text>
+                  <Text style={styles.actionSubtitle}>{t("app.LocationPickerSheet.usingGps")}</Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#D1D5DB" />
               </TouchableOpacity>
@@ -317,8 +319,8 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
                   <Feather name="plus" size={22} color={colors.primary} />
                 </View>
                 <View style={styles.actionTextContainer}>
-                  <Text style={styles.actionTitle}>Add new address</Text>
-                  <Text style={styles.actionSubtitle}>Enter location details manually</Text>
+                  <Text style={styles.actionTitle}>{t("app.LocationPickerSheet.addNewAddress")}</Text>
+                  <Text style={styles.actionSubtitle}>{t("app.LocationPickerSheet.enterLocationDetailsManually")}</Text>
                 </View>
                 <Feather name="chevron-right" size={20} color="#D1D5DB" />
               </TouchableOpacity>
@@ -327,7 +329,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
               {detectedLocation && (
                 <View style={styles.detectedBox}>
-                  <Text style={styles.detectedTitle}>Detected Location</Text>
+                  <Text style={styles.detectedTitle}>{t("app.LocationPickerSheet.detectedLocation")}</Text>
                   <Text style={styles.addressText}>{detectedLocation.addressLine}</Text>
                   <TouchableOpacity 
                     style={[styles.saveActionBtn, savingLocation && { opacity: 0.7 }]}
@@ -337,7 +339,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
                     {savingLocation ? (
                       <ActivityIndicator size="small" color="#FFFFFF" />
                     ) : (
-                      <Text style={styles.saveActionText}>Save & Proceed</Text>
+                      <Text style={styles.saveActionText}>{t("app.LocationPickerSheet.saveProceed")}</Text>
                     )}
                   </TouchableOpacity>
                 </View>
@@ -353,7 +355,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
                   renderItem={renderAddressItem}
                   keyExtractor={(item, index) => item._id || index.toString()}
                   ListEmptyComponent={
-                    <Text style={styles.emptyText}>No saved addresses found.</Text>
+                    <Text style={styles.emptyText}>{t("app.LocationPickerSheet.noSavedAddressesFound")}</Text>
                   }
                   contentContainerStyle={{ paddingBottom: 24 }}
                 />

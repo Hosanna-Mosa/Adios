@@ -1,5 +1,6 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 
 // Section of CartBody, split out to keep every file under 150 lines.
@@ -42,6 +43,7 @@ export function CartBillSummary({
   tokens,
   total,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <View style={styles.section}>
@@ -54,26 +56,26 @@ export function CartBillSummary({
           <Ionicons name="pricetag" size={moderateScale(15)} color={accent.accent} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.couponTitle}>{appliedPromo ? `${appliedPromo.code} applied` : "Have a promo code?"}</Text>
+          <Text style={styles.couponTitle}>{appliedPromo ? t("app.food.codeApplied", { code: appliedPromo.code, defaultValue: "{{code}} applied" }) : t("app.food.haveAPromoCode")}</Text>
           <Text style={styles.couponSub}>
-            {appliedPromo ? `You saved ₹${Math.round(discount)}` : "Tap to add it at checkout"}
+            {appliedPromo ? t("app.food.youSaved", { amount: Math.round(discount), defaultValue: "You saved ₹{{amount}}" }) : t("app.food.tapToAddItAtCheckout")}
           </Text>
         </View>
-        <Text style={styles.couponAction}>{appliedPromo ? "Remove" : "Apply"}</Text>
+        <Text style={styles.couponAction}>{appliedPromo ? t("app.food.remove") : t("app.food.apply")}</Text>
       </TouchableOpacity>
 
       {showPromoInput && !appliedPromo && (
         <View style={styles.promoInputRow}>
           <TextInput
             style={styles.promoInput}
-            placeholder="Enter code"
+            placeholder={t("app.food.enterCode")}
             placeholderTextColor={tokens.muted}
             autoCapitalize="characters"
             value={promoCode}
             onChangeText={setPromoCode}
           />
           <TouchableOpacity style={styles.promoApplyBtn} onPress={handleApplyPromo} disabled={isApplyingPromo}>
-            {isApplyingPromo ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.promoApplyBtnText}>Apply</Text>}
+            {isApplyingPromo ? <ActivityIndicator size="small" color={accent.on} /> : <Text style={styles.promoApplyBtnText}>{t("app.food.apply")}</Text>}
           </TouchableOpacity>
         </View>
       )}
@@ -81,29 +83,29 @@ export function CartBillSummary({
     </View>
 
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Bill summary</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.billSummary")}</Text>
       <View style={styles.billCard}>
         <View style={styles.billRow}>
-          <Text style={styles.billLabel}>Item total</Text>
+          <Text style={styles.billLabel}>{t("app.food.itemTotal")}</Text>
           <Text style={styles.billValue}>₹{subtotal}</Text>
         </View>
         {deliveryFee != null ? (
           <View style={styles.billRow}>
-            <Text style={styles.billLabel}>Delivery fee</Text>
-            <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
+            <Text style={styles.billLabel}>{t("app.food.deliveryFee")}</Text>
+            <Text style={styles.billValue}>{deliveryFee === 0 ? t("app.food.free") : `₹${deliveryFee}`}</Text>
           </View>
         ) : (
-          <Text style={styles.billNote}>Delivery fee is confirmed at checkout.</Text>
+          <Text style={styles.billNote}>{t("app.food.deliveryFeeIsConfirmedAtCheckout")}</Text>
         )}
         {appliedPromo && (
           <View style={styles.billRow}>
-            <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {appliedPromo.code}</Text>
+            <Text style={[styles.billLabel, { color: tokens.success }]}>{t("app.food.coupon")} {appliedPromo.code}</Text>
             <Text style={[styles.billValue, { color: tokens.success }]}>−₹{Math.round(discount)}</Text>
           </View>
         )}
         <View style={styles.billDivider} />
         <View style={styles.billRow}>
-          <Text style={styles.billTotalLabel}>To pay</Text>
+          <Text style={styles.billTotalLabel}>{t("app.food.toPay")}</Text>
           <Text style={styles.billTotalValue}>₹{total}</Text>
         </View>
       </View>

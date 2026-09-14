@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BookAgainOverlayBike } from "./BookAgainOverlayBike";
 
@@ -32,6 +33,7 @@ interface Props {
 
 export function BookAgainOverlay(props: Props) {
   const { CANCEL_REASONS, cancelConfirmVisible, cancelLocationAddress, cancelLocationLabel, cancelLocationTitle, cancelReasonVisible, cancelRide, cancelUsesDrop, colors, keepSearching, selectCancelReason, selectedCancelReason, setCancelReasonVisible, setTripDetailsVisible, styles } = props;
+  const { t } = useTranslation();
   return (
     <View style={styles.bookAgainOverlay}>
       <TouchableOpacity
@@ -57,9 +59,9 @@ export function BookAgainOverlay(props: Props) {
 
           <View style={styles.cancelReasonSheet}>
             <View style={styles.cancelSheetHandle} />
-            <Text style={styles.cancelReasonTitle}>Why do you want to cancel?</Text>
+            <Text style={styles.cancelReasonTitle}>{t("app.ride.whyDoYouWantToCancel")}</Text>
             <Text style={styles.cancelReasonSubtitle}>
-              Please provide the reason for cancellation
+              {t("app.ride.pleaseProvideTheReasonForCancellation")}
             </Text>
             <View style={styles.cancelReasonDivider} />
 
@@ -92,23 +94,23 @@ export function BookAgainOverlay(props: Props) {
           <View style={styles.cancelConfirmSheet}>
             <View style={styles.cancelSheetHandle} />
             <Text style={styles.cancelConfirmTitle}>
-              Are you sure you want to cancel{"\n"}this ride?
+              {t("app.ride.areYouSureYouWantTo")}{"\n"}{t("app.ride.thisRide")}
             </Text>
             <View style={styles.cancelReasonDivider} />
 
             <Text style={styles.cancelConfirmCopy}>
               {cancelUsesDrop
-                ? "Drop location can be changed before booking another ride."
-                : "Pickup location can be changed up to a radius of 200m even after the captain is assigned."}
+                ? t("app.ride.dropLocationCanBeChangedBefore")
+                : t("app.ride.pickupLocationCanBeChangedUp")}
             </Text>
 
             <View style={styles.selectedReasonBox}>
-              <Text style={styles.selectedReasonLabel}>Reason</Text>
+              <Text style={styles.selectedReasonLabel}>{t("app.ride.reason")}</Text>
               <Text style={styles.selectedReasonText}>{selectedCancelReason}</Text>
             </View>
 
             <Text style={styles.currentAddressLabel}>
-              Your current {cancelLocationLabel} address is
+              {t("app.ride.yourCurrentAddressIs", { label: cancelLocationLabel, defaultValue: "Your current {{label}} address is" })}
             </Text>
             <View style={styles.cancelAddressRow}>
               <View style={styles.cancelAddressDot} />
@@ -123,11 +125,11 @@ export function BookAgainOverlay(props: Props) {
             </View>
 
             <TouchableOpacity style={styles.cancelMyRideButton} onPress={cancelRide}>
-              <Text style={styles.cancelMyRideText}>Cancel my ride</Text>
+              <Text style={styles.cancelMyRideText}>{t("app.ride.cancelMyRide")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.keepSearchingButton} onPress={keepSearching}>
-              <Text style={styles.keepSearchingText}>Keep searching</Text>
+              <Text style={styles.keepSearchingText}>{t("app.ride.keepSearching")}</Text>
             </TouchableOpacity>
           </View>
         </View>
