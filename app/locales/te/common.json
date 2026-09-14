@@ -276,7 +276,19 @@
       "changeLocation": "లొకేషన్‌ను మార్చండి",
       "thanks": "ధన్యవాదాలు!",
       "wellNotifyYouWhenWeLaunch": "మేము మీ ప్రాంతంలో ప్రారంభించినప్పుడు మీకు తెలియజేస్తాము.",
-      "notifyMeWhenYouLaunch": "మీరు ప్రారంభించినప్పుడు నాకు తెలియజేయండి"
+      "notifyMeWhenYouLaunch": "మీరు ప్రారంభించినప్పుడు నాకు తెలియజేయండి",
+      "mealsAt149": "₹149కి భోజనాలు",
+      "ends11Pm": "రాత్రి 11 గంటలకు ముగుస్తుంది",
+      "seeAll": "అన్నీ చూడండి",
+      "meatCenters": "మాంసం కేంద్రాలు",
+      "allRestaurants": "అన్ని రెస్టారెంట్‌లు",
+      "vegOnly": "శాఖాహారం మాత్రమే",
+      "welcomeBack": "తిరిగి స్వాగతం",
+      "foodMeatRidesHelpersAndCourier": "ఆహారం, మాంసం, రైడ్‌లు, హెల్పర్‌లు మరియు కొరియర్ రన్‌లు. ఒకే యాప్.",
+      "or": "లేదా",
+      "continueWithOtpInstead": "బదులుగా OTPతో కొనసాగించండి",
+      "newHere": "కొత్తగా వచ్చారా?",
+      "createAnAccount": "ఖాతాను సృష్టించండి"
     },
     "profile": {
       "menuItems": {
@@ -361,14 +373,29 @@
       "nothingAt149Near": "₹149 వద్ద ఏమీ లేదు",
       "noOutletAround": "చుట్టుపక్కల ఏ అవుట్‌లెట్ లేదు",
       "isRunningThe149MenuRight": "ప్రస్తుతం ₹149 మెనూను నడుపుతోంది. వేరే చిరునామాను ప్రయత్నించండి.",
-      "changeAddress": "చిరునామాను మార్చండి"
+      "changeAddress": "చిరునామాను మార్చండి",
+      "yourCartIsEmpty": "మీ కార్ట్ ఖాళీగా ఉంది",
+      "lastOrderToday": "ఇక్కడ ఇంకా ఏమీ లేదు. మీ చివరి ఆర్డర్ {{vendor}}, ఈరోజు.",
+      "lastOrderDaysAgo_one": "ఇక్కడ ఇంకా ఏమీ లేదు. మీ చివరి ఆర్డర్ {{vendor}}, {{count}} రోజు క్రితం.",
+      "lastOrderDaysAgo_other": "ఇక్కడ ఇంకా ఏమీ లేదు. మీ చివరి ఆర్డర్ {{vendor}}, {{count}} రోజుల క్రితం.",
+      "nothingHereYetFindSomethingTo": "ఇక్కడ ఇంకా ఏమీ లేదు — రెస్టారెంట్ లేదా మాంసం కేంద్రం నుండి జోడించడానికి ఏదైనా కనుగొనండి.",
+      "browseRestaurants": "రెస్టారెంట్‌లను బ్రౌజ్ చేయండి",
+      "orderFrom": "నుండి ఆర్డర్ చేయండి",
+      "again": "మళ్లీ",
+      "orderAgain": "మళ్లీ ఆర్డర్ చేయండి"
     },
     "orders": {
       "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
       "helperOnTheWay": "హెల్పర్ దారిలో ఉన్నారు",
       "matchingAHelper": "హెల్పర్‌ను వెతుకుతున్నాము",
       "riderOnTheRoute": "రైడర్ మార్గంలో ఉన్నారు",
-      "findingYourCaptain": "మీ కెప్టెన్‌ను వెతుకుతున్నాము"
+      "findingYourCaptain": "మీ కెప్టెన్‌ను వెతుకుతున్నాము",
+      "past": "గత",
+      "cancelled": "రద్దు చేయబడింది",
+      "repeatRoute": "మార్గాన్ని పునరావృతం చేయండి",
+      "rebook": "మళ్లీ బుక్ చేయండి",
+      "rate": "రేట్ చేయండి",
+      "receipt": "రసీదు"
     },
     "helperTask": {
       "title": {
@@ -562,7 +589,27 @@
       "searchingNearbyCaptains": "సమీపంలోని కెప్టెన్‌లను వెతుకుతోంది. ",
       "usuallyUnderAMinute": "సాధారణంగా ఒక నిమిషం లోపు.",
       "searching": "వెతుకుతోంది",
-      "cancelRideLower": "రైడ్‌ను రద్దు చేయండి"
+      "cancelRideLower": "రైడ్‌ను రద్దు చేయండి",
+      "scheduleARide": "రైడ్‌ను షెడ్యూల్ చేయండి",
+      "weaposllAssignACaptain15Minutes": "పికప్‌కి 15 నిమిషాల ముందు మేము కెప్టెన్‌ను కేటాయిస్తాము.",
+      "date": "తేదీ",
+      "today": "ఈరోజు",
+      "estimatedFareConfirmedAtPickup": "అంచనా ₹{{amount}} · పికప్ వద్ద ఛార్జీ నిర్ధారించబడుతుంది",
+      "estimatingFare": "ఛార్జీని అంచనా వేస్తోంది…",
+      "reserveFor": "కోసం రిజర్వ్ చేయండి",
+      "connectingWithNearbyDriversInYour": "మీ ప్రాంతంలోని సమీప డ్రైవర్‌లతో కనెక్ట్ అవుతోంది",
+      "tripDetails": "ప్రయాణ వివరాలు",
+      "captainsArenapostAcceptingAt": "కెప్టెన్‌లు ₹ వద్ద అంగీకరించడం లేదు",
+      "tryAddingMore": ". మరింత జోడించడానికి ప్రయత్నించండి:",
+      "orderCancelled": "ఆర్డర్ రద్దు చేయబడింది",
+      "wereSorryThisOrderCouldNot": "క్షమించండి — ఈ ఆర్డర్‌ను పూర్తి చేయలేకపోయాము మరియు రద్దు చేయబడింది.",
+      "ok": "సరే",
+      "emergencySos": "అత్యవసర SOS",
+      "thisWillInstantlyAlertOurSupport": "ఇది వెంటనే మా సపోర్ట్ టీమ్‌కు మరియు మీ అత్యవసర పరిచయాలకు అలర్ట్ చేస్తుంది.",
+      "triggerSos": "SOSను ప్రేరేపించండి",
+      "sosDispatched": "SOS పంపబడింది",
+      "yourEmergencyAlertHasBeenSent": "మీ అత్యవసర అలర్ట్ పంపబడింది. సపోర్ట్ దారిలో ఉంది.",
+      "failedToTriggerSos": "SOSను ప్రేరేపించడంలో విఫలమైంది. దయచేసి అత్యవసర సేవలకు కాల్ చేయండి."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",

@@ -1,4 +1,5 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -35,6 +36,7 @@ export function CartBody2({
   tabBarHeight,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <View style={styles.root}>
@@ -49,14 +51,16 @@ export function CartBody2({
           <View style={styles.emptyIconCircle}>
             <Ionicons name="bag-outline" size={moderateScale(30)} color={accent.accent} />
           </View>
-          <Text style={styles.emptyTitle}>Your cart is empty</Text>
+          <Text style={styles.emptyTitle}>{t("app.food.yourCartIsEmpty")}</Text>
           <Text style={styles.emptySubtitle}>
             {lastVendorName
-              ? `Nothing here yet. Your last order was ${lastVendorName}, ${daysAgo === 0 ? "today" : `${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`}.`
-              : "Nothing here yet — find something to add from a restaurant or meat center."}
+              ? (daysAgo === 0
+                  ? t("app.food.lastOrderToday", { vendor: lastVendorName })
+                  : t("app.food.lastOrderDaysAgo", { vendor: lastVendorName, count: daysAgo }))
+              : t("app.food.nothingHereYetFindSomethingTo")}
           </Text>
           <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => router.replace("/(tabs)")}>
-            <Text style={styles.primaryBtnText}>Browse restaurants</Text>
+            <Text style={styles.primaryBtnText}>{t("app.food.browseRestaurants")}</Text>
           </TouchableOpacity>
           {lastVendorName && (
             <TouchableOpacity
@@ -69,14 +73,14 @@ export function CartBody2({
                 })
               }
             >
-              <Text style={styles.secondaryBtnText}>Order from {lastVendorName} again</Text>
+              <Text style={styles.secondaryBtnText}>{t("app.food.orderFrom")} {lastVendorName} {t("app.food.again")}</Text>
             </TouchableOpacity>
           )}
         </View>
 
         {recentOrders.length > 0 && (
           <View style={styles.recentSection}>
-            <Text style={styles.recentLabel}>Order again</Text>
+            <Text style={styles.recentLabel}>{t("app.food.orderAgain")}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
               {recentOrders.map((o) => {
                 const vName = typeof o.vendor === "object" ? o.vendor.name : "Vendor";

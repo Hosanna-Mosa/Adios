@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { MapBackgroundRef } from "@/components/MapBackground";
@@ -8,6 +9,7 @@ import { MapBackgroundRef } from "@/components/MapBackground";
 // the order they were written, so React sees the same hook sequence.
 
 export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: any) {
+  const { t } = useTranslation();
   const [orderCreatedAt, setOrderCreatedAt] = useState<Date | null>(null);
   const [deliveredAt, setDeliveredAt] = useState<Date | null>(null);
   const [tripModalVisible, setTripModalVisible] = useState(false);
@@ -27,26 +29,26 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
     resetDelivery();
     router.replace("/(tabs)");
     setTimeout(() => {
-      Alert.alert("Order cancelled", "We're sorry — this order could not be completed and has been cancelled.", [{ text: "OK", onPress: () => {} }], { cancelable: true });
+      Alert.alert(t("app.ride.orderCancelled"), t("app.ride.wereSorryThisOrderCouldNot"), [{ text: t("app.ride.ok"), onPress: () => {} }], { cancelable: true });
     }, 500);
   };
 
   const handleSOS = () => {
     if (!currentOrderId) return;
     Alert.alert(
-      "Emergency SOS",
-      "This will instantly alert our support team and your emergency contacts.",
+      t("app.ride.emergencySos"),
+      t("app.ride.thisWillInstantlyAlertOurSupport"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("actions.cancel"), style: "cancel" },
         {
-          text: "Trigger SOS",
+          text: t("app.ride.triggerSos"),
           style: "destructive",
           onPress: async () => {
             try {
               await customFetch(`/orders/${currentOrderId}/sos`, { method: "POST" });
-              Alert.alert("SOS dispatched", "Your emergency alert has been sent. Support is on the way.");
+              Alert.alert(t("app.ride.sosDispatched"), t("app.ride.yourEmergencyAlertHasBeenSent"));
             } catch (err: any) {
-              Alert.alert("Error", err.message || "Failed to trigger SOS. Please call emergency services.");
+              Alert.alert(t("actions.error"), err.message || t("app.ride.failedToTriggerSos"));
             }
           },
         },

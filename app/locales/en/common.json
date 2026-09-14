@@ -276,7 +276,19 @@
       "changeLocation": "Change location",
       "thanks": "Thanks!",
       "wellNotifyYouWhenWeLaunch": "We'll notify you when we launch in your area.",
-      "notifyMeWhenYouLaunch": "Notify me when you launch"
+      "notifyMeWhenYouLaunch": "Notify me when you launch",
+      "mealsAt149": "Meals at ₹149",
+      "ends11Pm": "ends 11 PM",
+      "seeAll": "See all",
+      "meatCenters": "Meat centers",
+      "allRestaurants": "All restaurants",
+      "vegOnly": "Veg only",
+      "welcomeBack": "Welcome back",
+      "foodMeatRidesHelpersAndCourier": "Food, meat, rides, helpers and courier runs. One app.",
+      "or": "or",
+      "continueWithOtpInstead": "Continue with OTP instead",
+      "newHere": "New here?",
+      "createAnAccount": "Create an account"
     },
     "profile": {
       "menuItems": {
@@ -361,14 +373,29 @@
       "nothingAt149Near": "Nothing at ₹149 near",
       "noOutletAround": "No outlet around",
       "isRunningThe149MenuRight": "is running the ₹149 menu right now. Try another address.",
-      "changeAddress": "Change address"
+      "changeAddress": "Change address",
+      "yourCartIsEmpty": "Your cart is empty",
+      "lastOrderToday": "Nothing here yet. Your last order was {{vendor}}, today.",
+      "lastOrderDaysAgo_one": "Nothing here yet. Your last order was {{vendor}}, {{count}} day ago.",
+      "lastOrderDaysAgo_other": "Nothing here yet. Your last order was {{vendor}}, {{count}} days ago.",
+      "nothingHereYetFindSomethingTo": "Nothing here yet — find something to add from a restaurant or meat center.",
+      "browseRestaurants": "Browse restaurants",
+      "orderFrom": "Order from",
+      "again": "again",
+      "orderAgain": "Order again"
     },
     "orders": {
       "preparingYourOrder": "Preparing your order",
       "helperOnTheWay": "Helper on the way",
       "matchingAHelper": "Matching a helper",
       "riderOnTheRoute": "Rider on the route",
-      "findingYourCaptain": "Finding your captain"
+      "findingYourCaptain": "Finding your captain",
+      "past": "Past",
+      "cancelled": "Cancelled",
+      "repeatRoute": "Repeat route",
+      "rebook": "Rebook",
+      "rate": "Rate",
+      "receipt": "Receipt"
     },
     "helperTask": {
       "title": {
@@ -562,7 +589,27 @@
       "searchingNearbyCaptains": "Searching nearby captains. ",
       "usuallyUnderAMinute": "Usually under a minute.",
       "searching": "Searching",
-      "cancelRideLower": "Cancel ride"
+      "cancelRideLower": "Cancel ride",
+      "scheduleARide": "Schedule a ride",
+      "weaposllAssignACaptain15Minutes": "We'll assign a captain 15 minutes before pickup.",
+      "date": "Date",
+      "today": "Today",
+      "estimatedFareConfirmedAtPickup": "Estimated ₹{{amount}} · fare confirmed at pickup",
+      "estimatingFare": "Estimating fare…",
+      "reserveFor": "Reserve for",
+      "connectingWithNearbyDriversInYour": "Connecting with nearby drivers in your area",
+      "tripDetails": "Trip Details",
+      "captainsArenapostAcceptingAt": "Captains aren't accepting at ₹",
+      "tryAddingMore": ". Try adding more:",
+      "orderCancelled": "Order cancelled",
+      "wereSorryThisOrderCouldNot": "We're sorry — this order could not be completed and has been cancelled.",
+      "ok": "OK",
+      "emergencySos": "Emergency SOS",
+      "thisWillInstantlyAlertOurSupport": "This will instantly alert our support team and your emergency contacts.",
+      "triggerSos": "Trigger SOS",
+      "sosDispatched": "SOS dispatched",
+      "yourEmergencyAlertHasBeenSent": "Your emergency alert has been sent. Support is on the way.",
+      "failedToTriggerSos": "Failed to trigger SOS. Please call emergency services."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",

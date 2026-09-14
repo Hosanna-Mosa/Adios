@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -27,9 +28,10 @@ export function OrdersSection3({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Past</Text>
+      <Text style={styles.sectionLabel}>{t("app.orders.past")}</Text>
       {past.map((order, index) => {
         const accent = tokens.services[SERVICE_META[order.__serviceKey]?.accent || "ride"];
         const isRejected = String(order.scheduleStatus || "") === "rejected";
@@ -42,7 +44,7 @@ export function OrdersSection3({
             <View style={styles.liveRow}>
               <Text style={[styles.cardEyebrow, { color: isCancelled ? tokens.muted : accent.accent }]}>{SERVICE_META[order.__serviceKey]?.label}</Text>
               {isCancelled ? (
-                <View style={styles.cancelledBadge}><Text style={styles.cancelledBadgeText}>{isRejected ? "Rejected" : "Cancelled"}</Text></View>
+                <View style={styles.cancelledBadge}><Text style={styles.cancelledBadgeText}>{isRejected ? t("app.schedulePill.rejected") : t("app.orders.cancelled")}</Text></View>
               ) : (
                 <Text style={styles.cardMetaRight}>{dateStr}</Text>
               )}
@@ -64,18 +66,18 @@ export function OrdersSection3({
                   <ActivityIndicator size="small" color={accent.accent} />
                 ) : (
                   <Text style={[styles.actionBtnFilledText, { color: accent.accent }]}>
-                    {RIDE_TYPES.includes(order.serviceType) ? "Rebook" : order.__serviceKey === "delivery" ? "Repeat route" : "Order again"}
+                    {RIDE_TYPES.includes(order.serviceType) ? t("app.orders.rebook") : order.__serviceKey === "delivery" ? t("app.orders.repeatRoute") : t("app.food.orderAgain")}
                   </Text>
                 )}
               </TouchableOpacity>
               {/* A cancelled order has no receipt to open — tracking bounces straight back home. */}
               {!isCancelled && (isDelivered && !order.isReviewed ? (
                 <TouchableOpacity style={styles.actionBtnOutline} onPress={() => handleOpenReviewModal(order)}>
-                  <Text style={styles.actionBtnOutlineText}>Rate</Text>
+                  <Text style={styles.actionBtnOutlineText}>{t("app.orders.rate")}</Text>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
-                  <Text style={styles.actionBtnOutlineText}>Receipt</Text>
+                  <Text style={styles.actionBtnOutlineText}>{t("app.orders.receipt")}</Text>
                 </TouchableOpacity>
               ))}
             </View>

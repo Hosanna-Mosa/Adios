@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 
@@ -23,6 +24,7 @@ export function SearchingPanel({
   showTripDetails,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.panel} pointerEvents="box-none">
       <View style={[styles.floatingCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -31,9 +33,9 @@ export function SearchingPanel({
         <View style={styles.headerInfo}>
           <View style={styles.statusDotRow}>
             <Animated.View style={[styles.pulseDot, dotStyle, { backgroundColor: colors.success }]} />
-            <Text style={styles.title}>Finding your captain...</Text>
+            <Text style={styles.title}>{t("app.ride.findingYourCaptain")}...</Text>
           </View>
-          <Text style={styles.subtitle}>Connecting with nearby drivers in your area</Text>
+          <Text style={styles.subtitle}>{t("app.ride.connectingWithNearbyDriversInYour")}</Text>
         </View>
 
         <View style={styles.progressTrack}>
@@ -45,11 +47,11 @@ export function SearchingPanel({
             <MaterialCommunityIcons name="motorbike" size={24} color={colors.text} />
           </View>
           <View style={styles.fareTextGroup}>
-            <Text style={[styles.fareLabel, { color: colors.textSecondary }]}>Total Fare</Text>
+            <Text style={[styles.fareLabel, { color: colors.textSecondary }]}>{t("app.ride.totalFare")}</Text>
             <Text style={[styles.fareValue, { color: colors.text }]}>₹{fare}</Text>
           </View>
           <TouchableOpacity style={[styles.tripButton, { borderColor: colors.border }]} onPress={showTripDetails}>
-            <Text style={[styles.tripButtonText, { color: colors.text }]}>Trip Details</Text>
+            <Text style={[styles.tripButtonText, { color: colors.text }]}>{t("app.ride.tripDetails")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -59,7 +61,7 @@ export function SearchingPanel({
               <Ionicons name="person" size={20} color={colors.text} />
             </View>
             <Text style={[styles.suggestionTitle, { color: colors.text }]}>
-              Captains aren&apos;t accepting at ₹{fare}. Try adding more:
+              {t("app.ride.captainsArenapostAcceptingAt")}{fare}{t("app.ride.tryAddingMore")}
             </Text>
           </View>
 

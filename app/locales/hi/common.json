@@ -276,7 +276,19 @@
       "changeLocation": "लोकेशन बदलें",
       "thanks": "धन्यवाद!",
       "wellNotifyYouWhenWeLaunch": "जब हम आपके क्षेत्र में लॉन्च करेंगे तो हम आपको सूचित करेंगे.",
-      "notifyMeWhenYouLaunch": "लॉन्च होने पर मुझे सूचित करें"
+      "notifyMeWhenYouLaunch": "लॉन्च होने पर मुझे सूचित करें",
+      "mealsAt149": "₹149 में खाना",
+      "ends11Pm": "रात 11 बजे खत्म होता है",
+      "seeAll": "सभी देखें",
+      "meatCenters": "मीट सेंटर",
+      "allRestaurants": "सभी रेस्टोरेंट",
+      "vegOnly": "केवल शाकाहारी",
+      "welcomeBack": "वापसी पर स्वागत है",
+      "foodMeatRidesHelpersAndCourier": "खाना, मीट, राइड, हेल्पर और कूरियर — एक ही ऐप में.",
+      "or": "या",
+      "continueWithOtpInstead": "इसके बजाय OTP से जारी रखें",
+      "newHere": "नए हैं?",
+      "createAnAccount": "अकाउंट बनाएं"
     },
     "profile": {
       "menuItems": {
@@ -361,14 +373,29 @@
       "nothingAt149Near": "₹149 पर पास में कुछ नहीं",
       "noOutletAround": "आसपास कोई आउटलेट नहीं",
       "isRunningThe149MenuRight": "अभी ₹149 मेनू चला रहा है. दूसरा पता आज़माएं.",
-      "changeAddress": "पता बदलें"
+      "changeAddress": "पता बदलें",
+      "yourCartIsEmpty": "आपका कार्ट खाली है",
+      "lastOrderToday": "यहाँ अभी कुछ नहीं है. आपका आख़िरी ऑर्डर {{vendor}}, आज था.",
+      "lastOrderDaysAgo_one": "यहाँ अभी कुछ नहीं है. आपका आख़िरी ऑर्डर {{vendor}}, {{count}} दिन पहले था.",
+      "lastOrderDaysAgo_other": "यहाँ अभी कुछ नहीं है. आपका आख़िरी ऑर्डर {{vendor}}, {{count}} दिन पहले था.",
+      "nothingHereYetFindSomethingTo": "यहाँ अभी कुछ नहीं है — किसी रेस्टोरेंट या मीट सेंटर से कुछ जोड़ें.",
+      "browseRestaurants": "रेस्टोरेंट देखें",
+      "orderFrom": "यहाँ से ऑर्डर करें",
+      "again": "फिर से",
+      "orderAgain": "फिर से ऑर्डर करें"
     },
     "orders": {
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
       "helperOnTheWay": "हेल्पर रास्ते में है",
       "matchingAHelper": "हेल्पर खोजा जा रहा है",
       "riderOnTheRoute": "राइडर रास्ते में है",
-      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है"
+      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है",
+      "past": "पिछले",
+      "cancelled": "रद्द",
+      "repeatRoute": "रूट दोहराएं",
+      "rebook": "फिर से बुक करें",
+      "rate": "रेट करें",
+      "receipt": "रसीद"
     },
     "helperTask": {
       "title": {
@@ -562,7 +589,27 @@
       "searchingNearbyCaptains": "पास के कैप्टन खोजे जा रहे हैं. ",
       "usuallyUnderAMinute": "आमतौर पर एक मिनट से कम में.",
       "searching": "खोजा जा रहा है",
-      "cancelRideLower": "राइड रद्द करें"
+      "cancelRideLower": "राइड रद्द करें",
+      "scheduleARide": "राइड शेड्यूल करें",
+      "weaposllAssignACaptain15Minutes": "पिकअप से 15 मिनट पहले हम कैप्टन असाइन करेंगे.",
+      "date": "तारीख़",
+      "today": "आज",
+      "estimatedFareConfirmedAtPickup": "अनुमानित ₹{{amount}} · किराया पिकअप पर तय होगा",
+      "estimatingFare": "किराए का अनुमान लगाया जा रहा है…",
+      "reserveFor": "इसके लिए रिज़र्व करें",
+      "connectingWithNearbyDriversInYour": "आपके क्षेत्र के पास के ड्राइवरों से जुड़ रहे हैं",
+      "tripDetails": "यात्रा विवरण",
+      "captainsArenapostAcceptingAt": "कैप्टन ₹ पर स्वीकार नहीं कर रहे",
+      "tryAddingMore": ". और जोड़कर देखें:",
+      "orderCancelled": "ऑर्डर रद्द हुआ",
+      "wereSorryThisOrderCouldNot": "माफ़ करें — यह ऑर्डर पूरा नहीं हो सका और रद्द कर दिया गया है.",
+      "ok": "ठीक है",
+      "emergencySos": "आपातकालीन SOS",
+      "thisWillInstantlyAlertOurSupport": "यह तुरंत हमारी सपोर्ट टीम और आपके आपातकालीन संपर्कों को सूचित करेगा.",
+      "triggerSos": "SOS भेजें",
+      "sosDispatched": "SOS भेज दिया गया",
+      "yourEmergencyAlertHasBeenSent": "आपका आपातकालीन अलर्ट भेज दिया गया है. सपोर्ट रास्ते में है.",
+      "failedToTriggerSos": "SOS भेजने में विफल. कृपया आपातकालीन सेवाओं को कॉल करें."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",

@@ -1,6 +1,7 @@
 import React from "react";
 import { staggerListItem } from "@/motion/presets";
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";
 
@@ -51,20 +52,21 @@ export function SchedulePickerSheet({
   showDatePicker,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal visible={showDatePicker} transparent animationType="slide" onRequestClose={() => setShowDatePicker(false)}>
       <View style={styles.sheetOverlay}>
         <TouchableOpacity activeOpacity={1} style={styles.sheetScrim} onPress={() => setShowDatePicker(false)} />
         <View style={[styles.datePickerSheet, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.datePickerTitle}>Schedule a ride</Text>
-          <Text style={styles.datePickerSub}>We&apos;ll assign a captain 15 minutes before pickup.</Text>
+          <Text style={styles.datePickerTitle}>{t("app.ride.scheduleARide")}</Text>
+          <Text style={styles.datePickerSub}>{t("app.ride.weaposllAssignACaptain15Minutes")}</Text>
 
-          <Text style={styles.pickerLabel}>Date</Text>
+          <Text style={styles.pickerLabel}>{t("app.ride.date")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginBottom: 20 }}>
             {dateOptions.map((date, idx) => {
               const isSelected = reserveDate.toDateString() === date.toDateString();
-              const dayName = idx === 0 ? "Today" : date.toLocaleDateString([], { weekday: "short" });
+              const dayName = idx === 0 ? t("app.ride.today") : date.toLocaleDateString([], { weekday: "short" });
               return (
                 <Animated.View key={idx} entering={staggerListItem(idx, 30)}>
                   <TouchableOpacity style={[styles.dateCard, isSelected && { borderColor: accent.accent, backgroundColor: accent.skin }]} onPress={() => setReserveDate(date)}>
@@ -76,7 +78,7 @@ export function SchedulePickerSheet({
             })}
           </ScrollView>
 
-          <Text style={styles.pickerLabel}>Pickup time</Text>
+          <Text style={styles.pickerLabel}>{t("app.ride.pickupTime")}</Text>
           <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
             <ScrollView style={{ flex: 1 }} horizontal={false} showsVerticalScrollIndicator={false}>
               <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
@@ -106,7 +108,7 @@ export function SchedulePickerSheet({
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.tierName}>{ENABLED_TIERS.find((t) => t.id === selectedTier)?.name}</Text>
               <Text style={styles.tierMeta}>
-                {selectedFare ? `Estimated ₹${Math.round(selectedFare.fareBreakdown.total)} · fare confirmed at pickup` : "Estimating fare…"}
+                {selectedFare ? t("app.ride.estimatedFareConfirmedAtPickup", { amount: Math.round(selectedFare.fareBreakdown.total) }) : t("app.ride.estimatingFare")}
               </Text>
             </View>
           </View>
@@ -128,7 +130,7 @@ export function SchedulePickerSheet({
               <ActivityIndicator size="small" color={accent.on} />
             ) : (
               <Text style={styles.confirmScheduleBtnText}>
-                Reserve for {reserveDate.toLocaleDateString([], { weekday: "short" })}, {reserveHour}:{reserveMinute} {reserveAmpm}
+                {t("app.ride.reserveFor")} {reserveDate.toLocaleDateString([], { weekday: "short" })}, {reserveHour}:{reserveMinute} {reserveAmpm}
               </Text>
             )}
           </TouchableOpacity>

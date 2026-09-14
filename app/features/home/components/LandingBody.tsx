@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { LandingFieldWrapper } from "./LandingFieldWrapper";
@@ -45,6 +46,7 @@ export function LandingBody({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView
@@ -58,9 +60,9 @@ export function LandingBody({
           styles={styles}
         />
 
-        <Text style={styles.headline} numberOfLines={1}>Welcome back</Text>
+        <Text style={styles.headline} numberOfLines={1}>{t("app.home.welcomeBack")}</Text>
         <Text style={styles.subhead}>
-          Food, meat, rides, helpers and courier runs. One app.
+          {t("app.home.foodMeatRidesHelpersAndCourier")}
         </Text>
       </Reanimated.View>
 
@@ -89,7 +91,7 @@ export function LandingBody({
 
         {/* Sign In CTA */}
         <Button
-          title="Sign in"
+          title={t("app.auth.signIn")}
           onPress={handleSignIn}
           disabled={!identifier || !password}
           loading={loading}
@@ -101,14 +103,14 @@ export function LandingBody({
       {/* Divider */}
       <Reanimated.View style={styles.dividerRow} entering={fadeInUp(160)}>
         <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>or</Text>
+        <Text style={styles.dividerText}>{t("app.home.or")}</Text>
         <View style={styles.dividerLine} />
       </Reanimated.View>
 
       {/* OTP alternative */}
       <Reanimated.View entering={fadeInUp(200)} style={{ marginTop: 16 }}>
         <Button
-          title="Continue with OTP instead"
+          title={t("app.home.continueWithOtpInstead")}
           onPress={handleContinueWithOtp}
           loading={sendingOtp}
           variant="secondary"
@@ -124,7 +126,7 @@ export function LandingBody({
           style={styles.signUpLinkRow}
         >
           <Text style={styles.signUpLinkText}>
-            New here? <Text style={styles.signUpLinkHighlight}>Create an account</Text>
+            {t("app.home.newHere")} <Text style={styles.signUpLinkHighlight}>{t("app.home.createAnAccount")}</Text>
           </Text>
         </TouchableOpacity>
       </Reanimated.View>
