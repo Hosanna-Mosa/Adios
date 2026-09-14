@@ -1,6 +1,6 @@
-import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { SupportTicket } from "./useSupportChat.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 3 of useSupportChat, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -18,7 +18,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       });
       setTicket(updatedTicket);
     } catch (error: any) {
-      Alert.alert("Message not sent", error.message || "Please try again.");
+      showAlert("Message not sent", error.message || "Please try again.");
       setInputText(messageText);
     } finally {
       setSubmittingReply(false);
@@ -35,7 +35,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       setTicket(updated);
       setAllTickets((prev: any) => prev.map((t: any) => (t._id === updated._id ? updated : t)));
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Please try again.");
+      showAlert("Error", err.message || "Please try again.");
     }
   };
 
@@ -49,7 +49,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       setTicket(t);
       setViewMode("chat");
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to reopen case");
+      showAlert("Error", err.message || "Failed to reopen case");
     }
   };
 

@@ -28,7 +28,13 @@ export function useAddAddressInsets() {
 
   const [selectedChip, setSelectedChip] = useState<"Home" | "Work" | "Other">("Home");
   const [label, setLabel] = useState("");
-  const [addressLine, setAddressLine] = useState("");
+  // Tapping a "Recent" row on saved-addresses passes the address it already has as
+  // ?addressLine — seeded here the same way receiverName/receiverPhone/landmark
+  // already are below, so this screen's own Save doesn't demand it be typed in
+  // again while waiting on the map's own (slower, and separate) reverse-geocode.
+  // Edit mode overwrites this a moment later with the same string split back out
+  // into its landmark/instructions parts — see useAddAddressLngLabel's effect.
+  const [addressLine, setAddressLine] = useState(String(params.addressLine || ""));
   const [completeAddress, setCompleteAddress] = useState("");
   const [instructions, setInstructions] = useState("");
 

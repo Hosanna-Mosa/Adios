@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -28,7 +29,8 @@ export function CancelRideSheet({
   styles,
 }: Props) {
   return (
-    <Modal visible={showCancelSheet} transparent animationType="slide" onRequestClose={() => setShowCancelSheet(false)}>
+    <Modal statusBarTranslucent visible={showCancelSheet} transparent animationType="slide" onRequestClose={() => setShowCancelSheet(false)}>
+      <StatusBarFill />
       <View style={styles.sheetOverlay}>
         <TouchableOpacity activeOpacity={1} style={styles.sheetScrim} onPress={() => setShowCancelSheet(false)} />
         <View style={[styles.cancelSheet, { paddingBottom: insets.bottom + 16 }]}>

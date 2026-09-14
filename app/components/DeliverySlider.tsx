@@ -79,7 +79,7 @@ export const DeliverySlider: React.FC<DeliverySliderProps> = ({ onConfirm, title
         {...panResponder.panHandlers}
       >
         <LinearGradient
-          colors={isConfirmed ? ['#10B981', '#059669'] : [colors.primary, '#6366F1']}
+          colors={isConfirmed ? ['#10B981', '#059669'] : [colors.primary, colors.primaryDark]}
           style={styles.thumbGradient}
         >
           <MaterialCommunityIcons 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -12,11 +14,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
 import { socketService } from "@/utils/socketService";
-import { formatCustomerChatMessage } from "@/utils/chatMessages";
+import { formatCustomerChatMessage, formatStoredChatMessage } from "@/utils/chatMessages";
+import Constants from "expo-constants";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
 const QUICK_REPLIES = [
   "On my way!",
@@ -27,23 +32,99 @@ const QUICK_REPLIES = [
 
 export default function DriverChatScreen() {
   const insets = useSafeAreaInsets();
-  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive } = useDriverStore();
+  const params = useLocalSearchParams<{ orderId?: string }>();
+  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive, token, setChatMessages, updateOrderStatus } = useDriverStore();
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const [canStartTask, setCanStartTask] = useState(false);
-  const isHelper = currentOrder?.serviceType?.toLowerCase() === "helper";
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [fetchedOrder, setFetchedOrder] = useState<{ id: string; customerName: string; customerPhone: string; serviceType?: string } | null>(null);
 
-  const handleStartTask = () => {
-    socketService.emit("task_started", { orderId: currentOrder?.id });
+  // currentOrder isn't persisted (deliberately — it's meant to always come from a
+  // fresh fetch), so opening this screen straight from a chat push notification —
+  // app cold-started, nothing in memory yet — left currentOrder null and the whole
+  // screen non-functional: no header info, and handleSend below bails out with no
+  // order to attach the message to. Fall back to fetching the order by the
+  // orderId the notification/link carries whenever it isn't already the one loaded.
+  const chatOrderId = params.orderId || currentOrder?.id;
+  const chatOrder = currentOrder?.id === chatOrderId ? currentOrder : fetchedOrder;
+
+  useEffect(() => {
+    if (!chatOrderId || !token || currentOrder?.id === chatOrderId) return;
+    let cancelled = false;
+    fetch(`${apiUrl}/orders/${chatOrderId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((order) => {
+        if (cancelled || !order) return;
+        setFetchedOrder({
+          id: order._id,
+          customerName: order.user?.name || "Customer",
+          customerPhone: order.user?.phone || "",
+          serviceType: order.serviceType,
+        });
+      })
+      .catch((err) => console.error("[Chat] Failed to load order:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [chatOrderId, token, currentOrder?.id]);
+
+  const isHelper = chatOrder?.serviceType?.toLowerCase() === "helper";
+  // The "discuss & start task" banner only makes sense for the driver's actual,
+  // currently active job — not when viewing an older conversation.
+  const isActiveJob = currentOrder?.id === chatOrderId;
+
+  // Starting the task has to move the order, not just fire a socket event: the
+  // customer's tracking screen reads the order status, so a socket-only start left
+  // their timeline stuck on "Helper assigned" for the whole job — and was lost
+  // entirely if their chat screen happened to be closed.
+  const handleStartTask = async () => {
+    if (!currentOrder?.id) return;
+    try {
+      await updateOrderStatus?.("IN_PROGRESS" as any);
+    } catch (err: any) {
+      console.warn("[Chat] Failed to mark task in progress:", err?.message);
+    }
+    socketService.emit("task_started", { orderId: currentOrder.id });
     router.push("/active-order");
   };
+
+  // The conversation lives on the server; the store only holds what arrived over
+  // the socket this session. Without this the driver opened chat on an order they
+  // had already been messaging about and saw an empty thread.
+  useEffect(() => {
+    if (!chatOrderId || !token) {
+      setLoadingHistory(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingHistory(true);
+
+    fetch(`${apiUrl}/orders/${chatOrderId}/chat`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((history: any[]) => {
+        if (cancelled) return;
+        const stored = (history || []).map(formatStoredChatMessage).filter(Boolean) as any[];
+        const live = useDriverStore.getState().activeChat || [];
+        const seen = new Set(stored.map((m) => m.id));
+        setChatMessages?.([...stored, ...live.filter((m: any) => !seen.has(m.id))]);
+      })
+      .catch((err) => console.error("[Chat] Failed to load chat history:", err))
+      .finally(() => {
+        if (!cancelled) setLoadingHistory(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [chatOrderId, token]);
 
   useEffect(() => {
     setUnreadCount?.(0);
     setIsChatActive?.(true);
 
-    if (currentOrder?.id) {
-      socketService.trackOrder(currentOrder.id);
+    if (chatOrderId) {
+      socketService.trackOrder(chatOrderId);
     }
 
     const handleReceiveMessage = (data: any) => {
@@ -69,10 +150,10 @@ export default function DriverChatScreen() {
       socketService.off("assign_task_confirmed", handleAssignTaskConfirmed);
       setIsChatActive?.(false);
     };
-  }, [currentOrder?.id]);
+  }, [chatOrderId]);
 
   const handleSend = (text = inputText) => {
-    if (!text.trim() || !currentOrder) return;
+    if (!text.trim() || !chatOrder) return;
 
     const messageText = text.trim();
     const tempId = Date.now().toString();
@@ -81,7 +162,7 @@ export default function DriverChatScreen() {
     addChatMessage?.({ text: messageText, from: "driver" as const, id: tempId, time });
 
     socketService.emit("send_message", {
-      orderId: currentOrder.id,
+      orderId: chatOrder.id,
       senderId: driverUserId || "driver",
       role: "DRIVER",
       text: messageText,
@@ -140,19 +221,28 @@ export default function DriverChatScreen() {
             <View style={styles.onlineDot} />
           </View>
           <View>
-            <Text style={styles.headerName}>{currentOrder?.customerName || "Customer"}</Text>
-            <Text style={styles.headerStatus}>Customer � Online</Text>
+            <Text style={styles.headerName}>{chatOrder?.customerName || "Customer"}</Text>
+            <Text style={styles.headerStatus}>Customer · Online</Text>
           </View>
         </View>
         <TouchableOpacity
           style={styles.callBtn}
-          onPress={() => Linking.openURL(`tel:${currentOrder?.customerPhone || "1234567890"}`)}
+          onPress={() => {
+            // Was falling back to a hardcoded placeholder number ("1234567890")
+            // whenever the customer's phone hadn't loaded yet, so the driver
+            // could actually place a call to a fake number without warning.
+            if (!chatOrder?.customerPhone) {
+              Alert.alert("No phone number", "The customer's phone number isn't available for this order.");
+              return;
+            }
+            Linking.openURL(`tel:${chatOrder.customerPhone}`);
+          }}
         >
           <Feather name="phone" size={20} color={Colors.brand} />
         </TouchableOpacity>
       </View>
 
-      {isHelper && (
+      {isHelper && isActiveJob && (
         <View style={{ backgroundColor: Colors.successLight, padding: 12, borderBottomWidth: 1, borderBottomColor: Colors.successLight, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, paddingRight: 10 }}>
             <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.success }}>Discuss Task Details</Text>
@@ -177,6 +267,18 @@ export default function DriverChatScreen() {
         showsVerticalScrollIndicator={false}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        ListEmptyComponent={
+          // "No messages" is only true once the stored thread has been read.
+          <View style={styles.emptyState}>
+            {loadingHistory ? (
+              <ActivityIndicator color={Colors.brand} />
+            ) : (
+              <Text style={styles.emptyStateText}>
+                Messages with {chatOrder?.customerName || "the customer"} will show up here.
+              </Text>
+            )}
+          </View>
+        }
       />
 
       <View style={styles.quickRepliesContainer}>
@@ -365,6 +467,17 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontWeight: "500",
     alignSelf: "flex-end",
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: "center",
   },
   quickRepliesContainer: {
     paddingVertical: 8,

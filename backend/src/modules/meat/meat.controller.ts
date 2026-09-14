@@ -15,6 +15,11 @@ import { evaluateOutletOpenState } from "../../utils/openingHours";
 // (the state is derived server-side, so Mongo cannot page it).
 const MAX_IN_MEMORY_SCAN = 300;
 
+// Same response whether or not the email is registered, and the OTP work only
+// happens for a real account, so response timing does not leak it either. A
+// 404 here would let anyone enumerate which emails have a meat-centre account.
+const FORGOT_PASSWORD_RESPONSE = { message: "If an account exists for this email, an OTP has been sent." };
+
 export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -23,28 +28,26 @@ export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
     }
 
     const center = await MeatCenter.findOne({ email });
-    if (!center) {
-      return res.status(404).json({ message: "No account found with this email" });
+    if (center) {
+      // Generate OTP and save
+      const otp = generateOTP();
+      await OTP.create({
+        phone: center.phone,
+        email,
+        code: otp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      });
+
+      // Send email
+      await sendEmail({
+        to: email,
+        subject: "Password Reset OTP — Precision Nav",
+        html: getOTPEmailHtml(otp),
+        text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
+      });
     }
 
-    // Generate OTP and save
-    const otp = generateOTP();
-    await OTP.create({
-      phone: center.phone,
-      email,
-      code: otp,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-    });
-
-    // Send email
-    await sendEmail({
-      to: email,
-      subject: "Password Reset OTP — Precision Nav",
-      html: getOTPEmailHtml(otp),
-      text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
-    });
-
-    res.json({ message: "OTP sent to your email" });
+    res.json(FORGOT_PASSWORD_RESPONSE);
   } catch (error) {
     console.error("Error in forgot password:", error);
     res.status(500).json({ message: "Internal server error" });

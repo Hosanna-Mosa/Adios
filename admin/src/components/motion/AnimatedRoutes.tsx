@@ -69,7 +69,6 @@ export function AnimatedRoutes() {
         <Route path="/payments" element={<RequireAuth><Payments /></RequireAuth>} />
         <Route path="/support" element={<RequireAuth><Support /></RequireAuth>} />
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
-        <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />
         <Route path="/support/chats/:id" element={<RequireAuth><SupportChat /></RequireAuth>} />
         <Route path="/users" element={<RequireAuth><Users /></RequireAuth>} />
         <Route path="/vendors" element={<RequireAuth><Vendors /></RequireAuth>} />

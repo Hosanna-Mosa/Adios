@@ -1,7 +1,7 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 3 of useSavedAddresses, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -17,7 +17,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const handleDeleteAddress = (id: string) => {
     if (selectingId || deletingId) return;
-    Alert.alert("Delete address", "Are you sure you want to remove this address?", [
+    showAlert("Delete address", "Are you sure you want to remove this address?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
@@ -32,7 +32,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
             if (String(selectedAddress?._id || "") === String(id)) setSelectedAddress(null);
           } catch (err: any) {
             console.error("Delete error:", err);
-            Alert.alert("Error", err.message || "Failed to delete address");
+            showAlert("Error", err.message || "Failed to delete address");
           } finally {
             setDeletingId(null);
           }
@@ -42,7 +42,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
   };
 
   const handleMoreOptions = (addr: any) => {
-    Alert.alert(addr.label || "Address", undefined, [
+    showAlert(addr.label || "Address", undefined, [
       { text: "Edit", onPress: () => handleEditAddress(addr) },
       { text: "Delete", style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
       { text: "Cancel", style: "cancel" },

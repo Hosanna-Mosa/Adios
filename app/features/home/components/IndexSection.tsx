@@ -54,6 +54,22 @@ export function IndexSection(props: Props) {
             />
           );
         }
+        {/* Checked ahead of the search-specific empty state: with no drivers online at
+            all, no search term is ever going to turn up a result, so "try these other
+            dishes instead" is actively misleading. This is the same "no riders nearby,
+            change location" state the plain (no search) empty list shows. */}
+        if (nearbyDriversCount === 0) {
+          return (
+            <HomeNoServiceContainer
+              accent={accent}
+              checkNearbyDrivers={checkNearbyDrivers}
+              getCoords={getCoords}
+              isRetryingDrivers={isRetryingDrivers}
+              setIsRetryingDrivers={setIsRetryingDrivers}
+              styles={styles}
+            />
+          );
+        }
         if (searchText) {
           const hasActiveFilters = activeFilterCount > 0;
           const tryInstead = activeService === "Meat" ? ["Chicken curry cut", "Mutton", "Prawns"] : ["Biryani", "Pizza", "₹149 meals"];
@@ -67,18 +83,6 @@ export function IndexSection(props: Props) {
               setSearchText={setSearchText}
               styles={styles}
               tokens={tokens}
-            />
-          );
-        }
-        if (nearbyDriversCount === 0) {
-          return (
-            <HomeNoServiceContainer
-              accent={accent}
-              checkNearbyDrivers={checkNearbyDrivers}
-              getCoords={getCoords}
-              isRetryingDrivers={isRetryingDrivers}
-              setIsRetryingDrivers={setIsRetryingDrivers}
-              styles={styles}
             />
           );
         }

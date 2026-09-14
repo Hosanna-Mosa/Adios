@@ -261,6 +261,7 @@ export default function EarningsScreen() {
       <DriverTabBar active="earnings" />
 
       <Modal
+        statusBarTranslucent
         visible={cashOutVisible}
         transparent
         animationType="fade"

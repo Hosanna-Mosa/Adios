@@ -10,7 +10,6 @@ import { TaskComposeFormWhereTheWorkTimeRequired } from "./TaskComposeFormWhereT
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  TASK_TYPES: any[];
   accent: any;
   activeField: any;
   calculatedFare: any;
@@ -33,36 +32,18 @@ interface Props {
   setCustomMinutes: React.Dispatch<React.SetStateAction<number>>;
   setDescription: React.Dispatch<React.SetStateAction<any>>;
   setDurationMode: React.Dispatch<React.SetStateAction<any>>;
-  setTaskType: React.Dispatch<React.SetStateAction<any>>;
   styles: any;
   suggestedHigh: any;
   suggestedLow: any;
-  taskType: any;
   tokens: any;
 }
 
 export function TaskComposeFormWhereTheWork(props: Props) {
-  const { TASK_TYPES, accent, calculatedFare, goToBidding, insets, isProceedDisabled, offer, setTaskType, styles, suggestedHigh, suggestedLow, taskType } = props;
+  const { calculatedFare, goToBidding, insets, isProceedDisabled, styles, suggestedHigh, suggestedLow } = props;
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
       <Animated.Text style={styles.headline} entering={fadeInUp(0)}>What do you need?</Animated.Text>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-        {TASK_TYPES.map((t, i) => {
-          const isSelected = taskType === t;
-          return (
-            <Animated.View key={t} entering={staggerListItem(i, 30)}>
-              <TouchableOpacity
-                style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                onPress={() => setTaskType(isSelected ? null : t)}
-              >
-                <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{t}</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
-      </ScrollView>
 
       <TaskComposeFormWhereTheWorkWhereTheWork {...props} />
 

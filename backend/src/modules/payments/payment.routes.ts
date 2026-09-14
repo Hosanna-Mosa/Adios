@@ -34,7 +34,7 @@ router.post("/create-order", authenticateToken, authRateLimiter, validateRequest
   }
 });
 
-router.post("/verify", authenticateToken, async (req: AuthRequest, res: Response) => {
+router.post("/verify", authenticateToken, authRateLimiter, validateRequest(verifyPaymentSchema), async (req: AuthRequest, res: Response) => {
   try {
     const { 
       razorpay_payment_id, 

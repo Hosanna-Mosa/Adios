@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
 import { SupportTicket } from "./useSupportChat.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 2 of useSupportChat, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -31,7 +31,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
 
   const handleCreateTicket = async () => {
     if (!newTitle.trim() || !newMessage.trim()) {
-      Alert.alert("Missing details", "Add a title and a short description first.");
+      showAlert("Missing details", "Add a title and a short description first.");
       return;
     }
     setCreatingTicket(true);
@@ -46,7 +46,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
       setNewMessage("");
       setViewMode("chat");
     } catch (error: any) {
-      Alert.alert("Couldn't submit", error.message || "Please try again.");
+      showAlert("Couldn't submit", error.message || "Please try again.");
     } finally {
       setCreatingTicket(false);
     }

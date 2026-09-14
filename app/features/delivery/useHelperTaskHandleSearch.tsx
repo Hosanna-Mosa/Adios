@@ -1,6 +1,6 @@
-import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { getDistanceFromLatLonInKm } from "./useHelperTask.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 3 of useHelperTask, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -33,7 +33,7 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
       if (currentCoords && radius && lat !== null && lng !== null) {
         const distance = getDistanceFromLatLonInKm(currentCoords.lat, currentCoords.lng, lat, lng);
         if (distance > parseFloat(radius)) {
-          Alert.alert("Out of range", `This location is outside your selected ${radius}km radius.`);
+          showAlert("Out of range", `This location is outside your selected ${radius}km radius.`);
           setSearchResults([]);
           setActiveField(null);
           return;

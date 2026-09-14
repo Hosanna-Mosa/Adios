@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import * as dotenv from "dotenv";
 import User, { UserRole } from "../database/models/User";
+import { ADMIN_PHONE } from "../config/auth.config";
 
 dotenv.config();
 
@@ -12,7 +13,8 @@ async function seedAdmin() {
     await mongoose.connect(MONGO_URI);
     console.log("Connected to MongoDB Database:", mongoose.connection.name);
 
-    const adminPhone = "9999999999";
+    // The only phone number the backend accepts an ADMIN token for.
+    const adminPhone = ADMIN_PHONE;
     const existingAdmin = await User.findOne({ phone: adminPhone });
 
     if (existingAdmin) {
@@ -35,7 +37,7 @@ async function seedAdmin() {
 
     await admin.save();
     console.log("Admin user created successfully!");
-    console.log("Phone: 9999999999");
+    console.log("Phone:", adminPhone);
     console.log("Password: admin123");
     
     process.exit(0);

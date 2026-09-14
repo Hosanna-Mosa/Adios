@@ -115,7 +115,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     recentSection: { paddingHorizontal: 16, paddingTop: 36 },
     recentLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
     recentCard: { width: 150 },
-    recentImagePlaceholder: { width: 150, height: 100, borderRadius: 8, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border },
+    recentImage: { width: 150, height: 100, borderRadius: 8, backgroundColor: tokens.sunken },
+    recentImagePlaceholder: { width: 150, height: 100, borderRadius: 8, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
     recentName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginTop: 8 },
     recentMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
   });

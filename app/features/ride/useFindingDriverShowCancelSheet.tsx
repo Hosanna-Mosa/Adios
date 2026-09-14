@@ -33,15 +33,27 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
         const queryParams = new URLSearchParams({ latitude: String(pickupStop.lat), longitude: String(pickupStop.lng), radius: "50000" });
         const res = await customFetch<any[]>(`/drivers/nearby?${queryParams.toString()}`);
         if (active && Array.isArray(res)) {
+          // Only a captain's own live position is drawn. This used to fall back to
+          // their saved home address and then to the pickup point itself, so a
+          // captain with no GPS fix still appeared on the map — sometimes sitting
+          // exactly on the pickup pin, which reads as a captain already waiting.
           const mapped = res
-            .map((drv) => ({
-              id: drv._id,
-              lat: drv.currentLocation?.coordinates?.[1] || drv.user?.addresses?.[0]?.location?.coordinates?.[1] || pickupStop.lat,
-              lng: drv.currentLocation?.coordinates?.[0] || drv.user?.addresses?.[0]?.location?.coordinates?.[0] || pickupStop.lng,
-              vehicleType: drv.vehicleType || "bike",
-              name: drv.user?.name || "Driver",
-            }))
-            .filter((d) => d.lat && d.lng);
+            .map((drv) => {
+              const coords = drv.currentLocation?.coordinates;
+              const lng = Number(coords?.[0]);
+              const lat = Number(coords?.[1]);
+              if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
+                return null;
+              }
+              return {
+                id: drv._id,
+                lat,
+                lng,
+                vehicleType: drv.vehicleType || "bike",
+                name: drv.user?.name || "Driver",
+              };
+            })
+            .filter(Boolean) as { id: string; lat: number; lng: number; vehicleType: string; name: string }[];
           setOnlineDrivers(mapped);
         }
       } catch (error) {

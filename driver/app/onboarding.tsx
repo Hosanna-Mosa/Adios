@@ -1,10 +1,14 @@
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as ImagePicker from "expo-image-picker";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Dimensions,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -38,12 +42,6 @@ const VEHICLES = [
     label: "Auto",
     icon: "box" as const,
     desc: "Spacious for larger orders",
-  },
-  {
-    id: "car",
-    label: "Car",
-    icon: "chevrons-up" as const,
-    desc: "Premium deliveries & longer distances",
   },
 ];
 
@@ -538,6 +536,8 @@ export default function OnboardingScreen() {
   const [ifsc, setIfsc] = useState("");
   const [bankVerified, setBankVerified] = useState(false);
   const [selfieCaptured, setSelfieCaptured] = useState(false);
+  const [selfieUri, setSelfieUri] = useState<string | null>(null);
+  const [selfieUploading, setSelfieUploading] = useState(false);
 
   // ── Sections per step ─────────────────────────────────────────────────────
   const step1Sections = [
@@ -724,6 +724,60 @@ export default function OnboardingScreen() {
     }
   };
 
+  // ── Capture & upload the onboarding selfie ───────────────────────────────
+  // This used to just flip `selfieCaptured` to true with no camera involved,
+  // and completion always PATCHed the literal string "captured" as the
+  // selfieImage — every driver ended up with the same fake value and no
+  // actual photo. It now opens the camera, uploads the real photo to
+  // Cloudinary via the account profile-pic endpoint, and keeps the resulting
+  // URL to send as the driver's selfieImage on completion.
+  const handleCaptureSelfie = async () => {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Camera permission needed", "Please allow camera access to take your profile selfie.");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      cameraType: ImagePicker.CameraType.front,
+    });
+    if (result.canceled || !result.assets[0]?.uri) return;
+
+    const uri = result.assets[0].uri;
+    const token = useDriverStore.getState().token;
+    if (!token || !API_URL) return;
+
+    setSelfieUploading(true);
+    try {
+      const filename = uri.split("/").pop() || "selfie.jpg";
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : "image/jpeg";
+      const formData = new FormData();
+      formData.append("image", { uri, name: filename, type } as any);
+
+      const res = await fetch(`${API_URL}/users/profile-pic`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const data = await res.json();
+
+      setSelfieUri(data.profilePic || uri);
+      setSelfieCaptured(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (err) {
+      console.error("Selfie upload failed:", err);
+      Alert.alert("Upload failed", "Couldn't upload your selfie. Please try again.");
+    } finally {
+      setSelfieUploading(false);
+    }
+  };
+
   // ── Save current section to backend ──────────────────────────────────────
   const saveCurrentSectionData = async () => {
     const sec = currentSections[sectionIdx]?.key;
@@ -816,7 +870,8 @@ export default function OnboardingScreen() {
     const token = useDriverStore.getState().token;
     if (!token) return;
 
-    // Save selfie section first
+    // Save selfie section first — selfieUri is the real Cloudinary URL from
+    // handleCaptureSelfie, not the placeholder "captured" string this used to send.
     setSaving(true);
     try {
       const patchRes = await fetch(`${API_URL}/onboarding`, {
@@ -825,7 +880,7 @@ export default function OnboardingScreen() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ selfieImage: "captured" }),
+        body: JSON.stringify({ selfieImage: selfieUri || undefined }),
       });
       
       if (patchRes.status === 401 || patchRes.status === 403) {
@@ -1438,12 +1493,16 @@ export default function OnboardingScreen() {
         return (
           <View style={{ gap: 20, alignItems: "center" }}>
             <View style={selfieSectionStyles.viewfinder}>
-              <View style={selfieSectionStyles.viewfinderInner}>
-                <Feather name="camera" size={36} color={Colors.textMuted} />
-                <Text style={selfieSectionStyles.viewfinderText}>
-                  Position your face within the frame
-                </Text>
-              </View>
+              {selfieUri ? (
+                <Image source={{ uri: selfieUri }} style={selfieSectionStyles.previewImage} />
+              ) : (
+                <View style={selfieSectionStyles.viewfinderInner}>
+                  <Feather name="camera" size={36} color={Colors.textMuted} />
+                  <Text style={selfieSectionStyles.viewfinderText}>
+                    Position your face within the frame
+                  </Text>
+                </View>
+              )}
               {/* Oval cutout guidelines */}
               <View style={selfieSectionStyles.oval} />
             </View>
@@ -1453,15 +1512,23 @@ export default function OnboardingScreen() {
                 style={selfieSectionStyles.captureBtn}
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                  setSelfieCaptured(true);
+                  handleCaptureSelfie();
                 }}
                 activeOpacity={0.8}
+                disabled={selfieUploading}
               >
-                <Feather name="camera" size={24} color={Colors.white} />
+                {selfieUploading ? (
+                  <ActivityIndicator color={Colors.white} />
+                ) : (
+                  <Feather name="camera" size={24} color={Colors.white} />
+                )}
               </TouchableOpacity>
             ) : (
               <View style={{ alignItems: "center", gap: 12 }}>
                 <InfoBanner icon="check-circle" text="Photo captured successfully!" />
+                <TouchableOpacity onPress={handleCaptureSelfie}>
+                  <Text style={selfieSectionStyles.retakeText}>Retake photo</Text>
+                </TouchableOpacity>
               </View>
             )}
 
@@ -1871,6 +1938,15 @@ const selfieSectionStyles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 18,
     paddingHorizontal: 20,
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  retakeText: {
+    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
+    color: Colors.primary,
   },
 });
 

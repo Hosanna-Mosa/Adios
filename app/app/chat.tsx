@@ -14,7 +14,8 @@ import type { OrderStatus } from "@/contexts/deliveryStore";
 export default function ChatScreen() {
   const {
   driver, activeChat, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles,
-  inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem
+  inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem,
+  loadingHistory
   } = useChat();
 
   return (
@@ -37,7 +38,9 @@ export default function ChatScreen() {
       </Animated.View>
 
       <ChatBody
+        accent={accent}
         activeChat={activeChat}
+        loadingHistory={loadingHistory}
         flatListRef={flatListRef}
         partnerLabel={partnerLabel}
         renderItem={renderItem}

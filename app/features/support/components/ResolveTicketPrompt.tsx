@@ -1,4 +1,5 @@
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 // Moved out of app/support-chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -17,7 +18,8 @@ export function ResolveTicketPrompt({
   ticket,
 }: Props) {
   return (
-    <Modal visible={ticket.status === "PENDING_RESOLVE"} transparent animationType="fade">
+    <Modal statusBarTranslucent visible={ticket.status === "PENDING_RESOLVE"} transparent animationType="fade">
+      <StatusBarFill />
       <View style={styles.resolveOverlay}>
         <View style={styles.resolveCard}>
           <Text style={styles.resolveTitle}>Mark this case resolved?</Text>

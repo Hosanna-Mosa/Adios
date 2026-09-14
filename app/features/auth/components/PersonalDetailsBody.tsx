@@ -10,8 +10,10 @@ import { PersonalDetailsPhoneField } from "./PersonalDetailsPhoneField";
 
 interface Props {
   accent: any;
+  blurField: any;
   editField: any;
   email: any;
+  errors: any;
   handleSave: any;
   insets: any;
   name: any;
@@ -27,8 +29,10 @@ interface Props {
 
 export function PersonalDetailsBody({
   accent,
+  blurField,
   editField,
   email,
+  errors,
   handleSave,
   insets,
   name,
@@ -47,15 +51,42 @@ export function PersonalDetailsBody({
       <View style={{ gap: 12 }}>
         <Animated.View entering={staggerListItem(0)}>
           <Text style={styles.label}>Full name</Text>
-          <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder="Your name" placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.name && styles.fieldInvalid]}
+            value={name}
+            onChangeText={editField("name", setName)}
+            onBlur={blurField("name", name)}
+            placeholder="Your name"
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.name && <Text style={styles.fieldError}>{errors.name}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(1)}>
           <Text style={styles.label}>Username</Text>
-          <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder="@handle" autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.username && styles.fieldInvalid]}
+            value={username}
+            onChangeText={editField("username", setUsername)}
+            onBlur={blurField("username", username)}
+            placeholder="@handle"
+            autoCapitalize="none"
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.username && <Text style={styles.fieldError}>{errors.username}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(2)}>
           <Text style={styles.label}>Email</Text>
-          <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.email ? styles.fieldInvalid : { borderColor: accent.accent, borderWidth: 2 }]}
+            value={email}
+            onChangeText={editField("email", setEmail)}
+            onBlur={blurField("email", email)}
+            placeholder="your@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.email && <Text style={styles.fieldError}>{errors.email}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(3)}>
           <Text style={styles.label}>Phone</Text>

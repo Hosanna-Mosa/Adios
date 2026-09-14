@@ -1,16 +1,10 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { type ServiceTokens } from "@/constants/colors";
+import { cuisineImageUrl } from "./CuisineStrip.images";
 
-// Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to
-// read from the screen's scope is now passed in as props. CUISINE_EMOJI came
-// with it because nothing else referenced it.
-
-const CUISINE_EMOJI: { [key: string]: string } = {
-  Biryani: "🍛", Tiffins: "🫓", Chinese: "🍜", Pizza: "🍕", Sweets: "🍮",
-  "South Indian": "🥞", "North Indian": "🍛", Mughlai: "🍢", Kebabs: "🍢",
-  "Fast Food": "🍔", Burgers: "🍔", Rolls: "🌯", Desserts: "🍮",
-  Chicken: "🐔", Mutton: "🐐", Seafood: "🦐", Eggs: "🥚",
-};
+// Moved out of app/(tabs)/index.tsx. The circles now show a real photo of the
+// cuisine instead of an emoji — see CuisineStrip.images.ts for the mapping.
 
 interface Props {
   styles: any;
@@ -43,7 +37,12 @@ export function CuisineStrip({
               onPress={() => setSelectedCuisines(isSelected ? selectedCuisines.filter((c) => c !== cuisine) : [...selectedCuisines, cuisine])}
             >
               <View style={[styles.cuisineCircle, isSelected && { borderColor: accent.accent, borderWidth: 2 }]}>
-                <Text style={styles.cuisineEmoji}>{CUISINE_EMOJI[cuisine] || "🍽️"}</Text>
+                <Image
+                  source={{ uri: cuisineImageUrl(cuisine) }}
+                  style={styles.cuisineImage}
+                  contentFit="cover"
+                  transition={200}
+                />
               </View>
               <Text style={[styles.cuisineName, isSelected && { color: accent.accent }]}>{cuisine}</Text>
             </TouchableOpacity>

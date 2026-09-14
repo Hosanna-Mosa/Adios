@@ -1,13 +1,16 @@
-import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 4 of useHelperTask, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
 
-export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, pickupCoords: any, isPickupValid: any, description: any, setOffer: any, localOrderId: any, setLocalOrderId: any, setIsIncreasingPrice: any, setCurrentTaskPrice: any, setAssignedDriver: any, calculatedFare: any) {
+export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, pickupCoords: any, isPickupValid: any, description: any, setOffer: any, localOrderId: any, setLocalOrderId: any, setIsIncreasingPrice: any, setCurrentTaskPrice: any, setAssignedDriver: any, setSearchExhausted: any, calculatedFare: any) {
   const handleIncreasePrice = async (amount: number) => {
     if (!localOrderId) return;
     setIsIncreasingPrice(amount);
+    // The server restarts the dispatch cascade at the new price, so this screen
+    // goes back to searching instead of sitting on "no helpers available".
+    setSearchExhausted(false);
     try {
       const updatedOrder = await customFetch<any>(`/orders/${localOrderId}/increase-price`, {
         method: "PATCH",
@@ -16,14 +19,14 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
       if (updatedOrder?.customerPrice) setCurrentTaskPrice(updatedOrder.customerPrice);
       else if (updatedOrder?.totalPrice) setCurrentTaskPrice(updatedOrder.totalPrice);
     } catch {
-      Alert.alert("Error", "Failed to increase task price.");
+      showAlert("Error", "Failed to increase task price.");
     } finally {
       setIsIncreasingPrice(null);
     }
   };
 
   const handleCancel = () => {
-    Alert.alert("Cancel this task?", "This can't be undone.", [
+    showAlert("Cancel this task?", "This can't be undone.", [
       { text: "Keep task", style: "cancel" },
       {
         text: "Cancel task",
@@ -37,6 +40,7 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
             }
           }
           setStep("compose");
+          setSearchExhausted(false);
           setAssignedDriver(null);
           setOrderId(null);
           setLocalOrderId(null);
@@ -47,11 +51,11 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
 
   const goToBidding = () => {
     if (!isPickupValid || !pickupCoords?.lat) {
-      Alert.alert("Missing details", "Please select a valid pickup location.");
+      showAlert("Missing details", "Please select a valid pickup location.");
       return;
     }
     if (!description.trim()) {
-      Alert.alert("Missing details", "Please provide a brief description of the work.");
+      showAlert("Missing details", "Please provide a brief description of the work.");
       return;
     }
     setOffer((prev: any) => prev ?? calculatedFare);

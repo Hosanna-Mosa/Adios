@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -90,7 +92,8 @@ interface ProfileResponse {
   };
   stats: {
     completedTrips: number;
-    rating: number;
+    rating: number | null;
+    ratingCount: number;
     acceptanceRate: number;
   };
 }
@@ -115,6 +118,7 @@ const GENDERS = [
 export default function ProfileScreen() {
   const tabBarHeight = useDriverTabBarHeight();
   const token = useDriverStore((s) => s.token);
+  const isOnline = useDriverStore((s) => s.isOnline);
   const logout = useDriverStore((s) => s.logout);
   const resetOnboarding = useDriverStore((s) => s.resetOnboarding);
   const setIdentityVerified = useDriverStore((s) => s.setIdentityVerified);
@@ -405,17 +409,6 @@ export default function ProfileScreen() {
         fields: [],
       },
       {
-        key: "settings",
-        icon: "settings" as const,
-        title: "Settings",
-        subtitle: "Account preferences",
-        fields: [
-          field("Default Location", formatCoordinates(profile.account.defaultLocation?.coordinates)),
-          field("Saved Addresses", String(profile.account.addresses.length)),
-          field("Member Since", formatDate(profile.account.createdAt)),
-        ],
-      },
-      {
         key: "support",
         icon: "message-circle" as const,
         title: "Support",
@@ -555,6 +548,67 @@ export default function ProfileScreen() {
             <Feather name="edit-2" size={15} color={Colors.primary} />
             <Text style={modalStyles.editButtonText}>Edit Profile</Text>
           </Pressable>
+
+          {/* Change Password — moved here from the removed standalone Settings
+              section, which existed only to hold this one control. */}
+          {showPasswordForm ? (
+            <View style={modalStyles.passwordForm}>
+              <EditField
+                label="Current Password"
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+                icon="lock"
+                placeholder="Enter current password"
+                secureTextEntry
+              />
+              <EditField
+                label="New Password"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                icon="lock"
+                placeholder="At least 6 characters"
+                secureTextEntry
+              />
+              <EditField
+                label="Confirm New Password"
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                icon="check-square"
+                placeholder="Re-enter new password"
+                secureTextEntry
+              />
+              <View style={modalStyles.editActions}>
+                <Pressable
+                  style={modalStyles.cancelBtn}
+                  onPress={() => {
+                    setShowPasswordForm(false);
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }}
+                >
+                  <Text style={modalStyles.cancelBtnText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={[modalStyles.saveBtn, isSavingPassword && { opacity: 0.6 }]}
+                  onPress={handleChangePassword}
+                  disabled={isSavingPassword}
+                >
+                  <Text style={modalStyles.saveBtnText}>
+                    {isSavingPassword ? "Updating..." : "Update Password"}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : (
+            <Pressable
+              style={modalStyles.editButton}
+              onPress={() => setShowPasswordForm(true)}
+            >
+              <Feather name="lock" size={15} color={Colors.primary} />
+              <Text style={modalStyles.editButtonText}>Change Password</Text>
+            </Pressable>
+          )}
         </View>
       );
     }
@@ -713,84 +767,6 @@ export default function ProfileScreen() {
       );
     }
 
-    // ── SETTINGS ────────────────────────────────────────────────────────────
-    if (selectedSection.key === "settings") {
-      return (
-        <View>
-          {selectedSection.fields.map((item) => (
-            <FieldRow key={item.label} label={item.label} value={item.value} />
-          ))}
-          {profile?.account.addresses.map((address, index) => (
-            <FieldRow
-              key={`${address.label}-${index}`}
-              label={`Address ${index + 1}`}
-              value={`${address.label}: ${address.addressLine}`}
-            />
-          ))}
-
-          {/* Change Password */}
-          {showPasswordForm ? (
-            <View style={modalStyles.passwordForm}>
-              <EditField
-                label="Current Password"
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                icon="lock"
-                placeholder="Enter current password"
-                secureTextEntry
-              />
-              <EditField
-                label="New Password"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                icon="lock"
-                placeholder="At least 6 characters"
-                secureTextEntry
-              />
-              <EditField
-                label="Confirm New Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                icon="check-square"
-                placeholder="Re-enter new password"
-                secureTextEntry
-              />
-              <View style={modalStyles.editActions}>
-                <Pressable
-                  style={modalStyles.cancelBtn}
-                  onPress={() => {
-                    setShowPasswordForm(false);
-                    setCurrentPassword("");
-                    setNewPassword("");
-                    setConfirmPassword("");
-                  }}
-                >
-                  <Text style={modalStyles.cancelBtnText}>Cancel</Text>
-                </Pressable>
-                <Pressable
-                  style={[modalStyles.saveBtn, isSavingPassword && { opacity: 0.6 }]}
-                  onPress={handleChangePassword}
-                  disabled={isSavingPassword}
-                >
-                  <Text style={modalStyles.saveBtnText}>
-                    {isSavingPassword ? "Updating..." : "Update Password"}
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : (
-            <Pressable
-              style={modalStyles.editButton}
-              onPress={() => setShowPasswordForm(true)}
-            >
-              <Feather name="lock" size={15} color={Colors.primary} />
-              <Text style={modalStyles.editButtonText}>Change Password</Text>
-            </Pressable>
-          )}
-        </View>
-      );
-    }
-
     // ── SUPPORT ─────────────────────────────────────────────────────────────
     if (selectedSection.key === "support") {
       return (
@@ -851,7 +827,9 @@ export default function ProfileScreen() {
               <Text style={styles.memberSince}>Member since {formatMonthYear(profile.account.createdAt)}</Text>
               <View style={styles.ratingBadge}>
                 <Feather name="star" size={11} color={Colors.white} />
-                <Text style={styles.ratingText}>{profile.stats.rating.toFixed(1)}</Text>
+                <Text style={styles.ratingText}>
+                  {profile.stats.rating != null ? profile.stats.rating.toFixed(1) : "New"}
+                </Text>
               </View>
             </Animated.View>
 
@@ -867,7 +845,12 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.statDivider} />
               <View style={styles.statCol}>
-                <Text style={styles.statValueBold}>{profile.driver?.status === "online" ? "ONLINE" : "OFFLINE"}</Text>
+                {/* Was comparing profile.driver?.status (backend enum "ONLINE"/"OFFLINE")
+                    against the lowercase literal "online", which never matched — so this
+                    read OFFLINE even while the driver was online. Reading the live
+                    isOnline flag from the store also keeps this in sync immediately
+                    after toggling shift status, instead of only after a manual refresh. */}
+                <Text style={styles.statValueBold}>{isOnline ? "ONLINE" : "OFFLINE"}</Text>
                 <Text style={styles.statLabelMuted}>Status</Text>
               </View>
             </Animated.View>
@@ -961,12 +944,16 @@ export default function ProfileScreen() {
 
       {/* ── Section Detail Modal ────────────────────────────────────────────── */}
       <Modal
+        statusBarTranslucent
         visible={Boolean(selectedSection)}
         transparent
         animationType="fade"
         onRequestClose={handleCloseModal}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{selectedSection?.title}</Text>
@@ -974,11 +961,19 @@ export default function ProfileScreen() {
                 <Feather name="x" size={18} color={Colors.text} />
               </Pressable>
             </View>
-            <ScrollView style={styles.modalScroll} keyboardShouldPersistTaps="handled">
+            {/* Personal Info's edit fields and the relocated Change Password form
+                both sit inside this modal — with no keyboard-avoidance at all,
+                the last field(s) and the Save/Update button ended up hidden
+                under the keyboard as soon as it opened. */}
+            <ScrollView
+              style={styles.modalScroll}
+              contentContainerStyle={styles.modalScrollContent}
+              keyboardShouldPersistTaps="handled"
+            >
               {renderSectionContent()}
             </ScrollView>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
@@ -1378,6 +1373,9 @@ const styles = StyleSheet.create({
   },
   modalScroll: {
     paddingHorizontal: 16,
+  },
+  modalScrollContent: {
+    paddingBottom: 24,
   },
   fieldRow: {
     paddingVertical: 12,

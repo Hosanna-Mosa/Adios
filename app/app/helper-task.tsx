@@ -13,11 +13,12 @@ import { useHelperTask } from "@/features/delivery/useHelperTask";
 
 export default function HelperTaskScreen() {
   const {
-  insets, tokens, accent, styles, step, setStep, taskType, setTaskType, pickupLocation,
+  insets, tokens, accent, styles, step, setStep, pickupLocation,
   dropoffLocation, activeField, setActiveField, searchResults, durationMode, setDurationMode,
   customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription,
   offer, setOffer, isCreating, isIncreasingPrice, currentTaskPrice, rejectedCount, totalContacted,
-  startOtp, totalHours, calculatedFare, suggestedLow, suggestedHigh, handleUseCurrentLocation,
+  startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, suggestedLow,
+  suggestedHigh, handleUseCurrentLocation,
   handleSearch, selectResult, handleIncreasePrice, handleCancel, goToBidding, createTask,
   isProceedDisabled, activeDriver
   } = useHelperTask();
@@ -26,7 +27,7 @@ export default function HelperTaskScreen() {
     <ScreenShell>
       <Stack.Screen options={{ headerShown: false }} />
       <Header
-        title={step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? "Finding a helper" : "Task assigned"}
+        title={step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? (searchExhausted ? "No helpers yet" : "Finding a helper") : "Task assigned"}
         onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
@@ -34,7 +35,6 @@ export default function HelperTaskScreen() {
 
       {step === "compose" && (
         <TaskComposeForm
-          TASK_TYPES={TASK_TYPES}
           accent={accent}
           activeField={activeField}
           calculatedFare={calculatedFare}
@@ -57,11 +57,9 @@ export default function HelperTaskScreen() {
           setCustomMinutes={setCustomMinutes}
           setDescription={setDescription}
           setDurationMode={setDurationMode}
-          setTaskType={setTaskType}
           styles={styles}
           suggestedHigh={suggestedHigh}
           suggestedLow={suggestedLow}
-          taskType={taskType}
           tokens={tokens}
         />
       )}
@@ -106,7 +104,10 @@ export default function HelperTaskScreen() {
           isIncreasingPrice={isIncreasingPrice}
           offer={offer}
           rejectedCount={rejectedCount}
+          searchExhausted={searchExhausted}
+          searchStartedAt={searchStartedAt}
           styles={styles}
+          tokens={tokens}
           totalContacted={totalContacted}
         />
       )}
@@ -130,4 +131,3 @@ export default function HelperTaskScreen() {
   );
 }
 
-const TASK_TYPES = ["Shifting", "Cleaning", "Queue & errands", "Loading"];

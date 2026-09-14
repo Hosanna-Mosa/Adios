@@ -13,6 +13,21 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+// The mock-payment shortcut below accepts a signature Razorpay never issued, so
+// it has to be switched on deliberately rather than inferred. Keying it off
+// NODE_ENV alone failed open: nothing in this project sets NODE_ENV, and an
+// unset value is not "production", so the shortcut enabled itself everywhere —
+// including on the live API. An absent ALLOW_MOCK_PAYMENTS now means no
+// shortcut; NODE_ENV stays as a second lock that a stray "true" cannot pick.
+const MOCK_PAYMENTS_ALLOWED =
+  process.env.ALLOW_MOCK_PAYMENTS === "true" && process.env.NODE_ENV !== "production";
+
+if (MOCK_PAYMENTS_ALLOWED) {
+  console.warn(
+    "[PAYMENTS] ALLOW_MOCK_PAYMENTS is on — any signature starting with 'sig_' is accepted without verification. Never set this outside local development."
+  );
+}
+
 export class PaymentService {
   async createRazorpayOrder(amount: number, currency: string = "INR") {
     const options = {
@@ -31,10 +46,13 @@ export class PaymentService {
   }
 
   async verifyPayment(paymentId: string, orderId: string, signature: string) {
-    // Development Bypass: If testing with our mock frontend simulation.
-    // Gated to non-production so this can never ship as a live payment-verification skip.
-    if (process.env.NODE_ENV !== "production" && signature.startsWith("sig_")) {
+    // Local mock-checkout bypass. Off unless MOCK_PAYMENTS_ALLOWED opted in above.
+    if (MOCK_PAYMENTS_ALLOWED && typeof signature === "string" && signature.startsWith("sig_")) {
       return true;
+    }
+
+    if (typeof signature !== "string" || signature.length === 0) {
+      return false;
     }
 
     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!);

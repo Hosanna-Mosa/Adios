@@ -1,6 +1,6 @@
-import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 4 of useAddAddress, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -24,12 +24,12 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
 
   const handleSave = async () => {
     if (!addressLine.trim()) {
-      Alert.alert("Missing information", "Street address is required.");
+      showAlert("Missing information", "Street address is required.");
       return;
     }
     const receiverPhoneDigits = receiverPhone.replace(/\D/g, "");
     if (receiverPhone.trim() && receiverPhoneDigits.length !== 10) {
-      Alert.alert("Invalid phone", "Enter a valid 10-digit receiver phone number.");
+      showAlert("Invalid phone", "Enter a valid 10-digit receiver phone number.");
       return;
     }
     try {
@@ -88,7 +88,7 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       router.back();
     } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", error.message || "Failed to save address.");
+      showAlert("Error", error.message || "Failed to save address.");
     } finally {
       setLoading(false);
     }

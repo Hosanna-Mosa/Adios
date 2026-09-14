@@ -1,12 +1,15 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { ENABLED_TIERS } from "./useRideConfirmation.shared";
+import { showAlert } from "@/components/ui/AppAlert";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
 
 // Part 5 of useRideConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
 
 export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, tierFares: any, setBooking: any, setShowDatePicker: any, setConfirmedReservation: any, pickupCoords: any, dropCoords: any, stops: any) {
+  const { setOrderId, setServiceType, setStatus } = useDeliveryStore();
+
   const placeOrder = async (isReserved: boolean, reservedAt?: Date) => {
     setBooking(true);
     try {
@@ -40,10 +43,17 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
           dropName: params.dropName,
         });
       } else {
+        // Tracked globally the instant it's created, the same way food/delivery/
+        // helper bookings already are — otherwise backing out of "Finding your
+        // captain" left the app with no record the ride ever existed, and no way
+        // back into it (see the active-order stripe above the tab bar).
+        setOrderId(res._id);
+        setServiceType(selectedTier);
+        setStatus("confirmed");
         router.push({ pathname: "/finding-driver", params: { orderId: res._id } });
       }
     } catch (e: any) {
-      Alert.alert("Booking failed", e.message);
+      showAlert("Booking failed", e.message);
     } finally {
       setBooking(false);
     }

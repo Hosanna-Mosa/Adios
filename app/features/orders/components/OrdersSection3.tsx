@@ -74,8 +74,12 @@ export function OrdersSection3({
                   <Text style={styles.actionBtnOutlineText}>Rate</Text>
                 </TouchableOpacity>
               ) : (
+                // Opens the same tracking screen a live ride uses, but /tracking
+                // fetches the order fresh by id and renders TripCompleteScreen for
+                // a finished one (see useTrackingPickupStop + app/tracking.tsx) —
+                // a real details/receipt view, not a "keep watching the map" one.
                 <TouchableOpacity style={styles.actionBtnOutline} onPress={() => router.push({ pathname: "/tracking", params: { orderId: order._id } })}>
-                  <Text style={styles.actionBtnOutlineText}>Receipt</Text>
+                  <Text style={styles.actionBtnOutlineText}>Details</Text>
                 </TouchableOpacity>
               ))}
             </View>

@@ -1,10 +1,10 @@
 import { useMemo } from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useCartStore } from "@/contexts/cartStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { isScheduledOrder, isTerminalOrder, readOrderLines, toCartItem } from "./useOrders.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 2 of useOrders, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -38,7 +38,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       setOrders((prev: any) => prev.map((o: any) => (o._id === selectedOrderForReview._id ? { ...o, isReviewed: true } : o)));
       setSelectedOrderForReview(null);
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to submit review. Please try again.");
+      showAlert("Error", err.message || "Failed to submit review. Please try again.");
     } finally {
       setSubmittingReview(false);
     }
@@ -71,7 +71,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       }
 
       if (!cartVendorId || cartItems.length === 0) {
-        Alert.alert("Can't reorder", "We couldn't find the items from this order. Please add them from the menu.");
+        showAlert("Can't reorder", "We couldn't find the items from this order. Please add them from the menu.");
         return;
       }
 

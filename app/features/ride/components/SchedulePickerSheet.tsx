@@ -1,6 +1,7 @@
 import React from "react";
 import { staggerListItem } from "@/motion/presets";
 import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";
 
@@ -52,7 +53,8 @@ export function SchedulePickerSheet({
   styles,
 }: Props) {
   return (
-    <Modal visible={showDatePicker} transparent animationType="slide" onRequestClose={() => setShowDatePicker(false)}>
+    <Modal statusBarTranslucent visible={showDatePicker} transparent animationType="slide" onRequestClose={() => setShowDatePicker(false)}>
+      <StatusBarFill />
       <View style={styles.sheetOverlay}>
         <TouchableOpacity activeOpacity={1} style={styles.sheetScrim} onPress={() => setShowDatePicker(false)} />
         <View style={[styles.datePickerSheet, { paddingBottom: insets.bottom + 16 }]}>

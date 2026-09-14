@@ -1,14 +1,17 @@
 import React, { useEffect } from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { socketService } from "@/utils/socketService";
+import { showAlert } from "@/components/ui/AppAlert";
+import { normalizeStatus } from "@/features/ride/useTracking.shared";
 
 export function GlobalSocketHandler() {
   const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
   const addChatMessage = useDeliveryStore((s) => s.addChatMessage);
   const incrementUnreadCount = useDeliveryStore((s) => s.incrementUnreadCount);
+  const setStatus = useDeliveryStore((s) => s.setStatus);
+  const setDriver = useDeliveryStore((s) => s.setDriver);
   const user = useAuthStore((s) => s.user);
 
   // Connection and user room joining effect
@@ -20,7 +23,7 @@ export function GlobalSocketHandler() {
 
     const onUpcomingReservedRide = (data: any) => {
       console.log("Customer received upcoming reserved ride:", data);
-      Alert.alert(
+      showAlert(
         "Upcoming Reserved Ride!",
         `Your reserved ride with ${data.driverName} starts in 15 minutes!`,
         [
@@ -75,8 +78,36 @@ export function GlobalSocketHandler() {
 
     socketService.on("receive_message", onMessage);
 
+    // Keeps the order's status current in the background — needed for the
+    // active-order stripe on the tab bar, which reads it while the customer is
+    // away from the tracking screen. Without this, `status` was only ever
+    // refreshed while tracking.tsx itself was mounted, so it went stale the
+    // moment the customer navigated back to Home, and a since-finished order
+    // could keep showing as "in progress" indefinitely.
+    const onOrderAccepted = (data: any) => {
+      if (data?.driver) setDriver(data.driver);
+      setStatus("driver_assigned");
+    };
+    const onOrderStatusUpdate = (data: any) => {
+      if (!data?.status) return;
+      const statusStr = String(data.status).toLowerCase();
+      if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
+        setStatus("cancelled");
+        return;
+      }
+      setStatus(normalizeStatus(data.status));
+    };
+    const onOrderCancelled = () => setStatus("cancelled");
+
+    socketService.on("order_accepted", onOrderAccepted);
+    socketService.on("order_status_update", onOrderStatusUpdate);
+    socketService.on("order_cancelled", onOrderCancelled);
+
     return () => {
       socketService.off("receive_message", onMessage);
+      socketService.off("order_accepted", onOrderAccepted);
+      socketService.off("order_status_update", onOrderStatusUpdate);
+      socketService.off("order_cancelled", onOrderCancelled);
     };
   }, [currentOrderId]);
 

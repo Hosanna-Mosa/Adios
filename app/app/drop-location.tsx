@@ -1,4 +1,8 @@
-import { Platform, KeyboardAvoidingView, Modal } from "react-native";
+import {
+  Modal,
+} from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { RouteInputCard } from "@/features/ride/components/RouteInputCard";
 import { DropActionRow } from "@/features/ride/components/DropActionRow";
 import { PlacesList } from "@/features/ride/components/PlacesList";
@@ -13,14 +17,15 @@ export default function LocationSelectionScreen() {
   setShowBookingForSheet, bookingFor, setBookingFor, someoneContact, setSomeoneContact,
   recentPlaces, savedAddresses, savingPreference, setSavingPreference, isNavigating,
   fetchingLocation, searchResults, isSearching, searchLoading, searchText, searchError,
-  setFocusedInput, pickupRef, dropRef, handleSearch, selectResult, handleSelection, handleAddStop,
+  focusedInput, setFocusedInput, fieldText, clearField, handleFieldChange,
+  pickupRef, dropRef, selectResult, handleSelection, handleAddStop,
   handleRemoveStop, handleStopSelection, selectSavedAddress, handleCurrentLocation
   } = useLocationSelection();
 
   return (
     <>
     <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
         style={styles.root}
     >
       <DropLocationHeader
@@ -37,9 +42,12 @@ export default function LocationSelectionScreen() {
         drop={drop}
         dropRef={dropRef}
         fetchingLocation={fetchingLocation}
+        focusedInput={focusedInput}
+        fieldText={fieldText}
+        clearField={clearField}
         handleCurrentLocation={handleCurrentLocation}
+        handleFieldChange={handleFieldChange}
         handleRemoveStop={handleRemoveStop}
-        handleSearch={handleSearch}
         handleSelection={handleSelection}
         handleStopSelection={handleStopSelection}
         pickup={pickup}
@@ -87,11 +95,13 @@ export default function LocationSelectionScreen() {
     </KeyboardAvoidingView>
 
     <Modal
+      statusBarTranslucent
       visible={showBookingForSheet}
       transparent
       animationType="slide"
       onRequestClose={() => setShowBookingForSheet(false)}
     >
+      <StatusBarFill />
       <BookingForSheet
         user={user}
         accent={accent}

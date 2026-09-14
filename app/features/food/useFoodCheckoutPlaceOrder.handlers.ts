@@ -1,7 +1,6 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { RazorpayIntegration } from "@/utils/razorpay";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -9,27 +8,27 @@ import { RazorpayIntegration } from "@/utils/razorpay";
 export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vendorId: any, items: any, clearCart: any, user: any, token: any, setOrderId: any, setStatus: any, setServiceType: any, selectedAddress: any, setIsPlacingOrder: any, appliedPromo: any, vendorName: any, scheduledFor: any, setShowScheduleSheet: any, subtotal: any, deliveryFee: any, activeTip: any, discount: any, total: any, receiverName: any, receiverPhone: any, addressIssue: any) =>
   async () => {
     if (getItemCount() === 0) {
-      Alert.alert("Cart is empty", "Please add at least one item.");
+      showAlert("Cart is empty", "Please add at least one item.");
       return;
     }
     if (!user || !token) {
-      Alert.alert("Login required", "Please log in before placing your order.");
+      showAlert("Login required", "Please log in before placing your order.");
       router.push("/login");
       return;
     }
     if (addressIssue || !selectedAddress) {
-      Alert.alert("Delivery details needed", addressIssue || "Select a delivery address to continue.");
+      showAlert("Delivery details needed", addressIssue || "Select a delivery address to continue.");
       router.push("/delivery/saved-addresses");
       return;
     }
     if (!vendorId) {
-      Alert.alert("Restaurant missing", "Please choose a restaurant again.");
+      showAlert("Restaurant missing", "Please choose a restaurant again.");
       return;
     }
     // The slot can lapse between picking it and paying; the server rejects a
     // past scheduledFor, so catch it before anything is charged.
     if (scheduledFor && scheduledFor.getTime() <= Date.now()) {
-      Alert.alert("Invalid time", "Please choose a future delivery time.");
+      showAlert("Invalid time", "Please choose a future delivery time.");
       setShowScheduleSheet(true);
       return;
     }
@@ -99,34 +98,18 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         ],
       };
 
-      let finalOrderId: string;
-
-      const rzpOrderResponse = await customFetch<any>("/payments/create-order", {
+      // Cash on delivery: the order is created directly rather than going
+      // through create-order → gateway → verify (see usePaymentHandlePayment,
+      // the sibling checkout flow this one was never brought in line with —
+      // there is no gateway to open, so the old route failed every order with
+      // "HTTP 400: Payment verification failed" the moment Razorpay was asked
+      // to verify a payment that was never actually taken).
+      const finalOrder = await customFetch<any>("/orders", {
         method: "POST",
-        body: JSON.stringify({ amount: total }),
+        body: JSON.stringify(orderDataPayload),
       });
 
-      const rzpResult = await RazorpayIntegration.open({
-        order_id: rzpOrderResponse.id,
-        key: rzpOrderResponse.key,
-        amount: rzpOrderResponse.amount,
-        currency: rzpOrderResponse.currency,
-        name: rzpOrderResponse.name,
-        prefill: rzpOrderResponse.prefill,
-        theme: rzpOrderResponse.theme,
-      });
-
-      const verifyResponse = await customFetch<any>("/payments/verify", {
-        method: "POST",
-        body: JSON.stringify({
-          razorpay_payment_id: rzpResult.razorpay_payment_id,
-          razorpay_order_id: rzpResult.razorpay_order_id,
-          razorpay_signature: rzpResult.razorpay_signature,
-          orderData: orderDataPayload,
-        }),
-      });
-
-      finalOrderId = verifyResponse.order._id || verifyResponse.order.id;
+      const finalOrderId: string = finalOrder._id || finalOrder.id;
 
       setOrderId(finalOrderId);
       setServiceType("delivery");
@@ -142,7 +125,7 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       router.replace({ pathname: "/finding-driver", params: { orderId: finalOrderId } });
     } catch (error: any) {
       console.error("Place order failed", error);
-      Alert.alert("Order failed", error?.message || "Unable to place your order.");
+      showAlert("Order failed", error?.message || "Unable to place your order.");
     } finally {
       setIsPlacingOrder(false);
     }

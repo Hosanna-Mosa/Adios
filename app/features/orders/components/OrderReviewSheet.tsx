@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -38,7 +39,8 @@ export function OrderReviewSheet({
   tokens,
 }: Props) {
   return (
-    <Modal visible={!!selectedOrderForReview} transparent animationType="fade" onRequestClose={() => setSelectedOrderForReview(null)}>
+    <Modal statusBarTranslucent visible={!!selectedOrderForReview} transparent animationType="fade" onRequestClose={() => setSelectedOrderForReview(null)}>
+      <StatusBarFill />
       <View style={styles.reviewOverlay}>
         <View style={styles.reviewCard}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>

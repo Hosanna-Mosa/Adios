@@ -15,6 +15,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     avatar: { width: 64, height: 64, borderRadius: 999 },
     avatarPlaceholder: { width: 64, height: 64, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
     avatarInitial: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, color: tokens.sec },
+    avatarEditBadge: { position: "absolute", right: -2, bottom: -2, width: 24, height: 24, borderRadius: 12, backgroundColor: accent.accent, borderWidth: 2, borderColor: tokens.surface, alignItems: "center", justifyContent: "center" },
     profileName: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
     profilePhone: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 4 },
 

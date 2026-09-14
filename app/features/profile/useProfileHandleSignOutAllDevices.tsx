@@ -1,13 +1,13 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 3 of useProfile, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
 
 export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoading: any, unreadCount: any, setSecurityVisible: any, setSigningOutAll: any) {
   const handleSignOutAllDevices = () => {
-    Alert.alert(
+    showAlert(
       "Sign out of all devices?",
       "Every phone signed in to this account gets signed out, including this one.",
       [
@@ -21,7 +21,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
               await customFetch("/auth/logout-all", { method: "POST" });
             } catch (err: any) {
               console.error("Sign out of all devices error:", err);
-              Alert.alert("Error", err?.message || "Couldn't sign out of all devices.");
+              showAlert("Error", err?.message || "Couldn't sign out of all devices.");
               setSigningOutAll(false);
               return;
             }

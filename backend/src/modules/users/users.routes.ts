@@ -21,6 +21,7 @@ const usersController = new UsersController();
 router.get("/profile", authenticateToken, usersController.getProfile.bind(usersController));
 router.patch("/profile", authenticateToken, validateRequest(updateProfileSchema), usersController.updateProfile.bind(usersController));
 router.post("/profile-pic", authenticateToken, upload.single("image"), usersController.uploadProfilePic.bind(usersController));
+router.delete("/profile-pic", authenticateToken, usersController.deleteProfilePic.bind(usersController));
 
 router.post("/change-password", authenticateToken, validateRequest(changePasswordSchema), usersController.changePassword.bind(usersController));
 

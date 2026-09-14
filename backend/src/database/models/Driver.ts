@@ -16,6 +16,12 @@ export interface IDriver extends Document {
   user: mongoose.Types.ObjectId;
   status: DriverStatus;
   isAvailable: boolean;
+  // Which order categories the driver has toggled on for this shift (set from
+  // GoOnlineModal). Defaults to both for drivers on an app build predating this
+  // field, or who have never set it, so dispatch treats them as unfiltered
+  // rather than silently excluding them from every order. See
+  // dispatch.config.ts's driverAcceptsServiceType for how this gates dispatch.
+  activeServices: ("ride" | "food")[];
   currentLocation?: {
     type: string;
     coordinates: number[];
@@ -59,6 +65,11 @@ const DriverSchema: Schema = new Schema(
       default: DriverStatus.OFFLINE,
     },
     isAvailable: { type: Boolean, default: true },
+    activeServices: {
+      type: [String],
+      enum: ["ride", "food"],
+      default: ["ride", "food"],
+    },
     homeMode: { type: Boolean, default: false },
     currentLocation: {
       type: {

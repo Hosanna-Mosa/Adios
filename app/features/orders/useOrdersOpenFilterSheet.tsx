@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { toggleChipKeys } from "./useOrders.shared";
 
 // Part 4 of useOrders, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -12,13 +13,9 @@ export function useOrdersOpenFilterSheet(orders: any, loading: any, serviceFilte
     setServiceFilters(new Set(pendingServiceFilters));
     setShowFilterSheet(false);
   };
-  const toggleServiceFilter = (key: string) => {
-    setPendingServiceFilters((prev: any) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+  // Takes the whole key group behind a chip — "Ride" stands for four service types.
+  const toggleServiceFilter = (keys: string[]) => {
+    setPendingServiceFilters((prev: any) => toggleChipKeys(prev, keys));
   };
   const pendingCount = useMemo(() => {
     if (pendingServiceFilters.size === 0) return withKey.length;

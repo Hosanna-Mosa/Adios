@@ -1,8 +1,11 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import User, { UserRole } from "../../database/models/User";
-import { ValidationError, UnauthorizedError, NotFoundError } from "../../utils/errors";
+import RevokedToken from "../../database/models/RevokedToken";
+import { ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
+import { isSelfSignupRole, isAdminPhone, OTP_ROLE_NOT_ALLOWED_MESSAGE, ACCOUNT_BLOCKED_MESSAGE } from "../../config/auth.config";
 
 function buildLoginIdentifierQuery(identifier: string) {
   const trimmed = identifier.trim();
@@ -63,7 +66,27 @@ export class AuthService {
     // Dummy mode — ANY code is accepted. No DB lookup needed.
     console.log(`[DUMMY AUTH] Verifying OTP for ${phone}. Code: ${_code} — accepted.`);
 
+    // verifyOtpSchema already rejects privileged roles; repeated here so the
+    // guarantee survives a caller that reaches the service another way.
+    if (!isSelfSignupRole(role)) {
+      throw new ForbiddenError(OTP_ROLE_NOT_ALLOWED_MESSAGE);
+    }
+
     let user = await User.findOne({ phone });
+
+    // The token below is minted with the *stored* role, not the requested one,
+    // so without this an OTP for the admin's phone would hand back an admin JWT
+    // no matter which role the caller asked for.
+    if (user && !isSelfSignupRole(user.role)) {
+      throw new ForbiddenError(OTP_ROLE_NOT_ALLOWED_MESSAGE);
+    }
+
+    // A blocked account gets no new session. Without this, banning someone only
+    // stopped them until they signed in again, which the OTP path lets anyone
+    // holding the phone number do at will.
+    if (user?.isBlocked) {
+      throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+    }
 
     if (!user) {
       if (!name) {
@@ -107,6 +130,20 @@ export class AuthService {
       throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
     }
 
+    // There is exactly one admin, and it is the seeded ADMIN_PHONE account. Any
+    // other row carrying role ADMIN was not created by a supported code path, so
+    // refuse it rather than mint a token for it. Checked after the bcrypt
+    // compare above so the timing stays in the same band as a wrong password.
+    if (user.role === UserRole.ADMIN && !isAdminPhone(user.phone)) {
+      throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    // Checked only once the password has matched, so a blocked account is never
+    // revealed to anyone but its owner.
+    if (user.isBlocked) {
+      throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+    }
+
     const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
     return { user, token };
   }
@@ -127,10 +164,54 @@ export class AuthService {
 
   generateToken(userId: string, role: UserRole, tokenVersion = 0) {
     return jwt.sign(
-      { userId, role, tv: tokenVersion },
+      // jti gives this specific token an identity distinct from every other
+      // token this account holds, so POST /auth/logout can revoke just this
+      // one (see RevokedToken) instead of every device at once, the way
+      // logoutAll's tokenVersion bump does.
+      { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
       { expiresIn: "30d" } // 30 days
     );
+  }
+
+  /** Ends one token. See RevokedToken for why this exists instead of a session table. */
+  async revokeToken(jti: string, userId: string, expiresAt: Date) {
+    // Logout is idempotent: calling it twice on the same token — a retry, a
+    // double-tap — should not 500 on the unique index.
+    await RevokedToken.updateOne(
+      { jti },
+      { $setOnInsert: { jti, userId, expiresAt } },
+      { upsert: true }
+    );
+  }
+
+  /**
+   * Revokes whatever token is in an incoming Authorization header, tolerating
+   * everything that can be wrong with it — missing, malformed, expired, wrong
+   * signature, or minted before jti shipped and so carrying nothing to revoke.
+   * Every one of those cases means the same thing for a logout call: there is
+   * no live token left to protect, so let it succeed rather than error.
+   */
+  async revokePresentedToken(authHeader: string | undefined) {
+    const token = authHeader?.split(" ")[1];
+    if (!token) return;
+
+    let payload: any;
+    try {
+      // verify, not decode: a forged jti must not be able to revoke someone
+      // else's token, and this also naturally no-ops on an expired token,
+      // since nothing further needs to happen once it can no longer be used.
+      payload = jwt.verify(token, getJwtSecret());
+    } catch {
+      return;
+    }
+
+    const jti = payload?.jti;
+    const userId = payload?.userId || payload?.id;
+    const exp = payload?.exp;
+    if (!jti || !userId || !exp) return;
+
+    await this.revokeToken(jti, userId, new Date(exp * 1000));
   }
 }
 

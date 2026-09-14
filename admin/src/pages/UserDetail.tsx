@@ -3,10 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -20,7 +19,6 @@ import {
   Briefcase, 
   ShieldAlert, 
   ShieldCheck, 
-  Save, 
   Trash2,
   MessageSquare
 } from "lucide-react";
@@ -51,6 +49,11 @@ interface UserDetailResponse {
     deliveryOrders: number;
     ridesOrders: number;
     helperOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
+    totalSpent: number;
+    averageOrderValue: number;
+    lastOrderAt: string | null;
   };
   orders: OrderItem[];
 }
@@ -59,13 +62,6 @@ export default function UserDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    role: "USER"
-  });
 
   const [selectedOrderChat, setSelectedOrderChat] = useState<string | null>(null);
 
@@ -79,32 +75,6 @@ export default function UserDetail() {
     queryKey: ["admin-user-detail", id],
     queryFn: () => adminFetch<UserDetailResponse>(`/admin/users/${id}`),
     enabled: !!id
-  });
-
-  useEffect(() => {
-    if (data?.user) {
-      setForm({
-        name: data.user.name,
-        email: data.user.email || "",
-        phone: data.user.phone,
-        role: data.user.role
-      });
-    }
-  }, [data]);
-
-  const updateProfileMutation = useMutation({
-    mutationFn: (updateData: any) => 
-      adminFetch(`/admin/users/${id}`, {
-        method: "PUT",
-        body: JSON.stringify(updateData)
-      }),
-    onSuccess: () => {
-      toast.success("User profile updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["admin-user-detail", id] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to update profile");
-    }
   });
 
   const toggleBlockMutation = useMutation({
@@ -133,11 +103,6 @@ export default function UserDetail() {
       toast.error(err.message || "Failed to delete user");
     }
   });
-
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateProfileMutation.mutate(form);
-  };
 
   const handleDeleteClick = () => {
     if (confirm("WARNING: This will permanently delete this user and their associated records. Are you sure?")) {
@@ -251,57 +216,34 @@ export default function UserDetail() {
           </StaggerItem>
         </StaggerList>
 
-        {/* Edit details + order history */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* User profile controls form */}
-          <div className="lg:col-span-1 bg-card border border-border p-6 rounded-3xl space-y-6 shadow-sm h-fit">
-            <h3 className="text-lg font-bold text-foreground">Edit Account Details</h3>
-            <form onSubmit={handleProfileSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
-                <Input 
-                  value={form.name} 
-                  onChange={e => setForm({ ...form, name: e.target.value })} 
-                  required 
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Email Address</label>
-                <Input 
-                  type="email" 
-                  value={form.email} 
-                  onChange={e => setForm({ ...form, email: e.target.value })} 
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">Phone Number</label>
-                <Input 
-                  value={form.phone} 
-                  onChange={e => setForm({ ...form, phone: e.target.value })} 
-                  required 
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground">System Role</label>
-                <select
-                  className="w-full rounded-md border border-input bg-background px-3 h-10 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  value={form.role}
-                  onChange={e => setForm({ ...form, role: e.target.value })}
-                >
-                  <option value="USER">USER</option>
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="DRIVER">DRIVER</option>
-                </select>
-              </div>
+        <StaggerList className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+            <p className="text-2xl font-bold text-foreground">₹{(stats.totalSpent ?? 0).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total Spent</p>
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+            <p className="text-2xl font-bold text-foreground">₹{(stats.averageOrderValue ?? 0).toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Avg Order</p>
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+            <p className="text-2xl font-bold text-foreground">{stats.completedOrders ?? 0}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Completed</p>
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+            <p className="text-2xl font-bold text-foreground">{stats.cancelledOrders ?? 0}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Cancelled</p>
+          </StaggerItem>
+          <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+            <p className="text-2xl font-bold text-foreground">
+              {stats.lastOrderAt ? new Date(stats.lastOrderAt).toLocaleDateString() : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Last Order</p>
+          </StaggerItem>
+        </StaggerList>
 
-              <Button type="submit" className="w-full rounded-xl gap-2" disabled={updateProfileMutation.isPending}>
-                <Save className="h-4 w-4" /> Save Modifications
-              </Button>
-            </form>
-          </div>
-
-          {/* Activity / Order History */}
-          <div className="lg:col-span-2 bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
+        {/* Order history */}
+        {/* Activity / Order History */}
+        <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
             <h3 className="text-lg font-bold text-foreground">Order & Execution History</h3>
             
             <div className="overflow-x-auto">
@@ -370,7 +312,6 @@ export default function UserDetail() {
               </table>
             </div>
           </div>
-        </div>
       </div>
 
       {/* Order Chat Dialog */}

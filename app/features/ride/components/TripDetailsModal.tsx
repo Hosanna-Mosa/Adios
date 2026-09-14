@@ -1,4 +1,5 @@
 import { Modal } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { TrackingModalOverlay } from "./TrackingModalOverlay";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
@@ -30,7 +31,8 @@ export function TripDetailsModal({
   tripModalVisible,
 }: Props) {
   return (
-    <Modal visible={tripModalVisible} animationType="slide" transparent onRequestClose={() => setTripModalVisible(false)}>
+    <Modal statusBarTranslucent visible={tripModalVisible} animationType="slide" transparent onRequestClose={() => setTripModalVisible(false)}>
+      <StatusBarFill />
       <TrackingModalOverlay
         accent={accent}
         currentOrderId={currentOrderId}

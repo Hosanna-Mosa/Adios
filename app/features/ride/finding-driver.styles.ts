@@ -8,20 +8,25 @@ import { fontFamilies, typography } from "@/constants/typography";
 // than beside the screen because app/ is Expo Router's routing directory
 // and a non-route file in there is treated as a route.
 
-export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride"]) =>
+export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride"], insets: { bottom: number }) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: tokens.bg },
     backBtn: {
       position: "absolute", left: 16, zIndex: 10, width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
     },
-    radarWrap: { position: "absolute", left: "50%", top: "26%", marginLeft: -110, marginTop: -110, width: 220, height: 220, alignItems: "center", justifyContent: "center" },
-    radarRing: { position: "absolute", width: 220, height: 220, borderRadius: 999, backgroundColor: accent.accent },
-    radarDot: { width: 26, height: 26, borderRadius: 999, backgroundColor: accent.accent, borderWidth: 4, borderColor: tokens.surface },
-
     sheet: {
-      position: "absolute", left: 0, right: 0, bottom: 0, height: "52%",
+      position: "absolute", left: 0, right: 0, bottom: 0,
+      // Sizes to its content between these bounds rather than a fixed height:52%.
+      // At a fixed height the fare/route card plus the searching chip could add up
+      // to more than 52% of the screen, and "Cancel ride" — pushed to the end with
+      // marginTop:auto — was then laid out past the sheet's bottom edge, landing
+      // under the system navigation bar. minHeight keeps the original proportions
+      // whenever the content does fit.
+      minHeight: "52%", maxHeight: "85%",
       backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingHorizontal: 20, paddingTop: 12,
+      // Reserves the safe area so the button clears the navigation bar.
+      paddingBottom: insets.bottom + 14,
       borderTopWidth: 1, borderColor: tokens.border,
     },
     sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 16 },

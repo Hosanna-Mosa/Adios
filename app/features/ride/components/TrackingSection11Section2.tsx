@@ -40,8 +40,6 @@ interface Props {
   totalPrice: any;
   handleSOS: any;
   handleShareTrip: any;
-  pulse1Style: any;
-  pulse2Style: any;
   deliveryStop: any;
   timeline: any;
   pickupLabel: any;
@@ -70,8 +68,6 @@ export function TrackingSection11Section2({
   totalPrice,
   handleSOS,
   handleShareTrip,
-  pulse1Style,
-  pulse2Style,
   deliveryStop,
   timeline,
   pickupLabel,
@@ -95,8 +91,6 @@ export function TrackingSection11Section2({
               isRide={isRide}
               orderCreatedAt={orderCreatedAt}
               pickupLabel={pickupLabel}
-              pulse1Style={pulse1Style}
-              pulse2Style={pulse2Style}
               setTripModalVisible={setTripModalVisible}
               startOtp={startOtp}
               status={status}

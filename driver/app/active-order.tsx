@@ -10,7 +10,7 @@ import {
   Alert,
   Linking,
   Platform,
-  Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
@@ -23,7 +23,6 @@ import Colors from "@/constants/colors";
 import { socketService } from "@/utils/socketService";
 import Constants from "expo-constants";
 
-const VEHICLE_BIKE_3D = require('@/assets/images/scooter_blue_top_view_2.png');
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
@@ -350,8 +349,14 @@ export default function ActiveOrderScreen() {
     setSimRemainingDist(initialDistance);
     setSimETA(initialDuration);
 
-    let startLat = driverLocation?.lat || 12.9716;
-    let startLng = driverLocation?.lng || 77.5946;
+    // No real GPS fix yet — very likely exactly when this "simulate" feature
+    // gets used — used to fall back to a hardcoded Bengaluru point (and `||`
+    // would trigger it again even for a genuine 0 coordinate). That made the
+    // simulated marker "teleport" in from across the country whenever the
+    // order itself was anywhere else. Anchor near the actual target instead,
+    // so the simulated route always stays local to this order.
+    let startLat = driverLocation?.lat ?? targetLat + 0.015;
+    let startLng = driverLocation?.lng ?? targetLng + 0.015;
 
     const calculatedBearing = calculateBearing(startLat, startLng, targetLat, targetLng);
     setDriverHeading(calculatedBearing);
@@ -438,7 +443,7 @@ export default function ActiveOrderScreen() {
       if (status !== "delivered" && status !== "completed") {
         try {
           const expectedOTP = currentOrder.deliveryOtp || currentOrder.id.slice(-4).toLowerCase();
-          if (customerOTP.toLowerCase() !== expectedOTP.toLowerCase() && customerOTP !== "9999") {
+          if (customerOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
             setCustomerOTPError(true);
             return;
           }
@@ -464,7 +469,7 @@ export default function ActiveOrderScreen() {
         await updateOrderStatus("arrived_pickup");
       } else if (status === "arrived_pickup") {
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
@@ -500,14 +505,14 @@ export default function ActiveOrderScreen() {
         await updateOrderStatus("arrived_pickup");
       } else if (status === "arrived_pickup") {
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
         setRestaurantOTPError(false);
         await updateOrderStatus("en_route_delivery", restaurantOTP);
       } else if (status === "picking_items") {
-        // Enforce all checklist selections and verification OTP (9999)
+        // Enforce all checklist selections and the restaurant pickup code
         const allItemsChecked = foodItems.every((item: any) => checkedItems[item.name]);
         if (!allItemsChecked) {
           Alert.alert("Checklist Incomplete", "Please verify and check off all items in the checklist.");
@@ -522,7 +527,7 @@ export default function ActiveOrderScreen() {
           return;
         }
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
@@ -566,15 +571,26 @@ export default function ActiveOrderScreen() {
   };
 
   const openRideNavigation = () => {
-    const pickupAddress = pickupStop?.address || (pickupStop ? `${pickupStop.lat},${pickupStop.lng}` : "");
-    const destinationAddress = deliveryStop?.address || (deliveryStop ? `${deliveryStop.lat},${deliveryStop.lng}` : "");
+    // Was sending the free-text address to Google Maps and letting it re-geocode,
+    // even when we already had exact coordinates for both stops — an address
+    // string is ambiguous enough (unit numbers, landmarks, similarly-named roads)
+    // that Maps would sometimes drop the pin blocks away from the real spot. The
+    // other navigation links in this screen already pass raw lat/lng; do the same
+    // here so the pin lands exactly where the order says, falling back to the
+    // address only if a coordinate is actually missing.
+    const origin = pickupStop?.lat != null && pickupStop?.lng != null
+      ? `${pickupStop.lat},${pickupStop.lng}`
+      : pickupStop?.address || "";
+    const destination = deliveryStop?.lat != null && deliveryStop?.lng != null
+      ? `${deliveryStop.lat},${deliveryStop.lng}`
+      : deliveryStop?.address || "";
 
-    if (!pickupAddress || !destinationAddress) {
+    if (!origin || !destination) {
       Alert.alert("Navigation unavailable", "Pickup or destination address is missing for this ride.");
       return;
     }
 
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupAddress)}&destination=${encodeURIComponent(destinationAddress)}&travelmode=driving`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
     Linking.openURL(url);
   };
   // Calculations for step 12
@@ -721,7 +737,7 @@ export default function ActiveOrderScreen() {
               <View style={styles.infoItem}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                   <View style={{ flex: 1, marginRight: 8 }}>
-                    <Text style={styles.infoLabel}>Pickup Rider From</Text>
+                    <Text style={styles.infoLabel}>Pickup Location</Text>
                     <Text style={styles.infoText}>{currentOrder.customerName || "Rider"}</Text>
                     <Text style={styles.subText}>{pickupStop?.address}</Text>
                   </View>
@@ -879,11 +895,11 @@ export default function ActiveOrderScreen() {
                 </View>
                 <View style={styles.simStatItem}>
                   <Text style={styles.simStatLabel}>ETA</Text>
-                  <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : "12 min"}</Text>
+                  <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : currentOrder.duration}</Text>
                 </View>
                 <View style={styles.simStatItem}>
                   <Text style={styles.simStatLabel}>Distance</Text>
-                  <Text style={styles.simStatValue}>{isSimulating ? `${simRemainingDist} km` : "3.1 km"}</Text>
+                  <Text style={styles.simStatValue}>{isSimulating ? `${simRemainingDist} km` : currentOrder.distance}</Text>
                 </View>
               </View>
               <TouchableOpacity
@@ -1328,12 +1344,12 @@ export default function ActiveOrderScreen() {
               </View>
               <View style={styles.simStatItem}>
                 <Text style={styles.simStatLabel}>ETA</Text>
-                <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : "12 min"}</Text>
+                <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : currentOrder.duration}</Text>
               </View>
               <View style={styles.simStatItem}>
                 <Text style={styles.simStatLabel}>Distance</Text>
                 <Text style={styles.simStatValue}>
-                  {isSimulating ? `${simRemainingDist} km` : "3.1 km"}
+                  {isSimulating ? `${simRemainingDist} km` : currentOrder.distance}
                 </Text>
               </View>
             </View>
@@ -1540,6 +1556,14 @@ export default function ActiveOrderScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      {/* The OTP field (and the bottom sheet in general) had no keyboard-avoidance
+          at all, so it sat right at the screen edge and the keyboard simply
+          covered it as soon as it opened — typing looked broken because the
+          input the driver was typing into wasn't visible. */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoider}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.push("/(tabs)")}>
           <Feather name="arrow-left" size={24} color={Colors.text} />
@@ -1584,19 +1608,21 @@ export default function ActiveOrderScreen() {
             </Marker>
           ) : null}
 
-          {/* Driver Location Marker */}
+          {/* Driver's own location — was rendered with the same top-view vehicle
+              image customers see on the driver, which reads as "there's a bike
+              here" rather than "this is you, facing this way". Google Maps'
+              own convention (a heading-oriented arrow) is what a driver expects
+              of their own live position, so this marker uses that instead. */}
           {(driverLocation != null && driverLocation.lat != null && driverLocation.lng != null) ? (
-            <Marker 
+            <Marker
               coordinate={{ latitude: Number(driverLocation.lat), longitude: Number(driverLocation.lng) }}
               anchor={{ x: 0.5, y: 0.5 }}
               flat={true}
               rotation={driverHeading || 0}
             >
-              <Image
-                source={VEHICLE_BIKE_3D}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
+              <View style={styles.navArrowMarker}>
+                <Ionicons name="navigate" size={20} color="#fff" />
+              </View>
             </Marker>
           ) : null}
 
@@ -1623,17 +1649,19 @@ export default function ActiveOrderScreen() {
           <Text style={styles.orderLabel}>Order ID: {currentOrder.id}</Text>
         </View>
 
-        <ScrollView 
-          style={styles.cardScroll} 
+        <ScrollView
+          style={styles.cardScroll}
           contentContainerStyle={[
             styles.cardScrollContent,
             { paddingBottom: Math.max(insets.bottom, 16) + 12 }
-          ]} 
+          ]}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {renderCardContent()}
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -1675,6 +1703,7 @@ function decodePolyline(encoded: string) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  keyboardAvoider: { flex: 1 },
   cardScroll: {
     flex: 1,
   },
@@ -1724,6 +1753,21 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
     elevation: 4,
+  },
+  navArrowMarker: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.brand,
+    borderWidth: 2,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
   },
   bottomCard: {
     backgroundColor: Colors.surface,

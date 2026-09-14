@@ -172,6 +172,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    const { token } = get();
+
+    // Best-effort: tell the server this token is done so it can't be reused
+    // if it leaks later. Local sign-out below happens regardless of whether
+    // this reaches the server (offline, timeout, already-expired token) —
+    // the device must never get stuck signed in because a network call failed.
+    if (token) {
+      fetch(`${apiUrl}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+
     set({ user: null, token: null, error: null, loading: false });
     try {
       await Promise.all([

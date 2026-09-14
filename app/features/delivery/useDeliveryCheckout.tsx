@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -8,8 +8,8 @@ import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
-import { RazorpayIntegration } from "@/utils/razorpay";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/delivery/checkout.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -92,49 +92,37 @@ export function useDeliveryCheckout() {
 
   const handleConfirm = async () => {
     if (!user || !token) {
-      Alert.alert("Login required", "Please log in to confirm your order.");
+      showAlert("Login required", "Please log in to confirm your order.");
       return;
     }
     if (!price || stops.length === 0) return;
 
     setIsProcessing(true);
     try {
-      const rzpOrder = await customFetch<any>("/payments/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: price.total }),
-      });
-
-      const paymentResult = await RazorpayIntegration.open({
-        key: rzpOrder.key,
-        amount: rzpOrder.amount,
-        currency: rzpOrder.currency,
-        name: rzpOrder.name,
-        order_id: rzpOrder.id,
-        prefill: { email: user?.email || rzpOrder.prefill?.email, contact: user?.phone || "" },
-        theme: rzpOrder.theme,
-      });
-
-      const verifyResponse = await customFetch<any>("/payments/verify", {
+      // Cash on delivery: the order is created directly rather than going
+      // through create-order → gateway → verify (matches the food checkout
+      // fix — see useFoodCheckoutPlaceOrder.handlers.ts). There is no gateway
+      // to open, so the old route failed every delivery with "HTTP 400:
+      // Payment verification failed" the moment Razorpay was asked to verify
+      // a payment that was never actually taken.
+      const finalOrder = await customFetch<any>("/orders", {
         method: "POST",
         body: JSON.stringify({
-          ...paymentResult,
-          orderData: {
-            stops: stops.map((s) => ({ ...s, items: s.items || [] })),
-            totalDistance: route?.totalDistance,
-            totalPrice: price.total,
-            vendorId,
-          },
+          serviceType: "delivery",
+          stops: stops.map((s) => ({ ...s, items: s.items || [] })),
+          totalDistance: route?.totalDistance,
+          totalPrice: price.total,
+          vendorId,
         }),
       });
 
-      const finalOrder = verifyResponse.order;
       setOrderId(finalOrder._id || finalOrder.id);
       setServiceType("delivery");
       setStatus("confirmed");
       router.push("/tracking");
     } catch (error: any) {
       console.error("Delivery checkout failed:", error);
-      Alert.alert("Order failed", error?.message || "Unable to process your order.");
+      showAlert("Order failed", error?.message || "Unable to process your order.");
     } finally {
       setIsProcessing(false);
     }

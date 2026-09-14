@@ -1,5 +1,6 @@
 import { Modal } from "react-native";
 import { HomeStartupAdOverlay } from "./HomeStartupAdOverlay";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -20,7 +21,8 @@ export function StartupAdModal({
   tokens,
 }: Props) {
   return (
-    <Modal visible={hasShownStartupAd && !!activeStartupAd} transparent animationType="fade">
+    <Modal statusBarTranslucent visible={hasShownStartupAd && !!activeStartupAd} transparent animationType="fade">
+      <StatusBarFill />
       <HomeStartupAdOverlay
         activeStartupAd={activeStartupAd}
         setActiveStartupAd={setActiveStartupAd}

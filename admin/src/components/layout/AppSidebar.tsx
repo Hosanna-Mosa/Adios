@@ -1,5 +1,7 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { adminFetch } from "@/lib/api-client";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import {
   LayoutDashboard,
@@ -22,7 +24,6 @@ import {
   SlidersHorizontal,
   Sun,
   ChevronDown,
-  MessageSquare,
   Image,
 } from "lucide-react";
 
@@ -35,14 +36,13 @@ const navItems = [
   { title: "Users", url: "/users", icon: Users },
   { title: "Vendors", url: "/vendors", icon: Store },
   { title: "Restaurant Menu", url: "/restaurant-menu", icon: Store },
-  { title: "Meal Centers", url: "/meat-centers", icon: Drumstick },
-  { title: "Meal Pricing", url: "/meat-pricing", icon: IndianRupee },
+  { title: "Meat Centers", url: "/meat-centers", icon: Drumstick },
+  { title: "Meat Pricing", url: "/meat-pricing", icon: IndianRupee },
   { title: "Zones", url: "/zones", icon: Map },
   { title: "Payments", url: "/payments", icon: CreditCard },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Support", url: "/support", icon: Headphones },
   { title: "Support Cases", url: "/support-cases", icon: Headphones },
-  { title: "Active Chats", url: "/support/chats", icon: MessageSquare },
   { title: "Coupons", url: "/coupons", icon: Ticket },
   { title: "App Updates", url: "/app-updates", icon: RefreshCw },
   { title: "Banners", url: "/banners", icon: Image },
@@ -51,6 +51,22 @@ const navItems = [
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Real count for the Live Orders badge below, replacing a literal "24" that
+  // never moved regardless of how many orders were actually active. Shares the
+  // same query key Drivers.tsx and LiveOrders.tsx already use for /admin/orders,
+  // so this doesn't add a request — it just reads their cached result. Gated to
+  // admin sessions: this is an ADMIN-only endpoint, and a support session (the
+  // only other role this sidebar renders for) never shows this item anyway.
+  const isAdminSession = typeof window !== "undefined" && !!localStorage.getItem("admin_token");
+  const { data: sidebarOrders = [] } = useQuery({
+    queryKey: ["admin", "orders"],
+    queryFn: () => adminFetch<any[]>("/admin/orders"),
+    enabled: isAdminSession,
+  });
+  const liveOrdersCount = sidebarOrders.filter((o: any) =>
+    ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "searching_driver", "driver_assigned"].includes(o.status)
+  ).length;
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
@@ -80,7 +96,7 @@ export function AppSidebar() {
           {(() => {
             const isSupport = !!localStorage.getItem("support_token");
             const filteredNavItems = isSupport
-              ? navItems.filter(item => item.url === "/support-cases" || item.url === "/support/chats")
+              ? navItems.filter(item => item.url === "/support-cases")
               : navItems;
 
             return filteredNavItems.map((item) => {
@@ -99,9 +115,9 @@ export function AppSidebar() {
                     <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-[#00665c]" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
-                  {item.title === "Live Orders" && (
+                  {item.title === "Live Orders" && liveOrdersCount > 0 && (
                     <span className="text-[10px] font-bold bg-[#eefcfb] text-[#00665c] px-2 py-0.5 rounded-full border border-[#00665c]/10">
-                      24
+                      {liveOrdersCount}
                     </span>
                   )}
                 </Link>
@@ -113,25 +129,6 @@ export function AppSidebar() {
       </div>
 
       <div className="space-y-4 pb-4">
-        {/* Need Help? Box */}
-        <div className="mx-4 p-4 rounded-2xl bg-[#f8fafc] border border-border flex flex-col gap-3">
-          <div className="flex gap-3">
-            <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-muted-foreground shrink-0 border border-border shadow-sm">
-              <Headphones className="h-4.5 w-4.5" />
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs font-bold text-foreground">Need Help?</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Contact support for assistance.</p>
-            </div>
-          </div>
-          <button 
-            onClick={() => navigate("/support")}
-            className="w-full py-2 border border-border bg-white text-xs font-semibold rounded-xl text-foreground hover:bg-muted/50 transition-colors shadow-sm"
-          >
-            Contact Support
-          </button>
-        </div>
-
         {/* Logout Button */}
         <div className="px-6 pt-3 border-t border-border">
           <button 

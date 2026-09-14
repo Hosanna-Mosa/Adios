@@ -1,4 +1,12 @@
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -35,7 +43,9 @@ export function ProfileModalOverlay({
   tokens,
 }: Props) {
   return (
-    <View style={styles.modalOverlay}>
+    // The sheet sits at the bottom of the screen, so without this the keyboard
+    // covered all three fields and the Update button (same pattern as DistanceSheet).
+    <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
       <View style={styles.modalBody}>
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>Change password</Text>
@@ -43,7 +53,7 @@ export function ProfileModalOverlay({
             <Ionicons name="close" size={moderateScale(22)} color={tokens.text} />
           </TouchableOpacity>
         </View>
-        <ScrollView style={{ marginBottom: 16 }}>
+        <ScrollView style={{ marginBottom: 16 }} keyboardShouldPersistTaps="handled">
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Current password</Text>
             <TextInput style={styles.textInput} value={currentPassword} onChangeText={setCurrentPassword} secureTextEntry placeholder="Enter current password" placeholderTextColor={tokens.muted} />
@@ -61,6 +71,6 @@ export function ProfileModalOverlay({
           {changingPassword ? <ActivityIndicator color={accent.on} /> : <Text style={styles.saveBtnText}>Update password</Text>}
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

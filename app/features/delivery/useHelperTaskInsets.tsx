@@ -17,10 +17,9 @@ export function useHelperTaskInsets() {
   const accent = tokens.services.task;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const { radius } = useLocalSearchParams<{ radius?: string }>();
-  const { driver, currentCoords, currentLocation, setOrderId, setDriver, setServiceType } = useDeliveryStore();
+  const { driver, currentCoords, currentLocation, setOrderId, setDriver, setServiceType, setStatus } = useDeliveryStore();
 
   const [step, setStep] = useState<Step>("compose");
-  const [taskType, setTaskType] = useState<string | null>(null);
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -45,6 +44,10 @@ export function useHelperTaskInsets() {
   const [totalContacted, setTotalContacted] = useState(0);
   const [startOtp, setStartOtp] = useState<string | null>(null);
   const [assignedDriver, setAssignedDriver] = useState<any>(null);
+  // Set when the dispatcher has run out of helpers to offer the task to — the
+  // screen used to keep spinning with no way to tell that nothing more was coming.
+  const [searchExhausted, setSearchExhausted] = useState(false);
+  const [searchStartedAt, setSearchStartedAt] = useState<number | null>(null);
 
   const totalHours = durationMode === "1hr" ? 1 : durationMode === "2hr" ? 2 : customHours + customMinutes / 60 || 1;
 
@@ -65,5 +68,5 @@ export function useHelperTaskInsets() {
     return subtotal + Math.round(subtotal * 0.05);
   }, [pickupCoords, dropoffCoords, totalHours]);
 
-  return { insets, tokens, accent, styles, radius, driver, currentCoords, setOrderId, setDriver, setServiceType, step, setStep, taskType, setTaskType, pickupLocation, setPickupLocation, dropoffLocation, setDropoffLocation, pickupCoords, setPickupCoords, dropoffCoords, setDropoffCoords, activeField, setActiveField, searchResults, setSearchResults, isPickupValid, setIsPickupValid, isDropoffValid, setIsDropoffValid, durationMode, setDurationMode, customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription, offer, setOffer, isCreating, setIsCreating, localOrderId, setLocalOrderId, isIncreasingPrice, setIsIncreasingPrice, currentTaskPrice, setCurrentTaskPrice, rejectedCount, setRejectedCount, totalContacted, setTotalContacted, startOtp, setStartOtp, assignedDriver, setAssignedDriver, totalHours, calculatedFare };
+  return { insets, tokens, accent, styles, radius, driver, currentCoords, setOrderId, setDriver, setServiceType, setStatus, step, setStep, pickupLocation, setPickupLocation, dropoffLocation, setDropoffLocation, pickupCoords, setPickupCoords, dropoffCoords, setDropoffCoords, activeField, setActiveField, searchResults, setSearchResults, isPickupValid, setIsPickupValid, isDropoffValid, setIsDropoffValid, durationMode, setDurationMode, customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription, offer, setOffer, isCreating, setIsCreating, localOrderId, setLocalOrderId, isIncreasingPrice, setIsIncreasingPrice, currentTaskPrice, setCurrentTaskPrice, rejectedCount, setRejectedCount, totalContacted, setTotalContacted, startOtp, setStartOtp, assignedDriver, setAssignedDriver, searchExhausted, setSearchExhausted, searchStartedAt, setSearchStartedAt, totalHours, calculatedFare };
 }

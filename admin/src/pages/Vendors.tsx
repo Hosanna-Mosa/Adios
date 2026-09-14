@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Pagination } from "@/components/shared/Pagination";
 import { fadeIn } from "@/components/motion/variants";
-import { Store, Plus, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
+import { Store, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -12,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -417,130 +416,6 @@ export default function Vendors() {
             <p className="page-subtitle">Onboard and manage your restaurant partners.</p>
           </div>
           
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Vendor
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Restaurant</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">Country</label>
-                    <Input 
-                      value={newVendor.country} 
-                      onChange={e => setNewVendor({...newVendor, country: e.target.value})}
-                      placeholder="India"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">State</label>
-                    <Input 
-                      value={newVendor.state} 
-                      onChange={e => setNewVendor({...newVendor, state: e.target.value})}
-                      placeholder="Telangana"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">City</label>
-                    <Input 
-                      value={newVendor.city} 
-                      onChange={e => setNewVendor({...newVendor, city: e.target.value})}
-                      placeholder="Hyderabad"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Search Google Maps</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      placeholder="Start typing restaurant name..." 
-                      className="pl-9"
-                    />
-                    
-                    {/* Custom Suggestions Dropdown */}
-                    {suggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-auto">
-                        {suggestions.map((s) => (
-                          <button
-                            key={s.place_id}
-                            type="button"
-                            onClick={() => handleSelectSuggestion(s)}
-                            className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors border-b border-border last:border-0"
-                          >
-                            <p className="font-medium text-foreground">{s.structured_formatting?.main_text || s.description}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{s.structured_formatting?.secondary_text || s.description}</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {isSearching && (
-                      <div className="absolute right-3 top-2.5">
-                        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  {selectedPlace && (
-                    <div className="mt-2 p-3 bg-muted rounded-lg border border-border">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                        <div>
-                          <p className="text-sm font-semibold">{selectedPlace.name}</p>
-                          <p className="text-xs text-muted-foreground">{selectedPlace.formatted_address}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <Input 
-                      type="email" 
-                      value={newVendor.email} 
-                      onChange={e => setNewVendor({...newVendor, email: e.target.value})}
-                      placeholder="owner@restaurant.com" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input 
-                      value={newVendor.phone} 
-                      onChange={e => setNewVendor({...newVendor, phone: e.target.value})}
-                      placeholder="+91 98765 43210" 
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Vendor Password</label>
-                  <Input 
-                    type="password"
-                    value={newVendor.password} 
-                    onChange={e => setNewVendor({...newVendor, password: e.target.value})}
-                    placeholder="Set a password for vendor login"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={createVendorMutation.isPending}>
-                  {createVendorMutation.isPending ? "Adding..." : "Confirm & Save Vendor"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 items-center bg-card p-4 rounded-xl border border-border">
@@ -580,6 +455,7 @@ export default function Vendors() {
             <thead>
               <tr className="bg-muted/50">
                 <th className="table-header-text text-left px-6 py-3">Restaurant</th>
+                <th className="table-header-text text-left px-6 py-3">Status</th>
                 <th className="table-header-text text-left px-6 py-3">Location</th>
                 <th className="table-header-text text-left px-6 py-3">Rating</th>
                 <th className="table-header-text text-left px-6 py-3">Availability</th>
@@ -589,11 +465,11 @@ export default function Vendors() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
               ) : vendors?.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">No vendors found.</td></tr>
               ) : paginatedVendors.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
               ) : (
                 <AnimatePresence mode="popLayout" initial={false}>
                 {paginatedVendors.map((vendor) => (
@@ -612,20 +488,13 @@ export default function Vendors() {
                             <Store className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                                (vendor as any).onboardingStatus === "approved" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-                                (vendor as any).onboardingStatus === "rejected" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" :
-                                (vendor as any).onboardingStatus === "submitted" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                                "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                              }`}>
-                                {(vendor as any).onboardingStatus || "draft"}
-                              </span>
-                            </div>
+                            <p className="text-sm font-medium text-foreground">{vendor.name}</p>
                             <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? "Pure Veg" : "Multi-Cuisine"}</p>
                           </div>
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <VendorStatusPill status={(vendor as any).onboardingStatus} />
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm text-foreground max-w-[200px] truncate">{vendor.address}</p>
@@ -936,5 +805,24 @@ export default function Vendors() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+/** Vendor onboarding state as its own column. It used to be a 9px badge wedged
+ *  beside the restaurant name, which is easy to miss on a row that also carries
+ *  a rating and an availability pill. The four values are the ones the Vendor
+ *  model actually defines. */
+function VendorStatusPill({ status }: { status?: string }) {
+  const value = status || "draft";
+  const tone: Record<string, string> = {
+    approved: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900",
+    rejected: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900",
+    submitted: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900",
+    draft: "bg-muted text-muted-foreground border-border",
+  };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-semibold capitalize ${tone[value] || tone.draft}`}>
+      {value}
+    </span>
   );
 }

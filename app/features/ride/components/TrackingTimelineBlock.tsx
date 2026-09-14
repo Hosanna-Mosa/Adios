@@ -49,7 +49,7 @@ export function TrackingTimelineBlock({
           <View style={{ paddingBottom: 14 }}>
             <Text style={[styles.stepLabel, { color: step.current ? accent.accent : step.done ? tokens.text : tokens.muted }]}>{step.label}</Text>
             {i === 0 && orderCreatedAt && <Text style={styles.stepSub}>{formatClock(orderCreatedAt)}</Text>}
-            {step.current && !isHelper && <Text style={styles.stepSub}>{eta} min away</Text>}
+            {step.current && !isHelper && i < timeline.length - 1 && <Text style={styles.stepSub}>{eta} min away</Text>}
             {step.current && isHelper && helperStatus ? <Text style={styles.stepSub}>{helperStatus}</Text> : null}
           </View>
         </View>

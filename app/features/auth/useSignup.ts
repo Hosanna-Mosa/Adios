@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BackHandler, Platform, Alert } from "react-native";
+import { BackHandler, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { createStyles } from "./signup.styles";
 import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/signup.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -67,14 +68,13 @@ export function useSignup() {
       leaveSignup();
       return;
     }
-    Alert.alert(
+    showAlert(
       "Discard sign up?",
       "Your details won't be saved.",
       [
         { text: "Keep editing", style: "cancel" },
         { text: "Discard", style: "destructive", onPress: leaveSignup },
-      ],
-      { cancelable: true }
+      ]
     );
   }, [hasEnteredDetails, leaveSignup]);
 
@@ -93,24 +93,24 @@ export function useSignup() {
 
   const handleRegister = async () => {
     if (name.trim().length < 3) {
-      Alert.alert("Invalid Name", "Please enter your full name (minimum 3 characters).");
+      showAlert("Invalid Name", "Please enter your full name (minimum 3 characters).");
       return;
     }
     if (!phoneNumber || phoneNumber.trim().length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid phone number.");
+      showAlert("Invalid Phone", "Please enter a valid phone number.");
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      showAlert("Invalid Email", "Please enter a valid email address.");
       return;
     }
     if (password.length < 8) {
-      Alert.alert("Invalid Password", "Password must be at least 8 characters long.");
+      showAlert("Invalid Password", "Password must be at least 8 characters long.");
       return;
     }
     if (!agreedToTerms) {
-      Alert.alert("Terms & Privacy Policy", "Please agree to the Terms and Privacy Policy to continue.");
+      showAlert("Terms & Privacy Policy", "Please agree to the Terms and Privacy Policy to continue.");
       return;
     }
 
@@ -125,7 +125,7 @@ export function useSignup() {
         params: { phone: trimmedPhone, name: name.trim(), email: email.trim(), password },
       });
     } catch (error: any) {
-      Alert.alert("Couldn't send code", error.message || "Something went wrong. Please try again.");
+      showAlert("Couldn't send code", error.message || "Something went wrong. Please try again.");
     }
   };
 

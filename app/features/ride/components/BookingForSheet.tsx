@@ -1,7 +1,8 @@
 import React from "react";
-import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -90,7 +91,7 @@ export function BookingForSheet({
           style={[styles.doneButton, { backgroundColor: accent.accent }, savingPreference && { opacity: 0.7 }]}
           onPress={async () => {
             if (bookingFor === "someone_else" && someoneContact.trim().length < 10) {
-              Alert.alert("Contact required", "Please enter a valid contact number for the rider.");
+              showAlert("Contact required", "Please enter a valid contact number for the rider.");
               return;
             }
             if (user?.id) {
@@ -104,7 +105,7 @@ export function BookingForSheet({
                   }),
                 });
               } catch (error: any) {
-                Alert.alert("Save failed", error.message || "Could not save booking preference.");
+                showAlert("Save failed", error.message || "Could not save booking preference.");
                 return;
               } finally {
                 setSavingPreference(false);

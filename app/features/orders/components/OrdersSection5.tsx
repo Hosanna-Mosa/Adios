@@ -58,7 +58,6 @@ export function OrdersSection5({
   return (
     <>
     <OrdersFilterSheet
-      SERVICE_META={SERVICE_META}
       applyFilters={applyFilters}
       orders={orders}
       pendingCount={pendingCount}

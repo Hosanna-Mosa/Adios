@@ -18,13 +18,18 @@ export function DeliveryCheckoutSection4({
 }: Props) {
   return (
     <Animated.View style={styles.section} entering={fadeInUp(240)}>
+      {/* Was "Razorpay / UPI, cards, wallets — choose on the next step" — the
+          checkout no longer goes through a gateway at all (see
+          useDeliveryCheckout), so that claim was no longer true regardless of
+          whether the request happened to succeed. Matches the label the food
+          checkout already settled on (PaymentMethodRow). */}
       <View style={styles.methodRow}>
         <View style={styles.methodIcon}>
-          <Ionicons name="card-outline" size={moderateScale(17)} color={tokens.sec} />
+          <Ionicons name="cash-outline" size={moderateScale(17)} color={tokens.sec} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.methodTitle}>Razorpay</Text>
-          <Text style={styles.methodSub}>UPI, cards, wallets — choose on the next step</Text>
+          <Text style={styles.methodTitle}>Cash on delivery</Text>
+          <Text style={styles.methodSub}>Pay the delivery partner when your order arrives</Text>
         </View>
       </View>
     </Animated.View>

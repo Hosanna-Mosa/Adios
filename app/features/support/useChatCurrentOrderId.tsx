@@ -7,7 +7,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { RIDE_TYPES, createStyles } from "./useChat.shared";
+import { RIDE_TYPES, createStyles, toChatMessage } from "./useChat.shared";
 
 // Part 1 of useChat, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -31,48 +31,71 @@ export function useChatCurrentOrderId() {
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const [taskAssigned, setTaskAssigned] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
 
   const handleAssignTask = () => {
     socketService.emit("assign_task_confirmed", { orderId: currentOrderId });
     setTaskAssigned(true);
   };
 
-  // Opened via a deep link (notification tap, or the notification list) with just an
-  // orderId — the store won't already have this order's driver/history loaded, so fetch
-  // and hydrate it ourselves instead of relying on the normal in-app tracking flow.
+  // The screen is reached two ways: pushed from tracking (the store already knows
+  // the order) or opened cold from a notification with only an orderId. Both need
+  // the same thing — the stored conversation. It used to be fetched on the deep-link
+  // path only, so arriving from tracking showed an empty thread until the partner
+  // happened to send something new.
+  const orderId = params.orderId || currentOrderId;
+  const hydratedFor = useRef<string | null>(null);
+
   useEffect(() => {
-    const deepLinkOrderId = params.orderId;
-    if (!deepLinkOrderId || deepLinkOrderId === currentOrderId) return;
+    if (!orderId) {
+      setLoadingHistory(false);
+      return;
+    }
+    if (params.orderId && params.orderId !== currentOrderId) setOrderId(params.orderId);
+    if (hydratedFor.current === orderId) return;
+    hydratedFor.current = orderId;
 
-    setOrderId(deepLinkOrderId);
+    let cancelled = false;
+    setLoadingHistory(true);
 
-    customFetch<any>(`/orders/${deepLinkOrderId}`)
+    // Only the deep-link path is missing the order itself; from tracking this is
+    // a cheap confirmation that costs one request.
+    customFetch<any>(`/orders/${orderId}`)
       .then((order) => {
-        if (order?.serviceType) setServiceType(order.serviceType);
-        if (order?.driver) {
+        if (cancelled || !order) return;
+        if (order.serviceType) setServiceType(order.serviceType);
+        if (order.driver) {
           setDriver({
             id: order.driver._id,
             name: order.driver.name || order.driver.user?.name || "Driver",
             phone: order.driver.phone || order.driver.user?.phone || "",
             vehicle: order.driver.vehicleType || "unknown",
+            rating: order.driver.rating ?? null,
+            ratingCount: order.driver.ratingCount ?? 0,
           });
         }
       })
-      .catch((err) => console.error("[Chat] Failed to load order for deep link:", err));
+      .catch((err) => console.error("[Chat] Failed to load order:", err));
 
-    customFetch<any[]>(`/orders/${deepLinkOrderId}/chat`)
+    customFetch<any[]>(`/orders/${orderId}/chat`)
       .then((history) => {
-        setChatMessages(
-          (history || []).map((m) => ({
-            id: m._id,
-            text: m.text,
-            sender: m.role === "driver" ? "driver" : "customer",
-            timestamp: m.time,
-          }))
-        );
+        if (cancelled) return;
+        const stored = (history || []).map(toChatMessage);
+        // Anything that arrived over the socket while this was in flight stays:
+        // merged by id, which the server now persists as `clientId`.
+        const live = useDeliveryStore.getState().activeChat;
+        const seen = new Set(stored.map((m) => m.id));
+        setChatMessages([...stored, ...live.filter((m: any) => !seen.has(m.id))]);
       })
-      .catch((err) => console.error("[Chat] Failed to load chat history for deep link:", err));
-  }, [params.orderId]);
+      .catch((err) => console.error("[Chat] Failed to load chat history:", err))
+      .finally(() => {
+        if (!cancelled) setLoadingHistory(false);
+      });
 
-  return { currentOrderId, driver, activeChat, addChatMessage, setUnreadCount, setIsChatActive, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles, inputText, setInputText, flatListRef, taskAssigned, handleAssignTask };
+    return () => {
+      cancelled = true;
+    };
+  }, [orderId]);
+
+  return { currentOrderId: orderId, driver, activeChat, addChatMessage, setUnreadCount, setIsChatActive, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles, inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, loadingHistory };
 }

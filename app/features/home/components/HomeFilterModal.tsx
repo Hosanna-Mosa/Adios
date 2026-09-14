@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
@@ -45,7 +46,8 @@ interface Props {
 export function HomeFilterModal(props: Props) {
   const { isFilterModalVisible, setIsFilterModalVisible, styles } = props;
   return (
-    <Modal visible={isFilterModalVisible} transparent animationType="slide" onRequestClose={() => setIsFilterModalVisible(false)}>
+    <Modal statusBarTranslucent visible={isFilterModalVisible} transparent animationType="slide" onRequestClose={() => setIsFilterModalVisible(false)}>
+      <StatusBarFill />
       <View style={styles.filterModalOverlay}>
         <TouchableOpacity style={styles.filterModalScrim} activeOpacity={1} onPress={() => setIsFilterModalVisible(false)} />
         <HomeFilter {...props} />

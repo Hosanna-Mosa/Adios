@@ -63,6 +63,7 @@ import CartConflictDialog from "@/components/CartConflictDialog";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { useState } from "react";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
+import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -140,10 +141,10 @@ SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
-  const insets = useSafeAreaInsets();
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const { theme } = useThemeStore();
   const colors = Colors[theme];
+  const insets = useSafeAreaInsets();
 
   if (!isInitialized) {
     return null; // Or a custom Loading/Splash view
@@ -151,10 +152,29 @@ function RootLayoutNav() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Content colour, not a bar colour: edge-to-edge leaves the background to
-          the screen underneath. Follows the theme so the icons never match the
-          ground they sit on. */}
-      <StatusBar style={theme === "dark" ? "light" : "dark"} />
+      {/* Expo SDK 54 enforces edge-to-edge on Android — the status bar is
+          always transparent at the OS level now, and StatusBar's translucent
+          and backgroundColor props are silently no-ops (confirmed: they were
+          both set correctly in an earlier version of this file and still
+          never rendered). There is no supported way to make the system paint
+          a colored status bar anymore, so this draws a real black bar as
+          ordinary app content instead, sized to the actual status bar height
+          and layered on top of everything — a normal View, not a system API,
+          so it isn't subject to that restriction. style="light" still works
+          for icon color; only the background-painting APIs are blocked. */}
+      <StatusBar style="light" />
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: "#000000",
+          zIndex: 999,
+        }}
+      />
       <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
         <Stack.Screen name="index" options={{ animation: "fade" }} />
         <Stack.Screen name="login" options={{ animation: "fade" }} />
@@ -175,9 +195,6 @@ function RootLayoutNav() {
         <Stack.Screen name="chat" />
         <Stack.Screen name="149-store" />
       </Stack>
-      {Platform.OS === "android" && insets.bottom > 0 && (
-        <View style={{ height: insets.bottom, backgroundColor: colors.background }} />
-      )}
     </View>
   );
 }
@@ -361,6 +378,7 @@ export default function RootLayout() {
                   onDismiss={handleDismissUpdate}
                 />
                 <CartConflictDialog />
+                <AppAlert />
               </ToastProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>

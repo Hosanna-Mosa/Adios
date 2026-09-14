@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { calculateBearing, calculateDynamicETA, normalizeStatus } from "./useTracking.shared";
@@ -7,6 +7,12 @@ import { calculateBearing, calculateDynamicETA, normalizeStatus } from "./useTra
 // the order they were written, so React sees the same hook sequence.
 
 export function useTrackingHandleBack(status: any, setStatus: any, currentOrderId: any, stops: any, setDriver: any, isRide: any, isHelper: any, eta: any, setEta: any, setDeliveredAt: any, setHelperStatus: any, setDriverLocation: any, handleOrderCancelledByDriver: any, deliveryStop: any, pickupStop: any) {
+  // The socket subscription below is keyed on the order, so its handlers close over
+  // whatever these were at mount. Reading them through a ref keeps the ETA measured
+  // against the leg the ride is actually on.
+  const live = useRef({ status, stops, eta, pickupStop, deliveryStop });
+  live.current = { status, stops, eta, pickupStop, deliveryStop };
+
   useEffect(() => {
     if (!currentOrderId) return;
     socketService.connect();
@@ -29,12 +35,14 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
         return { lat: data.lat, lng: data.lng, heading: heading || 0 };
       });
 
-      const activeStop =
-        status === "pending" || status === "confirmed" || status === "driver_assigned" || status === "en_route_pickup" || status === "arrived_pickup"
-          ? pickupStop || stops?.[0]
-          : deliveryStop || stops?.[stops.length - 1];
+      const current = live.current;
+      const headingToPickup = ["pending", "confirmed", "driver_assigned", "en_route_pickup", "arrived_pickup"]
+        .includes(current.status);
+      const activeStop = headingToPickup
+        ? current.pickupStop || current.stops?.[0]
+        : current.deliveryStop || current.stops?.[current.stops.length - 1];
       if (activeStop && activeStop.lat != null && activeStop.lng != null) {
-        setEta(calculateDynamicETA({ lat: data.lat, lng: data.lng }, { lat: Number(activeStop.lat), lng: Number(activeStop.lng) }, eta));
+        setEta(calculateDynamicETA({ lat: data.lat, lng: data.lng }, { lat: Number(activeStop.lat), lng: Number(activeStop.lng) }, current.eta));
       }
     };
 

@@ -21,8 +21,6 @@ export function useProfileInsets() {
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [loading, setLoading] = useState(false);
-  const [ordersCount, setOrdersCount] = useState(0);
-  const [totalSpent, setTotalSpent] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [securityVisible, setSecurityVisible] = useState(false);
@@ -46,15 +44,6 @@ export function useProfileInsets() {
       setLoading(true);
       const data = await customFetch<any>("/users/profile");
       if (data) setUser(data);
-      try {
-        const ordersData = await customFetch<any[]>("/orders");
-        if (ordersData && Array.isArray(ordersData)) {
-          setOrdersCount(ordersData.length);
-          setTotalSpent(ordersData.reduce((sum, o) => sum + (o.totalPrice || 0), 0));
-        }
-      } catch (orderErr) {
-        console.warn("Failed to fetch user orders:", orderErr);
-      }
     } catch (err: any) {
       // A dead session is handled centrally: customFetch's 401 interceptor
       // clears the store and redirects once, so this must not navigate too.
@@ -64,5 +53,5 @@ export function useProfileInsets() {
     }
   };
 
-  return { insets, tabBarHeight, user, logout, setUser, theme, toggleTheme, tokens, accent, styles, loading, setLoading, ordersCount, totalSpent, unreadCount, securityVisible, setSecurityVisible, currentPassword, setCurrentPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, changingPassword, setChangingPassword, signingOutAll, setSigningOutAll };
+  return { insets, tabBarHeight, user, logout, setUser, theme, toggleTheme, tokens, accent, styles, loading, setLoading, unreadCount, securityVisible, setSecurityVisible, currentPassword, setCurrentPassword, newPassword, setNewPassword, confirmPassword, setConfirmPassword, changingPassword, setChangingPassword, signingOutAll, setSigningOutAll };
 }

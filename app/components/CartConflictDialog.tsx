@@ -6,6 +6,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 /**
  * Global "Start a new cart?" prompt. One cart can only hold one outlet, and the
@@ -30,6 +31,7 @@ export default function CartConflictDialog() {
 
   return (
     <Modal
+      statusBarTranslucent
       visible
       transparent
       animationType="fade"
@@ -37,6 +39,7 @@ export default function CartConflictDialog() {
       // Android back is the non-destructive choice.
       onRequestClose={() => resolveConflict("keep")}
     >
+      <StatusBarFill />
       <View style={styles.overlay}>
         <View style={styles.card}>
           <View style={styles.iconContainer}>

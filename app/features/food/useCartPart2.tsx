@@ -37,16 +37,36 @@ export function useCartPart2(items: any, vendorId: any, setMenuItems: any, setRe
     if (items.length > 0) return;
     setLoadingRecent(true);
     customFetch<any[]>("/orders")
-      .then((orders) => {
+      .then(async (orders) => {
         const withVendor = (orders || []).filter((o) => o.vendor);
         const seen = new Set<string>();
-        const deduped = withVendor.filter((o) => {
-          const vId = typeof o.vendor === "object" ? o.vendor._id : o.vendor;
-          if (seen.has(vId)) return false;
-          seen.add(vId);
-          return true;
-        });
-        setRecentOrders(deduped.slice(0, 3));
+        const deduped = withVendor
+          .filter((o) => {
+            const vId = typeof o.vendor === "object" ? o.vendor._id : o.vendor;
+            if (seen.has(vId)) return false;
+            seen.add(vId);
+            return true;
+          })
+          .slice(0, 3);
+
+        // GET /orders doesn't populate vendor (documented in useOrders.shared's
+        // resolveServiceKey) — it's a bare id, so these cards had no photo to show,
+        // just an empty placeholder box. At most 3 cards ever show here, so a
+        // handful of public, unauthenticated vendor lookups fills in the real
+        // photo (and name) cheaply.
+        const withVendorInfo = await Promise.all(
+          deduped.map(async (o) => {
+            if (typeof o.vendor === "object" && o.vendor?.image) return o;
+            const vId = typeof o.vendor === "object" ? o.vendor._id : o.vendor;
+            try {
+              const vendor = await customFetch<{ name?: string; image?: string }>(`/vendors/${vId}`);
+              return { ...o, vendor: { _id: vId, name: vendor?.name, image: vendor?.image } };
+            } catch {
+              return o;
+            }
+          })
+        );
+        setRecentOrders(withVendorInfo);
       })
       .catch(() => {})
       .finally(() => setLoadingRecent(false));

@@ -20,6 +20,11 @@ export default {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
     },
+    androidStatusBar: {
+      barStyle: 'dark-content',
+      backgroundColor: '#00000000',
+      translucent: true,
+    },
     android: {
       package: 'com.flavour.driver',
       googleServicesFile: './google-services.json',
@@ -71,6 +76,12 @@ export default {
         {
           icon: './assets/images/icon.png',
           color: '#ffffff',
+        },
+      ],
+      [
+        'expo-image-picker',
+        {
+          cameraPermission: 'Allow Driver App to use your camera to take your onboarding profile photo.',
         },
       ],
     ],

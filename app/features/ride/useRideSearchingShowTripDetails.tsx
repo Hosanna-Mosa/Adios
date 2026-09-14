@@ -1,7 +1,7 @@
 import React from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 4 of useRideSearching, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -17,7 +17,7 @@ export function useRideSearchingShowTripDetails(currentOrderId: any, setGlobalDr
           setGlobalDriver(data.driver);
           setGlobalStatus("driver_assigned");
           
-          Alert.alert("Driver Assigned", `${data.driver.name} is on the way!`, [
+          showAlert("Driver Assigned", `${data.driver.name} is on the way!`, [
             {
               text: "OK",
               onPress: () => {

@@ -6,6 +6,7 @@ import { HelperTaskCheckRow } from "./HelperTaskCheckRow";
 import { HelperTaskFooter } from "./HelperTaskFooter";
 import { HelperTaskCheckRow2 } from "./HelperTaskCheckRow2";
 import { HelperTaskTitleRow } from "./HelperTaskTitleRow";
+import { HelperTaskNoHelpers } from "./HelperTaskNoHelpers";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -20,7 +21,10 @@ interface Props {
   isIncreasingPrice: any;
   offer: any;
   rejectedCount: any;
+  searchExhausted: any;
+  searchStartedAt: any;
   styles: any;
+  tokens: any;
   totalContacted: any;
 }
 
@@ -34,9 +38,28 @@ export function HelperTaskBody({
   isIncreasingPrice,
   offer,
   rejectedCount,
+  searchExhausted,
+  searchStartedAt,
   styles,
+  tokens,
   totalContacted,
 }: Props) {
+  if (searchExhausted) {
+    return (
+      <HelperTaskNoHelpers
+        accent={accent}
+        currentTaskPrice={currentTaskPrice}
+        handleCancel={handleCancel}
+        handleIncreasePrice={handleIncreasePrice}
+        isIncreasingPrice={isIncreasingPrice}
+        rejectedCount={rejectedCount}
+        styles={styles}
+        tokens={tokens}
+        totalContacted={totalContacted}
+      />
+    );
+  }
+
   return (
     <>
     <View style={{ flex: 1 }}>
@@ -45,7 +68,10 @@ export function HelperTaskBody({
           <HelperTaskTitleRow
             styles={styles}
           />
-          <Text style={styles.subtitle}>Matching you with helpers nearby.</Text>
+          <Text style={styles.subtitle}>
+            Matching you with helpers nearby.
+            {searchStartedAt ? ` Offers go out one at a time, about 15 seconds each.` : ""}
+          </Text>
         </Animated.View>
 
         <View style={{ gap: 12, marginTop: 18 }}>

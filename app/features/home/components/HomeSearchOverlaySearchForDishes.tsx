@@ -14,6 +14,7 @@ interface Props {
   activeService: any;
   accent: any;
   addRecentSearch: any;
+  inputRef: any;
   clearRecentSearches: any;
   insets: any;
   isSearching: any;
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export function HomeSearchOverlaySearchForDishes(props: Props) {
-  const { addRecentSearch, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
+  const { addRecentSearch, inputRef, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
   return (
     <Animated.View
       style={[
@@ -48,6 +49,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
         <View style={styles.searchSheetInputWrap}>
           <Ionicons name="search" size={moderateScale(18)} color={tokens.muted} />
           <TextInput
+            ref={inputRef}
             style={styles.searchSheetInput}
             placeholder="Try 'Bawarchi'"
             placeholderTextColor={tokens.muted}

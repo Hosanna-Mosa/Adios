@@ -1,4 +1,5 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -81,6 +82,7 @@ export function CartBody2({
               {recentOrders.map((o) => {
                 const vName = typeof o.vendor === "object" ? o.vendor.name : "Vendor";
                 const vId = typeof o.vendor === "object" ? o.vendor._id : o.vendor;
+                const vImage = typeof o.vendor === "object" ? o.vendor.image : null;
                 return (
                   <TouchableOpacity
                     key={o._id}
@@ -88,7 +90,13 @@ export function CartBody2({
                     activeOpacity={0.85}
                     onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: vId, name: vName } })}
                   >
-                    <View style={styles.recentImagePlaceholder} />
+                    {vImage ? (
+                      <Image source={{ uri: vImage }} style={styles.recentImage} contentFit="cover" transition={200} />
+                    ) : (
+                      <View style={styles.recentImagePlaceholder}>
+                        <Ionicons name="restaurant-outline" size={moderateScale(20)} color={tokens.muted} />
+                      </View>
+                    )}
                     <Text style={styles.recentName} numberOfLines={1}>{vName}</Text>
                     <Text style={styles.recentMeta}>₹{Math.round(o.totalPrice || 0)}</Text>
                   </TouchableOpacity>

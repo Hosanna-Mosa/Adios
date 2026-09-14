@@ -4,6 +4,7 @@ import { Utensils, Star, Clock, IndianRupee, ChevronRight, TrendingUp, Package, 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
+import { playNewOrderChime } from "@/lib/notificationSound";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,29 +12,6 @@ import { format } from "date-fns";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
-
-const playChime = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = "sine";
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    osc.start();
-    
-    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.6);
-    
-    osc.stop(ctx.currentTime + 0.6);
-  } catch (e) {
-    console.warn("Failed to play chime:", e);
-  }
-};
 
 export default function VendorDashboard() {
   const queryClient = useQueryClient();
@@ -81,29 +59,18 @@ export default function VendorDashboard() {
   useEffect(() => {
     if (!vendorData._id) return;
 
-    // Connect and Join
+    // Connect and Join — VendorLayout (mounted for every /vendor/* page, this
+    // one included) already does this and owns the new_order_vendor sound/toast
+    // globally, so this page only needs its own status-update and
+    // scheduled-delivery handling.
     socketService.connect();
     socketService.join(vendorData._id, "VENDOR");
-
-    // Listen for new orders
-    const handleNewOrder = (data: any) => {
-      console.log("[SOCKET] New order received:", data);
-      playChime();
-      toast.success(`New order received! Order ${data.id.startsWith("ORD-") ? data.id : `#${data.id.slice(-6).toUpperCase()}`}`, {
-        duration: 8000,
-        action: {
-          label: "Refresh",
-          onClick: () => queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] })
-        }
-      });
-      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-    };
 
     // Listen for order status updates
     const handleStatusUpdate = (data: any) => {
       console.log("[SOCKET] Order status updated:", data);
       queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-      
+
       // If the currently open modal's order is updated, we fetch it or update local state
       if (selectedOrder && selectedOrder._id === data.orderId) {
         setSelectedOrder((prev: any) => prev ? { ...prev, status: data.status } : null);
@@ -111,7 +78,7 @@ export default function VendorDashboard() {
     };
 
     const handleScheduledDeliveryRequest = (data: any) => {
-      playChime();
+      playNewOrderChime();
       setScheduledRequest(data);
       setIsScheduleModalOpen(true);
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
@@ -120,12 +87,10 @@ export default function VendorDashboard() {
       });
     };
 
-    socketService.on("new_order_vendor", handleNewOrder);
     socketService.on("order_status_update_vendor", handleStatusUpdate);
     socketService.on("scheduled_delivery_request", handleScheduledDeliveryRequest);
 
     return () => {
-      socketService.off("new_order_vendor", handleNewOrder);
       socketService.off("order_status_update_vendor", handleStatusUpdate);
       socketService.off("scheduled_delivery_request", handleScheduledDeliveryRequest);
     };

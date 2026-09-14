@@ -1,7 +1,7 @@
 import * as Location from "expo-location";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 4 of useLocationSelection, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -26,7 +26,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
       setFetchingLocation(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required.');
+        showAlert('Permission Denied', 'Location permission is required.');
         setFetchingLocation(false);
         return;
       }
@@ -36,7 +36,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
       try {
         const checkRes = await customFetch<any>(`/zones/check?lat=${location.coords.latitude}&lng=${location.coords.longitude}`);
         if (!checkRes || !checkRes.inZone) {
-          Alert.alert("No Service", "No service at current pickup location.");
+          showAlert("No Service", "No service at current pickup location.");
           pickupRef.current?.setAddressText("");
           setPickup(null);
           return;
@@ -80,7 +80,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'Could not get current location');
+      showAlert('Error', 'Could not get current location');
     } finally {
       setFetchingLocation(false);
     }

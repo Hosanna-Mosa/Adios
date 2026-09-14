@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { StatCard } from "@/components/shared/StatCard";
-import { StaggerList } from "@/components/motion/StaggerList";
-import { StaggerItem } from "@/components/motion/StaggerItem";
 import { fadeIn } from "@/components/motion/variants";
 import { Map as MapIcon, MapPin, Compass, Trash2, Plus, SlidersHorizontal, ToggleLeft, ToggleRight, X, AlertTriangle, RefreshCw, Eye, Undo, Clock, ShieldCheck, ChevronDown, ChevronUp, Flame, Pencil } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -199,6 +196,52 @@ export default function Zones() {
       toast.error(error.message || "Failed to update zone");
     },
   });
+
+  // Full edit of an existing zone. Everything the model carries is editable here,
+  // rather than the single name the old prompt() asked for.
+  const [editingZone, setEditingZone] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    description: "",
+    pricingMultiplier: "1",
+    radius: "1000",
+    isActive: true,
+  });
+
+  const openEditZone = (z: any) => {
+    setEditingZone(z);
+    setEditForm({
+      name: z.name || "",
+      description: z.description || "",
+      pricingMultiplier: String(z.pricingMultiplier ?? 1),
+      radius: String(z.radius ?? 1000),
+      isActive: Boolean(z.isActive),
+    });
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingZone) return;
+    if (!editForm.name.trim()) {
+      toast.error("Zone name is required");
+      return;
+    }
+    const data: any = {
+      name: editForm.name.trim(),
+      description: editForm.description.trim(),
+      pricingMultiplier: Number(editForm.pricingMultiplier) || 1,
+      isActive: editForm.isActive,
+    };
+    // Radius only means anything for a circular zone; a polygon is defined by its
+    // drawn boundary, which this form does not touch.
+    if (editingZone.type === "circle") {
+      data.radius = Number(editForm.radius) || 0;
+    }
+    toggleZoneMutation.mutate(
+      { zoneId: editingZone._id, data },
+      { onSuccess: () => setEditingZone(null) }
+    );
+  };
 
   const resetForm = () => {
     setName("");
@@ -493,25 +536,10 @@ export default function Zones() {
     return { fill: "#6366f1", stroke: "#4f46e5" }; // Slate/indigo
   };
 
-  const activeZonesCount = zones.filter((z: any) => z.isActive).length;
-  const maxMultiplier = zones.length > 0 ? Math.max(...zones.map((z: any) => z.pricingMultiplier)) : 1.0;
 
   return (
     <DashboardLayout searchPlaceholder="Search zones...">
       <div className="space-y-6">
-        {/* Statistics Cards */}
-        <StaggerList className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StaggerItem><StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label="Total Zones" value={zones.length.toString()} badge="Configured" badgeColor="success" /></StaggerItem>
-          <StaggerItem><StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label="Active Zones" value={activeZonesCount.toString()} badge="Live Geofences" badgeColor="success" /></StaggerItem>
-          <StaggerItem><StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label="Surge Multipliers" value={`${maxMultiplier}x Max`} badge="Dynamic Pricing" badgeColor="warning" /></StaggerItem>
-          <StaggerItem className="stat-card bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 flex flex-col justify-between p-5 rounded-xl border">
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider">Dynamic Control</p>
-              <h4 className="text-2xl font-bold text-foreground mt-1.5">Map Engine</h4>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">Visualizing operational boundaries using Google Cloud.</p>
-          </StaggerItem>
-        </StaggerList>
 
         {/* Main Grid: Zones List (Col 2/3) and Map Preview (Col 1/3) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -690,19 +718,10 @@ export default function Zones() {
                                 >
                                   <Eye className="h-4 w-4" />
                                 </button>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const newName = prompt("Enter new name for this zone:", z.name);
-                                    if (newName && newName.trim() !== "" && newName !== z.name) {
-                                      toggleZoneMutation.mutate({
-                                        zoneId: z._id,
-                                        data: { name: newName.trim() },
-                                      });
-                                    }
-                                  }}
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); openEditZone(z); }}
                                   className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors"
-                                  title="Rename Zone"
+                                  title="Edit Zone"
                                 >
                                   <Pencil className="h-4 w-4" />
                                 </button>
@@ -801,6 +820,70 @@ export default function Zones() {
                 </GoogleMap>
               )}
 
+              {/* Selected zone detail — where the "View" action lands */}
+              {selectedZone && (
+                <div className="absolute top-4 left-4 right-4 bg-background/95 backdrop-blur-sm p-3.5 rounded-lg border border-border shadow-md z-10 max-w-[320px]">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-foreground truncate">{selectedZone.name}</p>
+                      {selectedZone.description && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{selectedZone.description}</p>
+                      )}
+                    </div>
+                    <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      selectedZone.isActive
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {selectedZone.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+
+                  <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-3 text-[11px]">
+                    <div>
+                      <dt className="text-muted-foreground">Type</dt>
+                      <dd className="font-semibold text-foreground capitalize">{selectedZone.type}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Surge</dt>
+                      <dd className="font-semibold text-foreground">{selectedZone.pricingMultiplier}x</dd>
+                    </div>
+                    {selectedZone.type === "circle" ? (
+                      <>
+                        <div>
+                          <dt className="text-muted-foreground">Radius</dt>
+                          <dd className="font-semibold text-foreground">
+                            {(Number(selectedZone.radius || 0) / 1000).toFixed(2)} km
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-muted-foreground">Centre</dt>
+                          <dd className="font-semibold text-foreground tabular-nums">
+                            {selectedZone.center?.coordinates
+                              ? `${Number(selectedZone.center.coordinates[1]).toFixed(4)}, ${Number(selectedZone.center.coordinates[0]).toFixed(4)}`
+                              : "—"}
+                          </dd>
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <dt className="text-muted-foreground">Boundary</dt>
+                        <dd className="font-semibold text-foreground">
+                          {selectedZone.boundary?.coordinates?.[0]?.length || 0} points
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+
+                  <button
+                    onClick={() => openEditZone(selectedZone)}
+                    className="mt-3 w-full py-1.5 border border-border rounded-md text-[11px] font-semibold text-foreground hover:bg-muted/50 transition-colors"
+                  >
+                    Edit this zone
+                  </button>
+                </div>
+              )}
+
               {/* Legends Overlay */}
               <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm p-3 rounded-lg border border-border shadow-md text-[10px] space-y-1.5 z-10">
                 <p className="font-semibold text-foreground uppercase tracking-wider mb-1">Surge Legend</p>
@@ -825,6 +908,111 @@ export default function Zones() {
           </div>
         </div>
       </div>
+
+      {/* Edit Zone Dialog */}
+      {editingZone && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditingZone(null)}>
+          <div className="bg-card border border-border rounded-2xl shadow-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <div>
+                <h3 className="font-bold text-foreground">Edit Zone</h3>
+                <p className="text-xs text-muted-foreground mt-0.5 capitalize">{editingZone.type} zone</p>
+              </div>
+              <button onClick={() => setEditingZone(null)} className="p-1 rounded hover:bg-muted text-muted-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="p-5 space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="zone-edit-name" className="text-xs font-semibold text-muted-foreground">Zone Name</label>
+                <input
+                  id="zone-edit-name"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="zone-edit-desc" className="text-xs font-semibold text-muted-foreground">Description</label>
+                <textarea
+                  id="zone-edit-desc"
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  rows={2}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label htmlFor="zone-edit-mult" className="text-xs font-semibold text-muted-foreground">Surge Multiplier</label>
+                  <input
+                    id="zone-edit-mult"
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    value={editForm.pricingMultiplier}
+                    onChange={(e) => setEditForm({ ...editForm, pricingMultiplier: e.target.value })}
+                    className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                {editingZone.type === "circle" && (
+                  <div className="space-y-1.5">
+                    <label htmlFor="zone-edit-radius" className="text-xs font-semibold text-muted-foreground">Radius (metres)</label>
+                    <input
+                      id="zone-edit-radius"
+                      type="number"
+                      min="100"
+                      step="100"
+                      value={editForm.radius}
+                      onChange={(e) => setEditForm({ ...editForm, radius: e.target.value })}
+                      className="w-full h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <label htmlFor="zone-edit-active" className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  id="zone-edit-active"
+                  type="checkbox"
+                  checked={editForm.isActive}
+                  onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+                  className="h-4 w-4 rounded border-input accent-primary"
+                />
+                <span className="text-sm text-foreground">Zone is active</span>
+              </label>
+
+              {editingZone.type === "polygon" && (
+                <p className="text-[11px] text-muted-foreground">
+                  The boundary of this zone is drawn on the map and is not editable from here.
+                </p>
+              )}
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditingZone(null)}
+                  className="flex-1 h-10 rounded-lg border border-border text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={toggleZoneMutation.isPending}
+                  className="flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {toggleZoneMutation.isPending ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Create Zone Dialog/Modal - Double Column Layout */}
       {isAddOpen && (

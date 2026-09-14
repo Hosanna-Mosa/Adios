@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
@@ -58,7 +58,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       if (timeoutTimer) clearTimeout(timeoutTimer);
       router.replace("/(tabs)");
       setTimeout(() => {
-        Alert.alert("Order cancelled", "Driver is unavailable.", [{ text: "OK", onPress: () => {} }], { cancelable: true });
+        showAlert("Order cancelled", "Driver is unavailable.");
       }, 500);
     };
 
@@ -120,7 +120,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
         if (isTransitioned) return;
         isTransitioned = true;
         if (pollIntervalId) clearInterval(pollIntervalId);
-        Alert.alert(
+        showAlert(
           "No captain found",
           "Sorry, no captains are available to accept your reservation request right now. Please try scheduling again later.",
           [{

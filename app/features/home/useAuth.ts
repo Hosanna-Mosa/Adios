@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Animated } from "react-native";
+import { Animated } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { createStyles } from "./index.styles";
 import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -78,11 +79,11 @@ export function useAuth() {
   const handleSignIn = async () => {
     const trimmed = identifier.trim();
     if (!trimmed) {
-      Alert.alert("Error", "Please enter your phone number or email");
+      showAlert("Error", "Please enter your phone number or email");
       return;
     }
     if (!password) {
-      Alert.alert("Error", "Please enter your password");
+      showAlert("Error", "Please enter your password");
       return;
     }
 
@@ -91,19 +92,19 @@ export function useAuth() {
       // Token is now saved in AsyncStorage & store → navigate in
       router.replace("/(tabs)");
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message || "Failed to sign in. Please check your credentials.");
+      showAlert("Login Failed", error.message || "Failed to sign in. Please check your credentials.");
     }
   };
 
   const handleForgotPassword = () => {
-    Alert.alert("Forgot Password", "Password recovery instructions will be sent to your account.");
+    showAlert("Forgot Password", "Password recovery instructions will be sent to your account.");
   };
 
   const handleContinueWithOtp = async () => {
     const trimmed = identifier.trim();
     const digitsOnly = trimmed.replace(/\D/g, "");
     if (digitsOnly.length < 10) {
-      Alert.alert("Phone number needed", "Enter your phone number above to continue with an OTP.");
+      showAlert("Phone number needed", "Enter your phone number above to continue with an OTP.");
       return;
     }
     setSendingOtp(true);
@@ -111,7 +112,7 @@ export function useAuth() {
       await requestOTP(digitsOnly);
       router.push({ pathname: "/otp", params: { phone: digitsOnly } });
     } catch (error: any) {
-      Alert.alert("Couldn't send code", error.message || "Please try again.");
+      showAlert("Couldn't send code", error.message || "Please try again.");
     } finally {
       setSendingOtp(false);
     }

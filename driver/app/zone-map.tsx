@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import MapView, { Polygon, Circle, PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useDriverStore } from "@/store/driverStore";
 import Colors from "@/constants/colors";
@@ -11,6 +12,7 @@ const DEFAULT_LAT = 16.9891;
 const DEFAULT_LNG = 81.7836;
 
 export default function ZoneMapScreen() {
+  const insets = useSafeAreaInsets();
   const { zoneId } = useLocalSearchParams<{ zoneId: string }>();
   const [loading, setLoading] = useState(true);
   const [zone, setZone] = useState<any>(null);
@@ -124,7 +126,9 @@ export default function ZoneMapScreen() {
       </MapView>
 
       {/* Map Floating Header overlay */}
-      <View style={styles.headerOverlay}>
+      {/* Was a hardcoded top: 48, which is under the status bar on any device
+          with a taller inset (notch/punch-hole) now that the bar is translucent. */}
+      <View style={[styles.headerOverlay, { top: insets.top + 12 }]}>
         <TouchableOpacity style={styles.roundBackBtn} onPress={() => router.back()}>
           <Feather name="arrow-left" size={24} color={Colors.text} />
         </TouchableOpacity>
@@ -180,7 +184,6 @@ const styles = StyleSheet.create({
   },
   headerOverlay: {
     position: "absolute",
-    top: 48,
     left: 16,
     right: 16,
     backgroundColor: "rgba(255, 255, 255, 0.95)",

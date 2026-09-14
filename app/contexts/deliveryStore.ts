@@ -170,7 +170,14 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
       console.error("Failed to read active address:", err);
     }
   },
-  setOrderId: (currentOrderId) => set({ currentOrderId }),
+  // Switching orders drops the previous order's conversation. Without this the
+  // chat screen opened on a brand new task showing the last one's messages.
+  setOrderId: (currentOrderId) =>
+    set((state) =>
+      state.currentOrderId === currentOrderId
+        ? { currentOrderId }
+        : { currentOrderId, activeChat: [], unreadCount: 0 }
+    ),
   setServiceType: (serviceType) => set({ serviceType }),
   setDriver: (driver) => set({ driver }),
   setVendorId: (vendorId) => set({ vendorId }),
@@ -269,3 +276,23 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   incrementUnreadCount: () => set((state) => ({ unreadCount: state.unreadCount + 1 })),
   setIsChatActive: (isChatActive) => set({ isChatActive }),
 }));
+
+/** Once `status` reaches either of these, there is nothing further to show for the order. */
+const TERMINAL_ORDER_STATUSES: OrderStatus[] = ["delivered", "cancelled"];
+
+/**
+ * Whether the customer has an order in flight right now, regardless of which screen
+ * they're on — the source for the active-order stripe above the tab bar. `currentOrderId`
+ * on its own isn't enough to tell: nothing clears it once an order finishes (only the
+ * next order overwrites it), so a completed/cancelled one is excluded by its terminal
+ * `status` instead. `status` itself is kept live in the background by GlobalSocketHandler,
+ * not just while the tracking screen happens to be open.
+ */
+export const useActiveOrder = () => {
+  const orderId = useDeliveryStore((s) => s.currentOrderId);
+  const status = useDeliveryStore((s) => s.status);
+  const serviceType = useDeliveryStore((s) => s.serviceType);
+  const driver = useDeliveryStore((s) => s.driver);
+  const isActive = !!orderId && !TERMINAL_ORDER_STATUSES.includes(status);
+  return { isActive, orderId, serviceType, status, driver };
+};

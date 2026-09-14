@@ -1,8 +1,9 @@
 import { useRef, useState } from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { MapBackgroundRef } from "@/components/MapBackground";
+import { showAlert } from "@/components/ui/AppAlert";
+import { useToast } from "@/components/ui/Toast";
 
 // Part 2 of useTracking, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -20,20 +21,23 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
   const mapRef = useRef<MapBackgroundRef>(null);
 
   const cancellationAlerted = useRef(false);
+  const { show: showToast } = useToast();
 
   const handleOrderCancelledByDriver = () => {
     if (cancellationAlerted.current) return;
     cancellationAlerted.current = true;
     resetDelivery();
     router.replace("/(tabs)");
-    setTimeout(() => {
-      Alert.alert("Order cancelled", "We're sorry — this order could not be completed and has been cancelled.", [{ text: "OK", onPress: () => {} }], { cancelable: true });
-    }, 500);
+    // A toast, not a blocking dialog: landing on Home to a modal you have to tap
+    // "OK" on before doing anything else read as a lot of ceremony for a passive
+    // notice with nothing to confirm. This surfaces the same instant, over the
+    // home screen, and clears itself.
+    showToast("This order couldn't be completed and has been cancelled.", "error");
   };
 
   const handleSOS = () => {
     if (!currentOrderId) return;
-    Alert.alert(
+    showAlert(
       "Emergency SOS",
       "This will instantly alert our support team and your emergency contacts.",
       [
@@ -44,9 +48,9 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
           onPress: async () => {
             try {
               await customFetch(`/orders/${currentOrderId}/sos`, { method: "POST" });
-              Alert.alert("SOS dispatched", "Your emergency alert has been sent. Support is on the way.");
+              showAlert("SOS dispatched", "Your emergency alert has been sent. Support is on the way.");
             } catch (err: any) {
-              Alert.alert("Error", err.message || "Failed to trigger SOS. Please call emergency services.");
+              showAlert("Error", err.message || "Failed to trigger SOS. Please call emergency services.");
             }
           },
         },

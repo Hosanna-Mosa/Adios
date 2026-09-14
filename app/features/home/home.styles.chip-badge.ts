@@ -16,8 +16,8 @@ export const createChipBadgeStyles = (tokens: ThemeTokens, accent: ServiceTokens
   cuisineLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: accent.accent, paddingHorizontal: 16, marginBottom: 12 },
   cuisineScrollContent: { paddingHorizontal: 16, gap: 16 },
   cuisineItem: { width: 64, alignItems: "center" },
-  cuisineCircle: { width: 64, height: 64, borderRadius: 999, backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-  cuisineEmoji: { fontSize: typography.sizes.extraLarge },
+  cuisineCircle: { width: 64, height: 64, borderRadius: 999, overflow: "hidden", backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
+  cuisineImage: { width: "100%", height: "100%", borderRadius: 999 },
   cuisineName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text, marginTop: 7, textAlign: "center" },
 
   listHeadingBlock: { paddingHorizontal: 16, marginTop: 26, marginBottom: 12 },

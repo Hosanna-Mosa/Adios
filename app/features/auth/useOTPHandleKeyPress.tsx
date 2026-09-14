@@ -1,6 +1,6 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { RESEND_SECONDS } from "./useOTP.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 2 of useOTP, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -34,7 +34,7 @@ export function useOTPHandleKeyPress(phone: any, name: any, email: any, password
         router.replace("/(tabs)");
       }
     } catch (error: any) {
-      Alert.alert("Verification failed", error.message || "That code didn't work. Please try again.");
+      showAlert("Verification failed", error.message || "That code didn't work. Please try again.");
     }
   };
 
@@ -47,14 +47,14 @@ export function useOTPHandleKeyPress(phone: any, name: any, email: any, password
       setOtp(["", "", "", "", "", ""]);
       inputs.current[0]?.focus();
     } catch (error: any) {
-      Alert.alert("Couldn't resend", error.message || "Please try again in a moment.");
+      showAlert("Couldn't resend", error.message || "Please try again in a moment.");
     } finally {
       setResending(false);
     }
   };
 
   const handleCallInstead = () => {
-    Alert.alert("Call requested", "We'll ring you with your code shortly.");
+    showAlert("Call requested", "We'll ring you with your code shortly.");
   };
 
   const isFilled = otp.every((d: any) => d.length === 1);

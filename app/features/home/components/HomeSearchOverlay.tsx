@@ -7,6 +7,7 @@ import { DishSearchResultItem } from "./DishSearchResultItem";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { HomeSearchOverlaySearchForDishes } from "./HomeSearchOverlaySearchForDishes";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it
 // used to read from the screen's scope is now a prop of the same name, so
@@ -37,22 +38,31 @@ interface Props {
 
 export function HomeSearchOverlay(props: Props) {
   const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive } = props;
+  const inputRef = React.useRef<TextInput>(null);
+
   return (
     <Modal
       visible={isSearchVisible}
       animationType="none"
       transparent
+      statusBarTranslucent
       onRequestClose={() => setIsSearchActive(false)}
       onShow={() => {
         searchTranslateY.value = withTiming(0, { duration: 350, easing: Easing.out(Easing.cubic) });
         searchBackdropOpacity.value = withTiming(1, { duration: 350 });
+        // autoFocus alone doesn't raise the keyboard for an input mounted inside a
+        // Modal on Android — the window isn't focusable yet when it fires — so the
+        // sheet opened and the customer had to tap the field. Focus once the modal
+        // window is actually up instead.
+        requestAnimationFrame(() => inputRef.current?.focus());
       }}
     >
+      <StatusBarFill />
       <View style={{ flex: 1 }}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)" }, searchBackdropAnimatedStyle]}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSearchActive(false)} />
         </Animated.View>
-        <HomeSearchOverlaySearchForDishes {...props} />
+        <HomeSearchOverlaySearchForDishes {...props} inputRef={inputRef} />
       </View>
     </Modal>
   );

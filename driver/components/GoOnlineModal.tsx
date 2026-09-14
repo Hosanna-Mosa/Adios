@@ -55,6 +55,7 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
 
   return (
     <Modal
+      statusBarTranslucent
       visible={visible}
       animationType="slide"
       transparent

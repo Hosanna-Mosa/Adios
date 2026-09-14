@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { createStyles } from "../tracking.styles";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/tracking.tsx unchanged. Single-feature for now: promote to
 // components/ui/ or components/shared/ if a second feature needs it.
@@ -64,7 +65,7 @@ export function OrderReviewCard({
         setExistingReview(res.review || { rating, comment, tags: selectedTags });
       }
     } catch (err: any) {
-      Alert.alert("Couldn't submit", err.message || "Please try again.");
+      showAlert("Couldn't submit", err.message || "Please try again.");
     } finally {
       setIsSubmitting(false);
     }

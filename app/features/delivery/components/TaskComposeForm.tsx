@@ -1,5 +1,12 @@
 import React from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
@@ -10,7 +17,6 @@ import { TaskComposeFormWhereTheWork } from "./TaskComposeFormWhereTheWork";
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
-  TASK_TYPES: any[];
   accent: any;
   activeField: any;
   calculatedFare: any;
@@ -33,17 +39,15 @@ interface Props {
   setCustomMinutes: React.Dispatch<React.SetStateAction<number>>;
   setDescription: React.Dispatch<React.SetStateAction<any>>;
   setDurationMode: React.Dispatch<React.SetStateAction<any>>;
-  setTaskType: React.Dispatch<React.SetStateAction<any>>;
   styles: any;
   suggestedHigh: any;
   suggestedLow: any;
-  taskType: any;
   tokens: any;
 }
 
 export function TaskComposeForm(props: Props) {
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <TaskComposeFormWhereTheWork {...props} />
     </KeyboardAvoidingView>
   );

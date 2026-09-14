@@ -14,11 +14,12 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack, router, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useRef, useState } from "react";
-import { Alert, Platform, StyleSheet, Text, TextInput } from "react-native";
+import { Alert, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -97,6 +98,33 @@ patchComponentStyle(TextInput);
 // -------------------------------
 
 const queryClient = new QueryClient();
+
+// Expo SDK 54 enforces edge-to-edge on Android — the status bar is always
+// transparent at the OS level now, and StatusBar's translucent/backgroundColor
+// props are silently no-ops (confirmed: both were set correctly below and
+// still never rendered). There is no supported way to make the system paint a
+// colored status bar anymore, so this draws a real black bar as ordinary app
+// content instead, sized to the actual status bar height and layered on top
+// of everything — a normal View, not a system API, so it isn't subject to
+// that restriction. Needs its own component because useSafeAreaInsets() must
+// run inside SafeAreaProvider, one level below where RootLayout renders it.
+function StatusBarBackground() {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: insets.top,
+        backgroundColor: "#000000",
+        zIndex: 999,
+      }}
+    />
+  );
+}
 
 function RootLayoutNav() {
   const segments = useSegments();
@@ -339,6 +367,12 @@ export default function RootLayout() {
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
               <ToastProvider>
+                {/* style="light" still works for icon color; the actual solid
+                    black bar is StatusBarBackground below — see its comment
+                    for why (translucent/backgroundColor are no-ops on this
+                    SDK's Android edge-to-edge behavior). */}
+                <StatusBar style="light" />
+                <StatusBarBackground />
                 <RootLayoutNav />
                 <LocationHandler />
                 <GlobalSocketHandler />

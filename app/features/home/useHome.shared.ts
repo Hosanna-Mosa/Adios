@@ -22,6 +22,19 @@ export const TAG_SEARCH_MAP: { [key: string]: string } = {
   "Fish": "Fish",
 };
 
+// The startup ad is capped at one per calendar day — it used to reappear on
+// every visit to the home screen, since the "already shown" flag was component
+// state that reset with the screen.
+export const STARTUP_AD_LAST_SHOWN_KEY = "startup_ad_last_shown";
+
+/** Local calendar day as YYYY-MM-DD, built by hand so it never depends on Intl. */
+export const startupAdDayKey = () => {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+};
+
 export const HOME_SKELETON_ITEMS = Array.from({ length: 4 }, (_, index) => ({ _id: `home-skeleton-${index}` }));
 
 export const DEFAULT_CUISINES = ["Biryani", "Tiffins", "Chinese", "Pizza", "Sweets"];

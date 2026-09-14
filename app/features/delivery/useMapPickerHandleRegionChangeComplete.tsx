@@ -1,7 +1,7 @@
 import * as Location from "expo-location";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 2 of useMapPicker, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -32,7 +32,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       setRecentering(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission denied", "Location permission is required.");
+        showAlert("Permission denied", "Location permission is required.");
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -40,7 +40,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       mapRef.current?.animateToRegion(nextRegion, 350);
       handleRegionChangeComplete(nextRegion);
     } catch {
-      Alert.alert("Error", "Could not get current location");
+      showAlert("Error", "Could not get current location");
     } finally {
       setRecentering(false);
     }
@@ -51,7 +51,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
     try {
       const checkRes = await customFetch<any>(`/zones/check?lat=${region.latitude}&lng=${region.longitude}`);
       if (!checkRes || !checkRes.inZone) {
-        Alert.alert("No Service", `No service at current ${step} location.`);
+        showAlert("No Service", `No service at current ${step} location.`);
         return;
       }
     } catch (err) {

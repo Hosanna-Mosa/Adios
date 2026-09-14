@@ -127,7 +127,7 @@ export default function IncomingOrderModal() {
   }) : "N/A";
 
   return (
-    <Modal visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
+    <Modal statusBarTranslucent visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
       <View style={styles.overlay}>
         <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
         <Animated.View
@@ -250,14 +250,6 @@ export default function IncomingOrderModal() {
               </View>
             )}
 
-            {/* Payment Mode */}
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionTitle}>PAYMENT METHOD</Text>
-              <View style={styles.paymentRow}>
-                <Ionicons name="card-outline" size={18} color={Colors.success} />
-                <Text style={styles.paymentText}>Prepaid (Online Payment)</Text>
-              </View>
-            </View>
           </ScrollView>
 
           <View style={styles.actionButtons}>
@@ -425,21 +417,6 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     paddingLeft: 4,
     paddingVertical: 1,
-  },
-  paymentRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: Colors.successLight,
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.successLight,
-  },
-  paymentText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: Colors.success,
   },
   actionButtons: {
     flexDirection: "row",

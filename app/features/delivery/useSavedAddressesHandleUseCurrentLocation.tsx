@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import * as Location from "expo-location";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 2 of useSavedAddresses, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -14,7 +14,7 @@ export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setS
       setCurrentLocLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission denied", "Please enable location services to use current location.");
+        showAlert("Permission denied", "Please enable location services to use current location.");
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -24,7 +24,7 @@ export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setS
         : "Current location";
       router.push({ pathname: "/delivery/add-address", params: { step: "2", addressLine, lat: String(loc.coords.latitude), lng: String(loc.coords.longitude) } });
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to determine current location.");
+      showAlert("Error", err.message || "Failed to determine current location.");
     } finally {
       setCurrentLocLoading(false);
     }

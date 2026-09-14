@@ -7,27 +7,15 @@ import { fadeInUp } from "@/motion/presets";
 
 interface Props {
   memberSinceYear: any;
-  ordersCount: any;
   styles: any;
-  totalSpent: any;
 }
 
 export function ProfileStatsRow({
   memberSinceYear,
-  ordersCount,
   styles,
-  totalSpent,
 }: Props) {
   return (
     <Animated.View style={styles.statsRow} entering={fadeInUp(70)}>
-      <View style={styles.statTile}>
-        <Text style={styles.statValue}>{ordersCount}</Text>
-        <Text style={styles.statLabel}>orders</Text>
-      </View>
-      <View style={styles.statTile}>
-        <Text style={styles.statValue}>₹{totalSpent >= 1000 ? `${(totalSpent / 1000).toFixed(1)}k` : Math.round(totalSpent)}</Text>
-        <Text style={styles.statLabel}>spent</Text>
-      </View>
       <View style={styles.statTile}>
         <Text style={styles.statValue}>{memberSinceYear || "—"}</Text>
         <Text style={styles.statLabel}>member since</Text>

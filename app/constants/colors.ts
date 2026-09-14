@@ -37,9 +37,9 @@ export type ThemeTokens = {
   nonveg: string;
   // Modal/backdrop scrim.
   overlay: string;
-  // Brand anchor — electric indigo. Used for primary CTAs, active states,
-  // brand marks, progress indicators. Distinct from every competitor in this
-  // space (Swiggy/Zomato red-orange, Uber/Ola/Rapido black-green-yellow).
+  // Brand anchor — the same orange the food/ride services use, so screens with
+  // no service context (login, account) read as the same app as the rest of it.
+  // Was an electric indigo, which left those screens looking purple.
   brand: string;
   brandPressed: string;
   brandSkin: string;
@@ -72,15 +72,18 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     veg: "#16794F",
     nonveg: "#B5281F",
     overlay: "rgba(20, 16, 30, 0.4)",
-    brand: "#4F3CF2",
-    brandPressed: "#3D2ED1",
-    brandSkin: "#EBE8FD",
+    brand: "#E8720C",
+    brandPressed: "#C25F0A",
+    brandSkin: "#FDF0E2",
     onBrand: "#FFFFFF",
     services: {
       food: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
       meat: { accent: "#C13566", skin: "#FBE8EF", on: "#FFFFFF" },
-      ride: { accent: "#0A7EA8", skin: "#E1F2F8", on: "#FFFFFF" },
-      task: { accent: "#6C4FE0", skin: "#EEE9FC", on: "#FFFFFF" },
+      // Ride deliberately shares Food's orange rather than carrying its own teal:
+      // the ride flow is meant to read as the same app as the home screen, not as
+      // a separate product. Meat is the one service that still recolours the UI.
+      ride: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
+      task: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
       delivery: { accent: "#5B8A1E", skin: "#EFF5E1", on: "#FFFFFF" },
     },
   },
@@ -102,15 +105,15 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     veg: "#5FD68C",
     nonveg: "#FF8A80",
     overlay: "rgba(0, 0, 0, 0.7)",
-    brand: "#8B7FFF",
-    brandPressed: "#7263FF",
-    brandSkin: "#241F3D",
+    brand: "#FF9A4D",
+    brandPressed: "#E8842F",
+    brandSkin: "#33200F",
     onBrand: "#131118",
     services: {
       food: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
       meat: { accent: "#F589AC", skin: "#331522", on: "#131118" },
-      ride: { accent: "#4FC7EC", skin: "#0B2A38", on: "#131118" },
-      task: { accent: "#B7A6FF", skin: "#221B44", on: "#131118" },
+      ride: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
+      task: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
       delivery: { accent: "#A6D65C", skin: "#232B10", on: "#131118" },
     },
   },
@@ -160,19 +163,19 @@ export const gradients: {
   dark: Record<"brand" | "food" | "meat" | "ride" | "task" | "delivery", [string, string]>;
 } = {
   light: {
-    brand: ["#4F3CF2", "#7C63F5"],
+    brand: ["#E8720C", "#F3924A"],
     food: ["#E8720C", "#F3924A"],
     meat: ["#C13566", "#D65F8A"],
-    ride: ["#0A7EA8", "#3AA7CE"],
-    task: ["#6C4FE0", "#9078EE"],
+    ride: ["#E8720C", "#F3924A"],
+    task: ["#E8720C", "#F3924A"],
     delivery: ["#5B8A1E", "#82AE49"],
   },
   dark: {
-    brand: ["#8B7FFF", "#B0A6FF"],
+    brand: ["#FF9A4D", "#FFB878"],
     food: ["#FF9A4D", "#FFB878"],
     meat: ["#F589AC", "#FAAAC6"],
-    ride: ["#4FC7EC", "#82D9F3"],
-    task: ["#B7A6FF", "#D0C4FF"],
+    ride: ["#FF9A4D", "#FFB878"],
+    task: ["#FF9A4D", "#FFB878"],
     delivery: ["#A6D65C", "#C1E58A"],
   },
 };
@@ -187,9 +190,9 @@ export default {
     surfaceSecondary: "#F0ECE6",
     border: "#E4DFD7",
     borderLight: "#F0ECE6",
-    tint: "#4F3CF2",
-    primary: "#4F3CF2",
-    primaryDark: "#3D2ED1",
+    tint: "#E8720C",
+    primary: "#E8720C",
+    primaryDark: "#C25F0A",
     primaryLight: "#879fcb",
     teal,
     tealDark,
@@ -198,11 +201,11 @@ export default {
     warning: "#92600A",
     error: "#C22A1E",
     tabIconDefault: "#8B8494",
-    tabIconSelected: "#4F3CF2",
+    tabIconSelected: "#E8720C",
     shadow: "rgba(20, 16, 30, 0.06)",
     overlay: "rgba(20, 16, 30, 0.4)",
-    cardGradientStart: "#4F3CF2",
-    cardGradientEnd: "#7C63F5",
+    cardGradientStart: "#E8720C",
+    cardGradientEnd: "#F3924A",
   },
   dark: {
     text: "#F5F2F8",
@@ -213,9 +216,9 @@ export default {
     surfaceSecondary: "#2E2A36",
     border: "#2E2A36",
     borderLight: "#2E2A36",
-    tint: "#8B7FFF",
-    primary: "#8B7FFF",
-    primaryDark: "#7263FF",
+    tint: "#FF9A4D",
+    primary: "#FF9A4D",
+    primaryDark: "#E8842F",
     primaryLight: "#1b365c",
     teal: "#73b5fe",
     tealDark: "#0061a5",
@@ -224,10 +227,10 @@ export default {
     warning: "#E9B44C",
     error: "#FF8579",
     tabIconDefault: "#8B8494",
-    tabIconSelected: "#8B7FFF",
+    tabIconSelected: "#FF9A4D",
     shadow: "rgba(0, 0, 0, 0.4)",
     overlay: "rgba(0, 0, 0, 0.7)",
-    cardGradientStart: "#8B7FFF",
+    cardGradientStart: "#FF9A4D",
     cardGradientEnd: "#2E2A36",
   },
 };

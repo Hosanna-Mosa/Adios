@@ -15,6 +15,7 @@ import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { createStyles } from "./ScheduleDateTimeSheet.styles";
 import { useScheduleDateTimeSheet } from "./useScheduleDateTimeSheet";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 type Props = {
   visible: boolean;
@@ -45,7 +46,8 @@ export function ScheduleDateTimeSheet({
   } = useScheduleDateTimeSheet(visible, onClose, onConfirm, initialDate, accent);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal statusBarTranslucent visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <StatusBarFill />
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + (Platform.OS === "ios" ? 16 : 20) }]}>

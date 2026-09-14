@@ -7,7 +7,7 @@ import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import { Pagination } from "@/components/shared/Pagination";
 import { fadeIn } from "@/components/motion/variants";
-import { Users as UsersIcon, UserCheck, UserX, Shield, SlidersHorizontal, UserPlus, Eye, Ban, Mail, Trash2, Phone, Search } from "lucide-react";
+import { Users as UsersIcon, UserCheck, UserX, Shield, SlidersHorizontal, UserPlus, Eye, Ban, Mail, Trash2, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -272,9 +272,6 @@ export default function Users() {
                         <Link to={`/users/${u._id}`} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="View details">
                           <Eye className="h-4 w-4" />
                         </Link>
-                        <button onClick={() => toast.success(`Initiating call with user ${u.name} at ${u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Call User">
-                          <Phone className="h-4 w-4" />
-                        </button>
                         <button onClick={() => toast.info(`Drafting email to ${u.email || u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Message User">
                           <Mail className="h-4 w-4" />
                         </button>

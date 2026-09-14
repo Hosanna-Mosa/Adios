@@ -1,6 +1,7 @@
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -28,7 +29,7 @@ export function HomeNoServiceContainer2({
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.noServiceSecondaryButton}
-        onPress={() => Alert.alert("Thanks!", "We'll notify you when we launch in your area.")}
+        onPress={() => showAlert("Thanks!", "We'll notify you when we launch in your area.")}
       >
         <Text style={styles.noServiceSecondaryButtonText}>Notify me when you launch</Text>
       </TouchableOpacity>

@@ -1,7 +1,7 @@
-import { Alert } from "react-native";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { formatGeocodeAddress } from "./usePickupConfirmation.shared";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 3 of usePickupConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -44,7 +44,7 @@ export function usePickupConfirmationRecenter(mapRef: any, params: any, confirme
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permission is required.");
+        showAlert("Permission Denied", "Location permission is required.");
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -77,7 +77,7 @@ export function usePickupConfirmationRecenter(mapRef: any, params: any, confirme
         500,
       );
     } catch {
-      Alert.alert("Error", "Could not fetch current location.");
+      showAlert("Error", "Could not fetch current location.");
     }
   };
 

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
-import User from "../../database/models/User";
+import User, { UserRole } from "../../database/models/User";
 import SupportTicket from "../../database/models/SupportTicket";
 import Coupon from "../../database/models/Coupon";
 import SystemConfig from "../../database/models/SystemConfig";
@@ -97,74 +97,78 @@ export class AdminController {
         })
       );
 
-      // Build live activity log dynamically from recent DB collections
+      // Live activity log, built only from records that actually exist. Every
+      // entry below is a real row with its real timestamp: there is no padding
+      // with invented "System Status: Optimal" filler and no placeholder driver
+      // name, so an empty log now honestly renders as an empty log.
+      //
+      // The driver's name lives on the linked User document (the Driver model has
+      // no name of its own), so this needs the nested populate — a plain
+      // .populate("driver") left driver.user as an ObjectId and every row fell
+      // back to a hardcoded name.
       const dynamicActivity: any[] = [];
 
       const latestDelivered = await Order.find({ status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] } })
-        .populate("driver")
+        .populate({ path: "driver", populate: { path: "user" } })
         .sort({ updatedAt: -1 })
-        .limit(2);
-      
+        .limit(5);
+
       latestDelivered.forEach(o => {
-        const driverName = (o.driver as any)?.user?.name || "Marcus Rodriguez";
+        const driverName = (o.driver as any)?.user?.name;
         dynamicActivity.push({
           type: "DELIVERY",
-          title: `Order #${o._id.substring(o._id.length - 6).toUpperCase()} Delivered`,
-          desc: `Driver: ${driverName} • Just now`,
+          title: `Order ${o._id} delivered`,
+          desc: driverName ? `Driver: ${driverName}` : "Driver unassigned",
           time: o.updatedAt
         });
       });
 
-      const latestUsers = await User.find().sort({ createdAt: -1 }).limit(2);
+      const latestUsers = await User.find().sort({ createdAt: -1 }).limit(5);
       latestUsers.forEach(u => {
         dynamicActivity.push({
           type: "USER_REG",
-          title: `New User Registered`,
-          desc: `${u.name} joined Precision Nav`,
+          title: u.role === UserRole.DRIVER ? "New driver registered" : "New user registered",
+          desc: u.name,
           time: u.createdAt
         });
       });
 
-      // Sort combined activity logs by timestamp
-      dynamicActivity.sort((a, b) => b.time.getTime() - a.time.getTime());
+      // Newest first, then trimmed — the two queries above are interleaved by time
+      // rather than concatenated, so the panel shows what actually happened last.
+      dynamicActivity.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+      const activityLog = dynamicActivity.slice(0, 6);
 
-      // If less than 4 logs, fill with high-quality database actions
-      while (dynamicActivity.length < 4) {
-        dynamicActivity.push({
-          type: "SYSTEM",
-          title: "System Status: Optimal",
-          desc: "Logistics orchestration engines running at 100% capacity",
-          time: new Date()
-        });
-      }
-
-      // Fetch dynamic active manifests (live orders currently in progress)
+      // Active manifests — the orders that are genuinely in flight right now.
+      // Same nested populate as above so the driver's real name comes through,
+      // and no invented rows when the board is empty: an idle system should show
+      // an empty table, not two fictional San Jose deliveries.
       const liveOrders = await Order.find({
         status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "searching_driver", "driver_assigned"] }
       })
-      .populate("driver")
+      .populate({ path: "driver", populate: { path: "user" } })
       .sort({ createdAt: -1 })
-      .limit(3);
+      .limit(10);
 
       const manifests = liveOrders.map(o => {
-        const destination = o.stops?.[o.stops.length - 1]?.address || "Bay Area Logistics Hub";
-        const driverName = (o.driver as any)?.user?.name || "Awaiting assignment...";
+        const destination = o.stops?.[o.stops.length - 1]?.address || null;
+        const driverName = (o.driver as any)?.user?.name || null;
+        // A real ETA off the order's own routing estimate, instead of the same
+        // hardcoded "14:45 PM" that every row used to display.
+        const eta = o.duration
+          ? new Date(new Date(o.createdAt).getTime() + o.duration * 60000).toISOString()
+          : null;
         return {
-          id: o._id.startsWith("FLR-") || o._id.startsWith("ORD-") ? o._id : `#${o._id.substring(o._id.length - 6).toUpperCase()}`,
+          // The raw id as well as the display form, so the UI can link the row
+          // through to the order without having to reverse the formatting.
+          orderId: o._id,
+          id: o._id,
           dest: destination,
           driver: driverName,
-          eta: "14:45 PM",
+          eta,
+          status: o.status,
           priority: o.stops.length > 2 ? "HIGH" : o.stops.length > 1 ? "EXPRESS" : "STANDARD"
         };
       });
-
-      // Fallback if no active live orders
-      if (manifests.length === 0) {
-        manifests.push(
-          { id: "#ORD-9921", dest: "128 Tech Plaza, San Jose", driver: "Marcus Chen", eta: "14:45 PM", priority: "HIGH" },
-          { id: "#ORD-9918", dest: "Port of Oakland, Terminal 3", driver: "Sarah Jenkins", eta: "15:10 PM", priority: "STANDARD" }
-        );
-      }
 
       return res.json({
         totalUsers,
@@ -173,7 +177,7 @@ export class AdminController {
         totalRevenue,
         barData,
         weeklyBarData,
-        activityLog: dynamicActivity,
+        activityLog,
         manifests
       });
     } catch (error) {
@@ -420,58 +424,99 @@ export class AdminController {
 
   async getAnalytics(req: Request, res: Response) {
     try {
-      const weekDays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-      const velocityData = await Promise.all(weekDays.map(async (day, index) => {
-        const date = new Date();
-        const currentDayIndex = date.getDay();
-        const targetDayDiff = index + 1 - currentDayIndex;
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + targetDayDiff);
-        targetDate.setHours(0,0,0,0);
-        const nextDate = new Date(targetDate);
-        nextDate.setDate(nextDate.getDate() + 1);
+      // The dashboard's range control used to be cosmetic: it relabelled itself and
+      // announced an update while the request carried no range at all. It now sends
+      // `days`, and everything below is scoped to that window.
+      const days = Math.min(Math.max(Number(req.query.days) || 30, 1), 365);
+      const rangeStart = new Date();
+      rangeStart.setDate(rangeStart.getDate() - days);
+      rangeStart.setHours(0, 0, 0, 0);
 
-        const count = await Order.countDocuments({
-          createdAt: { $gte: targetDate, $lt: nextDate }
-        });
-        return { day, orders: count || Math.floor(Math.random() * 1500 + 1500) };
-      }));
+      // Orders per day across the selected window. A day with no orders reports
+      // zero rather than a random figure between 1,500 and 3,000.
+      const buckets = Math.min(days, 30);
+      const velocityData = await Promise.all(
+        Array.from({ length: buckets }, async (_unused, i) => {
+          const dayStart = new Date(rangeStart);
+          dayStart.setDate(dayStart.getDate() + Math.floor((i * days) / buckets));
+          const dayEnd = new Date(dayStart);
+          dayEnd.setDate(dayEnd.getDate() + 1);
 
-      const heatmapData = Array.from({ length: 30 }, (_, i) => ({
-        id: i,
-        intensity: Math.random()
-      }));
+          const orders = await Order.countDocuments({
+            createdAt: { $gte: dayStart, $lt: dayEnd },
+          });
 
+          return {
+            day: dayStart.toLocaleDateString([], { day: "numeric", month: "short" }),
+            orders,
+          };
+        })
+      );
+
+      // Headline figures for the same window — these were hardcoded in the UI.
+      const [rangeOrders, completedInRange, activeDrivers] = await Promise.all([
+        Order.countDocuments({ createdAt: { $gte: rangeStart } }),
+        Order.find({
+          createdAt: { $gte: rangeStart },
+          status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered", "completed"] },
+        }).select("totalPrice createdAt updatedAt"),
+        Driver.countDocuments({ status: DriverStatus.ONLINE }),
+      ]);
+
+      const netRevenue = completedInRange.reduce((sum, o: any) => sum + (o.totalPrice || 0), 0);
+      const durations = completedInRange
+        .map((o: any) => new Date(o.updatedAt).getTime() - new Date(o.createdAt).getTime())
+        .filter((ms) => ms > 0);
+      const avgDeliveryMinutes = durations.length
+        ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length / 60000)
+        : 0;
+
+      const summary = {
+        totalOrders: rangeOrders,
+        netRevenue: Math.round(netRevenue),
+        avgDeliveryMinutes,
+        activeDrivers,
+        completedOrders: completedInRange.length,
+      };
+
+      // Genuine anomalies: orders still sitting in an active state well past the
+      // point they should have moved on. The driver's name needs the nested
+      // populate — Driver holds only a user reference, so a plain populate left
+      // every row reading "Awaiting driver assignment".
+      const STUCK_MINUTES = 40;
       const bufferTime = new Date();
-      bufferTime.setMinutes(bufferTime.getMinutes() - 40);
+      bufferTime.setMinutes(bufferTime.getMinutes() - STUCK_MINUTES);
 
       const activeOrders = await Order.find({
         status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS] },
-        createdAt: { $lt: bufferTime }
-      }).populate("driver").limit(3);
+        createdAt: { $lt: bufferTime },
+      })
+        .populate({ path: "driver", populate: { path: "user" } })
+        .sort({ createdAt: 1 })
+        .limit(10);
 
-      const anomalies = activeOrders.map(o => {
-        const driverName = (o.driver as any)?.user?.name || "Awaiting driver assignment";
+      const anomalies = activeOrders.map((o: any) => {
+        const stuckMinutes = Math.floor((Date.now() - new Date(o.createdAt).getTime()) / 60000);
+        // Severity reflects how long it has actually been stuck, rather than
+        // labelling every row "Minor Delay".
+        const statusVariant = stuckMinutes >= 120 ? "critical" : stuckMinutes >= 75 ? "delay" : "transit";
+        const status = stuckMinutes >= 120 ? "Critical Delay" : stuckMinutes >= 75 ? "Major Delay" : "Minor Delay";
         return {
-          id: `#PN-${o._id.substring(o._id.length - 6).toUpperCase()}`,
-          status: "Minor Delay",
-          statusVariant: "delay" as any,
-          driver: driverName,
-          value: `₹${o.totalPrice || 250}`,
-          activity: "Heavy Traffic detected on route"
+          id: o._id,
+          status,
+          statusVariant,
+          driver: (o.driver as any)?.user?.name || "Unassigned",
+          value: `₹${(o.totalPrice || 0).toFixed(2)}`,
+          // What is actually known — how long it has been in this state — instead
+          // of an invented cause like "Heavy Traffic (Exit 4)".
+          activity: `${String(o.status).replace(/_/g, " ").toLowerCase()} for ${stuckMinutes} min`,
+          stuckMinutes,
         };
       });
 
-      if (anomalies.length === 0) {
-        anomalies.push(
-          { id: "#PN-9284-A", status: "Optimal", statusVariant: "optimal" as any, driver: "Marcus Chen", value: "₹4,281.00", activity: "Arrived at Hub B" },
-          { id: "#PN-9285-C", status: "Minor Delay", statusVariant: "delay" as any, driver: "Sarah Jenkins", value: "₹12,940.50", activity: "Heavy Traffic (Exit 4)" },
-          { id: "#PN-9286-K", status: "In-Transit", statusVariant: "transit" as any, driver: "David Miller", value: "₹842.12", activity: "Loading Dock 4" }
-        );
-      }
-
-      return res.json({ velocityData, heatmapData, anomalies });
+      return res.json({ velocityData, summary, anomalies, rangeDays: days });
     } catch (error) {
+      console.error("Analytics error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   }
@@ -790,13 +835,29 @@ export class AdminController {
       const ridesOrders = orders.filter(o => o.serviceType !== "delivery" && o.serviceType !== "helper").length;
       const helperOrders = orders.filter(o => o.serviceType === "helper").length;
 
+      // The four counts above only ever said which service a user booked. These
+      // add what an admin actually looks a customer up for: what they have spent,
+      // how reliably their orders complete, and when they were last active.
+      const completedOrders = orders.filter(o =>
+        ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(String(o.status))
+      );
+      const cancelledOrders = orders.filter(o =>
+        ["CANCELLED", "cancelled"].includes(String(o.status))
+      );
+      const totalSpent = completedOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+
       return res.json({
         user,
         stats: {
           totalOrders,
           deliveryOrders,
           ridesOrders,
-          helperOrders
+          helperOrders,
+          completedOrders: completedOrders.length,
+          cancelledOrders: cancelledOrders.length,
+          totalSpent: Math.round(totalSpent),
+          averageOrderValue: completedOrders.length > 0 ? Math.round(totalSpent / completedOrders.length) : 0,
+          lastOrderAt: orders[0]?.createdAt || null,
         },
         orders
       });

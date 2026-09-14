@@ -1,6 +1,8 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -11,6 +13,8 @@ import {
 } from "lucide-react";
 import { TopBar } from "./TopBar";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { socketService } from "@/lib/socketService";
+import { playNewOrderChime } from "@/lib/notificationSound";
 
 interface VendorLayoutProps {
   children: ReactNode;
@@ -27,12 +31,37 @@ const navItems = [
 export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     const saved = localStorage.getItem("vendor_sidebar_open");
     return saved !== null ? JSON.parse(saved) : true;
   });
+
+  // Mounted for every /vendor/* page (this layout wraps all of them), not just
+  // the dashboard — a new-order alert that only fired while the vendor happened
+  // to be looking at the dashboard would miss every order that arrived while
+  // they were on Menu, Settings, or Scheduled Orders instead, which is exactly
+  // the situation this sound exists to cover.
+  useEffect(() => {
+    if (!vendorData._id) return;
+
+    socketService.connect();
+    socketService.join(vendorData._id, "VENDOR");
+
+    const handleNewOrder = (data: any) => {
+      console.log("[SOCKET] New order received:", data);
+      playNewOrderChime();
+      toast.success(`New order received! Order ${data.id?.startsWith("ORD-") ? data.id : `#${String(data.id || "").slice(-6).toUpperCase()}`}`, {
+        duration: 8000,
+      });
+      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
+    };
+
+    socketService.on("new_order_vendor", handleNewOrder);
+    return () => socketService.off("new_order_vendor", handleNewOrder);
+  }, [vendorData._id]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev: boolean) => {

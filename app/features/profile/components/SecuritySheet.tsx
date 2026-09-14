@@ -1,4 +1,5 @@
 import { Modal } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { ProfileModalOverlay } from "./ProfileModalOverlay";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
@@ -36,7 +37,8 @@ export function SecuritySheet({
   tokens,
 }: Props) {
   return (
-    <Modal visible={securityVisible} animationType="slide" transparent>
+    <Modal visible={securityVisible} animationType="slide" transparent statusBarTranslucent>
+      <StatusBarFill />
       <ProfileModalOverlay
         accent={accent}
         changingPassword={changingPassword}

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  Alert,
   ActivityIndicator,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
@@ -17,6 +16,8 @@ import { useThemeStore } from "@/contexts/themeStore";
 import * as Location from "expo-location";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { typography } from "@/constants/typography";
+import { showAlert } from "@/components/ui/AppAlert";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 interface Props {
   isOpen: boolean;
@@ -93,7 +94,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
   const handleSaveLocation = async () => {
     if (!detectedLocation) {
-      Alert.alert("Error", "No location detected to save.");
+      showAlert("Error", "No location detected to save.");
       return;
     }
     
@@ -120,7 +121,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
         await fetchSavedAddresses();
       }
       
-      Alert.alert("Saved!", "Your current location has been added to saved addresses.");
+      showAlert("Saved!", "Your current location has been added to saved addresses.");
       
       setSelectingAddressId("detected");
       if (onSelectAddress) {
@@ -130,7 +131,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       onClose();
     } catch (error: any) {
       console.error("Save location error:", error);
-      Alert.alert("Save Failed", error.message || "An error occurred while saving the address.");
+      showAlert("Save Failed", error.message || "An error occurred while saving the address.");
     } finally {
       setSavingLocation(false);
       setSelectingAddressId(null);
@@ -252,13 +253,15 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
   return (
     <Modal
+      statusBarTranslucent
       visible={isOpen}
       animationType="slide"
       transparent={true}
       onRequestClose={onClose}
     >
+      <StatusBarFill />
       <View style={styles.overlay}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={StyleSheet.absoluteFill} 
           activeOpacity={1} 
           onPress={onClose} 

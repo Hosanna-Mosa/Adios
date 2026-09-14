@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { StatusBarFill } from "@/components/StatusBarFill";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -42,6 +43,7 @@ export function DishDetailSheet({
 }: Props) {
   return (
     <Modal visible={!!selectedDishDetail} transparent animationType="slide" statusBarTranslucent>
+      <StatusBarFill />
       <View style={styles.modalBackdrop}>
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setSelectedDishDetail(null)} />
         {selectedDishDetail && (

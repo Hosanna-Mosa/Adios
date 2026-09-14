@@ -1,6 +1,7 @@
-import { Share, Alert } from "react-native";
+import { Share } from "react-native";
 import { router } from "expo-router";
 import * as Location from "expo-location";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Part 4 of useRideConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -16,7 +17,7 @@ export function useRideConfirmationGetDisplayName(params: any, setUserLocation: 
     try {
       await Share.share({ message: `I'm heading from ${params.pickupName} to ${params.dropName}. Tracking my ride!` });
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      showAlert("Error", error.message);
     }
   };
 

@@ -25,20 +25,20 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title
   } = useSlideToConfirm(onConfirm);
 
   return (
-    <View style={[styles.container, { borderColor: '#C7D2FE', backgroundColor: '#EEF2FF' }]}>
+    <View style={[styles.container, { borderColor: '#F6CFA4', backgroundColor: '#FDF0E2' }]}>
       {/* Background track */}
-      <View style={[styles.track, { backgroundColor: '#EEF2FF' }]}>
+      <View style={[styles.track, { backgroundColor: '#FDF0E2' }]}>
         <Animated.View style={[styles.guideRow, { opacity: textOpacity }]}>
-          <Text style={[styles.title, { color: '#4F46E5', marginRight: 8 }]}>{title}</Text>
+          <Text style={[styles.title, { color: '#C25F0A', marginRight: 8 }]}>{title}</Text>
           <View style={styles.chevronsContainer}>
             <Animated.View style={{ opacity: opacities[0] }}>
-              <Feather name="chevron-right" size={16} color="#818CF8" />
+              <Feather name="chevron-right" size={16} color="#F3924A" />
             </Animated.View>
             <Animated.View style={{ opacity: opacities[1], marginLeft: -4 }}>
-              <Feather name="chevron-right" size={16} color="#4F46E5" />
+              <Feather name="chevron-right" size={16} color="#C25F0A" />
             </Animated.View>
             <Animated.View style={{ opacity: opacities[2], marginLeft: -4 }}>
-              <Feather name="chevron-right" size={16} color="#312E81" />
+              <Feather name="chevron-right" size={16} color="#8A4407" />
             </Animated.View>
           </View>
         </Animated.View>
@@ -47,7 +47,7 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title
       {/* Active gradient track */}
       <Animated.View style={[styles.activeTrack, { width: activeWidth }]}>
         <LinearGradient
-          colors={[colors.primary, '#8B5CF6']}
+          colors={[colors.primary, colors.primaryDark]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -81,7 +81,7 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title
         {...panResponder.panHandlers}
       >
         <LinearGradient
-          colors={[colors.primary, '#8B5CF6']}
+          colors={[colors.primary, colors.primaryDark]}
           style={styles.thumbGradient}
         >
           <Feather name={isConfirmed ? "check" : "chevrons-right"} size={26} color="#ffffff" />

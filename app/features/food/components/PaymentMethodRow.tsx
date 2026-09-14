@@ -17,11 +17,11 @@ export function PaymentMethodRow({
   return (
     <View style={styles.methodRow}>
       <View style={styles.methodIcon}>
-        <Ionicons name="card-outline" size={moderateScale(18)} color={tokens.sec} />
+        <Ionicons name="cash-outline" size={moderateScale(18)} color={tokens.sec} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.methodTitle}>Razorpay</Text>
-        <Text style={styles.methodSub}>UPI, cards, wallets and net banking — choose on the next step</Text>
+        <Text style={styles.methodTitle}>Cash on delivery</Text>
+        <Text style={styles.methodSub}>Pay the delivery partner when your order arrives</Text>
       </View>
     </View>
   );

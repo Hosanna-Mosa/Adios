@@ -28,7 +28,7 @@ export default function TrackingScreen() {
   status, currentOrderId, route, stops, driver, unreadCount, insets, tokens, isRide, isHelper,
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, driverLocation, radius, totalPrice,
-  mapRef, handleSOS, handleShareTrip, pulse1Style, pulse2Style, deliveryStop, pickupStop,
+  mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
   handleBack, userLocCoords, bannerText
   } = useTracking();
 
@@ -96,8 +96,6 @@ export default function TrackingScreen() {
         mapRef={mapRef}
         handleSOS={handleSOS}
         handleShareTrip={handleShareTrip}
-        pulse1Style={pulse1Style}
-        pulse2Style={pulse2Style}
         deliveryStop={deliveryStop}
         userLocCoords={userLocCoords}
         bannerText={bannerText}
@@ -130,20 +128,31 @@ function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean):
   const idx = STATUS_ORDER.indexOf(status === "delivered" ? "delivered" : status);
   const at = (s: OrderStatus) => idx >= STATUS_ORDER.indexOf(s);
 
-  if (isRide) {
-    const labels = ["Captain assigned", "Heading to pickup", "Trip in progress", "Trip completed"];
-    const done = [at("driver_assigned"), at("arrived_pickup"), at("arrived_delivery"), at("delivered")];
-    const currentIdx = done.lastIndexOf(false);
+  // The step in progress is the first one not yet done. `lastIndexOf(false)` picked
+  // the final step instead, so a just-assigned ride highlighted "Trip completed".
+  const steps = (labels: string[], done: boolean[]): TimelineStep[] => {
+    const currentIdx = done.indexOf(false);
     return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
+  };
+
+  if (isRide) {
+    return steps(
+      ["Captain assigned", "Heading to pickup", "Trip in progress", "Trip completed"],
+      [at("driver_assigned"), at("arrived_pickup"), at("arrived_delivery"), at("delivered")]
+    );
   }
   if (isHelper) {
-    const labels = ["Offer accepted", "Helper arrived", "Task in progress", "Task completed"];
-    const done = [at("driver_assigned"), at("arrived_pickup"), at("en_route_delivery"), at("delivered")];
-    const currentIdx = done.lastIndexOf(false);
-    return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
+    // Three steps, because that is all a helper task actually has: the driver
+    // accepts, starts the work (IN_PROGRESS), and closes it with the customer's
+    // PIN. The old four-step version included an "arrived" node nothing ever set,
+    // so the checklist stalled there for the whole task.
+    return steps(
+      ["Helper assigned", "Task in progress", "Task completed"],
+      [at("driver_assigned"), at("en_route_delivery"), at("delivered")]
+    );
   }
-  const labels = ["Order placed", "Prepared", "Out for delivery", "Delivered"];
-  const done = [true, at("en_route_delivery"), at("arrived_delivery"), at("delivered")];
-  const currentIdx = done.lastIndexOf(false);
-  return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
+  return steps(
+    ["Order placed", "Prepared", "Out for delivery", "Delivered"],
+    [true, at("en_route_delivery"), at("arrived_delivery"), at("delivered")]
+  );
 }

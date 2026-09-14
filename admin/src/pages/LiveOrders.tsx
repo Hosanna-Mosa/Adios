@@ -7,12 +7,9 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import { fadeIn } from "@/components/motion/variants";
-import { RefreshCw, Timer, Truck, SlidersHorizontal, Plus, Download, MoreVertical, Star, GitBranch, MapPin } from "lucide-react";
+import { RefreshCw, Timer, Truck, SlidersHorizontal, MoreVertical, Star, GitBranch, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -23,13 +20,6 @@ import {
 
 export default function LiveOrders() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [isManualOpen, setIsManualOpen] = useState(false);
-  const [manualOrder, setManualOrder] = useState({
-    customer: "",
-    pickup: "",
-    dropoff: "",
-    deliveryFee: "150"
-  });
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin", "orders"],
@@ -37,17 +27,6 @@ export default function LiveOrders() {
   });
 
   const activeOrdersCount = orders.filter((o: any) => ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "searching_driver", "driver_assigned"].includes(o.status)).length;
-
-  const handleManualSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!manualOrder.customer || !manualOrder.pickup || !manualOrder.dropoff) {
-      toast.error("Please fill in all order details.");
-      return;
-    }
-    toast.success(`Manual dispatch initiated for ${manualOrder.customer}! Searching closest driver...`);
-    setIsManualOpen(false);
-    setManualOrder({ customer: "", pickup: "", dropoff: "", deliveryFee: "150" });
-  };
 
   const filteredOrders = orders.filter((o: any) => {
     if (statusFilter === "ALL") return true;
@@ -62,29 +41,6 @@ export default function LiveOrders() {
           <div>
             <h1 className="page-header">Live Orders</h1>
             <p className="page-subtitle">Real-time monitoring of all active shipments across the network.</p>
-          </div>
-          <div className="flex gap-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
-                  <SlidersHorizontal className="h-4 w-4" /> Filter: {statusFilter}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setStatusFilter("ALL")} className="cursor-pointer">All Statuses</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("SEARCHING_DRIVER")} className="cursor-pointer">Searching Driver</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("DRIVER_ASSIGNED")} className="cursor-pointer">Driver Assigned</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("IN_TRANSIT")} className="cursor-pointer">In Transit</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("DELIVERED")} className="cursor-pointer">Delivered</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("CANCELLED")} className="cursor-pointer">Cancelled</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <button 
-              onClick={() => setIsManualOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Plus className="h-4 w-4" /> Manual Order
-            </button>
           </div>
         </div>
 
@@ -108,6 +64,21 @@ export default function LiveOrders() {
               <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse-dot" />
               <h3 className="text-lg font-semibold text-foreground">Ongoing Operations</h3>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+                  <SlidersHorizontal className="h-4 w-4" /> Filter: {statusFilter}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setStatusFilter("ALL")} className="cursor-pointer">All Statuses</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("SEARCHING_DRIVER")} className="cursor-pointer">Searching Driver</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("DRIVER_ASSIGNED")} className="cursor-pointer">Driver Assigned</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("IN_TRANSIT")} className="cursor-pointer">In Transit</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("DELIVERED")} className="cursor-pointer">Delivered</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setStatusFilter("CANCELLED")} className="cursor-pointer">Cancelled</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <table className="w-full">
@@ -206,63 +177,8 @@ export default function LiveOrders() {
           </div>
         </div>
 
-        {/* FAB */}
-        <button 
-          onClick={() => setIsManualOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-        >
-          <Plus className="h-6 w-6" />
-        </button>
       </div>
 
-      {/* Manual Dispatch Dialog */}
-      <Dialog open={isManualOpen} onOpenChange={setIsManualOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Manual Order Dispatch</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleManualSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Customer Name</label>
-              <Input 
-                value={manualOrder.customer} 
-                onChange={e => setManualOrder({...manualOrder, customer: e.target.value})} 
-                placeholder="e.g. Alice Smith"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Pickup Location (Store / Restaurant)</label>
-              <Input 
-                value={manualOrder.pickup} 
-                onChange={e => setManualOrder({...manualOrder, pickup: e.target.value})} 
-                placeholder="e.g. McDonald's - Downtown"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Dropoff Destination</label>
-              <Input 
-                value={manualOrder.dropoff} 
-                onChange={e => setManualOrder({...manualOrder, dropoff: e.target.value})} 
-                placeholder="e.g. 456 Elm St, Suite 4"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Estimated Delivery Fare (₹)</label>
-              <Input 
-                value={manualOrder.deliveryFee} 
-                onChange={e => setManualOrder({...manualOrder, deliveryFee: e.target.value})} 
-                placeholder="150"
-              />
-            </div>
-            <Button type="submit" className="w-full mt-4 bg-primary text-primary-foreground">
-              Dispatch Order
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </DashboardLayout>
   );
 }

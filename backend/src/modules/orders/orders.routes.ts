@@ -25,7 +25,7 @@ router.patch("/scheduled-delivery/:requestId/respond", authenticateToken, valida
 router.get("/driver/scheduled", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.getDriverScheduledOrders.bind(ordersController));
 router.get("/", authenticateToken, ordersController.getUserOrders.bind(ordersController));
 router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSchema), ordersController.estimateFare.bind(ordersController));
-router.get("/vendor/:vendorId", ordersController.getVendorOrders.bind(ordersController));
+router.get("/vendor/:vendorId", authenticateToken, ordersController.getVendorOrders.bind(ordersController));
 router.get("/:id", authenticateToken, ordersController.getOrder.bind(ordersController));
 router.get("/:id/chat", authenticateToken, ordersController.getChatHistory.bind(ordersController));
 router.get("/:id/invoice", authenticateToken, ordersController.getInvoice.bind(ordersController));

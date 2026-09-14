@@ -8,6 +8,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -103,7 +104,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
       </View>
 
       {__DEV__ ? (
-        <Modal visible={isModalVisible} animationType="slide" transparent onRequestClose={() => setIsModalVisible(false)}>
+        <Modal statusBarTranslucent visible={isModalVisible} animationType="slide" transparent onRequestClose={() => setIsModalVisible(false)}>
+          <StatusBarFill />
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
               <View style={styles.modalHeader}>

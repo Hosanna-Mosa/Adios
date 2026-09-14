@@ -26,8 +26,6 @@ export interface Props {
   mapRef: any;
   handleSOS: any;
   handleShareTrip: any;
-  pulse1Style: any;
-  pulse2Style: any;
   deliveryStop: any;
   userLocCoords: any;
   bannerText: any;

@@ -1,7 +1,6 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
-import { RazorpayIntegration } from "@/utils/razorpay";
 import { buildPlaceOrder } from "./useFoodCheckoutPlaceOrder.handlers";
 
 // Part 4 of useFoodCheckout, kept under the 150-line file limit. The parts run in

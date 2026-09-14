@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
-import { Alert, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -45,11 +47,12 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
     }
 
     // A misconfigured store URL used to vanish into the console — surface it.
-    Alert.alert("Couldn't open the store", url);
+    showAlert("Couldn't open the store", url);
   };
 
   return (
     <Modal
+      statusBarTranslucent
       visible={visible}
       transparent
       animationType="fade"
@@ -58,6 +61,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
       // Android gesture must not be able to close it either.
       onRequestClose={forceUpdate ? () => {} : onDismiss}
     >
+      <StatusBarFill />
       <View style={styles.overlay}>
         <View style={styles.card}>
           <View style={styles.iconContainer}>

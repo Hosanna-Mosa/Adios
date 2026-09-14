@@ -9,7 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Colors, { gradients } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
 import { ServiceToggle } from "@/components/ServiceToggle";
-import { PerformanceCard } from "@/components/PerformanceCard";
+import { PerformanceCard, PerformanceRange } from "@/components/PerformanceCard";
 import { ActiveTaskCard } from "@/components/ActiveTaskCard";
 import { HighDemandAreas, Hotspot } from "@/components/HighDemandAreas";
 import { GoOnlineModal } from "@/components/GoOnlineModal";
@@ -21,40 +21,14 @@ import { staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-const fallbackHotspots: Hotspot[] = [
-  {
-    id: "fallback-kr-market",
-    name: "KR Market",
-    address: "KR Market, Huriopet, Chickpet, Bengaluru, Karnataka",
-    lat: 12.9616,
-    lng: 77.5769,
-    surge: "1.5x Surge",
-  },
-  {
-    id: "fallback-kempegowda-airport",
-    name: "Kempegowda Airport",
-    address: "Kempegowda International Airport, Devanahalli, Bengaluru, Karnataka",
-    lat: 13.1986,
-    lng: 77.7066,
-    surge: "1.3x Surge",
-  },
-  {
-    id: "fallback-orion-mall",
-    name: "Orion Mall",
-    address: "Orion Mall, Dr Rajkumar Road, Rajajinagar, Bengaluru, Karnataka",
-    lat: 13.0112,
-    lng: 77.5549,
-    surge: "1.2x Surge",
-  },
-];
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useDriverTabBarHeight();
   const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
   const [showOnlineModal, setShowOnlineModal] = useState(false);
-  const [hotspots, setHotspots] = useState<Hotspot[]>(fallbackHotspots);
+  const [performanceRange, setPerformanceRange] = useState<PerformanceRange>("week");
+  const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [isLoadingHotspots, setIsLoadingHotspots] = useState(false);
   const isOnline = useDriverStore((s) => s.isOnline);
   const homeMode = useDriverStore((s) => s.homeMode);
@@ -145,8 +119,14 @@ export default function HomeScreen() {
   }, [token, fetchEarnings]);
 
   const loadHighDemandAreas = useCallback(async () => {
+    // Previously fell back to a hardcoded list of Bengaluru landmarks (KR Market,
+    // Kempegowda Airport, Orion Mall) whenever there was no token, the request
+    // failed, or the backend legitimately had no active demand — so drivers were
+    // shown fake "surge" areas indistinguishable from real ones. The backend
+    // endpoint below already computes this from real, recent order activity, so
+    // on any non-success case we now just show the (real) empty state instead.
     if (!apiUrl || !token) {
-      setHotspots(fallbackHotspots);
+      setHotspots([]);
       return;
     }
 
@@ -161,14 +141,10 @@ export default function HomeScreen() {
       if (!response.ok) throw new Error("Failed to load high demand areas");
 
       const areas = await response.json();
-      if (Array.isArray(areas) && areas.length > 0) {
-        setHotspots(areas);
-      } else {
-        setHotspots(fallbackHotspots);
-      }
+      setHotspots(Array.isArray(areas) ? areas : []);
     } catch (error) {
       console.warn("High demand area fetch failed:", error);
-      setHotspots(fallbackHotspots);
+      setHotspots([]);
     } finally {
       setIsLoadingHotspots(false);
     }
@@ -386,13 +362,26 @@ export default function HomeScreen() {
           {/* Service Toggle */}
           <ServiceToggle active={mode} onToggle={setMode} />
 
-          {/* Today's Performance */}
+          {/* Today's Performance — the "This Week" pill used to be a dead control
+              (no onPress at all), so it always showed the same fixed set of
+              numbers no matter what a driver tapped. It now actually switches
+              which range's trips/earnings are the headline stats. */}
           <PerformanceCard
-            stats={[
-              { label: "Trips", value: String(earnings.totalDeliveries) },
-              { label: "Balance", value: `₹${earnings.today}`, accent: true },
-              { label: "This Week", value: `₹${earnings.week}` },
-            ]}
+            range={performanceRange}
+            onRangeChange={setPerformanceRange}
+            stats={
+              performanceRange === "today"
+                ? [
+                    { label: "Trips", value: String(earnings.todayTrips) },
+                    { label: "Balance", value: `₹${earnings.today}`, accent: true },
+                    { label: "This Week", value: `₹${earnings.week}` },
+                  ]
+                : [
+                    { label: "Trips", value: String(earnings.totalDeliveries) },
+                    { label: "Balance", value: `₹${earnings.week}`, accent: true },
+                    { label: "Today", value: `₹${earnings.today}` },
+                  ]
+            }
           />
 
           {/* Active Tasks */}

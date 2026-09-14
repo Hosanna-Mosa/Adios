@@ -11,15 +11,28 @@ import { Button } from "@/components/ui/Button";
 
 interface Props {
   orders: any;
+  /** True when the account does have orders, just none matching the current filter. */
+  filtered?: boolean;
   styles: any;
   tokens: any;
 }
 
 export function OrdersEmptyWrap({
   orders,
+  filtered = false,
   styles,
   tokens,
 }: Props) {
+  if (filtered) {
+    return (
+      <Animated.View style={styles.emptyWrap} entering={fadeInUp(0)}>
+        <View style={styles.emptyIconCircle}><Ionicons name="funnel-outline" size={moderateScale(28)} color={tokens.brand} /></View>
+        <Text style={styles.emptyTitle}>No orders in this filter</Text>
+        <Text style={styles.emptySubtitle}>You have {orders.length} {orders.length === 1 ? "order" : "orders"} in total — pick “All” to see them.</Text>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View style={styles.emptyWrap} entering={fadeInUp(0)}>
       <View style={styles.emptyIconCircle}><Ionicons name="receipt-outline" size={moderateScale(28)} color={tokens.brand} /></View>

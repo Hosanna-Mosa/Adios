@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { moderateScale } from "react-native-size-matters";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -30,7 +31,16 @@ export function TrackingPartnerRow({
         <Ionicons name="person" size={22} color={tokens.sec} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.partnerName} numberOfLines={1}>{driver.name || "Assigned partner"}</Text>
+        <View style={styles.partnerNameRow}>
+          <Text style={styles.partnerName} numberOfLines={1}>{driver.name || "Assigned partner"}</Text>
+          {/* A driver with no reviews yet reads as "New" — never as a 0-star score. */}
+          <View style={styles.partnerRatingPill}>
+            <Ionicons name="star" size={moderateScale(11)} color={accent.accent} />
+            <Text style={[styles.partnerRatingText, { color: accent.accent }]}>
+              {driver.rating != null ? Number(driver.rating).toFixed(1) : "New"}
+            </Text>
+          </View>
+        </View>
         <Text style={styles.partnerMeta}>{driver.vehicle && driver.vehicle !== "unknown" ? driver.vehicle.charAt(0).toUpperCase() + driver.vehicle.slice(1) : isHelper ? "Helper" : "Delivery partner"}</Text>
       </View>
       <TouchableOpacity style={[styles.circleBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver.phone || ""}`)}>
