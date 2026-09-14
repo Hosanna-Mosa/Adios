@@ -252,7 +252,16 @@
       "everyPhoneSignedInToThis": "इस अकाउंट में साइन इन हर फ़ोन साइन आउट हो जाएगा, यह वाला भी शामिल है.",
       "signOutEverywhere": "हर जगह से साइन आउट करें",
       "errorTitle": "त्रुटि",
-      "couldntSignOutAllDevices": "सभी डिवाइस से साइन आउट नहीं हो सका."
+      "couldntSignOutAllDevices": "सभी डिवाइस से साइन आउट नहीं हो सका.",
+      "failedToUploadImage": "इमेज अपलोड नहीं हो सकी",
+      "missingFields": "फ़ील्ड अधूरे हैं",
+      "allFieldsAreRequired": "सभी फ़ील्ड ज़रूरी हैं",
+      "weakPassword": "कमज़ोर पासवर्ड",
+      "newPasswordMustBeAtLeast": "नया पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
+      "doesntMatch": "मेल नहीं खाता",
+      "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते",
+      "success": "सफलता",
+      "passwordChangedSuccessfully": "पासवर्ड सफलतापूर्वक बदल दिया गया."
     },
     "food": {
       "orderFallback": {
@@ -287,7 +296,17 @@
       "free": "मुफ़्त",
       "deliveryFeeIsConfirmedAtCheckout": "डिलीवरी शुल्क चेकआउट पर तय होगा.",
       "coupon": "कूपन",
-      "toPay": "देय राशि"
+      "toPay": "देय राशि",
+      "yourOrder": "आपका ऑर्डर ·",
+      "itemCount_one": "{{count}} आइटम",
+      "itemCount_other": "{{count}} आइटम",
+      "deliveryTime": "डिलीवरी का समय",
+      "deliverNow": "अभी डिलीवर करें",
+      "weStartPreparingAsSoonAs": "आपके ऑर्डर करते ही हम तैयार करना शुरू कर देते हैं.",
+      "scheduleForLater": "बाद के लिए शेड्यूल करें",
+      "pickAFutureDateAndTime": "भविष्य की तारीख़ और समय चुनें",
+      "pick": "चुनें",
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "रेस्टोरेंट शेड्यूल की गई स्लॉट की पुष्टि करता है — यह आपके ऑर्डर में शेड्यूल्ड के तहत पेंडिंग दिखेगा."
     },
     "orders": {
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
@@ -362,7 +381,21 @@
       "10digitMobileNumber": "10 अंकों का मोबाइल नंबर",
       "leaveTheseBlankToDeliverTo": "अपने ही नाम और नंबर पर डिलीवरी के लिए इन्हें खाली छोड़ दें.",
       "deliveryInstructions": "डिलीवरी निर्देश",
-      "gate2AskTheGuardFor": "गेट 2, टावर B के लिए गार्ड से पूछें…"
+      "gate2AskTheGuardFor": "गेट 2, टावर B के लिए गार्ड से पूछें…",
+      "createMultistop": "मल्टी-स्टॉप बनाएं",
+      "delivery": "डिलीवरी",
+      "pickUpFromSeveralPlacesOn": "एक ही ट्रिप में कई जगहों से पिकअप करें. हम स्टोर पर भुगतान करेंगे और आप यहाँ चुका देंगे.",
+      "startingFrom": "शुरुआती स्थान",
+      "change": "बदलें",
+      "edit": "बदलें",
+      "stopCount_one": "{{count}} स्टॉप",
+      "stopCount_other": "{{count}} स्टॉप",
+      "addPickupLocation": "+ पिकअप लोकेशन जोड़ें",
+      "calculatingRoute": "रूट की गणना हो रही है…",
+      "kmAbout": "किमी · लगभग",
+      "addAPickupToSeeDistance": "दूरी देखने के लिए पिकअप जोड़ें",
+      "deliveryLower": "डिलीवरी",
+      "reviewRoute": "रूट की समीक्षा करें"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -386,6 +419,16 @@
       "saveFailed": "सेव नहीं हो सका",
       "couldNotSaveBookingPreference": "बुकिंग वरीयता सेव नहीं हो सकी.",
       "done": "हो गया"
+    },
+    "UpdateModal": {
+      "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
+      "updateRequired": "अपडेट ज़रूरी है",
+      "newVersionAvailable": "नया वर्शन उपलब्ध है",
+      "thisUpdateChangesHowYourAccount": "यह अपडेट आपके अकाउंट की सुरक्षा का तरीका बदलता है. Flavour का उपयोग जारी रखने के लिए यह ज़रूरी है.",
+      "updateFlavourToGetTheLatest": "नवीनतम सुविधाओं और सुधारों के लिए Flavour को अपडेट करें.",
+      "updateNow": "अभी अपडेट करें",
+      "noDismissRequiredRelease": "बंद नहीं किया जा सकता — ज़रूरी अपडेट",
+      "maybeLater": "शायद बाद में"
     }
   }
 }

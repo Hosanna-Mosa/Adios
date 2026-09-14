@@ -252,7 +252,16 @@
       "everyPhoneSignedInToThis": "ఈ ఖాతాలో సైన్ ఇన్ అయిన ప్రతి ఫోన్ సైన్ అవుట్ అవుతుంది, ఇది కూడా.",
       "signOutEverywhere": "అన్ని చోట్ల నుండి సైన్ అవుట్ చేయండి",
       "errorTitle": "పొరపాటు",
-      "couldntSignOutAllDevices": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయలేకపోయాము."
+      "couldntSignOutAllDevices": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయలేకపోయాము.",
+      "failedToUploadImage": "చిత్రాన్ని అప్‌లోడ్ చేయడంలో విఫలమైంది",
+      "missingFields": "వివరాలు లోపించాయి",
+      "allFieldsAreRequired": "అన్ని వివరాలు అవసరం",
+      "weakPassword": "బలహీనమైన పాస్‌వర్డ్",
+      "newPasswordMustBeAtLeast": "కొత్త పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి",
+      "doesntMatch": "సరిపోలడం లేదు",
+      "passwordsDoNotMatch": "పాస్‌వర్డ్‌లు సరిపోలడం లేదు",
+      "success": "విజయవంతమైంది",
+      "passwordChangedSuccessfully": "పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది."
     },
     "food": {
       "orderFallback": {
@@ -287,7 +296,17 @@
       "free": "ఉచితం",
       "deliveryFeeIsConfirmedAtCheckout": "డెలివరీ ఛార్జీ చెక్అవుట్‌లో నిర్ధారించబడుతుంది.",
       "coupon": "కూపన్",
-      "toPay": "చెల్లించవలసినది"
+      "toPay": "చెల్లించవలసినది",
+      "yourOrder": "మీ ఆర్డర్ ·",
+      "itemCount_one": "{{count}} వస్తువు",
+      "itemCount_other": "{{count}} వస్తువులు",
+      "deliveryTime": "డెలివరీ సమయం",
+      "deliverNow": "ఇప్పుడే డెలివరీ చేయండి",
+      "weStartPreparingAsSoonAs": "మీరు ఆర్డర్ చేసిన వెంటనే మేము తయారు చేయడం ప్రారంభిస్తాము.",
+      "scheduleForLater": "తర్వాత కోసం షెడ్యూల్ చేయండి",
+      "pickAFutureDateAndTime": "భవిష్యత్తు తేదీ మరియు సమయాన్ని ఎంచుకోండి",
+      "pick": "ఎంచుకోండి",
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "రెస్టారెంట్ షెడ్యూల్ చేసిన స్లాట్‌లను నిర్ధారిస్తుంది — మీ ఆర్డర్లలో షెడ్యూల్డ్ కింద ఇది పెండింగ్‌గా కనిపిస్తుంది."
     },
     "orders": {
       "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
@@ -362,7 +381,21 @@
       "10digitMobileNumber": "10 అంకెల మొబైల్ నంబర్",
       "leaveTheseBlankToDeliverTo": "మీ స్వంత పేరు మరియు నంబర్‌కు డెలివరీ చేయడానికి వీటిని ఖాళీగా వదిలేయండి.",
       "deliveryInstructions": "డెలివరీ సూచనలు",
-      "gate2AskTheGuardFor": "గేట్ 2, టవర్ B కోసం గార్డును అడగండి…"
+      "gate2AskTheGuardFor": "గేట్ 2, టవర్ B కోసం గార్డును అడగండి…",
+      "createMultistop": "బహుళ-స్టాప్ సృష్టించండి",
+      "delivery": "డెలివరీ",
+      "pickUpFromSeveralPlacesOn": "ఒకే ప్రయాణంలో అనేక ప్రాంతాల నుండి పికప్ చేయండి. మేము స్టోర్‌లో చెల్లిస్తాము, మీరు ఇక్కడ సెటిల్ చేస్తారు.",
+      "startingFrom": "ప్రారంభ స్థానం",
+      "change": "మార్చండి",
+      "edit": "సవరించండి",
+      "stopCount_one": "{{count}} స్టాప్",
+      "stopCount_other": "{{count}} స్టాప్‌లు",
+      "addPickupLocation": "+ పికప్ లొకేషన్‌ను జోడించండి",
+      "calculatingRoute": "మార్గాన్ని లెక్కిస్తోంది…",
+      "kmAbout": "కి.మీ · సుమారు",
+      "addAPickupToSeeDistance": "దూరాన్ని చూడటానికి పికప్‌ను జోడించండి",
+      "deliveryLower": "డెలివరీ",
+      "reviewRoute": "మార్గాన్ని సమీక్షించండి"
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",
@@ -386,6 +419,16 @@
       "saveFailed": "సేవ్ విఫలమైంది",
       "couldNotSaveBookingPreference": "బుకింగ్ ప్రాధాన్యతను సేవ్ చేయలేకపోయాము.",
       "done": "పూర్తయింది"
+    },
+    "UpdateModal": {
+      "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
+      "updateRequired": "అప్‌డేట్ అవసరం",
+      "newVersionAvailable": "కొత్త వెర్షన్ అందుబాటులో ఉంది",
+      "thisUpdateChangesHowYourAccount": "ఈ అప్‌డేట్ మీ ఖాతా భద్రత విధానాన్ని మారుస్తుంది. Flavourను ఉపయోగించడం కొనసాగించడానికి ఇది అవసరం.",
+      "updateFlavourToGetTheLatest": "తాజా ఫీచర్లు మరియు మెరుగుదలల కోసం Flavourను అప్‌డేట్ చేయండి.",
+      "updateNow": "ఇప్పుడే అప్‌డేట్ చేయండి",
+      "noDismissRequiredRelease": "మూసివేయలేరు — తప్పనిసరి అప్‌డేట్",
+      "maybeLater": "తర్వాత చూద్దాం"
     }
   }
 }

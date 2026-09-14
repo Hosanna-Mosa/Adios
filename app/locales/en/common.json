@@ -252,7 +252,16 @@
       "everyPhoneSignedInToThis": "Every phone signed in to this account gets signed out, including this one.",
       "signOutEverywhere": "Sign out everywhere",
       "errorTitle": "Error",
-      "couldntSignOutAllDevices": "Couldn't sign out of all devices."
+      "couldntSignOutAllDevices": "Couldn't sign out of all devices.",
+      "failedToUploadImage": "Failed to upload image",
+      "missingFields": "Missing fields",
+      "allFieldsAreRequired": "All fields are required",
+      "weakPassword": "Weak password",
+      "newPasswordMustBeAtLeast": "New password must be at least 8 characters",
+      "doesntMatch": "Doesn't match",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "success": "Success",
+      "passwordChangedSuccessfully": "Password changed successfully."
     },
     "food": {
       "orderFallback": {
@@ -287,7 +296,17 @@
       "free": "Free",
       "deliveryFeeIsConfirmedAtCheckout": "Delivery fee is confirmed at checkout.",
       "coupon": "Coupon",
-      "toPay": "To pay"
+      "toPay": "To pay",
+      "yourOrder": "Your order ·",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "deliveryTime": "Delivery time",
+      "deliverNow": "Deliver now",
+      "weStartPreparingAsSoonAs": "We start preparing as soon as you order.",
+      "scheduleForLater": "Schedule for later",
+      "pickAFutureDateAndTime": "Pick a future date and time",
+      "pick": "Pick",
+      "theRestaurantConfirmsScheduledSlotsYouaposll": "The restaurant confirms scheduled slots — you'll see it as pending under Scheduled in My orders."
     },
     "orders": {
       "preparingYourOrder": "Preparing your order",
@@ -362,7 +381,21 @@
       "10digitMobileNumber": "10-digit mobile number",
       "leaveTheseBlankToDeliverTo": "Leave these blank to deliver to your own name and number.",
       "deliveryInstructions": "Delivery instructions",
-      "gate2AskTheGuardFor": "Gate 2, ask the guard for tower B…"
+      "gate2AskTheGuardFor": "Gate 2, ask the guard for tower B…",
+      "createMultistop": "Create multi-stop",
+      "delivery": "delivery",
+      "pickUpFromSeveralPlacesOn": "Pick up from several places on one run. We'll pay at the store and you settle here.",
+      "startingFrom": "Starting from",
+      "change": "Change",
+      "edit": "Edit",
+      "stopCount_one": "{{count}} stop",
+      "stopCount_other": "{{count}} stops",
+      "addPickupLocation": "+ Add pickup location",
+      "calculatingRoute": "Calculating route…",
+      "kmAbout": "km · about",
+      "addAPickupToSeeDistance": "Add a pickup to see distance",
+      "deliveryLower": "delivery",
+      "reviewRoute": "Review route"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -386,6 +419,16 @@
       "saveFailed": "Save failed",
       "couldNotSaveBookingPreference": "Could not save booking preference.",
       "done": "Done"
+    },
+    "UpdateModal": {
+      "couldntOpenTheStore": "Couldn't open the store",
+      "updateRequired": "Update required",
+      "newVersionAvailable": "New version available",
+      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Flavour.",
+      "updateFlavourToGetTheLatest": "Update Flavour to get the latest features and improvements.",
+      "updateNow": "Update now",
+      "noDismissRequiredRelease": "No dismiss — required release",
+      "maybeLater": "Maybe later"
     }
   }
 }

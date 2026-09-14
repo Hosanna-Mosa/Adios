@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
 import { customFetch } from "@/utils/api/custom-fetch";
 
@@ -6,6 +7,7 @@ import { customFetch } from "@/utils/api/custom-fetch";
 // the order they were written, so React sees the same hook sequence.
 
 export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecurityVisible: any, currentPassword: any, setCurrentPassword: any, newPassword: any, setNewPassword: any, confirmPassword: any, setConfirmPassword: any, setChangingPassword: any) {
+  const { t } = useTranslation();
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [1, 1], quality: 0.7 });
     if (!result.canceled && result.assets[0].uri) uploadImage(result.assets[0].uri);
@@ -22,7 +24,7 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
       const data = await customFetch<any>("/users/profile-pic", { method: "POST", body: fd, isFormData: true });
       if (data && data.user) setUser(data.user);
     } catch (err) {
-      Alert.alert("Error", "Failed to upload image");
+      Alert.alert(t("actions.error"), t("app.profile.failedToUploadImage"));
     } finally {
       setLoading(false);
     }
@@ -30,15 +32,15 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert("Missing fields", "All fields are required");
+      Alert.alert(t("app.profile.missingFields"), t("app.profile.allFieldsAreRequired"));
       return;
     }
     if (newPassword.length < 8) {
-      Alert.alert("Weak password", "New password must be at least 8 characters");
+      Alert.alert(t("app.profile.weakPassword"), t("app.profile.newPasswordMustBeAtLeast"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert("Doesn't match", "Passwords do not match");
+      Alert.alert(t("app.profile.doesntMatch"), t("app.profile.passwordsDoNotMatch"));
       return;
     }
     try {
@@ -49,13 +51,13 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
         method: "POST",
         body: JSON.stringify({ currentPassword, newPassword }),
       });
-      Alert.alert("Success", "Password changed successfully.");
+      Alert.alert(t("app.profile.success"), t("app.profile.passwordChangedSuccessfully"));
       setSecurityVisible(false);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Something went wrong");
+      Alert.alert(t("actions.error"), err.message || t("app.auth.somethingWentWrongTryAgain"));
     } finally {
       setChangingPassword(false);
     }

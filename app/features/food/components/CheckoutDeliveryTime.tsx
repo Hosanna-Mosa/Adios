@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
@@ -27,14 +28,15 @@ export function CheckoutDeliveryTime({
   setShowScheduleSheet,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <Animated.View entering={fadeInUp(60)} style={styles.section}>
       <View style={styles.orderCard}>
         <View style={styles.orderCardHead}>
-          <Text style={styles.orderCardTitle}>Your order · {getItemCount()} items</Text>
+          <Text style={styles.orderCardTitle}>{t("app.food.yourOrder")} {t("app.food.itemCount", { count: getItemCount() })}</Text>
           <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.changeLink}>Edit</Text>
+            <Text style={styles.changeLink}>{t("app.delivery.edit")}</Text>
           </TouchableOpacity>
         </View>
         {items.map((item) => (
@@ -47,7 +49,7 @@ export function CheckoutDeliveryTime({
     </Animated.View>
 
     <Animated.View entering={fadeInUp(90)} style={styles.section}>
-      <Text style={styles.sectionLabel}>Delivery time</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.deliveryTime")}</Text>
       <View style={{ gap: 8 }}>
         <TouchableOpacity
           style={[styles.couponOptionRow, !scheduledFor && { borderColor: accent.accent, backgroundColor: accent.skin }]}
@@ -56,8 +58,8 @@ export function CheckoutDeliveryTime({
         >
           <View style={styles.radioSelected}>{!scheduledFor && <View style={[styles.radioDot, { backgroundColor: accent.accent }]} />}</View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.couponCode}>Deliver now</Text>
-            <Text style={styles.couponDesc}>We start preparing as soon as you order.</Text>
+            <Text style={styles.couponCode}>{t("app.food.deliverNow")}</Text>
+            <Text style={styles.couponDesc}>{t("app.food.weStartPreparingAsSoonAs")}</Text>
           </View>
         </TouchableOpacity>
 
@@ -68,17 +70,17 @@ export function CheckoutDeliveryTime({
         >
           <View style={styles.radioSelected}>{!!scheduledFor && <View style={[styles.radioDot, { backgroundColor: accent.accent }]} />}</View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.couponCode}>Schedule for later</Text>
+            <Text style={styles.couponCode}>{t("app.food.scheduleForLater")}</Text>
             <Text style={styles.couponDesc}>
-              {scheduledFor ? formatSlot(scheduledFor) : "Pick a future date and time"}
+              {scheduledFor ? formatSlot(scheduledFor) : t("app.food.pickAFutureDateAndTime")}
             </Text>
           </View>
-          <Text style={styles.changeLink}>{scheduledFor ? "Edit" : "Pick"}</Text>
+          <Text style={styles.changeLink}>{scheduledFor ? t("app.delivery.edit") : t("app.food.pick")}</Text>
         </TouchableOpacity>
       </View>
       {!!scheduledFor && (
         <Text style={styles.scheduleNote}>
-          The restaurant confirms scheduled slots — you&apos;ll see it as pending under Scheduled in My orders.
+          {t("app.food.theRestaurantConfirmsScheduledSlotsYouaposll")}
         </Text>
       )}
     </Animated.View>

@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Alert, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -14,6 +15,7 @@ interface UpdateModalProps {
 }
 
 export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss }: UpdateModalProps) {
+  const { t } = useTranslation();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
@@ -45,7 +47,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
     }
 
     // A misconfigured store URL used to vanish into the console — surface it.
-    Alert.alert("Couldn't open the store", url);
+    Alert.alert(t("app.UpdateModal.couldntOpenTheStore"), url);
   };
 
   return (
@@ -63,22 +65,22 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
           <View style={styles.iconContainer}>
             <Ionicons name="arrow-up" size={22} color={accent.on} />
           </View>
-          <Text style={styles.title}>{forceUpdate ? "Update required" : "New version available"}</Text>
+          <Text style={styles.title}>{forceUpdate ? t("app.UpdateModal.updateRequired") : t("app.UpdateModal.newVersionAvailable")}</Text>
           <Text style={styles.subtitle}>
             {forceUpdate
-              ? "This update changes how your account stays secure. You'll need it to keep using Flavour."
-              : "Update Flavour to get the latest features and improvements."}
+              ? t("app.UpdateModal.thisUpdateChangesHowYourAccount")
+              : t("app.UpdateModal.updateFlavourToGetTheLatest")}
           </Text>
 
           <TouchableOpacity style={styles.updateButton} onPress={handleUpdate} activeOpacity={0.85}>
-            <Text style={styles.updateText}>Update now</Text>
+            <Text style={styles.updateText}>{t("app.UpdateModal.updateNow")}</Text>
           </TouchableOpacity>
 
           {forceUpdate ? (
-            <Text style={styles.forceNote}>No dismiss — required release</Text>
+            <Text style={styles.forceNote}>{t("app.UpdateModal.noDismissRequiredRelease")}</Text>
           ) : (
             <TouchableOpacity style={styles.laterButton} onPress={onDismiss} activeOpacity={0.8}>
-              <Text style={styles.laterText}>Maybe later</Text>
+              <Text style={styles.laterText}>{t("app.UpdateModal.maybeLater")}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -1,5 +1,6 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -40,13 +41,14 @@ export function DeliveryEntrySheet({
   stops,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.sheet} entering={modalSlideUp}>
       <View style={styles.sheetHandle} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <Animated.View entering={fadeInUp(60)}>
-          <Text style={styles.headline}>Create multi-stop{"\n"}delivery</Text>
-          <Text style={styles.subhead}>Pick up from several places on one run. We&apos;ll pay at the store and you settle here.</Text>
+          <Text style={styles.headline}>{t("app.delivery.createMultistop")}{"\n"}{t("app.delivery.delivery")}</Text>
+          <Text style={styles.subhead}>{t("app.delivery.pickUpFromSeveralPlacesOn")}</Text>
         </Animated.View>
 
         <Animated.View entering={fadeInUp(120)}>
@@ -55,15 +57,15 @@ export function DeliveryEntrySheet({
               {isLocating ? <ActivityIndicator size="small" color={accent.accent} /> : <Ionicons name="locate" size={moderateScale(17)} color={accent.accent} />}
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.startLabel}>Starting from</Text>
+              <Text style={styles.startLabel}>{t("app.delivery.startingFrom")}</Text>
               <Text style={styles.startValue} numberOfLines={1}>{currentLocation}</Text>
             </View>
-            <Text style={styles.changeLink}>Change</Text>
+            <Text style={styles.changeLink}>{t("app.delivery.change")}</Text>
           </TouchableOpacity>
         </Animated.View>
 
         <Animated.View style={styles.routeSection} entering={fadeInUp(180)}>
-          <Text style={styles.sectionLabel}>Route · {stops.length} {stops.length === 1 ? "stop" : "stops"}</Text>
+          <Text style={styles.sectionLabel}>{t("app.delivery.route")} {t("app.delivery.stopCount", { count: stops.length })}</Text>
           {stops.length > 0 && (
             <View style={{ gap: 8, marginBottom: 10 }}>
               {stops.map((stop, i) => (
@@ -74,7 +76,7 @@ export function DeliveryEntrySheet({
             </View>
           )}
           <TouchableOpacity style={styles.addStopBtn} onPress={() => router.push("/delivery/add-stop")} activeOpacity={0.85}>
-            <Text style={styles.addStopBtnText}>+ Add pickup location</Text>
+            <Text style={styles.addStopBtnText}>{t("app.delivery.addPickupLocation")}</Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
@@ -83,13 +85,13 @@ export function DeliveryEntrySheet({
         {stops.length > 0 && (
           <View style={styles.footerRow}>
             {isCalculating ? (
-              <Text style={styles.footerMeta}>Calculating route…</Text>
+              <Text style={styles.footerMeta}>{t("app.delivery.calculatingRoute")}</Text>
             ) : route ? (
-              <Text style={styles.footerMeta}>{route.totalDistance} km · about {route.estimatedTime} min</Text>
+              <Text style={styles.footerMeta}>{route.totalDistance} {t("app.delivery.kmAbout")} {route.estimatedTime} min</Text>
             ) : (
-              <Text style={styles.footerMeta}>Add a pickup to see distance</Text>
+              <Text style={styles.footerMeta}>{t("app.delivery.addAPickupToSeeDistance")}</Text>
             )}
-            {price != null && <Text style={styles.footerPrice}>₹{price.total} delivery</Text>}
+            {price != null && <Text style={styles.footerPrice}>₹{price.total} {t("app.delivery.deliveryLower")}</Text>}
           </View>
         )}
         <TouchableOpacity
@@ -97,7 +99,7 @@ export function DeliveryEntrySheet({
           disabled={stops.length === 0 || isCalculating}
           onPress={handleReview}
         >
-          <Text style={styles.reviewBtnText}>Review route</Text>
+          <Text style={styles.reviewBtnText}>{t("app.delivery.reviewRoute")}</Text>
         </TouchableOpacity>
       </View>
     </Animated.View>
