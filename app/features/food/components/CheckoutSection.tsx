@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -42,18 +43,19 @@ export function CheckoutSection({
   subtotal,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(120)} style={styles.section}>
-      <Text style={styles.sectionLabel}>Offers &amp; coupons</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.offersAmpCoupons")}</Text>
       {appliedPromo ? (
         <View style={[styles.couponOptionRow, { borderColor: accent.accent, backgroundColor: accent.skin }]}>
           <View style={styles.radioSelected}><View style={[styles.radioDot, { backgroundColor: accent.accent }]} /></View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.couponCode}>{appliedPromo.code}</Text>
-            <Text style={styles.couponDesc}>You saved ₹{appliedPromo.discountAmount}</Text>
+            <Text style={styles.couponDesc}>{t("app.food.youSaved", { amount: appliedPromo.discountAmount })}</Text>
           </View>
           <TouchableOpacity onPress={removeCode}>
-            <Text style={styles.changeLink}>Remove</Text>
+            <Text style={styles.changeLink}>{t("app.food.remove")}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -78,7 +80,7 @@ export function CheckoutSection({
                   {applyingCode === offer.code ? (
                     <ActivityIndicator size="small" color={accent.accent} />
                   ) : (
-                    <Text style={[styles.changeLink, locked && { color: tokens.muted }]}>Apply</Text>
+                    <Text style={[styles.changeLink, locked && { color: tokens.muted }]}>{t("app.food.apply")}</Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -89,7 +91,7 @@ export function CheckoutSection({
             <View style={styles.promoInputRow}>
               <TextInput
                 style={styles.promoInput}
-                placeholder="Enter promo code"
+                placeholder={t("app.food.enterPromoCode")}
                 placeholderTextColor={tokens.muted}
                 autoCapitalize="characters"
                 value={promoCodeText}
@@ -99,15 +101,15 @@ export function CheckoutSection({
                 {isApplyingPromo && !applyingCode ? (
                   <ActivityIndicator size="small" color={accent.on} />
                 ) : (
-                  <Text style={styles.promoApplyBtnText}>Apply</Text>
+                  <Text style={styles.promoApplyBtnText}>{t("app.food.apply")}</Text>
                 )}
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity style={styles.couponOptionRow} activeOpacity={0.85} onPress={() => setShowPromoInput(true)}>
               <Ionicons name="pricetag-outline" size={moderateScale(18)} color={tokens.sec} />
-              <Text style={[styles.couponCode, { flex: 1 }]}>Have a promo code?</Text>
-              <Text style={styles.changeLink}>Add</Text>
+              <Text style={[styles.couponCode, { flex: 1 }]}>{t("app.food.haveAPromoCode")}</Text>
+              <Text style={styles.changeLink}>{t("app.food.add")}</Text>
             </TouchableOpacity>
           )}
         </View>

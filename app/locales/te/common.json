@@ -296,7 +296,22 @@
       "or": "లేదా",
       "continueWithOtpInstead": "బదులుగా OTPతో కొనసాగించండి",
       "newHere": "కొత్తగా వచ్చారా?",
-      "createAnAccount": "ఖాతాను సృష్టించండి"
+      "createAnAccount": "ఖాతాను సృష్టించండి",
+      "noLocationSelected": "లొకేషన్ ఎంచుకోబడలేదు",
+      "weNeedAnAddressToShow": "ధరలు, రాక సమయం మరియు మీ దగ్గర ఎవరు తెరిచి ఉన్నారో చూపించడానికి మాకు చిరునామా అవసరం.",
+      "useMyCurrentLocation": "నా ప్రస్తుత లొకేషన్‌ను ఉపయోగించండి",
+      "enterAddressManually": "చిరునామాను మాన్యువల్‌గా నమోదు చేయండి",
+      "noRidersAvailableNearby": "సమీపంలో రైడర్లు అందుబాటులో లేరు",
+      "allCaptainsNearbyAreOnTrips": "సమీపంలోని అందరు కెప్టెన్‌లు ప్రస్తుతం ప్రయాణంలో ఉన్నారు. సాధారణంగా ఒకరు ఖాళీ అవ్వడానికి కొన్ని నిమిషాలు పడుతుంది.",
+      "retrySearch": "మళ్లీ వెతకండి",
+      "freshMeatDaily": "ప్రతిరోజూ తాజా మాంసం!",
+      "cravingSomethingDelicious": "రుచికరమైనది\nకావాలా?",
+      "searchMuttonCurryCutPrawns": "“మటన్ కర్రీ కట్”, “రొయ్యలు” కోసం వెతకండి",
+      "searchBiryaniBawarchi": "“బిర్యానీ”, “Bawarchi” కోసం వెతకండి",
+      "show149StorePartners": "149 స్టోర్ భాగస్వాములను చూపించు",
+      "fastDeliveryUnder30Mins": "వేగవంతమైన డెలివరీ (30 నిమిషాల లోపు)",
+      "openNowOnly": "ఇప్పుడు తెరిచి ఉన్నవి మాత్రమే",
+      "freeDeliverySpecialOffers": "ఉచిత డెలివరీ / ప్రత్యేక ఆఫర్‌లు"
     },
     "profile": {
       "menuItems": {
@@ -422,7 +437,22 @@
       "ratings": "రేటింగ్‌లు)",
       "hygieneAmpSafety": "పరిశుభ్రత & భద్రత",
       "kitchenAuditedByFssaiLicence": "కిచెన్ FSSAI ద్వారా ఆడిట్ చేయబడింది · లైసెన్స్",
-      "tamperproofPackagingOnEveryOrder": "ప్రతి ఆర్డర్‌లో టాంపర్-ప్రూఫ్ ప్యాకేజింగ్"
+      "tamperproofPackagingOnEveryOrder": "ప్రతి ఆర్డర్‌లో టాంపర్-ప్రూఫ్ ప్యాకేజింగ్",
+      "pleaseAddItemsBeforePaying": "చెల్లించే ముందు దయచేసి వస్తువులను జోడించండి.",
+      "addressRequired": "చిరునామా అవసరం",
+      "pleaseSelectADeliveryAddress": "దయచేసి డెలివరీ చిరునామాను ఎంచుకోండి.",
+      "paymentFailed": "చెల్లింపు విఫలమైంది",
+      "noFavoritesYet": "ఇష్టమైనవి ఇంకా లేవు",
+      "tapTheHeartOnAnyOutlet": "ఏదైనా అవుట్‌లెట్‌పై హార్ట్‌ను నొక్కండి, అది ఇక్కడ చేరుతుంది — ఆహారం, మాంసం మరియు మిగతా అన్నింటిలో.",
+      "exploreOutlets": "అవుట్‌లెట్‌లను అన్వేషించండి",
+      "popularNearYou": "మీ దగ్గర ప్రసిద్ధమైనవి",
+      "tipYourDeliveryPartner": "మీ డెలివరీ భాగస్వామికి టిప్ ఇవ్వండి",
+      "100OfTheTipGoesTo": "టిప్‌లో 100% భాగస్వామికి వెళుతుంది.",
+      "none": "ఏదీ లేదు",
+      "other": "ఇతరం",
+      "enterAmount": "మొత్తాన్ని నమోదు చేయండి",
+      "offersAmpCoupons": "ఆఫర్‌లు & కూపన్‌లు",
+      "enterPromoCode": "ప్రోమో కోడ్‌ను నమోదు చేయండి"
     },
     "orders": {
       "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",

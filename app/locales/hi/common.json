@@ -296,7 +296,22 @@
       "or": "या",
       "continueWithOtpInstead": "इसके बजाय OTP से जारी रखें",
       "newHere": "नए हैं?",
-      "createAnAccount": "अकाउंट बनाएं"
+      "createAnAccount": "अकाउंट बनाएं",
+      "noLocationSelected": "कोई लोकेशन नहीं चुनी गई",
+      "weNeedAnAddressToShow": "कीमतें, ETA और आपके पास कौन खुला है दिखाने के लिए हमें एक पता चाहिए.",
+      "useMyCurrentLocation": "मेरी मौजूदा लोकेशन उपयोग करें",
+      "enterAddressManually": "पता खुद दर्ज करें",
+      "noRidersAvailableNearby": "पास में कोई राइडर उपलब्ध नहीं",
+      "allCaptainsNearbyAreOnTrips": "पास के सभी कैप्टन अभी ट्रिप पर हैं. आमतौर पर एक के खाली होने में कुछ मिनट लगते हैं.",
+      "retrySearch": "फिर से खोजें",
+      "freshMeatDaily": "रोज़ ताज़ा मीट!",
+      "cravingSomethingDelicious": "कुछ स्वादिष्ट\nखाने का मन है?",
+      "searchMuttonCurryCutPrawns": "“मटन करी कट”, “झींगा” खोजें",
+      "searchBiryaniBawarchi": "“बिरयानी”, “Bawarchi” खोजें",
+      "show149StorePartners": "149 स्टोर पार्टनर दिखाएं",
+      "fastDeliveryUnder30Mins": "तेज़ डिलीवरी (30 मिनट से कम)",
+      "openNowOnly": "सिर्फ़ अभी खुले",
+      "freeDeliverySpecialOffers": "मुफ़्त डिलीवरी / विशेष ऑफ़र"
     },
     "profile": {
       "menuItems": {
@@ -422,7 +437,22 @@
       "ratings": "रेटिंग)",
       "hygieneAmpSafety": "स्वच्छता व सुरक्षा",
       "kitchenAuditedByFssaiLicence": "किचन FSSAI द्वारा ऑडिट किया गया · लाइसेंस",
-      "tamperproofPackagingOnEveryOrder": "हर ऑर्डर में टैंपर-प्रूफ़ पैकेजिंग"
+      "tamperproofPackagingOnEveryOrder": "हर ऑर्डर में टैंपर-प्रूफ़ पैकेजिंग",
+      "pleaseAddItemsBeforePaying": "भुगतान से पहले कृपया आइटम जोड़ें.",
+      "addressRequired": "पता ज़रूरी है",
+      "pleaseSelectADeliveryAddress": "कृपया डिलीवरी पता चुनें.",
+      "paymentFailed": "भुगतान विफल",
+      "noFavoritesYet": "अभी कोई पसंदीदा नहीं",
+      "tapTheHeartOnAnyOutlet": "किसी भी आउटलेट पर दिल दबाएं और यह यहाँ आ जाएगा — खाना, मीट और बाकी सब में.",
+      "exploreOutlets": "आउटलेट देखें",
+      "popularNearYou": "आपके पास लोकप्रिय",
+      "tipYourDeliveryPartner": "अपने डिलीवरी पार्टनर को टिप दें",
+      "100OfTheTipGoesTo": "टिप का 100% पार्टनर को जाता है.",
+      "none": "कोई नहीं",
+      "other": "अन्य",
+      "enterAmount": "राशि दर्ज करें",
+      "offersAmpCoupons": "ऑफ़र व कूपन",
+      "enterPromoCode": "प्रोमो कोड दर्ज करें"
     },
     "orders": {
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",

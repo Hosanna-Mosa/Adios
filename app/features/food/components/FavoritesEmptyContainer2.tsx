@@ -1,5 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
@@ -23,20 +24,21 @@ export function FavoritesEmptyContainer2({
   popularNearby,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.emptyContainer} entering={fadeInUp(0)}>
       <View style={styles.heartCircle}>
         <Ionicons name="heart" size={moderateScale(28)} color={accent.accent} />
       </View>
-      <Text style={styles.emptyTitle}>No favorites yet</Text>
+      <Text style={styles.emptyTitle}>{t("app.food.noFavoritesYet")}</Text>
       <Text style={styles.emptySubtitle}>
-        Tap the heart on any outlet and it lands here — across food, meat, and everything else.
+        {t("app.food.tapTheHeartOnAnyOutlet")}
       </Text>
-      <Button title="Explore outlets" onPress={() => router.replace("/(tabs)")} fullWidth />
+      <Button title={t("app.food.exploreOutlets")} onPress={() => router.replace("/(tabs)")} fullWidth />
 
       {popularNearby.length > 0 && (
         <View style={styles.popularSection}>
-          <Text style={styles.popularLabel}>Popular near you</Text>
+          <Text style={styles.popularLabel}>{t("app.food.popularNearYou")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
             {popularNearby.map((r, index) => (
               <Animated.View key={r._id} entering={staggerListItem(index)}>

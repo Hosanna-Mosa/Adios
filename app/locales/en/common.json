@@ -296,7 +296,22 @@
       "or": "or",
       "continueWithOtpInstead": "Continue with OTP instead",
       "newHere": "New here?",
-      "createAnAccount": "Create an account"
+      "createAnAccount": "Create an account",
+      "noLocationSelected": "No location selected",
+      "weNeedAnAddressToShow": "We need an address to show prices, ETAs and who's open near you.",
+      "useMyCurrentLocation": "Use my current location",
+      "enterAddressManually": "Enter address manually",
+      "noRidersAvailableNearby": "No riders available nearby",
+      "allCaptainsNearbyAreOnTrips": "All captains nearby are on trips right now. It's usually a few minutes before one frees up.",
+      "retrySearch": "Retry search",
+      "freshMeatDaily": "Fresh Meat Daily!",
+      "cravingSomethingDelicious": "Craving something\ndelicious?",
+      "searchMuttonCurryCutPrawns": "Search “mutton curry cut”, “prawns”",
+      "searchBiryaniBawarchi": "Search “biryani”, “Bawarchi”",
+      "show149StorePartners": "Show 149 Store partners",
+      "fastDeliveryUnder30Mins": "Fast delivery (under 30 mins)",
+      "openNowOnly": "Open now only",
+      "freeDeliverySpecialOffers": "Free delivery / special offers"
     },
     "profile": {
       "menuItems": {
@@ -422,7 +437,22 @@
       "ratings": "ratings)",
       "hygieneAmpSafety": "Hygiene & safety",
       "kitchenAuditedByFssaiLicence": "Kitchen audited by FSSAI · licence",
-      "tamperproofPackagingOnEveryOrder": "Tamper-proof packaging on every order"
+      "tamperproofPackagingOnEveryOrder": "Tamper-proof packaging on every order",
+      "pleaseAddItemsBeforePaying": "Please add items before paying.",
+      "addressRequired": "Address required",
+      "pleaseSelectADeliveryAddress": "Please select a delivery address.",
+      "paymentFailed": "Payment failed",
+      "noFavoritesYet": "No favorites yet",
+      "tapTheHeartOnAnyOutlet": "Tap the heart on any outlet and it lands here — across food, meat, and everything else.",
+      "exploreOutlets": "Explore outlets",
+      "popularNearYou": "Popular near you",
+      "tipYourDeliveryPartner": "Tip your delivery partner",
+      "100OfTheTipGoesTo": "100% of the tip goes to the partner.",
+      "none": "None",
+      "other": "Other",
+      "enterAmount": "Enter amount",
+      "offersAmpCoupons": "Offers & coupons",
+      "enterPromoCode": "Enter promo code"
     },
     "orders": {
       "preparingYourOrder": "Preparing your order",

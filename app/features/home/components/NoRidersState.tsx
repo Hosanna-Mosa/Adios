@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -17,18 +18,19 @@ export function NoRidersState({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.noServiceContainer}>
       <View style={[styles.emptyIconCircle, { backgroundColor: tokens.warningSkin }]}>
         <Ionicons name="location-sharp" size={26} color={tokens.warning} />
       </View>
-      <Text style={styles.noServiceTitle}>No location selected</Text>
-      <Text style={styles.noServiceSubtitle}>We need an address to show prices, ETAs and who&apos;s open near you.</Text>
+      <Text style={styles.noServiceTitle}>{t("app.home.noLocationSelected")}</Text>
+      <Text style={styles.noServiceSubtitle}>{t("app.home.weNeedAnAddressToShow")}</Text>
       <TouchableOpacity style={styles.noServiceButton} onPress={handleUseCurrentLocation}>
-        <Text style={styles.noServiceButtonText}>Use my current location</Text>
+        <Text style={styles.noServiceButtonText}>{t("app.home.useMyCurrentLocation")}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.noServiceSecondaryButton} onPress={() => router.push("/delivery/saved-addresses")}>
-        <Text style={styles.noServiceSecondaryButtonText}>Enter address manually</Text>
+        <Text style={styles.noServiceSecondaryButtonText}>{t("app.home.enterAddressManually")}</Text>
       </TouchableOpacity>
     </View>
   );

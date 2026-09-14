@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -30,10 +31,11 @@ export function CheckoutTipYourDelivery({
   tipAmount,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(180)} style={styles.section}>
-      <Text style={styles.sectionLabel}>Tip your delivery partner</Text>
-      <Text style={styles.tipSub}>100% of the tip goes to the partner.</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.tipYourDeliveryPartner")}</Text>
+      <Text style={styles.tipSub}>{t("app.food.100OfTheTipGoesTo")}</Text>
       <View style={styles.tipRow}>
         {TIP_OPTIONS.map((opt) => {
           const isSelected = !isOtherTip && tipAmount === opt;
@@ -43,7 +45,7 @@ export function CheckoutTipYourDelivery({
               style={[styles.tipPill, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
               onPress={() => { setIsOtherTip(false); setTipAmount(opt); }}
             >
-              <Text style={[styles.tipPillText, isSelected && { color: accent.on }]}>{opt === 0 ? "None" : `₹${opt}`}</Text>
+              <Text style={[styles.tipPillText, isSelected && { color: accent.on }]}>{opt === 0 ? t("app.food.none") : `₹${opt}`}</Text>
             </TouchableOpacity>
           );
         })}
@@ -51,13 +53,13 @@ export function CheckoutTipYourDelivery({
           style={[styles.tipPill, isOtherTip && { backgroundColor: accent.accent, borderColor: accent.accent }]}
           onPress={() => setIsOtherTip(true)}
         >
-          <Text style={[styles.tipPillText, isOtherTip && { color: accent.on }]}>Other</Text>
+          <Text style={[styles.tipPillText, isOtherTip && { color: accent.on }]}>{t("app.food.other")}</Text>
         </TouchableOpacity>
       </View>
       {isOtherTip && (
         <TextInput
           style={styles.otherTipInput}
-          placeholder="Enter amount"
+          placeholder={t("app.food.enterAmount")}
           placeholderTextColor={tokens.muted}
           keyboardType="numeric"
           value={otherTipText}
