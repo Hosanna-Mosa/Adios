@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
@@ -15,10 +16,11 @@ export function ChatEmptyState({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptyState}>
       <Ionicons name="chatbubbles-outline" size={32} color={tokens.muted} />
-      <Text style={styles.emptyStateText}>Messages with your {partnerLabel.toLowerCase()} will show up here.</Text>
+      <Text style={styles.emptyStateText}>{t("app.support.messagesWithVarWillShowUpHere", { value: partnerLabel.toLowerCase() })}</Text>
     </View>
   );
 }

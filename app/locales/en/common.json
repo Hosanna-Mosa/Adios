@@ -148,7 +148,22 @@
       "markThisCaseResolved": "Mark this case resolved?",
       "youCanReopenItAnytimeBy": "You can reopen it anytime by sending a new message — your chat history stays.",
       "notYet": "Not yet",
-      "yesResolved": "Yes, resolved"
+      "yesResolved": "Yes, resolved",
+      "assignTask": "Assign task",
+      "messagesWithVarWillShowUpHere": "Messages with your {{value}} will show up here.",
+      "messageVar": "Message {{value}}…",
+      "flavourSupport": "Flavour Support",
+      "case": "Case #",
+      "yourCases": "Your cases",
+      "loadingYourCases": "Loading your cases…",
+      "liveChat": "Live chat",
+      "messageOurSupportTeam": "Message our support team",
+      "callHelpline": "Call helpline",
+      "emailUs": "Email us",
+      "careflavourinWithin24Hours": "care@flavour.in · within 24 hours",
+      "raiseANewTicket": "Raise a new ticket",
+      "addATitleAndAShort": "Add a title and a short description first.",
+      "messageNotSent": "Message not sent"
     },
     "tracking": {
       "rideLabels": {

@@ -148,7 +148,22 @@
       "markThisCaseResolved": "इस केस को हल किया गया चिह्नित करें?",
       "youCanReopenItAnytimeBy": "आप नया मैसेज भेजकर इसे कभी भी फिर से खोल सकते हैं — आपकी चैट हिस्ट्री बनी रहती है.",
       "notYet": "अभी नहीं",
-      "yesResolved": "हां, हल हो गया"
+      "yesResolved": "हां, हल हो गया",
+      "assignTask": "टास्क असाइन करें",
+      "messagesWithVarWillShowUpHere": "आपके {{value}} के साथ संदेश यहाँ दिखेंगे।",
+      "messageVar": "{{value}} को संदेश…",
+      "flavourSupport": "Flavour सपोर्ट",
+      "case": "केस #",
+      "yourCases": "आपके केस",
+      "loadingYourCases": "आपके केस लोड हो रहे हैं…",
+      "liveChat": "लाइव चैट",
+      "messageOurSupportTeam": "हमारी सपोर्ट टीम को संदेश भेजें",
+      "callHelpline": "हेल्पलाइन पर कॉल करें",
+      "emailUs": "हमें ईमेल करें",
+      "careflavourinWithin24Hours": "care@flavour.in · 24 घंटों में",
+      "raiseANewTicket": "नई टिकट दर्ज करें",
+      "addATitleAndAShort": "पहले एक शीर्षक और संक्षिप्त विवरण जोड़ें।",
+      "messageNotSent": "संदेश नहीं भेजा गया"
     },
     "tracking": {
       "rideLabels": {

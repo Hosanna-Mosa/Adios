@@ -1,4 +1,5 @@
 import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -17,12 +18,13 @@ export function SupportChatHeader2({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerName}>Your cases</Text>
+      <Text style={styles.headerName}>{t("app.support.yourCases")}</Text>
     </View>
   );
 }

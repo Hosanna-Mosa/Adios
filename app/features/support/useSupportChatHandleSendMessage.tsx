@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { SupportTicket } from "./useSupportChat.shared";
+import i18n from "@/i18n";
 
 // Part 3 of useSupportChat, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -18,7 +19,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       });
       setTicket(updatedTicket);
     } catch (error: any) {
-      Alert.alert("Message not sent", error.message || "Please try again.");
+      Alert.alert(i18n.t("app.support.messageNotSent"), error.message || i18n.t("app.ride.pleaseTryAgain"));
       setInputText(messageText);
     } finally {
       setSubmittingReply(false);
