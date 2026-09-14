@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInDown } from "@/motion/presets";
@@ -21,15 +22,16 @@ export function NotificationsHeader({
   tokens,
   unreadCount,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.header} entering={fadeInDown(0)}>
       <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Notifications</Text>
+      <Text style={styles.headerTitle}>{t("app.profile.menuItems.notifications")}</Text>
       {unreadCount > 0 && (
         <TouchableOpacity onPress={handleMarkAllRead}>
-          <Text style={styles.markAllText}>Mark all read</Text>
+          <Text style={styles.markAllText}>{t("app.profile.markAllRead")}</Text>
         </TouchableOpacity>
       )}
     </Animated.View>

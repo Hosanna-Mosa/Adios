@@ -374,7 +374,12 @@
       "newPassword": "New password",
       "min8Characters": "Min. 8 characters",
       "confirmNewPassword": "Confirm new password",
-      "updatePassword": "Update password"
+      "updatePassword": "Update password",
+      "markAllRead": "Mark all read",
+      "darkMode": "Dark mode",
+      "signOutOfAllDevicesButton": "Sign out of all devices",
+      "signOut": "Sign out",
+      "memberSince": "member since"
     },
     "food": {
       "orderFallback": {

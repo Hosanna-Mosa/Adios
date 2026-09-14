@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
@@ -18,6 +19,7 @@ export function ProfileStatsRow({
   styles,
   totalSpent,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.statsRow} entering={fadeInUp(70)}>
       <View style={styles.statTile}>
@@ -30,7 +32,7 @@ export function ProfileStatsRow({
       </View>
       <View style={styles.statTile}>
         <Text style={styles.statValue}>{memberSinceYear || "—"}</Text>
-        <Text style={styles.statLabel}>member since</Text>
+        <Text style={styles.statLabel}>{t("app.profile.memberSince")}</Text>
       </View>
     </Animated.View>
   );

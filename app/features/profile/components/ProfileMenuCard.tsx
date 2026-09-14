@@ -1,4 +1,5 @@
 import { Switch, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -23,6 +24,7 @@ export function ProfileMenuCard({
   toggleTheme,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.menuCard}>
       {MENU_ITEMS.map((item, idx) => (
@@ -54,7 +56,7 @@ export function ProfileMenuCard({
           <View style={[styles.menuIcon, { backgroundColor: tokens.sunken }]}>
             <Ionicons name={theme === "dark" ? "moon" : "sunny"} size={17} color={tokens.sec} />
           </View>
-          <Text style={styles.menuLabel}>Dark mode</Text>
+          <Text style={styles.menuLabel}>{t("app.profile.darkMode")}</Text>
           <Switch
             value={theme === "dark"}
             onValueChange={toggleTheme}

@@ -374,7 +374,12 @@
       "newPassword": "नया पासवर्ड",
       "min8Characters": "न्यूनतम 8 अक्षर",
       "confirmNewPassword": "नया पासवर्ड की पुष्टि करें",
-      "updatePassword": "पासवर्ड अपडेट करें"
+      "updatePassword": "पासवर्ड अपडेट करें",
+      "markAllRead": "सभी को पढ़ा हुआ चिह्नित करें",
+      "darkMode": "डार्क मोड",
+      "signOutOfAllDevicesButton": "सभी डिवाइस से साइन आउट करें",
+      "signOut": "साइन आउट करें",
+      "memberSince": "सदस्य बनने का वर्ष"
     },
     "food": {
       "orderFallback": {

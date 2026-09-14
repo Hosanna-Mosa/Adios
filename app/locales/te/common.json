@@ -374,7 +374,12 @@
       "newPassword": "కొత్త పాస్‌వర్డ్",
       "min8Characters": "కనీసం 8 అక్షరాలు",
       "confirmNewPassword": "కొత్త పాస్‌వర్డ్‌ను నిర్ధారించండి",
-      "updatePassword": "పాస్‌వర్డ్‌ను అప్‌డేట్ చేయండి"
+      "updatePassword": "పాస్‌వర్డ్‌ను అప్‌డేట్ చేయండి",
+      "markAllRead": "అన్నింటినీ చదివినట్లు గుర్తించండి",
+      "darkMode": "డార్క్ మోడ్",
+      "signOutOfAllDevicesButton": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయండి",
+      "signOut": "సైన్ అవుట్ చేయండి",
+      "memberSince": "సభ్యుడిగా చేరిన సంవత్సరం"
     },
     "food": {
       "orderFallback": {
