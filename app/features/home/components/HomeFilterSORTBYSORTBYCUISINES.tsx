@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
@@ -25,13 +26,14 @@ export function HomeFilterSORTBYSORTBYCUISINES({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     {activeFilterTab === "Cuisines" && (
       <View>
         <Text style={styles.filterSectionTitle}>CUISINES</Text>
         {availableCuisines.length === 0 ? (
-          <Text style={styles.filterEmptyNote}>No cuisines available in current location.</Text>
+          <Text style={styles.filterEmptyNote}>{t("app.home.noCuisinesAvailableInCurrentLocation")}</Text>
         ) : (
           availableCuisines.map((cuisine) => {
             const isSelected = selectedCuisines.includes(cuisine);

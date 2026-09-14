@@ -1,4 +1,5 @@
 import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
@@ -34,6 +35,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     {!searchText ? (
@@ -42,7 +44,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
           <View style={{ marginBottom: 24 }}>
             <View style={styles.searchSectionHeadRow}>
               <Text style={styles.searchSectionTitle}>RECENTLY SEARCHED</Text>
-              <TouchableOpacity onPress={clearRecentSearches}><Text style={styles.searchClearLink}>Clear</Text></TouchableOpacity>
+              <TouchableOpacity onPress={clearRecentSearches}><Text style={styles.searchClearLink}>{t("app.home.clear")}</Text></TouchableOpacity>
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
               {recentSearches.map((query, index) => (
@@ -94,16 +96,16 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
           isSearching ? (
             <View style={styles.emptySearchContainer}>
               <ActivityIndicator size="small" color={accent.accent} />
-              <Text style={styles.emptySearchTitle}>Searching…</Text>
-              <Text style={styles.emptySearchSubtitle}>Looking for &quot;{searchText.trim()}&quot; across nearby menus.</Text>
+              <Text style={styles.emptySearchTitle}>{t("app.home.searching")}</Text>
+              <Text style={styles.emptySearchSubtitle}>{t("app.home.lookingForVarAcrossNearbyMenus", { value: searchText.trim() })}</Text>
             </View>
           ) : (
             <View style={styles.emptySearchContainer}>
               <View style={styles.emptyIconCircle}>
                 <Ionicons name="search-outline" size={26} color={tokens.sec} />
               </View>
-              <Text style={styles.emptySearchTitle}>No results found</Text>
-              <Text style={styles.emptySearchSubtitle}>We couldn&apos;t find any outlets matching &quot;{searchText}&quot;.</Text>
+              <Text style={styles.emptySearchTitle}>{t("app.home.noResultsFound")}</Text>
+              <Text style={styles.emptySearchSubtitle}>{t("app.home.weCouldntFindAnyOutletsMatchingVar", { value: searchText })}</Text>
             </View>
           )
         }

@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
@@ -39,6 +40,7 @@ interface Props {
 
 export function HomeFilterSORTBY(props: Props) {
   const { activeFilterTab, clearAllFilters, filter99Store, filterCostRange, filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg, filteredAndSortedItems, selectedCuisines, selectedSort, setActiveFilterTab, setIsFilterModalVisible, styles } = props;
+  const { t } = useTranslation();
   return (
     <>
     <View style={styles.filterModalBody}>
@@ -79,11 +81,11 @@ export function HomeFilterSORTBY(props: Props) {
 
     <View style={styles.filterModalFooter}>
       <TouchableOpacity style={styles.filterModalClearBtn} onPress={clearAllFilters}>
-        <Text style={styles.filterModalClearText}>Clear filters</Text>
+        <Text style={styles.filterModalClearText}>{t("app.home.clearFilters")}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.filterModalApplyBtn} onPress={() => setIsFilterModalVisible(false)}>
         <Text style={styles.filterModalApplyText}>
-          Apply · {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? "result" : "results"}
+          {t("app.home.apply")} · {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? "result" : "results"}
         </Text>
       </TouchableOpacity>
     </View>

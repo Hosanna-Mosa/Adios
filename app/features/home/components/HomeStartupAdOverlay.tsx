@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -19,6 +20,7 @@ export function HomeStartupAdOverlay({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.startupAdOverlay}>
       <View style={styles.startupAdCard}>
@@ -30,7 +32,7 @@ export function HomeStartupAdOverlay({
           <Text style={styles.startupAdTitle}>{activeStartupAd.title}</Text>
           {activeStartupAd.description && <Text style={styles.startupAdDescription}>{activeStartupAd.description}</Text>}
           <TouchableOpacity style={styles.startupAdBtn} onPress={() => setActiveStartupAd(null)}>
-            <Text style={styles.startupAdBtnText}>Continue to app</Text>
+            <Text style={styles.startupAdBtnText}>{t("app.home.continueToApp")}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -17,12 +18,13 @@ export function AllServicesHeaderRow({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))} activeOpacity={0.7}>
         <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>All services</Text>
+      <Text style={styles.headerTitle}>{t("app.home.allServices")}</Text>
     </View>
   );
 }

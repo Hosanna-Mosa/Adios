@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -15,11 +16,12 @@ export function EmptySearchState({
   searchText,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptySearchContainer}>
       <ActivityIndicator size="small" color={accent.accent} />
-      <Text style={styles.emptySearchTitle}>Searching…</Text>
-      <Text style={styles.emptySearchSubtitle}>Looking for &quot;{searchText.trim()}&quot; across nearby menus.</Text>
+      <Text style={styles.emptySearchTitle}>{t("app.home.searching")}</Text>
+      <Text style={styles.emptySearchSubtitle}>{t("app.home.lookingForVarAcrossNearbyMenus", { value: searchText.trim() })}</Text>
     </View>
   );
 }

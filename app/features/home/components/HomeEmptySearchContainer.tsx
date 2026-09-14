@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
@@ -25,23 +26,24 @@ export function HomeEmptySearchContainer({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptySearchContainer}>
       <View style={styles.emptyIconCircle}>
         <Ionicons name="search-outline" size={26} color={tokens.sec} />
       </View>
-      <Text style={styles.emptySearchTitle}>No results found</Text>
+      <Text style={styles.emptySearchTitle}>{t("app.home.noResultsFound")}</Text>
       <Text style={styles.emptySearchSubtitle}>
         {hasActiveFilters
-          ? `Nothing matches "${searchText}" with ${activeFilterCount} ${activeFilterCount === 1 ? "filter" : "filters"} on.`
-          : `We couldn't find any outlets matching "${searchText}".`}
+          ? t("app.home.nothingMatchesVarWithFilterCount", { value: searchText, count: activeFilterCount })
+          : t("app.home.weCouldntFindAnyOutletsMatchingVar", { value: searchText })}
       </Text>
       {hasActiveFilters && (
         <TouchableOpacity style={styles.noServiceButton} onPress={clearAllFilters}>
-          <Text style={styles.noServiceButtonText}>Clear filters</Text>
+          <Text style={styles.noServiceButtonText}>{t("app.home.clearFilters")}</Text>
         </TouchableOpacity>
       )}
-      <Text style={styles.tryInsteadLabel}>Try instead</Text>
+      <Text style={styles.tryInsteadLabel}>{t("app.home.tryInstead")}</Text>
       <View style={styles.tryInsteadRow}>
         {tryInstead.map((term) => (
           <TouchableOpacity key={term} style={styles.tryInsteadChip} onPress={() => setSearchText(term)}>
