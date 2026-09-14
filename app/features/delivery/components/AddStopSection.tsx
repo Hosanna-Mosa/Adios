@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 // Moved out of app/delivery/add-stop.tsx. The JSX is unchanged; what it read from the screen's
@@ -35,18 +36,19 @@ export function AddStopSection({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.fieldLabel}>Store name · optional</Text>
+      <Text style={styles.fieldLabel}>{t("app.delivery.storeNameOptional")}</Text>
       <View style={styles.fieldBox}>
-        <TextInput style={styles.fieldInput} placeholder="e.g. Karachi Bakery" placeholderTextColor={tokens.muted} value={storeName} onChangeText={setStoreName} />
+        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.egKarachiBakery")} placeholderTextColor={tokens.muted} value={storeName} onChangeText={setStoreName} />
       </View>
 
-      <Text style={[styles.fieldLabel, { marginTop: 14 }]}>Pickup address</Text>
+      <Text style={[styles.fieldLabel, { marginTop: 14 }]}>{t("app.delivery.pickupAddress")}</Text>
       <View style={[styles.fieldBox, styles.fieldBoxFocused, showDropdown && { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}>
         <TextInput
           style={styles.fieldInput}
-          placeholder="Search nearby store or address"
+          placeholder={t("app.delivery.searchNearbyStoreOrAddress")}
           placeholderTextColor={tokens.muted}
           value={addressInput}
           onChangeText={handleAddressInput}

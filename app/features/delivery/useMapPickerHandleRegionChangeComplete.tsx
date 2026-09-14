@@ -1,12 +1,15 @@
 import * as Location from "expo-location";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
+import i18n from "@/i18n";
 
 // Part 2 of useMapPicker, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
 
 export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: any, step: any, region: any, setRegion: any, address: any, setAddress: any, setLoading: any, setRecentering: any, mapRef: any) {
+  const { t } = useTranslation();
   const handleRegionChangeComplete = async (newRegion: any) => {
     setRegion(newRegion);
     setLoading(true);
@@ -18,10 +21,10 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       if (geocode.length > 0) {
         const addr = geocode[0];
         const displayAddr = `${addr.name || ''} ${addr.street || ''}, ${addr.city || ''}, ${addr.region || ''}`.trim();
-        setAddress(displayAddr || "Unknown location");
+        setAddress(displayAddr || t("app.delivery.unknownLocation"));
       }
     } catch (error) {
-      setAddress("Error fetching address");
+      setAddress(t("app.delivery.errorFetchingAddress"));
     } finally {
       setLoading(false);
     }
@@ -32,7 +35,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       setRecentering(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission denied", "Location permission is required.");
+        Alert.alert(t("app.delivery.permissionDenied"), t("app.delivery.locationPermissionIsRequired"));
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -40,7 +43,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       mapRef.current?.animateToRegion(nextRegion, 350);
       handleRegionChangeComplete(nextRegion);
     } catch {
-      Alert.alert("Error", "Could not get current location");
+      Alert.alert(t("actions.error"), t("app.delivery.couldNotGetCurrentLocation"));
     } finally {
       setRecentering(false);
     }
@@ -51,7 +54,8 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
     try {
       const checkRes = await customFetch<any>(`/zones/check?lat=${region.latitude}&lng=${region.longitude}`);
       if (!checkRes || !checkRes.inZone) {
-        Alert.alert("No Service", `No service at current ${step} location.`);
+        const stepLabel = step === "pickup" ? i18n.t("app.delivery.pickupWord") : i18n.t("app.delivery.dropWord");
+        Alert.alert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));
         return;
       }
     } catch (err) {

@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 
@@ -6,6 +7,7 @@ import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliv
 // the order they were written, so React sees the same hook sequence.
 
 export function useAddAddressHandleSelectSearchResult(router: any, params: any, mapRef: any, user: any, setUser: any, isEditMode: any, selectedChip: any, label: any, addressLine: any, completeAddress: any, instructions: any, phone: any, receiverName: any, receiverPhone: any, landmark: any, setLoading: any, region: any, setRegion: any, setSearchQuery: any, setSearchResults: any, fetchAddressForCoords: any) {
+  const { t } = useTranslation();
   const handleSelectSearchResult = async (item: any) => {
     try {
       const details = Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))
@@ -24,12 +26,12 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
 
   const handleSave = async () => {
     if (!addressLine.trim()) {
-      Alert.alert("Missing information", "Street address is required.");
+      Alert.alert(t("app.delivery.missingInformation"), t("app.delivery.streetAddressIsRequired"));
       return;
     }
     const receiverPhoneDigits = receiverPhone.replace(/\D/g, "");
     if (receiverPhone.trim() && receiverPhoneDigits.length !== 10) {
-      Alert.alert("Invalid phone", "Enter a valid 10-digit receiver phone number.");
+      Alert.alert(t("app.delivery.invalidPhone"), t("app.delivery.enterAValid10digitReceiverPhone"));
       return;
     }
     try {
@@ -88,7 +90,7 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       router.back();
     } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", error.message || "Failed to save address.");
+      Alert.alert(t("actions.error"), error.message || t("app.delivery.failedToSaveAddress"));
     } finally {
       setLoading(false);
     }

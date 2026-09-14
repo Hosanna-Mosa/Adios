@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 // Moved out of app/delivery/add-stop.tsx. The JSX is unchanged; what it read from the screen's
@@ -29,11 +30,12 @@ export function AddStopSection2({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
       <View style={styles.itemsHeadRow}>
-        <Text style={styles.sectionLabel}>What to pick up?</Text>
-        <Text style={styles.itemsCount}>{items.length} {items.length === 1 ? "item" : "items"}</Text>
+        <Text style={styles.sectionLabel}>{t("app.delivery.whatToPickUp")}</Text>
+        <Text style={styles.itemsCount}>{t("app.food.itemCount", { count: items.length })}</Text>
       </View>
       <View style={styles.itemsCard}>
         {items.map((item, idx) => (
@@ -49,7 +51,7 @@ export function AddStopSection2({
         <View style={styles.addItemRow}>
           <TextInput
             style={styles.addItemInput}
-            placeholder="Item name"
+            placeholder={t("app.delivery.itemName")}
             placeholderTextColor={tokens.muted}
             value={newItemName}
             onChangeText={setNewItemName}
@@ -58,7 +60,7 @@ export function AddStopSection2({
           />
           <TextInput
             style={styles.addItemPriceInput}
-            placeholder="₹ est."
+            placeholder={t("app.delivery.est")}
             placeholderTextColor={tokens.muted}
             value={newItemPrice}
             onChangeText={setNewItemPrice}
@@ -69,7 +71,7 @@ export function AddStopSection2({
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.itemsHint}>Prices are your estimate. The rider pays the real amount at the counter and you settle the difference at checkout.</Text>
+      <Text style={styles.itemsHint}>{t("app.delivery.pricesAreYourEstimateTheRider")}</Text>
     </View>
   );
 }

@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { createStyles } from "./ScheduleDateTimeSheet.styles";
@@ -35,14 +36,18 @@ const MINUTE_OPTIONS = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "4
 
 
 export function ScheduleDateTimeSheet({
-  visible, onClose, onConfirm, title = "Schedule delivery",
-  subtitle = "Select your preferred delivery day and time", confirmLabel = "OK",
+  visible, onClose, onConfirm, title,
+  subtitle, confirmLabel,
   loading = false, initialDate, accent,
 }: Props) {
   const {
   insets, styles, dateOptions, selectedDate, setSelectedDate, hour, setHour, minute, setMinute,
   ampm, setAmpm, previewText, handleConfirm
   } = useScheduleDateTimeSheet(visible, onClose, onConfirm, initialDate, accent);
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("app.checkout.scheduleDelivery");
+  const resolvedSubtitle = subtitle ?? t("app.ScheduleDateTimeSheet.selectYourPreferredDeliveryDay");
+  const resolvedConfirmLabel = confirmLabel ?? t("app.ScheduleDateTimeSheet.ok");
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -50,15 +55,15 @@ export function ScheduleDateTimeSheet({
         <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + (Platform.OS === "ios" ? 16 : 20) }]}>
           <View style={styles.handle} />
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text style={styles.title}>{resolvedTitle}</Text>
+          <Text style={styles.subtitle}>{resolvedSubtitle}</Text>
 
           <View style={styles.previewCard}>
-            <Text style={styles.previewLabel}>Selected slot</Text>
+            <Text style={styles.previewLabel}>{t("app.ScheduleDateTimeSheet.selectedSlot")}</Text>
             <Text style={styles.previewValue}>{previewText}</Text>
           </View>
 
-          <Text style={styles.sectionLabel}>Select Date</Text>
+          <Text style={styles.sectionLabel}>{t("app.ScheduleDateTimeSheet.selectDate")}</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -67,7 +72,7 @@ export function ScheduleDateTimeSheet({
           >
             {dateOptions.map((date, idx) => {
               const isSelected = selectedDate.toDateString() === date.toDateString();
-              const dayName = idx === 0 ? "Today" : idx === 1 ? "Tomorrow" : date.toLocaleDateString([], { weekday: "short" });
+              const dayName = idx === 0 ? t("app.ride.today") : idx === 1 ? t("app.ScheduleDateTimeSheet.tomorrow") : date.toLocaleDateString([], { weekday: "short" });
               const dateStr = date.toLocaleDateString([], { month: "short", day: "numeric" });
               return (
                 <TouchableOpacity
@@ -83,7 +88,7 @@ export function ScheduleDateTimeSheet({
             })}
           </ScrollView>
 
-          <Text style={styles.sectionLabel}>Hour</Text>
+          <Text style={styles.sectionLabel}>{t("app.ScheduleDateTimeSheet.hour")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.timeRow}>
             {HOUR_OPTIONS.map((hr) => {
               const isSelected = hour === hr;
@@ -100,7 +105,7 @@ export function ScheduleDateTimeSheet({
             })}
           </ScrollView>
 
-          <Text style={styles.sectionLabel}>Minute</Text>
+          <Text style={styles.sectionLabel}>{t("app.ScheduleDateTimeSheet.minute")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.timeRow}>
             {MINUTE_OPTIONS.map((min) => {
               const isSelected = minute === min;
@@ -139,7 +144,7 @@ export function ScheduleDateTimeSheet({
             disabled={loading}
             activeOpacity={0.9}
           >
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmBtnText}>{confirmLabel}</Text>}
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.confirmBtnText}>{resolvedConfirmLabel}</Text>}
           </TouchableOpacity>
         </View>
       </View>

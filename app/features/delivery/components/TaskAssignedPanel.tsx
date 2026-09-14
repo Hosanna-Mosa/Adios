@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -34,26 +35,27 @@ export function TaskAssignedPanel({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
         {startOtp && (
           <Animated.View style={styles.otpCard} entering={fadeInUp(0)}>
-            <Text style={styles.otpLabel}>Share this OTP to start</Text>
+            <Text style={styles.otpLabel}>{t("app.delivery.shareThisOtpToStart")}</Text>
             <View style={{ flexDirection: "row", gap: 8, marginTop: 10 }}>
               {String(startOtp).split("").map((digit, i) => (
                 <View key={i} style={styles.otpDigit}><Text style={styles.otpDigitText}>{digit}</Text></View>
               ))}
             </View>
-            <Text style={styles.otpHint}>Don&apos;t share this code before the helper arrives.</Text>
+            <Text style={styles.otpHint}>{t("app.delivery.donapostShareThisCodeBeforeThe")}</Text>
           </Animated.View>
         )}
 
         <Animated.View style={styles.driverRow} entering={fadeInUp(60)}>
           <View style={styles.driverAvatar}><Ionicons name="person" size={22} color={tokens.sec} /></View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.driverName}>{activeDriver.name || "Helper"}</Text>
-            <Text style={styles.driverMeta}>{activeDriver.vehicle || activeDriver.vehicleType || "On the way"}</Text>
+            <Text style={styles.driverName}>{activeDriver.name || t("app.delivery.helper")}</Text>
+            <Text style={styles.driverMeta}>{activeDriver.vehicle || activeDriver.vehicleType || t("app.delivery.onTheWay")}</Text>
           </View>
           {(currentTaskPrice ?? offer) != null && (
             <View style={{ alignItems: "flex-end" }}>
@@ -64,10 +66,10 @@ export function TaskAssignedPanel({
 
         <Animated.View style={{ flexDirection: "row", gap: 10, marginVertical: 14 }} entering={fadeInUp(120)}>
           <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${activeDriver.phone || ""}`)}>
-            <Text style={styles.callBtnText}>Call</Text>
+            <Text style={styles.callBtnText}>{t("app.delivery.call")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.messageBtn} onPress={() => router.push("/chat")}>
-            <Text style={styles.messageBtnText}>Message</Text>
+            <Text style={styles.messageBtnText}>{t("app.delivery.message")}</Text>
           </TouchableOpacity>
         </Animated.View>
 
@@ -88,7 +90,7 @@ export function TaskAssignedPanel({
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
         <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-          <Text style={styles.cancelBtnText}>Cancel task</Text>
+          <Text style={styles.cancelBtnText}>{t("app.delivery.cancelTask")}</Text>
         </TouchableOpacity>
       </View>
     </View>
