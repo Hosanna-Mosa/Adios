@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -23,14 +24,15 @@ export function DropLocationHeader({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Where to?</Text>
+      <Text style={styles.headerTitle}>{t("app.ride.whereTo")}</Text>
       <TouchableOpacity style={styles.forMeSelector} onPress={() => setShowBookingForSheet(true)}>
-        <Text style={styles.forMeText}>{bookingFor === "myself" ? "For me" : "Someone else"}</Text>
+        <Text style={styles.forMeText}>{bookingFor === "myself" ? t("app.ride.forMe") : t("app.ride.someoneElse")}</Text>
         <Ionicons name="chevron-down" size={14} color={tokens.sec} />
       </TouchableOpacity>
     </View>

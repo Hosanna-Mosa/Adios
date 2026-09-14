@@ -2,6 +2,7 @@ import React from "react";
 import { Alert } from "react-native";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { normalizeServiceType, parseFare } from "./useRideSearching.shared";
+import i18n from "@/i18n";
 
 // Part 3 of useRideSearching, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -67,7 +68,7 @@ export function useRideSearchingFare(setCurrentOrderId: any, setGlobalServiceTyp
         }
       } catch (error: any) {
         console.error("Create ride order error:", error);
-        Alert.alert("Ride request", error?.message || "Could not request this ride.");
+        Alert.alert(i18n.t("app.ride.rideRequest"), error?.message || "Could not request this ride.");
       }
     };
 

@@ -2,6 +2,7 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
 import { getEnabledTiers } from "./useRideConfirmation.shared";
+import i18n from "@/i18n";
 
 // Part 5 of useRideConfirmation, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -43,7 +44,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
         router.push({ pathname: "/finding-driver", params: { orderId: res._id } });
       }
     } catch (e: any) {
-      Alert.alert("Booking failed", e.message);
+      Alert.alert(i18n.t("app.ride.bookingFailed"), e.message);
     } finally {
       setBooking(false);
     }

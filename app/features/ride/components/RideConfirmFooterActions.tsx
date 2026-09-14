@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; what it read from the screen's
@@ -11,9 +12,10 @@ interface Props {
 export function RideConfirmFooterActions({
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity style={styles.footerPrimaryBtn} onPress={() => router.replace("/(tabs)/orders")}>
-      <Text style={styles.footerPrimaryBtnText}>View my orders</Text>
+      <Text style={styles.footerPrimaryBtnText}>{t("app.ride.viewMyOrders")}</Text>
     </TouchableOpacity>
   );
 }

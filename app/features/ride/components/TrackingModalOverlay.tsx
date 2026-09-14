@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -26,12 +27,13 @@ export function TrackingModalOverlay({
   tokens,
   totalPrice,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.modalOverlay}>
       <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setTripModalVisible(false)} />
       <View style={styles.modalContent}>
         <View style={styles.sheetHandle} />
-        <Text style={styles.modalTitle}>Order details</Text>
+        <Text style={styles.modalTitle}>{t("app.ride.orderDetails")}</Text>
         <View style={{ flexDirection: "row", gap: 12, marginTop: 16, marginBottom: 20 }}>
           <View style={styles.addrRail}>
             <View style={[styles.addrDot, { borderColor: accent.accent }]} />

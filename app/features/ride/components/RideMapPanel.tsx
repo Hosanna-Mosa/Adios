@@ -3,6 +3,7 @@ import MapView, { Marker, Callout, PROVIDER_GOOGLE, Polyline } from "@/component
 import MapViewDirections from "@/components/maps/MapViewDirections";
 import { fadeIn } from "@/motion/presets";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { router } from "expo-router";
@@ -20,6 +21,7 @@ export function RideMapPanel(props: Props) {
   initialRegion, insets, mapRef, nearbyDrivers, params, pickupCoords, pickupIsValid,
   routeCoordinates, selectedFare, selectedTier, setMapReady, styles, tokens, tripCoordinates,
   userLocation, validStops } = props;
+  const { t } = useTranslation();
   return (
     <View style={styles.mapContainer}>
       <MapView
@@ -98,7 +100,7 @@ export function RideMapPanel(props: Props) {
         {userLocation && (
           <Marker coordinate={userLocation} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges>
             <View collapsable={false} style={styles.userPin}><View style={styles.pinInnerDot} /></View>
-            <Callout tooltip><View style={styles.locationBubble}><Text style={styles.locationBubbleText}>My location</Text></View></Callout>
+            <Callout tooltip><View style={styles.locationBubble}><Text style={styles.locationBubbleText}>{t("app.ride.myLocation")}</Text></View></Callout>
           </Marker>
         )}
       </MapView>

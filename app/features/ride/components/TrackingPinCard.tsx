@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -14,9 +15,10 @@ export function TrackingPinCard({
   startOtp,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}>
-      <Text style={[styles.pinLabel, { color: accent.accent }]}>Start ride PIN</Text>
+      <Text style={[styles.pinLabel, { color: accent.accent }]}>{t("app.ride.startRidePin")}</Text>
       <View style={styles.pinBoxes}>
         {String(startOtp).split("").map((digit, i) => (
           <View key={i} style={[styles.pinBox, { borderColor: accent.accent }]}>
@@ -24,7 +26,7 @@ export function TrackingPinCard({
           </View>
         ))}
       </View>
-      <Text style={styles.pinHint}>Give this to your captain to start the trip.</Text>
+      <Text style={styles.pinHint}>{t("app.ride.giveThisToYourCaptainTo")}</Text>
     </View>
   );
 }

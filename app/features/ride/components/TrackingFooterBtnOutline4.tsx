@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -14,9 +15,10 @@ export function TrackingFooterBtnOutline4({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity style={[styles.footerBtnOutline, { borderColor: tokens.error }]} onPress={handleSOS}>
-      <Text style={[styles.footerBtnOutlineText, { color: tokens.error }]}>Help</Text>
+      <Text style={[styles.footerBtnOutlineText, { color: tokens.error }]}>{t("app.ride.help")}</Text>
     </TouchableOpacity>
   );
 }

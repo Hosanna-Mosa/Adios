@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -28,6 +29,7 @@ export function PickupConfirmMapArea({
   tokens,
   useCurrentLocation,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.mapArea}>
       <MapView
@@ -47,7 +49,7 @@ export function PickupConfirmMapArea({
       <View pointerEvents="none" style={styles.centerMarker}>
         <View style={styles.markerWrap}>
           <View style={styles.pickupBubble}>
-            <Text style={styles.pickupBubbleText}>Pickup Point</Text>
+            <Text style={styles.pickupBubbleText}>{t("app.ride.pickupPoint")}</Text>
           </View>
           <View style={styles.pin}>
             <Ionicons name="navigate" size={18} color={accent.on} />

@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
@@ -27,6 +28,7 @@ export function TrackingTimelineBlock({
   timeline,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.timelineBlock}>
       {timeline.map((step, i) => (
@@ -49,7 +51,7 @@ export function TrackingTimelineBlock({
           <View style={{ paddingBottom: 14 }}>
             <Text style={[styles.stepLabel, { color: step.current ? accent.accent : step.done ? tokens.text : tokens.muted }]}>{step.label}</Text>
             {i === 0 && orderCreatedAt && <Text style={styles.stepSub}>{formatClock(orderCreatedAt)}</Text>}
-            {step.current && !isHelper && <Text style={styles.stepSub}>{eta} min away</Text>}
+            {step.current && !isHelper && <Text style={styles.stepSub}>{eta} {t("app.ride.minAway")}</Text>}
             {step.current && isHelper && helperStatus ? <Text style={styles.stepSub}>{helperStatus}</Text> : null}
           </View>
         </View>

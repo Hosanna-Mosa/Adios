@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -14,9 +15,10 @@ export function TrackingHelperUpdate({
   helperStatus,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.helperUpdate, { backgroundColor: accent.skin }]}>
-      <Text style={[styles.helperUpdateLabel, { color: accent.accent }]}>Helper update</Text>
+      <Text style={[styles.helperUpdateLabel, { color: accent.accent }]}>{t("app.ride.helperUpdate")}</Text>
       <Text style={styles.helperUpdateText}>{helperStatus}</Text>
     </View>
   );

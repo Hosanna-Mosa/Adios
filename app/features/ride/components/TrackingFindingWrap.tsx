@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 
@@ -22,6 +23,7 @@ export function TrackingFindingWrap({
   pulse2Style,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.findingWrap}>
       <View style={styles.radarWrap}>
@@ -31,8 +33,8 @@ export function TrackingFindingWrap({
           <Ionicons name="search" size={22} color={accent.on} />
         </View>
       </View>
-      <Text style={styles.findingTitle}>{isRide ? "Finding your captain…" : isHelper ? "Finding your helper…" : "Finding your delivery partner…"}</Text>
-      <Text style={styles.findingSubtitle}>This usually takes under a minute.</Text>
+      <Text style={styles.findingTitle}>{isRide ? `${t("app.ride.findingYourCaptain")}…` : isHelper ? `${t("app.ride.findingYourHelper")}…` : `${t("app.ride.findingYourDeliveryPartner")}…`}</Text>
+      <Text style={styles.findingSubtitle}>{t("app.ride.thisUsuallyTakesUnderAMinute")}</Text>
     </View>
   );
 }
