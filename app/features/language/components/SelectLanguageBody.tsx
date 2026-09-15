@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/Button";
 import { fontFamilies, typography } from "@/constants/typography";
 import type { ThemeTokens } from "@/constants/colors";
@@ -18,9 +19,18 @@ const OPTIONS: { code: SupportedLanguage; nativeLabel: string }[] = [
 interface Props {
   tokens: ThemeTokens;
   onSelect: (code: SupportedLanguage) => void;
+  /** Currently selected language, used to highlight the matching option.
+   * Omitted by language-settings.tsx, which keeps this component's original
+   * unhighlighted, no-Continue behavior unchanged. */
+  selectedLanguage?: SupportedLanguage | null;
+  /** Present only on the language-gate screen (select-language.tsx). Renders
+   * a Continue button — disabled until a language is selected — instead of
+   * navigating the instant an option is tapped. */
+  onContinue?: () => void;
 }
 
-export function SelectLanguageBody({ tokens, onSelect }: Props) {
+export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onContinue }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.content}>
       <Text style={[styles.heading, { color: tokens.text, fontFamily: fontFamilies.heading.bold }]}>
@@ -35,11 +45,22 @@ export function SelectLanguageBody({ tokens, onSelect }: Props) {
             key={option.code}
             title={option.nativeLabel}
             onPress={() => onSelect(option.code)}
-            variant="secondary"
+            variant={selectedLanguage === option.code ? "primary" : "secondary"}
             fullWidth
           />
         ))}
       </View>
+      {onContinue && (
+        <View style={styles.continueWrap}>
+          <Button
+            title={t("actions.continue")}
+            onPress={onContinue}
+            variant="primary"
+            fullWidth
+            disabled={!selectedLanguage}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -62,5 +83,8 @@ const styles = StyleSheet.create({
   },
   options: {
     gap: 12,
+  },
+  continueWrap: {
+    marginTop: 20,
   },
 });

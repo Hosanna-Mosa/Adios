@@ -2,6 +2,7 @@ import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { useLanguageStore } from "@/contexts/languageStore";
 
 // Part 3 of useProfile, kept under the 150-line file limit. The parts run in
 // the order they were written, so React sees the same hook sequence.
@@ -29,8 +30,12 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
               return;
             }
             await logout();
+            // Keep the persisted language choice; only the in-memory
+            // "gate passed" flag resets, so Select Language reappears
+            // (pre-selected) before the next Login instead of being skipped.
+            useLanguageStore.getState().resetLanguageGate();
             setSigningOutAll(false);
-            router.replace("/login");
+            router.replace("/select-language");
           },
         },
       ]
@@ -41,7 +46,8 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
     try {
       setLoading(true);
       await logout();
-      router.replace("/login");
+      useLanguageStore.getState().resetLanguageGate();
+      router.replace("/select-language");
     } finally {
       setLoading(false);
     }

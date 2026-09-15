@@ -265,7 +265,7 @@ export default function RootLayout() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
-  const language = useLanguageStore((s) => s.language);
+  const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
   const segments = useSegments();
 
   useEffect(() => {
@@ -285,33 +285,40 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   // Once auth/language are initialized and fonts are ready, redirect based on
-  // language selection first, then the existing token-based auth gate.
+  // a restored session first, then the language gate, then the rest of the
+  // auth flow.
   useEffect(() => {
     if (!(fontsLoaded || fontError) || !isInitialized) return;
 
     const firstSegment = segments[0];
+    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
 
-    // Language gate — takes priority over the auth gate, so a user reads the
-    // login screen itself in their chosen language.
-    if (!language) {
+    // A restored session always wins — an authenticated user goes straight to
+    // the main app and never sees the language gate again this process.
+    if (token) {
+      if (isAuthScreen) {
+        router.replace("/(tabs)");
+      }
+      return;
+    }
+
+    // Unauthenticated: the language gate takes priority over the rest of the
+    // auth flow, so Login (and every other auth screen) is read in the
+    // user's chosen language. `languageConfirmed` is in-memory only — reset
+    // on every cold start and after sign-out — so a *persisted* language
+    // choice can pre-select an option on that screen without ever letting it
+    // be skipped outright.
+    if (!languageConfirmed) {
       if (firstSegment !== "select-language") {
         router.replace("/select-language");
       }
       return;
     }
 
-    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
-
-    if (!token && !isAuthScreen) {
+    if (!isAuthScreen) {
       router.replace("/login");
-      return;
     }
-
-    if (token && isAuthScreen) {
-      // Token exists → go straight to the main app
-      router.replace("/(tabs)");
-    }
-  }, [isInitialized, token, fontsLoaded, fontError, segments, language]);
+  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed]);
 
   // Register push notifications when authenticated, and listen for tokens & taps (Priority 3 & 4)
   useEffect(() => {

@@ -9,7 +9,8 @@
     "save": "सेव करें",
     "retry": "पुनः प्रयास करें",
     "loading": "लोड हो रहा है...",
-    "error": "त्रुटि"
+    "error": "त्रुटि",
+    "continue": "जारी रखें"
   },
   "app": {
     "schedulePill": {

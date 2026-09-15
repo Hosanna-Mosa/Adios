@@ -9,7 +9,8 @@
     "save": "Save",
     "retry": "Retry",
     "loading": "Loading...",
-    "error": "Error"
+    "error": "Error",
+    "continue": "Continue"
   },
   "app": {
     "schedulePill": {

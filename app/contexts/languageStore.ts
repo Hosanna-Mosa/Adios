@@ -7,10 +7,26 @@ const LANGUAGE_KEY = 'app_language';
 export type SupportedLanguage = 'en' | 'te' | 'hi';
 
 interface LanguageState {
-  /** null until hydrateLanguage() resolves and finds nothing stored — the
-   * first-launch routing gate checks specifically for this null case. */
+  /** null until hydrateLanguage() resolves and finds nothing stored — used to
+   * pre-select an option on the language-gate screen. */
   language: SupportedLanguage | null;
+  /**
+   * In-memory only — deliberately never written to AsyncStorage. True once
+   * the user has tapped Continue on the language-gate screen for the current
+   * app process. Always starts false on a fresh cold start (unlike
+   * `language`, which is persisted), and app/_layout.tsx's routing gate keys
+   * off this instead of `language` — so a previously-persisted language
+   * choice can pre-select an option without ever letting the gate screen
+   * itself be silently skipped. resetLanguageGate() flips it back to false on
+   * sign-out for the same reason.
+   */
+  languageConfirmed: boolean;
   setLanguage: (language: SupportedLanguage) => void;
+  /** Called by the language-gate screen's Continue button. */
+  confirmLanguage: () => void;
+  /** Called on sign-out so the language gate reappears before the next
+   * Login, while the persisted language choice itself is left untouched. */
+  resetLanguageGate: () => void;
   /** Called once on boot, before the splash screen hides — see
    * app/_layout.tsx's existing Promise.all([...]) hydration call, which this
    * mirrors exactly for theme (contexts/themeStore.ts). */
@@ -28,11 +44,14 @@ function isSupportedLanguage(value: string | null): value is SupportedLanguage {
 
 export const useLanguageStore = create<LanguageState>((set) => ({
   language: null,
+  languageConfirmed: false,
   setLanguage: (language) => {
     persist(language);
     i18n.changeLanguage(language);
     set({ language });
   },
+  confirmLanguage: () => set({ languageConfirmed: true }),
+  resetLanguageGate: () => set({ languageConfirmed: false }),
   hydrateLanguage: async () => {
     try {
       const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
