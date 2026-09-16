@@ -23,7 +23,7 @@ export default function LanguageSettingsScreen() {
 
   return (
     <ScreenShell style={{ justifyContent: "center" }}>
-      <SelectLanguageBody tokens={tokens} onSelect={handleSelect} />
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} />
     </ScreenShell>
   );
 }

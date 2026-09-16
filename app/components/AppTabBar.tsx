@@ -76,6 +76,7 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
   indicatorStyle, handleTabPress
   } = useAppTabBar(active, accent, cartVendorName);
   const TABS = useTabs();
+  const { t } = useTranslation();
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
@@ -151,7 +152,7 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
               )}
             </View>
             <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
-              Cart
+              {t("tabs.cart")}
             </Text>
           </TouchableOpacity>
         </View>

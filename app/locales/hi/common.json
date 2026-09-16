@@ -2,7 +2,8 @@
   "tabs": {
     "home": "होम",
     "orders": "ऑर्डर",
-    "account": "खाता"
+    "account": "खाता",
+    "cart": "कार्ट"
   },
   "actions": {
     "cancel": "रद्द करें",

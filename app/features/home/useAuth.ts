@@ -7,6 +7,7 @@ import { createStyles } from "./index.styles";
 import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { useIntroSplashStore } from "@/contexts/introSplashStore";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -56,6 +57,10 @@ export function useAuth() {
       })
     ]).start(() => {
       setShowSplash(false);
+      // Lets app/_layout.tsx's routing gate know the splash has fully played,
+      // so it can safely redirect (to select-language, login, or tabs)
+      // without cutting this animation short.
+      useIntroSplashStore.getState().setIntroSplashDone();
     });
   }, []);
   const [identifier, setIdentifier] = useState("");

@@ -2,7 +2,8 @@
   "tabs": {
     "home": "Home",
     "orders": "Orders",
-    "account": "Account"
+    "account": "Account",
+    "cart": "Cart"
   },
   "actions": {
     "cancel": "Cancel",

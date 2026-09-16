@@ -2,7 +2,8 @@
   "tabs": {
     "home": "హోమ్",
     "orders": "ఆర్డర్లు",
-    "account": "ఖాతా"
+    "account": "ఖాతా",
+    "cart": "కార్ట్"
   },
   "actions": {
     "cancel": "రద్దు చేయండి",

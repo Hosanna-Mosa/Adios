@@ -27,6 +27,7 @@ import { StatusBar } from "expo-status-bar";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAuthStore } from "@/contexts/authStore";
+import { useIntroSplashStore } from "@/contexts/introSplashStore";
 import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
 
@@ -266,6 +267,7 @@ export default function RootLayout() {
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
+  const introSplashDone = useIntroSplashStore((s) => s.introSplashDone);
   const segments = useSegments();
 
   useEffect(() => {
@@ -286,9 +288,11 @@ export default function RootLayout() {
 
   // Once auth/language are initialized and fonts are ready, redirect based on
   // a restored session first, then the language gate, then the rest of the
-  // auth flow.
+  // auth flow. Waits for the existing purple "FLAVOUR" splash inside
+  // app/index.tsx to finish first, so app/index.tsx is never replaced
+  // mid-animation — see contexts/introSplashStore.ts.
   useEffect(() => {
-    if (!(fontsLoaded || fontError) || !isInitialized) return;
+    if (!(fontsLoaded || fontError) || !isInitialized || !introSplashDone) return;
 
     const firstSegment = segments[0];
     const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
@@ -318,7 +322,7 @@ export default function RootLayout() {
     if (!isAuthScreen) {
       router.replace("/login");
     }
-  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed]);
+  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone]);
 
   // Register push notifications when authenticated, and listen for tokens & taps (Priority 3 & 4)
   useEffect(() => {

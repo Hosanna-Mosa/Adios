@@ -33,6 +33,7 @@ export default function SelectLanguageScreen() {
     <ScreenShell style={{ justifyContent: "center" }}>
       <SelectLanguageBody
         tokens={tokens}
+        theme={theme}
         onSelect={handleSelect}
         selectedLanguage={language}
         onContinue={handleContinue}
