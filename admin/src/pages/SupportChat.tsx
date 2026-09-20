@@ -27,6 +27,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { socketService } from "@/lib/socketService";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 interface Ticket {
   _id: string;
@@ -165,7 +168,7 @@ export default function SupportChat() {
               </h3>
             </div>
 
-            <div className="flex-1 overflow-auto p-3 space-y-2">
+            <StaggerList className="flex-1 overflow-auto p-3 space-y-2">
               {isLoading ? (
                 <div className="py-10 text-center text-muted-foreground font-medium flex flex-col items-center justify-center gap-2">
                   <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -183,7 +186,7 @@ export default function SupportChat() {
                   const lastMessage = ticket.messages[ticket.messages.length - 1];
 
                   return (
-                    <div
+                    <StaggerItem
                       key={ticket._id}
                       onClick={() => navigate(`/support/chats/${ticket._id}`)}
                       className={`rounded-2xl p-4 border transition-all cursor-pointer flex flex-col justify-between ${
@@ -222,17 +225,17 @@ export default function SupportChat() {
                           {ticket.time || "Recently"}
                         </span>
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })
               )}
-            </div>
+            </StaggerList>
           </div>
 
           {/* Right - Chat Window */}
           <div className="section-card flex flex-col h-full lg:col-span-2">
             {selectedTicket ? (
-              <>
+              <FadeIn key={selectedTicket._id} className="flex flex-col flex-1 min-h-0">
                 {/* Chat Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10 shrink-0">
                   <div className="flex items-center gap-3">
@@ -384,7 +387,7 @@ export default function SupportChat() {
                     </div>
                   </div>
                 </div>
-              </>
+              </FadeIn>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
                 <MessageSquare className="h-12 w-12 text-muted-foreground/40 animate-pulse" />

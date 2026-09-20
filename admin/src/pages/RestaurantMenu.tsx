@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { fadeIn } from "@/components/motion/variants";
 import { Store, Plus, Search, Edit, Trash2, Eye, Upload, Loader2, PlusCircle, Check, X, FileText, ShoppingBag, ArrowLeft, QrCode, Download } from "lucide-react";
 import QRCode from "react-qr-code";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +46,8 @@ export default function RestaurantMenu() {
   
   // Search & List state
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterDiet, setFilterDiet] = useState("all");
+  const [filterRating, setFilterRating] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
@@ -147,6 +152,16 @@ export default function RestaurantMenu() {
     fetchMenu(restaurant._id);
     setIsViewOpen(true);
   };
+
+  // Where a scanned menu QR should land. VITE_FRONTEND_URL was never listed in
+  // .env.example, so nobody had reason to set it and every printed QR fell back to
+  // a hardcoded http://localhost:5173 — unreachable for a customer at a table.
+  // The fallback is now the origin the admin is actually served from, so a
+  // deployed panel can never emit a localhost link; set VITE_FRONTEND_URL when
+  // the partner site lives on its own domain.
+  const menuBaseUrl = (
+    import.meta.env.VITE_FRONTEND_URL || window.location.origin
+  ).replace(/\/+$/, "");
 
   // QR Code Click
   const handleQrClick = (restaurant: Restaurant) => {
@@ -361,12 +376,30 @@ export default function RestaurantMenu() {
     setExtractedMenu([]);
   };
 
-  // Filtered list
-  const filteredRestaurants = restaurants.filter(
-    (r) =>
-      r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filtered list. Dietary and rating narrow the same list the search does, so the
+  // three compose rather than override one another.
+  const filteredRestaurants = restaurants.filter((r) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
+    const matchesDiet =
+      filterDiet === "all" ||
+      (filterDiet === "veg" && r.isPureVeg) ||
+      (filterDiet === "nonveg" && !r.isPureVeg);
+    const matchesRating =
+      filterRating === "all" || (Number(r.rating) || 0) >= Number(filterRating);
+    return matchesSearch && matchesDiet && matchesRating;
+  });
+
+  const hasActiveFilters =
+    searchQuery !== "" || filterDiet !== "all" || filterRating !== "all";
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFilterDiet("all");
+    setFilterRating("all");
+    setCurrentPage(1);
+  };
 
   const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE);
   const paginatedRestaurants = filteredRestaurants.slice(
@@ -549,7 +582,7 @@ export default function RestaurantMenu() {
                             <td className="px-4 py-2 text-center">
                               <div className="relative group w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                                 {item.images && item.images.length > 0 ? (
-                                  <img src={item.images[0]} alt="item" className="w-full h-full object-cover" />
+                                  <LazyImage src={item.images[0]} alt="item" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                                 ) : (
                                   <Upload className="h-4 w-4 text-slate-400" />
                                 )}
@@ -680,19 +713,61 @@ export default function RestaurantMenu() {
           </Dialog>
         </div>
 
-        {/* Search */}
-        <div className="bg-card border border-border p-4 rounded-3xl flex items-center gap-3 shadow-sm max-w-md">
-          <Search className="h-5 w-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search by restaurant name or address..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="bg-transparent border-none outline-none text-sm w-full"
-          />
+        {/* Filters */}
+        <div className="bg-card border border-border p-4 rounded-3xl shadow-sm space-y-3">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+              <input
+                id="restaurant-search"
+                type="text"
+                placeholder="Search by restaurant name or address..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="bg-transparent border-none outline-none text-sm w-full"
+              />
+            </div>
+
+            <select
+              id="restaurant-diet"
+              value={filterDiet}
+              onChange={(e) => { setFilterDiet(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
+            >
+              <option value="all">All Dietary</option>
+              <option value="veg">Pure Veg</option>
+              <option value="nonveg">Multi-Cuisine</option>
+            </select>
+
+            <select
+              id="restaurant-rating"
+              value={filterRating}
+              onChange={(e) => { setFilterRating(e.target.value); setCurrentPage(1); }}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
+            >
+              <option value="all">Any Rating</option>
+              <option value="4.5">4.5 &amp; above</option>
+              <option value="4">4.0 &amp; above</option>
+              <option value="3">3.0 &amp; above</option>
+            </select>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="h-9 px-3 rounded-md border border-border text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors w-full md:w-auto"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Showing {filteredRestaurants.length} of {restaurants.length} restaurants
+          </p>
         </div>
 
         {/* Restaurants Table */}
@@ -705,7 +780,11 @@ export default function RestaurantMenu() {
           <div className="text-center py-20 border border-dashed rounded-3xl space-y-3 bg-white">
             <Store className="h-12 w-12 text-muted-foreground mx-auto" />
             <p className="text-lg font-bold text-foreground">No Restaurants Found</p>
-            <p className="text-muted-foreground text-sm">Add your first restaurant to get started.</p>
+            <p className="text-muted-foreground text-sm">
+              {hasActiveFilters
+                ? "No restaurants match these filters."
+                : "Add your first restaurant to get started."}
+            </p>
           </div>
         ) : (
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
@@ -721,8 +800,17 @@ export default function RestaurantMenu() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
+                  <AnimatePresence mode="popLayout" initial={false}>
                   {paginatedRestaurants.map((res) => (
-                    <tr key={res._id} className="hover:bg-slate-50/60 transition-colors duration-200">
+                    <motion.tr
+                      key={res._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="hover:bg-slate-50/60 transition-colors duration-200"
+                    >
                       {/* Restaurant Profile */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
@@ -805,8 +893,9 @@ export default function RestaurantMenu() {
                           </Button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
+                  </AnimatePresence>
                 </tbody>
               </table>
             </div>
@@ -1005,7 +1094,7 @@ export default function RestaurantMenu() {
                             <td className="px-4 py-2 text-center">
                               <div className="relative group w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                                 {item.images && item.images.length > 0 ? (
-                                  <img src={item.images[0]} alt="item" className="w-full h-full object-cover" />
+                                  <LazyImage src={item.images[0]} alt="item" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                                 ) : (
                                   <Upload className="h-4 w-4 text-slate-400" />
                                 )}
@@ -1134,7 +1223,7 @@ export default function RestaurantMenu() {
               {selectedQrRestaurant && (
                 <QRCode
                   id="restaurant-qr-code"
-                  value={`${import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"}/restaurant-menu/${selectedQrRestaurant._id}`}
+                  value={`${menuBaseUrl}/restaurant-menu/${selectedQrRestaurant._id}`}
                   size={200}
                   level="H"
                   className="bg-white"

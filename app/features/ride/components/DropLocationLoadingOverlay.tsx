@@ -1,0 +1,23 @@
+import { ActivityIndicator, Text, View } from "react-native";
+
+// Moved out of app/drop-location.tsx. The JSX is unchanged; what it read from the screen's
+// scope is now a prop of the same name.
+
+interface Props {
+  accent: any;
+  styles: any;
+}
+
+export function DropLocationLoadingOverlay({
+  accent,
+  styles,
+}: Props) {
+  return (
+    <View style={styles.loadingOverlay}>
+      <View style={styles.loadingCard}>
+        <ActivityIndicator size="large" color={accent.accent} />
+        <Text style={styles.loadingText}>Fetching route & calculating fare...</Text>
+      </View>
+    </View>
+  );
+}

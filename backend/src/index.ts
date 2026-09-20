@@ -6,6 +6,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 import * as dotenv from "dotenv";
 dotenv.config();
+import { getJwtSecret } from "./utils/jwtSecret";
+// Fail fast on boot rather than letting auth silently fall back to a hardcoded secret.
+getJwtSecret();
 import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
@@ -30,13 +33,20 @@ import notificationsRoutes from "./modules/notifications/notifications.routes";
 import supportRoutes from "./modules/support/support.routes";
 import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
+import cartRoutes from "./modules/cart/cart.routes";
+import couponsRoutes from "./modules/coupons/coupons.routes";
+import { getRestaurantShareLanding } from "./modules/vendors/share-landing.controller";
 
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// ALLOWED_ORIGINS: comma-separated list of allowed web origins (admin dashboard, partner
+// site). Mobile apps (app/driver) call the API directly and aren't affected by CORS. Left
+// unset, CORS stays fully open (current behavior) — set it in production to lock this down.
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean);
+app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
@@ -97,6 +107,11 @@ connectDB().then(async () => {
     ]);
   });
 
+  // Where a shared "check out this dish" link lands — the same path the app
+  // registers as an App/Universal Link, so it resolves whether or not the app is
+  // installed. See share-landing.controller.ts.
+  app.get("/restaurant-menu/:id", getRestaurantShareLanding);
+
   // API Routes
   // API Routes v1
   app.use("/api/v1/auth", authRoutes);
@@ -116,6 +131,8 @@ connectDB().then(async () => {
   app.use("/api/v1/support", supportRoutes);
   app.use("/api/v1/reviews", reviewRoutes);
   app.use("/api/v1/banners", bannersRoutes);
+  app.use("/api/v1/cart", cartRoutes);
+  app.use("/api/v1/coupons", couponsRoutes);
 
   // Global Error Handler Middleware
   app.use(globalErrorHandler);

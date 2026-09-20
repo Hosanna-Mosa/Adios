@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Lock, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 export default function VendorSettings() {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export default function VendorSettings() {
           </p>
         </div>
 
-        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+        <FadeIn className="bg-card border border-border rounded-3xl p-8 shadow-sm">
           <div className="flex items-center gap-4 mb-8">
             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center">
               <ShieldCheck className="h-7 w-7 text-primary" />
@@ -184,7 +185,7 @@ export default function VendorSettings() {
               )}
             </Button>
           </form>
-        </div>
+        </FadeIn>
 
         <div className="bg-muted/30 p-6 rounded-2xl">
           <p className="text-sm text-muted-foreground">

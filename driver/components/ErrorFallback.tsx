@@ -105,6 +105,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
 
       {__DEV__ ? (
         <Modal
+          statusBarTranslucent
           visible={isModalVisible}
           animationType="slide"
           transparent={true}

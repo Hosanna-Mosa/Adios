@@ -9,14 +9,14 @@ const driverService = new DriverService();
 export class DriversController {
   async updateStatus(req: AuthRequest, res: Response) {
     try {
-      const { status } = req.body;
+      const { status, activeServices } = req.body;
       const { userId } = req.user!;
-      
+
       const driver = await Driver.findOne({ user: userId });
 
       if (!driver) return res.status(404).json({ message: "Driver profile not found" });
 
-      await driverService.updateStatus((driver._id as any).toString(), status);
+      await driverService.updateStatus((driver._id as any).toString(), status, activeServices);
       return res.json({ message: "Status updated", status });
     } catch (error) {
        return res.status(500).json({ message: "Internal server error" });
@@ -57,7 +57,10 @@ export class DriversController {
   async nearby(req: AuthRequest, res: Response) {
     try {
       const { latitude, longitude, radius, vehicleType, onlineOnly } = req.query;
-      const isOnlineOnly = onlineOnly === "true";
+      // Default to online-only: this endpoint feeds the customer map and the
+      // "captains near you" count, so offline drivers must not be listed unless
+      // a caller explicitly opts in with onlineOnly=false.
+      const isOnlineOnly = onlineOnly !== "false";
       const drivers = await driverService.getNearbyDrivers(
         Number(latitude), 
         Number(longitude), 

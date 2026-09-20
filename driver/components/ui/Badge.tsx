@@ -1,0 +1,83 @@
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { moderateScale } from "react-native-size-matters";
+import { Colors, radius } from "@/constants/colors";
+import { fontFamilies } from "@/constants/typography";
+
+interface BadgeProps {
+  label: string;
+  tone?: "brand" | "success" | "warning" | "error" | "neutral";
+}
+
+const toneStyles = {
+  brand: { bg: `${Colors.brand}1F`, fg: Colors.brand },
+  success: { bg: Colors.successLight, fg: Colors.success },
+  warning: { bg: Colors.warningLight, fg: Colors.warning },
+  error: { bg: Colors.errorLight, fg: Colors.error },
+  neutral: { bg: Colors.surfaceContainer, fg: Colors.textSecondary },
+};
+
+/** Mirrors app/components/ui/Badge.tsx. */
+export function Badge({ label, tone = "neutral" }: BadgeProps) {
+  const toneStyle = toneStyles[tone];
+  return (
+    <View style={[styles.badgeBase, { backgroundColor: toneStyle.bg }]}>
+      <Text style={[styles.badgeLabel, { color: toneStyle.fg }]}>{label}</Text>
+    </View>
+  );
+}
+
+interface ChipProps {
+  label: string;
+  selected?: boolean;
+  onPress?: () => void;
+  icon?: React.ReactNode;
+}
+
+/** Mirrors app/components/ui/Badge.tsx (Chip). */
+export function Chip({ label, selected = false, onPress, icon }: ChipProps) {
+  return (
+    <Pressable onPress={onPress} style={[styles.chipBase, selected && styles.chipSelected]}>
+      {icon}
+      <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  badgeBase: {
+    alignSelf: "flex-start",
+    borderRadius: radius.sm,
+    paddingHorizontal: moderateScale(8),
+    paddingVertical: moderateScale(4),
+  },
+  badgeLabel: {
+    fontFamily: fontFamilies.body.bold,
+    fontSize: moderateScale(11),
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  chipBase: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: radius.pill,
+    paddingHorizontal: moderateScale(14),
+    height: moderateScale(36),
+  },
+  chipSelected: {
+    backgroundColor: Colors.brand,
+    borderColor: Colors.brand,
+  },
+  chipLabel: {
+    fontFamily: fontFamilies.body.semibold,
+    fontSize: moderateScale(13),
+    color: Colors.text,
+  },
+  chipLabelSelected: {
+    color: Colors.onBrand,
+  },
+});

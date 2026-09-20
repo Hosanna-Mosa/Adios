@@ -3,8 +3,51 @@ import User from "../../database/models/User";
 import Order from "../../database/models/Order";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
+import FoodItem from "../../database/models/FoodItem";
+import MeatItem from "../../database/models/MeatItem";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import cloudinary from "../../utils/cloudinary";
+
+/** Trims, collapses runs of whitespace and lowercases, so "MG  Road " == "mg road". */
+const normalizeAddressText = (value: unknown) =>
+  String(value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+
+/** Two saved pins within ~30 m of each other are the same doorstep in practice. */
+const SAME_PIN_METRES = 30;
+
+const metresBetween = (a: [number, number], b: [number, number]) => {
+  const EARTH_RADIUS_M = 6371000;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const [lngA, latA] = a;
+  const [lngB, latB] = b;
+  const dLat = toRad(latB - latA);
+  const dLng = toRad(lngB - lngA);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(latA)) * Math.cos(toRad(latB)) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)));
+};
+
+/**
+ * Same address = same label plus either the same written address or the same
+ * map pin. The label is part of it deliberately: "Home" and "Work" can legitimately
+ * be the same building, and the customer chose to keep both.
+ */
+const isSameAddress = (existing: any, incoming: any) => {
+  if (normalizeAddressText(existing?.label) !== normalizeAddressText(incoming?.label)) return false;
+
+  const existingLine = normalizeAddressText(existing?.addressLine);
+  const incomingLine = normalizeAddressText(incoming?.addressLine);
+  if (existingLine && existingLine === incomingLine) return true;
+
+  const existingPin = existing?.location?.coordinates;
+  const incomingPin = incoming?.location?.coordinates;
+  const isPin = (c: any): c is [number, number] =>
+    Array.isArray(c) && c.length === 2 && Number.isFinite(c[0]) && Number.isFinite(c[1]) && (c[0] !== 0 || c[1] !== 0);
+  if (!isPin(existingPin) || !isPin(incomingPin)) return false;
+
+  return metresBetween(existingPin, incomingPin) <= SAME_PIN_METRES;
+};
 
 export class UsersController {
   async getProfile(req: AuthRequest, res: Response) {
@@ -69,24 +112,55 @@ export class UsersController {
     }
   }
 
+  async deleteProfilePic(req: AuthRequest, res: Response) {
+    try {
+      const user = await User.findById(req.user?.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      // The Cloudinary asset is left in place deliberately: the same URL can
+      // still be referenced by an already-delivered order or a cached screen.
+      user.profilePic = undefined as any;
+      await user.save();
+
+      return res.json({ profilePic: null, user });
+    } catch (error: any) {
+      console.error("Delete profile pic error:", error);
+      return res.status(500).json({ message: error.message || "Failed to remove image" });
+    }
+  }
+
   async addAddress(req: AuthRequest, res: Response) {
     try {
-      const { label, addressLine, phone, coordinates } = req.body;
+      const { label, addressLine, phone, receiverName, receiverPhone, landmark, coordinates } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
       const lng = coordinates?.lng ?? 0;
       const lat = coordinates?.lat ?? 0;
+      const trimmedReceiverPhone = String(receiverPhone || "").trim();
 
       const newAddress = {
         label,
         addressLine,
-        phone: phone || user.phone,
+        phone: phone || trimmedReceiverPhone || user.phone,
+        receiverName,
+        receiverPhone: trimmedReceiverPhone || undefined,
+        landmark,
         location: {
           type: "Point",
           coordinates: [lng, lat],
         },
       };
+
+      // Saving the same place twice produced a second entry every time — the app
+      // has several ways in (search result, map pin, "use current location", the
+      // location sheet), and none of them checked. An existing match is replaced
+      // in place and re-appended, so the list stays free of duplicates and the
+      // caller can still read the address it just saved off the end.
+      const duplicate = user.addresses.findIndex((existing: any) =>
+        isSameAddress(existing, newAddress)
+      );
+      if (duplicate !== -1) user.addresses.splice(duplicate, 1);
 
       user.addresses.push(newAddress as any);
       await user.save();
@@ -99,7 +173,7 @@ export class UsersController {
   async updateAddress(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { label, addressLine, phone, coordinates } = req.body;
+      const { label, addressLine, phone, receiverName, receiverPhone, landmark, coordinates } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -109,6 +183,11 @@ export class UsersController {
       if (label) address.label = label;
       if (addressLine) address.addressLine = addressLine;
       if (phone) address.phone = phone;
+      // Explicit undefined checks rather than the truthy style above, so an
+      // empty string can clear a receiver detail that was set before.
+      if (receiverName !== undefined) address.receiverName = receiverName;
+      if (receiverPhone !== undefined) address.receiverPhone = receiverPhone;
+      if (landmark !== undefined) address.landmark = landmark;
       if (coordinates) {
         address.location = {
           type: "Point",
@@ -147,8 +226,8 @@ export class UsersController {
         return res.status(400).json({ message: "Current password and new password are required" });
       }
 
-      if (newPassword.length < 6) {
-        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters" });
       }
 
       const user = await User.findById(req.user?.userId);
@@ -323,6 +402,81 @@ export class UsersController {
       return res.json({ isFavorite, favorites: user.favorites });
     } catch (error) {
       console.error("Toggle favorite error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  // Dish-level favorites mirror getFavorites/toggleFavorite above: item IDs
+  // can belong to either FoodItem or MeatItem, so we resolve against both
+  // collections at read time rather than tracking which type each ID is.
+  async getFavoriteItems(req: AuthRequest, res: Response) {
+    try {
+      const user = await User.findById(req.user?.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const favoriteItemIds = user.favoriteItems || [];
+      const [foodItems, meatItems] = await Promise.all([
+        FoodItem.find({ _id: { $in: favoriteItemIds } }).lean(),
+        MeatItem.find({ _id: { $in: favoriteItemIds } }).lean(),
+      ]);
+
+      const combined = [
+        ...foodItems.map((item: any) => ({
+          _id: item._id,
+          name: item.name,
+          description: item.description,
+          price: item.price,
+          image: item.images?.[0],
+          category: item.category,
+          isVeg: item.isVeg,
+          vendorId: item.vendorId,
+          isMeat: false,
+        })),
+        ...meatItems.map((item: any) => ({
+          _id: item._id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          category: item.category,
+          vendorId: item.meatCenterId,
+          isMeat: true,
+        })),
+      ];
+
+      const ordered = favoriteItemIds
+        .map((id) => combined.find((item) => item._id.toString() === id.toString()))
+        .filter(Boolean);
+
+      return res.json(ordered);
+    } catch (error) {
+      console.error("Get favorite items error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async toggleFavoriteItem(req: AuthRequest, res: Response) {
+    try {
+      const { itemId } = req.params;
+      const user = await User.findById(req.user?.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      if (!user.favoriteItems) {
+        user.favoriteItems = [];
+      }
+
+      const index = user.favoriteItems.indexOf(itemId as any);
+      let isFavorite = false;
+      if (index === -1) {
+        user.favoriteItems.push(itemId as any);
+        isFavorite = true;
+      } else {
+        user.favoriteItems.splice(index, 1);
+      }
+
+      await user.save();
+      return res.json({ isFavorite, favoriteItems: user.favoriteItems });
+    } catch (error) {
+      console.error("Toggle favorite item error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   }

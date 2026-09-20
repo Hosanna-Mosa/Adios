@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Image, ImageSourcePropType } 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
+import { typography } from "@/constants/typography";
 
 interface Props {
   icon?: string;
@@ -89,7 +90,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     height: 32,
   },
   label: {
-    fontSize: 11,
+    fontSize: typography.sizes.small,
     fontWeight: "700",
     textAlign: "center",
     marginTop: 8,

@@ -6,6 +6,7 @@ export interface IScheduledDeliveryRequest extends Omit<Document, "_id"> {
   requestId: string;
   customer: mongoose.Types.ObjectId;
   vendor: mongoose.Types.ObjectId;
+  order?: string;
   customerName: string;
   customerPhone: string;
   scheduledFor: Date;
@@ -20,6 +21,8 @@ const ScheduledDeliveryRequestSchema = new Schema(
     requestId: { type: String, required: true, unique: true },
     customer: { type: Schema.Types.ObjectId, ref: "User", required: true },
     vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true },
+    // Order._id is a custom String id (e.g. F0609261234567), so this ref must be a String.
+    order: { type: String, ref: "Order" },
     customerName: { type: String, default: "Customer" },
     customerPhone: { type: String, default: "" },
     scheduledFor: { type: Date, required: true },
@@ -35,6 +38,7 @@ const ScheduledDeliveryRequestSchema = new Schema(
 
 ScheduledDeliveryRequestSchema.index({ vendor: 1, status: 1, scheduledFor: 1 });
 ScheduledDeliveryRequestSchema.index({ customer: 1, requestId: 1 });
+ScheduledDeliveryRequestSchema.index({ order: 1 });
 
 export default mongoose.model<IScheduledDeliveryRequest>(
   "ScheduledDeliveryRequest",

@@ -1,0 +1,105 @@
+import { Text, TouchableOpacity, View } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+
+// Section of BookAgainOverlay, split out to keep every file under 150 lines.
+// The JSX is unchanged and the props keep the parent's types.
+
+interface Props {
+  colors: any;
+  dropTitle: any;
+  fare: any;
+  params: any;
+  pickupTitle: any;
+  setTripDetailsVisible: React.Dispatch<React.SetStateAction<any>>;
+  showCancelReasons: any;
+  styles: any;
+}
+
+export function BookAgainOverlayBike({
+  colors,
+  dropTitle,
+  fare,
+  params,
+  pickupTitle,
+  setTripDetailsVisible,
+  showCancelReasons,
+  styles,
+}: Props) {
+  return (
+    <>
+    <TouchableOpacity
+      style={styles.bookAgainBackFloating}
+      onPress={() => setTripDetailsVisible(false)}
+    >
+      <Ionicons name="arrow-back" size={24} color={colors.text} />
+    </TouchableOpacity>
+
+    <View style={styles.bookAgainSheet}>
+      <Text style={styles.bookAgainTitle}>Searching for below services...</Text>
+
+      <View style={styles.serviceSummaryCard}>
+        <View style={styles.serviceLeft}>
+          <View style={styles.serviceBikeBadge}>
+            <MaterialCommunityIcons name="motorbike" size={30} color={colors.text} />
+          </View>
+          <Text style={styles.serviceName}>Bike</Text>
+        </View>
+        <Text style={styles.serviceFare}>₹{fare}</Text>
+      </View>
+
+      <View style={styles.bookDashedLine} />
+
+      <Text style={styles.locationTitle}>Location Details</Text>
+      <View style={styles.locationRows}>
+        <View style={styles.locationRail}>
+          <View style={styles.pickupSmallDot} />
+          <View style={styles.locationDashes} />
+          <View style={styles.dropSmallDot} />
+        </View>
+        <View style={styles.locationTextColumn}>
+          <View style={styles.locationRow}>
+            <Text style={styles.locationName} numberOfLines={1}>
+              {pickupTitle}
+            </Text>
+            <Text style={styles.locationAddress} numberOfLines={2}>
+              {params.pickupName}
+            </Text>
+          </View>
+          <View style={styles.locationRow}>
+            <Text style={styles.locationName} numberOfLines={1}>
+              {dropTitle}
+            </Text>
+            <Text style={styles.locationAddress} numberOfLines={2}>
+              {params.dropName}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.totalFareRow}>
+        <Text style={styles.totalFareLabel}>Total Fare</Text>
+        <Text style={styles.totalFareValue}>₹{fare}</Text>
+      </View>
+
+      <View style={styles.paymentRow}>
+        <Ionicons name="cash-outline" size={20} color={colors.textSecondary} />
+        <Text style={styles.paymentText}>Paying via cash</Text>
+      </View>
+
+      <TouchableOpacity
+        style={styles.backYellowButton}
+        onPress={() => setTripDetailsVisible(false)}
+      >
+        <Text style={styles.backYellowText}>Back</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.cancelRideButton}
+        onPress={showCancelReasons}
+      >
+        <Text style={styles.cancelRideText}>Cancel Ride</Text>
+      </TouchableOpacity>
+    </View>
+    </>
+  );
+}

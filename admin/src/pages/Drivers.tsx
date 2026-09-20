@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { 
-  Truck, Users as UsersIcon, Star, DollarSign, SlidersHorizontal, UserPlus, 
-  Eye, Trash2, Ban, Phone, MessageSquare, MapPin, MoreVertical, 
-  ChevronLeft, ChevronRight, Navigation, Compass, Calendar, ArrowUpRight, ExternalLink,
-  ShoppingBag, CheckCircle2, XCircle, Wallet, Plus, Search
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { Pagination } from "@/components/shared/Pagination";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { fadeIn } from "@/components/motion/variants";
+import {
+  Truck, Users as UsersIcon, Star, DollarSign, SlidersHorizontal,
+  Eye, Trash2, Ban, MessageSquare, MapPin, MoreVertical,
+  Navigation, Compass, Calendar, ArrowUpRight, ExternalLink,
+  Plus, Search
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
@@ -20,12 +26,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { DownloadReportDialog } from "@/components/shared/DownloadReportDialog";
 
 // Sparkline SVGs for Stat Cards
 const GreenSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
@@ -38,7 +43,7 @@ const GreenSparkline = () => (
 );
 
 const OrangeSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
@@ -51,7 +56,7 @@ const OrangeSparkline = () => (
 );
 
 const BlueSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
@@ -64,7 +69,7 @@ const BlueSparkline = () => (
 );
 
 const PurpleSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#a855f7" stopOpacity="0.2" />
@@ -120,7 +125,6 @@ export default function Drivers() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [viewingDriver, setViewingDriver] = useState<any | null>(null);
-  const [mapCenter, setMapCenter] = useState({ lat: 17.0005, lng: 81.8040 });
 
   // Tab State
   const [activeTab, setActiveTab] = useState<"fleet" | "zones">("fleet");
@@ -184,11 +188,6 @@ export default function Drivers() {
       setChatMessages([]);
     }
   }, [selectedOrderForChat?._id]);
-
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
 
   const [newDriver, setNewDriver] = useState({
     name: "",
@@ -371,10 +370,9 @@ export default function Drivers() {
     const lng = driver.currentLocation?.coordinates?.[0];
     const lat = driver.currentLocation?.coordinates?.[1];
     if (lat && lng) {
-      setMapCenter({ lat, lng });
-      toast.success(`Centered map on ${driver.user?.name}`);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank", "noopener,noreferrer");
     } else {
-      toast.error("No active coordinates for this driver");
+      toast.error("No location has been reported for this driver yet");
     }
   };
 
@@ -390,24 +388,23 @@ export default function Drivers() {
   };
 
   // Location helpers matching mock image
+  // Reports the driver's actual last-known position. This used to match on the
+  // driver's *name* and invent a town for it ("sunand" → Tadepalligudem, Near
+  // Railway Station), so the Current Location column showed confident, entirely
+  // fictional places for anyone whose name happened to match.
   const getLocationDetails = (driver: any) => {
-    const name = driver.user?.name?.toLowerCase() || "";
-    if (name.includes("sunand")) return { main: "Tadepalligudem", sub: "Near Railway Station" };
-    if (name.includes("mahi")) return { main: "Tadepalligudem", sub: "Main Market Area" };
-    if (name.includes("dow") || name.includes("test")) return { main: "Tadepalligudem", sub: "Bus Stand Area" };
-    if (name.includes("ram")) return { main: "Kakinada", sub: "Near RTC Complex" };
-    if (name.includes("venkatesh")) return { main: "Last seen", sub: "2 hours ago" };
-    
     const coords = driver.currentLocation?.coordinates;
     if (coords && coords[1] && coords[0]) {
-      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: "Active Coordinates" };
+      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: "Last reported position" };
     }
-    return { main: "Unknown", sub: "Offline Location" };
+    return { main: "Unknown", sub: "No location reported" };
   };
 
   const getVehicleString = (driver: any) => {
     const capType = driver.vehicleType ? driver.vehicleType.charAt(0).toUpperCase() + driver.vehicleType.slice(1) : "Bike";
-    const num = driver.vehicleNumber || `AP39XX${1000 + Math.floor(Math.random() * 8999)}`;
+    // A missing registration is shown as missing, rather than a random plate that
+    // changed on every re-render.
+    const num = driver.vehicleNumber || "No vehicle number";
     return `${num} • ${capType}`;
   };
 
@@ -415,6 +412,30 @@ export default function Drivers() {
     queryKey: ["admin", "orders"],
     queryFn: () => adminFetch<any[]>("/admin/orders"),
   });
+
+  const DRIVER_SHARE = 0.8;
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+
+  const completedThisMonth = orders.filter((o: any) => {
+    if (!o.createdAt) return false;
+    if (!["DELIVERED", "COMPLETED", "delivered", "completed"].includes(o.status)) return false;
+    return new Date(o.createdAt) >= monthStart;
+  });
+
+  const mtdByDriver = completedThisMonth.reduce((acc: Record<string, { total: number; trips: number }>, o: any) => {
+    const driverId = typeof o.driver === "string" ? o.driver : o.driver?._id;
+    if (!driverId) return acc;
+    const entry = acc[driverId] || { total: 0, trips: 0 };
+    entry.total += (o.totalPrice || 0) * DRIVER_SHARE;
+    entry.trips += 1;
+    acc[driverId] = entry;
+    return acc;
+  }, {});
+
+  const getDriverMtdEarnings = (driverId: string) => mtdByDriver[driverId]?.total || 0;
+  const getDriverMtdTrips = (driverId: string) => mtdByDriver[driverId]?.trips || 0;
 
   const ordersToday = orders.filter((o: any) => {
     if (!o.createdAt) return false;
@@ -425,16 +446,24 @@ export default function Drivers() {
            d.getFullYear() === today.getFullYear();
   });
 
-  const totalOrdersCount = ordersToday.length > 0 ? ordersToday.length : 24;
-  const completedCount = ordersToday.filter((o: any) => ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(o.status)).length || 18;
-  const cancelledCount = ordersToday.filter((o: any) => ["CANCELLED", "cancelled", "rejected", "failed"].includes(o.status)).length || 3;
+  const totalOrdersCount = ordersToday.length;
+  const completedCount = ordersToday.filter((o: any) => ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(o.status)).length;
+  const cancelledCount = ordersToday.filter((o: any) => ["CANCELLED", "cancelled", "rejected", "failed"].includes(o.status)).length;
   const totalEarningsSum = ordersToday.reduce((sum: number, o: any) => sum + (o.totalPrice || o.deliveryFee || 0), 0);
   const totalEarningsToday = totalEarningsSum > 0 ? `₹${totalEarningsSum.toFixed(2)}` : "₹0.00";
 
   const activeOrdersCount = orders.filter((o: any) => ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "searching_driver", "driver_assigned"].includes(o.status)).length;
-  const liveOrdersDisplay = activeOrdersCount > 0 ? activeOrdersCount : 24;
+  const liveOrdersDisplay = activeOrdersCount;
+
+  // Real fleet average rating across drivers that actually carry one, and today's
+  // real driver payout total — both were hardcoded ("4.8", "+0.2 this week").
+  const ratedDrivers = drivers.filter((d: any) => typeof d.rating === "number" && d.rating > 0);
+  const averageRating = ratedDrivers.length > 0
+    ? (ratedDrivers.reduce((sum: number, d: any) => sum + d.rating, 0) / ratedDrivers.length).toFixed(1)
+    : null;
 
   const onlineDrivers = drivers.filter((d: any) => d.status === "ONLINE").length;
+  const fleetHealth = drivers.length > 0 ? Math.round((onlineDrivers / drivers.length) * 100) : 0;
 
   const searchedDrivers = drivers.filter((d: any) => {
     const query = searchQuery.toLowerCase().trim();
@@ -454,32 +483,46 @@ export default function Drivers() {
     return true;
   });
 
+  // item 20: per-zone metrics assembled from the zones, drivers and orders this
+  // page already has, so the table reflects live data rather than static copy.
+  const zoneMetrics = zonesList.map((z: any) => {
+    const zoneDrivers = drivers.filter((d: any) => (d.preferredZone?._id || d.preferredZone) === z._id);
+    const zoneDriverIds = new Set(zoneDrivers.map((d: any) => d._id));
+    const zoneOrders = orders.filter((o: any) => {
+      const driverId = typeof o.driver === "string" ? o.driver : o.driver?._id;
+      return driverId && zoneDriverIds.has(driverId);
+    });
+    const completed = zoneOrders.filter((o: any) => ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(o.status));
+    return {
+      id: z._id,
+      name: z.name,
+      type: z.type,
+      isActive: z.isActive,
+      multiplier: z.pricingMultiplier ?? 1,
+      driverCount: zoneDrivers.length,
+      onlineDrivers: zoneDrivers.filter((d: any) => d.status === "ONLINE").length,
+      orderCount: zoneOrders.length,
+      completedCount: completed.length,
+      cancelledCount: zoneOrders.filter((o: any) => ["CANCELLED", "cancelled", "rejected", "failed"].includes(o.status)).length,
+      revenue: completed.reduce((sum: number, o: any) => sum + (o.totalPrice || 0), 0),
+    };
+  });
+
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredDrivers.length / itemsPerPage) || 1;
   const safePage = Math.min(currentPage, totalPages);
   const paginatedDrivers = filteredDrivers.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
-
-  const driverMarkers = searchedDrivers.map((d: any) => {
-    const lng = d.currentLocation?.coordinates?.[0] || 81.8040;
-    const lat = d.currentLocation?.coordinates?.[1] || 17.0005;
-    return {
-      lat: Number(lat),
-      lng: Number(lng),
-      name: d.user?.name || "Driver",
-      vehicle: d.vehicleNumber || "VAN",
-      status: d.status
-    };
-  }).filter((m: any) => !isNaN(m.lat) && !isNaN(m.lng));
 
   return (
     <DashboardLayout searchPlaceholder="Search drivers, vehicle IDs, or regions...">
       <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
         
         {/* PREMIUM HEADER ROW STAT CARDS (5 cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          
+        {activeTab === "fleet" && (
+        <StaggerList className="grid grid-cols-1 md:grid-cols-5 gap-4">
+
           {/* Card 1: Total Registered */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -489,16 +532,16 @@ export default function Drivers() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-foreground">{drivers.length}</p>
-                <p className="text-[11px] font-semibold text-emerald-500 mt-1">+2 this week</p>
+                <p className="text-[11px] font-semibold text-emerald-500 mt-1">{onlineDrivers} on duty now</p>
               </div>
             </div>
             <div className="self-end pb-1">
               <GreenSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 2: On-Duty Drivers */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -516,10 +559,10 @@ export default function Drivers() {
             <div className="self-end pb-1">
               <GreenSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 3: Average Rating */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
@@ -528,17 +571,19 @@ export default function Drivers() {
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Average Rating</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-foreground">4.8</p>
-                <p className="text-[11px] font-semibold text-amber-500 mt-1">+0.2 this week</p>
+                <p className="text-3xl font-bold text-foreground">{averageRating ?? "—"}</p>
+                <p className="text-[11px] font-semibold text-amber-500 mt-1">
+                  {ratedDrivers.length > 0 ? `across ${ratedDrivers.length} rated drivers` : "No ratings yet"}
+                </p>
               </div>
             </div>
             <div className="self-end pb-1">
               <OrangeSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 4: Today's Earnings */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
@@ -548,16 +593,16 @@ export default function Drivers() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-foreground">{totalEarningsToday}</p>
-                <p className="text-[11px] font-semibold text-muted-foreground mt-1">Target: ₹0</p>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-1">{ordersToday.length} orders today</p>
               </div>
             </div>
             <div className="self-end pb-1">
               <BlueSparkline />
             </div>
-          </div>
+          </StaggerItem>
 
           {/* Card 5: Fleet Health */}
-          <div className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
+          <StaggerItem className="bg-card rounded-2xl border border-border p-5 flex items-center justify-between shadow-sm">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
@@ -566,16 +611,17 @@ export default function Drivers() {
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Fleet Health</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-foreground">98%</p>
-                <p className="text-[11px] font-semibold text-emerald-500 mt-1">Healthy</p>
+                <p className="text-3xl font-bold text-foreground">{fleetHealth}%</p>
+                <p className="text-[11px] font-semibold text-emerald-500 mt-1">{onlineDrivers} of {drivers.length} on duty</p>
               </div>
             </div>
             <div className="self-center">
-              <FleetHealthCircularProgress percentage={98} />
+              <FleetHealthCircularProgress percentage={fleetHealth} />
             </div>
-          </div>
+          </StaggerItem>
 
-        </div>
+        </StaggerList>
+        )}
 
         {/* Tab Selection */}
         <div className="flex border-b border-border mb-4 gap-2">
@@ -633,12 +679,6 @@ export default function Drivers() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <button 
-                  onClick={() => setIsAddOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-                >
-                  <UserPlus className="h-4 w-4" /> Onboard New Driver
-                </button>
               </div>
             </div>
 
@@ -664,19 +704,29 @@ export default function Drivers() {
                       <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground text-sm">No drivers found matching the filter.</td>
                     </tr>
                   ) : (
-                    paginatedDrivers.map((d: any) => {
+                    <AnimatePresence mode="popLayout" initial={false}>
+                    {paginatedDrivers.map((d: any) => {
                       const loc = getLocationDetails(d);
                       const isOnline = d.status?.toUpperCase() === "ONLINE";
                       return (
-                        <tr key={d._id} className="hover:bg-muted/10 transition-colors">
+                        <motion.tr
+                          key={d._id}
+                          layout
+                          variants={fadeIn}
+                          initial="hidden"
+                          animate="visible"
+                          exit={{ opacity: 0 }}
+                          className="hover:bg-muted/10 transition-colors"
+                        >
                           {/* Driver Details */}
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="relative shrink-0">
-                                <img 
-                                  src={getAvatarUrl(d.user?.name || "")} 
-                                  alt={d.user?.name} 
+                                <LazyImage
+                                  src={getAvatarUrl(d.user?.name || "")}
+                                  alt={d.user?.name}
                                   className="h-10 w-10 rounded-full object-cover border border-border"
+                                  wrapperClassName="h-10 w-10 rounded-full shrink-0"
                                 />
                                 <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border border-card ${
                                   d.status?.toUpperCase() === "ONLINE" ? "bg-emerald-500" : d.status?.toUpperCase() === "BUSY" ? "bg-amber-500" : "bg-zinc-400"
@@ -741,17 +791,25 @@ export default function Drivers() {
                           {/* Earnings */}
                           <td className="px-6 py-4">
                             <div>
-                              <p className="text-sm font-bold text-foreground">₹0.00</p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">Target: ₹0</p>
+                              <p className="text-sm font-bold text-foreground">₹{getDriverMtdEarnings(d._id).toFixed(2)}</p>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">{getDriverMtdTrips(d._id)} trips this month</p>
                             </div>
                           </td>
 
-                          {/* Rating */}
+                          {/* Rating — same "no data yet" convention as the Average
+                              Rating card above (ratedDrivers), not a fake number:
+                              this used to read `d.rating || "4.8"`, so every driver
+                              with a genuine 0/undefined rating (no reviews yet)
+                              displayed 4.8 stars instead of none. */}
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-bold text-foreground">{d.rating || "4.8"}</span>
-                              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            </div>
+                            {typeof d.rating === "number" && d.rating > 0 ? (
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm font-bold text-foreground">{d.rating.toFixed(1)}</span>
+                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                              </div>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">No ratings yet</span>
+                            )}
                           </td>
 
                           {/* Actions */}
@@ -760,9 +818,6 @@ export default function Drivers() {
                             <div className="flex items-center gap-2">
                               <button onClick={() => handleViewClick(d)} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="View Dossier">
                                 <Eye className="h-4 w-4" />
-                              </button>
-                              <button onClick={() => toast.success(`Calling ${d.user?.name}...`)} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Call">
-                                <Phone className="h-4 w-4" />
                               </button>
                               <button onClick={() => handleOpenChatModal(d)} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="View Order Chats">
                                 <MessageSquare className="h-4 w-4" />
@@ -791,112 +846,27 @@ export default function Drivers() {
                               </DropdownMenu>
                             </div>
                           </td>
-                        </tr>
+                        </motion.tr>
                       );
-                    })
+                    })}
+                    </AnimatePresence>
                   )}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between px-6 py-4 border-t border-border mt-auto">
-              <p className="text-xs text-muted-foreground">Showing {paginatedDrivers.length} to {filteredDrivers.length} of {filteredDrivers.length} drivers</p>
-              <div className="flex items-center gap-1.5">
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                  disabled={currentPage === 1}
-                  className="p-1.5 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 disabled:opacity-40 transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                {Array.from({ length: totalPages }, (_, idx) => (
-                  <button 
-                    key={idx + 1} 
-                    onClick={() => setCurrentPage(idx + 1)} 
-                    className={`h-8 w-8 rounded-xl text-xs font-semibold transition-all ${
-                      currentPage === idx + 1 
-                        ? "bg-emerald-600 text-white" 
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
-                  disabled={currentPage === totalPages}
-                  className="p-1.5 border border-border rounded-xl text-muted-foreground hover:bg-muted/50 disabled:opacity-40 transition-colors"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={safePage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              itemLabel="drivers"
+              shownCount={paginatedDrivers.length}
+              totalCount={filteredDrivers.length}
+            />
 
           </div>
         )}
-
-        {/* BOTTOM METRICS ROW (5 Cards) */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <ShoppingBag className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Orders</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{totalOrdersCount}</p>
-              <p className="text-[9px] text-muted-foreground">Today</p>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Completed Orders</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{completedCount}</p>
-              <p className="text-[9px] text-muted-foreground">Today</p>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-              <XCircle className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Cancelled Orders</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{cancelledCount}</p>
-              <p className="text-[9px] text-muted-foreground">Today</p>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-              <MapPin className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Distance</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">
-                {ordersToday.length > 0 ? `${(ordersToday.length * 6.5).toFixed(1)} km` : "156 km"}
-              </p>
-              <p className="text-[9px] text-muted-foreground">Today</p>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <Wallet className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Earnings</p>
-              <p className="text-lg font-bold text-foreground mt-0.5">{totalEarningsToday}</p>
-              <p className="text-[9px] text-muted-foreground">Today</p>
-            </div>
-          </div>
-
-        </div>
 
       </div>
 
@@ -1055,6 +1025,19 @@ export default function Drivers() {
                 )}
               </div>
 
+              {["completed", "rejected"].includes(String(viewingDriver.onboardingStatus)) ? (
+                <div className="pt-4">
+                  <div className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+                    viewingDriver.onboardingStatus === "completed"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "border-rose-200 bg-rose-50 text-rose-700"
+                  }`}>
+                    {viewingDriver.onboardingStatus === "completed"
+                      ? "This driver has been approved."
+                      : "This driver's application was rejected."}
+                  </div>
+                </div>
+              ) : (
               <div className="flex gap-2 pt-4">
                 <Button 
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl"
@@ -1082,6 +1065,7 @@ export default function Drivers() {
                   Reject Driver
                 </Button>
               </div>
+              )}
             </div>
           )}
         </DialogContent>
@@ -1297,6 +1281,58 @@ export default function Drivers() {
             </div>
           </div>
 
+          {/* Per-zone metrics */}
+          <div>
+            <h4 className="text-sm font-bold text-foreground mb-1">Zone Metrics</h4>
+            <p className="text-xs text-muted-foreground mb-3">Coverage and demand per operational zone.</p>
+            {zoneMetrics.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-xl">
+                No zones configured yet.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-t border-border bg-muted/20 text-muted-foreground uppercase text-[10px] tracking-wider font-semibold">
+                      <th className="text-left px-4 py-3">Zone</th>
+                      <th className="text-left px-4 py-3">Type</th>
+                      <th className="text-left px-4 py-3">Status</th>
+                      <th className="text-left px-4 py-3">Surge</th>
+                      <th className="text-left px-4 py-3">Drivers</th>
+                      <th className="text-left px-4 py-3">On Duty</th>
+                      <th className="text-left px-4 py-3">Orders</th>
+                      <th className="text-left px-4 py-3">Completed</th>
+                      <th className="text-left px-4 py-3">Cancelled</th>
+                      <th className="text-left px-4 py-3">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {zoneMetrics.map((z: any) => (
+                      <tr key={z.id} className="hover:bg-muted/10 transition-colors">
+                        <td className="px-4 py-3 text-sm font-semibold text-foreground">{z.name}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{z.type || "—"}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                            z.isActive ? "bg-emerald-50 text-emerald-700" : "bg-zinc-100 text-zinc-500"
+                          }`}>
+                            {z.isActive ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{z.multiplier}x</td>
+                        <td className="px-4 py-3 text-sm font-semibold text-foreground">{z.driverCount}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{z.onlineDrivers}</td>
+                        <td className="px-4 py-3 text-sm font-semibold text-foreground">{z.orderCount}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{z.completedCount}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{z.cancelledCount}</td>
+                        <td className="px-4 py-3 text-sm font-semibold text-foreground">₹{z.revenue.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -1314,18 +1350,28 @@ export default function Drivers() {
                     <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground text-sm">No drivers found matching the search query.</td>
                   </tr>
                 ) : (
-                  searchedDrivers.map((d: any) => {
+                  <AnimatePresence mode="popLayout" initial={false}>
+                  {searchedDrivers.map((d: any) => {
                   const assignedZoneId = d.preferredZone?._id || d.preferredZone;
                   const zoneObj = zonesList.find((z: any) => z._id === assignedZoneId);
-                  
+
                   return (
-                    <tr key={d._id} className="hover:bg-muted/10 transition-colors">
+                    <motion.tr
+                      key={d._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="hover:bg-muted/10 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <img
+                          <LazyImage
                             src={getAvatarUrl(d.user?.name || "")}
                             alt={d.user?.name}
                             className="h-10 w-10 rounded-full object-cover border border-border"
+                            wrapperClassName="h-10 w-10 rounded-full shrink-0"
                           />
                           <div>
                             <p className="text-sm font-bold text-foreground">{d.user?.name}</p>
@@ -1360,18 +1406,6 @@ export default function Drivers() {
                           >
                             Edit
                           </button>
-                          {zoneObj && (
-                            <button
-                              onClick={() => {
-                                if (confirm(`Remove zone assignment for driver ${d.user?.name}?`)) {
-                                  handleAssignZone(d._id, null);
-                                }
-                              }}
-                              className="px-3 py-1.5 border border-transparent bg-rose-50 text-xs font-semibold rounded-lg text-rose-600 hover:bg-rose-100 transition-colors"
-                            >
-                              Delete
-                            </button>
-                          )}
                           <button
                             onClick={() => handleOpenChatModal(d)}
                             className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -1381,9 +1415,10 @@ export default function Drivers() {
                           </button>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   );
-                })
+                  })}
+                  </AnimatePresence>
               )}
             </tbody>
             </table>

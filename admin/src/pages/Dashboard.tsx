@@ -1,10 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
-import { StatusBadge } from "@/components/shared/StatusBadge";
-import { Package, Truck, Users, DollarSign, CheckCircle, AlertTriangle, UserPlus, Banknote, MoreVertical, Eye, Ban } from "lucide-react";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
+import { Package, Truck, Users, DollarSign, CheckCircle, AlertTriangle, UserPlus, MoreVertical, Eye, Ban } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import {
@@ -13,8 +18,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
-import { DownloadReportDialog } from "@/components/shared/DownloadReportDialog";
 
 const priorityStyles: Record<string, string> = {
   HIGH: "bg-destructive text-destructive-foreground",
@@ -22,50 +25,56 @@ const priorityStyles: Record<string, string> = {
   EXPRESS: "bg-primary text-primary-foreground",
 };
 
-export default function Dashboard() {
-  const [timeScale, setTimeScale] = useState<"DAILY" | "WEEKLY">("DAILY");
-  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
-  const [downloadTitle, setDownloadTitle] = useState("");
-  const [downloadData, setDownloadData] = useState<any[]>([]);
+/** "2 mins ago" from a real timestamp — the activity rows used to carry a
+ *  hardcoded "Just now" regardless of when the thing actually happened. */
+function timeAgo(value?: string | null): string {
+  if (!value) return "";
+  const then = new Date(value).getTime();
+  if (Number.isNaN(then)) return "";
+  const mins = Math.floor((Date.now() - then) / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min${mins === 1 ? "" : "s"} ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hr${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
-  
+function formatEta(value?: string | null): string {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [timeScale, setTimeScale] = useState<"DAILY" | "WEEKLY">("DAILY");
+  const [priorityFilter, setPriorityFilter] = useState("ALL");
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin", "stats"],
+    // Live board: refetched on an interval and on window focus so it reflects
+    // what is happening now rather than whatever was true when the tab opened.
+    refetchInterval: 30000,
+    refetchOnWindowFocus: true,
     queryFn: () => adminFetch<any>("/admin/stats"),
   });
 
-  const barData = stats?.barData || [
-    { time: "08:00", delivered: 45, target: 60 },
-    { time: "10:00", delivered: 80, target: 65 },
-    { time: "12:00", delivered: 95, target: 70 },
-    { time: "14:00", delivered: 75, target: 72 },
-    { time: "16:00", delivered: 60, target: 68 },
-    { time: "18:00", delivered: 85, target: 70 },
-    { time: "20:00", delivered: 40, target: 55 },
-  ];
+  const barData = stats?.barData || [];
+  const weeklyBarData = stats?.weeklyBarData || [];
+  // No hardcoded sample rows behind these any more: whatever the API returns is
+  // what the dashboard shows, and nothing is what it shows when there is nothing.
+  const activityLog = stats?.activityLog || [];
+  // Memoised off stats itself: `stats?.manifests || []` builds a fresh array on
+  // every render, which would re-run the filter below each time.
+  const manifests = useMemo(() => stats?.manifests || [], [stats]);
 
-  const weeklyBarData = stats?.weeklyBarData || [
-    { time: "Week 1", delivered: 340, target: 400 },
-    { time: "Week 2", delivered: 420, target: 410 },
-    { time: "Week 3", delivered: 510, target: 430 },
-    { time: "Week 4", delivered: 490, target: 450 },
-  ];
-
-  const activityLog = stats?.activityLog || [
-    { type: "DELIVERY", title: "Order #ORD-9901 Delivered", desc: "Driver: Marcus Rodriguez • 2 mins ago" },
-    { type: "SYSTEM", title: "System Status: Optimal", desc: "Logistics orchestration engines running at 100%" },
-    { type: "USER_REG", title: "New Driver Registered", desc: "Sarah Jenkins • Fleet A • 1 hr ago" }
-  ];
-
-  const manifests = stats?.manifests || [
-    { id: "#ORD-9921", dest: "128 Tech Plaza, San Jose", driver: "Marcus Chen", eta: "14:45 PM", priority: "HIGH" },
-    { id: "#ORD-9918", dest: "Port of Oakland, Terminal 3", driver: "Sarah Jenkins", eta: "15:10 PM", priority: "STANDARD" },
-    { id: "#ORD-9905", dest: "Bay Area Logistics Hub", driver: "Rick Alvarez", eta: "16:30 PM", priority: "EXPRESS" },
-  ];
+  const visibleManifests = useMemo(() => {
+    if (priorityFilter === "ALL") return manifests;
+    return manifests.filter((m: any) => m.priority === priorityFilter);
+  }, [manifests, priorityFilter]);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -79,58 +88,64 @@ export default function Dashboard() {
     }
   };
 
+  const handleCancelManifest = async (m: any) => {
+    const orderId = m.orderId || m.id;
+    if (!orderId) return;
+    try {
+      // A real state change against the order, not a toast pretending one happened.
+      await adminFetch(`/admin/orders/${orderId}`, {
+        method: "PUT",
+        body: JSON.stringify({ status: "CANCELLED" }),
+      });
+      toast.success(`Order ${orderId} cancelled.`);
+      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Could not cancel this order.");
+    }
+  };
+
   return (
     <DashboardLayout searchPlaceholder="Search orders, drivers, or routes...">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="page-header">Operational Overview</h1>
-            <p className="page-subtitle">Real-time supply chain performance metrics.</p>
-          </div>
-          <button 
-            onClick={() => {
-              setDownloadTitle("Operational Summary Report");
-              setDownloadData([
-                { "Metric": "Total Orders", "Value": stats?.totalOrders || 0 },
-                { "Metric": "Active Drivers", "Value": stats?.activeDrivers || 0 },
-                { "Metric": "Total Users", "Value": stats?.totalUsers || 0 },
-                { "Metric": "Total Revenue", "Value": `INR ${stats?.totalRevenue || 0}` },
-                { "Metric": "Report Type", "Value": "Logistics Dashboard Summary" }
-              ]);
-              setIsDownloadOpen(true);
-            }}
-            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            Generate Report
-          </button>
+        <div>
+          <h1 className="page-header">Operational Overview</h1>
+          <p className="page-subtitle">Real-time supply chain performance metrics.</p>
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard icon={<Package className="h-5 w-5" />} label="Total Orders" value={stats?.totalOrders?.toString() || "0"} badge="all time" badgeColor="success" />
-          <StatCard icon={<Truck className="h-5 w-5" />} label="Active Drivers" value={stats?.activeDrivers?.toString() || "0"} badge="Online" badgeColor="success" />
-          <StatCard icon={<Users className="h-5 w-5" />} label="Total Users" value={stats?.totalUsers?.toString() || "0"} badge="System" badgeColor="muted" />
-          <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Revenue" value={`₹${stats?.totalRevenue?.toLocaleString() || "0"}`} badge="INR" badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-4 gap-4">
+          <StaggerItem>
+            <StatCard icon={<Package className="h-5 w-5" />} label="Total Orders" value={stats?.totalOrders?.toString() || "0"} badge="all time" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Truck className="h-5 w-5" />} label="Active Drivers" value={stats?.activeDrivers?.toString() || "0"} badge="Online" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Users className="h-5 w-5" />} label="Total Users" value={stats?.totalUsers?.toString() || "0"} badge="System" badgeColor="muted" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Revenue" value={`₹${stats?.totalRevenue?.toLocaleString() || "0"}`} badge="INR" badgeColor="success" />
+          </StaggerItem>
+        </StaggerList>
 
         {/* Charts Row */}
         <div className="grid grid-cols-3 gap-4">
           {/* Delivery Performance */}
-          <div className="col-span-2 section-card p-6">
+          <FadeIn className="col-span-2 section-card p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">Delivery Performance</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{timeScale === "DAILY" ? "Last 24 hours vs Target" : "Last 4 weeks vs Target"}</p>
               </div>
               <div className="flex gap-1 bg-muted rounded-lg p-0.5">
-                <button 
+                <button
                   onClick={() => setTimeScale("WEEKLY")}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeScale === "WEEKLY" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted-foreground/10"}`}
                 >
                   WEEKLY
                 </button>
-                <button 
+                <button
                   onClick={() => setTimeScale("DAILY")}
                   className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeScale === "DAILY" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted-foreground/10"}`}
                 >
@@ -149,12 +164,18 @@ export default function Dashboard() {
                 <Bar dataKey="target" fill="hsl(185, 80%, 88%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </FadeIn>
 
           {/* Live Activity Log */}
-          <div className="section-card p-6 flex flex-col">
+          <FadeIn delay={0.05} className="section-card p-6 flex flex-col">
             <h3 className="text-lg font-semibold text-foreground mb-4">Live Activity Log</h3>
             <div className="flex-1 space-y-4">
+              {isLoading && (
+                <p className="text-sm text-muted-foreground">Loading activity…</p>
+              )}
+              {!isLoading && activityLog.length === 0 && (
+                <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+              )}
               {activityLog.map((item: any, i: number) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="mt-0.5 h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
@@ -162,104 +183,31 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground">{item.title}</p>
-                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {[item.desc, timeAgo(item.time)].filter(Boolean).join(" • ")}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
-            <button 
-              onClick={() => toast.info("Audit log is fully up to date. No older activities to display.")}
-              className="mt-4 w-full py-2.5 border border-border rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
-            >
-              View All Activity
-            </button>
-          </div>
+          </FadeIn>
         </div>
-
-        {/* Map + Insight */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 section-card overflow-hidden h-[240px] relative">
-            {isLoaded ? (
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={{ lat: 17.0005, lng: 81.8040 }}
-                zoom={12}
-                options={{
-                  zoomControl: true,
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                <Marker
-                  position={{ lat: 17.0005, lng: 81.8040 }}
-                  title="Downtown Hub Center"
-                />
-                <Marker
-                  position={{ lat: 17.0105, lng: 81.8140 }}
-                  title="Active Driver: Marcus"
-                />
-              </GoogleMap>
-            ) : (
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-                Loading Fleet Map...
-              </div>
-            )}
-            <div className="absolute top-4 left-4 flex items-center gap-2 bg-card/90 backdrop-blur px-3 py-1.5 rounded-full z-10 shadow">
-              <span className="h-2 w-2 rounded-full bg-success animate-pulse-dot" />
-              <span className="text-xs font-medium text-foreground">Live Fleet Positioning</span>
-            </div>
-            <div className="absolute bottom-4 left-4 bg-foreground/80 text-primary-foreground px-4 py-2 rounded-lg z-10">
-              <p className="text-[10px] uppercase tracking-wider text-primary-foreground/70">Live Tracking</p>
-              <p className="text-sm font-semibold">Downtown Hub</p>
-            </div>
-          </div>
-
-          <div className="section-card p-6 bg-primary text-primary-foreground flex flex-col justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider text-primary-foreground/70">System Insight</p>
-              <h3 className="text-xl font-bold mt-1">Optimized Fleet Performance</h3>
-              <p className="text-sm mt-3 text-primary-foreground/80 leading-relaxed">
-                The current driver distribution is performing 18% more efficiently than average. We recommend deploying 12 additional drivers to the North Bay District to capture surge demand.
-              </p>
-            </div>
-            <button 
-              onClick={() => {
-                setDownloadTitle("Fleet Performance Allocation Report");
-                setDownloadData([
-                  { "District": "North Bay District", "Recomm. Drivers": 12, "Current Status": "Surge", "Efficiency Increase": "+18%" },
-                  { "District": "Downtown Area", "Recomm. Drivers": 5, "Current Status": "Optimal", "Efficiency Increase": "+10%" },
-                  { "District": "East Corridor", "Recomm. Drivers": 8, "Current Status": "Normal", "Efficiency Increase": "+8%" }
-                ]);
-                setIsDownloadOpen(true);
-              }}
-              className="mt-4 self-start px-5 py-2.5 bg-card text-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-            >
-              Generate Fleet Report
-            </button>
-          </div>
-        </div>
-
-        <DownloadReportDialog
-          open={isDownloadOpen}
-          onOpenChange={setIsDownloadOpen}
-          title={downloadTitle}
-          data={downloadData}
-        />
 
         {/* Active Manifests */}
         <div className="section-card">
           <div className="flex items-center justify-between p-6 pb-4">
             <h3 className="text-lg font-semibold text-foreground">Active Manifests</h3>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Filter by Status:</span>
-              <select 
-                onChange={(e) => toast.info(`Manifest table filtered by status: ${e.target.value}`)}
+              <span className="text-sm text-muted-foreground">Filter by Priority:</span>
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
                 className="text-sm border border-border rounded-lg px-3 py-1.5 bg-card text-foreground"
               >
-                <option value="All Statuses">All Statuses</option>
-                <option value="High Priority">High Priority Only</option>
-                <option value="Standard Priority">Standard Only</option>
+                <option value="ALL">All Priorities</option>
+                <option value="HIGH">High Priority Only</option>
+                <option value="EXPRESS">Express Only</option>
+                <option value="STANDARD">Standard Only</option>
               </select>
             </div>
           </div>
@@ -275,19 +223,32 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {manifests.map((m: any) => (
-                <tr key={m.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+              <AnimatePresence mode="popLayout" initial={false}>
+              {visibleManifests.map((m: any) => (
+                <motion.tr
+                  key={m.orderId || m.id}
+                  layout
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0 }}
+                  className="border-t border-border hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-6 py-4 text-sm font-medium text-primary">{m.id}</td>
-                  <td className="px-6 py-4 text-sm text-foreground">{m.dest}</td>
+                  <td className="px-6 py-4 text-sm text-foreground">{m.dest || "—"}</td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
-                        {m.driver.split(" ").map((n: string) => n[0]).join("")}
+                    {m.driver ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                          {m.driver.split(" ").map((n: string) => n[0]).join("")}
+                        </div>
+                        <span className="text-sm text-foreground">{m.driver}</span>
                       </div>
-                      <span className="text-sm text-foreground">{m.driver}</span>
-                    </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Awaiting assignment</span>
+                    )}
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground">{m.eta}</td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground">{formatEta(m.eta)}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2.5 py-1 rounded text-[10px] font-bold ${priorityStyles[m.priority] || "bg-muted text-muted-foreground"}`}>
                       {m.priority}
@@ -301,22 +262,25 @@ export default function Dashboard() {
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => toast.info(`Viewing details of manifest ${m.id}`)} className="gap-2 cursor-pointer">
+                        <DropdownMenuItem onClick={() => navigate(`/live-orders/${m.orderId || m.id}`)} className="gap-2 cursor-pointer">
                           <Eye className="h-4 w-4 text-muted-foreground" /> View Manifest
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toast.success(`Manifest ${m.id} routing recalculated!`)} className="gap-2 cursor-pointer">
-                          Optimize Route
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toast.error(`Manifest ${m.id} has been cancelled.`)} className="gap-2 text-destructive focus:text-destructive cursor-pointer">
+                        <DropdownMenuItem onClick={() => handleCancelManifest(m)} className="gap-2 text-destructive focus:text-destructive cursor-pointer">
                           <Ban className="h-4 w-4" /> Cancel Manifest
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
+              </AnimatePresence>
             </tbody>
           </table>
+          {!isLoading && visibleManifests.length === 0 && (
+            <p className="px-6 py-8 text-sm text-muted-foreground text-center">
+              {manifests.length === 0 ? "No active manifests right now." : "No manifests match this filter."}
+            </p>
+          )}
         </div>
       </div>
     </DashboardLayout>

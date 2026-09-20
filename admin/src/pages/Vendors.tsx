@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Store, Plus, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
+import { Pagination } from "@/components/shared/Pagination";
+import { fadeIn } from "@/components/motion/variants";
+import { Store, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -9,7 +12,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+interface DayHours {
+  open: string;
+  close: string;
+  closed?: boolean;
+}
+
+type WeeklyHours = Partial<Record<DayKey, DayHours>>;
+
+/** Server-evaluated open/closed verdict returned on every vendor row. */
+interface OpenState {
+  isOpen: boolean;
+  label: string;
+  opensAt: string | null;
+  today: string | null;
+  week: { day: string; hours: string }[];
+}
 
 interface Vendor {
   _id: string;
@@ -30,6 +51,111 @@ interface Vendor {
   isPureVeg: boolean;
   phone: string;
   email: string;
+  commissionRate?: number;
+  onboardingStatus?: string;
+  isManuallyClosed?: boolean;
+  openingHours?: WeeklyHours;
+  openState?: OpenState;
+}
+
+const WEEK_DAYS: { key: DayKey; label: string }[] = [
+  { key: "mon", label: "Monday" },
+  { key: "tue", label: "Tuesday" },
+  { key: "wed", label: "Wednesday" },
+  { key: "thu", label: "Thursday" },
+  { key: "fri", label: "Friday" },
+  { key: "sat", label: "Saturday" },
+  { key: "sun", label: "Sunday" },
+];
+
+type HoursDraft = Record<DayKey, { open: string; close: string; closed: boolean }>;
+
+const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
+  WEEK_DAYS.reduce((draft, { key }) => {
+    const day = hours?.[key];
+    draft[key] = {
+      open: day?.open || "09:00",
+      close: day?.close || "22:00",
+      closed: day?.closed === true,
+    };
+    return draft;
+  }, {} as HoursDraft);
+
+const toWeeklyHours = (draft: HoursDraft): WeeklyHours =>
+  WEEK_DAYS.reduce((hours, { key }) => {
+    const day = draft[key];
+    hours[key] = day.closed
+      ? { open: day.open, close: day.close, closed: true }
+      : { open: day.open, close: day.close };
+    return hours;
+  }, {} as WeeklyHours);
+
+const hasWeeklyHours = (hours?: WeeklyHours) => !!hours && Object.keys(hours).length > 0;
+
+function OpeningHoursEditor({ draft, onChange }: { draft: HoursDraft; onChange: (next: HoursDraft) => void }) {
+  const setDay = (key: DayKey, patch: Partial<HoursDraft[DayKey]>) =>
+    onChange({ ...draft, [key]: { ...draft[key], ...patch } });
+
+  return (
+    <div className="space-y-2">
+      {WEEK_DAYS.map(({ key, label }) => (
+        <div key={key} className="flex items-center gap-2">
+          <span className="w-[70px] shrink-0 text-xs font-semibold text-muted-foreground">{label}</span>
+          {draft[key].closed ? (
+            <span className="flex-1 text-xs text-muted-foreground italic">Closed all day</span>
+          ) : (
+            <div className="flex flex-1 items-center gap-2">
+              <Input
+                type="time"
+                value={draft[key].open}
+                onChange={e => setDay(key, { open: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="time"
+                value={draft[key].close}
+                onChange={e => setDay(key, { close: e.target.value })}
+                className="h-9 w-[110px] text-xs"
+              />
+            </div>
+          )}
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={draft[key].closed}
+              onChange={e => setDay(key, { closed: e.target.checked })}
+              className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+            />
+            Closed
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
+  // A manual close always wins, exactly as the server evaluates it — so the pill is
+  // right the instant the toggle is flipped, before the list has refetched.
+  const manuallyClosed = isManuallyClosed === true;
+  const isOpen = manuallyClosed ? false : openState ? openState.isOpen : true;
+  const label = manuallyClosed ? "Closed" : openState?.label || "Open now";
+
+  return (
+    <div className="space-y-1">
+      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+        isOpen
+          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+      }`}>
+        {label}
+      </span>
+      <p className="text-[10px] text-muted-foreground">
+        {isManuallyClosed ? "Closed by admin" : openState?.today || "No hours set"}
+      </p>
+    </div>
+  );
 }
 
 export default function Vendors() {
@@ -49,8 +175,14 @@ export default function Vendors() {
     email: "",
     phone: "",
     isPureVeg: false,
-    address: ""
+    address: "",
+    isManuallyClosed: false
   });
+
+  // Kept beside editForm rather than inside it: an outlet with no schedule must stay
+  // "always open", so the week is only written when the admin explicitly turns it on.
+  const [editHoursEnabled, setEditHoursEnabled] = useState(false);
+  const [editHours, setEditHours] = useState<HoursDraft>(() => toHoursDraft());
 
   const deleteVendorMutation = useMutation({
     mutationFn: (id: string) => adminFetch(`/vendors/${id}`, { method: "DELETE" }),
@@ -85,15 +217,22 @@ export default function Vendors() {
       email: vendor.email || "",
       phone: vendor.phone,
       isPureVeg: vendor.isPureVeg,
-      address: vendor.address
+      address: vendor.address,
+      isManuallyClosed: vendor.isManuallyClosed === true
     });
+    setEditHoursEnabled(hasWeeklyHours(vendor.openingHours));
+    setEditHours(toHoursDraft(vendor.openingHours));
     setIsEditOpen(true);
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingVendor) return;
-    updateVendorMutation.mutate({ id: editingVendor._id, data: editForm });
+    updateVendorMutation.mutate({
+      id: editingVendor._id,
+      // An empty object clears the schedule, which the server reads as "always open".
+      data: { ...editForm, openingHours: editHoursEnabled ? toWeeklyHours(editHours) : {} }
+    });
   };
 
   const handleDeleteClick = (vendor: Vendor) => {
@@ -111,11 +250,12 @@ export default function Vendors() {
   const [searchQuery, setSearchQuery] = useState("");
   const autocompleteInputRef = useRef<HTMLInputElement>(null);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  
+
   // List Filters
   const [filterSearch, setFilterSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterVeg, setFilterVeg] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [newVendor, setNewVendor] = useState({
     name: "",
@@ -135,6 +275,16 @@ export default function Vendors() {
     queryKey: ["vendors"],
     queryFn: () => adminFetch<Vendor[]>("/vendors/nearby?lat=0&lng=0"), // Default fetch
   });
+
+  // The View dialog holds a snapshot, so after an availability toggle refetches the list
+  // it would keep rendering the openState it was opened with. Re-sync it from the fresh row.
+  useEffect(() => {
+    if (!isViewOpen) return;
+    setViewingVendor((current) => {
+      if (!current) return current;
+      return (vendors || []).find((v) => v._id === current._id) || current;
+    });
+  }, [vendors, isViewOpen]);
 
   const createVendorMutation = useMutation({
     mutationFn: (data: any) => adminFetch("/vendors", {
@@ -243,6 +393,20 @@ export default function Vendors() {
     createVendorMutation.mutate(payload);
   };
 
+  const filteredVendors = (vendors || []).filter(vendor => {
+    const searchLower = filterSearch.toLowerCase();
+    const matchesSearch = vendor.name.toLowerCase().includes(searchLower) || vendor.address.toLowerCase().includes(searchLower);
+    const status = (vendor as any).onboardingStatus || "draft";
+    const matchesStatus = filterStatus === "all" || status === filterStatus;
+    const matchesVeg = filterVeg === "all" || (filterVeg === "veg" && vendor.isPureVeg) || (filterVeg === "nonveg" && !vendor.isPureVeg);
+    return matchesSearch && matchesStatus && matchesVeg;
+  });
+
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(filteredVendors.length / itemsPerPage) || 1;
+  const safePage = Math.min(currentPage, totalPages);
+  const paginatedVendors = filteredVendors.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+
   return (
     <DashboardLayout searchPlaceholder="Search vendors...">
       <div className="space-y-6">
@@ -252,130 +416,6 @@ export default function Vendors() {
             <p className="page-subtitle">Onboard and manage your restaurant partners.</p>
           </div>
           
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Vendor
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Restaurant</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">Country</label>
-                    <Input 
-                      value={newVendor.country} 
-                      onChange={e => setNewVendor({...newVendor, country: e.target.value})}
-                      placeholder="India"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">State</label>
-                    <Input 
-                      value={newVendor.state} 
-                      onChange={e => setNewVendor({...newVendor, state: e.target.value})}
-                      placeholder="Telangana"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">City</label>
-                    <Input 
-                      value={newVendor.city} 
-                      onChange={e => setNewVendor({...newVendor, city: e.target.value})}
-                      placeholder="Hyderabad"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Search Google Maps</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      placeholder="Start typing restaurant name..." 
-                      className="pl-9"
-                    />
-                    
-                    {/* Custom Suggestions Dropdown */}
-                    {suggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-auto">
-                        {suggestions.map((s) => (
-                          <button
-                            key={s.place_id}
-                            type="button"
-                            onClick={() => handleSelectSuggestion(s)}
-                            className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors border-b border-border last:border-0"
-                          >
-                            <p className="font-medium text-foreground">{s.structured_formatting?.main_text || s.description}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{s.structured_formatting?.secondary_text || s.description}</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {isSearching && (
-                      <div className="absolute right-3 top-2.5">
-                        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  {selectedPlace && (
-                    <div className="mt-2 p-3 bg-muted rounded-lg border border-border">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                        <div>
-                          <p className="text-sm font-semibold">{selectedPlace.name}</p>
-                          <p className="text-xs text-muted-foreground">{selectedPlace.formatted_address}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <Input 
-                      type="email" 
-                      value={newVendor.email} 
-                      onChange={e => setNewVendor({...newVendor, email: e.target.value})}
-                      placeholder="owner@restaurant.com" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input 
-                      value={newVendor.phone} 
-                      onChange={e => setNewVendor({...newVendor, phone: e.target.value})}
-                      placeholder="+91 98765 43210" 
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Vendor Password</label>
-                  <Input 
-                    type="password"
-                    value={newVendor.password} 
-                    onChange={e => setNewVendor({...newVendor, password: e.target.value})}
-                    placeholder="Set a password for vendor login"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={createVendorMutation.isPending}>
-                  {createVendorMutation.isPending ? "Adding..." : "Confirm & Save Vendor"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 items-center bg-card p-4 rounded-xl border border-border">
@@ -384,13 +424,13 @@ export default function Vendors() {
             <Input
               placeholder="Search by restaurant name or location..."
               value={filterSearch}
-              onChange={(e) => setFilterSearch(e.target.value)}
+              onChange={(e) => { setFilterSearch(e.target.value); setCurrentPage(1); }}
               className="pl-9 w-full"
             />
           </div>
-          <select 
+          <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
           >
             <option value="all">All Statuses</option>
@@ -399,9 +439,9 @@ export default function Vendors() {
             <option value="draft">Draft</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select 
+          <select
             value={filterVeg}
-            onChange={(e) => setFilterVeg(e.target.value)}
+            onChange={(e) => { setFilterVeg(e.target.value); setCurrentPage(1); }}
             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
           >
             <option value="all">All Dietary</option>
@@ -415,54 +455,46 @@ export default function Vendors() {
             <thead>
               <tr className="bg-muted/50">
                 <th className="table-header-text text-left px-6 py-3">Restaurant</th>
+                <th className="table-header-text text-left px-6 py-3">Status</th>
                 <th className="table-header-text text-left px-6 py-3">Location</th>
                 <th className="table-header-text text-left px-6 py-3">Rating</th>
+                <th className="table-header-text text-left px-6 py-3">Availability</th>
                 <th className="table-header-text text-left px-6 py-3">Contact</th>
                 <th className="table-header-text text-left px-6 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
               ) : vendors?.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">No vendors found.</td></tr>
+              ) : paginatedVendors.length === 0 ? (
+                <tr><td colSpan={7} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
               ) : (
-                (() => {
-                  const filtered = vendors?.filter(vendor => {
-                    const searchLower = filterSearch.toLowerCase();
-                    const matchesSearch = vendor.name.toLowerCase().includes(searchLower) || vendor.address.toLowerCase().includes(searchLower);
-                    const status = (vendor as any).onboardingStatus || "draft";
-                    const matchesStatus = filterStatus === "all" || status === filterStatus;
-                    const matchesVeg = filterVeg === "all" || (filterVeg === "veg" && vendor.isPureVeg) || (filterVeg === "nonveg" && !vendor.isPureVeg);
-                    return matchesSearch && matchesStatus && matchesVeg;
-                  });
-
-                  if (!filtered || filtered.length === 0) {
-                    return <tr><td colSpan={5} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>;
-                  }
-
-                  return filtered.map((vendor) => (
-                    <tr key={vendor._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {paginatedVendors.map((vendor) => (
+                    <motion.tr
+                      key={vendor._id}
+                      layout
+                      variants={fadeIn}
+                      initial="hidden"
+                      animate="visible"
+                      exit={{ opacity: 0 }}
+                      className="border-t border-border hover:bg-muted/30 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                             <Store className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                                (vendor as any).onboardingStatus === "approved" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-                                (vendor as any).onboardingStatus === "rejected" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" :
-                                (vendor as any).onboardingStatus === "submitted" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                                "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                              }`}>
-                                {(vendor as any).onboardingStatus || "draft"}
-                              </span>
-                            </div>
+                            <p className="text-sm font-medium text-foreground">{vendor.name}</p>
                             <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? "Pure Veg" : "Multi-Cuisine"}</p>
                           </div>
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <VendorStatusPill status={(vendor as any).onboardingStatus} />
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm text-foreground max-w-[200px] truncate">{vendor.address}</p>
@@ -473,6 +505,9 @@ export default function Vendors() {
                           <span className="text-sm font-medium text-foreground">{vendor.rating}</span>
                           <span className="text-xs text-muted-foreground">({vendor.reviews})</span>
                         </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <AvailabilityPill openState={vendor.openState} isManuallyClosed={vendor.isManuallyClosed} />
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-sm text-foreground">{vendor.phone}</p>
@@ -498,12 +533,21 @@ export default function Vendors() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </td>
-                    </tr>
-                  ));
-                })()
+                    </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
+
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemLabel="vendors"
+            shownCount={paginatedVendors.length}
+            totalCount={filteredVendors.length}
+          />
         </div>
       </div>
 
@@ -542,6 +586,49 @@ export default function Vendors() {
               <div className="flex justify-between border-b pb-2 border-border">
                 <span className="font-semibold text-muted-foreground">Current Onboarding:</span>
                 <span className="font-medium text-foreground uppercase">{(viewingVendor as any).onboardingStatus || "draft"}</span>
+              </div>
+
+              {/* Open / Closed Control Section */}
+              <div className="p-3 bg-muted rounded-xl space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <label className="font-bold text-foreground text-xs block">Order Availability</label>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      A closed outlet drops out of the app's "Open now" filter.
+                    </p>
+                  </div>
+                  <AvailabilityPill openState={viewingVendor.openState} isManuallyClosed={viewingVendor.isManuallyClosed} />
+                </div>
+                <Button
+                  size="sm"
+                  variant={viewingVendor.isManuallyClosed ? "default" : "destructive"}
+                  className="w-full rounded-lg"
+                  disabled={updateVendorMutation.isPending}
+                  onClick={() => {
+                    const nextClosed = !viewingVendor.isManuallyClosed;
+                    updateVendorMutation.mutate({
+                      id: viewingVendor._id,
+                      data: { isManuallyClosed: nextClosed }
+                    });
+                    setViewingVendor({ ...viewingVendor, isManuallyClosed: nextClosed });
+                  }}
+                >
+                  {viewingVendor.isManuallyClosed ? "Reopen Restaurant" : "Close Restaurant Now"}
+                </Button>
+                {viewingVendor.openState?.week?.length ? (
+                  <div className="space-y-0.5 pt-1 border-t border-border/60">
+                    {viewingVendor.openState.week.map((day) => (
+                      <div key={day.day} className="flex justify-between text-[11px]">
+                        <span className="text-muted-foreground">{day.day}</span>
+                        <span className="font-medium text-foreground">{day.hours}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/60">
+                    No weekly hours set — open around the clock unless closed above.
+                  </p>
+                )}
               </div>
 
               {/* Commission Control Section */}
@@ -627,7 +714,7 @@ export default function Vendors() {
 
       {/* Edit Vendor Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
+        <DialogContent className="sm:max-w-[520px] rounded-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Edit Restaurant</DialogTitle>
           </DialogHeader>
@@ -674,6 +761,43 @@ export default function Vendors() {
               />
               <label htmlFor="editIsPureVeg" className="text-sm font-medium cursor-pointer select-none">Is Pure Veg</label>
             </div>
+
+            <div className="space-y-3 rounded-2xl border border-border p-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="editIsManuallyClosed"
+                  checked={editForm.isManuallyClosed}
+                  onChange={e => setEditForm({ ...editForm, isManuallyClosed: e.target.checked })}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editIsManuallyClosed" className="text-sm font-medium cursor-pointer select-none">
+                  Temporarily closed (stop taking orders)
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2 border-t border-border pt-3">
+                <input
+                  type="checkbox"
+                  id="editHoursEnabled"
+                  checked={editHoursEnabled}
+                  onChange={e => setEditHoursEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="editHoursEnabled" className="text-sm font-medium cursor-pointer select-none">
+                  Set weekly opening hours
+                </label>
+              </div>
+
+              {editHoursEnabled ? (
+                <OpeningHoursEditor draft={editHours} onChange={setEditHours} />
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Without a schedule this restaurant is treated as open around the clock.
+                </p>
+              )}
+            </div>
+
             <Button type="submit" className="w-full" disabled={updateVendorMutation.isPending}>
               {updateVendorMutation.isPending ? "Updating..." : "Save Changes"}
             </Button>
@@ -681,5 +805,24 @@ export default function Vendors() {
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+/** Vendor onboarding state as its own column. It used to be a 9px badge wedged
+ *  beside the restaurant name, which is easy to miss on a row that also carries
+ *  a rating and an availability pill. The four values are the ones the Vendor
+ *  model actually defines. */
+function VendorStatusPill({ status }: { status?: string }) {
+  const value = status || "draft";
+  const tone: Record<string, string> = {
+    approved: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900",
+    rejected: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900",
+    submitted: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900",
+    draft: "bg-muted text-muted-foreground border-border",
+  };
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-semibold capitalize ${tone[value] || tone.draft}`}>
+      {value}
+    </span>
   );
 }

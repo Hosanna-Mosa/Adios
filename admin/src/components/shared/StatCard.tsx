@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { motion } from "framer-motion";
 
 interface StatCardProps {
   icon?: ReactNode;
@@ -18,7 +19,11 @@ const badgeStyles = {
 
 export function StatCard({ icon, label, value, badge, badgeColor = "success", subtitle }: StatCardProps) {
   return (
-    <div className="stat-card flex flex-col gap-3">
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className="stat-card flex flex-col gap-3 hover:shadow-md"
+    >
       <div className="flex items-start justify-between">
         {icon && (
           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -40,6 +45,6 @@ export function StatCard({ icon, label, value, badge, badgeColor = "success", su
           <p className={`text-xs mt-1 ${badgeStyles[badgeColor]}`}>{subtitle}</p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

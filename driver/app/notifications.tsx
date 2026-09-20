@@ -52,7 +52,7 @@ export default function DriverNotificationsScreen() {
 
   const fetchList = async () => {
     try {
-      const res = await fetch(`${apiUrl}/api/v1/notifications`, { headers: authHeaders() });
+      const res = await fetch(`${apiUrl}/notifications`, { headers: authHeaders() });
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -71,7 +71,7 @@ export default function DriverNotificationsScreen() {
   const handleOpen = async (item: NotificationItem) => {
     if (!item.isRead) {
       setItems((prev) => prev.map((n) => (n._id === item._id ? { ...n, isRead: true } : n)));
-      fetch(`${apiUrl}/api/v1/notifications/${item._id}/read`, { method: "PATCH", headers: authHeaders() }).catch(() => {});
+      fetch(`${apiUrl}/notifications/${item._id}/read`, { method: "PATCH", headers: authHeaders() }).catch(() => {});
     }
     navigateToNotificationTarget(item.data);
   };
@@ -79,7 +79,7 @@ export default function DriverNotificationsScreen() {
   const handleMarkAllRead = async () => {
     setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
     try {
-      await fetch(`${apiUrl}/api/v1/notifications/read-all`, { method: "PATCH", headers: authHeaders() });
+      await fetch(`${apiUrl}/notifications/read-all`, { method: "PATCH", headers: authHeaders() });
     } catch (err) {
       console.error("Failed to mark all read:", err);
     }

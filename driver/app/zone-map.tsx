@@ -2,14 +2,17 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import MapView, { Polygon, Circle, PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useDriverStore } from "@/store/driverStore";
+import Colors from "@/constants/colors";
 
 // Default fallback to Rajahmundry coordinates if undefined
 const DEFAULT_LAT = 16.9891;
 const DEFAULT_LNG = 81.7836;
 
 export default function ZoneMapScreen() {
+  const insets = useSafeAreaInsets();
   const { zoneId } = useLocalSearchParams<{ zoneId: string }>();
   const [loading, setLoading] = useState(true);
   const [zone, setZone] = useState<any>(null);
@@ -24,8 +27,8 @@ export default function ZoneMapScreen() {
       }
       try {
         const token = useDriverStore.getState().token;
-        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:8000";
-        const res = await fetch(`${apiUri}/api/v1/zones/${zoneId}`, {
+        const apiUri = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+        const res = await fetch(`${apiUri}/zones/${zoneId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
@@ -45,7 +48,7 @@ export default function ZoneMapScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#0ea5e9" />
+        <ActivityIndicator size="large" color={Colors.brand} />
         <Text style={styles.loadingText}>Loading operational geofence map...</Text>
       </View>
     );
@@ -54,7 +57,7 @@ export default function ZoneMapScreen() {
   if (error || !zone) {
     return (
       <View style={styles.centerContainer}>
-        <Feather name="alert-triangle" size={48} color="#ef4444" />
+        <Feather name="alert-triangle" size={48} color={Colors.error} />
         <Text style={styles.errorText}>{error || "Zone data could not be fetched"}</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Back to Onboarding</Text>
@@ -106,8 +109,8 @@ export default function ZoneMapScreen() {
         {isPolygon && mapCoordinates.length > 0 && (
           <Polygon
             coordinates={mapCoordinates}
-            fillColor="rgba(14, 165, 233, 0.3)"
-            strokeColor="#0ea5e9"
+            fillColor="rgba(0, 180, 198, 0.3)"
+            strokeColor={Colors.brand}
             strokeWidth={3}
           />
         )}
@@ -115,17 +118,19 @@ export default function ZoneMapScreen() {
           <Circle
             center={circleCenter}
             radius={circleRadius}
-            fillColor="rgba(14, 165, 233, 0.3)"
-            strokeColor="#0ea5e9"
+            fillColor="rgba(0, 180, 198, 0.3)"
+            strokeColor={Colors.brand}
             strokeWidth={3}
           />
         )}
       </MapView>
 
       {/* Map Floating Header overlay */}
-      <View style={styles.headerOverlay}>
+      {/* Was a hardcoded top: 48, which is under the status bar on any device
+          with a taller inset (notch/punch-hole) now that the bar is translucent. */}
+      <View style={[styles.headerOverlay, { top: insets.top + 12 }]}>
         <TouchableOpacity style={styles.roundBackBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={24} color="#1e293b" />
+          <Feather name="arrow-left" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Text style={styles.headerTitle}>{zone.name}</Text>
@@ -157,19 +162,19 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 15,
-    color: "#64748b",
+    color: Colors.textSecondary,
   },
   errorText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#ef4444",
+    color: Colors.error,
     textAlign: "center",
   },
   backButton: {
     marginTop: 20,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: "#0ea5e9",
+    backgroundColor: Colors.brand,
     borderRadius: 24,
   },
   backButtonText: {
@@ -179,7 +184,6 @@ const styles = StyleSheet.create({
   },
   headerOverlay: {
     position: "absolute",
-    top: 48,
     left: 16,
     right: 16,
     backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -198,7 +202,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#f1f5f9",
+    backgroundColor: Colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -208,11 +212,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#0f172a",
+    color: Colors.text,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#475569",
+    color: Colors.textSecondary,
     marginTop: 2,
   },
 });

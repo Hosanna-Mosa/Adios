@@ -13,13 +13,19 @@ import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
 import { ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
+import { CouponsService } from "../coupons/coupons.service";
+import { CartService } from "../cart/cart.service";
 import { InvoiceService } from "../../services/invoice.service";
 import ChatMessage from "../../database/models/ChatMessage";
+import { getDriverRating } from "../reviews/driver-rating";
+import { mapServiceTypeToDriverVehicleType, driverAcceptsServiceType } from "../../config/dispatch.config";
 
 export class OrdersService {
   private routingService = new RoutingService();
   private pricingService = new PricingService();
   private zonesService = new ZonesService();
+  private couponsService = new CouponsService();
+  private cartService = new CartService();
 
   async createOrder(userId: string, stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, radius?: number, duration?: number, isReserved?: boolean, reservedAt?: Date | string, metadata?: any) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -62,6 +68,43 @@ export class OrdersService {
       }
     }
 
+    // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
+    // the pre-existing transport (payments/verify already forwards it) and is honoured too.
+    const scheduledForInput =
+      metadata?.scheduledFor ??
+      (metadata?.scheduledDelivery?.type === "later" ? metadata.scheduledDelivery.requestedAt : undefined);
+    let scheduledForDate: Date | undefined;
+    if (scheduledForInput) {
+      const parsedSchedule = new Date(scheduledForInput);
+      if (!Number.isNaN(parsedSchedule.getTime()) && parsedSchedule.getTime() > Date.now()) {
+        scheduledForDate = parsedSchedule;
+      } else if (metadata?.scheduledFor) {
+        // POST /orders — nothing has been charged yet, so reject outright.
+        throw new ValidationError("scheduledFor must be a future date and time");
+      } else {
+        // Arrived through the already-paid /payments/verify transport and the slot has lapsed.
+        // Place the order for now rather than throwing away an order that was just paid for.
+        console.warn(`[orders.service] Ignoring lapsed scheduled slot ${scheduledForInput} — placing the order immediately.`);
+      }
+    }
+    const isScheduledOrder = !!scheduledForDate;
+
+    // A client-supplied discount is only a preview — the coupon is always re-resolved here.
+    const requestedCouponCode = metadata?.couponCode ?? totals?.couponCode;
+    let couponDiscount = 0;
+    let appliedCouponCode: string | undefined;
+    let appliedCouponId: any;
+    if (requestedCouponCode) {
+      const { coupon, discountAmount } = await this.couponsService.resolveForCart(
+        String(requestedCouponCode),
+        Number(totals?.subtotal) || 0,
+        vendorId,
+      );
+      couponDiscount = discountAmount;
+      appliedCouponCode = coupon.code;
+      appliedCouponId = coupon._id;
+    }
+
     let totalPrice: number;
     let priceBreakdown: any;
 
@@ -97,6 +140,15 @@ export class OrdersService {
         optimizationResult.optimizedStops.length,
         surgeMultiplier,
       );
+      if (appliedCouponCode) {
+        // Rebuild the payable amount from the parts instead of trusting totals.total.
+        totalPrice = Math.max(0, Math.round(
+          (Number(totals?.subtotal) || 0) +
+          (Number(totals?.deliveryFee) || 0) +
+          (Number(totals?.tip) || 0) -
+          couponDiscount,
+        ));
+      }
       const rateConfig = await this.pricingService.getRateConfig(effectiveType);
       priceBreakdown = {
         baseFare: totals?.subtotal ?? rateConfig.baseFare,
@@ -106,6 +158,10 @@ export class OrdersService {
         total: totalPrice,
       };
     }
+
+    const effectiveTotals = appliedCouponCode && totals
+      ? { ...totals, couponCode: appliedCouponCode, discount: couponDiscount, total: totalPrice }
+      : totals;
 
     const orderStops = optimizationResult.optimizedStops.map((stop: any, index: number) => {
       let normalizedType = StopType.DROP;
@@ -134,7 +190,7 @@ export class OrdersService {
           lines: stop.items || [],
           instructions: stop.instructions,
           deliveryAddress: stop.deliveryAddress,
-          totals: normalizedType === StopType.DROP ? totals : undefined,
+          totals: normalizedType === StopType.DROP ? effectiveTotals : undefined,
         },
       };
     });
@@ -149,14 +205,17 @@ export class OrdersService {
       const year = String(date.getFullYear()).slice(-2);
       const random6Digits = Math.floor(100000 + Math.random() * 900000).toString();
       
-      let prefix = "F"; // Food Delivery ID
+      let typeLetter = "F"; // Food Delivery ID
       if (serviceType === ServiceType.HELPER) {
-        prefix = "T"; // Task ID
+        typeLetter = "T"; // Task ID
       } else if ([ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(serviceType)) {
-        prefix = "R"; // Ride ID
+        typeLetter = "R"; // Ride ID
       }
-      
-      return `${prefix}${day}${month}${year}${random6Digits}`;
+
+      // "ADS" (the company/app initials) leads every order ID, with the existing
+      // service-type letter kept right after it so support staff can still tell
+      // food/task/ride orders apart at a glance.
+      return `ADS${typeLetter}${day}${month}${year}${random6Digits}`;
     };
 
     const order = new Order({
@@ -167,13 +226,19 @@ export class OrdersService {
       totalDistance: optimizationResult.totalDistance,
       totalPrice,
       priceBreakdown,
-      status: isReserved ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
+      status: (isReserved || isScheduledOrder) ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
       stops: orderStops,
       radius,
       duration,
       customerPrice: metadata?.customerPrice ? Math.round(Number(metadata.customerPrice)) : undefined,
       bookingFor: metadata?.bookingFor,
-      scheduledDelivery: metadata?.scheduledDelivery,
+      scheduledDelivery: isScheduledOrder
+        ? { ...(metadata?.scheduledDelivery || {}), type: "later", requestedAt: scheduledForDate, restaurantAccepted: false }
+        : metadata?.scheduledDelivery,
+      scheduledFor: scheduledForDate ?? null,
+      scheduleStatus: isScheduledOrder ? "pending" : null,
+      couponCode: appliedCouponCode,
+      discountAmount: couponDiscount,
       isReserved,
       reservedAt: reservedAt ? new Date(reservedAt) : undefined,
       deliveryOtp,
@@ -182,6 +247,31 @@ export class OrdersService {
     });
 
     const savedOrder = await order.save();
+
+    if (appliedCouponId) {
+      this.couponsService
+        .recordUsage(appliedCouponId)
+        .catch((err) => console.error("[orders.service] Failed to record coupon usage:", err));
+    }
+
+    // Reuse the existing scheduled-delivery request pipeline (model, vendor screen, sockets)
+    // instead of building a second one — the order is simply linked to the request it creates.
+    // Payment has already been captured by this point, so a scheduling hiccup must never throw
+    // the order away.
+    if (isScheduledOrder && vendorId && scheduledForDate) {
+      try {
+        const scheduleRequest = await this.requestScheduledDelivery(
+          userId,
+          vendorId,
+          scheduledForDate,
+          savedOrder._id.toString(),
+        );
+        savedOrder.set("scheduledDelivery.requestId", scheduleRequest.requestId);
+        await savedOrder.save();
+      } catch (err) {
+        console.error("[orders.service] Failed to create scheduled delivery request:", err);
+      }
+    }
 
     // Schedule reservation notification if this is a reserved ride/delivery
     if (savedOrder.isReserved && savedOrder.reservedAt) {
@@ -268,17 +358,51 @@ export class OrdersService {
       }
 
       let driversToNotify = [...nearbyDrivers];
-      // Fallback: If no drivers within immediate radius, check online drivers in the same zone
+      // Fallback, in two steps: drivers registered to the pickup zone first, then —
+      // rather than giving up — any driver who is simply online and free.
+      //
+      // The zone is a serviceability check for the *customer*; it is not a reason to
+      // hide a job from a driver who is on shift nearby. preferredZone is only ever
+      // set once (see DriverService.updateLocation), so gating the last fallback on it
+      // left orders undispatched while drivers sat idle — the symptom being that a
+      // helper task only reached anyone after a price raise, which took a different
+      // path and broadcast to every driver.
       if (driversToNotify.length === 0) {
+        const Driver = require("../../database/models/Driver").default;
+        const onlineQuery: any = { status: "ONLINE", isAvailable: true };
+        // Rides must still go to a driver with the right vehicle — this is the last
+        // resort before giving up on the booking, not a license to hand a cab ride to
+        // a bike driver. Food/meat/helper orders have no vehicle constraint, matching
+        // getNearbyDrivers' own rule, so they're left unfiltered. Mapped through
+        // mapServiceTypeToDriverVehicleType, NOT the raw tier string — Driver.vehicleType
+        // has no "cab"/"cab_prime" value (only bike/auto/car), so filtering on the raw
+        // tier here would silently match zero drivers for every cab ride.
+        const fallbackVehicleType = mapServiceTypeToDriverVehicleType(effectiveType);
+        if (fallbackVehicleType) {
+          onlineQuery.vehicleType = fallbackVehicleType;
+        }
         try {
-          const Driver = require("../../database/models/Driver").default;
-          const zoneQuery: any = { status: "ONLINE", isAvailable: true };
           if (pickupZone) {
-            zoneQuery.preferredZone = pickupZone._id;
+            driversToNotify = await Driver.find({ ...onlineQuery, preferredZone: pickupZone._id }).populate("user");
           }
-
-          const onlineZoneDrivers = await Driver.find(zoneQuery).populate("user");
-          driversToNotify = onlineZoneDrivers;
+          if (driversToNotify.length === 0) {
+            driversToNotify = await Driver.find(onlineQuery).populate("user");
+            console.log(`[DISPATCH FALLBACK] No zone-matched drivers; offering to ${driversToNotify.length} online driver(s).`);
+          }
+          // Same GPS-freshness rule as getNearbyDrivers: a driver whose app was
+          // killed without going offline still reads ONLINE/isAvailable here, and
+          // offering to one just burns the dispatcher's full per-driver timeout
+          // instead of reaching someone who can actually answer.
+          driversToNotify = driversService.filterDriversWithLiveLocation(driversToNotify, "createOrder fallback");
+          // Same for a driver who is online but has this order's category toggled
+          // off (see driverAcceptsServiceType) — their app would silently drop the
+          // offer, so offering it to them here would just be another guaranteed
+          // timeout instead of reaching a driver who can actually act on it.
+          const beforeServiceFilter = driversToNotify.length;
+          driversToNotify = driversToNotify.filter((d: any) => driverAcceptsServiceType(d.activeServices, effectiveType));
+          if (driversToNotify.length < beforeServiceFilter) {
+            console.log(`[DISPATCH FALLBACK] Skipped ${beforeServiceFilter - driversToNotify.length} driver(s) not opted into this order's category.`);
+          }
         } catch (err) {
           console.error("Error fetching fallback online drivers:", err);
         }
@@ -292,11 +416,20 @@ export class OrdersService {
       if (pickupCoords && dropoffCoords) {
         for (const d of driversToNotify) {
           if (d.homeMode === true) {
-            const onTheWay = await driversService.isOrderOnTheWayToHome(
-              (d._id as any).toString(),
-              pickupCoords,
-              dropoffCoords
-            );
+            // Guarded per driver: this check reads other documents and used to write
+            // to disk, and it was unguarded — so one driver's failure threw out of
+            // createOrder and failed the customer's booking outright. A driver whose
+            // check errors is kept as a candidate rather than silently dropped.
+            let onTheWay = true;
+            try {
+              onTheWay = await driversService.isOrderOnTheWayToHome(
+                (d._id as any).toString(),
+                pickupCoords,
+                dropoffCoords
+              );
+            } catch (err) {
+              console.error(`[DISPATCH] Home-mode check failed for driver ${d._id}; keeping as candidate:`, err);
+            }
             if (onTheWay) {
               filteredDrivers.push(d);
             }
@@ -305,6 +438,11 @@ export class OrdersService {
           }
         }
         driversToNotify = filteredDrivers;
+
+        const droppedByHomeMode = driversToNotify.length;
+        console.log(
+          `[DISPATCH] ${effectiveType} order ${savedOrder._id}: ${droppedByHomeMode} candidate(s) after home-mode filter.`
+        );
       }
 
       console.log(`\n📢 [NOTIFIED DRIVERS]: ${driversToNotify.length} drivers selected`);
@@ -390,12 +528,15 @@ export class OrdersService {
       savedOrder.totalCandidatesCount = sortedCandidateInfos.length;
       await savedOrder.save();
 
-      // Start Sequential Dispatch Cascade (1 driver at a time, nearest first)
-      const { dispatchManager } = require("../../services/dispatch.manager");
-      await dispatchManager.startDispatch(savedOrder._id.toString(), sortedCandidateInfos, {
-        ...orderPayload,
-        customerUserId: userId,
-      });
+      // Start Sequential Dispatch Cascade (1 driver at a time, nearest first).
+      // A scheduled order is dispatched when its slot is accepted, not at booking time.
+      if (!isScheduledOrder) {
+        const { dispatchManager } = require("../../services/dispatch.manager");
+        await dispatchManager.startDispatch(savedOrder._id.toString(), sortedCandidateInfos, {
+          ...orderPayload,
+          customerUserId: userId,
+        });
+      }
 
       // NOTIFY vendor/restaurant
       if (vendorId && !isReserved) {
@@ -426,7 +567,7 @@ export class OrdersService {
     return result;
   }
 
-  async requestScheduledDelivery(userId: string, vendorId: string, scheduledFor: Date | string) {
+  async requestScheduledDelivery(userId: string, vendorId: string, scheduledFor: Date | string, orderId?: string) {
     if (!mongoose.Types.ObjectId.isValid(userId)) throw new Error("Invalid User ID format");
     if (!vendorId) throw new Error("Vendor is required");
 
@@ -451,12 +592,14 @@ export class OrdersService {
       customerPhone: user.phone || "",
       scheduledFor: requestedAt,
       status: "pending",
+      order: orderId,
     });
 
     const payload = {
       requestId,
       vendorId: vendor._id.toString(),
       customerId,
+      orderId,
       customerName: saved.customerName,
       customerPhone: saved.customerPhone,
       scheduledFor: requestedAt.toISOString(),
@@ -473,6 +616,7 @@ export class OrdersService {
       requestId,
       vendorId: vendor._id.toString(),
       customerId,
+      orderId,
       scheduledFor: requestedAt.toISOString(),
       status: "pending",
     };
@@ -489,6 +633,7 @@ export class OrdersService {
       customerId: request.customer.toString(),
       customerName: request.customerName,
       customerPhone: request.customerPhone,
+      orderId: request.order,
       scheduledFor: request.scheduledFor,
       status: request.status,
       respondedAt: request.respondedAt,
@@ -509,7 +654,7 @@ export class OrdersService {
     };
   }
 
-  async respondToScheduledDelivery(requestId: string, vendorId: string, accepted: boolean) {
+  async respondToScheduledDelivery(requestId: string, vendorId: string, accepted: boolean, reason?: string) {
     const request = await ScheduledDeliveryRequest.findOne({ requestId, vendor: vendorId });
     if (!request) throw new Error("Scheduled delivery request not found");
     if (request.status !== "pending") {
@@ -525,11 +670,90 @@ export class OrdersService {
       requestId: request.requestId,
       vendorId: request.vendor.toString(),
       customerId,
+      orderId: request.order,
       customerName: request.customerName,
       customerPhone: request.customerPhone,
       scheduledFor: request.scheduledFor.toISOString(),
       accepted,
       status: request.status,
+      reason: accepted ? undefined : reason,
+    };
+
+    // Carry the vendor's verdict onto the order it belongs to, if there is one.
+    if (request.order) {
+      const order = await Order.findOne(this.getOrderQuery(request.order));
+      if (order) {
+        await this.applyScheduleDecisionToOrder(order, accepted, reason);
+      }
+    }
+
+    const socketManager = SocketManager.getInstance();
+    if (socketManager) {
+      socketManager.emitToUser(
+        customerId,
+        accepted ? "scheduled_delivery_accepted" : "scheduled_delivery_rejected",
+        payload,
+      );
+    }
+
+    await this.notifyScheduleDecision(customerId, request.order, request.scheduledFor, accepted, reason);
+
+    return payload;
+  }
+
+  /**
+   * Scheduled orders for the admin screen, newest first.
+   */
+  async getScheduledOrders() {
+    const orders = await Order.find({ scheduledFor: { $ne: null } })
+      .populate("user", "name phone email")
+      .populate("vendor", "name phone address")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return orders.map((order: any) => ({
+      ...order,
+      items: this.extractOrderItems(order),
+    }));
+  }
+
+  /**
+   * Admin accept/reject of a scheduled order, addressed by order id. Mirrors the verdict onto
+   * the linked ScheduledDeliveryRequest so the vendor screen stays in step, and notifies the
+   * customer through the same NotificationService the vendor path uses.
+   */
+  async respondToOrderSchedule(orderId: string, action: "accept" | "reject", reason?: string) {
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    if (!order) throw new Error("Order not found");
+    if (!order.scheduledFor) {
+      throw new ValidationError("This order is not a scheduled order");
+    }
+    if (order.scheduleStatus && order.scheduleStatus !== "pending") {
+      throw new ValidationError(`This scheduled order was already ${order.scheduleStatus}`);
+    }
+
+    const accepted = action === "accept";
+    await this.applyScheduleDecisionToOrder(order, accepted, reason);
+
+    const requestId = order.scheduledDelivery?.requestId;
+    if (requestId) {
+      await ScheduledDeliveryRequest.updateOne(
+        { requestId, status: "pending" },
+        { $set: { status: accepted ? "accepted" : "rejected", respondedAt: new Date() } },
+      );
+    }
+
+    const customerId = order.user.toString();
+    const payload = {
+      orderId: order._id,
+      requestId,
+      customerId,
+      vendorId: order.vendor?.toString(),
+      scheduledFor: order.scheduledFor ? new Date(order.scheduledFor).toISOString() : null,
+      accepted,
+      status: order.status,
+      scheduleStatus: order.scheduleStatus,
+      scheduleRejectionReason: order.scheduleRejectionReason ?? undefined,
     };
 
     const socketManager = SocketManager.getInstance();
@@ -541,7 +765,61 @@ export class OrdersService {
       );
     }
 
+    await this.notifyScheduleDecision(customerId, order._id, order.scheduledFor, accepted, reason);
+
     return payload;
+  }
+
+  private async applyScheduleDecisionToOrder(order: any, accepted: boolean, reason?: string) {
+    order.scheduleStatus = accepted ? "accepted" : "rejected";
+
+    if (!order.scheduledDelivery) {
+      order.scheduledDelivery = { type: "later", requestedAt: order.scheduledFor };
+    }
+
+    if (accepted) {
+      order.scheduledDelivery.restaurantAccepted = true;
+      order.scheduledDelivery.acceptedAt = new Date();
+      order.scheduleRejectionReason = null;
+      order.isReserved = true;
+      order.reservedAt = order.scheduledFor ?? order.reservedAt;
+    } else {
+      order.scheduledDelivery.restaurantAccepted = false;
+      order.scheduleRejectionReason = reason || "The restaurant could not take this order for the requested slot";
+      order.status = OrderStatus.CANCELLED;
+    }
+
+    await order.save();
+    return order;
+  }
+
+  private async notifyScheduleDecision(
+    customerId: string,
+    orderId: string | undefined,
+    scheduledFor: Date | null | undefined,
+    accepted: boolean,
+    reason?: string,
+  ) {
+    const slot = scheduledFor ? new Date(scheduledFor).toLocaleString() : "the requested slot";
+    try {
+      await NotificationService.getInstance().sendNotification({
+        userId: customerId,
+        title: accepted ? "Scheduled order confirmed ✅" : "Scheduled order rejected ❌",
+        body: accepted
+          ? `Your order is confirmed for ${slot}.`
+          : `The restaurant could not take your order for ${slot}.${reason ? ` Reason: ${reason}.` : ""} Any payment will be refunded.`,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          orderId,
+          scheduleStatus: accepted ? "accepted" : "rejected",
+          scheduleRejectionReason: accepted ? undefined : reason,
+          deepLink: { screen: "/(tabs)/orders" },
+        },
+      });
+    } catch (err) {
+      console.error("[orders.service] Failed to send scheduled-order notification:", err);
+    }
   }
 
   async estimateFare(
@@ -722,7 +1000,54 @@ export class OrdersService {
             items: s.items,
           }))
         };
-        socketManager.broadcastToDrivers("new_order", payload, "orders.increasePrice");
+        // Restart the sequential cascade at the new price rather than broadcasting
+        // to every driver. A blanket broadcast bypassed the dispatch session, so two
+        // drivers could be looking at the same task, and the cascade carried on
+        // offering the OLD price behind it. Starting a fresh session also gives
+        // drivers who passed at the lower price another look, which is the point of
+        // raising it.
+        (async () => {
+          try {
+            const { DriverService } = require("../drivers/drivers.service");
+            const driversService = new DriverService();
+            const [lng, lat] = order.stops[0].location.coordinates;
+
+            let candidates = await driversService.getNearbyDrivers(lat, lng, undefined, order.serviceType, true);
+            if (candidates.length === 0) {
+              const fallbackQuery: any = { status: "ONLINE", isAvailable: true };
+              // Mapped, not raw — see mapServiceTypeToDriverVehicleType's comment:
+              // Driver.vehicleType has no "cab"/"cab_prime" value.
+              const fallbackVehicleType = mapServiceTypeToDriverVehicleType(order.serviceType);
+              if (fallbackVehicleType) {
+                fallbackQuery.vehicleType = fallbackVehicleType;
+              }
+              candidates = await Driver.find(fallbackQuery).populate("user");
+              // Same staleness rule as everywhere else this pattern appears — see
+              // filterDriversWithLiveLocation's comment in drivers.service.ts.
+              candidates = driversService.filterDriversWithLiveLocation(candidates, "increasePrice fallback");
+              // Same for the service-toggle check — see driverAcceptsServiceType's comment.
+              candidates = candidates.filter((d: any) => driverAcceptsServiceType(d.activeServices, order.serviceType));
+            }
+
+            const sorted = candidates
+              .filter((d: any) => d?.user?._id)
+              .map((d: any) => ({
+                driverId: d._id.toString(),
+                driverUserId: d.user._id.toString(),
+                distanceMeters: 0,
+                driverName: d.user?.name,
+                driverPhone: d.user?.phone,
+              }));
+
+            const { dispatchManager } = require("../../services/dispatch.manager");
+            await dispatchManager.startDispatch(order._id.toString(), sorted, {
+              ...payload,
+              customerUserId: (user?._id || order.user)?.toString(),
+            });
+          } catch (err) {
+            console.error("[orders.increasePrice] Failed to re-dispatch at the new price:", err);
+          }
+        })();
       }
 
       // Send push notifications to notify them of the price bump
@@ -819,6 +1144,22 @@ export class OrdersService {
         status: status,
       });
 
+      // ALSO emit to the customer's own room, under a distinct event — not
+      // "order_status_update" again, which the tracking screen's global handler
+      // applies unconditionally to whatever order it's currently displaying with
+      // no orderId check, so replaying it into every customer's room would leak
+      // one order's status onto another order's screen. The My Orders *list*
+      // otherwise had no way to learn an order finished except by refetching on
+      // screen focus, so a ride that completed while the customer was already
+      // sitting on that tab kept showing "Track order" until they navigated away
+      // and back.
+      if (order.user) {
+        socketManager.emitToUser(order.user.toString(), "customer_order_list_update", {
+          orderId: orderId.toString(),
+          status: status,
+        });
+      }
+
       // ALSO: if the order has a vendor, emit to the vendor room!
       if (order.vendor) {
         socketManager.emitToUser(order.vendor.toString(), "order_status_update_vendor", {
@@ -908,8 +1249,83 @@ export class OrdersService {
     return populated || savedOrder || order;
   }
 
+  /**
+   * Stop items are persisted as `{ lines: [...] }` (see createOrder), which is awkward for a
+   * client that just wants "what was ordered". This flattens every stop's lines into one
+   * array of `{ id, name, quantity, price, ... }` — what reorder needs.
+   */
+  extractOrderItems(order: any): any[] {
+    const stops = Array.isArray(order?.stops) ? order.stops : [];
+    const lines: any[] = [];
+
+    for (const stop of stops) {
+      const raw = stop?.items;
+      const stopLines = Array.isArray(raw) ? raw : Array.isArray(raw?.lines) ? raw.lines : [];
+      for (const line of stopLines) {
+        if (!line) continue;
+        lines.push({
+          ...line,
+          id: String(line.id ?? line._id ?? line.itemId ?? ""),
+          name: line.name ?? "",
+          quantity: Math.max(1, Math.round(Number(line.quantity) || 1)),
+          price: Number(line.price) || 0,
+        });
+      }
+    }
+
+    return lines;
+  }
+
   async getUserOrders(userId: string) {
-    return Order.find({ user: userId }).sort({ createdAt: -1 });
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    return orders.map((order: any) => ({
+      ...order,
+      items: this.extractOrderItems(order),
+    }));
+  }
+
+  /**
+   * The items of a past order, in the exact shape the cart stores them. Used by reorder.
+   */
+  async getReorderPayload(orderId: string, userId: string) {
+    const order = await Order.findOne(this.getOrderQuery(orderId)).lean();
+    if (!order) throw new Error("Order not found");
+    if (order.user?.toString() !== userId.toString()) {
+      throw new ValidationError("You can only reorder your own orders");
+    }
+
+    const lines = this.extractOrderItems(order).filter((line) => line.id);
+    const items = lines.map((line) => ({
+      itemId: line.id,
+      _id: line.id,
+      name: line.name,
+      description: line.description ?? "",
+      price: line.price,
+      category: line.category ?? "",
+      isVeg: line.isVeg !== false,
+      image: line.image,
+      images: line.images,
+      quantity: line.quantity,
+    }));
+
+    return {
+      orderId: order._id,
+      vendorId: order.vendor ? order.vendor.toString() : null,
+      items,
+    };
+  }
+
+  /**
+   * Rebuilds the caller's server cart from a past order and returns the new cart, so the app
+   * can reorder in a single request instead of replaying add-item calls.
+   */
+  async reorderIntoCart(orderId: string, userId: string) {
+    const { vendorId, items } = await this.getReorderPayload(orderId, userId);
+    if (!items.length) {
+      throw new ValidationError("This order has no items to reorder");
+    }
+
+    return this.cartService.saveCart(userId, vendorId, items);
   }
 
   async getVendorOrders(vendorId: string) {
@@ -1017,11 +1433,15 @@ export class OrdersService {
     if (socketManager) {
       // Driver details to send to customer
       const driverUser = await User.findById(driver.user);
+      // Same shape the customer app gets from GET /orders/:id, rating included, so
+      // the tracking sheet shows the same partner card whether it arrived over the
+      // socket or from a refetch.
       const driverInfo = {
         id: driver._id,
         name: driverUser?.name || "Driver",
         phone: driverUser?.phone || "",
         vehicle: driver.vehicleType || "unknown",
+        ...(await getDriverRating(driver._id)),
       };
       
       const payload = {

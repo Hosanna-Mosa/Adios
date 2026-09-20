@@ -75,7 +75,7 @@ export async function registerForPushNotificationsAsync() {
     console.log("[PushNotifications] Retrieved token:", expoPushToken);
 
     // Call backend API via customFetch
-    await customFetch("/api/v1/users/push-token", {
+    await customFetch("/users/push-token", {
       method: "POST",
       body: JSON.stringify({ expoPushToken }),
     });

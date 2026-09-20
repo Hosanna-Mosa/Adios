@@ -6,6 +6,7 @@ const SOCKET_URL = BASE_URL.replace("/api/v1", "");
 class SocketService {
   private socket: Socket | null = null;
   private static instance: SocketService;
+  private lastJoin: { userId: string; role: string } | null = null;
 
   private constructor() {}
 
@@ -34,6 +35,16 @@ class SocketService {
 
     this.socket.on("connect", () => {
       console.log("Connected to Real-time Hub (Vendor)");
+      // A dropped connection (network blip, tab backgrounded) gets a brand new
+      // socket.io handshake on reconnect, which starts back in no room at all —
+      // nothing re-sent "join" for it. A vendor sitting on the dashboard waiting
+      // for orders would silently stop receiving new_order_vendor after that,
+      // with no sound and no error to notice by. Re-join whatever room the last
+      // successful join asked for.
+      if (this.lastJoin) {
+        this.socket?.emit("join", this.lastJoin);
+        console.log(`[Vendor Socket] Re-joined room after reconnect: userId=${this.lastJoin.userId}, role=${this.lastJoin.role}`);
+      }
     });
 
     this.socket.on("disconnect", () => {
@@ -47,6 +58,7 @@ class SocketService {
 
   public join(userId: string, role: string = "VENDOR") {
     if (!this.socket) this.connect();
+    this.lastJoin = { userId, role };
     this.socket?.emit("join", { userId, role });
     console.log(`[Vendor Socket] Join room requested: userId=${userId}, role=${role}`);
   }
@@ -68,6 +80,7 @@ class SocketService {
   public disconnect() {
     this.socket?.disconnect();
     this.socket = null;
+    this.lastJoin = null;
   }
 }
 

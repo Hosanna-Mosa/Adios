@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
-import { Users as UsersIcon, UserCheck, UserX, Shield, SlidersHorizontal, UserPlus, Eye, Ban, ChevronLeft, ChevronRight, Mail, Trash2, Phone, Search } from "lucide-react";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { Pagination } from "@/components/shared/Pagination";
+import { fadeIn } from "@/components/motion/variants";
+import { Users as UsersIcon, UserCheck, UserX, Shield, SlidersHorizontal, UserPlus, Eye, Ban, Mail, Trash2, Search } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -134,12 +139,20 @@ export default function Users() {
   return (
     <DashboardLayout searchPlaceholder="Search users by name, email, or ID...">
       <div className="space-y-6">
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard icon={<UsersIcon className="h-5 w-5" />} label="Total Users" value={users.length.toString()} badge="+8% this month" badgeColor="success" />
-          <StatCard icon={<UserCheck className="h-5 w-5" />} label="Customers" value={activeUsersCount.toString()} badge="Active" badgeColor="success" />
-          <StatCard icon={<UserX className="h-5 w-5" />} label="Drivers" value={driverCount.toString()} badge="Verified" badgeColor="muted" />
-          <StatCard icon={<Shield className="h-5 w-5" />} label="Admins" value={adminCount.toString()} badge="System" badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-4 gap-4">
+          <StaggerItem>
+            <StatCard icon={<UsersIcon className="h-5 w-5" />} label="Total Users" value={users.length.toString()} badge="+8% this month" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<UserCheck className="h-5 w-5" />} label="Customers" value={activeUsersCount.toString()} badge="Active" badgeColor="success" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<UserX className="h-5 w-5" />} label="Drivers" value={driverCount.toString()} badge="Verified" badgeColor="muted" />
+          </StaggerItem>
+          <StaggerItem>
+            <StatCard icon={<Shield className="h-5 w-5" />} label="Admins" value={adminCount.toString()} badge="System" badgeColor="success" />
+          </StaggerItem>
+        </StaggerList>
 
         <div className="section-card">
           <div className="flex items-center justify-between p-6 pb-4">
@@ -210,8 +223,17 @@ export default function Users() {
                   </td>
                 </tr>
               ) : (
-                paginatedUsers.map((u: any) => (
-                  <tr key={u._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {paginatedUsers.map((u: any) => (
+                  <motion.tr
+                    key={u._id}
+                    layout
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    className="border-t border-border hover:bg-muted/30 transition-colors"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-foreground">
@@ -250,9 +272,6 @@ export default function Users() {
                         <Link to={`/users/${u._id}`} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="View details">
                           <Eye className="h-4 w-4" />
                         </Link>
-                        <button onClick={() => toast.success(`Initiating call with user ${u.name} at ${u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Call User">
-                          <Phone className="h-4 w-4" />
-                        </button>
                         <button onClick={() => toast.info(`Drafting email to ${u.email || u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Message User">
                           <Mail className="h-4 w-4" />
                         </button>
@@ -268,44 +287,21 @@ export default function Users() {
                         </button>
                       </div>
                     </td>
-                  </tr>
-                ))
+                  </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
 
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-            <p className="text-sm text-muted-foreground">Showing {paginatedUsers.length} of {filteredUsers.length} users</p>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
-                disabled={currentPage === 1}
-                className="p-1.5 border border-border rounded text-muted-foreground hover:bg-muted/50 disabled:opacity-40"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              {Array.from({ length: totalPages }, (_, idx) => (
-                <button 
-                  key={idx + 1} 
-                  onClick={() => setCurrentPage(idx + 1)} 
-                  className={`h-8 w-8 rounded text-sm font-medium transition-all ${
-                    currentPage === idx + 1 
-                      ? "bg-primary text-primary-foreground" 
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-              <button 
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} 
-                disabled={currentPage === totalPages}
-                className="p-1.5 border border-border rounded text-muted-foreground hover:bg-muted/50 disabled:opacity-40"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            itemLabel="users"
+            shownCount={paginatedUsers.length}
+            totalCount={filteredUsers.length}
+          />
         </div>
       </div>
 

@@ -4,33 +4,14 @@ import { Utensils, Star, Clock, IndianRupee, ChevronRight, TrendingUp, Package, 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
+import { playNewOrderChime } from "@/lib/notificationSound";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-
-const playChime = () => {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = "sine";
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    osc.start();
-    
-    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); // E5
-    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.6);
-    
-    osc.stop(ctx.currentTime + 0.6);
-  } catch (e) {
-    console.warn("Failed to play chime:", e);
-  }
-};
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 export default function VendorDashboard() {
   const queryClient = useQueryClient();
@@ -78,29 +59,18 @@ export default function VendorDashboard() {
   useEffect(() => {
     if (!vendorData._id) return;
 
-    // Connect and Join
+    // Connect and Join — VendorLayout (mounted for every /vendor/* page, this
+    // one included) already does this and owns the new_order_vendor sound/toast
+    // globally, so this page only needs its own status-update and
+    // scheduled-delivery handling.
     socketService.connect();
     socketService.join(vendorData._id, "VENDOR");
-
-    // Listen for new orders
-    const handleNewOrder = (data: any) => {
-      console.log("[SOCKET] New order received:", data);
-      playChime();
-      toast.success(`New order received! Order ${data.id.startsWith("ORD-") ? data.id : `#${data.id.slice(-6).toUpperCase()}`}`, {
-        duration: 8000,
-        action: {
-          label: "Refresh",
-          onClick: () => queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] })
-        }
-      });
-      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-    };
 
     // Listen for order status updates
     const handleStatusUpdate = (data: any) => {
       console.log("[SOCKET] Order status updated:", data);
       queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-      
+
       // If the currently open modal's order is updated, we fetch it or update local state
       if (selectedOrder && selectedOrder._id === data.orderId) {
         setSelectedOrder((prev: any) => prev ? { ...prev, status: data.status } : null);
@@ -108,7 +78,7 @@ export default function VendorDashboard() {
     };
 
     const handleScheduledDeliveryRequest = (data: any) => {
-      playChime();
+      playNewOrderChime();
       setScheduledRequest(data);
       setIsScheduleModalOpen(true);
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
@@ -117,12 +87,10 @@ export default function VendorDashboard() {
       });
     };
 
-    socketService.on("new_order_vendor", handleNewOrder);
     socketService.on("order_status_update_vendor", handleStatusUpdate);
     socketService.on("scheduled_delivery_request", handleScheduledDeliveryRequest);
 
     return () => {
-      socketService.off("new_order_vendor", handleNewOrder);
       socketService.off("order_status_update_vendor", handleStatusUpdate);
       socketService.off("scheduled_delivery_request", handleScheduledDeliveryRequest);
     };
@@ -201,9 +169,9 @@ export default function VendorDashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => (
-            <div key={stat.title} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all">
+            <StaggerItem key={stat.title} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className={`h-12 w-12 rounded-2xl ${stat.color} flex items-center justify-center`}>
                   <stat.icon className="h-6 w-6" />
@@ -215,12 +183,12 @@ export default function VendorDashboard() {
               </div>
               <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
               <h3 className="text-2xl font-bold text-foreground mt-1">{stat.value}</h3>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerList>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-card border border-border rounded-3xl p-8">
+          <FadeIn className="bg-card border border-border rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Recent Orders</h2>
               <button className="text-sm text-primary font-semibold flex items-center gap-1 hover:underline">
@@ -239,12 +207,12 @@ export default function VendorDashboard() {
                 <p className="text-sm text-muted-foreground max-w-[250px] mt-2">New orders from customers will appear here in real-time.</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <StaggerList className="space-y-4">
                 {orders.slice(0, 10).map((order) => {
                   const display = getStatusDisplay(order.status);
                   return (
-                    <div 
-                      key={order._id} 
+                    <StaggerItem
+                      key={order._id}
                       onClick={() => { setSelectedOrder(order); setIsModalOpen(true); }}
                       className="flex items-center justify-between p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer border border-transparent hover:border-border"
                     >
@@ -263,14 +231,14 @@ export default function VendorDashboard() {
                           {display.text}
                         </span>
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </StaggerList>
             )}
-          </div>
+          </FadeIn>
 
-          <div className="bg-card border border-border rounded-3xl p-8">
+          <FadeIn delay={0.05} className="bg-card border border-border rounded-3xl p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">Menu Performance</h2>
               <button className="text-sm text-primary font-semibold flex items-center gap-1 hover:underline">
@@ -286,7 +254,7 @@ export default function VendorDashboard() {
                 {isMeatVendor ? "Add your first meat items to start receiving orders." : "Add your first food items to start receiving orders."}
               </p>
             </div>
-          </div>
+          </FadeIn>
         </div>
       </div>
 

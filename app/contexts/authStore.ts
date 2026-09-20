@@ -16,12 +16,24 @@ interface AuthState {
   setUser: (user: any) => void;
   setToken: (token: string) => void;
   logout: () => Promise<void>;
+  /**
+   * Called by the HTTP layer's 401 interceptor. Clears the session, and returns
+   * true only for the call that actually did it — so a burst of parallel 401s
+   * produces exactly one sign-out and one redirect.
+   */
+  handleUnauthorized: () => boolean;
   requestOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
   verifyOTP: (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => Promise<{ success: boolean; isNewUser?: boolean }>;
   loginWithPassword: (phoneOrEmail: string, password: string, role: string) => Promise<{ success: boolean }>;
   initializeAuth: () => Promise<void>;
   toggleFavorite: (restaurantId: string) => Promise<void>;
+  toggleFavoriteItem: (itemId: string) => Promise<void>;
 }
+
+// Guards the one-shot session-expiry path against a redirect storm: several
+// in-flight requests can all come back 401 at once. Reset whenever a new token
+// is stored, so a later session can expire again.
+let sessionExpiryHandled = false;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -40,6 +52,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setToken: (token) => {
+    sessionExpiryHandled = false;
     set({ token });
     AsyncStorage.setItem("token", token);
   },
@@ -63,13 +76,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       // Update favorites in database
       if (token) {
-        await fetch(`${apiUrl}/api/v1/users/favorites/${restaurantId}`, {
+        await fetch(`${apiUrl}/users/favorites/${restaurantId}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
       }
     } catch (e) {
       console.error("Failed to persist favorites", e);
+    }
+  },
+
+  toggleFavoriteItem: async (itemId: string) => {
+    const { user, token } = get();
+    if (!user) return;
+
+    const currentFavoriteItems = user.favoriteItems || [];
+    const isFavorite = currentFavoriteItems.includes(itemId);
+    const newFavoriteItems = isFavorite
+      ? currentFavoriteItems.filter((id: string) => id !== itemId)
+      : [...currentFavoriteItems, itemId];
+
+    const updatedUser = { ...user, favoriteItems: newFavoriteItems };
+    set({ user: updatedUser });
+
+    try {
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+
+      if (token) {
+        await fetch(`${apiUrl}/users/favorite-items/${itemId}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+    } catch (e) {
+      console.error("Failed to persist favorite items", e);
     }
   },
 
@@ -90,7 +130,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ token, user: cachedUser });
 
         try {
-          const response = await fetch(`${apiUrl}/api/v1/users/profile`, {
+          const response = await fetch(`${apiUrl}/users/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -98,8 +138,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const data = await response.json();
             set({ user: data, isInitialized: true });
             await AsyncStorage.setItem("user", JSON.stringify(data));
-          } else if (response.status === 401 || response.status === 403 || response.status === 404) {
-            // Token is invalid/expired or user doesn't exist anymore
+          } else if (response.status === 401) {
+            // 401 is the only status the API uses for a dead session — missing,
+            // expired or revoked token, or a user that no longer exists. A 403
+            // means authenticated-but-not-permitted and a 404 means the route
+            // moved; neither is a reason to throw the session away.
             set({ token: null, user: null, isInitialized: true });
             await Promise.all([
               AsyncStorage.removeItem("token"),
@@ -121,7 +164,27 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  handleUnauthorized: () => {
+    if (sessionExpiryHandled || !get().token) return false;
+    sessionExpiryHandled = true;
+    void get().logout();
+    return true;
+  },
+
   logout: async () => {
+    const { token } = get();
+
+    // Best-effort: tell the server this token is done so it can't be reused
+    // if it leaks later. Local sign-out below happens regardless of whether
+    // this reaches the server (offline, timeout, already-expired token) —
+    // the device must never get stuck signed in because a network call failed.
+    if (token) {
+      fetch(`${apiUrl}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+
     set({ user: null, token: null, error: null, loading: false });
     try {
       await Promise.all([
@@ -136,7 +199,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   requestOTP: async (phone: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/request-otp`, {
+      const response = await fetch(`${apiUrl}/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
@@ -154,7 +217,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   verifyOTP: async (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/verify-otp`, {
+      const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, code, role, name, email, password }),
@@ -168,6 +231,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return { success: true, isNewUser: true };
       }
 
+      sessionExpiryHandled = false;
       set({ user: data.user, token: data.token });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
@@ -183,7 +247,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loginWithPassword: async (phoneOrEmail: string, password: string, role: string) => {
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${apiUrl}/api/v1/auth/login-password`, {
+      const response = await fetch(`${apiUrl}/auth/login-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phoneOrEmail, password, role }),
@@ -193,6 +257,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (!response.ok) throw new Error(data.message || "Login failed");
 
+      sessionExpiryHandled = false;
       set({ user: data.user, token: data.token });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),

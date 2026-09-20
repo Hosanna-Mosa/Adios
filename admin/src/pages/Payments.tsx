@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { DollarSign, Truck, CreditCard, SlidersHorizontal, Download, Eye, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -62,11 +67,11 @@ export default function Payments() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
-          <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Earnings" value={`₹${totalEarned.toLocaleString()}`} badge="MONTHLY" badgeColor="primary" subtitle="+12.4% from last month" />
-          <StatCard icon={<Truck className="h-5 w-5" />} label="Delivery Charges" value={`₹${(totalEarned * 0.35).toFixed(2)}`} subtitle="Updated 5 mins ago" badgeColor="primary" />
-          <StatCard icon={<CreditCard className="h-5 w-5" />} label="Driver Payouts" value={`₹${(totalEarned * 0.65).toFixed(2)}`} subtitle="98.2% Payout Success Rate" badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-3 gap-4">
+          <StaggerItem><StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Earnings" value={`₹${totalEarned.toLocaleString()}`} badge="MONTHLY" badgeColor="primary" subtitle="+12.4% from last month" /></StaggerItem>
+          <StaggerItem><StatCard icon={<Truck className="h-5 w-5" />} label="Delivery Charges" value={`₹${(totalEarned * 0.35).toFixed(2)}`} subtitle="Updated 5 mins ago" badgeColor="primary" /></StaggerItem>
+          <StaggerItem><StatCard icon={<CreditCard className="h-5 w-5" />} label="Driver Payouts" value={`₹${(totalEarned * 0.65).toFixed(2)}`} subtitle="98.2% Payout Success Rate" badgeColor="success" /></StaggerItem>
+        </StaggerList>
 
         {/* Table */}
         <div className="section-card">
@@ -115,8 +120,17 @@ export default function Payments() {
                   <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No transactions found matching the filter.</td>
                 </tr>
               ) : (
-                filteredTxns.map((t: any) => (
-                  <tr key={t.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <AnimatePresence mode="popLayout" initial={false}>
+                {filteredTxns.map((t: any) => (
+                  <motion.tr
+                    key={t.id}
+                    layout
+                    variants={fadeIn}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0 }}
+                    className="border-t border-border hover:bg-muted/30 transition-colors"
+                  >
                     <td className="px-6 py-4 text-sm font-medium text-primary">{t.id}</td>
                     <td className="px-6 py-4">
                       <p className="text-sm text-foreground">{t.date}</p>
@@ -133,8 +147,9 @@ export default function Payments() {
                         <Eye className="h-4 w-4" />
                       </button>
                     </td>
-                  </tr>
-                ))
+                  </motion.tr>
+                ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
@@ -154,7 +169,7 @@ export default function Payments() {
         {/* Bottom */}
         <div className="grid grid-cols-2 gap-4">
           {/* Revenue Breakdown */}
-          <div className="section-card p-6">
+          <FadeIn className="section-card p-6">
             <h3 className="text-lg font-semibold text-foreground mb-6">Revenue Breakdown</h3>
             <div className="space-y-5">
               {revenueBreakdown.map((r) => (
@@ -169,10 +184,10 @@ export default function Payments() {
                 </div>
               ))}
             </div>
-          </div>
+          </FadeIn>
 
           {/* Fluidity Insight */}
-          <div className="section-card p-6 bg-muted/50 flex flex-col items-center justify-center text-center">
+          <FadeIn delay={0.05} className="section-card p-6 bg-muted/50 flex flex-col items-center justify-center text-center">
             <Sparkles className="h-8 w-8 text-primary mb-3" />
             <h3 className="text-xl font-bold text-foreground">Fluidity Insight</h3>
             <p className="text-sm text-muted-foreground mt-3 max-w-[320px] leading-relaxed">
@@ -184,7 +199,7 @@ export default function Payments() {
             >
               View Analytics
             </button>
-          </div>
+          </FadeIn>
         </div>
       </div>
 

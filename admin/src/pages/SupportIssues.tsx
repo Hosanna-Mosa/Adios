@@ -23,6 +23,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { socketService } from "@/lib/socketService";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 
 interface Ticket {
   _id: string;
@@ -77,10 +79,27 @@ export default function SupportIssues() {
   // Listen for socket updates in real-time
   useEffect(() => {
     socketService.connect();
-    
-    const adminData = JSON.parse(localStorage.getItem("admin_data") || "{}");
-    if (adminData._id) {
+
+    // This only ever read admin_data, but a support sign-in stores support_data —
+    // so for the very role this page exists for, join() never ran and no live
+    // ticket update ever arrived. Read whichever identity is actually present,
+    // and join under that role. The parse is guarded because a malformed value in
+    // localStorage would otherwise throw during render and blank the page.
+    const readIdentity = (key: string) => {
+      try {
+        return JSON.parse(localStorage.getItem(key) || "{}");
+      } catch {
+        return {};
+      }
+    };
+
+    const adminData = readIdentity("admin_data");
+    const supportData = readIdentity("support_data");
+
+    if (adminData?._id) {
       socketService.join(adminData._id, "ADMIN");
+    } else if (supportData?._id) {
+      socketService.join(supportData._id, "SUPPORT");
     }
 
     const handleTicketUpdate = (data: any) => {
@@ -134,13 +153,13 @@ export default function SupportIssues() {
             <p className="page-subtitle">Track, filter, and resolve user issues and logistics complaints.</p>
           </div>
           <div className="flex gap-3">
-            <button 
-              onClick={() => toast.success("System audit support logs exported as CSV!")}
-              className="px-5 py-2.5 border border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors shadow-sm"
-            >
-              Export Logs
-            </button>
-            <button 
+            {/* "Export Logs" claimed "System audit support logs exported as
+                CSV!" and exported nothing — no such export exists on the
+                backend. Removed rather than left, matching every other
+                decorative button found this way elsewhere in the admin panel
+                (Generate Report, the old Export Logs on the fleet dashboard,
+                Manual Order, the various fake Call buttons). */}
+            <button
               onClick={() => setIsCreateOpen(true)}
               className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
             >
@@ -150,8 +169,8 @@ export default function SupportIssues() {
         </div>
 
         {/* Dashboard Stats */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="section-card p-5 flex items-center justify-between">
+        <StaggerList className="grid grid-cols-3 gap-6">
+          <StaggerItem className="section-card p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Total Active Tickets</p>
               <h3 className="text-2xl font-bold text-foreground">
@@ -161,8 +180,8 @@ export default function SupportIssues() {
             <div className="h-12 w-12 rounded-2xl bg-destructive/10 flex items-center justify-center">
               <AlertCircle className="h-6 w-6 text-destructive" />
             </div>
-          </div>
-          <div className="section-card p-5 flex items-center justify-between">
+          </StaggerItem>
+          <StaggerItem className="section-card p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pending Resolution</p>
               <h3 className="text-2xl font-bold text-warning">
@@ -172,8 +191,8 @@ export default function SupportIssues() {
             <div className="h-12 w-12 rounded-2xl bg-warning/10 flex items-center justify-center">
               <Clock className="h-6 w-6 text-warning" />
             </div>
-          </div>
-          <div className="section-card p-5 flex items-center justify-between">
+          </StaggerItem>
+          <StaggerItem className="section-card p-5 flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resolved Tickets</p>
               <h3 className="text-2xl font-bold text-[#00665c]">
@@ -183,8 +202,8 @@ export default function SupportIssues() {
             <div className="h-12 w-12 rounded-2xl bg-[#e6f4f2] flex items-center justify-center">
               <CheckCircle className="h-6 w-6 text-[#00665c]" />
             </div>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerList>
 
         {/* Main Section */}
         <div className="section-card flex flex-col min-h-[500px]">
@@ -257,11 +276,11 @@ export default function SupportIssues() {
                 <p className="text-xs mt-1">Try modifying your filters or search query.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <StaggerList className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredTickets.map((ticket) => {
                   const isActive = ticket.status === "OPEN" || ticket.status === "PENDING_RESOLVE";
                   return (
-                    <div
+                    <StaggerItem
                       key={ticket._id}
                       className="rounded-2xl p-5 border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all flex flex-col justify-between"
                     >
@@ -341,10 +360,10 @@ export default function SupportIssues() {
                           )}
                         </button>
                       </div>
-                    </div>
+                    </StaggerItem>
                   );
                 })}
-              </div>
+              </StaggerList>
             )}
           </div>
         </div>

@@ -31,6 +31,15 @@ export default {
       // can supply automatically.
       associatedDomains: ['applinks:x-api.triozen.tech'],
     },
+    // Dark status-bar icons, set natively so every window starts that way — a
+    // React Native <Modal> opens its own window and does not inherit the
+    // JS-side <StatusBar> in app/_layout.tsx, which is how sheets ended up with
+    // white-on-white icons.
+    androidStatusBar: {
+      barStyle: 'dark-content',
+      backgroundColor: '#00000000',
+      translucent: true,
+    },
     android: {
       package: 'com.flavour.customer',
       googleServicesFile: './google-services.json',
@@ -98,9 +107,14 @@ export default {
     },
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
-      webUrl: process.env.EXPO_PUBLIC_WEB_URL,
+      // Falls back to the App/Universal Link host declared above, which the backend
+      // answers at /restaurant-menu/:id — so "share this dish" produces a link that
+      // resolves even before a separate public website exists. Point
+      // EXPO_PUBLIC_WEB_URL at the real site once there is one.
+      webUrl: process.env.EXPO_PUBLIC_WEB_URL || 'https://x-api.triozen.tech',
+      // Previous (triozen-tech): b53cf032-dea6-4aff-835e-b3cd717e54a3
       eas: {
-        projectId: 'b53cf032-dea6-4aff-835e-b3cd717e54a3',
+        projectId: 'e3e714ab-ffe7-4ea4-bf62-b317be38497c',
       },
     },
   },

@@ -15,7 +15,9 @@ const buildApiUrl = (endpoint: string) => {
     return cleanEndpoint.replace(/^['"]+|['"]+$/g, "");
   }
 
-  const normalizedEndpoint = cleanEndpoint.startsWith("/") ? cleanEndpoint : `/${cleanEndpoint}`;
+  const normalizedEndpoint = cleanEndpoint.startsWith("/")
+    ? cleanEndpoint
+    : `/${cleanEndpoint}`;
   return `${API_BASE_URL.replace(/\/$/, "")}${normalizedEndpoint}`;
 };
 
@@ -23,9 +25,13 @@ type ApiOptions = RequestInit & {
   skipJsonContentType?: boolean;
 };
 
-export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
+export async function apiFetch<T>(
+  endpoint: string,
+  options: ApiOptions = {},
+): Promise<T> {
   const { skipJsonContentType, headers, ...requestOptions } = options;
-  const token = localStorage.getItem("vendor_token") || localStorage.getItem("admin_token");
+  const token =
+    localStorage.getItem("vendor_token") || localStorage.getItem("admin_token");
   const url = buildApiUrl(endpoint);
 
   const response = await fetch(url, {
@@ -44,4 +50,4 @@ export async function apiFetch<T>(endpoint: string, options: ApiOptions = {}): P
   }
 
   return data as T;
-};
+}

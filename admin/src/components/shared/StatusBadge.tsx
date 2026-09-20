@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 interface StatusBadgeProps {
   status: string;
   variant?: "optimal" | "delay" | "transit" | "open" | "settled" | "pending" | "suspended" | "confirmed" | "delivered" | "assigned" | "picking";
@@ -19,9 +21,15 @@ const variantStyles: Record<string, string> = {
 
 export function StatusBadge({ status, variant = "optimal" }: StatusBadgeProps) {
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${variantStyles[variant] || variantStyles.optimal}`}>
+    <motion.span
+      key={status}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15, ease: "easeOut" }}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${variantStyles[variant] || variantStyles.optimal}`}
+    >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
       {status}
-    </span>
+    </motion.span>
   );
 }

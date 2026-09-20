@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import { WeeklyHours } from "../../utils/openingHours";
 
 export interface IMeatCenter extends Document {
   name: string;
@@ -16,12 +17,31 @@ export interface IMeatCenter extends Document {
   reviews: string;
   categories: string[]; // e.g., ["Chicken", "Mutton", "Fish"]
   isOpen: boolean;
+  openingHours?: WeeklyHours;
+  isManuallyClosed: boolean;
   deliveryFee: number;
   minOrderValue: number;
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
 }
+
+// Mirrors Vendor.openingHours so one helper serves restaurants and meat centres.
+const dayHoursDefinition = () => ({
+  open: { type: String },
+  close: { type: String },
+  closed: { type: Boolean },
+});
+
+const openingHoursDefinition = () => ({
+  mon: dayHoursDefinition(),
+  tue: dayHoursDefinition(),
+  wed: dayHoursDefinition(),
+  thu: dayHoursDefinition(),
+  fri: dayHoursDefinition(),
+  sat: dayHoursDefinition(),
+  sun: dayHoursDefinition(),
+});
 
 const MeatCenterSchema: Schema = new Schema(
   {
@@ -39,6 +59,8 @@ const MeatCenterSchema: Schema = new Schema(
     reviews: { type: String, default: "0" },
     categories: { type: [String], default: [] },
     isOpen: { type: Boolean, default: true },
+    openingHours: openingHoursDefinition(),
+    isManuallyClosed: { type: Boolean, default: false },
     deliveryFee: { type: Number, default: 0 },
     minOrderValue: { type: Number, default: 0 },
   },

@@ -9,6 +9,9 @@ export interface ICoupon extends Document {
   expiryDate?: Date;
   isActive: boolean;
   usageCount: number;
+  vendor?: mongoose.Types.ObjectId;
+  title?: string;
+  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +26,10 @@ const CouponSchema: Schema = new Schema(
     expiryDate: { type: Date },
     isActive: { type: Boolean, default: true },
     usageCount: { type: Number, default: 0 },
+    // Unset means the coupon is platform-wide; set scopes it to one restaurant.
+    vendor: { type: Schema.Types.ObjectId, ref: "Vendor" },
+    title: { type: String },
+    description: { type: String },
   },
   { timestamps: true }
 );

@@ -8,6 +8,9 @@ import { socketService } from "../utils/socketService";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
+// Set once the dispatch socket listeners are attached — see goOnline.
+let dispatchListenersBound = false;
+
 export type StopType = "pickup" | "delivery" | "drop" | "stop";
 
 export interface StopItem {
@@ -80,7 +83,11 @@ export interface ChatMessage {
 export interface EarningsData {
   today: number;
   week: number;
+  /** Completed trips this week — kept under its original name so existing callers
+   * (Profile's "Trips" stat) don't need to change; use `todayTrips` for the
+   * home screen's "Today" performance view. */
   totalDeliveries: number;
+  todayTrips: number;
   weeklyBreakdown: { day: string; amount: number }[];
 }
 
@@ -121,6 +128,8 @@ interface DriverState {
   resetOnboarding: () => void;
   logout: () => void;
   addChatMessage: (msg: ChatMessage) => void;
+  /** Replaces the thread wholesale — used when the stored history is loaded. */
+  setChatMessages: (msgs: ChatMessage[]) => void;
   clearChat: () => void;
   setUnreadCount: (count: number) => void;
   incrementUnreadCount: () => void;
@@ -202,6 +211,7 @@ export const useDriverStore = create<DriverState>()(
         today: 0,
         week: 0,
         totalDeliveries: 0,
+        todayTrips: 0,
         weeklyBreakdown: [
           { day: "Mon", amount: 0 },
           { day: "Tue", amount: 0 },
@@ -219,13 +229,18 @@ export const useDriverStore = create<DriverState>()(
         const { token, driverUserId } = get();
         if (token) {
           try {
-            await fetch(`${apiUrl}/api/v1/drivers/status`, {
+            await fetch(`${apiUrl}/drivers/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
               },
-              body: JSON.stringify({ status: "ONLINE" })
+              // activeServices was previously kept purely client-side (see the
+              // "new_order" handler below) — the backend had no idea it existed, so
+              // dispatch could offer a food order to a ride-only driver whose app
+              // would then silently drop it. Sending it here lets the backend skip
+              // that driver as a candidate instead of wasting the offer.
+              body: JSON.stringify({ status: "ONLINE", activeServices: services })
             });
           } catch (e) {
             console.error("Failed to set online status:", e);
@@ -263,6 +278,14 @@ export const useDriverStore = create<DriverState>()(
         import("../utils/socketService").then(({ socketService }) => {
           socketService.connect();
           socketService.join(finalDriverId || "mock_driver_123", "DRIVER");
+
+          // join() has to run on every goOnline (it re-joins the dispatch room),
+          // but the listeners below must not stack: going offline and back on, or
+          // restoring a shift on launch, used to leave two handlers per event and
+          // pop the incoming-order modal twice for one order.
+          if (dispatchListenersBound) return;
+          dispatchListenersBound = true;
+
           socketService.on("new_order", (data: any) => {
             console.log("New order received:", data);
             
@@ -336,7 +359,7 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (token) {
           try {
-            await fetch(`${apiUrl}/api/v1/drivers/status`, {
+            await fetch(`${apiUrl}/drivers/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -362,7 +385,7 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/drivers/home-mode`, {
+            const res = await fetch(`${apiUrl}/drivers/home-mode`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -389,7 +412,7 @@ export const useDriverStore = create<DriverState>()(
         let orderFromApi: any = null;
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/orders/${orderId}`, {
+            const res = await fetch(`${apiUrl}/orders/${orderId}`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -456,7 +479,7 @@ export const useDriverStore = create<DriverState>()(
           let orderFromApi: any = null;
           if (token) {
             try {
-              const res = await fetch(`${apiUrl}/api/v1/orders/${incomingOrder.id}/accept`, {
+              const res = await fetch(`${apiUrl}/orders/${incomingOrder.id}/accept`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -539,15 +562,22 @@ export const useDriverStore = create<DriverState>()(
 
       rejectOrder: async (reason?: string) => {
         const { incomingOrder, token } = get();
-        if (incomingOrder && token && reason) {
+        if (incomingOrder && token) {
+          // The backend requires a non-empty reason (see orders.controller.ts)
+          // and uses this call to end the dispatch offer early rather than let
+          // the server's own ~16s per-driver timer run out — so a dismissal
+          // with no reason (the countdown expiring, the back button, tapping
+          // outside the sheet) still has to reach the server, or the dispatcher
+          // sits waiting out the full timeout for no reason.
+          const declineReason = reason || "Dismissed without reason";
           try {
-            await fetch(`${apiUrl}/api/v1/orders/${incomingOrder.id}/decline`, {
+            await fetch(`${apiUrl}/orders/${incomingOrder.id}/decline`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
               },
-              body: JSON.stringify({ reason })
+              body: JSON.stringify({ reason: declineReason })
             });
           } catch (e) {
             console.error("Failed to decline order", e);
@@ -570,7 +600,7 @@ export const useDriverStore = create<DriverState>()(
         let orderFromApi: any = null;
         if (token) {
           try {
-            const res = await fetch(`${apiUrl}/api/v1/orders/${currentOrder.id}/status`, {
+            const res = await fetch(`${apiUrl}/orders/${currentOrder.id}/status`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -654,6 +684,7 @@ export const useDriverStore = create<DriverState>()(
             today: earnings.today + currentOrder.earnings,
             week: earnings.week + currentOrder.earnings,
             totalDeliveries: earnings.totalDeliveries + 1,
+            todayTrips: earnings.todayTrips + 1,
           },
         });
       },
@@ -684,7 +715,7 @@ export const useDriverStore = create<DriverState>()(
         }
 
         try {
-          const res = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+          const res = await fetch(`${apiUrl}/drivers/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
@@ -702,6 +733,19 @@ export const useDriverStore = create<DriverState>()(
               hasCompletedOnboarding: result.driver?.onboardingStatus === "completed",
               identityVerified: result.verification?.identity ?? false,
             });
+
+            // The server owns shift status. Reconciling here is what keeps the
+            // toggle honest after a reload, and stops a completed ride from
+            // leaving the app looking offline while dispatch still has them on.
+            const serverOnline = String(result.driver?.status || "").toUpperCase() === "ONLINE";
+            const { isOnline, activeServices } = get();
+            if (serverOnline && !isOnline) {
+              // goOnline, not a bare flag: it also re-establishes the socket the
+              // driver needs to actually receive dispatches.
+              await get().goOnline(activeServices.length ? activeServices : ["food", "ride"]);
+            } else if (!serverOnline && isOnline) {
+              set({ isOnline: false });
+            }
           }
 
           return true;
@@ -712,6 +756,18 @@ export const useDriverStore = create<DriverState>()(
       },
   
       logout: () => {
+        const { token } = get();
+        // Best-effort, fire-and-forget: every caller of logout() treats it as
+        // synchronous, so this cannot block sign-out on the network. Local
+        // sign-out below happens either way — the device must never get stuck
+        // signed in because this request failed or the app is offline.
+        if (token) {
+          fetch(`${apiUrl}/auth/logout`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {});
+        }
+
         AsyncStorage.removeItem("driver-store"); // Clear persistence on logout
         set({
           isAuthenticated: false,
@@ -730,6 +786,8 @@ export const useDriverStore = create<DriverState>()(
         activeChat: [...state.activeChat, msg] 
       })),
 
+      setChatMessages: (activeChat) => set({ activeChat }),
+
       clearChat: () => set({ activeChat: [], unreadCount: 0 }),
 
       setUnreadCount: (unreadCount) => set({ unreadCount }),
@@ -740,7 +798,7 @@ export const useDriverStore = create<DriverState>()(
 
       loginWithPassword: async (phone: string, password: string) => {
         try {
-          const response = await fetch(`${apiUrl}/api/v1/auth/login-password`, {
+          const response = await fetch(`${apiUrl}/auth/login-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ phone, password, role: "DRIVER" }),
@@ -771,13 +829,14 @@ export const useDriverStore = create<DriverState>()(
         const { token } = get();
         if (!token || !apiUrl) return;
         try {
-          const res = await fetch(`${apiUrl}/api/v1/drivers/earnings`, {
+          const res = await fetch(`${apiUrl}/drivers/earnings`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok) return; // silently ignore — keep whatever is in store
           const data = await res.json();
           // Backend returns:
-          //   { availableBalance, weekBalance, trendPercent, weeklyBreakdown, stats: { completedTrips, onlineHours, totalDistance } }
+          //   { availableBalance, weekBalance, todayBalance, trendPercent, weeklyBreakdown,
+          //     stats: { completedTrips, completedTripsToday, onlineHours, totalDistance } }
           const weeklyBreakdown: { day: string; amount: number }[] =
             Array.isArray(data.weeklyBreakdown) && data.weeklyBreakdown.length > 0
               ? data.weeklyBreakdown
@@ -792,9 +851,10 @@ export const useDriverStore = create<DriverState>()(
                 ];
           set({
             earnings: {
-              today: data.availableBalance ?? 0,   // available balance as "today's earnings"
+              today: data.todayBalance ?? 0,
               week: data.weekBalance ?? 0,
               totalDeliveries: data.stats?.completedTrips ?? 0,
+              todayTrips: data.stats?.completedTripsToday ?? 0,
               weeklyBreakdown,
             },
           });
@@ -814,6 +874,11 @@ export const useDriverStore = create<DriverState>()(
         driverPhone: state.driverPhone,
         driverUserId: state.driverUserId,
         token: state.token,
+        // Shift status survives a reload: the server keeps the driver ONLINE
+        // across one, so dropping these left the app claiming OFFLINE while
+        // dispatch still considered them on shift.
+        isOnline: state.isOnline,
+        activeServices: state.activeServices,
         // Note: earnings and orderHistory are NOT persisted so fresh data
         // is always fetched from the API on each session start.
         activeChat: state.activeChat,

@@ -1,36 +1,36 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { FadeIn } from "@/components/motion/FadeIn";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { fadeIn } from "@/components/motion/variants";
 import { Calendar, Download } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { DownloadReportDialog } from "@/components/shared/DownloadReportDialog";
 
 export default function Analytics() {
-  const [selectedWeek, setSelectedWeek] = useState("W3");
-  const [timeRange, setTimeRange] = useState("Last 30 Days");
+  const [rangeDays, setRangeDays] = useState(30);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
-
   const { data: analyticsData, isLoading } = useQuery({
-    queryKey: ["admin", "analytics"],
-    queryFn: () => adminFetch<any>("/admin/analytics"),
+    // rangeDays is part of the key, so changing the range actually refetches.
+    queryKey: ["admin", "analytics", rangeDays],
+    queryFn: () => adminFetch<any>(`/admin/analytics?days=${rangeDays}`),
   });
 
-  const handleRangeChange = () => {
-    const ranges = ["Last 7 Days", "Last 30 Days", "Last 90 Days", "Year to Date"];
-    const nextIndex = (ranges.indexOf(timeRange) + 1) % ranges.length;
-    setTimeRange(ranges[nextIndex]);
-    toast.success(`Analytics dashboard updated for: ${ranges[nextIndex]}`);
-  };
+
+
+  const rangeLabel =
+    rangeDays === 7 ? "Last 7 days" :
+    rangeDays === 30 ? "Last 30 days" :
+    rangeDays === 90 ? "Last 90 days" : "Last 12 months";
+
+  const summary = analyticsData?.summary || {};
 
   const velocityData = analyticsData?.velocityData || [
     { day: "MON", orders: 1800 },
@@ -42,16 +42,9 @@ export default function Analytics() {
     { day: "SUN", orders: 2800 },
   ];
 
-  const heatmapData = analyticsData?.heatmapData || Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    intensity: Math.random(),
-  }));
-
-  const anomalies = analyticsData?.anomalies || [
-    { id: "#PN-9284-A", status: "Optimal", statusVariant: "optimal" as const, driver: "Marcus Chen", value: "₹4,281.00", activity: "Arrived at Hub B" },
-    { id: "#PN-9285-C", status: "Minor Delay", statusVariant: "delay" as const, driver: "Sarah Jenkins", value: "₹12,940.50", activity: "Heavy Traffic (Exit 4)" },
-    { id: "#PN-9286-K", status: "In-Transit", statusVariant: "transit" as const, driver: "David Miller", value: "₹842.12", activity: "Loading Dock 4" },
-  ];
+  // Real stuck orders only — this used to fall back to three invented shipments,
+  // so a healthy system still displayed a feed of anomalies.
+  const anomalies = analyticsData?.anomalies || [];
 
   return (
     <DashboardLayout searchPlaceholder="Search logistics metrics...">
@@ -63,12 +56,21 @@ export default function Analytics() {
             <p className="page-subtitle">Real-time logistics intelligence and fleet efficiency metrics.</p>
           </div>
           <div className="flex gap-3">
-            <button 
-              onClick={handleRangeChange}
-              className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-all"
-            >
-              <Calendar className="h-4 w-4" /> {timeRange}
-            </button>
+            <div className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <label htmlFor="analytics-range" className="sr-only">Date range</label>
+              <select
+                id="analytics-range"
+                value={rangeDays}
+                onChange={(e) => setRangeDays(Number(e.target.value))}
+                className="bg-transparent text-sm font-medium text-foreground outline-none cursor-pointer"
+              >
+                <option value={7}>Last 7 days</option>
+                <option value={30}>Last 30 days</option>
+                <option value={90}>Last 90 days</option>
+                <option value={365}>Last 12 months</option>
+              </select>
+            </div>
             <button 
               onClick={() => setIsDownloadOpen(true)}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
@@ -79,22 +81,23 @@ export default function Analytics() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4">
-          <StatCard label="Total Orders" value="12,842" badge="+14.2%" badgeColor="success" />
-          <StatCard label="Net Revenue" value="₹482.5k" badge="+8.4%" badgeColor="success" />
-          <StatCard label="Avg. Delivery" value="34.2m" badge="-2.1%" badgeColor="destructive" />
-          <StatCard label="Active Drivers" value="842" badge="98% cap." badgeColor="success" />
-        </div>
+        <StaggerList className="grid grid-cols-4 gap-4">
+          <StaggerItem><StatCard label="Total Orders" value={(summary.totalOrders ?? 0).toLocaleString()} badge={rangeLabel} badgeColor="muted" /></StaggerItem>
+          <StaggerItem><StatCard label="Net Revenue" value={`₹${(summary.netRevenue ?? 0).toLocaleString()}`} badge={`${summary.completedOrders ?? 0} completed`} badgeColor="success" /></StaggerItem>
+          <StaggerItem><StatCard label="Avg. Delivery" value={summary.avgDeliveryMinutes ? `${summary.avgDeliveryMinutes}m` : "—"} badge={rangeLabel} badgeColor="muted" /></StaggerItem>
+          <StaggerItem><StatCard label="Active Drivers" value={(summary.activeDrivers ?? 0).toLocaleString()} badge="Online now" badgeColor="success" /></StaggerItem>
+        </StaggerList>
 
         {/* Charts */}
         <div className="grid grid-cols-3 gap-4">
-          {/* Orders Velocity */}
-          <div className="col-span-2 section-card p-6">
+          {/* Orders Velocity. Spans the full row now that Revenue Stream (see
+              below) is gone rather than left as an empty card. */}
+          <FadeIn className="col-span-3 section-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">Orders Velocity</h3>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-success" />
-                <span className="text-xs text-muted-foreground">Last 7 Days</span>
+                <span className="text-xs text-muted-foreground">{rangeLabel}</span>
               </div>
             </div>
             {isLoading ? (
@@ -118,113 +121,21 @@ export default function Analytics() {
                 </AreaChart>
               </ResponsiveContainer>
             )}
-          </div>
+          </FadeIn>
 
-          {/* Revenue Stream */}
-          <div className="section-card p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-6">Revenue Stream</h3>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              {["W1", "W2", "W3", "W4"].map((w) => (
-                <button
-                  key={w}
-                  onClick={() => {
-                    setSelectedWeek(w);
-                    toast.success(`Revenue stream updated for week: ${w}`);
-                  }}
-                  className={`text-sm font-semibold px-3 py-1.5 rounded-lg transition-all ${w === selectedWeek ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-muted"}`}
-                >
-                  {w}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <span className="text-sm text-muted-foreground">Monthly Growth</span>
-              <span className="text-sm font-semibold text-success">+12.4%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Heatmap + Map */}
-        <div className="grid grid-cols-3 gap-4">
-          {/* Peak Demand Hours */}
-          <div className="section-card p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Peak Demand Hours</h3>
-            <div className="grid grid-cols-5 gap-1.5 mb-4">
-              {heatmapData.map((cell: any) => (
-                <div
-                  key={cell.id}
-                  className="h-8 rounded-sm cursor-pointer hover:opacity-85 transition-opacity"
-                  onClick={() => toast.info(`Hour block intensity: ${Math.round(cell.intensity * 100)}% load`)}
-                  style={{
-                    backgroundColor: `hsl(185, 80%, ${85 - cell.intensity * 55}%)`,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>06:00</span><span>10:00</span><span>14:00</span><span>18:00</span><span>22:00</span><span>02:00</span>
-            </div>
-          </div>
-
-          {/* Driver Saturation Map */}
-          <div className="col-span-2 section-card overflow-hidden h-[300px] relative">
-            {isLoaded ? (
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: "100%" }}
-                center={{ lat: 17.0005, lng: 81.8040 }}
-                zoom={12}
-                options={{
-                  zoomControl: true,
-                  streetViewControl: false,
-                  mapTypeControl: false,
-                  fullscreenControl: false,
-                }}
-              >
-                <Marker
-                  position={{ lat: 17.0005, lng: 81.8040 }}
-                  title="Downtown - High Density"
-                />
-                <Marker
-                  position={{ lat: 17.0205, lng: 81.8240 }}
-                  title="Industrial East - Optimal"
-                />
-              </GoogleMap>
-            ) : (
-              <div className="bg-gradient-to-br from-primary/10 to-primary/20 absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-                Loading Saturation Map...
-              </div>
-            )}
-
-            <div className="absolute top-6 left-6 bg-card/95 backdrop-blur p-4 rounded-xl shadow-sm max-w-[240px] z-10">
-              <h4 className="font-semibold text-foreground text-sm">Driver Saturation</h4>
-              <p className="text-xs text-muted-foreground mt-1">Live heatmap of metropolitan logistics flow.</p>
-              <div className="mt-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase text-foreground">Downtown</span>
-                  <span className="text-[11px] font-semibold text-destructive">High Density</span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full">
-                  <div className="h-full w-[85%] bg-primary rounded-full" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold uppercase text-foreground">Industrial East</span>
-                  <span className="text-[11px] font-semibold text-success">Optimal</span>
-                </div>
-                <div className="h-1.5 bg-muted rounded-full">
-                  <div className="h-full w-[45%] bg-primary rounded-full" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-card/90 backdrop-blur px-3 py-2 rounded-lg z-10 shadow">
-              <div className="flex -space-x-2">
-                <div className="h-6 w-6 rounded-full bg-primary/20 border-2 border-card" />
-                <div className="h-6 w-6 rounded-full bg-primary/30 border-2 border-card" />
-                <div className="h-6 w-6 rounded-full bg-primary/40 border-2 border-card" />
-              </div>
-              <span className="text-xs font-medium text-foreground">+12 Active Now</span>
-            </div>
-          </div>
+          {/*
+            Revenue Stream card removed. It was a W1-W4 toggle that swapped its
+            own highlighted state and toasted "Revenue stream updated for
+            week: W3" while nothing else — least of all the "Monthly Growth"
+            figure below it — actually changed: the same "+12.4%" showed for
+            every week, always green, never computed from anything.
+            /admin/analytics doesn't return revenue broken out by week (only
+            day-by-day order counts, already used by Orders Velocity above),
+            so there's nothing real for this control to switch between yet.
+            Removed outright rather than left as an empty shell — the same
+            call already made elsewhere on this page for Peak Demand Hours
+            and the Analytics map, both fake in the same way.
+          */}
         </div>
 
         <DownloadReportDialog
@@ -232,10 +143,11 @@ export default function Analytics() {
           onOpenChange={setIsDownloadOpen}
           title="Logistics Analytics Performance Report"
           data={[
-            { "Metric": "Total Orders", "Value": "12,842" },
-            { "Metric": "Net Revenue", "Value": "INR 482.5k" },
-            { "Metric": "Avg. Delivery Time", "Value": "34.2m" },
-            { "Metric": "Active Drivers", "Value": "842" },
+            { "Metric": "Range", "Value": rangeLabel },
+            { "Metric": "Total Orders", "Value": String(summary.totalOrders ?? 0) },
+            { "Metric": "Net Revenue", "Value": `INR ${(summary.netRevenue ?? 0).toLocaleString()}` },
+            { "Metric": "Avg. Delivery Time", "Value": summary.avgDeliveryMinutes ? `${summary.avgDeliveryMinutes}m` : "n/a" },
+            { "Metric": "Active Drivers", "Value": String(summary.activeDrivers ?? 0) },
             ...anomalies.map((a: any) => ({
               "Metric": `Anomaly: ${a.id} (${a.driver})`,
               "Value": `${a.status} - ${a.activity}`
@@ -246,7 +158,10 @@ export default function Analytics() {
         {/* Anomaly Detection */}
         <div className="section-card">
           <div className="flex items-center justify-between p-6 pb-4">
-            <h3 className="text-lg font-semibold text-foreground">Real-time Anomaly Detection</h3>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Real-time Anomaly Detection</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Active orders that have not progressed for over 40 minutes.</p>
+            </div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-success animate-pulse-dot" />
               <span className="text-xs font-medium text-primary">Live Feed</span>
@@ -263,8 +178,24 @@ export default function Analytics() {
               </tr>
             </thead>
             <tbody>
+              <AnimatePresence mode="popLayout" initial={false}>
+              {!isLoading && anomalies.length === 0 && (
+                <tr className="border-t border-border">
+                  <td colSpan={5} className="px-6 py-10 text-center text-sm text-muted-foreground">
+                    No stalled orders right now.
+                  </td>
+                </tr>
+              )}
               {anomalies.map((a: any) => (
-                <tr key={a.id} className="border-t border-border hover:bg-muted/30 transition-colors">
+                <motion.tr
+                  key={a.id}
+                  layout
+                  variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0 }}
+                  className="border-t border-border hover:bg-muted/30 transition-colors"
+                >
                   <td className="px-6 py-4 text-sm font-medium text-foreground">{a.id}</td>
                   <td className="px-6 py-4"><StatusBadge status={a.status} variant={a.statusVariant} /></td>
                   <td className="px-6 py-4">
@@ -275,18 +206,11 @@ export default function Analytics() {
                   </td>
                   <td className="px-6 py-4 text-sm text-foreground">{a.value}</td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">{a.activity}</td>
-                </tr>
+                </motion.tr>
               ))}
+              </AnimatePresence>
             </tbody>
           </table>
-          <div className="p-4 text-center border-t border-border">
-            <button 
-              onClick={() => toast.info("No older logistical anomalies or alerts detected.")}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              View All Insights
-            </button>
-          </div>
         </div>
       </div>
     </DashboardLayout>

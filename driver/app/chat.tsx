@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -12,10 +14,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
 import { socketService } from "@/utils/socketService";
-import { formatCustomerChatMessage } from "@/utils/chatMessages";
+import { formatCustomerChatMessage, formatStoredChatMessage } from "@/utils/chatMessages";
+import Constants from "expo-constants";
+
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
 const QUICK_REPLIES = [
   "On my way!",
@@ -26,23 +32,99 @@ const QUICK_REPLIES = [
 
 export default function DriverChatScreen() {
   const insets = useSafeAreaInsets();
-  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive } = useDriverStore();
+  const params = useLocalSearchParams<{ orderId?: string }>();
+  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive, token, setChatMessages, updateOrderStatus } = useDriverStore();
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const [canStartTask, setCanStartTask] = useState(false);
-  const isHelper = currentOrder?.serviceType?.toLowerCase() === "helper";
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [fetchedOrder, setFetchedOrder] = useState<{ id: string; customerName: string; customerPhone: string; serviceType?: string } | null>(null);
 
-  const handleStartTask = () => {
-    socketService.emit("task_started", { orderId: currentOrder?.id });
+  // currentOrder isn't persisted (deliberately — it's meant to always come from a
+  // fresh fetch), so opening this screen straight from a chat push notification —
+  // app cold-started, nothing in memory yet — left currentOrder null and the whole
+  // screen non-functional: no header info, and handleSend below bails out with no
+  // order to attach the message to. Fall back to fetching the order by the
+  // orderId the notification/link carries whenever it isn't already the one loaded.
+  const chatOrderId = params.orderId || currentOrder?.id;
+  const chatOrder = currentOrder?.id === chatOrderId ? currentOrder : fetchedOrder;
+
+  useEffect(() => {
+    if (!chatOrderId || !token || currentOrder?.id === chatOrderId) return;
+    let cancelled = false;
+    fetch(`${apiUrl}/orders/${chatOrderId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((order) => {
+        if (cancelled || !order) return;
+        setFetchedOrder({
+          id: order._id,
+          customerName: order.user?.name || "Customer",
+          customerPhone: order.user?.phone || "",
+          serviceType: order.serviceType,
+        });
+      })
+      .catch((err) => console.error("[Chat] Failed to load order:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [chatOrderId, token, currentOrder?.id]);
+
+  const isHelper = chatOrder?.serviceType?.toLowerCase() === "helper";
+  // The "discuss & start task" banner only makes sense for the driver's actual,
+  // currently active job — not when viewing an older conversation.
+  const isActiveJob = currentOrder?.id === chatOrderId;
+
+  // Starting the task has to move the order, not just fire a socket event: the
+  // customer's tracking screen reads the order status, so a socket-only start left
+  // their timeline stuck on "Helper assigned" for the whole job — and was lost
+  // entirely if their chat screen happened to be closed.
+  const handleStartTask = async () => {
+    if (!currentOrder?.id) return;
+    try {
+      await updateOrderStatus?.("IN_PROGRESS" as any);
+    } catch (err: any) {
+      console.warn("[Chat] Failed to mark task in progress:", err?.message);
+    }
+    socketService.emit("task_started", { orderId: currentOrder.id });
     router.push("/active-order");
   };
+
+  // The conversation lives on the server; the store only holds what arrived over
+  // the socket this session. Without this the driver opened chat on an order they
+  // had already been messaging about and saw an empty thread.
+  useEffect(() => {
+    if (!chatOrderId || !token) {
+      setLoadingHistory(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingHistory(true);
+
+    fetch(`${apiUrl}/orders/${chatOrderId}/chat`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((history: any[]) => {
+        if (cancelled) return;
+        const stored = (history || []).map(formatStoredChatMessage).filter(Boolean) as any[];
+        const live = useDriverStore.getState().activeChat || [];
+        const seen = new Set(stored.map((m) => m.id));
+        setChatMessages?.([...stored, ...live.filter((m: any) => !seen.has(m.id))]);
+      })
+      .catch((err) => console.error("[Chat] Failed to load chat history:", err))
+      .finally(() => {
+        if (!cancelled) setLoadingHistory(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [chatOrderId, token]);
 
   useEffect(() => {
     setUnreadCount?.(0);
     setIsChatActive?.(true);
 
-    if (currentOrder?.id) {
-      socketService.trackOrder(currentOrder.id);
+    if (chatOrderId) {
+      socketService.trackOrder(chatOrderId);
     }
 
     const handleReceiveMessage = (data: any) => {
@@ -68,10 +150,10 @@ export default function DriverChatScreen() {
       socketService.off("assign_task_confirmed", handleAssignTaskConfirmed);
       setIsChatActive?.(false);
     };
-  }, [currentOrder?.id]);
+  }, [chatOrderId]);
 
   const handleSend = (text = inputText) => {
-    if (!text.trim() || !currentOrder) return;
+    if (!text.trim() || !chatOrder) return;
 
     const messageText = text.trim();
     const tempId = Date.now().toString();
@@ -80,7 +162,7 @@ export default function DriverChatScreen() {
     addChatMessage?.({ text: messageText, from: "driver" as const, id: tempId, time });
 
     socketService.emit("send_message", {
-      orderId: currentOrder.id,
+      orderId: chatOrder.id,
       senderId: driverUserId || "driver",
       role: "DRIVER",
       text: messageText,
@@ -103,7 +185,7 @@ export default function DriverChatScreen() {
       >
         {!isDriver && (
           <View style={styles.driverAvatar}>
-            <Feather name="user" size={14} color="#43474e" />
+            <Feather name="user" size={14} color={Colors.textSecondary} />
           </View>
         )}
         <View
@@ -131,34 +213,43 @@ export default function DriverChatScreen() {
     >
       <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={22} color="#191c1e" />
+          <Feather name="arrow-left" size={22} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <View style={styles.headerAvatar}>
-            <Feather name="user" size={20} color="#43474e" />
+            <Feather name="user" size={20} color={Colors.textSecondary} />
             <View style={styles.onlineDot} />
           </View>
           <View>
-            <Text style={styles.headerName}>{currentOrder?.customerName || "Customer"}</Text>
-            <Text style={styles.headerStatus}>Customer � Online</Text>
+            <Text style={styles.headerName}>{chatOrder?.customerName || "Customer"}</Text>
+            <Text style={styles.headerStatus}>Customer · Online</Text>
           </View>
         </View>
         <TouchableOpacity
           style={styles.callBtn}
-          onPress={() => Linking.openURL(`tel:${currentOrder?.customerPhone || "1234567890"}`)}
+          onPress={() => {
+            // Was falling back to a hardcoded placeholder number ("1234567890")
+            // whenever the customer's phone hadn't loaded yet, so the driver
+            // could actually place a call to a fake number without warning.
+            if (!chatOrder?.customerPhone) {
+              Alert.alert("No phone number", "The customer's phone number isn't available for this order.");
+              return;
+            }
+            Linking.openURL(`tel:${chatOrder.customerPhone}`);
+          }}
         >
-          <Feather name="phone" size={20} color="#0EA5E9" />
+          <Feather name="phone" size={20} color={Colors.brand} />
         </TouchableOpacity>
       </View>
 
-      {isHelper && (
-        <View style={{ backgroundColor: '#F0FDF4', padding: 12, borderBottomWidth: 1, borderBottomColor: '#DCFCE7', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      {isHelper && isActiveJob && (
+        <View style={{ backgroundColor: Colors.successLight, padding: 12, borderBottomWidth: 1, borderBottomColor: Colors.successLight, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flex: 1, paddingRight: 10 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#166534' }}>Discuss Task Details</Text>
-            <Text style={{ fontSize: 11, color: '#15803D' }}>{canStartTask ? "Customer has assigned the task! You can start now." : "Wait for the customer to assign the task."}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.success }}>Discuss Task Details</Text>
+            <Text style={{ fontSize: 11, color: Colors.success }}>{canStartTask ? "Customer has assigned the task! You can start now." : "Wait for the customer to assign the task."}</Text>
           </View>
           <TouchableOpacity 
-            style={{ backgroundColor: canStartTask ? '#16A34A' : '#9CA3AF', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 }}
+            style={{ backgroundColor: canStartTask ? Colors.success : Colors.textMuted, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 }}
             disabled={!canStartTask}
             onPress={handleStartTask}
           >
@@ -176,6 +267,18 @@ export default function DriverChatScreen() {
         showsVerticalScrollIndicator={false}
         onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+        ListEmptyComponent={
+          // "No messages" is only true once the stored thread has been read.
+          <View style={styles.emptyState}>
+            {loadingHistory ? (
+              <ActivityIndicator color={Colors.brand} />
+            ) : (
+              <Text style={styles.emptyStateText}>
+                Messages with {chatOrder?.customerName || "the customer"} will show up here.
+              </Text>
+            )}
+          </View>
+        }
       />
 
       <View style={styles.quickRepliesContainer}>
@@ -201,7 +304,7 @@ export default function DriverChatScreen() {
           <TextInput
             style={styles.textInput}
             placeholder="Type a message..."
-            placeholderTextColor="#74777f"
+            placeholderTextColor={Colors.textMuted}
             value={inputText}
             onChangeText={setInputText}
             multiline
@@ -225,7 +328,7 @@ export default function DriverChatScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: Colors.surfaceContainerLow,
   },
   header: {
     flexDirection: "row",
@@ -234,7 +337,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    borderBottomColor: Colors.surfaceContainer,
     gap: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -246,7 +349,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 8,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: Colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -260,7 +363,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 10,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: Colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -268,7 +371,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#22C55E",
+    backgroundColor: Colors.success,
     borderWidth: 2,
     borderColor: "#fff",
     position: "absolute",
@@ -278,19 +381,19 @@ const styles = StyleSheet.create({
   headerName: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#191c1e",
+    color: Colors.text,
     letterSpacing: -0.3,
   },
   headerStatus: {
     fontSize: 10,
-    color: "#22C55E",
+    color: Colors.success,
     fontWeight: "600",
   },
   callBtn: {
     width: 30,
     height: 30,
     borderRadius: 8,
-    backgroundColor: "#F0F9FF",
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -316,7 +419,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 8,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: Colors.surfaceContainer,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,
@@ -329,7 +432,7 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   bubbleUser: {
-    backgroundColor: "#0EA5E9",
+    backgroundColor: Colors.brand,
     borderBottomRightRadius: 6,
   },
   bubbleDriver: {
@@ -349,7 +452,7 @@ const styles = StyleSheet.create({
   },
   bubbleTextDriver: {
     fontSize: 13,
-    color: "#191c1e",
+    color: Colors.text,
     fontWeight: "500",
     lineHeight: 18,
   },
@@ -361,15 +464,26 @@ const styles = StyleSheet.create({
   },
   timeDriver: {
     fontSize: 10,
-    color: "#74777f",
+    color: Colors.textMuted,
     fontWeight: "500",
     alignSelf: "flex-end",
   },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
   quickRepliesContainer: {
     paddingVertical: 8,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: Colors.surfaceContainerLow,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: Colors.surfaceContainer,
   },
   quickRepliesList: {
     paddingHorizontal: 16,
@@ -381,7 +495,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderWidth: 1.5,
-    borderColor: "#E2E8F0",
+    borderColor: Colors.border,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -391,7 +505,7 @@ const styles = StyleSheet.create({
   quickReplyText: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#43474e",
+    color: Colors.textSecondary,
   },
   inputBar: {
     flexDirection: "row",
@@ -401,11 +515,11 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: Colors.surfaceContainer,
   },
   inputContainer: {
     flex: 1,
-    backgroundColor: "#F1F5F9",
+    backgroundColor: Colors.surfaceContainer,
     borderRadius: 22,
     height: 44,
     paddingHorizontal: 14,
@@ -414,7 +528,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 15,
-    color: "#191c1e",
+    color: Colors.text,
     fontWeight: "500",
     paddingVertical: 0,
     textAlignVertical: "center",
@@ -423,17 +537,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0EA5E9",
+    backgroundColor: Colors.brand,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#0EA5E9",
+    shadowColor: Colors.brand,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 6,
   },
   sendBtnDisabled: {
-    backgroundColor: "#CBD5E1",
+    backgroundColor: Colors.border,
     shadowOpacity: 0,
   },
 });

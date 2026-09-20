@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { adminFetch } from "@/lib/api-client";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 type ForgotStep = "email" | "otp" | "reset" | "done";
 
@@ -37,7 +38,7 @@ export default function VendorLogin() {
         : { phone: identifier, password };
 
       let data;
-      let loginType: "vendor" | "admin" = "vendor";
+      let loginType: "vendor" | "admin" | "support" = "vendor";
 
       // 1. Try Restaurant Vendor login
       try {
@@ -106,20 +107,29 @@ export default function VendorLogin() {
 
     setIsLoading(true);
     try {
-      // Try meat vendor first, then restaurant vendor
-      try {
-        await adminFetch("/meat/forgot-password", {
+      // Both endpoints now answer the same generic "if an account exists"
+      // message whether or not this email matches one of their accounts — they
+      // no longer 404 on a miss — so trying meat first and falling through to
+      // vendor on failure would never reach the vendor call. Fire both; each
+      // sends its own email if (and only if) the address belongs to that kind
+      // of account, so a restaurant vendor and a meat-centre vendor sharing an
+      // email would simply get two.
+      const [meatResult, vendorResult] = await Promise.allSettled([
+        adminFetch("/meat/forgot-password", {
           method: "POST",
           body: JSON.stringify({ email: forgotEmail }),
-        });
-      } catch {
-        await adminFetch("/vendors/forgot-password", {
+        }),
+        adminFetch("/vendors/forgot-password", {
           method: "POST",
           body: JSON.stringify({ email: forgotEmail }),
-        });
+        }),
+      ]);
+
+      if (meatResult.status === "rejected" && vendorResult.status === "rejected") {
+        throw (vendorResult as PromiseRejectedResult).reason;
       }
 
-      toast.success("OTP sent to your email");
+      toast.success("If an account exists for this email, an OTP has been sent.");
       setForgotStep("otp");
     } catch (error: any) {
       toast.error(error.message || "Failed to send OTP");
@@ -194,7 +204,7 @@ export default function VendorLogin() {
           <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
         </div>
 
-        <div className="w-full max-w-md p-8 relative z-10">
+        <FadeIn className="w-full max-w-md p-8 relative z-10">
           <div className="text-center mb-8">
             <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
               {forgotStep === "done" ? (
@@ -381,7 +391,7 @@ export default function VendorLogin() {
           <p className="text-center text-xs text-muted-foreground mt-8">
             &copy; 2026 Precision Nav Logistics. All rights reserved.
           </p>
-        </div>
+        </FadeIn>
       </div>
     );
   }
@@ -395,7 +405,7 @@ export default function VendorLogin() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
       </div>
 
-      <div className="w-full max-w-md p-8 relative z-10">
+      <FadeIn className="w-full max-w-md p-8 relative z-10">
         <div className="text-center mb-10">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 mb-4">
             <Store className="h-8 w-8 text-primary" />
@@ -460,17 +470,12 @@ export default function VendorLogin() {
             </Button>
           </form>
 
-          <div className="mt-8 pt-8 border-t border-border text-center">
-            <p className="text-sm text-muted-foreground">
-              Not a partner yet? <button className="text-primary font-semibold hover:underline">Join Precision Nav</button>
-            </p>
-          </div>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-8">
           &copy; 2026 Precision Nav Logistics. All rights reserved.
         </p>
-      </div>
+      </FadeIn>
     </div>
   );
 }

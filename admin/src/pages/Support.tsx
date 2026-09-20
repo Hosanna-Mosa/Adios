@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { socketService } from "@/lib/socketService";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
+import { FadeIn } from "@/components/motion/FadeIn";
 
 interface Ticket {
   _id: string;
@@ -19,6 +22,7 @@ interface Ticket {
   status: "OPEN" | "RESOLVED";
   message: string;
   user: string;
+  userRole?: string;
   time: string;
   messages: Array<{ sender: "user" | "admin" | "system"; time: string; text: string }>;
 }
@@ -132,23 +136,9 @@ export default function Support() {
             <h1 className="page-header">Support Resolution</h1>
             <p className="page-subtitle">Manage customer queries and real-time logistics escalations.</p>
           </div>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => toast.success("System audit support logs exported as CSV!")}
-              className="px-5 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
-              Export Logs
-            </button>
-            <button 
-              onClick={() => setIsCreateOpen(true)}
-              className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-            >
-              Create Ticket
-            </button>
-          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 min-h-[700px]">
+        <div className="grid grid-cols-2 gap-6 h-[calc(100vh-210px)] min-h-[480px]">
           {/* Left - Tickets */}
           <div className="section-card flex flex-col">
             {/* Tabs */}
@@ -171,14 +161,14 @@ export default function Support() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 space-y-3">
+            <StaggerList className="flex-1 overflow-auto p-4 space-y-3">
               {isLoading ? (
                 <div className="py-10 text-center text-muted-foreground">Loading support cases...</div>
               ) : filteredTickets.length === 0 ? (
                 <div className="py-10 text-center text-muted-foreground">No cases found in this category.</div>
               ) : (
                 filteredTickets.map((ticket) => (
-                  <div
+                  <StaggerItem
                     key={ticket._id}
                     onClick={() => setActiveTicketId(ticket._id)}
                     className={`rounded-2xl p-4 border transition-all cursor-pointer ${
@@ -228,16 +218,16 @@ export default function Support() {
                         <span className="text-xs text-muted-foreground">{ticket.time}</span>
                       </div>
                     )}
-                  </div>
+                  </StaggerItem>
                 ))
               )}
-            </div>
+            </StaggerList>
           </div>
 
           {/* Right - Chat */}
           <div className="section-card flex flex-col">
             {selectedTicket ? (
-              <>
+              <FadeIn key={selectedTicket._id} className="flex flex-col flex-1 min-h-0">
                 {/* Chat Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                   <div className="flex items-center gap-3">
@@ -264,12 +254,6 @@ export default function Support() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => toast.success(`Calling ${selectedTicket.user}... Link established.`)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors border border-border"
-                    >
-                      <Phone className="h-4 w-4 text-muted-foreground" />
-                    </button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="p-2 hover:bg-muted rounded-lg transition-colors border border-border">
@@ -332,36 +316,36 @@ export default function Support() {
                 </div>
 
                 {/* Input */}
-                <div className="p-4 border-t border-border">
+                <div className="p-4 border-t border-border shrink-0">
                   <div className="bg-muted/50 rounded-xl p-3 border border-border">
-                    <textarea
-                      value={typedMessage}
-                      onChange={(e) => setTypedMessage(e.target.value)}
-                      placeholder={`Type your response to ${selectedTicket.user}...`}
-                      className="w-full bg-transparent text-sm placeholder:text-muted-foreground resize-none focus:outline-none min-h-[60px]"
-                    />
-                    <div className="flex items-center justify-between mt-2">
-                      <div className="flex gap-2">
-                        <button onClick={() => toast.info("Attachments dialog closed.")} className="p-1.5 hover:bg-muted rounded transition-colors">
-                          <Paperclip className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                        <button onClick={() => toast.info("Images attachment selected.")} className="p-1.5 hover:bg-muted rounded transition-colors">
-                          <Image className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                        <button onClick={() => toast.info("Emoji drawer not simulated.")} className="p-1.5 hover:bg-muted rounded transition-colors">
-                          <Smile className="h-4 w-4 text-muted-foreground" />
-                        </button>
-                      </div>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <label htmlFor="support-reply" className="text-xs font-semibold text-muted-foreground">
+                        Reply to {selectedTicket.user}
+                      </label>
                       <button 
                         onClick={handleSendMessage}
-                        className="flex items-center gap-2 px-4 py-2 bg-foreground text-card rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                        disabled={!typedMessage.trim()}
+                        className="flex items-center gap-2 px-4 py-2 bg-foreground text-card rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                       >
-                        Send Message <Send className="h-3.5 w-3.5" />
+                        Send <Send className="h-3.5 w-3.5" />
                       </button>
                     </div>
+                    <textarea
+                      id="support-reply"
+                      value={typedMessage}
+                      onChange={(e) => setTypedMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
+                      }}
+                      placeholder="Type your response, then press Enter to send..."
+                      className="w-full bg-transparent text-sm placeholder:text-muted-foreground resize-none focus:outline-none h-[72px]"
+                    />
                   </div>
                 </div>
-              </>
+              </FadeIn>
             ) : (
               <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 Select a ticket complaint to start resolution chat.
@@ -371,58 +355,6 @@ export default function Support() {
         </div>
       </div>
 
-      {/* Create Ticket Dialog */}
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Create New Support Case</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateTicketSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Issue Summary / Title</label>
-              <Input 
-                value={newTicket.title} 
-                onChange={e => setNewTicket({...newTicket, title: e.target.value})} 
-                placeholder="e.g. Order #QX-9903 Damage"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Affected User Name</label>
-              <Input 
-                value={newTicket.user} 
-                onChange={e => setNewTicket({...newTicket, user: e.target.value})} 
-                placeholder="e.g. Alex Rivera"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Support Category</label>
-              <select 
-                value={newTicket.category} 
-                onChange={e => setNewTicket({...newTicket, category: e.target.value})}
-                className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-              >
-                <option value="OPERATIONAL ISSUE">OPERATIONAL ISSUE</option>
-                <option value="DELAYED DELIVERY">DELAYED DELIVERY</option>
-                <option value="MULTI-STOP ADJUSTMENT">MULTI-STOP ADJUSTMENT</option>
-                <option value="QUALITY CONTROL">QUALITY CONTROL</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Detailed Issue Message</label>
-              <Textarea 
-                value={newTicket.message}
-                onChange={e => setNewTicket({...newTicket, message: e.target.value})}
-                placeholder="Describe the complaint or logistics issue in detail..."
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full mt-4 bg-primary text-primary-foreground">
-              Submit Ticket Case
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </DashboardLayout>
   );
 }

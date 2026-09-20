@@ -1,6 +1,9 @@
 import { useState, useCallback } from "react";
 import { Navigate } from "react-router-dom";
 import { VendorLayout } from "@/components/layout/VendorLayout";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { Plus, Utensils, IndianRupee, Trash2, Edit2, Search, Filter, Upload, X, Loader2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
@@ -16,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 interface FoodItem {
   _id: string;
@@ -25,7 +29,12 @@ interface FoodItem {
   category: string;
   isVeg: boolean;
   images: string[];
+  isAvailable?: boolean;
 }
+
+// Documents written before the flag existed have no `isAvailable` at all, so only an
+// explicit false means sold out — matching the guard the customer app uses.
+const isInStock = (item: FoodItem) => item.isAvailable !== false;
 
 export default function VendorMenu() {
   const queryClient = useQueryClient();
@@ -105,8 +114,10 @@ export default function VendorMenu() {
     }
   };
 
+  const menuQueryKey = ["vendor-menu", vendorData._id];
+
   const { data: menu, isLoading } = useQuery({
-    queryKey: ["vendor-menu", vendorData._id],
+    queryKey: menuQueryKey,
     queryFn: () => adminFetch<FoodItem[]>(`/food/vendor/${vendorData._id}`),
     enabled: !!vendorData._id && vendorData.role !== "meat_vendor"
   });
@@ -151,6 +162,37 @@ export default function VendorMenu() {
     },
     onError: (err: any) => {
       toast.error(err.message || "Failed to update food item");
+    }
+  });
+
+  // Kept separate from updateFoodMutation: the card toggle must not close the edit
+  // dialog, and the edit form must never carry isAvailable (it would clobber the flag).
+  // Optimistic so the switch answers instantly, rolled back if the server refuses.
+  const toggleAvailabilityMutation = useMutation({
+    mutationFn: ({ id, isAvailable }: { id: string; isAvailable: boolean }) =>
+      adminFetch<FoodItem>(`/food/items/${id}/availability`, {
+        method: "PATCH",
+        body: JSON.stringify({ isAvailable })
+      }),
+    onMutate: async ({ id, isAvailable }) => {
+      await queryClient.cancelQueries({ queryKey: menuQueryKey });
+      const previousMenu = queryClient.getQueryData<FoodItem[]>(menuQueryKey);
+      queryClient.setQueryData<FoodItem[]>(menuQueryKey, (current) =>
+        current?.map((item) => (item._id === id ? { ...item, isAvailable } : item))
+      );
+      return { previousMenu };
+    },
+    onSuccess: (_item, { isAvailable }) => {
+      toast.success(isAvailable ? "Dish is back in stock" : "Dish marked out of stock");
+    },
+    onError: (err: any, _variables, context) => {
+      if (context?.previousMenu) {
+        queryClient.setQueryData(menuQueryKey, context.previousMenu);
+      }
+      toast.error(err.message || "Failed to update availability");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-menu"] });
     }
   });
 
@@ -237,7 +279,7 @@ export default function VendorMenu() {
                     <div className="flex flex-wrap gap-2 mt-4">
                       {newItem.images.map((url, i) => (
                         <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-border">
-                          <img src={url} className="h-full w-full object-cover" />
+                          <LazyImage src={url} alt="" className="h-full w-full object-cover" wrapperClassName="h-full w-full" />
                           <button 
                             type="button"
                             onClick={() => removeImage(i)}
@@ -316,7 +358,7 @@ export default function VendorMenu() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <StaggerList className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {isLoading ? (
             <p>Loading menu...</p>
           ) : menu?.length === 0 ? (
@@ -326,10 +368,26 @@ export default function VendorMenu() {
               <p className="text-muted-foreground max-w-[300px] mt-1">Start adding dishes to show them to your customers in the app.</p>
             </div>
           ) : (
-            menu?.map((item) => (
-              <div key={item._id} className="bg-card border border-border overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all group">
+            menu?.map((item) => {
+              const inStock = isInStock(item);
+              const isToggling =
+                toggleAvailabilityMutation.isPending &&
+                toggleAvailabilityMutation.variables?.id === item._id;
+
+              return (
+              <StaggerItem
+                key={item._id}
+                className={`bg-card border overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all group ${
+                  inStock ? "border-border" : "border-dashed border-muted-foreground/40 opacity-75"
+                }`}
+              >
                 <div className="h-48 w-full relative overflow-hidden">
-                  <img src={item.images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"} alt={item.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <LazyImage
+                    src={item.images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    wrapperClassName="h-full w-full"
+                  />
                   <div className="absolute top-4 left-4 h-6 w-6 rounded border border-white bg-white/20 backdrop-blur-md flex items-center justify-center p-1">
                      <div className={`h-full w-full rounded-full ${item.isVeg ? "bg-success" : "bg-destructive"}`} />
                   </div>
@@ -355,11 +413,33 @@ export default function VendorMenu() {
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-1">{item.name}</h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+
+                  <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-3">
+                    <div>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                          inStock ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                        }`}
+                      >
+                        {inStock ? "In Stock" : "Out of Stock"}
+                      </span>
+                      <p className="text-[11px] text-muted-foreground mt-1.5">
+                        {inStock ? "Customers can order this dish" : "Shows as sold out in the app"}
+                      </p>
+                    </div>
+                    <Switch
+                      checked={inStock}
+                      onCheckedChange={(val) => toggleAvailabilityMutation.mutate({ id: item._id, isAvailable: val })}
+                      disabled={isToggling}
+                      aria-label={`Availability for ${item.name}`}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))
+              </StaggerItem>
+              );
+            })
           )}
-        </div>
+        </StaggerList>
       </div>
 
       {/* Edit Dish Dialog */}
@@ -391,7 +471,7 @@ export default function VendorMenu() {
                 <div className="flex flex-wrap gap-2 mt-4">
                   {editItemForm.images.map((url, i) => (
                     <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border border-border">
-                      <img src={url} className="h-full w-full object-cover" />
+                      <LazyImage src={url} alt="" className="h-full w-full object-cover" wrapperClassName="h-full w-full" />
                       <button 
                         type="button"
                         onClick={() => removeImage(i)}

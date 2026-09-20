@@ -1,9 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-  Animated,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
@@ -15,9 +14,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
+import { SPRING } from "@/motion/presets";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -275,7 +276,11 @@ export default function IdentityVerifyScreen() {
   const [sectionIdx, setSectionIdx] = useState(0);
   const [saving, setSaving] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useSharedValue(0);
+  const slideAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: interpolate(slideAnim.value, [-1, 0, 1], [-SCREEN_WIDTH * 0.3, 0, SCREEN_WIDTH * 0.3]) }],
+    opacity: interpolate(slideAnim.value, [-1, 0, 1], [0.3, 1, 0.3]),
+  }));
 
   // Aadhaar state
   const [aadhaarNumber, setAadhaarNumber] = useState("");
@@ -308,13 +313,8 @@ export default function IdentityVerifyScreen() {
 
   // ── Animations ───────────────────────────────────────────────────────────────
   const animateTransition = (direction: 1 | -1) => {
-    slideAnim.setValue(direction);
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      tension: 65,
-      friction: 11,
-      useNativeDriver: true,
-    }).start();
+    slideAnim.value = direction;
+    slideAnim.value = withSpring(0, SPRING);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   };
 
@@ -341,7 +341,7 @@ export default function IdentityVerifyScreen() {
     try {
       const token = useDriverStore.getState().token;
       if (token) {
-        const res = await fetch(`${API_URL}/api/v1/onboarding/verify-aadhaar`, {
+        const res = await fetch(`${API_URL}/onboarding/verify-aadhaar`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ aadhaarNumber: cleaned }),
@@ -381,7 +381,7 @@ export default function IdentityVerifyScreen() {
     try {
       const token = useDriverStore.getState().token;
       if (token) {
-        const res = await fetch(`${API_URL}/api/v1/onboarding/verify-pan`, {
+        const res = await fetch(`${API_URL}/onboarding/verify-pan`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ panNumber: cleanedPan, panName }),
@@ -716,20 +716,7 @@ export default function IdentityVerifyScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Animated.View
-            style={{
-              transform: [{
-                translateX: slideAnim.interpolate({
-                  inputRange: [-1, 0, 1],
-                  outputRange: [-SCREEN_WIDTH * 0.3, 0, SCREEN_WIDTH * 0.3],
-                }),
-              }],
-              opacity: slideAnim.interpolate({
-                inputRange: [-1, 0, 1],
-                outputRange: [0.3, 1, 0.3],
-              }),
-            }}
-          >
+          <Animated.View style={slideAnimatedStyle}>
             {renderSection()}
           </Animated.View>
         </ScrollView>

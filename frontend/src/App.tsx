@@ -1,17 +1,21 @@
-import { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, lazy, ReactNode, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./routes/__root";
-import Home from "./routes/index";
-import PartnerPage from "./routes/partner";
-import PartnerOnboarding from "./routes/partner-onboarding";
-import RestaurantMenuFront from "./routes/restaurant-menu";
+import { RouteLoadingFallback } from "@/components/motion/RouteLoadingFallback";
+
+const Home = lazy(() => import("./routes/index"));
+const PartnerPage = lazy(() => import("./routes/partner"));
+const PartnerOnboarding = lazy(() => import("./routes/partner-onboarding"));
+const RestaurantMenuFront = lazy(() => import("./routes/restaurant-menu"));
 
 function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">
+          Page not found
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
@@ -28,7 +32,13 @@ function NotFound() {
   );
 }
 
-function ErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+function ErrorFallback({
+  error,
+  resetError,
+}: {
+  error: Error;
+  resetError: () => void;
+}) {
   console.error(error);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -37,7 +47,8 @@ function ErrorFallback({ error, resetError }: { error: Error; resetError: () => 
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Something went wrong on our end. You can try refreshing or head back
+          home.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -91,15 +102,19 @@ class ErrorBoundary extends Component<
 export default function App() {
   return (
     <ErrorBoundary>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="partner" element={<PartnerPage />} />
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <Routes>
+          <Route element={<Layout variant="marketing" />}>
+            <Route index element={<Home />} />
+          </Route>
+          <Route element={<Layout variant="minimal" />}>
+            <Route path="partner" element={<PartnerPage />} />
+          </Route>
           <Route path="partner/onboarding" element={<PartnerOnboarding />} />
           <Route path="restaurant-menu/:id" element={<RestaurantMenuFront />} />
           <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 }

@@ -5,6 +5,8 @@ import { adminFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { RefreshCw, Play, ShieldAlert, Navigation, Settings, User } from "lucide-react";
 
 interface DevDriver {
@@ -157,11 +159,11 @@ export default function DevDrivers() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <StaggerList className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {drivers.map((driver) => {
               const [lng, lat] = driver.currentLocation?.coordinates || [82.2475, 16.9891];
               return (
-                <div key={driver._id} className="section-card p-6 flex flex-col justify-between gap-4">
+                <StaggerItem key={driver._id} className="section-card p-6 flex flex-col justify-between gap-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -254,10 +256,10 @@ export default function DevDrivers() {
                       </form>
                     </div>
                   </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerList>
         )}
       </div>
     </DashboardLayout>

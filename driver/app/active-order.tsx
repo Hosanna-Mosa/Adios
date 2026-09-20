@@ -10,7 +10,7 @@ import {
   Alert,
   Linking,
   Platform,
-  Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
@@ -23,7 +23,6 @@ import Colors from "@/constants/colors";
 import { socketService } from "@/utils/socketService";
 import Constants from "expo-constants";
 
-const VEHICLE_BIKE_3D = require('@/assets/images/scooter_blue_top_view_2.png');
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
@@ -46,7 +45,7 @@ export default function ActiveOrderScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const response = await fetch(`${apiUrl}/api/v1/orders/${currentOrder.id}/sos`, {
+              const response = await fetch(`${apiUrl}/orders/${currentOrder.id}/sos`, {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -350,8 +349,14 @@ export default function ActiveOrderScreen() {
     setSimRemainingDist(initialDistance);
     setSimETA(initialDuration);
 
-    let startLat = driverLocation?.lat || 12.9716;
-    let startLng = driverLocation?.lng || 77.5946;
+    // No real GPS fix yet — very likely exactly when this "simulate" feature
+    // gets used — used to fall back to a hardcoded Bengaluru point (and `||`
+    // would trigger it again even for a genuine 0 coordinate). That made the
+    // simulated marker "teleport" in from across the country whenever the
+    // order itself was anywhere else. Anchor near the actual target instead,
+    // so the simulated route always stays local to this order.
+    let startLat = driverLocation?.lat ?? targetLat + 0.015;
+    let startLng = driverLocation?.lng ?? targetLng + 0.015;
 
     const calculatedBearing = calculateBearing(startLat, startLng, targetLat, targetLng);
     setDriverHeading(calculatedBearing);
@@ -438,7 +443,7 @@ export default function ActiveOrderScreen() {
       if (status !== "delivered" && status !== "completed") {
         try {
           const expectedOTP = currentOrder.deliveryOtp || currentOrder.id.slice(-4).toLowerCase();
-          if (customerOTP.toLowerCase() !== expectedOTP.toLowerCase() && customerOTP !== "9999") {
+          if (customerOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
             setCustomerOTPError(true);
             return;
           }
@@ -464,7 +469,7 @@ export default function ActiveOrderScreen() {
         await updateOrderStatus("arrived_pickup");
       } else if (status === "arrived_pickup") {
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
@@ -500,14 +505,14 @@ export default function ActiveOrderScreen() {
         await updateOrderStatus("arrived_pickup");
       } else if (status === "arrived_pickup") {
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
         setRestaurantOTPError(false);
         await updateOrderStatus("en_route_delivery", restaurantOTP);
       } else if (status === "picking_items") {
-        // Enforce all checklist selections and verification OTP (9999)
+        // Enforce all checklist selections and the restaurant pickup code
         const allItemsChecked = foodItems.every((item: any) => checkedItems[item.name]);
         if (!allItemsChecked) {
           Alert.alert("Checklist Incomplete", "Please verify and check off all items in the checklist.");
@@ -522,7 +527,7 @@ export default function ActiveOrderScreen() {
           return;
         }
         const expectedOTP = currentOrder.restaurantPickupCode || currentOrder.id.slice(-4).toLowerCase();
-        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase() && restaurantOTP !== "9999") {
+        if (restaurantOTP.toLowerCase() !== expectedOTP.toLowerCase()) {
           setRestaurantOTPError(true);
           return;
         }
@@ -566,15 +571,26 @@ export default function ActiveOrderScreen() {
   };
 
   const openRideNavigation = () => {
-    const pickupAddress = pickupStop?.address || (pickupStop ? `${pickupStop.lat},${pickupStop.lng}` : "");
-    const destinationAddress = deliveryStop?.address || (deliveryStop ? `${deliveryStop.lat},${deliveryStop.lng}` : "");
+    // Was sending the free-text address to Google Maps and letting it re-geocode,
+    // even when we already had exact coordinates for both stops — an address
+    // string is ambiguous enough (unit numbers, landmarks, similarly-named roads)
+    // that Maps would sometimes drop the pin blocks away from the real spot. The
+    // other navigation links in this screen already pass raw lat/lng; do the same
+    // here so the pin lands exactly where the order says, falling back to the
+    // address only if a coordinate is actually missing.
+    const origin = pickupStop?.lat != null && pickupStop?.lng != null
+      ? `${pickupStop.lat},${pickupStop.lng}`
+      : pickupStop?.address || "";
+    const destination = deliveryStop?.lat != null && deliveryStop?.lng != null
+      ? `${deliveryStop.lat},${deliveryStop.lng}`
+      : deliveryStop?.address || "";
 
-    if (!pickupAddress || !destinationAddress) {
+    if (!origin || !destination) {
       Alert.alert("Navigation unavailable", "Pickup or destination address is missing for this ride.");
       return;
     }
 
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupAddress)}&destination=${encodeURIComponent(destinationAddress)}&travelmode=driving`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`;
     Linking.openURL(url);
   };
   // Calculations for step 12
@@ -595,7 +611,7 @@ export default function ActiveOrderScreen() {
       if (status === "delivered" || status === "completed") {
         return (
           <View style={styles.stepContainer}>
-            <Text style={[styles.stepTitle, { color: "#10B981" }]}>Task Complete!</Text>
+            <Text style={[styles.stepTitle, { color: Colors.success }]}>Task Complete!</Text>
             <View style={styles.infoBox}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Time Logged</Text>
@@ -603,7 +619,7 @@ export default function ActiveOrderScreen() {
               </View>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Total Payout</Text>
-                <Text style={[styles.infoText, { color: "#10B981", fontWeight: "900" }]}>₹{(currentOrder as any).totalPrice || 0}</Text>
+                <Text style={[styles.infoText, { color: Colors.success, fontWeight: "900" }]}>₹{(currentOrder as any).totalPrice || 0}</Text>
               </View>
             </View>
             <TouchableOpacity style={styles.actionBtn} onPress={handleStatusTransition}>
@@ -647,38 +663,38 @@ export default function ActiveOrderScreen() {
       return (
         <View style={styles.stepContainer}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20, alignSelf: 'center' }}>
-            <Ionicons name="time" size={28} color={isOvertime ? "#EF4444" : "#10B981"} />
-            <Text style={{ fontSize: 24, fontWeight: '900', color: isOvertime ? "#EF4444" : "#111827", marginLeft: 8 }}>
+            <Ionicons name="time" size={28} color={isOvertime ? Colors.error : Colors.success} />
+            <Text style={{ fontSize: 24, fontWeight: '900', color: isOvertime ? Colors.error : Colors.text, marginLeft: 8 }}>
               {formatTime(taskTimerSeconds)}
             </Text>
           </View>
 
           {/* Progress Bar */}
-          <View style={{ height: 8, backgroundColor: '#E5E7EB', borderRadius: 4, marginBottom: 8, overflow: 'hidden', flexDirection: 'row' }}>
-            <View style={{ flex: Math.round(progress), backgroundColor: isOvertime ? '#EF4444' : '#10B981' }} />
+          <View style={{ height: 8, backgroundColor: Colors.border, borderRadius: 4, marginBottom: 8, overflow: 'hidden', flexDirection: 'row' }}>
+            <View style={{ flex: Math.round(progress), backgroundColor: isOvertime ? Colors.error : Colors.success }} />
             <View style={{ flex: Math.max(0, 100 - Math.round(progress)), backgroundColor: 'transparent' }} />
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 }}>
-            <Text style={{ fontSize: 12, color: '#6B7280', fontWeight: '600' }}>{isOvertime ? "Overtime" : "Elapsed"}</Text>
-            <Text style={{ fontSize: 12, color: '#6B7280', fontWeight: '600' }}>{currentOrder.duration || "1"} Hours Booked</Text>
+            <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: '600' }}>{isOvertime ? "Overtime" : "Elapsed"}</Text>
+            <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: '600' }}>{currentOrder.duration || "1"} Hours Booked</Text>
           </View>
 
           {/* Quick Status Updates */}
-          <Text style={{ fontSize: 12, color: '#4B5563', fontWeight: '700', marginBottom: 8, textTransform: 'uppercase' }}>Send Quick Update to Customer</Text>
+          <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: '700', marginBottom: 8, textTransform: 'uppercase' }}>Send Quick Update to Customer</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 20 }}>
             {["Heading to you", "Working on task", "Shopping for items", "Running slightly late", "Almost done"].map((updateTxt, idx) => (
               <TouchableOpacity
                 key={idx}
-                style={{ backgroundColor: '#EEF2FF', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#C7D2FE' }}
+                style={{ backgroundColor: Colors.brandSkin, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: Colors.primaryLight }}
                 onPress={() => sendHelperUpdate(updateTxt)}
               >
-                <Text style={{ color: '#4F46E5', fontSize: 13, fontWeight: '600' }}>{updateTxt}</Text>
+                <Text style={{ color: Colors.brand, fontSize: 13, fontWeight: '600' }}>{updateTxt}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
           
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: '#3B82F6', marginBottom: 16 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.brand, marginBottom: 16 }]} 
             onPress={openGoogleDirections}
           >
             <Ionicons name="navigate" size={18} color="#fff" style={{ marginRight: 8 }} />
@@ -691,7 +707,7 @@ export default function ActiveOrderScreen() {
             <TextInput
               style={[styles.otpInput, customerOTPError ? styles.otpInputError : null]}
               placeholder="Enter 4-Digit OTP"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               keyboardType="number-pad"
               maxLength={4}
               value={customerOTP}
@@ -705,7 +721,7 @@ export default function ActiveOrderScreen() {
             )}
           </View>
 
-          <TouchableOpacity style={[styles.actionBtn, isOvertime ? { backgroundColor: '#EF4444' } : null]} onPress={handleStatusTransition}>
+          <TouchableOpacity style={[styles.actionBtn, isOvertime ? { backgroundColor: Colors.error } : null]} onPress={handleStatusTransition}>
             <Text style={styles.actionBtnText}>Verify OTP & Complete Task</Text>
           </TouchableOpacity>
         </View>
@@ -721,7 +737,7 @@ export default function ActiveOrderScreen() {
               <View style={styles.infoItem}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                   <View style={{ flex: 1, marginRight: 8 }}>
-                    <Text style={styles.infoLabel}>Pickup Rider From</Text>
+                    <Text style={styles.infoLabel}>Pickup Location</Text>
                     <Text style={styles.infoText}>{currentOrder.customerName || "Rider"}</Text>
                     <Text style={styles.subText}>{pickupStop?.address}</Text>
                   </View>
@@ -730,7 +746,7 @@ export default function ActiveOrderScreen() {
                       style={styles.roundCommBtn}
                       onPress={() => router.push({ pathname: "/chat", params: { orderId: currentOrder.id } })}
                     >
-                      <Ionicons name="chatbubble-ellipses" size={18} color="#00B7EB" />
+                      <Ionicons name="chatbubble-ellipses" size={18} color={Colors.brand} />
                       {unreadCount > 0 && (
                         <View style={styles.commBadge}>
                           <Text style={styles.commBadgeText}>{unreadCount}</Text>
@@ -741,13 +757,13 @@ export default function ActiveOrderScreen() {
                       style={styles.roundCommBtn}
                       onPress={() => Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)}
                     >
-                      <Ionicons name="call" size={18} color="#00B7EB" />
+                      <Ionicons name="call" size={18} color={Colors.brand} />
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.roundCommBtn}
                       onPress={openRideNavigation}
                     >
-                      <Ionicons name="location" size={18} color="#00B7EB" />
+                      <Ionicons name="location" size={18} color={Colors.brand} />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -810,7 +826,7 @@ export default function ActiveOrderScreen() {
                   style={styles.roundCommBtn}
                   onPress={() => Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)}
                 >
-                  <Ionicons name="call" size={18} color="#00B7EB" />
+                  <Ionicons name="call" size={18} color={Colors.brand} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -828,10 +844,10 @@ export default function ActiveOrderScreen() {
             <Text style={styles.stepTitle}>Arrived at Pickup</Text>
             
             <View style={styles.gpsVerifiedBox}>
-              <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
               <View style={{ marginLeft: 10 }}>
                 <Text style={styles.gpsVerifiedTitle}>GPS Check: Arrived</Text>
-                <Text style={styles.gpsVerifiedDesc}>You have reached the rider's pickup location.</Text>
+                <Text style={styles.gpsVerifiedDesc}>You have reached the rider&apos;s pickup location.</Text>
               </View>
             </View>
 
@@ -841,7 +857,7 @@ export default function ActiveOrderScreen() {
               <TextInput
                 style={[styles.otpInput, restaurantOTPError ? styles.otpInputError : null]}
                 placeholder="Enter 4-digit Ride OTP"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
                 maxLength={8}
                 value={restaurantOTP}
@@ -879,11 +895,11 @@ export default function ActiveOrderScreen() {
                 </View>
                 <View style={styles.simStatItem}>
                   <Text style={styles.simStatLabel}>ETA</Text>
-                  <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : "12 min"}</Text>
+                  <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : currentOrder.duration}</Text>
                 </View>
                 <View style={styles.simStatItem}>
                   <Text style={styles.simStatLabel}>Distance</Text>
-                  <Text style={styles.simStatValue}>{isSimulating ? `${simRemainingDist} km` : "3.1 km"}</Text>
+                  <Text style={styles.simStatValue}>{isSimulating ? `${simRemainingDist} km` : currentOrder.distance}</Text>
                 </View>
               </View>
               <TouchableOpacity
@@ -921,10 +937,10 @@ export default function ActiveOrderScreen() {
             <Text style={styles.stepTitle}>Confirm Ride Completion</Text>
 
             <View style={styles.gpsVerifiedBox}>
-              <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
               <View style={{ marginLeft: 10 }}>
                 <Text style={styles.gpsVerifiedTitle}>GPS Check: Arrived</Text>
-                <Text style={styles.gpsVerifiedDesc}>You have reached the rider's destination.</Text>
+                <Text style={styles.gpsVerifiedDesc}>You have reached the rider&apos;s destination.</Text>
               </View>
             </View>
 
@@ -934,7 +950,7 @@ export default function ActiveOrderScreen() {
               <TextInput
                 style={[styles.otpInput, customerOTPError ? styles.otpInputError : null]}
                 placeholder="Enter 4-Digit OTP"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
                 maxLength={4}
                 value={customerOTP}
@@ -959,7 +975,7 @@ export default function ActiveOrderScreen() {
         return (
           <View style={styles.deliveredScroll}>
             <View style={styles.successHeader}>
-              <Ionicons name="checkmark-circle" size={48} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
               <Text style={styles.successTitle}>Ride Completed!</Text>
               <Text style={styles.successSubtitle}>Earnings have been added to your wallet.</Text>
             </View>
@@ -1009,7 +1025,7 @@ export default function ActiveOrderScreen() {
                 style={styles.roundCommBtn}
                 onPress={() => router.push({ pathname: "/chat", params: { orderId: currentOrder.id } })}
               >
-                <Ionicons name="chatbubble-ellipses" size={18} color="#00B7EB" />
+                <Ionicons name="chatbubble-ellipses" size={18} color={Colors.brand} />
                 {unreadCount > 0 && (
                   <View style={styles.commBadge}>
                     <Text style={styles.commBadgeText}>{unreadCount}</Text>
@@ -1020,7 +1036,7 @@ export default function ActiveOrderScreen() {
                 style={styles.roundCommBtn}
                 onPress={() => Linking.openURL(`tel:${currentOrder.vendorPhone || "1234567890"}`)}
               >
-                <Ionicons name="call" size={18} color="#00B7EB" />
+                <Ionicons name="call" size={18} color={Colors.brand} />
               </TouchableOpacity>
               {pickupStop?.lat && pickupStop?.lng && (
                 <TouchableOpacity
@@ -1030,7 +1046,7 @@ export default function ActiveOrderScreen() {
                     Linking.openURL(url);
                   }}
                 >
-                  <Ionicons name="location" size={18} color="#00B7EB" />
+                  <Ionicons name="location" size={18} color={Colors.brand} />
                 </TouchableOpacity>
               )}
             </View>
@@ -1058,7 +1074,7 @@ export default function ActiveOrderScreen() {
             <Text style={styles.actionBtnText}>Start Travel to Restaurant</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1110,7 +1126,7 @@ export default function ActiveOrderScreen() {
                 style={styles.roundCommBtn}
                 onPress={() => Linking.openURL(`tel:${currentOrder.vendorPhone || "1234567890"}`)}
               >
-                <Ionicons name="call" size={18} color="#00B7EB" />
+                <Ionicons name="call" size={18} color={Colors.brand} />
               </TouchableOpacity>
               {pickupStop?.lat && pickupStop?.lng && (
                 <TouchableOpacity
@@ -1120,7 +1136,7 @@ export default function ActiveOrderScreen() {
                     Linking.openURL(url);
                   }}
                 >
-                  <Ionicons name="location" size={18} color="#00B7EB" />
+                  <Ionicons name="location" size={18} color={Colors.brand} />
                 </TouchableOpacity>
               )}
             </View>
@@ -1130,7 +1146,7 @@ export default function ActiveOrderScreen() {
             <Text style={styles.actionBtnText}>Arrived at Restaurant</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1145,7 +1161,7 @@ export default function ActiveOrderScreen() {
           <Text style={styles.stepTitle}>Arrived at Restaurant</Text>
           
           <View style={styles.gpsVerifiedBox}>
-            <Ionicons name="checkmark-circle" size={24} color="#10B981" />
+            <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
             <View style={{ marginLeft: 10 }}>
               <Text style={styles.gpsVerifiedTitle}>GPS Check: Verified</Text>
               <Text style={styles.gpsVerifiedDesc}>You are within 20 meters of restaurant location.</Text>
@@ -1164,7 +1180,7 @@ export default function ActiveOrderScreen() {
             <TextInput
               style={[styles.otpInput, restaurantOTPError ? styles.otpInputError : null]}
               placeholder="Enter 4-digit Pickup Code"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               keyboardType="number-pad"
               autoCapitalize="characters"
               maxLength={8}
@@ -1182,7 +1198,7 @@ export default function ActiveOrderScreen() {
           <TouchableOpacity 
             style={[
               styles.actionBtn, 
-              { backgroundColor: restaurantOTP.trim() ? "#00B7EB" : "#9CA3AF" }
+              { backgroundColor: restaurantOTP.trim() ? Colors.brand : Colors.textMuted }
             ]} 
             disabled={!restaurantOTP.trim()}
             onPress={handleStatusTransition}
@@ -1192,7 +1208,7 @@ export default function ActiveOrderScreen() {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1218,7 +1234,7 @@ export default function ActiveOrderScreen() {
             </View>
             <View style={styles.timerBlock}>
               <Text style={styles.timerBlockLabel}>Waiting Fee Earned</Text>
-              <Text style={[styles.timerBlockVal, { color: "#10B981" }]}>+₹{waitingComp.toFixed(2)}</Text>
+              <Text style={[styles.timerBlockVal, { color: Colors.success }]}>+₹{waitingComp.toFixed(2)}</Text>
             </View>
           </View>
 
@@ -1236,7 +1252,7 @@ export default function ActiveOrderScreen() {
                   <Feather
                     name={isChecked ? "check-square" : "square"}
                     size={20}
-                    color={isChecked ? "#00B7EB" : "#9CA3AF"}
+                    color={isChecked ? Colors.brand : Colors.textMuted}
                   />
                   <Text style={[styles.checkText, isChecked ? styles.checkTextSelected : null]}>
                     {item.quantity}x {item.name}
@@ -1253,7 +1269,7 @@ export default function ActiveOrderScreen() {
               <Feather
                 name={sealedChecked ? "check-square" : "square"}
                 size={20}
-                color={sealedChecked ? "#00B7EB" : "#9CA3AF"}
+                color={sealedChecked ? Colors.brand : Colors.textMuted}
               />
               <Text style={styles.checkText}>Food package is sealed and tamper-proof</Text>
             </TouchableOpacity>
@@ -1265,7 +1281,7 @@ export default function ActiveOrderScreen() {
               <Feather
                 name={countChecked ? "check-square" : "square"}
                 size={20}
-                color={countChecked ? "#00B7EB" : "#9CA3AF"}
+                color={countChecked ? Colors.brand : Colors.textMuted}
               />
               <Text style={styles.checkText}>Verified correct item count against invoice</Text>
             </TouchableOpacity>
@@ -1276,7 +1292,7 @@ export default function ActiveOrderScreen() {
               <TextInput
                 style={[styles.otpInput, restaurantOTPError ? styles.otpInputError : null]}
                 placeholder="Enter 4-digit Pickup Code"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
                 autoCapitalize="characters"
                 maxLength={8}
@@ -1294,7 +1310,7 @@ export default function ActiveOrderScreen() {
 
           <View style={styles.pickupActionRow}>
             <TouchableOpacity style={styles.issueBtn} onPress={handleReportIssue}>
-              <Ionicons name="warning-outline" size={20} color="#EF4444" />
+              <Ionicons name="warning-outline" size={20} color={Colors.error} />
               <Text style={styles.issueBtnText}>Issue</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.pickupConfirmBtn]} onPress={handleStatusTransition}>
@@ -1302,7 +1318,7 @@ export default function ActiveOrderScreen() {
             </TouchableOpacity>
           </View>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1328,12 +1344,12 @@ export default function ActiveOrderScreen() {
               </View>
               <View style={styles.simStatItem}>
                 <Text style={styles.simStatLabel}>ETA</Text>
-                <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : "12 min"}</Text>
+                <Text style={styles.simStatValue}>{isSimulating ? `${simETA} min` : currentOrder.duration}</Text>
               </View>
               <View style={styles.simStatItem}>
                 <Text style={styles.simStatLabel}>Distance</Text>
                 <Text style={styles.simStatValue}>
-                  {isSimulating ? `${simRemainingDist} km` : "3.1 km"}
+                  {isSimulating ? `${simRemainingDist} km` : currentOrder.distance}
                 </Text>
               </View>
             </View>
@@ -1362,13 +1378,13 @@ export default function ActiveOrderScreen() {
                 style={styles.roundCommBtn}
                 onPress={() => Alert.alert("Calling Customer", `Connecting call to ${currentOrder.customerPhone}...`)}
               >
-                <Ionicons name="call" size={18} color="#00B7EB" />
+                <Ionicons name="call" size={18} color={Colors.brand} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.roundCommBtn}
                 onPress={() => router.push({ pathname: "/chat", params: { orderId: currentOrder.id } })}
               >
-                <Ionicons name="chatbubble-ellipses" size={18} color="#00B7EB" />
+                <Ionicons name="chatbubble-ellipses" size={18} color={Colors.brand} />
               </TouchableOpacity>
             </View>
           </View>
@@ -1377,7 +1393,7 @@ export default function ActiveOrderScreen() {
             <Text style={styles.actionBtnText}>Arrived at Customer</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1415,7 +1431,7 @@ export default function ActiveOrderScreen() {
             <TextInput
               style={[styles.otpInput, customerOTPError ? styles.otpInputError : null]}
               placeholder="Enter 4-Digit OTP"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               keyboardType="number-pad"
               maxLength={4}
               value={customerOTP}
@@ -1433,7 +1449,7 @@ export default function ActiveOrderScreen() {
             <Text style={styles.actionBtnText}>Verify OTP & Complete Delivery</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            style={[styles.actionBtn, { backgroundColor: "#EF4444", marginTop: 8 }]} 
+            style={[styles.actionBtn, { backgroundColor: Colors.error, marginTop: 8 }]} 
             onPress={handleCancelOrder}
           >
             <Text style={styles.actionBtnText}>Cancel Delivery</Text>
@@ -1446,7 +1462,7 @@ export default function ActiveOrderScreen() {
       return (
         <View style={styles.deliveredScroll}>
           <View style={styles.successHeader}>
-            <Ionicons name="checkmark-circle" size={48} color="#10B981" />
+            <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
             <Text style={styles.successTitle}>Delivery Completed!</Text>
             <Text style={styles.successSubtitle}>Earnings have been added to your wallet.</Text>
           </View>
@@ -1499,7 +1515,7 @@ export default function ActiveOrderScreen() {
                   <Ionicons
                     name={star <= rating ? "star" : "star-outline"}
                     size={28}
-                    color="#F59E0B"
+                    color={Colors.warning}
                     style={{ marginHorizontal: 4 }}
                   />
                 </TouchableOpacity>
@@ -1508,7 +1524,7 @@ export default function ActiveOrderScreen() {
             <TextInput
               style={styles.feedbackInput}
               placeholder="Any operational issues? Write comments here..."
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={Colors.textMuted}
               multiline
               value={feedback}
               onChangeText={setFeedback}
@@ -1519,11 +1535,11 @@ export default function ActiveOrderScreen() {
           <View style={styles.heatmapZones}>
             <Text style={styles.checklistHeader}>HIGH DEMAND ZONES</Text>
             <View style={styles.hotspotItem}>
-              <Ionicons name="flame" size={16} color="#00B7EB" />
+              <Ionicons name="flame" size={16} color={Colors.brand} />
               <Text style={styles.hotspotText}>Koramangala 5th Block (Surge 1.8x)</Text>
             </View>
             <View style={styles.hotspotItem}>
-              <Ionicons name="flame" size={16} color="#00B7EB" />
+              <Ionicons name="flame" size={16} color={Colors.brand} />
               <Text style={styles.hotspotText}>Indiranagar 100 Feet Road (Surge 1.5x)</Text>
             </View>
           </View>
@@ -1540,13 +1556,21 @@ export default function ActiveOrderScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
+      {/* The OTP field (and the bottom sheet in general) had no keyboard-avoidance
+          at all, so it sat right at the screen edge and the keyboard simply
+          covered it as soon as it opened — typing looked broken because the
+          input the driver was typing into wasn't visible. */}
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoider}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.push("/(tabs)")}>
           <Feather name="arrow-left" size={24} color={Colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{isRide ? "Ride Active Task" : (isHelper ? "Helper Active Task" : "Delivery Active Task")}</Text>
         <TouchableOpacity 
-          style={[styles.backBtn, { backgroundColor: "#EF4444", borderRadius: 16, width: 32, height: 32, alignItems: "center", justifyContent: "center" }]} 
+          style={[styles.backBtn, { backgroundColor: Colors.error, borderRadius: 16, width: 32, height: 32, alignItems: "center", justifyContent: "center" }]} 
           onPress={handleSOS}
         >
           <Ionicons name="alert-circle" size={18} color="#FFFFFF" />
@@ -1584,19 +1608,21 @@ export default function ActiveOrderScreen() {
             </Marker>
           ) : null}
 
-          {/* Driver Location Marker */}
+          {/* Driver's own location — was rendered with the same top-view vehicle
+              image customers see on the driver, which reads as "there's a bike
+              here" rather than "this is you, facing this way". Google Maps'
+              own convention (a heading-oriented arrow) is what a driver expects
+              of their own live position, so this marker uses that instead. */}
           {(driverLocation != null && driverLocation.lat != null && driverLocation.lng != null) ? (
-            <Marker 
+            <Marker
               coordinate={{ latitude: Number(driverLocation.lat), longitude: Number(driverLocation.lng) }}
               anchor={{ x: 0.5, y: 0.5 }}
               flat={true}
               rotation={driverHeading || 0}
             >
-              <Image
-                source={VEHICLE_BIKE_3D}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
+              <View style={styles.navArrowMarker}>
+                <Ionicons name="navigate" size={20} color="#fff" />
+              </View>
             </Marker>
           ) : null}
 
@@ -1605,7 +1631,7 @@ export default function ActiveOrderScreen() {
             <Polyline
               coordinates={decodePolyline(currentOrder.polyline)}
               strokeWidth={4}
-              strokeColor="#10B981"
+              strokeColor={Colors.success}
             />
           ) : null}
         </MapView>
@@ -1623,17 +1649,19 @@ export default function ActiveOrderScreen() {
           <Text style={styles.orderLabel}>Order ID: {currentOrder.id}</Text>
         </View>
 
-        <ScrollView 
-          style={styles.cardScroll} 
+        <ScrollView
+          style={styles.cardScroll}
           contentContainerStyle={[
             styles.cardScrollContent,
             { paddingBottom: Math.max(insets.bottom, 16) + 12 }
-          ]} 
+          ]}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {renderCardContent()}
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -1675,6 +1703,7 @@ function decodePolyline(encoded: string) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  keyboardAvoider: { flex: 1 },
   cardScroll: {
     flex: 1,
   },
@@ -1702,7 +1731,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   userMarkerBadge: {
-    backgroundColor: '#10B981',
+    backgroundColor: Colors.success,
     width: 26,
     height: 26,
     borderRadius: 13,
@@ -1720,10 +1749,25 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: '#EF4444',
+    backgroundColor: Colors.error,
     borderWidth: 2,
     borderColor: '#fff',
     elevation: 4,
+  },
+  navArrowMarker: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.brand,
+    borderWidth: 2,
+    borderColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
   },
   bottomCard: {
     backgroundColor: Colors.surface,
@@ -1748,7 +1792,7 @@ const styles = StyleSheet.create({
   orderLabel: {
     fontSize: moderateScale(13),
     fontWeight: "700",
-    color: "#6B7280",
+    color: Colors.textSecondary,
   },
   statusPill: {
     paddingHorizontal: 8,
@@ -1787,7 +1831,7 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: moderateScale(20),
     fontWeight: "800",
-    color: "#1F2937",
+    color: Colors.text,
     marginBottom: 12,
   },
   stepTitleRow: {
@@ -1811,13 +1855,13 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#10B981",
+    backgroundColor: Colors.success,
   },
   infoBox: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     padding: 12,
     marginBottom: 16,
   },
@@ -1827,27 +1871,27 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: moderateScale(10),
     fontWeight: "700",
-    color: "#9CA3AF",
+    color: Colors.textMuted,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   infoText: {
     fontSize: moderateScale(14),
     fontWeight: "700",
-    color: "#374151",
+    color: Colors.text,
   },
   subText: {
     fontSize: moderateScale(12),
-    color: "#6B7280",
+    color: Colors.textSecondary,
     marginTop: 1,
   },
   divider: {
     height: 1,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: Colors.border,
     marginVertical: 10,
   },
   actionBtn: {
-    backgroundColor: "#00B7EB",
+    backgroundColor: Colors.brand,
     paddingVertical: 15,
     borderRadius: moderateScale(12),
     alignItems: "center",
@@ -1859,7 +1903,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   simPanel: {
-    backgroundColor: "#111827",
+    backgroundColor: Colors.text,
     borderRadius: moderateScale(12),
     padding: 12,
     marginBottom: 14,
@@ -1876,7 +1920,7 @@ const styles = StyleSheet.create({
   simStatLabel: {
     fontSize: moderateScale(10),
     fontWeight: "700",
-    color: "#9CA3AF",
+    color: Colors.textMuted,
     textTransform: "uppercase",
     marginBottom: 2,
   },
@@ -1886,7 +1930,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   simToggleBtn: {
-    backgroundColor: "#374151",
+    backgroundColor: Colors.text,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1895,7 +1939,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   simToggleBtnActive: {
-    backgroundColor: "#DC2626",
+    backgroundColor: Colors.error,
   },
   simToggleText: {
     color: "#fff",
@@ -1908,42 +1952,42 @@ const styles = StyleSheet.create({
   restaurantName: {
     fontSize: moderateScale(15),
     fontWeight: "800",
-    color: "#1F2937",
+    color: Colors.text,
     marginBottom: 2,
   },
   addressText: {
     fontSize: moderateScale(13),
-    color: "#6B7280",
+    color: Colors.textSecondary,
   },
   gpsVerifiedBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ECFDF5",
+    backgroundColor: Colors.successLight,
     padding: 14,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#A7F3D0",
+    borderColor: Colors.successLight,
     marginBottom: 16,
   },
   gpsVerifiedTitle: {
     fontSize: moderateScale(14),
     fontWeight: "700",
-    color: "#065F46",
+    color: Colors.success,
   },
   gpsVerifiedDesc: {
     fontSize: moderateScale(12),
-    color: "#047857",
+    color: Colors.success,
     marginTop: 1,
   },
   waitNotification: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: Colors.surfaceContainer,
     padding: 14,
     borderRadius: moderateScale(12),
     marginBottom: 16,
   },
   waitNotifyText: {
     fontSize: moderateScale(13),
-    color: "#4B5563",
+    color: Colors.textSecondary,
     lineHeight: moderateScale(18),
     textAlign: "center",
   },
@@ -1953,25 +1997,25 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   timerBlock: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     width: "48%",
     padding: 10,
     borderRadius: moderateScale(10),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     alignItems: "center",
   },
   timerBlockLabel: {
     fontSize: moderateScale(10),
     fontWeight: "700",
-    color: "#6B7280",
+    color: Colors.textSecondary,
     textTransform: "uppercase",
     marginBottom: 2,
   },
   timerBlockVal: {
     fontSize: moderateScale(16),
     fontWeight: "800",
-    color: "#111827",
+    color: Colors.text,
   },
   checklistScroll: {
     marginBottom: 12,
@@ -1979,7 +2023,7 @@ const styles = StyleSheet.create({
   checklistHeader: {
     fontSize: moderateScale(11),
     fontWeight: "700",
-    color: "#9CA3AF",
+    color: Colors.textMuted,
     letterSpacing: 0.8,
     marginTop: 6,
     marginBottom: 8,
@@ -1989,51 +2033,51 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: Colors.surfaceContainer,
     gap: 10,
   },
   checkText: {
     fontSize: moderateScale(14),
-    color: "#374151",
+    color: Colors.text,
     fontWeight: "600",
     flex: 1,
   },
   checkTextSelected: {
     textDecorationLine: "line-through",
-    color: "#9CA3AF",
+    color: Colors.textMuted,
   },
   otpSection: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     padding: 12,
     borderRadius: moderateScale(10),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     marginTop: 12,
     marginBottom: 6,
   },
   otpLabel: {
     fontSize: moderateScale(10),
     fontWeight: "700",
-    color: "#4B5563",
+    color: Colors.textSecondary,
     marginBottom: 6,
   },
   otpInput: {
     backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: Colors.border,
     borderRadius: moderateScale(8),
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: moderateScale(14),
     fontWeight: "700",
-    color: "#111827",
+    color: Colors.text,
   },
   otpInputError: {
-    borderColor: "#EF4444",
-    backgroundColor: "#FEF2F2",
+    borderColor: Colors.error,
+    backgroundColor: Colors.errorLight,
   },
   errorText: {
-    color: "#EF4444",
+    color: Colors.error,
     fontSize: moderateScale(11),
     fontWeight: "600",
     marginTop: 4,
@@ -2046,22 +2090,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FEF2F2",
+    backgroundColor: Colors.errorLight,
     borderWidth: 1,
-    borderColor: "#FEE2E2",
+    borderColor: Colors.errorLight,
     borderRadius: moderateScale(12),
     paddingHorizontal: 16,
     width: "28%",
     gap: 4,
   },
   issueBtnText: {
-    color: "#EF4444",
+    color: Colors.error,
     fontWeight: "700",
     fontSize: moderateScale(13),
   },
   pickupConfirmBtn: {
     flex: 1,
-    backgroundColor: "#00B7EB",
+    backgroundColor: Colors.brand,
     paddingVertical: 14,
     borderRadius: moderateScale(12),
     alignItems: "center",
@@ -2069,11 +2113,11 @@ const styles = StyleSheet.create({
   customerRowInside: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     padding: 12,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     marginBottom: 16,
     gap: 12,
   },
@@ -2081,23 +2125,23 @@ const styles = StyleSheet.create({
     width: moderateScale(40),
     height: moderateScale(40),
     borderRadius: moderateScale(20),
-    backgroundColor: "#E0F7FF",
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
   },
   customerInitialsInside: {
     fontSize: moderateScale(16),
     fontWeight: "800",
-    color: "#00B7EB",
+    color: Colors.brand,
   },
   customerNameInside: {
     fontSize: moderateScale(14),
     fontWeight: "800",
-    color: "#1F2937",
+    color: Colors.text,
   },
   customerPhoneInside: {
     fontSize: moderateScale(12),
-    color: "#6B7280",
+    color: Colors.textSecondary,
     marginTop: 1,
   },
   communicationBtns: {
@@ -2113,7 +2157,7 @@ const styles = StyleSheet.create({
     width: moderateScale(36),
     height: moderateScale(36),
     borderRadius: moderateScale(18),
-    backgroundColor: "#E0F7FF",
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -2140,7 +2184,7 @@ const styles = StyleSheet.create({
   blockLabel: {
     fontSize: moderateScale(10),
     fontWeight: "700",
-    color: "#9CA3AF",
+    color: Colors.textMuted,
     marginBottom: 8,
   },
   optionsRow: {
@@ -2151,21 +2195,21 @@ const styles = StyleSheet.create({
     width: "31%",
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: Colors.border,
     borderRadius: moderateScale(8),
     alignItems: "center",
   },
   optionBtnSelected: {
-    borderColor: "#00B7EB",
-    backgroundColor: "#E0F7FF",
+    borderColor: Colors.brand,
+    backgroundColor: Colors.brandSkin,
   },
   optionBtnText: {
     fontSize: moderateScale(11),
     fontWeight: "700",
-    color: "#4B5563",
+    color: Colors.textSecondary,
   },
   optionBtnTextSelected: {
-    color: "#00B7EB",
+    color: Colors.brand,
   },
   deliveredScroll: {
   },
@@ -2176,27 +2220,27 @@ const styles = StyleSheet.create({
   successTitle: {
     fontSize: moderateScale(18),
     fontWeight: "800",
-    color: "#111827",
+    color: Colors.text,
     marginTop: 6,
   },
   successSubtitle: {
     fontSize: moderateScale(12),
-    color: "#6B7280",
+    color: Colors.textSecondary,
     marginTop: 2,
     textAlign: "center",
   },
   earningsBreakdown: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     padding: 12,
     marginBottom: 14,
   },
   breakdownHeader: {
     fontSize: moderateScale(11),
     fontWeight: "800",
-    color: "#6B7280",
+    color: Colors.textSecondary,
     letterSpacing: 0.5,
     marginBottom: 10,
   },
@@ -2207,36 +2251,36 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: moderateScale(13),
-    color: "#4B5563",
+    color: Colors.textSecondary,
   },
   breakdownVal: {
     fontSize: moderateScale(13),
     fontWeight: "700",
-    color: "#1F2937",
+    color: Colors.text,
   },
   breakdownTotalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: Colors.border,
     marginTop: 10,
     paddingTop: 10,
   },
   breakdownTotalLabel: {
     fontSize: moderateScale(14),
     fontWeight: "800",
-    color: "#111827",
+    color: Colors.text,
   },
   breakdownTotalVal: {
     fontSize: moderateScale(18),
     fontWeight: "800",
-    color: "#10B981",
+    color: Colors.success,
   },
   feedbackSection: {
     backgroundColor: "#fff",
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     padding: 12,
     marginBottom: 14,
   },
@@ -2247,19 +2291,19 @@ const styles = StyleSheet.create({
   },
   feedbackInput: {
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: Colors.border,
     borderRadius: moderateScale(8),
     padding: 10,
     fontSize: moderateScale(13),
     height: moderateScale(60),
-    color: "#111827",
+    color: Colors.text,
     textAlignVertical: "top",
   },
   heatmapZones: {
-    backgroundColor: "#F9FAFB",
+    backgroundColor: Colors.surfaceContainerLow,
     borderRadius: moderateScale(12),
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: Colors.border,
     padding: 12,
     marginBottom: 8,
   },
@@ -2272,7 +2316,7 @@ const styles = StyleSheet.create({
   hotspotText: {
     fontSize: moderateScale(13),
     fontWeight: "600",
-    color: "#374151",
+    color: Colors.text,
   },
 });
 

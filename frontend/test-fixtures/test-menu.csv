@@ -1,0 +1,11 @@
+category,itemName,price,description,type,isBestseller
+Starters,Paneer Tikka,249,Chargrilled cottage cheese marinated in spiced yogurt,Veg,true
+Starters,Chicken 65,279,Deep-fried spicy chicken bites tossed in curry leaves,Non-Veg,true
+Main Course,Butter Chicken,349,Creamy tomato-based curry with tender chicken pieces,Non-Veg,true
+Main Course,Dal Makhani,229,Slow-cooked black lentils finished with cream and butter,Veg,false
+Biryani,Hyderabadi Chicken Biryani,319,Fragrant basmati rice layered with marinated chicken and saffron,Non-Veg,true
+Biryani,Veg Dum Biryani,259,Basmati rice slow-cooked with mixed vegetables and whole spices,Veg,false
+Breads,Butter Naan,59,Soft leavened flatbread brushed with butter,Veg,false
+Breads,Garlic Kulcha,69,Stuffed flatbread topped with garlic and coriander,Veg,false
+Desserts,Gulab Jamun,99,Soft milk dumplings soaked in rose-scented sugar syrup,Veg,true
+Beverages,Masala Chaas,49,Spiced buttermilk with roasted cumin and fresh coriander,Veg,false

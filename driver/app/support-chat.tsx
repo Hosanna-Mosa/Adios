@@ -84,7 +84,7 @@ export default function SupportChatScreen() {
   const fetchTickets = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const tickets: SupportTicket[] = await supportFetch("/api/v1/support/tickets");
+      const tickets: SupportTicket[] = await supportFetch("/support/tickets");
       setAllTickets(tickets || []);
 
       // Opened via a deep link (notification tap) with a specific ticket in mind — jump
@@ -171,7 +171,7 @@ export default function SupportChatScreen() {
 
     setCreatingTicket(true);
     try {
-      const created = await supportFetch("/api/v1/support/tickets", {
+      const created = await supportFetch("/support/tickets", {
         method: "POST",
         body: JSON.stringify({
           title: newTitle.trim(),
@@ -198,7 +198,7 @@ export default function SupportChatScreen() {
     setSubmittingReply(true);
 
     try {
-      const updatedTicket = await supportFetch(`/api/v1/support/tickets/${ticket._id}/messages`, {
+      const updatedTicket = await supportFetch(`/support/tickets/${ticket._id}/messages`, {
         method: "POST",
         body: JSON.stringify({ text: messageText }),
       });
@@ -306,14 +306,14 @@ export default function SupportChatScreen() {
                       paddingHorizontal: 8,
                       paddingVertical: 4,
                       borderRadius: 8,
-                      backgroundColor: isOpen ? "#DCFCE7" : "#F3F4F6",
+                      backgroundColor: isOpen ? Colors.successLight : Colors.surfaceContainer,
                     }}
                   >
                     <Text
                       style={{
                         fontSize: 10,
                         fontWeight: "800",
-                        color: isOpen ? "#15803D" : "#4B5563",
+                        color: isOpen ? Colors.success : Colors.textSecondary,
                       }}
                     >
                       {item.status}
@@ -500,7 +500,7 @@ export default function SupportChatScreen() {
       {/* Input Bar */}
       {ticket && ticket.status === "RESOLVED" ? (
         <View style={[styles.resolvedNotice, { backgroundColor: Colors.surface, paddingBottom: insets.bottom + 16 }]}>
-          <Feather name="check-circle" size={16} color="#0d9488" />
+          <Feather name="check-circle" size={16} color={Colors.brand} />
           <Text style={[styles.resolvedText, { color: Colors.textSecondary }]}>This ticket has been marked as resolved.</Text>
           <View style={{ flexDirection: "row", gap: 12, marginTop: 4 }}>
             <TouchableOpacity
@@ -509,7 +509,7 @@ export default function SupportChatScreen() {
                 try {
                   setLoading(true);
                   // Submitting a new message reopens the ticket
-                  await supportFetch(`/api/v1/support/tickets/${ticket._id}/messages`, {
+                  await supportFetch(`/support/tickets/${ticket._id}/messages`, {
                     method: "POST",
                     body: JSON.stringify({ text: "Re-opening this case. I still need assistance." }),
                   });
@@ -547,11 +547,11 @@ export default function SupportChatScreen() {
           </Text>
           <View style={styles.resolveRequestButtons}>
             <TouchableOpacity
-              style={[styles.resolveBtnConfirm, { backgroundColor: "#0f766e" }]}
+              style={[styles.resolveBtnConfirm, { backgroundColor: Colors.brandPressed }]}
               onPress={async () => {
                 try {
                   setLoading(true);
-                  const updated = await supportFetch(`/api/v1/support/tickets/${ticket._id}/resolve`, {
+                  const updated = await supportFetch(`/support/tickets/${ticket._id}/resolve`, {
                     method: "POST",
                     body: JSON.stringify({ approve: true }),
                   });
@@ -570,7 +570,7 @@ export default function SupportChatScreen() {
               onPress={async () => {
                 try {
                   setLoading(true);
-                  const updated = await supportFetch(`/api/v1/support/tickets/${ticket._id}/resolve`, {
+                  const updated = await supportFetch(`/support/tickets/${ticket._id}/resolve`, {
                     method: "POST",
                     body: JSON.stringify({ approve: false }),
                   });
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#22C55E",
+    backgroundColor: Colors.success,
     borderWidth: 1.5,
     borderColor: "#fff",
     position: "absolute",
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
   },
   headerStatus: {
     fontSize: 10,
-    color: "#22C55E",
+    color: Colors.success,
     fontWeight: "600",
   },
   formContainer: {

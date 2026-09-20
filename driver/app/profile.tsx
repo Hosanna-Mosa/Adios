@@ -172,7 +172,7 @@ export default function ProfileScreen() {
       <View style={styles.earningsSummary}>
         <View style={styles.earningsItem}>
           <Feather name="dollar-sign" size={18} color={Colors.primary} />
-          <Text style={styles.earningsItemLabel}>Today's Earnings</Text>
+          <Text style={styles.earningsItemLabel}>Today&apos;s Earnings</Text>
           <Text style={styles.earningsItemValue}>₹{earnings.today}</Text>
         </View>
         <View style={styles.divider} />
@@ -227,7 +227,7 @@ export default function ProfileScreen() {
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
-      <Text style={styles.versionText}>DeliverPro Driver v1.0.0</Text>
+      <Text style={styles.versionText}>Flavour Driver v1.0.0</Text>
     </ScrollView>
   );
 }

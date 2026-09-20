@@ -2,9 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Constants from "expo-constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
@@ -36,7 +35,7 @@ export function OfflineBanner() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
     try {
-      const res = await fetch(`${apiUrl}/api/v1/auth/version-check?platform=android&version=1.0.0`, { signal: controller.signal });
+      const res = await fetch(`${apiUrl}/auth/version-check?platform=android&version=1.0.0`, { signal: controller.signal });
       if (!mounted.current) return;
       if (res.ok || res.status < 500) {
         setIsOffline(false);
@@ -69,7 +68,7 @@ export function OfflineBanner() {
       <View style={styles.toast}>
         <View style={styles.dot} />
         <Text style={styles.text} numberOfLines={1}>
-          You're offline{minsAgo != null ? ` · last synced ${minsAgo}m ago` : ""}
+          You&apos;re offline{minsAgo != null ? ` · last synced ${minsAgo}m ago` : ""}
         </Text>
         <TouchableOpacity onPress={ping} disabled={checking}>
           <Text style={styles.retry}>{checking ? "Checking…" : "Retry"}</Text>
@@ -88,6 +87,6 @@ const createStyles = (tokens: ThemeTokens) =>
       shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 6,
     },
     dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.warning, flexShrink: 0 },
-    text: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: moderateScale(12.5), color: tokens.bg },
-    retry: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 0.6, textTransform: "uppercase", color: tokens.services.food.accent },
+    text: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.bg },
+    retry: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.6, textTransform: "uppercase", color: tokens.brand },
   });

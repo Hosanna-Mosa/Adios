@@ -7,15 +7,17 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  Alert,
   ActivityIndicator,
 } from "react-native";
-import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import * as Location from "expo-location";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { typography } from "@/constants/typography";
+import { showAlert } from "@/components/ui/AppAlert";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 interface Props {
   isOpen: boolean;
@@ -45,7 +47,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
   const fetchSavedAddresses = async () => {
     try {
       setLoading(true);
-      const data = (await customFetch("/api/v1/users/addresses")) as any;
+      const data = (await customFetch("/users/addresses")) as any;
       console.log("Raw addresses from server:", data);
       if (Array.isArray(data)) {
         const validAddresses = data.filter(
@@ -64,18 +66,16 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
     }
   };
 
-
   const [locationLoading, setLocationLoading] = useState(false);
   const [detectedLocation, setDetectedLocation] = useState<any | null>(null);
   const [savingLocation, setSavingLocation] = useState(false);
-
 
   const handleSearch = async (text: string) => {
     setSearch(text);
     if (text.length > 2) {
       setSearching(true);
       try {
-        const results = await customFetch<any[]>(`/api/v1/places/autocomplete?input=${encodeURIComponent(text)}`);
+        const results = await customFetch<any[]>(`/places/autocomplete?input=${encodeURIComponent(text)}`);
         setSearchResults(results);
       } catch (error) {
         console.error("Search error:", error);
@@ -94,7 +94,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
   const handleSaveLocation = async () => {
     if (!detectedLocation) {
-      Alert.alert("Error", "No location detected to save.");
+      showAlert("Error", "No location detected to save.");
       return;
     }
     
@@ -102,7 +102,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       setSavingLocation(true);
       console.log("Attempting to save location:", detectedLocation);
       
-      const updatedData = await customFetch<any[]>("/api/v1/users/addresses", {
+      const updatedData = await customFetch<any[]>("/users/addresses", {
         method: "POST",
         body: JSON.stringify({
           label: detectedLocation.label,
@@ -121,7 +121,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
         await fetchSavedAddresses();
       }
       
-      Alert.alert("Saved!", "Your current location has been added to saved addresses.");
+      showAlert("Saved!", "Your current location has been added to saved addresses.");
       
       setSelectingAddressId("detected");
       if (onSelectAddress) {
@@ -131,23 +131,18 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
       onClose();
     } catch (error: any) {
       console.error("Save location error:", error);
-      Alert.alert("Save Failed", error.message || "An error occurred while saving the address.");
+      showAlert("Save Failed", error.message || "An error occurred while saving the address.");
     } finally {
       setSavingLocation(false);
       setSelectingAddressId(null);
     }
   };
 
-
-
-
-
-
   const handleEditAddress = (item: any) => {
     onClose();
     const lat = item.location?.coordinates?.[1] ?? item.coordinates?.lat ?? "";
     const lng = item.location?.coordinates?.[0] ?? item.coordinates?.lng ?? "";
-    const qs = `step=2&editId=${encodeURIComponent(item._id || '')}&label=${encodeURIComponent(item.label || '')}&addressLine=${encodeURIComponent(item.addressLine || '')}&phone=${encodeURIComponent(item.phone || '')}&receiverName=${encodeURIComponent(item.receiverName || '')}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
+    const qs = `step=2&editId=${encodeURIComponent(item._id || '')}&label=${encodeURIComponent(item.label || '')}&addressLine=${encodeURIComponent(item.addressLine || '')}&phone=${encodeURIComponent(item.phone || '')}&receiverName=${encodeURIComponent(item.receiverName || '')}&receiverPhone=${encodeURIComponent(item.receiverPhone || '')}&landmark=${encodeURIComponent(item.landmark || '')}&lat=${encodeURIComponent(String(lat))}&lng=${encodeURIComponent(String(lng))}`;
     router.push(`/delivery/add-address?${qs}`);
   };
 
@@ -224,7 +219,7 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
             setSelectingAddressId(item.id);
             const details = Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))
               ? { lat: Number(item.lat), lng: Number(item.lng) }
-              : await customFetch<any>(`/api/v1/places/details/${item.id}`);
+              : await customFetch<any>(`/places/details/${item.id}`);
             if (onSelectAddress) {
               await onSelectAddress({
                 addressLine: item.address,
@@ -258,13 +253,15 @@ export function LocationPickerSheet({ isOpen, onClose, onSelectAddress }: Props)
 
   return (
     <Modal
+      statusBarTranslucent
       visible={isOpen}
       animationType="slide"
       transparent={true}
       onRequestClose={onClose}
     >
+      <StatusBarFill />
       <View style={styles.overlay}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={StyleSheet.absoluteFill} 
           activeOpacity={1} 
           onPress={onClose} 
@@ -404,7 +401,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     padding: 4,
   },
   title: {
-    fontSize: 18,
+    fontSize: typography.sizes.large,
     fontWeight: "700",
     color: colors.text,
   },
@@ -430,7 +427,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "500",
     color: colors.text,
   },
@@ -450,13 +447,13 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     justifyContent: "center",
   },
   actionTitle: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.primary,
     marginBottom: 2,
   },
   actionSubtitle: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary,
   },
   divider: {
@@ -471,7 +468,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 16,
   },
   sectionText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.textSecondary,
     textTransform: "uppercase",
@@ -515,17 +512,17 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 4,
   },
   addressType: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.text,
   },
   addressText: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary, 
-    lineHeight: 18,
+    lineHeight: typography.lineHeights.medium,
   },
   addressPhone: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textMuted,
     marginTop: 4,
   },
@@ -541,20 +538,20 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     borderBottomColor: colors.border,
   },
   searchResultName: {
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: colors.text,
     marginBottom: 2,
   },
   searchResultAddress: {
-    fontSize: 13,
+    fontSize: typography.sizes.medium,
     color: colors.textSecondary,
   },
   emptyText: {
     textAlign: "center",
     color: colors.textMuted,
     marginTop: 20,
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
   },
   detectedBox: {
     backgroundColor: colors.surfaceSecondary,
@@ -564,7 +561,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
     marginBottom: 20,
   },
   detectedTitle: {
-    fontSize: 14,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
     color: "#BE123C",
     marginBottom: 8,
@@ -579,7 +576,7 @@ const createStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   saveActionText: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: typography.sizes.medium,
     fontWeight: "600",
   },
 });

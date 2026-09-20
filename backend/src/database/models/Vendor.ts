@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 import { webPushSubscriptionSchema, IWebPushSubscription } from "./WebPushSubscription";
+import { WeeklyHours } from "../../utils/openingHours";
 
 export interface IVendor extends Document {
   name: string;
@@ -85,6 +86,8 @@ export interface IVendor extends Document {
   };
   isPureVeg: boolean;
   isOpen: boolean;
+  openingHours?: WeeklyHours;
+  isManuallyClosed: boolean;
   deliveryFee: number;
   minOrderValue: number;
   webPushSubscriptions?: IWebPushSubscription[];
@@ -92,6 +95,24 @@ export interface IVendor extends Document {
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
 }
+
+// One "HH:mm" window per day. No defaults on purpose: an outlet with no schedule
+// must stay an empty object so evaluateOpenState() reads it as "always open".
+const dayHoursDefinition = () => ({
+  open: { type: String },
+  close: { type: String },
+  closed: { type: Boolean },
+});
+
+const openingHoursDefinition = () => ({
+  mon: dayHoursDefinition(),
+  tue: dayHoursDefinition(),
+  wed: dayHoursDefinition(),
+  thu: dayHoursDefinition(),
+  fri: dayHoursDefinition(),
+  sat: dayHoursDefinition(),
+  sun: dayHoursDefinition(),
+});
 
 const VendorSchema: Schema = new Schema(
   {
@@ -215,6 +236,8 @@ const VendorSchema: Schema = new Schema(
     },
     isPureVeg: { type: Boolean, default: false },
     isOpen: { type: Boolean, default: true },
+    openingHours: openingHoursDefinition(),
+    isManuallyClosed: { type: Boolean, default: false },
     deliveryFee: { type: Number, default: 0 },
     minOrderValue: { type: Number, default: 0 },
     webPushSubscriptions: [webPushSubscriptionSchema],

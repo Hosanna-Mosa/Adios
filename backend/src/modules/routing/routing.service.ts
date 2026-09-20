@@ -3,6 +3,24 @@ import { performance } from "perf_hooks";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
 
+// This whole chain runs synchronously inside order creation, so a stalled external
+// call must not be free to hold up the customer's "place order" tap indefinitely.
+const REQUEST_TIMEOUT_MS = 6000;
+const OSRM_MAX_ATTEMPTS = 2;
+const OSRM_RETRY_DELAY_MS = 400;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export interface Coordinate {
   latitude: number;
   longitude: number;
@@ -59,8 +77,12 @@ export class RoutingService {
         params.set("waypoints", waypoints);
       }
       const url = `https://maps.googleapis.com/maps/api/directions/json?${params.toString()}`;
-      
-      const response = await fetch(url);
+
+      // A hung request here (Google's servers stalling, not erroring) used to block
+      // the whole booking on nothing — no error to fall through on, just silence
+      // until Node's own socket timeout eventually gave up. Bounding it means OSRM
+      // still gets a fair shot within the same request.
+      const response = await fetchWithTimeout(url, REQUEST_TIMEOUT_MS);
       const data = await response.json();
 
       if (data.status === "OK") {
@@ -78,30 +100,42 @@ export class RoutingService {
           routeSource: "google",
         };
       } else {
+        // REQUEST_DENIED with a billing-enablement error_message means the Directions
+        // API is disabled for this key's project — the Maps SDK key used for
+        // rendering does not automatically cover this separate API. Every request
+        // fails the same way until that's fixed in Google Cloud Console; this warning
+        // is what shows that in the logs.
         console.warn("Google Directions API status:", data.status, data.error_message);
       }
     } catch (error) {
       console.error("Routing Service Error:", error);
     }
 
-    try {
-      const osrmResult = await fetchOsrmRoute([
-        { latitude: origin.latitude, longitude: origin.longitude },
-        ...optimizedSequence,
-      ]);
+    // OSRM's public demo server has no uptime guarantee, so a single failed call
+    // here used to fall straight to the straight-line polyline — one retry rides
+    // out the transient blips (a dropped connection, a momentary rate limit)
+    // without meaningfully slowing down the common case where it just works.
+    for (let attempt = 1; attempt <= OSRM_MAX_ATTEMPTS; attempt++) {
+      try {
+        const osrmResult = await fetchOsrmRoute([
+          { latitude: origin.latitude, longitude: origin.longitude },
+          ...optimizedSequence,
+        ]);
 
-      if (osrmResult) {
-        console.log("Routing Service: Successfully fetched route from OSRM.");
-        return {
-          optimizedStops: optimizedSequence,
-          polyline: osrmResult.polyline,
-          totalDistance: Math.round(osrmResult.totalDistance * 10) / 10,
-          estimatedTime: Math.round(osrmResult.estimatedTime),
-          routeSource: "osrm",
-        };
+        if (osrmResult) {
+          console.log(`Routing Service: Successfully fetched route from OSRM${attempt > 1 ? ` (attempt ${attempt})` : ""}.`);
+          return {
+            optimizedStops: optimizedSequence,
+            polyline: osrmResult.polyline,
+            totalDistance: Math.round(osrmResult.totalDistance * 10) / 10,
+            estimatedTime: Math.round(osrmResult.estimatedTime),
+            routeSource: "osrm",
+          };
+        }
+      } catch (error) {
+        console.error(`OSRM Routing Service Error (attempt ${attempt}/${OSRM_MAX_ATTEMPTS}):`, error);
       }
-    } catch (error) {
-      console.error("OSRM Routing Service Error:", error);
+      if (attempt < OSRM_MAX_ATTEMPTS) await delay(OSRM_RETRY_DELAY_MS);
     }
 
     // Fallback: Generate a simple encoded polyline from optimizedSequence
@@ -131,7 +165,7 @@ async function fetchOsrmRoute(points: Coordinate[]) {
     steps: "false",
   });
   const url = `https://router.project-osrm.org/route/v1/driving/${coordinates}?${params.toString()}`;
-  const response = await fetch(url);
+  const response = await fetchWithTimeout(url, REQUEST_TIMEOUT_MS);
   const data = await response.json();
 
   if (data.code !== "Ok" || !data.routes?.[0]?.geometry) {

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Rejects commit messages that are too short or a single word to say anything
+# useful (e.g. "Wasp", "sdhf", "PP") — this repo has a history of those, and
+# `git log` stops being useful for tracing intent once they pile up.
+#
+# Enable once per clone with:
+#   git config core.hooksPath .githooks
+
+set -euo pipefail
+
+msg_file="$1"
+subject="$(head -n 1 "$msg_file" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+# Merge commits (from `git merge` or GitHub's PR merge) are exempt — their
+# subject line is auto-generated and not a signal of author intent.
+if [[ "$subject" == Merge\ * ]]; then
+  exit 0
+fi
+
+if [[ ${#subject} -lt 10 ]]; then
+  echo "commit-msg: subject line is too short (${#subject} chars, need >= 10): \"$subject\"" >&2
+  echo "commit-msg: describe *what changed and why*, not just a codename." >&2
+  exit 1
+fi
+
+if [[ "$subject" != *" "* ]]; then
+  echo "commit-msg: subject line is a single word: \"$subject\"" >&2
+  echo "commit-msg: describe *what changed and why*, not just a codename." >&2
+  exit 1
+fi
+
+exit 0

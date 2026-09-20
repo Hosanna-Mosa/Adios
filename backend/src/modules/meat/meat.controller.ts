@@ -9,6 +9,16 @@ import generateToken from "../../utils/generateToken";
 import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.service";
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
+import { evaluateOutletOpenState } from "../../utils/openingHours";
+
+// Upper bound on documents scanned when open-now has to be filtered in memory
+// (the state is derived server-side, so Mongo cannot page it).
+const MAX_IN_MEMORY_SCAN = 300;
+
+// Same response whether or not the email is registered, and the OTP work only
+// happens for a real account, so response timing does not leak it either. A
+// 404 here would let anyone enumerate which emails have a meat-centre account.
+const FORGOT_PASSWORD_RESPONSE = { message: "If an account exists for this email, an OTP has been sent." };
 
 export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
   try {
@@ -18,28 +28,26 @@ export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
     }
 
     const center = await MeatCenter.findOne({ email });
-    if (!center) {
-      return res.status(404).json({ message: "No account found with this email" });
+    if (center) {
+      // Generate OTP and save
+      const otp = generateOTP();
+      await OTP.create({
+        phone: center.phone,
+        email,
+        code: otp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      });
+
+      // Send email
+      await sendEmail({
+        to: email,
+        subject: "Password Reset OTP — Precision Nav",
+        html: getOTPEmailHtml(otp),
+        text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
+      });
     }
 
-    // Generate OTP and save
-    const otp = generateOTP();
-    await OTP.create({
-      phone: center.phone,
-      email,
-      code: otp,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-    });
-
-    // Send email
-    await sendEmail({
-      to: email,
-      subject: "Password Reset OTP — Precision Nav",
-      html: getOTPEmailHtml(otp),
-      text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
-    });
-
-    res.json({ message: "OTP sent to your email" });
+    res.json(FORGOT_PASSWORD_RESPONSE);
   } catch (error) {
     console.error("Error in forgot password:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -146,7 +154,7 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
 
 export const getNearbyMeatCenters = async (req: Request, res: Response) => {
   try {
-    const { lat, lng, page = 1, limit = 20, category, all, radius } = req.query;
+    const { lat, lng, page = 1, limit = 20, category, all, radius, minRating, sort, openNow } = req.query;
 
     if (!lat || !lng) {
       return res.status(400).json({ message: "Latitude and Longitude are required" });
@@ -174,9 +182,18 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     const maxDefaultRadius = 15000; // 15 km max default radius
     const radiusInMeters = radius ? Math.max(1000, Number(radius) || 0) : maxDefaultRadius;
 
+    const sortMode = sort === "rating" || sort === "distance" ? sort : "default";
+    const minRatingValue = Number(minRating);
+    const hasMinRating = Number.isFinite(minRatingValue) && minRatingValue > 0;
+    const openNowOnly = String(openNow) === "true";
+
     const matchStage: any = {};
     if (category) {
       matchStage.categories = { $in: [category] };
+    }
+    // Applied in the query itself so pagination counts only matching centres.
+    if (hasMinRating) {
+      matchStage.rating = { $gte: minRatingValue };
     }
 
     // Spatial query parameters enforcing active zone
@@ -209,6 +226,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         const distanceInKm = distanceInMeters / 1000;
         const travelTimeMinutes = (distanceInKm / 20) * 60;
         const totalEstimatedTime = Math.round(travelTimeMinutes + 15);
+        const openState = evaluateOutletOpenState(center);
 
         return {
           ...center,
@@ -217,6 +235,10 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
           image: center.image || DEFAULT_MEAT_IMAGE,
           rating: center.rating || 0,
           reviews: center.reviews || "0",
+          openState,
+          isOpen: openState.isOpen,
+          distanceKm: Math.round(distanceInKm * 10) / 10,
+          distanceMeters: Math.round(distanceInMeters),
           time: `${totalEstimatedTime}-${totalEstimatedTime + 10} min`,
           distance: distanceInKm < 1
             ? `${Math.round(distanceInMeters)} metres`
@@ -224,7 +246,17 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         };
       });
 
-      return res.json(formattedCenters);
+      const openCenters = openNowOnly
+        ? formattedCenters.filter((center: any) => center.openState.isOpen)
+        : formattedCenters;
+
+      if (sortMode === "rating") {
+        openCenters.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0));
+      } else {
+        openCenters.sort((a: any, b: any) => a.distanceMeters - b.distanceMeters);
+      }
+
+      return res.json(openCenters);
     }
 
     const centerPipeline: any[] = [
@@ -247,8 +279,12 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       centerPipeline.push({ $match: matchStage });
     }
 
+    // Open-now is derived server-side, so those requests scan a bounded
+    // candidate set and page in memory instead of letting Mongo page them.
+    const candidateLimit = openNowOnly ? MAX_IN_MEMORY_SCAN : skip + pageLimit;
+
     if (!fetchAll) {
-      centerPipeline.push({ $limit: skip + pageLimit });
+      centerPipeline.push({ $limit: candidateLimit });
     }
 
     const vendorPipeline: any[] = [
@@ -272,7 +308,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     }
 
     if (!fetchAll) {
-      vendorPipeline.push({ $limit: skip + pageLimit });
+      vendorPipeline.push({ $limit: candidateLimit });
     }
 
     const [centers, meatVendors] = await Promise.all([
@@ -280,13 +316,19 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       Vendor.aggregate(vendorPipeline),
     ]);
 
-    const sortedCenters = [...centers, ...meatVendors].sort((a, b) => (a.distance || 0) - (b.distance || 0));
-    const pageCenters = fetchAll ? sortedCenters : sortedCenters.slice(skip, skip + pageLimit);
-    const formattedCenters = pageCenters.map((center) => {
+    const merged = [...centers, ...meatVendors];
+    if (sortMode === "rating") {
+      merged.sort((a, b) => (b.rating || 0) - (a.rating || 0) || (a.distance || 0) - (b.distance || 0));
+    } else {
+      merged.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    }
+
+    const evaluatedCenters = merged.map((center) => {
       const distanceInKm = center.distance / 1000;
       const travelTimeMinutes = (distanceInKm / 20) * 60;
       const totalEstimatedTime = Math.round(travelTimeMinutes + 15);
-      
+      const openState = evaluateOutletOpenState(center);
+
       return {
         ...center,
         role: "meat_vendor",
@@ -294,13 +336,21 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         image: center.image || DEFAULT_MEAT_IMAGE,
         rating: center.rating || 0,
         reviews: center.reviews || "0",
+        openState,
+        isOpen: openState.isOpen,
+        distanceKm: Math.round(distanceInKm * 10) / 10,
+        distanceMeters: Math.round(center.distance),
         time: `${totalEstimatedTime}-${totalEstimatedTime + 10} min`,
-        distance: distanceInKm < 1 
-          ? `${Math.round(center.distance)} metres` 
+        distance: distanceInKm < 1
+          ? `${Math.round(center.distance)} metres`
           : `${distanceInKm.toFixed(1)} km`,
       };
     });
 
+    const openCenters = openNowOnly
+      ? evaluatedCenters.filter((center) => center.openState.isOpen)
+      : evaluatedCenters;
+    const formattedCenters = fetchAll ? openCenters : openCenters.slice(skip, skip + pageLimit);
     res.json(formattedCenters);
   } catch (error) {
     console.error("Error fetching meat centers:", error);
@@ -435,7 +485,7 @@ const parsePrice = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const buildOnboardedMeatItems = (meatVendor: any) => {
+export const buildOnboardedMeatItems = (meatVendor: any) => {
   const operations = meatVendor.operations || {};
   const manualCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
   const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];
@@ -612,7 +662,7 @@ export const updateMeatItemPrice = async (req: AuthRequest, res: Response) => {
 export const updateMeatCenter = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, phone, email, password, location, address, image, categories, isOpen, deliveryFee, minOrderValue } = req.body;
+    const { name, phone, email, password, location, address, image, categories, isOpen, openingHours, isManuallyClosed, deliveryFee, minOrderValue } = req.body;
 
     const center = await MeatCenter.findById(id);
     if (!center) {
@@ -641,11 +691,17 @@ export const updateMeatCenter = async (req: Request, res: Response) => {
     if (image !== undefined) center.image = image;
     if (categories !== undefined) center.categories = categories;
     if (isOpen !== undefined) center.isOpen = isOpen;
+    if (openingHours !== undefined) center.openingHours = openingHours;
+    if (isManuallyClosed !== undefined) center.isManuallyClosed = isManuallyClosed;
     if (deliveryFee !== undefined) center.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) center.minOrderValue = minOrderValue;
 
     await center.save();
-    res.json({ message: "Meat center updated successfully", center });
+    const updatedCenter = center.toObject();
+    res.json({
+      message: "Meat center updated successfully",
+      center: { ...updatedCenter, openState: evaluateOutletOpenState(updatedCenter) },
+    });
   } catch (error) {
     console.error("Error updating meat center:", error);
     res.status(500).json({ message: "Internal server error" });

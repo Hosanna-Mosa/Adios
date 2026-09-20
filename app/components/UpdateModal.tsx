@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
-import { Linking, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
+import { StatusBarFill } from "@/components/StatusBarFill";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -16,17 +18,41 @@ interface UpdateModalProps {
 export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss }: UpdateModalProps) {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const accent = tokens.services.food;
+  const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   if (!visible) return null;
 
-  const handleUpdate = () => {
-    Linking.openURL(storeUrl).catch((err) => console.error("Failed to open store URL:", err));
+  const handleUpdate = async () => {
+    const url =
+      storeUrl?.trim() ||
+      (Platform.OS === "ios"
+        ? "https://apps.apple.com/app/flavour/id123456"
+        : "https://play.google.com/store/apps/details?id=com.flavour.customer");
+
+    // market:// hands the listing straight to the Play Store app; the https
+    // listing is the fallback for devices without Play Services.
+    const candidates =
+      Platform.OS === "android" && url.includes("play.google.com/store/apps/details?")
+        ? [url.replace(/^https?:\/\/play\.google\.com\/store\/apps\/details\?/, "market://details?"), url]
+        : [url];
+
+    for (const candidate of candidates) {
+      try {
+        await Linking.openURL(candidate);
+        return;
+      } catch (err) {
+        console.warn("Failed to open store URL:", candidate, err);
+      }
+    }
+
+    // A misconfigured store URL used to vanish into the console — surface it.
+    showAlert("Couldn't open the store", url);
   };
 
   return (
     <Modal
+      statusBarTranslucent
       visible={visible}
       transparent
       animationType="fade"
@@ -35,6 +61,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
       // Android gesture must not be able to close it either.
       onRequestClose={forceUpdate ? () => {} : onDismiss}
     >
+      <StatusBarFill />
       <View style={styles.overlay}>
         <View style={styles.card}>
           <View style={styles.iconContainer}>
@@ -69,11 +96,11 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 24 },
     card: { width: "100%", maxWidth: 340, backgroundColor: tokens.surface, borderRadius: 20, padding: 22, alignItems: "center" },
     iconContainer: { width: 44, height: 44, borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", marginBottom: 14 },
-    title: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text, textAlign: "center" },
-    subtitle: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(13), lineHeight: moderateScale(19), color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 18 },
+    title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },
+    subtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 18 },
     updateButton: { width: "100%", minHeight: moderateScale(48), borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    updateText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(14), color: accent.on },
+    updateText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
     laterButton: { width: "100%", minHeight: moderateScale(44), alignItems: "center", justifyContent: "center", marginTop: 4 },
-    laterText: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(13), color: tokens.sec },
-    forceNote: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: tokens.muted, marginTop: 12 },
+    laterText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
+    forceNote: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, marginTop: 12 },
   });

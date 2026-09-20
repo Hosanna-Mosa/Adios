@@ -1,14 +1,18 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
+
+import { AllServicesHeaderRow } from "@/features/home/components/AllServicesHeaderRow";
+import { ScreenShell } from "@/components/ui/ScreenShell";
+import { AllServicesBody } from "@/features/home/components/AllServicesBody";
 
 type RideTier = {
   id: string;
@@ -42,78 +46,41 @@ export default function AllServicesScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))} activeOpacity={0.7}>
-          <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>All services</Text>
-      </View>
+    <ScreenShell>
+      <AllServicesHeaderRow
+        insets={insets}
+        styles={styles}
+        tokens={tokens}
+      />
 
-      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: tabBarHeight + 24 }]} showsVerticalScrollIndicator={false}>
-        <Text style={styles.headline}>Going somewhere?</Text>
-        <Text style={styles.subhead}>Pick a ride to see live fares for your trip.</Text>
-
-        <View style={styles.tierGrid}>
-          {RIDE_TIERS.map((tier) => (
-            <TouchableOpacity key={tier.id} style={styles.tierCard} activeOpacity={0.85} onPress={() => selectTier(tier)}>
-              <View style={styles.tierIconCircle}>
-                <MaterialCommunityIcons name={tier.icon} size={moderateScale(24)} color={accent.accent} />
-              </View>
-              <Text style={styles.tierName}>{tier.name}</Text>
-              <Text style={styles.tierDescription}>{tier.description}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.sectionLabel}>Also on Flavour</Text>
-        <View style={styles.crossPromoList}>
-          <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/helper-task")}>
-            <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.task.skin }]}>
-              <Ionicons name="construct-outline" size={moderateScale(18)} color={tokens.services.task.accent} />
-            </View>
-            <View style={styles.crossPromoTextWrap}>
-              <Text style={styles.crossPromoTitle}>Hire a helper</Text>
-              <Text style={styles.crossPromoSubtitle}>From ₹120 / hour</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={moderateScale(18)} color={tokens.muted} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.crossPromoRow} activeOpacity={0.85} onPress={() => router.push("/delivery/entry")}>
-            <View style={[styles.crossPromoIcon, { backgroundColor: tokens.services.delivery.skin }]}>
-              <Ionicons name="cube-outline" size={moderateScale(18)} color={tokens.services.delivery.accent} />
-            </View>
-            <View style={styles.crossPromoTextWrap}>
-              <Text style={styles.crossPromoTitle}>Package delivery</Text>
-              <Text style={styles.crossPromoSubtitle}>Multi-stop courier · from ₹39</Text>
-            </View>
-            <View style={styles.betaBadge}>
-              <Text style={styles.betaBadgeText}>Beta</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <AllServicesBody
+        RIDE_TIERS={RIDE_TIERS}
+        accent={accent}
+        selectTier={selectTier}
+        styles={styles}
+        tabBarHeight={tabBarHeight}
+        tokens={tokens}
+      />
 
       <AppTabBar accent="ride" />
-    </View>
+    </ScreenShell>
   );
 }
 
 const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: tokens.bg },
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
     backBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
     },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), color: tokens.text },
+    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     scrollContent: { paddingHorizontal: 16, paddingBottom: 160 },
     headline: {
-      fontFamily: fontFamilies.heading.bold, fontSize: moderateScale(28), lineHeight: moderateScale(31),
+      fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,
       letterSpacing: -0.6, color: tokens.text, marginTop: 18,
     },
-    subhead: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(15), lineHeight: moderateScale(21), color: tokens.sec, marginTop: 8 },
+    subhead: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 8 },
     tierGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 20 },
     tierCard: {
       width: "47%", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
@@ -123,10 +90,10 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       width: moderateScale(52), height: moderateScale(52), borderRadius: moderateScale(16),
       backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginBottom: 14,
     },
-    tierName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(17), letterSpacing: -0.1, color: tokens.text },
-    tierDescription: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 3 },
+    tierName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },
+    tierDescription: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 3 },
     sectionLabel: {
-      fontFamily: fontFamilies.body.bold, fontSize: moderateScale(11), letterSpacing: 1, textTransform: "uppercase",
+      fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase",
       color: tokens.muted, marginTop: 28, marginBottom: 12,
     },
     crossPromoList: { gap: 10 },
@@ -136,8 +103,8 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     },
     crossPromoIcon: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(12), alignItems: "center", justifyContent: "center" },
     crossPromoTextWrap: { flex: 1 },
-    crossPromoTitle: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(15), color: tokens.text },
-    crossPromoSubtitle: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(13), color: tokens.sec, marginTop: 2 },
+    crossPromoTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
+    crossPromoSubtitle: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
     betaBadge: { backgroundColor: tokens.sunken, borderRadius: moderateScale(5), paddingHorizontal: 7, paddingVertical: 4 },
-    betaBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec },
+    betaBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec },
   });

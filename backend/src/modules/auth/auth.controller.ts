@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AuthService } from "./auth.service";
+import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import AppVersion from "../../database/models/AppVersion";
 
@@ -92,8 +93,8 @@ export class AuthController {
 
   async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const { phone, password, role } = req.body;
-      const result = await authService.loginWithPassword(phone, password, role as UserRole);
+      const { phone, email, password, role } = req.body;
+      const result = await authService.loginWithPassword(phone || email, password, role as UserRole);
       return res.json(result);
     } catch (error: any) {
       next(error);
@@ -102,7 +103,28 @@ export class AuthController {
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
+      // Deliberately not gated by authenticateToken: that would 401 on a
+      // token that is already expired, garbage, or belongs to a now-blocked
+      // account — all cases where logging out should still just succeed,
+      // since there is nothing left to protect by refusing the request.
+      // Decode by hand instead, and treat anything wrong with the token as
+      // "already logged out" rather than an error.
+      await authService.revokePresentedToken(req.headers["authorization"]);
       return res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async logoutAll(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const result = await authService.logoutAll(userId);
+      return res.json(result);
     } catch (error) {
       next(error);
     }

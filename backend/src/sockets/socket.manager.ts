@@ -5,9 +5,25 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
+import RevokedToken from "../database/models/RevokedToken";
 import Order from "../database/models/Order";
 import Driver, { DriverStatus } from "../database/models/Driver";
 import ChatMessage from "../database/models/ChatMessage";
+import { getJwtSecret } from "../utils/jwtSecret";
+
+// Order._id is a custom string like "ADSF120926123456" (see
+// generateCustomOrderId in orders.service.ts), not a Mongo ObjectId, so a plain
+// `{ _id: orderId }` misses whenever an older order still carries a real
+// ObjectId. `{ _id: null }` on a non-ObjectId id — as the chat push-notify
+// lookup used to do — is worse: it matches nothing, ever, so the notification
+// silently never sends. Mirrors OrdersService.getOrderQuery; kept here too
+// since this file does its own Order lookups outside that service.
+const findOrderById = (orderId: string) => {
+  const query = mongoose.Types.ObjectId.isValid(orderId)
+    ? { $or: [{ _id: orderId }, { _id: new mongoose.Types.ObjectId(orderId) }] }
+    : { _id: orderId };
+  return Order.findOne(query as any);
+};
 
 export class SocketManager {
   private static instance: SocketManager;
@@ -72,7 +88,7 @@ export class SocketManager {
   }
 
   private setupAuthentication() {
-    this.io.use((socket: Socket, next) => {
+    this.io.use(async (socket: Socket, next) => {
       const token = socket.handshake.auth?.token || 
                     socket.handshake.headers["authorization"]?.split(" ")[1];
       if (!token) {
@@ -80,20 +96,58 @@ export class SocketManager {
         return next(new Error("Authentication error: No token provided"));
       }
 
-      jwt.verify(token, process.env.JWT_SECRET || "supersecret123", (err: any, decoded: any) => {
-        if (err) {
-          console.warn(`[SOCKET SECURITY] Handshake rejected: Invalid token (Socket ID: ${socket.id})`);
-          return next(new Error("Authentication error: Invalid token"));
+      let decoded: any;
+      try {
+        decoded = jwt.verify(token, getJwtSecret());
+      } catch (err) {
+        console.warn(`[SOCKET SECURITY] Handshake rejected: Invalid token (Socket ID: ${socket.id})`);
+        return next(new Error("Authentication error: Invalid token"));
+      }
+
+      // Normalize userId from id parameter if needed
+      if (decoded && decoded.id && !decoded.userId) {
+        decoded.userId = decoded.id;
+      }
+
+      // Mirrors authenticateToken: a token POST /auth/logout has revoked
+      // cannot open a new connection either. Tokens minted before jti
+      // shipped carry none, so there is nothing to look up for them.
+      if (decoded?.jti) {
+        const revoked = await RevokedToken.findOne({ jti: decoded.jti }).select("_id").lean();
+        if (revoked) {
+          console.warn(`[SOCKET SECURITY] Handshake rejected: Revoked token (Socket ID: ${socket.id})`);
+          return next(new Error("Authentication error: Session no longer valid"));
         }
-        
-        // Normalize userId from id parameter if needed
-        if (decoded && decoded.id && !decoded.userId) {
-          decoded.userId = decoded.id;
+      }
+
+      // Same tokenVersion check authenticateToken runs, so /auth/logout-all also
+      // shuts the door on sockets. Vendor and meat-centre tokens carry a role
+      // that is not a UserRole and no User document, so they are skipped.
+      if (Object.values(UserRole).includes(decoded?.role)) {
+        try {
+          const user = mongoose.Types.ObjectId.isValid(decoded.userId)
+            ? await User.findById(decoded.userId).select("tokenVersion isBlocked").lean()
+            : null;
+
+          if (!user || (decoded.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+            console.warn(`[SOCKET SECURITY] Handshake rejected: Revoked token (Socket ID: ${socket.id})`);
+            return next(new Error("Authentication error: Session no longer valid"));
+          }
+
+          // Mirrors authenticateToken, so a blocked account cannot keep receiving
+          // live order and chat events by holding a socket open.
+          if (user.isBlocked) {
+            console.warn(`[SOCKET SECURITY] Handshake rejected: Blocked account (Socket ID: ${socket.id})`);
+            return next(new Error("Authentication error: Account blocked"));
+          }
+        } catch (err) {
+          console.error("[SOCKET SECURITY] Token version check failed:", err);
+          return next(new Error("Authentication error: Unable to verify session"));
         }
-        
-        socket.data.user = decoded;
-        next();
-      });
+      }
+
+      socket.data.user = decoded;
+      next();
     });
   }
 
@@ -173,9 +227,13 @@ export class SocketManager {
           `role=${role} personalRoomSize=${this.getRoomSize(authUser.userId)}`
         );
         
-        if (role === "ADMIN") {
+        // Every ticket_updated event is broadcast to "support_tickets", but only
+        // ADMIN was ever placed in that room — so support staff, whose whole job
+        // is this queue, never received a single live update. SUPPORT belongs here
+        // just as much as ADMIN does.
+        if (role === "ADMIN" || role === "SUPPORT") {
           socket.join("support_tickets");
-          console.log(`[SOCKET][ADMIN][JOIN] socket=${socket.id} joined support_tickets room`);
+          console.log(`[SOCKET][${role}][JOIN] socket=${socket.id} joined support_tickets room`);
         }
       }
 
@@ -297,10 +355,7 @@ export class SocketManager {
         if (!authUser) return;
 
         try {
-          const query = mongoose.Types.ObjectId.isValid(orderId) 
-            ? { $or: [{ _id: orderId }, { _id: new mongoose.Types.ObjectId(orderId) }] }
-            : { _id: orderId };
-          const order = await Order.findOne(query as any);
+          const order = await findOrderById(orderId);
           if (!order) {
             console.warn(`[SOCKET] Order ${orderId} not found for tracking`);
             return;
@@ -426,10 +481,7 @@ export class SocketManager {
             if (data.senderId && mongoose.Types.ObjectId.isValid(data.senderId)) {
               realSenderId = data.senderId;
             } else {
-              const query = mongoose.Types.ObjectId.isValid(data.orderId) 
-                ? { $or: [{ _id: data.orderId }, { _id: new mongoose.Types.ObjectId(data.orderId) }] }
-                : { _id: data.orderId };
-              const orderDoc = await Order.findOne(query as any);
+              const orderDoc = await findOrderById(data.orderId);
               if (orderDoc) {
                 if (from === "driver") {
                   if (orderDoc.driver) {
@@ -446,6 +498,7 @@ export class SocketManager {
           if (realSenderId && mongoose.Types.ObjectId.isValid(realSenderId)) {
             const chatMsg = new ChatMessage({
               orderId: data.orderId,
+              clientId: payload.id,
               senderId: realSenderId,
               role: from,
               text: data.text,
@@ -465,7 +518,7 @@ export class SocketManager {
         // Push-notify the other party so an out-of-app message isn't missed (fire-and-forget).
         (async () => {
           try {
-            const orderDoc = await Order.findOne(mongoose.Types.ObjectId.isValid(data.orderId) ? { _id: data.orderId } : { _id: null });
+            const orderDoc = await findOrderById(data.orderId);
             if (!orderDoc) return;
 
             let recipientUserId: string | undefined;
@@ -532,6 +585,15 @@ export class SocketManager {
       `online=${status.online} recipients=${status.personalRoomSize} socketIds=${status.socketIds.join(",") || "none"} roles=${status.roles.join(",") || "none"}`
     );
     this.io.to(userId).emit(event, data);
+  }
+
+  // Whether this user currently holds at least one open socket. DB fields
+  // (Driver.status/isAvailable) say the driver went ONLINE at some point in the
+  // past; this says whether anything is actually listening right now — the two
+  // drift apart whenever the app is killed or loses connectivity without the
+  // driver explicitly going offline (see the disconnect handler above).
+  public isUserConnected(userId: string): boolean {
+    return this.getUserSocketStatus(userId).online;
   }
 
   public emitToDriver(driverId: string, event: string, data: any, source = "service") {

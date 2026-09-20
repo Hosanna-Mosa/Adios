@@ -18,6 +18,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
 
   return (
     <Modal
+      statusBarTranslucent
       visible={visible}
       transparent={true}
       animationType="fade"

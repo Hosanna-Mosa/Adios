@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { StaggerList } from "@/components/motion/StaggerList";
+import { StaggerItem } from "@/components/motion/StaggerItem";
 import { toast } from "sonner";
 import { Drumstick, Save, RefreshCw, IndianRupee } from "lucide-react";
 
@@ -81,12 +83,12 @@ export default function MeatPricing() {
             </h2>
           </div>
           
-          <div className="divide-y divide-border">
+          <StaggerList className="divide-y divide-border">
             {isLoading ? (
               <div className="p-12 text-center text-muted-foreground">Loading global prices...</div>
             ) : (
               prices?.map((item) => (
-                <div key={item.name} className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
+                <StaggerItem key={item.name} className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                       <Drumstick className="h-6 w-6 text-primary" />
@@ -109,10 +111,10 @@ export default function MeatPricing() {
                     </div>
                     <span className="text-xs text-muted-foreground uppercase font-medium">per unit</span>
                   </div>
-                </div>
+                </StaggerItem>
               ))
             )}
-          </div>
+          </StaggerList>
         </div>
 
         <div className="bg-blue-500/5 border border-blue-500/20 p-6 rounded-2xl">

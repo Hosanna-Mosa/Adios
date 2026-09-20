@@ -35,6 +35,12 @@ export function HighDemandAreas({ hotspots, isLoading = false, onAreaPress }: Hi
             <ActivityIndicator size="small" color={Colors.primary} />
           </View>
         )}
+        {!isLoading && hotspots.length === 0 && (
+          <View style={styles.loadingItem}>
+            <MaterialCommunityIcons name="map-marker-off-outline" size={20} color={Colors.textMuted} />
+            <Text style={styles.emptyText}>No high-demand areas right now</Text>
+          </View>
+        )}
         {hotspots.map((spot) => (
           <Pressable
             key={spot.id}
@@ -151,5 +157,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.border,
+    gap: 6,
+  },
+  emptyText: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 12,
+    color: Colors.textMuted,
   },
 });

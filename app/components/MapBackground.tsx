@@ -1,16 +1,25 @@
 import React, { useEffect, useMemo, useState, forwardRef, useImperativeHandle, useRef } from 'react';
 import { StyleSheet, View, Platform, ViewStyle, Text, TouchableOpacity, Image } from 'react-native';
-import MapView, { PROVIDER_GOOGLE, Region, MapType, Marker, Polyline, Circle } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, Circle } from '@/components/maps';
 import * as Location from 'expo-location';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { DeliveryStop, useDeliveryStore } from '@/contexts/deliveryStore';
 import Colors from '@/constants/colors';
 import { customFetch } from '@/utils/api/custom-fetch';
+import { typography } from "@/constants/typography";
 
 const DRIVER_MARKER_IMAGE = require('@/assets/images/driver-marker.png');
 const VEHICLE_BIKE_3D = require('@/assets/images/services/scooter_blue_top_view_2.png');
 const VEHICLE_AUTO_3D = require('@/assets/images/services/auto_top_view.png');
 const VEHICLE_CAB_3D = require('@/assets/images/services/cab.png');
+
+/** Picks the top-down vehicle art for a vehicle/service name, e.g. "auto", "cab_prime". */
+const vehicleMarkerImage = (vehicleType?: string | null) => {
+  const type = (vehicleType || "bike").toLowerCase();
+  if (type.includes("auto") || type.includes("rickshaw")) return VEHICLE_AUTO_3D;
+  if (type.includes("cab") || type.includes("car") || type.includes("prime")) return VEHICLE_CAB_3D;
+  return VEHICLE_BIKE_3D;
+};
 
 interface Props {
   children?: React.ReactNode;
@@ -27,6 +36,9 @@ interface Props {
   onMarkerPress?: (marker: any) => void;
   radiusCenter?: { lat: number; lng: number } | null;
   radiusMeters?: number;
+  /** The assigned driver's vehicle, so their live marker matches what was booked.
+   * Falls back to the selected service; it used to always draw a scooter. */
+  driverVehicleType?: string | null;
 }
 
 export interface MapBackgroundRef {
@@ -35,7 +47,6 @@ export interface MapBackgroundRef {
   fitToRoute: () => void;
   fitToMarkers: (markers: any[]) => void;
 }
-
 
 const FALLBACK_REGION: Region = {
   latitude: 16.9891,
@@ -58,6 +69,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
   onLocationUpdate,
   onMarkerPress,
   radiusCenter,
+  driverVehicleType,
   radiusMeters
 }, ref) => {
   const [region, setRegion] = useState<Region>(initialRegion || FALLBACK_REGION);
@@ -233,7 +245,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     const loadRoadRoute = async () => {
       try {
         const [origin, ...destinationStops] = validRouteStops;
-        const route = await customFetch<{ polyline?: string; routeSource?: string }>("/api/v1/routing/optimize", {
+        const route = await customFetch<{ polyline?: string; routeSource?: string }>("/routing/optimize", {
           method: "POST",
           body: JSON.stringify({
             origin: {
@@ -325,7 +337,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
               tracksViewChanges={false}
             >
               <View style={{
-                backgroundColor: '#4F46E5',
+                backgroundColor: Colors.light.primary,
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 borderRadius: 12,
@@ -337,7 +349,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
                 shadowRadius: 4,
                 elevation: 5,
               }}>
-                <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: 12 }}>
+                <Text style={{ color: '#ffffff', fontWeight: 'bold', fontSize: typography.sizes.small }}>
                   {radiusMeters >= 1000 ? `${radiusMeters / 1000} KM` : `${radiusMeters} M`}
                 </Text>
               </View>
@@ -376,7 +388,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
             if (isAutoVehicle) return null;
           }
 
-          let markerImage = isAutoVehicle ? VEHICLE_AUTO_3D : VEHICLE_BIKE_3D;
+          const markerImage = vehicleMarkerImage(vehicleType);
 
           return (
             <Marker
@@ -427,7 +439,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
             rotation={(driverLocation as any).heading || 0}
           >
             <Image
-              source={VEHICLE_BIKE_3D}
+              source={vehicleMarkerImage(driverVehicleType || selectedService)}
               style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />
@@ -465,6 +477,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     </View>
   );
 });
+
+MapBackground.displayName = "MapBackground";
 
 // Utility to decode Google Polyline
 function decodePolyline(encoded: string) {
@@ -533,7 +547,7 @@ const styles = StyleSheet.create({
   },
   markerBadgeText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: typography.sizes.small,
     fontWeight: 'bold',
   },
   markerPin: {

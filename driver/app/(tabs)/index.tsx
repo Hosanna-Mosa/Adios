@@ -1,56 +1,34 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, Animated, Easing, Dimensions } from "react-native";
-const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming, Easing } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-import Colors from "@/constants/colors";
+import Colors, { gradients } from "@/constants/colors";
+import { fontFamilies } from "@/constants/typography";
 import { ServiceToggle } from "@/components/ServiceToggle";
-import { PerformanceCard } from "@/components/PerformanceCard";
+import { PerformanceCard, PerformanceRange } from "@/components/PerformanceCard";
 import { ActiveTaskCard } from "@/components/ActiveTaskCard";
 import { HighDemandAreas, Hotspot } from "@/components/HighDemandAreas";
 import { GoOnlineModal } from "@/components/GoOnlineModal";
 import IncomingOrderModal from "@/components/IncomingOrderModal";
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
 import { router } from "expo-router";
+import { staggerListItem } from "@/motion/presets";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-const fallbackHotspots: Hotspot[] = [
-  {
-    id: "fallback-kr-market",
-    name: "KR Market",
-    address: "KR Market, Huriopet, Chickpet, Bengaluru, Karnataka",
-    lat: 12.9616,
-    lng: 77.5769,
-    surge: "1.5x Surge",
-  },
-  {
-    id: "fallback-kempegowda-airport",
-    name: "Kempegowda Airport",
-    address: "Kempegowda International Airport, Devanahalli, Bengaluru, Karnataka",
-    lat: 13.1986,
-    lng: 77.7066,
-    surge: "1.3x Surge",
-  },
-  {
-    id: "fallback-orion-mall",
-    name: "Orion Mall",
-    address: "Orion Mall, Dr Rajkumar Road, Rajajinagar, Bengaluru, Karnataka",
-    lat: 13.0112,
-    lng: 77.5549,
-    surge: "1.2x Surge",
-  },
-];
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useDriverTabBarHeight();
   const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
   const [showOnlineModal, setShowOnlineModal] = useState(false);
-  const [hotspots, setHotspots] = useState<Hotspot[]>(fallbackHotspots);
+  const [performanceRange, setPerformanceRange] = useState<PerformanceRange>("week");
+  const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [isLoadingHotspots, setIsLoadingHotspots] = useState(false);
   const isOnline = useDriverStore((s) => s.isOnline);
   const homeMode = useDriverStore((s) => s.homeMode);
@@ -75,7 +53,7 @@ export default function HomeScreen() {
     if (!apiUrl) return;
     (async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/banners`);
+        const res = await fetch(`${apiUrl}/banners`);
         if (res.ok) {
           const json = await res.json();
           const bannersArray = json.data || json;
@@ -88,33 +66,22 @@ export default function HomeScreen() {
     })();
   }, []);
 
-  const translateX = React.useRef(new Animated.Value(0)).current;
+  const translateX = useSharedValue(0);
+  const scooterAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   // Drive Animation when going online
   useEffect(() => {
     if (isOnline) {
-      Animated.sequence([
+      translateX.value = withSequence(
         // Drive off screen to the right
-        Animated.timing(translateX, {
-          toValue: 200,
-          duration: 500,
-          easing: Easing.in(Easing.back(1.5)),
-          useNativeDriver: true,
-        }),
+        withTiming(200, { duration: 500, easing: Easing.in(Easing.back(1.5)) }),
         // Instantly move off-screen left
-        Animated.timing(translateX, {
-          toValue: -300,
-          duration: 0,
-          useNativeDriver: true,
-        }),
+        withTiming(-300, { duration: 0 }),
         // Drive in from left to original position
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 800,
-          easing: Easing.out(Easing.back(1.2)),
-          useNativeDriver: true,
-        })
-      ]).start();
+        withTiming(0, { duration: 800, easing: Easing.out(Easing.back(1.2)) }),
+      );
     }
   }, [isOnline, translateX]);
 
@@ -122,7 +89,7 @@ export default function HomeScreen() {
     if (!apiUrl || !token) return;
     setLoadingScheduled(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/orders/driver/scheduled`, {
+      const response = await fetch(`${apiUrl}/orders/driver/scheduled`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -152,14 +119,20 @@ export default function HomeScreen() {
   }, [token, fetchEarnings]);
 
   const loadHighDemandAreas = useCallback(async () => {
+    // Previously fell back to a hardcoded list of Bengaluru landmarks (KR Market,
+    // Kempegowda Airport, Orion Mall) whenever there was no token, the request
+    // failed, or the backend legitimately had no active demand — so drivers were
+    // shown fake "surge" areas indistinguishable from real ones. The backend
+    // endpoint below already computes this from real, recent order activity, so
+    // on any non-success case we now just show the (real) empty state instead.
     if (!apiUrl || !token) {
-      setHotspots(fallbackHotspots);
+      setHotspots([]);
       return;
     }
 
     setIsLoadingHotspots(true);
     try {
-      const response = await fetch(`${apiUrl}/api/v1/drivers/high-demand-areas?limit=5`, {
+      const response = await fetch(`${apiUrl}/drivers/high-demand-areas?limit=5`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -168,14 +141,10 @@ export default function HomeScreen() {
       if (!response.ok) throw new Error("Failed to load high demand areas");
 
       const areas = await response.json();
-      if (Array.isArray(areas) && areas.length > 0) {
-        setHotspots(areas);
-      } else {
-        setHotspots(fallbackHotspots);
-      }
+      setHotspots(Array.isArray(areas) ? areas : []);
     } catch (error) {
       console.warn("High demand area fetch failed:", error);
-      setHotspots(fallbackHotspots);
+      setHotspots([]);
     } finally {
       setIsLoadingHotspots(false);
     }
@@ -242,7 +211,7 @@ export default function HomeScreen() {
     if (!token) return;
     (async () => {
       try {
-        const res = await fetch(`${apiUrl}/api/v1/drivers/profile`, {
+        const res = await fetch(`${apiUrl}/drivers/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -265,12 +234,12 @@ export default function HomeScreen() {
     <View style={styles.safe}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 104 }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight }}
         bounces={false}
       >
         {/* Header with Online/Offline Toggle */}
         <LinearGradient
-          colors={['#60a5fa', '#3b82f6']}
+          colors={gradients.brand}
           style={[styles.headerGradient, { paddingTop: insets.top + 16 }]}
         >
           <Image
@@ -306,7 +275,7 @@ export default function HomeScreen() {
               style={styles.statusCard}
               onPress={handleToggleOnline}
             >
-              <View style={[styles.statusIconBg, { backgroundColor: isOnline ? '#e6faec' : '#f1f5f9' }]}>
+              <View style={[styles.statusIconBg, { backgroundColor: isOnline ? Colors.successLight : Colors.surfaceContainer }]}>
                 <Feather
                   name={isOnline ? "wifi" : "wifi-off"}
                   size={20}
@@ -323,7 +292,7 @@ export default function HomeScreen() {
               </View>
               <View style={[
                 styles.powerButton,
-                { backgroundColor: isOnline ? '#22C55E' : '#EF4444', borderWidth: 0 }
+                { backgroundColor: isOnline ? Colors.success : Colors.error, borderWidth: 0 }
               ]}>
                 <Feather
                   name="power"
@@ -335,10 +304,10 @@ export default function HomeScreen() {
             {/* Illustration */}
             <Animated.Image
               source={require('../../assets/images/generated_blue_scooter.png')}
-              style={[styles.heroIllustration, { transform: [{ translateX }] }]}
+              style={[styles.heroIllustration, scooterAnimatedStyle]}
               resizeMode="contain"
             />
-            <Animated.View style={[styles.onlineBadgeHero, { transform: [{ translateX }] }]}>
+            <Animated.View style={[styles.onlineBadgeHero, scooterAnimatedStyle]}>
               <View style={[styles.onlineBadgeDot, !isOnline && { backgroundColor: Colors.textMuted }]} />
               <Text style={[styles.onlineBadgeText, !isOnline && { color: Colors.textMuted }]}>
                 {isOnline ? "ONLINE" : "OFFLINE"}
@@ -360,7 +329,7 @@ export default function HomeScreen() {
                   <Feather
                     name="home"
                     size={18}
-                    color={homeMode ? Colors.white : "#0ea5e9"}
+                    color={homeMode ? Colors.white : Colors.brand}
                   />
                 </View>
                 <View style={styles.homeModeTextWrap}>
@@ -393,13 +362,26 @@ export default function HomeScreen() {
           {/* Service Toggle */}
           <ServiceToggle active={mode} onToggle={setMode} />
 
-          {/* Today's Performance */}
+          {/* Today's Performance — the "This Week" pill used to be a dead control
+              (no onPress at all), so it always showed the same fixed set of
+              numbers no matter what a driver tapped. It now actually switches
+              which range's trips/earnings are the headline stats. */}
           <PerformanceCard
-            stats={[
-              { label: "Trips", value: String(earnings.totalDeliveries) },
-              { label: "Balance", value: `₹${earnings.today}`, accent: true },
-              { label: "This Week", value: `₹${earnings.week}` },
-            ]}
+            range={performanceRange}
+            onRangeChange={setPerformanceRange}
+            stats={
+              performanceRange === "today"
+                ? [
+                    { label: "Trips", value: String(earnings.todayTrips) },
+                    { label: "Balance", value: `₹${earnings.today}`, accent: true },
+                    { label: "This Week", value: `₹${earnings.week}` },
+                  ]
+                : [
+                    { label: "Trips", value: String(earnings.totalDeliveries) },
+                    { label: "Balance", value: `₹${earnings.week}`, accent: true },
+                    { label: "Today", value: `₹${earnings.today}` },
+                  ]
+            }
           />
 
           {/* Active Tasks */}
@@ -447,7 +429,7 @@ export default function HomeScreen() {
                 <Text style={styles.sectionTitle}>Scheduled Rides ({scheduledRides.length})</Text>
               </View>
               <View style={{ gap: 12, marginTop: 8 }}>
-                {scheduledRides.map((ride) => {
+                {scheduledRides.map((ride, idx) => {
                   const pickup = ride.stops?.[0]?.address || "Pickup Location";
                   const drop = ride.stops?.[ride.stops.length - 1]?.address || "Drop Location";
                   const dateStr = ride.reservedAt ? new Date(ride.reservedAt).toLocaleString([], {
@@ -459,7 +441,7 @@ export default function HomeScreen() {
                   }) : "N/A";
 
                   return (
-                    <View key={ride._id} style={styles.scheduledCard}>
+                    <Animated.View key={ride._id} entering={staggerListItem(idx)} style={styles.scheduledCard}>
                       <View style={styles.scheduledHeader}>
                         <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                           <Feather name="calendar" size={16} color={Colors.primary} />
@@ -499,7 +481,7 @@ export default function HomeScreen() {
                           <Text style={styles.startRideBtnText}>Start Ride</Text>
                         </TouchableOpacity>
                       </View>
-                    </View>
+                    </Animated.View>
                   );
                 })}
               </View>
@@ -532,6 +514,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <DriverTabBar active="home" />
 
       <GoOnlineModal
         visible={showOnlineModal}
@@ -708,7 +692,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   homeModeRowActive: {
-    backgroundColor: "#eefaff",
+    backgroundColor: Colors.brandSkin,
     borderColor: Colors.primary,
   },
   homeModeLeft: {
@@ -721,7 +705,7 @@ const styles = StyleSheet.create({
     width: moderateScale(38),
     height: moderateScale(38),
     borderRadius: moderateScale(10),
-    backgroundColor: '#e0f2fe',
+    backgroundColor: Colors.brandSkin,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -823,11 +807,11 @@ const styles = StyleSheet.create({
   },
   safetyAlert: {
     flexDirection: "row",
-    backgroundColor: "#fff5e6",
+    backgroundColor: Colors.warningLight,
     borderRadius: moderateScale(16),
     padding: 16,
     borderWidth: 1,
-    borderColor: "#fde68a",
+    borderColor: Colors.warning + "40",
     gap: 12,
     position: 'relative',
     overflow: 'hidden',
@@ -837,15 +821,15 @@ const styles = StyleSheet.create({
     marginRight: 60,
   },
   safetyTitle: {
-    fontFamily: "Inter_700Bold",
+    fontFamily: fontFamilies.body.bold,
     fontSize: moderateScale(15),
-    color: '#92400e',
+    color: Colors.warning,
     marginBottom: 4,
   },
   safetyText: {
-    fontFamily: "Inter_500Medium",
+    fontFamily: fontFamilies.body.medium,
     fontSize: moderateScale(12),
-    color: '#b45309',
+    color: Colors.warning,
     lineHeight: 18,
   },
   safetyImg: {

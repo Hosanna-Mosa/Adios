@@ -20,50 +20,32 @@ export const fontFamilies = {
   },
 };
 
+// The four — and only four — text sizes in the app. Every fontSize in code is
+// one of these tokens; the eslint rule `flavour/typography-tokens` rejects raw
+// numbers and moderateScale() calls. Display/hero text clamps to extraLarge:
+// there is deliberately no fifth size.
+//
+// Each value is moderateScale'd once, here, so a token always compares equal to
+// itself. The old runtime patch in app/_layout.tsx used to snap already-scaled
+// numbers into buckets, which meant the same declaration rendered at different
+// sizes depending on screen width. Tokens remove that entirely.
 export const typography = {
-  // Global size configurations
+  // Numbers are dp (density-independent pixels, what React Native's fontSize
+  // takes). moderateScale nudges them up a little on wider screens.
   sizes: {
-    titleLarge: moderateScale(24),
-    titleMedium: moderateScale(22),
-    titleSmall: moderateScale(18),
-    bodyLarge: moderateScale(16),
-    bodyMedium: moderateScale(14),
-    bodySmall: moderateScale(12),
-    caption: moderateScale(10),
+    small: moderateScale(12), // 12dp
+    medium: moderateScale(14), // 14dp
+    large: moderateScale(18), // 18dp
+    extraLarge: moderateScale(24), // 24dp
   },
-  // Global font weight configurations
-  weights: {
-    black: "900" as const,
-    extraBold: "800" as const,
-    bold: "700" as const,
-    semibold: "600" as const,
-    medium: "500" as const,
-    regular: "400" as const,
-    light: "300" as const,
-  },
-  // Global semantic text styles (e.g. headings)
-  heading1: {
-    fontSize: moderateScale(24),
-    fontWeight: "600" as const,
-  },
-  heading2: {
-    fontSize: moderateScale(20),
-    fontWeight: "700" as const,
-  },
-  heading3: {
-    fontSize: moderateScale(16),
-    fontWeight: "600" as const,
-  },
-  body: {
-    fontSize: moderateScale(14),
-    fontWeight: "400" as const,
-  },
-  bodySecondary: {
-    fontSize: moderateScale(12),
-    fontWeight: "400" as const,
-  },
-  buttonText: {
-    fontSize: moderateScale(15),
-    fontWeight: "700" as const,
+  // One line height per size. A style object always pairs a size token with the
+  // lineHeight token of the same name.
+  lineHeights: {
+    small: moderateScale(16), // 16dp
+    medium: moderateScale(20), // 20dp
+    large: moderateScale(24), // 24dp
+    extraLarge: moderateScale(28), // 28dp
   },
 };
+
+export type TypographySize = keyof typeof typography.sizes;

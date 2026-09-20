@@ -41,8 +41,12 @@ export const createOrderSchema = z.object({
     totals: z.object({
       subtotal: z.number().optional(),
       deliveryFee: z.number().optional(),
+      tip: z.number().optional(),
+      discount: z.number().optional(),
+      couponCode: z.string().optional(),
       total: z.number().optional(),
     }).optional(),
+    couponCode: z.string().optional(),
     radius: z.number().optional(),
     duration: z.number().optional(),
     isReserved: z.boolean().optional(),
@@ -56,6 +60,7 @@ export const createOrderSchema = z.object({
       type: z.enum(["now", "later"]),
       requestedAt: z.string().datetime({ message: "Invalid date-time format for requestedAt" }).optional().or(z.string().optional()),
     }).optional(),
+    scheduledFor: z.string().datetime({ message: "scheduledFor must be a valid ISO date-time" }).optional().or(z.string().optional()),
   }),
 });
 
@@ -66,6 +71,16 @@ export const requestScheduledDeliverySchema = z.object({
   }),
 });
 
+export const scheduleDecisionSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Order ID is required"),
+  }),
+  body: z.object({
+    action: z.enum(["accept", "reject"], { message: "action must be 'accept' or 'reject'" }),
+    reason: z.string().optional(),
+  }),
+});
+
 export const respondScheduledDeliverySchema = z.object({
   params: z.object({
     requestId: z.string().min(1, "Request ID is required"),
@@ -73,5 +88,6 @@ export const respondScheduledDeliverySchema = z.object({
   body: z.object({
     vendorId: z.string().min(1, "Vendor ID is required"),
     accepted: z.boolean(),
+    reason: z.string().optional(),
   }),
 });

@@ -1,26 +1,35 @@
 import { Share } from "react-native";
 import Constants from "expo-constants";
+import { showAlert } from "@/components/ui/AppAlert";
 
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL || Constants.expoConfig?.extra?.webUrl || "";
+// Where a shared link points. EXPO_PUBLIC_WEB_URL wins; otherwise the host the
+// app registers for App/Universal Links (app.config.js `extra.webUrl`), which the
+// backend answers at /restaurant-menu/:id — see backend share-landing.controller.ts.
+// Sharing used to bail out silently whenever EXPO_PUBLIC_WEB_URL was unset, which
+// is why the share button on a dish appeared to do nothing at all.
+const WEB_URL = (process.env.EXPO_PUBLIC_WEB_URL || Constants.expoConfig?.extra?.webUrl || "")
+  .trim()
+  .replace(/\/$/, "");
+
+export function restaurantShareUrl(vendorId: string, itemId?: string) {
+  if (!WEB_URL) return "";
+  const base = `${WEB_URL}/restaurant-menu/${encodeURIComponent(vendorId)}`;
+  return itemId ? `${base}?item=${encodeURIComponent(itemId)}` : base;
+}
 
 /**
- * Shares a restaurant (optionally scrolled/highlighted to one specific dish) as a link that
- * works for anyone, app-installed or not:
- *  - No app installed → opens the web preview page (frontend/src/routes/restaurant-menu.tsx).
- *  - App installed AND Universal Links are configured (see app.config.js `associatedDomains` —
- *    needs your Apple Team ID + Android signing SHA256 filled in first) → opens directly in-app.
- * Until Universal Links are configured, this still works today — it just always opens the web
- * page rather than skipping straight to the app.
+ * Shares a restaurant, optionally highlighting one dish, as a link that works for
+ * anyone: no app installed → the web preview page; app installed and App Links
+ * verified (app.config.js `associatedDomains` / `intentFilters`, which still need
+ * a real Apple Team ID and Android signing SHA256) → straight into the app.
  */
 export async function shareRestaurant(vendorId: string, name: string, itemId?: string, itemName?: string) {
-  if (!WEB_URL) {
-    console.warn("[shareLink] EXPO_PUBLIC_WEB_URL is not set — can't build a shareable link.");
+  const url = restaurantShareUrl(vendorId, itemId);
+  if (!url) {
+    console.warn("[shareLink] No web URL configured — set EXPO_PUBLIC_WEB_URL or extra.webUrl.");
+    showAlert("Can't share right now", "Sharing isn't configured for this build yet.");
     return;
   }
-
-  const url = itemId
-    ? `${WEB_URL}/restaurant-menu/${vendorId}?item=${itemId}`
-    : `${WEB_URL}/restaurant-menu/${vendorId}`;
 
   const message = itemId
     ? `Check out ${itemName || "this dish"} at ${name} on Flavour! ${url}`
@@ -30,5 +39,6 @@ export async function shareRestaurant(vendorId: string, name: string, itemId?: s
     await Share.share({ message, url });
   } catch (err) {
     console.error("[shareLink] Share failed:", err);
+    showAlert("Couldn't share", "The share sheet didn't open. Please try again.");
   }
 }

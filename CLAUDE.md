@@ -25,7 +25,7 @@ npm run dev     # nodemon + ts-node, watches src/, entry: src/index.ts
 npm run build    # rimraf dist && tsc
 npm start        # node dist/index.js (run build first)
 ```
-There is no real test suite (`npm test` just exits with an error) and no lint script. Needs MongoDB + Redis running locally, and a `.env` populated from `.env.example` (PORT, MONGODB_URI, JWT_SECRET, Google Maps, Razorpay, Cloudinary, Surepass, SMTP, DigiLocker, Gemini keys). On boot the server calls `seedDatabase()` before mounting routes.
+`npm run lint` runs eslint (`eslint.config.js`, plain Node/TS config — no test suite yet, `npm test` just exits with an error). Needs MongoDB + Redis running locally, and a `.env` populated from `.env.example` (PORT, DATABASE_URL, JWT_SECRET, Google Maps, Razorpay, Cloudinary, Surepass, SMTP, DigiLocker, Gemini keys — note the code reads `DATABASE_URL`, not `MONGODB_URI`, despite older docs). On boot the server calls `seedDatabase()` before mounting routes.
 
 ### admin (port 8080)
 ```
@@ -54,12 +54,17 @@ No test setup.
 cd app   # or driver
 npx expo start --tunnel   # app: `npm start`; driver: `npm run dev`
 npm run typecheck          # tsc --noEmit
-npm run lint                # app only — driver has no lint script
+npm run lint                # expo lint (both app and driver)
 npm run android / ios       # native builds via `expo run:*`
 ```
 Both are built/distributed via **EAS** (`eas.json` has `development`/`preview`/`production` profiles). No automated test setup in either.
 
 There are no Dockerfiles and no CI workflows (no `.github/workflows`) anywhere in the repo — running/building/deploying is done manually via the commands above.
+
+A `commit-msg` hook lives at `.githooks/commit-msg` (rejects one-word/sub-10-character commit subjects — this repo's history has a lot of those, e.g. "Wasp", "sdhf"). It's opt-in per clone since there's no root `package.json` to auto-install it via `prepare`:
+```
+git config core.hooksPath .githooks
+```
 
 ## Backend architecture
 
@@ -80,7 +85,7 @@ Cross-cutting pieces:
 - `backend/src/services/invoice.service.ts` + `puppeteer-core` — server-side PDF invoice generation from the `compiled_*_invoice.html` templates at the backend root
 - External integrations: Cloudinary (media), Razorpay (payments), Google Maps (geo/routing), DigiLocker + Surepass (driver Aadhaar/PAN KYC), Gemini API (OCR), Nodemailer (email)
 
-The `backend/` root also has ~40 ad-hoc one-off scripts (`check_*.ts`, `fix_*.ts`, `scratch-*.ts`) and committed debug logs (`debug.log`, `debug_helper.txt`) left over from manual debugging sessions — these aren't part of the app runtime, just be aware they exist when searching the codebase.
+The ad-hoc one-off debug scripts (`check_*.ts`, `fix_*.ts`, `scratch-*.ts`) and committed debug logs that used to litter the `backend/` root have been pruned — legitimate one-off scripts still live under `backend/src/scripts/`.
 
 ## Client conventions
 

@@ -39,8 +39,8 @@ TaskManager.defineTask(BACKGROUND_LOCATION_TASK, async ({ data, error }: any) =>
         // 2. HTTP REST update to ensure backend MongoDB & Redis remain updated even if OS pauses WebSocket
         if (store.token) {
           try {
-            const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "http://localhost:8000";
-            await fetch(`${apiUrl}/api/v1/drivers/location`, {
+            const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "http://localhost:3000/api/v1";
+            await fetch(`${apiUrl}/drivers/location`, {
               method: "PATCH",
               headers: {
                 "Content-Type": "application/json",
@@ -77,30 +77,41 @@ export const LocationHandler = () => {
         console.log("[LocationHandler] App resumed from background to foreground.");
       }
 
-      // If going to background, force offline to sync state
-      if (
-        appState.current === "active" &&
-        nextAppState.match(/inactive|background/)
-      ) {
-        // Skip if going to background due to a permission check popup
+      // Only a real background counts. "inactive" is a transient state — a
+      // permission dialog, the notification shade, the app switcher, any native
+      // picker — and treating it as backgrounding is what kept knocking drivers
+      // off shift just for opening another screen.
+      if (appState.current === "active" && nextAppState === "background") {
         if (isCheckingPermissions.current) {
-          console.log("[LocationHandler] App went to background/inactive due to permission check. Skipping auto-offline.");
+          console.log("[LocationHandler] Background caused by a permission check. Staying online.");
           appState.current = nextAppState;
           return;
         }
 
-        console.log("[LocationHandler] App went to background. Forcing offline.");
         const store = useDriverStore.getState();
-        if (store.isOnline) {
+        if (!store.isOnline) {
+          appState.current = nextAppState;
+          return;
+        }
+
+        // Background location updates keep the driver dispatchable while
+        // minimised, so there is no reason to end their shift. Without them the
+        // dispatcher would be sending orders nobody can see, so that case does
+        // still go offline.
+        const trackingInBackground = await TaskManager.isTaskRegisteredAsync(BACKGROUND_LOCATION_TASK).catch(() => false);
+        if (trackingInBackground) {
+          console.log("[LocationHandler] App minimised; background tracking is running, staying online.");
+        } else {
+          console.log("[LocationHandler] App minimised with no background tracking. Going offline.");
           store.goOffline();
-          
+
           Notifications.scheduleNotificationAsync({
             content: {
               title: "Status: Offline",
-              body: "Your app is minimized, so you are now offline and won't receive new orders.",
+              body: "Background location isn't enabled, so you're offline while the app is minimised.",
               sound: true,
             },
-            trigger: { seconds: 1 },
+            trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 1 },
           });
         }
       }

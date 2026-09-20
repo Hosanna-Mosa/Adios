@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
 import { DeliveryStop } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
 
@@ -52,11 +52,11 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
       width: moderateScale(18), height: moderateScale(18), borderRadius: moderateScale(9),
       backgroundColor: accent.accent, alignItems: "center", justifyContent: "center",
     },
-    dotText: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10), color: accent.on },
+    dotText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: accent.on },
     content: { flex: 1, minWidth: 0 },
-    storeName: { fontFamily: fontFamilies.body.semibold, fontSize: moderateScale(14), color: tokens.text },
-    address: { fontFamily: fontFamilies.body.regular, fontSize: moderateScale(12), color: tokens.sec, marginTop: 1 },
-    itemCount: { fontFamily: fontFamilies.body.medium, fontSize: moderateScale(11), color: accent.accent, marginTop: 3 },
+    storeName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
+    address: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 1 },
+    itemCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: accent.accent, marginTop: 3 },
     removeBtn: {
       width: moderateScale(22), height: moderateScale(22), borderRadius: moderateScale(11),
       backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center",
