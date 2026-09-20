@@ -65,7 +65,7 @@ export function AppSidebar() {
     <aside className="w-[240px] h-screen bg-card border-r border-border flex flex-col justify-between shrink-0 sticky top-0 overflow-y-auto">
       <div>
         <div className="px-6 py-6">
-          <h1 className="text-xl font-extrabold text-[#00665c] tracking-wide">FLAVOUR</h1>
+          <h1 className="text-xl font-extrabold text-brand-teal tracking-wide">FLAVOUR</h1>
           <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground font-bold mt-0.5">
             FOOD & SERVICES
           </p>
@@ -91,16 +91,16 @@ export function AppSidebar() {
                   to={item.url}
                   className={`flex items-center justify-between pl-6 pr-4 py-2.5 text-sm transition-colors rounded-r-full mr-4 ${
                     isActive
-                      ? "bg-[#e6f4f2] text-[#00665c] font-bold"
+                      ? "bg-brand-teal-soft text-brand-teal font-bold"
                       : "text-sidebar-foreground hover:bg-muted/50 font-medium"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-[#00665c]" : "text-muted-foreground"}`} />
+                    <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
                   {item.title === "Live Orders" && (
-                    <span className="text-[10px] font-bold bg-[#eefcfb] text-[#00665c] px-2 py-0.5 rounded-full border border-[#00665c]/10">
+                    <span className="text-[10px] font-bold bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
                       24
                     </span>
                   )}
