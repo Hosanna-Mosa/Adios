@@ -1,6 +1,5 @@
-import { Linking, Text } from "react-native";
+import { Linking } from "react-native";
 import Animated from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
 import { fadeInUp } from "@/motion/presets";
 import { ChatInputBar } from "@/features/support/components/ChatInputBar";
 import { ChatQuickRepliesRow } from "@/features/support/components/ChatQuickRepliesRow";
@@ -10,6 +9,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ChatBody } from "@/features/support/components/ChatBody";
 import { useChat } from "@/features/support/useChat";
 import type { OrderStatus } from "@/contexts/deliveryStore";
+import { ChatSafetyBanner } from "@/features/support/components/ChatSafetyBanner";
 
 export default function ChatScreen() {
   const {
@@ -31,10 +31,13 @@ export default function ChatScreen() {
         tokens={tokens}
       />
 
-      <Animated.View entering={fadeInUp(60)} style={styles.safetyBanner}>
-        <Ionicons name="shield-checkmark-outline" size={16} color={tokens.warning} />
-        <Text style={styles.safetyText}>Keep the conversation in Flavour. Don&apos;t share your PIN with the {partnerLabel.toLowerCase()} before the {isHelper ? "task" : isRide ? "ride" : "order"} starts.</Text>
-      </Animated.View>
+      <ChatSafetyBanner
+        partnerLabel={partnerLabel}
+        isHelper={isHelper}
+        isRide={isRide}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <ChatBody
         activeChat={activeChat}

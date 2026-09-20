@@ -5,24 +5,28 @@ import { fadeInUp, modalSlideUp, staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { StopCard } from "@/components/StopCard";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type DeliveryEntryStyles } from "@/features/delivery/useDeliveryEntry.shared";
+import type { PriceBreakdown } from "@/contexts/delivery.types";
 
 // Moved out of app/delivery/entry.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   currentLocation: any;
-  handleRecenter: any;
-  handleReview: any;
+  handleRecenter: () => void;
+  handleReview: () => void;
   handleStopPress: any;
-  insets: any;
-  isCalculating: any;
-  isLocating: any;
-  price: any;
+  insets: EdgeInsets;
+  isCalculating: boolean;
+  isLocating: boolean;
+  price: PriceBreakdown | null;
   removeStop: any;
   route: any;
   stops: any[];
-  styles: any;
+  styles: DeliveryEntryStyles;
 }
 
 export function DeliveryEntrySheet({

@@ -8,20 +8,21 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 
 import { fadeInDown } from "@/motion/presets";
 
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { PersonalDetailsBody } from "@/features/auth/components/PersonalDetailsBody";
+import { getProfile, updateProfile } from "@/services/users.service";
 
 export default function PersonalDetailsScreen() {
   const insets = useSafeAreaInsets();
-  const { user, setUser } = useAuthStore();
-  const { theme } = useThemeStore();
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
 
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
@@ -36,7 +37,7 @@ export default function PersonalDetailsScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    customFetch<any>("/users/profile")
+    getProfile()
       .then((data) => {
         if (!data || cancelled) return;
         setUser(data);
@@ -58,10 +59,7 @@ export default function PersonalDetailsScreen() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const data = await customFetch<any>("/users/profile", {
-        method: "PATCH",
-        body: JSON.stringify({ name, username, email }),
-      });
+      const data = await updateProfile({ name, username, email });
       if (data) {
         setUser(data);
         router.back();

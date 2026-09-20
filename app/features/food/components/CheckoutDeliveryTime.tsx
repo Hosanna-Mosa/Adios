@@ -2,19 +2,21 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
+import { type ServiceTokens } from "@/constants/colors";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Section of CheckoutBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
   formatSlot: any;
-  accent: any;
+  accent: ServiceTokens;
   getItemCount: any;
   items: any[];
   scheduledFor: any;
   setScheduledFor: React.Dispatch<React.SetStateAction<any>>;
   setShowScheduleSheet: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: CheckoutStyles;
 }
 
 export function CheckoutDeliveryTime({

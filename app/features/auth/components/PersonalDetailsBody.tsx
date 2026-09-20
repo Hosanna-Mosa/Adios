@@ -4,23 +4,25 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { PersonalDetailsPhoneField } from "./PersonalDetailsPhoneField";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
 
 // Moved out of app/personal-details.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   editField: any;
-  email: any;
-  handleSave: any;
-  insets: any;
-  name: any;
+  email: string;
+  handleSave: () => void;
+  insets: EdgeInsets;
+  name: string;
   saving: any;
   setEmail: any;
   setName: any;
   setUsername: any;
   styles: any;
-  tokens: any;
+  tokens: ThemeTokens;
   user: any;
   username: any;
 }

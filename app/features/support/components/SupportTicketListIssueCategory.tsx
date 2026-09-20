@@ -1,24 +1,26 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type SupportChatStyles } from "@/features/support/support-chat.styles";
 
 // Section of SupportTicketList, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
   CATEGORIES: any[];
-  accent: any;
+  accent: ServiceTokens;
   creatingTicket: any;
-  handleCreateTicket: any;
+  handleCreateTicket: () => void;
   newCategory: any;
   newMessage: any;
-  newTitle: any;
+  newTitle: string;
   setNewCategory: React.Dispatch<React.SetStateAction<any>>;
   setNewMessage: React.Dispatch<React.SetStateAction<any>>;
   setNewTitle: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: SupportChatStyles;
   ticket: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function SupportTicketListIssueCategory({

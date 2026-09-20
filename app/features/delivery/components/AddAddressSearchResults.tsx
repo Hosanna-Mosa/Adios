@@ -1,15 +1,17 @@
 import { ScrollView, Text, TouchableOpacity } from "react-native";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   handleSelectSearchResult: any;
-  insets: any;
+  insets: EdgeInsets;
   searchResults: any[];
-  styles: any;
+  styles: AddAddressStyles;
 }
 
 export function AddAddressSearchResults({

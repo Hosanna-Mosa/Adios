@@ -49,10 +49,10 @@ export function useToast() {
 }
 
 function ToastHost({ toast }: { toast: ToastState | null }) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const insets = useSafeAreaInsets();
-  const styles = React.useMemo(() => createStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens), [theme, tokens]);
 
   if (!toast) return null;
 

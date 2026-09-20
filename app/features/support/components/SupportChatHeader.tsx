@@ -2,35 +2,41 @@ import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
-// Moved out of app/support-chat.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// The support-chat header. Replaces SupportChatHeader{,2}: the same bar with a
+// different back action and title block.
+//
+// With a `subtitle` the title sits in a flexed column (the conversation view);
+// without one the title renders bare, exactly as the case-list view did — the
+// wrapper View is not rendered at all in that case, so layout is unchanged.
 
 interface Props {
-  STATUS_LABEL: any;
-  insets: any;
-  setViewMode: any;
-  styles: any;
-  ticket: any;
-  tokens: any;
+  title: string;
+  subtitle?: string;
+  onBack: () => void;
+  insets: { top: number };
+  styles: {
+    header: object;
+    backBtn: object;
+    headerName: object;
+    headerStatus: object;
+  };
+  tokens: { text: string };
 }
 
-export function SupportChatHeader({
-  STATUS_LABEL,
-  insets,
-  setViewMode,
-  styles,
-  ticket,
-  tokens,
-}: Props) {
+export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tokens }: Props) {
   return (
     <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => setViewMode("cases")}>
+      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.headerName}>Flavour Support</Text>
-        <Text style={styles.headerStatus}>Case #{ticket.ticketId} · {STATUS_LABEL[ticket.status]}</Text>
-      </View>
+      {subtitle ? (
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={styles.headerName}>{title}</Text>
+          <Text style={styles.headerStatus}>{subtitle}</Text>
+        </View>
+      ) : (
+        <Text style={styles.headerName}>{title}</Text>
+      )}
     </View>
   );
 }

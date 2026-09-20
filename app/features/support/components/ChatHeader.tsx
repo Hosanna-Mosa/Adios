@@ -2,6 +2,10 @@ import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type ChatStyles } from "@/features/support/useChat.shared";
+import type { Driver } from "@/types/models";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -9,13 +13,13 @@ import { moderateScale } from "react-native-size-matters";
 interface Props {
   STATUS_LABEL: any;
   Linking: any;
-  accent: any;
-  driver: any;
-  insets: any;
-  partnerLabel: any;
-  status: any;
-  styles: any;
-  tokens: any;
+  accent: ServiceTokens;
+  driver: Driver;
+  insets: EdgeInsets;
+  partnerLabel: string;
+  status: string;
+  styles: ChatStyles;
+  tokens: ThemeTokens;
 }
 
 export function ChatHeader({

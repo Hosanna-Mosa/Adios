@@ -17,3 +17,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, insets:
   ...createMapAreaStyles(tokens, accent, insets),
   ...createTitleStyles(tokens, accent, insets),
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type PickupConfirmationStyles = ReturnType<typeof createStyles>;

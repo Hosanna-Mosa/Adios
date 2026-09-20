@@ -7,12 +7,12 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { FareEstimate } from "./usePickupConfirmation.shared";
 
-// Part 1 of usePickupConfirmation, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of usePickupConfirmation so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function usePickupConfirmationInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.ride;
   const styles = React.useMemo(() => createStyles(tokens, accent, insets), [theme, insets]);

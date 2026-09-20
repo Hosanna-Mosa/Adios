@@ -1,19 +1,21 @@
 import { TextInput, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type ServiceTokens } from "@/constants/colors";
+import { type OtpStyles } from "@/features/auth/otp.styles";
 
 // Moved out of app/otp.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  focusedIndex: any;
+  accent: ServiceTokens;
+  focusedIndex: number;
   handleChange: any;
   handleKeyPress: any;
   inputs: any;
   otp: any[];
   setFocusedIndex: any;
-  styles: any;
+  styles: OtpStyles;
 }
 
 export function OtpRow({

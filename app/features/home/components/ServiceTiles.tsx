@@ -1,12 +1,13 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { type ThemeTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from
 // the screen's scope is now passed in as props.
 
 interface Props {
-  styles: any;
+  styles: HomeStyles;
   tokens: ThemeTokens;
   activeService: string;
   handleServiceSwitch: (service: "Food" | "Meat") => void;

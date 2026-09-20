@@ -3,25 +3,28 @@ import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type RestaurantMenuStyles } from "@/features/food/restaurant-menu.styles";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
   shareRestaurant: any;
-  accent: any;
+  accent: ServiceTokens;
   handleAddToCart: any;
   handleUpdateQuantity: any;
-  id: any;
-  insets: any;
+  id: string | string[];
+  insets: EdgeInsets;
   isDishFavorite: any;
   items: any[];
-  name: any;
+  name: string | string[];
   selectedDishDetail: any;
   setSelectedDishDetail: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: RestaurantMenuStyles;
   toggleFavoriteItem: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function DishDetailSheet({

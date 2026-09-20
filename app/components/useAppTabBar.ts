@@ -17,7 +17,7 @@ import type { TabKey } from "./AppTabBar";
 
 export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accentTokens: ServiceTokens = accent
     ? tokens.services[accent as keyof typeof tokens.services]
@@ -46,7 +46,7 @@ export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
     }
     indicatorX.value = withSpring(activeIndex * segmentWidth, SPRING);
     indicatorOpacity.value = withTiming(1, { duration: 160 });
-  }, [activeIndex, segmentWidth]);
+  }, [activeIndex, segmentWidth, tokens]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     width: segmentWidth,

@@ -61,8 +61,12 @@ export function useAuth() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
 
-  const { loginWithPassword, requestOTP, loading, token, isInitialized } = useAuthStore();
-  const { theme } = useThemeStore();
+  const loginWithPassword = useAuthStore((s) => s.loginWithPassword);
+  const requestOTP = useAuthStore((s) => s.requestOTP);
+  const loading = useAuthStore((s) => s.loading);
+  const token = useAuthStore((s) => s.token);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);

@@ -1,27 +1,9 @@
-import { Dimensions, Linking, ScrollView, StyleSheet, View } from "react-native";
 import { TripCompleteScreen } from "@/features/ride/components/TripCompleteScreen";
-import { MapBackground } from "@/components/MapBackground";
-import { BottomSheet } from "@/components/BottomSheet";
-import { TrackingFooterBtnOutline } from "@/features/ride/components/TrackingFooterBtnOutline";
-import { TrackingFooterBtnOutline2 } from "@/features/ride/components/TrackingFooterBtnOutline2";
-import { TrackingFooterBtnOutline3 } from "@/features/ride/components/TrackingFooterBtnOutline3";
-import { TrackingFooterBtnOutline4 } from "@/features/ride/components/TrackingFooterBtnOutline4";
-import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
-import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
-import { TrackingPinCard } from "@/features/ride/components/TrackingPinCard";
-import { TrackingPinCard2 } from "@/features/ride/components/TrackingPinCard2";
-import { TrackingPinCard3 } from "@/features/ride/components/TrackingPinCard3";
-import { TrackingPartnerRow } from "@/features/ride/components/TrackingPartnerRow";
-import { TrackingTimelineBlock } from "@/features/ride/components/TrackingTimelineBlock";
-import { TrackingFindingWrap } from "@/features/ride/components/TrackingFindingWrap";
-import { TrackingTopBar } from "@/features/ride/components/TrackingTopBar";
 import { ScreenShell } from "@/components/ui/ScreenShell";
-import { TripDetailsModal } from "@/features/ride/components/TripDetailsModal";
-import { useTracking } from "@/features/ride/useTracking";
+import { useTracking, STATUS_ORDER } from "@/features/ride/useTracking";
 import type { TimelineStep } from "@/features/ride/useTracking";
-import { STATUS_ORDER } from "@/features/ride/useTracking";
 import type { OrderStatus } from "@/contexts/deliveryStore";
-import { TrackingSection11 } from "@/features/ride/components/TrackingSection11";
+import { TrackingScreenBody } from "@/features/ride/components/TrackingScreenBody";
 
 export default function TrackingScreen() {
   const {
@@ -70,7 +52,7 @@ export default function TrackingScreen() {
 
   return (
     <ScreenShell>
-      <TrackingSection11
+      <TrackingScreenBody
         status={status}
         currentOrderId={currentOrderId}
         route={route}

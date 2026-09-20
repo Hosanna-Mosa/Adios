@@ -2,14 +2,15 @@ import { Text } from "react-native";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
+import { type OtpStyles } from "@/features/auth/otp.styles";
 
 // Moved out of app/otp.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   formatPhone: any;
-  phone: any;
-  styles: any;
+  phone: string;
+  styles: OtpStyles;
 }
 
 export function OtpHeroBlock({

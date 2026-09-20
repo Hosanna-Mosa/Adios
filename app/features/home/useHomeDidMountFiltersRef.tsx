@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useHomeStore } from "@/contexts/homeStore";
 
-// Part 8 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeDidMountFiltersRef(loading: any, setLoading: any, loadingDrivers: any, loadingMore: any, page: any, setPage: any, setHasMore: any, setIsDistanceSheetOpen: any, setDistanceOption: any, setCustomDistance: any, setAppliedDistanceKm: any, setDistanceRefreshKey: any, searchedDishes: any, serverFilterKey: any, applyDistanceFilter: any) {
   // Rating, open-now, ordering and search are server-side now, so each change needs

@@ -7,6 +7,8 @@ import { moderateScale } from "react-native-size-matters";
 import { SignupForm } from "./SignupForm";
 import { Button } from "@/components/ui/Button";
 import { SignupHeroBlock } from "./SignupHeroBlock";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type SignupStyles } from "@/features/auth/signup.styles";
 
 // Moved out of app/signup.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -15,16 +17,16 @@ interface Props {
   strengthLabelText: any;
   strengthLabelColor: any;
   barFillFor: any;
-  accent: any;
+  accent: ServiceTokens;
   agreedToTerms: any;
   canSubmit: any;
-  email: any;
-  handleRegister: any;
-  isPasswordVisible: any;
-  isPhoneDisabled: any;
-  loading: any;
-  name: any;
-  password: any;
+  email: string;
+  handleRegister: () => void;
+  isPasswordVisible: boolean;
+  isPhoneDisabled: boolean;
+  loading: boolean;
+  name: string;
+  password: string;
   passwordStrength: any;
   phoneNumber: any;
   setAgreedToTerms: any;
@@ -33,8 +35,8 @@ interface Props {
   setName: any;
   setPassword: any;
   setPhoneNumber: any;
-  styles: any;
-  tokens: any;
+  styles: SignupStyles;
+  tokens: ThemeTokens;
 }
 
 export function SignupBody({

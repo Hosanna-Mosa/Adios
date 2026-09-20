@@ -111,3 +111,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     footerSecondaryBtn: { marginTop: 8, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
     footerSecondaryBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type RideConfirmationStyles = ReturnType<typeof createStyles>;

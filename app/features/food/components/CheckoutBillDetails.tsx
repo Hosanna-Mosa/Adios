@@ -1,6 +1,8 @@
 import { Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens } from "@/constants/colors";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Section of CheckoutBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -8,11 +10,11 @@ import { fadeInUp } from "@/motion/presets";
 interface Props {
   activeTip: any;
   appliedPromo: any;
-  deliveryFee: any;
-  styles: any;
-  subtotal: any;
-  tokens: any;
-  total: any;
+  deliveryFee: number | null;
+  styles: CheckoutStyles;
+  subtotal: number;
+  tokens: ThemeTokens;
+  total: number;
 }
 
 export function CheckoutBillDetails({

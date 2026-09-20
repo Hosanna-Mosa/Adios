@@ -4,17 +4,19 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
 // have to be touched.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   drop: any;
   dropRef: any;
   fetchingLocation: any;
-  handleCurrentLocation: any;
+  handleCurrentLocation: () => void;
   handleRemoveStop: any;
   handleSearch: any;
   handleSelection: any;
@@ -23,8 +25,8 @@ interface Props {
   pickupRef: any;
   setFocusedInput: React.Dispatch<React.SetStateAction<any>>;
   stops: any[];
-  styles: any;
-  tokens: any;
+  styles: DropLocationStyles;
+  tokens: ThemeTokens;
 }
 
 export function RouteInputCard({

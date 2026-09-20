@@ -1,5 +1,5 @@
 import { useCartInsets } from "./useCartInsets";
-import { useCartPart2 } from "./useCartPart2";
+import { useCartMenuAndRecentOrders } from "./useCartMenuAndRecentOrders";
 import { useCartComplements } from "./useCartComplements";
 import { useCartConfirmClearCart } from "./useCartConfirmClearCart";
 
@@ -9,7 +9,7 @@ import { useCartConfirmClearCart } from "./useCartConfirmClearCart";
 
 export function useCart() {
   const { insets, tabBarHeight, tokens, paramVendorName, items, getTotalPrice, vendorId, updateQuantity, addItem, clearCart, storeVendorName, cartStatus, syncNotices, clearSyncNotices, serviceKey, accent, styles, fetchedVendorName, deliveryFee, menuItems, setMenuItems, recentOrders, setRecentOrders, loadingRecent, setLoadingRecent, showPromoInput, setShowPromoInput, promoCode, setPromoCode, appliedPromo, setAppliedPromo, isApplyingPromo, setIsApplyingPromo, promoError, setPromoError } = useCartInsets();
-  const {  } = useCartPart2(items, vendorId, setMenuItems, setRecentOrders, setLoadingRecent);
+  const {  } = useCartMenuAndRecentOrders(items, vendorId, setMenuItems, setRecentOrders, setLoadingRecent);
   const { complements, displayVendorName, subtotal, discount, total, handleApplyPromo } = useCartComplements(paramVendorName, items, getTotalPrice, vendorId, storeVendorName, fetchedVendorName, deliveryFee, menuItems, setShowPromoInput, promoCode, setPromoCode, appliedPromo, setAppliedPromo, setIsApplyingPromo, setPromoError);
   const { confirmClearCart, goToCheckout } = useCartConfirmClearCart(clearCart, deliveryFee, appliedPromo, displayVendorName, subtotal, discount, total);
 

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-// Part 9 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeIsServerSearched(restaurants: any, meatCenters: any, store149Items: any, activeService: any, searchText: any, searchQuery: any, appliedSearchTerm: any, selectedSort: any, filter99Store: any, filterFastDelivery: any, filterOffers: any, filterMinRating: any, filterOpenNow: any, filterCostRange: any, filterVegNonVeg: any, selectedCuisines: any, dishVendorIds: any) {
   // For Food the server already matched restaurants through their menus, so a

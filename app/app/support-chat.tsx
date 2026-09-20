@@ -1,14 +1,13 @@
+import { router } from "expo-router";
 import { SupportTicketList } from "@/features/support/components/SupportTicketList";
 import { FlatList } from "react-native";
 import { SupportMessageBubble } from "@/features/support/components/SupportMessageBubble";
 import { SupportChatHeader } from "@/features/support/components/SupportChatHeader";
-import { SupportChatHeader2 } from "@/features/support/components/SupportChatHeader2";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
-import { CATEGORIES } from "@/features/support/useSupportChat";
-import { useSupportChat } from "@/features/support/useSupportChat";
+import { CATEGORIES, useSupportChat } from "@/features/support/useSupportChat";
 
 export default function SupportChatScreen() {
   const {
@@ -36,11 +35,11 @@ export default function SupportChatScreen() {
     return (
       <ScreenShell keyboardAvoiding>
         <SupportChatHeader
-          STATUS_LABEL={STATUS_LABEL}
+          title="Flavour Support"
+          subtitle={`Case #${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
+          onBack={() => setViewMode("cases")}
           insets={insets}
-          setViewMode={setViewMode}
           styles={styles}
-          ticket={ticket}
           tokens={tokens}
         />
 
@@ -89,7 +88,9 @@ export default function SupportChatScreen() {
   // -----------------------------------------------------------------------
   return (
     <ScreenShell keyboardAvoiding>
-      <SupportChatHeader2
+      <SupportChatHeader
+        title="Your cases"
+        onBack={() => router.back()}
         insets={insets}
         styles={styles}
         tokens={tokens}

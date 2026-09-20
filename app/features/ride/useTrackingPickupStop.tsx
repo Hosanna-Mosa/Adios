@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { calculateBearing, normalizeStatus } from "./useTracking.shared";
+import { getOrder } from "@/services/orders.service";
 
-// Part 4 of useTracking, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useTracking so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any) {
   const pickupStop = stops?.find((s: any) => s.type?.toLowerCase() === "pickup" || s.type?.toLowerCase() === "store");
@@ -12,7 +12,7 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
     if (!currentOrderId) return;
 
     const fetchOrderDetails = () => {
-      customFetch<any>(`/orders/${currentOrderId}`)
+      getOrder(currentOrderId)
         .then((order) => {
           if (!order) return;
           if (order.status) {

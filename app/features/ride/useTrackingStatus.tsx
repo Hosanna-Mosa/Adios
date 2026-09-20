@@ -7,30 +7,28 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { RIDE_TYPES } from "./useTracking.shared";
 
-// Part 1 of useTracking, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useTracking so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useTrackingStatus() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderId?: string }>();
-  const {
-    status,
-    setStatus,
-    currentOrderId,
-    setOrderId,
-    serviceType,
-    setServiceType,
-    route,
-    setRoute,
-    stops,
-    setStops,
-    driver,
-    setDriver,
-    unreadCount,
-    resetDelivery,
-  } = useDeliveryStore();
+  const status = useDeliveryStore((s) => s.status);
+  const setStatus = useDeliveryStore((s) => s.setStatus);
+  const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const serviceType = useDeliveryStore((s) => s.serviceType);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
+  const route = useDeliveryStore((s) => s.route);
+  const setRoute = useDeliveryStore((s) => s.setRoute);
+  const stops = useDeliveryStore((s) => s.stops);
+  const setStops = useDeliveryStore((s) => s.setStops);
+  const driver = useDeliveryStore((s) => s.driver);
+  const setDriver = useDeliveryStore((s) => s.setDriver);
+  const unreadCount = useDeliveryStore((s) => s.unreadCount);
+  const resetDelivery = useDeliveryStore((s) => s.resetDelivery);
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
 
   const isRide = RIDE_TYPES.includes(serviceType?.toLowerCase() || "");

@@ -3,18 +3,19 @@ import Animated from "react-native-reanimated";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import { STRIDE } from "../constants";
 import { PromoDot } from "./PromoDot";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from the
 // screen's scope is now passed in as props.
 
 interface Props {
-  styles: any;
+  styles: HomeStyles;
   promoCards: { eyebrow: string; headline: string; caption: string }[];
   accent: ServiceTokens;
   tokens: ThemeTokens;
   carouselRef: any;
   bannerScrollX: any;
-  onBannerScroll: any;
+  onBannerScroll: () => void;
   bannerIndexRef: { current: number };
 }
 

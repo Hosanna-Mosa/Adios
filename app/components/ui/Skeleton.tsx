@@ -15,7 +15,7 @@ interface Props {
 /** Shimmering loading placeholder — generalized from the home screen's
  * original one-off skeleton cards so every loading state can share it. */
 export function Skeleton({ width, height, radius: r = radius.sm, style }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const shimmerStyle = useShimmer();
 

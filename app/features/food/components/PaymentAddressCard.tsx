@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { type PaymentStyles } from "@/features/food/usePayment.shared";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -6,7 +7,7 @@ import { Text, View } from "react-native";
 interface Props {
   receiverContact: any;
   selectedAddress: any;
-  styles: any;
+  styles: PaymentStyles;
 }
 
 export function PaymentAddressCard({

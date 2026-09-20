@@ -9,15 +9,19 @@ import { createStyles } from "./ride-searching.styles";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
 
-// Part 1 of useRideSearching, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideSearching so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideSearchingInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const colors = Colors[theme];
   const styles = React.useMemo(() => createStyles(colors, insets), [colors, insets]);
-  const { currentOrderId, setOrderId: setCurrentOrderId, setServiceType: setGlobalServiceType, setDriver: setGlobalDriver, setStatus: setGlobalStatus } = useDeliveryStore();
+  const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
+  const setCurrentOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setGlobalServiceType = useDeliveryStore((s) => s.setServiceType);
+  const setGlobalDriver = useDeliveryStore((s) => s.setDriver);
+  const setGlobalStatus = useDeliveryStore((s) => s.setStatus);
   const mapRef = React.useRef<MapView>(null);
 
   const animatedProgress = useSharedValue(0);

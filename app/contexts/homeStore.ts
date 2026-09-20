@@ -1,8 +1,9 @@
 import { create } from "zustand";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { designTokens, type ServiceTokens } from "@/constants/colors";
+import { getNearbyMeatCentres, getNearbyVendors, getStore149 } from "@/services/catalog.service";
+import { getNearbyDriversWithHeaders } from "@/services/places.service";
 
 /** Server-side discovery filters that must survive a refetch (see /vendors/nearby). */
 export interface HomeFetchFilters {
@@ -81,10 +82,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
       if (token) {
         driversHeaders["Authorization"] = `Bearer ${token}`;
       }
-      const driversPromise = customFetch<any[]>(
-        `/drivers/nearby?latitude=${lat}&longitude=${lng}&radius=5000`,
-        { headers: driversHeaders }
-      )
+      const driversPromise = getNearbyDriversWithHeaders(`latitude=${lat}&longitude=${lng}&radius=5000`, driversHeaders)
         .then((drivers) => {
           set({ nearbyDriversCount: Array.isArray(drivers) ? drivers.length : 0 });
         })
@@ -99,7 +97,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
       // 2. Fetch main service data using the exact same endpoints as index.tsx
       let servicePromise;
       if (activeService === 'Meat') {
-        servicePromise = customFetch<any[]>(`/meat/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}${filterParams}`)
+        servicePromise = getNearbyMeatCentres<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
           .then((data) => {
             set({ meatCenters: Array.isArray(data) ? data : [] });
           })
@@ -109,7 +107,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
           });
       } else {
         servicePromise = Promise.all([
-          customFetch<any[]>(`/vendors/nearby?lat=${lat}&lng=${lng}&page=1&limit=20${radiusParam}${filterParams}`)
+          getNearbyVendors<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
             .then((data) => {
               set({ restaurants: Array.isArray(data) ? data : [] });
             })
@@ -117,7 +115,7 @@ export const useHomeStore = create<HomeState>((set, get) => ({
               console.error("Fetch vendors error in homeStore:", err);
               set({ restaurants: [] });
             }),
-          customFetch<any[]>(`/food/store-149?lat=${lat}&lng=${lng}`)
+          getStore149<any[]>(lat, lng)
             .then((data) => {
               set({ store149Items: Array.isArray(data) ? data : [] });
             })

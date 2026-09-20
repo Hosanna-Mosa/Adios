@@ -3,6 +3,9 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { AddressFormPaneSaveAsStreetAddress } from "./AddressFormPaneSaveAsStreetAddress";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Section of AddressFormPane, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -11,22 +14,22 @@ interface Props {
   PROVIDER_GOOGLE: any;
   PROVIDER_DEFAULT: any;
   MapView: any;
-  accent: any;
+  accent: ServiceTokens;
   addressLine: any;
   completeAddress: any;
-  handleSave: any;
-  handleUseCurrentLocation: any;
-  insets: any;
+  handleSave: () => void;
+  handleUseCurrentLocation: () => void;
+  insets: EdgeInsets;
   instructions: any;
-  isEditMode: any;
-  isResolvingAddress: any;
-  label: any;
+  isEditMode: boolean;
+  isResolvingAddress: boolean;
+  label: string;
   landmark: any;
-  latLabel: any;
-  lngLabel: any;
-  loading: any;
-  receiverName: any;
-  receiverPhone: any;
+  latLabel: string;
+  lngLabel: string;
+  loading: boolean;
+  receiverName: string;
+  receiverPhone: string;
   region: any;
   selectedChip: any;
   setAddressLine: React.Dispatch<React.SetStateAction<any>>;
@@ -38,9 +41,9 @@ interface Props {
   setReceiverPhone: React.Dispatch<React.SetStateAction<any>>;
   setSelectedChip: React.Dispatch<React.SetStateAction<any>>;
   setStep: React.Dispatch<React.SetStateAction<any>>;
-  shortAddress: any;
-  styles: any;
-  tokens: any;
+  shortAddress: string;
+  styles: AddAddressStyles;
+  tokens: ThemeTokens;
 }
 
 export function AddressFormPaneSaveAs(props: Props) {

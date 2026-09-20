@@ -22,9 +22,9 @@ interface Props {
 }
 
 export function EmptyState({ title, subtitle, icon = "file-tray-outline", lottieSource, actionLabel, onAction }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = React.useMemo(() => createStyles(tokens), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens), [theme, tokens]);
 
   return (
     <View style={styles.wrap}>

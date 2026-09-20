@@ -23,7 +23,7 @@ interface Props {
 
 export function BottomSheet({ children, style, defaultHeight = 220, disableExpand = false }: Props) {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const colors = Colors[theme];
   const styles = React.useMemo(() => createStyles(colors), [theme]);
 

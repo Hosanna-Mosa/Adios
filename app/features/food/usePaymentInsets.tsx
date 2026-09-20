@@ -6,23 +6,29 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { VendorDetails, createStyles } from "./usePayment.shared";
+import { getVendor } from "@/services/catalog.service";
 
-// Part 1 of usePayment, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of usePayment so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function usePaymentInsets() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
-  const { items, vendorId, clearCart, getItemCount } = useCartStore();
-  const { setOrderId, setStatus, setServiceType } = useDeliveryStore();
-  const { user, token } = useAuthStore();
+  const items = useCartStore((s) => s.items);
+  const vendorId = useCartStore((s) => s.vendorId);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const getItemCount = useCartStore((s) => s.getItemCount);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setStatus = useDeliveryStore((s) => s.setStatus);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const selectedAddress = useDeliveryStore((s) => s.selectedAddress);
   const hydrateSelectedAddress = useDeliveryStore((s) => s.hydrateSelectedAddress);
 
@@ -45,7 +51,7 @@ export function usePaymentInsets() {
 
   useEffect(() => {
     if (!vendorId) return;
-    customFetch<VendorDetails>(`/vendors/${vendorId}`).then(setVendor).catch(() => {});
+    getVendor<VendorDetails>(vendorId).then(setVendor).catch(() => {});
   }, [vendorId]);
 
   useFocusEffect(

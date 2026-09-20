@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { createStyles } from "../tracking.styles";
+import { getOrderReview, submitReview } from "@/services/support.service";
 
 // Moved out of app/tracking.tsx unchanged. Single-feature for now: promote to
 // components/ui/ or components/shared/ if a second feature needs it.
@@ -37,7 +37,7 @@ export function OrderReviewCard({
 
   useEffect(() => {
     if (!orderId) return;
-    customFetch<any>(`/reviews/order/${orderId}`)
+    getOrderReview(orderId)
       .then((res) => {
         if (res && res.review) {
           setIsSubmitted(true);
@@ -55,10 +55,7 @@ export function OrderReviewCard({
     if (!orderId) return;
     try {
       setIsSubmitting(true);
-      const res = await customFetch<any>("/reviews", {
-        method: "POST",
-        body: JSON.stringify({ orderId, rating, comment, tags: selectedTags }),
-      });
+      const res = await submitReview({ orderId, rating, comment, tags: selectedTags });
       if (res) {
         setIsSubmitted(true);
         setExistingReview(res.review || { rating, comment, tags: selectedTags });

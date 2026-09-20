@@ -2,6 +2,9 @@ import React from "react";
 import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -10,16 +13,16 @@ import { moderateScale } from "react-native-size-matters";
 interface Props {
   appliedDistanceKm: any;
   applyDistanceFilter: any;
-  clearDistanceFilter: any;
+  clearDistanceFilter: () => void;
   customDistance: any;
   distanceOption: any;
-  insets: any;
-  isDistanceSheetOpen: any;
+  insets: EdgeInsets;
+  isDistanceSheetOpen: boolean;
   setCustomDistance: React.Dispatch<React.SetStateAction<any>>;
   setDistanceOption: React.Dispatch<React.SetStateAction<any>>;
   setIsDistanceSheetOpen: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function DistanceSheet({

@@ -8,8 +8,8 @@ import { createStyles } from "./add-address.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 
-// Part 1 of useAddAddress, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddAddress so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddAddressInsets() {
   const insets = useSafeAreaInsets();
@@ -18,12 +18,13 @@ export function useAddAddressInsets() {
   const mapRef = useRef<MapView>(null);
   const searchInputRef = useRef<TextInput>(null);
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
-  const { user, setUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const isEditMode = !!(params.editId && String(params.editId).length > 0);
 
   const [selectedChip, setSelectedChip] = useState<"Home" | "Work" | "Other">("Home");

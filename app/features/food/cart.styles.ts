@@ -119,3 +119,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     recentName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginTop: 8 },
     recentMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type CartStyles = ReturnType<typeof createStyles>;

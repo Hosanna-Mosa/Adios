@@ -1,18 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Platform } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { BlurView } from "expo-blur";
-import * as Haptics from "expo-haptics";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import { designTokens, radius, elevation, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
-import { useThemeStore } from "@/contexts/themeStore";
-import { useCartStore } from "@/contexts/cartStore";
-import { SPRING } from "@/motion/presets";
-import { createStyles, CART_CARD_HEIGHT, TAB_PILL_HEIGHT } from "./AppTabBar.styles";
+import { TAB_PILL_HEIGHT } from "./AppTabBar.styles";
 import { useAppTabBar } from "./useAppTabBar";
 export { useAppTabBarHeight } from "./useAppTabBarHeight";
 

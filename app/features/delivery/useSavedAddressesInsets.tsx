@@ -2,25 +2,26 @@ import { useState, useCallback, useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { createStyles } from "./saved-addresses.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { RECENT_LOCATIONS_KEY } from "./useSavedAddresses.shared";
+import { getAddresses, getRecentLocations } from "@/services/users.service";
 
-// Part 1 of useSavedAddresses, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSavedAddresses so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSavedAddressesInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
-  const { user, setUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectingId, setSelectingId] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export function useSavedAddressesInsets() {
   const fetchAddresses = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any[]>("/users/addresses");
+      const data = await getAddresses();
       setAddresses(data || []);
       if (user) setUser({ ...user, addresses: data || [] });
     } catch (err) {
@@ -54,7 +55,7 @@ export function useSavedAddressesInsets() {
   const loadRecentLocations = async () => {
     try {
       setRecentLoading(true);
-      const data = await customFetch<any[]>("/users/recent-locations");
+      const data = await getRecentLocations();
       if (Array.isArray(data) && data.length > 0) {
         setRecentLocations(data);
         await AsyncStorage.setItem(RECENT_LOCATIONS_KEY, JSON.stringify(data));

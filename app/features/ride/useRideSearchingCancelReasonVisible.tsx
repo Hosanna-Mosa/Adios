@@ -1,9 +1,9 @@
 import React from "react";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { normalizeServiceType } from "./useRideSearching.shared";
+import { getNearbyDrivers } from "@/services/places.service";
 
-// Part 2 of useRideSearching, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideSearching so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideSearchingCancelReasonVisible(params: any) {
   const [cancelReasonVisible, setCancelReasonVisible] = React.useState(false);
@@ -47,7 +47,7 @@ export function useRideSearchingCancelReasonVisible(params: any) {
           radius: "5000",
           vehicleType: service,
         });
-        const res = await customFetch<OnlineDriver[]>(`/drivers/nearby?${queryParams.toString()}`);
+        const res = await getNearbyDrivers<OnlineDriver[]>(queryParams.toString());
         console.log(`[CLIENT DRIVER SEARCH RESPONSE] Returned count: ${res ? res.length : 0}, data: ${JSON.stringify(res)}`);
         if (active && Array.isArray(res)) {
           setOnlineDrivers(res);

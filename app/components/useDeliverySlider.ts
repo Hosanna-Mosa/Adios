@@ -30,7 +30,7 @@ export function useDeliverySlider(onConfirm: any) {
     Animated.loop(
       Animated.timing(shimmerAnim, { toValue: 1, duration: 2500, useNativeDriver: true })
     ).start();
-  }, []);
+  }, [pulseAnim, shimmerAnim]);
 
   const panResponder = useRef(
     PanResponder.create({

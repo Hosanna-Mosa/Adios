@@ -2,6 +2,8 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens } from "@/constants/colors";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Section of AddressFormPaneSaveAs, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -9,19 +11,19 @@ import { fadeInUp } from "@/motion/presets";
 interface Props {
   addressLine: any;
   completeAddress: any;
-  handleUseCurrentLocation: any;
+  handleUseCurrentLocation: () => void;
   instructions: any;
   landmark: any;
-  receiverName: any;
-  receiverPhone: any;
+  receiverName: string;
+  receiverPhone: string;
   setAddressLine: React.Dispatch<React.SetStateAction<any>>;
   setCompleteAddress: React.Dispatch<React.SetStateAction<any>>;
   setInstructions: React.Dispatch<React.SetStateAction<any>>;
   setLandmark: React.Dispatch<React.SetStateAction<any>>;
   setReceiverName: React.Dispatch<React.SetStateAction<any>>;
   setReceiverPhone: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: AddAddressStyles;
+  tokens: ThemeTokens;
 }
 
 export function AddressFormPaneSaveAsStreetAddress({

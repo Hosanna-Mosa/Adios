@@ -1,15 +1,17 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { typography } from "@/constants/typography";
+import { type ServiceTokens } from "@/constants/colors";
+import { type MeatStyles } from "@/features/meat/meat-centers.styles";
 
 // Moved out of app/meat-centers.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   t: any;
-  isActive: any;
-  accent: any;
+  isActive: boolean;
+  accent: ServiceTokens;
   setSelectedCategory: any;
-  styles: any;
+  styles: MeatStyles;
 }
 
 export function MeatTypeChip({

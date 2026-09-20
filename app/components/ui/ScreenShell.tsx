@@ -37,7 +37,7 @@ export function ScreenShell({
   scroll = false,
   scrollProps,
 }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const frame: StyleProp<ViewStyle> = [{ flex: 1, backgroundColor: tokens.bg }, style];
 

@@ -1,10 +1,10 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
+import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
 
-// Part 2 of usePayment, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of usePayment so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function usePaymentHandlePayment(params: any, theme: any, items: any, vendorId: any, clearCart: any, setOrderId: any, setStatus: any, setServiceType: any, user: any, token: any, selectedAddress: any, setProcessing: any, vendor: any, subtotal: any, deliveryFee: any, tip: any, discount: any, couponCode: any, total: any, vendorName: any) {
   const handlePayment = async () => {
@@ -24,10 +24,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
 
     setProcessing(true);
     try {
-      const rzpOrderResponse = await customFetch<any>("/payments/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: total }),
-      });
+      const rzpOrderResponse = await createPaymentOrder(total);
 
       const paymentResult = await RazorpayIntegration.open({
         order_id: rzpOrderResponse.id,
@@ -46,9 +43,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
       const pickupLng = Number(vendorCoords?.[0] ?? dropLng + 0.004);
       const orderItems = items.map((item: any) => ({ id: item._id, name: item.name, quantity: item.quantity, price: item.price, total: item.price * item.quantity }));
 
-      const verifyResponse = await customFetch<any>("/payments/verify", {
-        method: "POST",
-        body: JSON.stringify({
+      const verifyResponse = await verifyPayment({
           ...paymentResult,
           orderData: {
             serviceType: "delivery",
@@ -85,8 +80,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
               },
             ],
           },
-        }),
-      });
+        });
 
       const finalOrder = verifyResponse.order;
       setOrderId(finalOrder._id || finalOrder.id);

@@ -3,24 +3,26 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type RestaurantMenuStyles } from "@/features/food/restaurant-menu.styles";
 
 // Section of MenuBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  id: any;
+  id: string | string[];
   image: any;
-  isMeat: any;
+  isMeat: string;
   metaLine1Parts: any;
   metaLine2Parts: any;
-  name: any;
+  name: string | string[];
   rating: any;
   reviews: any;
   searchQuery: any;
   setSearchQuery: React.Dispatch<React.SetStateAction<any>>;
   setVegOnly: React.Dispatch<React.SetStateAction<boolean>>;
-  styles: any;
-  tokens: any;
+  styles: RestaurantMenuStyles;
+  tokens: ThemeTokens;
   vegOnly: any;
 }
 

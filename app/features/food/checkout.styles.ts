@@ -82,3 +82,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     placeOrderBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
     placeOrderBtnPrice: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on, opacity: 0.85 },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type CheckoutStyles = ReturnType<typeof createStyles>;

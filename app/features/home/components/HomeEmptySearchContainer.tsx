@@ -1,18 +1,20 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type ThemeTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   tryInstead: any[];
-  hasActiveFilters: any;
-  activeFilterCount: any;
-  clearAllFilters: any;
-  searchText: any;
+  hasActiveFilters: boolean;
+  activeFilterCount: number;
+  clearAllFilters: () => void;
+  searchText: string;
   setSearchText: any;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeEmptySearchContainer({

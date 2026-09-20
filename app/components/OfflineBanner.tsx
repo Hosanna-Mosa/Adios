@@ -20,9 +20,9 @@ const PING_TIMEOUT_MS = 6000;
  */
 export function OfflineBanner() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = useMemo(() => createStyles(tokens), [theme]);
+  const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
 
   const [isOffline, setIsOffline] = useState(false);
   const [lastOnlineAt, setLastOnlineAt] = useState<Date | null>(new Date());

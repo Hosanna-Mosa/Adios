@@ -1,11 +1,13 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { type ServiceTokens } from "@/constants/colors";
+import { type CartStyles } from "@/features/food/cart.styles";
 
 // Moved out of app/cart.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  styles: any;
+  accent: ServiceTokens;
+  styles: CartStyles;
 }
 
 export function CartRestoringState({

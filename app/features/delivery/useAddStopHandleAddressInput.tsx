@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { BACKEND_URL } from "./useAddStop.shared";
 
-// Part 2 of useAddStop, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddStop so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddStopHandleAddressInput(address: any, setAddress: any, setAddressInput: any, storeName: any, setStoreName: any, coords: any, setCoords: any, setAutocompleteSuggestions: any, setShowDropdown: any, setPreviewDelta: any, setIsPreviewing: any, currentCoords: any, stops: any, route: any, fetchAutocompleteSuggestions: any) {
   const handleAddressInput = (text: string) => {

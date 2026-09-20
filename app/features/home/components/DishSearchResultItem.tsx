@@ -10,7 +10,9 @@ import { useCartStore } from "@/contexts/cartStore";
 // components/ui/ or components/shared/ if a second feature ever needs it.
 
 export function DishSearchResultItem({ item, tokens, accent, styles }: { item: any; tokens: ThemeTokens; accent: ServiceTokens; styles: any }) {
-  const { items, requestAddItem, updateQuantity } = useCartStore();
+  const items = useCartStore((s) => s.items);
+  const requestAddItem = useCartStore((s) => s.requestAddItem);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
   const cartItem = items.find((i) => i._id === item._id);
   const vendor = item.vendorId;
   const soldOut = item.isAvailable === false;

@@ -73,3 +73,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     confirmedDoneBtn: { backgroundColor: accent.accent, borderRadius: 14, paddingHorizontal: 40, paddingVertical: 15, width: "100%", alignItems: "center" },
     confirmedDoneBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type FindingDriverStyles = ReturnType<typeof createStyles>;

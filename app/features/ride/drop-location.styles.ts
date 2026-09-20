@@ -113,3 +113,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     loadingText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type DropLocationStyles = ReturnType<typeof createStyles>;

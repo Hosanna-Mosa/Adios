@@ -5,28 +5,26 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHomeStore } from "@/contexts/homeStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 
-// Part 1 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeRestaurants() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const {
-    restaurants,
-    setRestaurants,
-    meatCenters,
-    setMeatCenters,
-    nearbyDriversCount,
-    setNearbyDriversCount,
-    loading,
-    setLoading,
-    loadingDrivers,
-    setLoadingDrivers,
-    store149Items,
-    setStore149Items,
-    activeService,
-    setActiveService,
-  } = useHomeStore();
+  const restaurants = useHomeStore((s) => s.restaurants);
+  const setRestaurants = useHomeStore((s) => s.setRestaurants);
+  const meatCenters = useHomeStore((s) => s.meatCenters);
+  const setMeatCenters = useHomeStore((s) => s.setMeatCenters);
+  const nearbyDriversCount = useHomeStore((s) => s.nearbyDriversCount);
+  const setNearbyDriversCount = useHomeStore((s) => s.setNearbyDriversCount);
+  const loading = useHomeStore((s) => s.loading);
+  const setLoading = useHomeStore((s) => s.setLoading);
+  const loadingDrivers = useHomeStore((s) => s.loadingDrivers);
+  const setLoadingDrivers = useHomeStore((s) => s.setLoadingDrivers);
+  const store149Items = useHomeStore((s) => s.store149Items);
+  const setStore149Items = useHomeStore((s) => s.setStore149Items);
+  const activeService = useHomeStore((s) => s.activeService);
+  const setActiveService = useHomeStore((s) => s.setActiveService);
 
   const [searchText, setSearchText] = useState("");
   // Debounced copy of searchText — the term actually sent to the server.

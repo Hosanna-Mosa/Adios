@@ -1,19 +1,21 @@
 import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   formatClock: any;
-  accent: any;
-  eta: any;
+  accent: ServiceTokens;
+  eta: number;
   helperStatus: any;
-  isHelper: any;
+  isHelper: boolean;
   orderCreatedAt: any;
-  styles: any;
+  styles: TrackingStyles;
   timeline: any[];
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function TrackingTimelineBlock({

@@ -1,16 +1,18 @@
 import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ServiceTokens } from "@/constants/colors";
+import { type OtpStyles } from "@/features/auth/otp.styles";
 
 // Moved out of app/otp.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  handleResend: any;
+  accent: ServiceTokens;
+  handleResend: () => void;
   resending: any;
   secondsLeft: any;
-  styles: any;
+  styles: OtpStyles;
 }
 
 export function OtpResendRow({

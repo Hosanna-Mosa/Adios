@@ -8,8 +8,8 @@ import { MeatTypeChip } from "./components/MeatTypeChip";
 import { MeatQuickBody } from "./components/MeatQuickBody";
 import { MEAT_TYPES } from "./useMeatCenters.shared";
 
-// Part 3 of useMeatCenters, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useMeatCenters so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useMeatCentersVisibleCenters(tokens: any, accent: any, styles: any, meatCenters: any, selectedCategory: any, setSelectedCategory: any, activeQuickFilters: any, searchOpen: any, searchText: any, setSearchText: any, toggleQuickFilter: any) {
   const visibleCenters = useMemo(() => {

@@ -1,0 +1,37 @@
+import { Text, TextInput, View } from "react-native";
+import { type ThemeTokens } from "@/constants/colors";
+import { type LandingStyles } from "@/features/home/index.styles";
+
+// Moved out of app/index.tsx. The JSX is unchanged; what it read from the screen's
+// scope is now a prop of the same name.
+
+interface Props {
+  identifier: any;
+  setIdentifier: any;
+  styles: LandingStyles;
+  tokens: ThemeTokens;
+}
+
+export function PhoneOrEmailField({
+  identifier,
+  setIdentifier,
+  styles,
+  tokens,
+}: Props) {
+  return (
+    <View style={styles.fieldWrapper}>
+      <Text style={styles.fieldLabel}>Phone or email</Text>
+      <View style={[styles.inputContainer, styles.inputContainerAccent]}>
+        <TextInput
+          style={styles.input}
+          placeholder="98490 21734"
+          placeholderTextColor={tokens.muted}
+          value={identifier}
+          onChangeText={setIdentifier}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+      </View>
+    </View>
+  );
+}

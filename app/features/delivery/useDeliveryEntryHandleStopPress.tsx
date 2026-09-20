@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { router } from "expo-router";
 
-// Part 2 of useDeliveryEntry, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useDeliveryEntry so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useDeliveryEntryHandleStopPress(stops: any, route: any, price: any, currentCoords: any, setStops: any, setRoute: any, calculatePrice: any, setIsCalculating: any, mapRef: any) {
   const handleStopPress = (stop: any) => {

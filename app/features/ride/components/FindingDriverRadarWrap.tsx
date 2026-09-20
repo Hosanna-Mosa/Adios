@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
+import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -7,7 +8,7 @@ import Animated from "react-native-reanimated";
 interface Props {
   ring1Style: any;
   ring2Style: any;
-  styles: any;
+  styles: FindingDriverStyles;
 }
 
 export function FindingDriverRadarWrap({

@@ -1,6 +1,8 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type NotificationsStyles } from "@/features/profile/notifications.styles";
 
 // Moved out of app/notifications.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -9,10 +11,10 @@ interface Props {
   item: any;
   formatWhen: any;
   CATEGORY_ICON: any;
-  accent: any;
+  accent: ServiceTokens;
   handleOpen: any;
-  styles: any;
-  tokens: any;
+  styles: NotificationsStyles;
+  tokens: ThemeTokens;
 }
 
 export function NotificationsRow({

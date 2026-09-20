@@ -124,3 +124,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     modalQtyBtn: { width: 28, height: 28, alignItems: "center", justifyContent: "center" },
     modalQtyText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.large, color: accent.accent },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type RestaurantMenuStyles = ReturnType<typeof createStyles>;

@@ -1,11 +1,12 @@
 import { Text, TouchableOpacity } from "react-native";
+import { type OtpStyles } from "@/features/auth/otp.styles";
 
 // Moved out of app/otp.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  handleCallInstead: any;
-  styles: any;
+  handleCallInstead: () => void;
+  styles: OtpStyles;
 }
 
 export function OtpCallRow({

@@ -3,17 +3,18 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { AllServicesCrossPromoList } from "./AllServicesCrossPromoList";
 import { AllServicesTierGrid } from "./AllServicesTierGrid";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 
 // Moved out of app/all-services.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   RIDE_TIERS: any;
-  accent: any;
+  accent: ServiceTokens;
   selectTier: any;
   styles: any;
-  tabBarHeight: any;
-  tokens: any;
+  tabBarHeight: number;
+  tokens: ThemeTokens;
 }
 
 export function AllServicesBody({

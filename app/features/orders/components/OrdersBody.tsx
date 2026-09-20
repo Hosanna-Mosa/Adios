@@ -1,10 +1,11 @@
 import { ScrollView, View } from "react-native";
+import { type OrdersStyles } from "@/features/orders/orders.styles";
 
 // Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
-  styles: any;
+  styles: OrdersStyles;
 }
 
 export function OrdersBody({

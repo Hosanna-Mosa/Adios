@@ -31,3 +31,6 @@ export const createStyles = (tokens: ThemeTokens) =>
     faqQuestion: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
     faqAnswer: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10 },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type SupportStyles = ReturnType<typeof createStyles>;

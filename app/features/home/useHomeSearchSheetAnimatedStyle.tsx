@@ -3,8 +3,8 @@ import { Dimensions } from "react-native";
 import Animated, { useAnimatedRef, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Part 2 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeSearchSheetAnimatedStyle(searchTranslateY: any, searchBackdropOpacity: any, recentSearches: any, setRecentSearches: any) {
   const searchSheetAnimatedStyle = useAnimatedStyle(() => ({

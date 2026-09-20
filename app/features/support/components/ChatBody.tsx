@@ -1,5 +1,7 @@
 import { FlatList } from "react-native";
 import { ChatEmptyState } from "./ChatEmptyState";
+import { type ThemeTokens } from "@/constants/colors";
+import { type ChatStyles } from "@/features/support/useChat.shared";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -7,10 +9,10 @@ import { ChatEmptyState } from "./ChatEmptyState";
 interface Props {
   activeChat: any;
   flatListRef: any;
-  partnerLabel: any;
+  partnerLabel: string;
   renderItem: any;
-  styles: any;
-  tokens: any;
+  styles: ChatStyles;
+  tokens: ThemeTokens;
 }
 
 export function ChatBody({

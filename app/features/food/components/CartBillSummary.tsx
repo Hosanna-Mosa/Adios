@@ -1,27 +1,29 @@
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type CartStyles } from "@/features/food/cart.styles";
 
-// Section of CartBody, split out to keep every file under 150 lines.
+// Section of CartContents, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   appliedPromo: any;
-  deliveryFee: any;
-  discount: any;
-  handleApplyPromo: any;
-  isApplyingPromo: any;
+  deliveryFee: number | null;
+  discount: number;
+  handleApplyPromo: () => void;
+  isApplyingPromo: boolean;
   promoCode: any;
-  promoError: any;
+  promoError: string | null;
   setAppliedPromo: React.Dispatch<React.SetStateAction<any>>;
   setPromoCode: React.Dispatch<React.SetStateAction<any>>;
   setShowPromoInput: React.Dispatch<React.SetStateAction<boolean>>;
-  showPromoInput: any;
-  styles: any;
-  subtotal: any;
-  tokens: any;
-  total: any;
+  showPromoInput: boolean;
+  styles: CartStyles;
+  subtotal: number;
+  tokens: ThemeTokens;
+  total: number;
 }
 
 export function CartBillSummary({

@@ -6,16 +6,16 @@ import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAuthStore } from "@/contexts/authStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
+import { getFavouriteItems, getFavouriteOutlets } from "@/services/users.service";
 
 // State, data loading and handlers for app/favorites.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
 // still run exactly as they did inline.
 
-const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
+export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
     backBtn: {
@@ -63,7 +63,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
 export function useFavorites() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   // Screen-level chrome only — individual favorite cards below already pick
   // their own food/meat accent per item (see isMeat in the row components).
@@ -81,7 +81,7 @@ export function useFavorites() {
   const fetchFavorites = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any[]>("/users/favorites");
+      const data = await getFavouriteOutlets();
       if (Array.isArray(data)) setFavorites(data);
     } catch (error) {
       console.error("Error fetching favorites:", error);
@@ -93,7 +93,7 @@ export function useFavorites() {
   const fetchFavoriteItems = async () => {
     try {
       setItemsLoading(true);
-      const data = await customFetch<any[]>("/users/favorite-items");
+      const data = await getFavouriteItems();
       if (Array.isArray(data)) setFavoriteItems(data);
     } catch (error) {
       console.error("Error fetching favorite items:", error);
@@ -131,3 +131,6 @@ export function useFavorites() {
   activeFavoriteItems, popularNearby
   };
 }
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type FavoritesStyles = ReturnType<typeof createStyles>;
