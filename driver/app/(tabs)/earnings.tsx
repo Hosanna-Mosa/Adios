@@ -1,207 +1,69 @@
-import React, { useCallback, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import React from "react";
+import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Animated from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
+import { router } from "expo-router";
 
-import Colors from "@/constants/colors";
-import { EarningsChart } from "@/components/EarningsChart";
-import { CashOutButton } from "@/components/CashOutButton";
-import { TransactionItem } from "@/components/TransactionItem";
-import { Button } from "@/components/ui/Button";
-import { TextField } from "@/components/ui/TextField";
-import { DriverTabBar, useDriverTabBarHeight } from "@/components/DriverTabBar";
-import { useDriverStore } from "@/store/driverStore";
-import { fadeInUp, staggerListItem } from "@/motion/presets";
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-
-interface WeeklyPoint {
-  day: string;
-  amount: number;
-}
-
-interface ActivityItem {
-  id: string;
-  icon: keyof typeof Feather.glyphMap;
-  label: string;
-  amount: number;
-  createdAt: string;
-}
-
-interface EarningsResponse {
-  availableBalance: number;
-  weekBalance: number;
-  trendPercent: number;
-  weeklyBreakdown: WeeklyPoint[];
-  recentActivity: ActivityItem[];
-  stats: {
-    onlineHours: number;
-    totalDistance: number;
-    completedTrips: number;
-  };
-  bank: {
-    verified: boolean;
-    last4: string | null;
-    ifsc: string | null;
-  };
-}
-
-const emptyEarnings: EarningsResponse = {
-  availableBalance: 0,
-  weekBalance: 0,
-  trendPercent: 0,
-  weeklyBreakdown: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => ({
-    day,
-    amount: 0,
-  })),
-  recentActivity: [],
-  stats: {
-    onlineHours: 0,
-    totalDistance: 0,
-    completedTrips: 0,
-  },
-  bank: {
-    verified: false,
-    last4: null,
-    ifsc: null,
-  },
-};
+import { DriverTabBar, useDriverTabBarHeight } from "@/components/shared/DriverTabBar";
+import { fadeInUp } from "@/motion/presets";
+import {
+  BalanceCard,
+  CashOutButton,
+  CashOutDialog,
+  EarningsChart,
+  EarningsLoadingCard,
+  EarningsStatsRow,
+  RecentActivityList,
+} from "@/features/earnings/components";
+import { formatCurrency } from "@/features/earnings/utils/format";
+import { useEarnings } from "@/features/earnings/hooks/useEarnings";
+import { styles } from "@/features/earnings/earnings.styles";
+import { AppText } from "@/components/ui/AppText";
+import { ScrollBox } from "@/components/ui/ScrollBox";
+import { Refresh } from "@/components/ui/Refresh";
+import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export default function EarningsScreen() {
   const tabBarHeight = useDriverTabBarHeight();
-  const token = useDriverStore((s) => s.token);
-  const [earnings, setEarnings] = useState<EarningsResponse>(emptyEarnings);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isCashingOut, setIsCashingOut] = useState(false);
-  const [password, setPassword] = useState("");
-  const [cashOutVisible, setCashOutVisible] = useState(false);
-
-  const loadEarnings = useCallback(async (refreshing = false) => {
-    if (!apiUrl || !token) {
-      setEarnings(emptyEarnings);
-      setIsLoading(false);
-      return;
-    }
-
-    refreshing ? setIsRefreshing(true) : setIsLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/drivers/earnings`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to load earnings");
-      setEarnings(data);
-    } catch (error: any) {
-      Alert.alert("Earnings unavailable", error.message || "Please try again.");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [token]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadEarnings(true);
-    }, [loadEarnings])
-  );
-
-  const trendLabel = useMemo(() => {
-    const prefix = earnings.trendPercent >= 0 ? "+" : "";
-    return `${prefix}${earnings.trendPercent}%`;
-  }, [earnings.trendPercent]);
-
-  const handleCashOut = async () => {
-    if (!password.trim()) {
-      Alert.alert("Password required", "Enter your driver password to continue.");
-      return;
-    }
-
-    if (!apiUrl || !token) {
-      Alert.alert("Cash out unavailable", "Please sign in again.");
-      return;
-    }
-
-    setIsCashingOut(true);
-    try {
-      const response = await fetch(`${apiUrl}/drivers/cash-out`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          password,
-          amount: earnings.availableBalance,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Cash out failed");
-
-      setCashOutVisible(false);
-      setPassword("");
-      Alert.alert("Cash out initiated", `Rs.${data.payout.amount.toFixed(2)} is being sent to your bank.`);
-      await loadEarnings();
-    } catch (error: any) {
-      Alert.alert("Cash out failed", error.message || "Please try again.");
-    } finally {
-      setIsCashingOut(false);
-    }
-  };
+  const {
+    earnings,
+    isLoading,
+    isRefreshing,
+    isCashingOut,
+    password,
+    setPassword,
+    cashOutVisible,
+    setCashOutVisible,
+    trendLabel,
+    loadEarnings,
+    handleCashOut,
+  } = useEarnings();
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <ScrollView
+      <ScrollBox
         style={styles.container}
         contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={() => loadEarnings(true)} />
+          <Refresh refreshing={isRefreshing} onRefresh={() => loadEarnings(true)} />
         }
       >
-        <Text style={styles.headerTitle}>Earnings</Text>
+        <AppText style={styles.headerTitle}>Earnings</AppText>
 
         {isLoading ? (
-          <View style={styles.loadingCard}>
-            <ActivityIndicator size="small" color={Colors.primary} />
-          </View>
+          <EarningsLoadingCard />
         ) : (
           <>
-            <Animated.View entering={fadeInUp(0)} style={styles.balanceCard}>
-              <Text style={styles.balanceLabel}>This Week&apos;s Balance</Text>
-              <View style={styles.balanceRow}>
-                <Text style={styles.balanceAmount}>{formatCurrency(earnings.weekBalance)}</Text>
-                <View style={styles.trendBadge}>
-                  <Feather
-                    name={earnings.trendPercent >= 0 ? "arrow-up" : "arrow-down"}
-                    size={12}
-                    color={Colors.success}
-                  />
-                  <Text style={styles.trendText}>{trendLabel}</Text>
-                </View>
-              </View>
-              <Text style={styles.availableText}>
-                Available: {formatCurrency(earnings.availableBalance)}
-                {earnings.bank.last4 ? ` to bank ending ${earnings.bank.last4}` : ""}
-              </Text>
-            </Animated.View>
+            <BalanceCard
+              weekBalance={earnings.weekBalance}
+              availableBalance={earnings.availableBalance}
+              trendPercent={earnings.trendPercent}
+              trendLabel={trendLabel}
+              bankLast4={earnings.bank.last4}
+            />
 
-            <Animated.View entering={fadeInUp(60)}>
+            <AnimatedBox entering={fadeInUp(60)}>
               <EarningsChart data={earnings.weeklyBreakdown} />
-            </Animated.View>
+            </AnimatedBox>
 
             <CashOutButton
               onPress={() => {
@@ -226,268 +88,27 @@ export default function EarningsScreen() {
               isLoading={isCashingOut}
             />
 
-            <Animated.View entering={fadeInUp(120)} style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Recent Activity</Text>
-              {earnings.recentActivity.length === 0 ? (
-                <Text style={styles.emptyText}>No completed earnings yet.</Text>
-              ) : (
-                earnings.recentActivity.map((tx, idx) => (
-                  <Animated.View key={tx.id} entering={staggerListItem(idx)}>
-                    <TransactionItem
-                      icon={tx.icon}
-                      label={tx.label}
-                      amount={`${tx.amount >= 0 ? "+" : "-"}${formatCurrency(Math.abs(tx.amount))}`}
-                      time={formatRelativeTime(tx.createdAt)}
-                    />
-                  </Animated.View>
-                ))
-              )}
-            </Animated.View>
+            <RecentActivityList transactions={earnings.recentActivity} />
 
-            <Animated.View entering={fadeInUp(180)} style={styles.bottomStats}>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{earnings.stats.onlineHours.toFixed(1)}h</Text>
-                <Text style={styles.statLabel}>Online Hours</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>{earnings.stats.totalDistance} km</Text>
-                <Text style={styles.statLabel}>Total Distance</Text>
-              </View>
-            </Animated.View>
+            <EarningsStatsRow
+              onlineHours={earnings.stats.onlineHours}
+              totalDistance={earnings.stats.totalDistance}
+            />
           </>
         )}
-      </ScrollView>
+      </ScrollBox>
 
       <DriverTabBar active="earnings" />
 
-      <Modal
+      <CashOutDialog
         visible={cashOutVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setCashOutVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Confirm Cash Out</Text>
-            <Text style={styles.modalText}>
-              {formatCurrency(earnings.availableBalance)} will be transferred through Razorpay.
-            </Text>
-            <TextField
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Driver password"
-              secureTextEntry
-              style={{ marginBottom: 14 }}
-            />
-            <View style={styles.modalActions}>
-              <Button
-                title="Cancel"
-                variant="secondary"
-                size="sm"
-                onPress={() => setCashOutVisible(false)}
-                disabled={isCashingOut}
-              />
-              <Button
-                title="Confirm"
-                size="sm"
-                onPress={handleCashOut}
-                loading={isCashingOut}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
+        amount={earnings.availableBalance}
+        password={password}
+        onPasswordChange={setPassword}
+        onConfirm={handleCashOut}
+        onCancel={() => setCashOutVisible(false)}
+        isCashingOut={isCashingOut}
+      />
     </SafeAreaView>
   );
 }
-
-function formatCurrency(amount: number) {
-  return `\u20b9${Number(amount || 0).toFixed(2)}`;
-}
-
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString);
-  const diffMs = Date.now() - date.getTime();
-  const minutes = Math.max(1, Math.floor(diffMs / 60000));
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours} hours ago`;
-  const days = Math.floor(hours / 24);
-  return `${days} days ago`;
-}
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-  },
-  headerTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(24),
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  loadingCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 28,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  balanceCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 20,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  balanceLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    marginBottom: 8,
-  },
-  balanceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  balanceAmount: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(32),
-    color: Colors.text,
-  },
-  trendBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.success + "20",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: moderateScale(6),
-    gap: 2,
-  },
-  trendText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(12),
-    color: Colors.success,
-  },
-  availableText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-    marginTop: 8,
-  },
-  sectionCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  sectionTitle: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  emptyText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    paddingVertical: 12,
-  },
-  bottomStats: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: Colors.surfaceContainerLow,
-    borderRadius: moderateScale(12),
-    padding: 16,
-    alignItems: "center",
-  },
-  statValue: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(20),
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontFamily: "Inter_500Medium",
-    fontSize: moderateScale(12),
-    color: Colors.textMuted,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
-    padding: 20,
-  },
-  modalCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: moderateScale(12),
-    padding: 18,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  modalTitle: {
-    fontFamily: "Inter_700Bold",
-    fontSize: moderateScale(18),
-    color: Colors.text,
-    marginBottom: 6,
-  },
-  modalText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: moderateScale(13),
-    color: Colors.textMuted,
-    marginBottom: 14,
-  },
-  passwordInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(10),
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    fontFamily: "Inter_500Medium",
-    color: Colors.text,
-    marginBottom: 14,
-  },
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 10,
-  },
-  secondaryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.surfaceContainerLow,
-  },
-  secondaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.textSecondary,
-  },
-  primaryButton: {
-    minWidth: 88,
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: moderateScale(8),
-    backgroundColor: Colors.primary,
-  },
-  primaryButtonText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: moderateScale(13),
-    color: Colors.white,
-  },
-});

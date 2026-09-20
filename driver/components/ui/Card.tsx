@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, View, ViewStyle } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { Colors, elevation, radius } from "@/constants/colors";
+import { Box } from "@/components/ui/Box";
 
 interface Props {
   children: React.ReactNode;
@@ -8,13 +9,15 @@ interface Props {
   elevationLevel?: "none" | "sm" | "md" | "lg";
   padding?: number;
   bordered?: boolean;
+  testID?: string;
 }
 
 /** Surface container with the shared radius/elevation tokens baked in.
  * Mirrors app/components/ui/Card.tsx. */
-export function Card({ children, style, elevationLevel = "sm", padding = 16, bordered = false }: Props) {
+export function Card({ children, style, elevationLevel = "sm", padding = 16, bordered = false, testID }: Props) {
   return (
-    <View
+    <Box
+      testID={testID}
       style={[
         styles.base,
         { padding },
@@ -24,7 +27,7 @@ export function Card({ children, style, elevationLevel = "sm", padding = 16, bor
       ]}
     >
       {children}
-    </View>
+    </Box>
   );
 }
 

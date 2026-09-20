@@ -1,13 +1,15 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import Animated, { interpolate, SharedValue, useAnimatedStyle } from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { fontFamilies, typography } from "@/constants/typography";
+import { PressBox } from "@/components/ui/PressBox";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 interface Props {
   title?: string;
@@ -19,7 +21,9 @@ interface Props {
   transparent?: boolean;
 }
 
-/** Mirrors app/components/ui/Header.tsx. */
+/** Presentational header bar. Knows nothing about navigation — pass `onBack`.
+ * Pass onBack={() => router.back()} for the usual go-back behaviour.
+ * Mirrors app/components/ui/Header.tsx. */
 export function Header({
   title,
   onBack,
@@ -36,36 +40,34 @@ export function Header({
     return { opacity: interpolate(scrollY.value, [0, blurThreshold], [transparent ? 0 : 1, 1], "clamp") };
   });
 
-  const handleBack = onBack ?? (() => router.back());
-
   return (
-    <View style={{ paddingTop: insets.top }}>
+    <Box style={{ paddingTop: insets.top }}>
       {scrollY ? (
         <Animated.View style={[StyleSheet.absoluteFillObject, scrollLinkedStyle]}>
           <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFillObject} />
         </Animated.View>
       ) : !transparent ? (
-        <View style={[StyleSheet.absoluteFillObject, { backgroundColor: Colors.background }]} />
+        <Box style={[StyleSheet.absoluteFillObject, { backgroundColor: Colors.background }]} />
       ) : null}
 
-      <View style={styles.row}>
-        {showBack ? (
-          <Pressable hitSlop={12} onPress={handleBack} style={styles.iconBtn}>
+      <Box style={styles.row}>
+        {showBack && onBack ? (
+          <PressBox hitSlop={12} onPress={onBack} style={styles.iconBtn}>
             <Ionicons name="chevron-back" size={moderateScale(22)} color={Colors.text} />
-          </Pressable>
+          </PressBox>
         ) : (
-          <View style={styles.iconBtn} />
+          <Box style={styles.iconBtn} />
         )}
         {title ? (
-          <Text style={styles.title} numberOfLines={1}>
+          <AppText style={styles.title} numberOfLines={1}>
             {title}
-          </Text>
+          </AppText>
         ) : (
-          <View style={{ flex: 1 }} />
+          <Box style={{ flex: 1 }} />
         )}
-        <View style={styles.rightSlot}>{right}</View>
-      </View>
-    </View>
+        <Box style={styles.rightSlot}>{right}</Box>
+      </Box>
+    </Box>
   );
 }
 
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     fontFamily: fontFamilies.heading.semibold,
-    fontSize: moderateScale(18),
+    fontSize: typography.sizes.large,
     color: Colors.text,
     textAlign: "center",
     marginHorizontal: 4,

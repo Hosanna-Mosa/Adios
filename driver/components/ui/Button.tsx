@@ -1,18 +1,27 @@
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Pressable, StyleSheet, ViewStyle } from "react-native";
 import Animated from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
-import { moderateScale } from "react-native-size-matters";
-import { Colors, gradients, radius } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { Colors, gradients } from "@/constants/colors";
 import { usePressScale } from "@/motion/presets";
+import { styles } from "./Button.styles";
+import { Loader } from "@/components/ui/Loader";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "md" | "sm";
 
 interface Props {
-  title: string;
+  /** Button label. Optional when `children` or an icon-only button is used. */
+  title?: string;
+  /** Arbitrary content in place of the default icon + label row. */
+  children?: React.ReactNode;
+  /** Square icon button: drops the label and the horizontal padding. */
+  iconOnly?: boolean;
+  /** Required when `iconOnly`, since there is no visible label to read out. */
+  accessibilityLabel?: string;
   onPress?: () => void;
   variant?: Variant;
   size?: Size;
@@ -21,6 +30,7 @@ interface Props {
   icon?: React.ReactNode;
   fullWidth?: boolean;
   style?: ViewStyle;
+  testID?: string;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -29,6 +39,9 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
  * Mirrors app/components/ui/Button.tsx — same API, driver's cyan-teal brand. */
 export function Button({
   title,
+  children,
+  iconOnly = false,
+  accessibilityLabel,
   onPress,
   variant = "primary",
   size = "md",
@@ -37,6 +50,7 @@ export function Button({
   icon,
   fullWidth = false,
   style,
+  testID,
 }: Props) {
   const { animatedStyle, onPressIn, onPressOut } = usePressScale(0.97);
   const isDisabled = disabled || loading;
@@ -50,13 +64,16 @@ export function Button({
   };
 
   const content = (
-    <View style={styles.content}>
+    <Box style={styles.content}>
       {loading ? (
-        <ActivityIndicator color={variant === "primary" || variant === "danger" ? Colors.onBrand : Colors.brand} />
+        <Loader color={variant === "primary" || variant === "danger" ? Colors.onBrand : Colors.brand} />
+      ) : children ? (
+        children
       ) : (
         <>
           {icon}
-          <Text
+          {title ? (
+          <AppText
             style={[
               size === "sm" ? styles.labelSm : styles.label,
               variant === "secondary" || variant === "ghost" ? styles.labelOnSurface : styles.labelOnBrand,
@@ -64,22 +81,28 @@ export function Button({
             numberOfLines={1}
           >
             {title}
-          </Text>
+          </AppText>
+          ) : null}
         </>
       )}
-    </View>
+    </Box>
   );
 
   return (
     <AnimatedPressable
+      testID={testID}
       onPress={isDisabled ? undefined : onPress}
       onPressIn={handlePressIn}
       onPressOut={onPressOut}
       disabled={isDisabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={[
         animatedStyle,
         styles.base,
         size === "sm" ? styles.baseSm : styles.baseMd,
+        iconOnly && (size === "sm" ? styles.iconOnlySm : styles.iconOnlyMd),
         variant === "secondary" && styles.secondary,
         variant === "ghost" && styles.ghost,
         variant === "danger" && styles.danger,
@@ -100,57 +123,3 @@ export function Button({
     </AnimatedPressable>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.pill,
-    backgroundColor: Colors.brand,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    paddingHorizontal: moderateScale(20),
-  },
-  baseMd: {
-    height: moderateScale(52),
-  },
-  baseSm: {
-    height: moderateScale(40),
-  },
-  secondary: {
-    backgroundColor: Colors.surface,
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-  },
-  ghost: {
-    backgroundColor: "transparent",
-  },
-  danger: {
-    backgroundColor: Colors.error,
-  },
-  fullWidth: {
-    width: "100%",
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  label: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(16),
-  },
-  labelSm: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: moderateScale(14),
-  },
-  labelOnBrand: {
-    color: Colors.onBrand,
-  },
-  labelOnSurface: {
-    color: Colors.text,
-  },
-});

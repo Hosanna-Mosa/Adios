@@ -1,8 +1,9 @@
 import { io, Socket } from "socket.io-client";
+import { SOCKET_ORIGIN } from "./apiUrl";
 
-const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL || "";
-// Extract the base URL to prevent Socket.io from using the API path as a namespace
-const BASE_SOCKET_URL = SOCKET_URL.split("/api")[0] || SOCKET_URL;
+// Socket.IO connects to the server origin — the /api path would be read
+// as a namespace — so use the origin the shared resolver derives.
+const BASE_SOCKET_URL = SOCKET_ORIGIN;
 
 class SocketService {
   private socket: Socket | null = null;
