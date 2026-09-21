@@ -8,8 +8,8 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { SPRING } from "@/motion/presets";
 
-// Part 3 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeClearRecentSearches(restaurants: any, meatCenters: any, activeService: any, setRecentSearches: any) {
   const clearRecentSearches = async () => {
@@ -21,7 +21,7 @@ export function useHomeClearRecentSearches(restaurants: any, meatCenters: any, a
   const [isRetryingDrivers, setIsRetryingDrivers] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services[activeService === "Meat" ? "meat" : "food"];
   const styles = useMemo(() => createStyles(tokens, accent), [theme, activeService]);

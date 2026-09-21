@@ -1,12 +1,12 @@
 import React from "react";
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
+import { getOrder } from "@/services/orders.service";
 
-// Part 2 of useHelperTask, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHelperTask so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHelperTaskSuggestedLow(setDriver: any, step: any, setStep: any, setPickupLocation: any, setPickupCoords: any, setIsPickupValid: any, localOrderId: any, setCurrentTaskPrice: any, setRejectedCount: any, setTotalContacted: any, setStartOtp: any, setAssignedDriver: any, calculatedFare: any) {
   const { t } = useTranslation();
@@ -18,7 +18,7 @@ export function useHelperTaskSuggestedLow(setDriver: any, step: any, setStep: an
     if (step === "searching" && localOrderId) {
       const fetchStatus = async () => {
         try {
-          const orderData = await customFetch<any>(`/orders/${localOrderId}`);
+          const orderData = await getOrder(localOrderId);
           if (orderData) {
             setRejectedCount(orderData.declineReasons ? orderData.declineReasons.length : 0);
             setTotalContacted(orderData.totalCandidatesCount || 0);

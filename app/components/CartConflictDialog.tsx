@@ -16,10 +16,10 @@ import { useCartStore } from "@/contexts/cartStore";
  */
 export default function CartConflictDialog() {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
 
   const pending = useCartStore((s) => s.pendingConflict);
   const currentVendorName = useCartStore((s) => s.vendorName);

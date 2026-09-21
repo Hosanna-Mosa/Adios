@@ -1,11 +1,11 @@
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { deleteAddress } from "@/services/users.service";
 
-// Part 3 of useSavedAddresses, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSavedAddresses so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addresses: any, setAddresses: any, loading: any, selectingId: any, deletingId: any, setDeletingId: any) {
   const { t } = useTranslation();
@@ -27,7 +27,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
         onPress: async () => {
           try {
             setDeletingId(id);
-            const updatedAddresses = await customFetch<any[]>(`/users/addresses/${id}`, { method: "DELETE" });
+            const updatedAddresses = await deleteAddress(id);
             setAddresses(updatedAddresses || []);
             if (user) setUser({ ...user, addresses: updatedAddresses || [] });
             const { selectedAddress, setSelectedAddress } = useDeliveryStore.getState();

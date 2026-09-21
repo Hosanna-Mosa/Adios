@@ -1,13 +1,12 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
-import { designTokens, radius, elevation, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { usePressScale } from "@/motion/presets";
@@ -56,10 +55,10 @@ export function RestaurantListItem({
   distanceKm,
 }: Props) {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services[isMeat ? "meat" : "food"];
-  const styles = React.useMemo(() => createStyles(tokens, accent.accent), [theme, isMeat]);
+  const styles = React.useMemo(() => createStyles(tokens, accent.accent), [theme, isMeat, tokens]);
 
   const user = useAuthStore((s) => s.user);
   const toggleFavorite = useAuthStore((s) => s.toggleFavorite);

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { cancelOrder } from "@/services/orders.service";
+import { getNearbyDrivers } from "@/services/places.service";
 
-// Part 2 of useFindingDriver, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useFindingDriver so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnlineDrivers: any, orderSummary: any) {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     router.push("/(tabs)");
     if (orderId) {
       try {
-        await customFetch(`/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+        await cancelOrder(orderId);
       } catch (error) {
         console.error("Failed to cancel order on backend:", error);
       }
@@ -48,7 +49,7 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     const fetchOnlineDrivers = async () => {
       try {
         const queryParams = new URLSearchParams({ latitude: String(pickupStop.lat), longitude: String(pickupStop.lng), radius: "50000" });
-        const res = await customFetch<any[]>(`/drivers/nearby?${queryParams.toString()}`);
+        const res = await getNearbyDrivers(queryParams.toString());
         if (active && Array.isArray(res)) {
           const mapped = res
             .map((drv) => ({

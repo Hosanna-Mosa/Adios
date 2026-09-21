@@ -7,6 +7,9 @@ import { fadeIn, fadeInUp, staggerListItem } from "@/motion/presets";
 
 import { moderateScale } from "react-native-size-matters";
 import { AddressFormPaneSaveAs } from "./AddressFormPaneSaveAs";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -15,22 +18,22 @@ interface Props {
   PROVIDER_GOOGLE: any;
   PROVIDER_DEFAULT: any;
   MapView: any;
-  accent: any;
+  accent: ServiceTokens;
   addressLine: any;
   completeAddress: any;
-  handleSave: any;
-  handleUseCurrentLocation: any;
-  insets: any;
+  handleSave: () => void;
+  handleUseCurrentLocation: () => void;
+  insets: EdgeInsets;
   instructions: any;
-  isEditMode: any;
-  isResolvingAddress: any;
-  label: any;
+  isEditMode: boolean;
+  isResolvingAddress: boolean;
+  label: string;
   landmark: any;
-  latLabel: any;
-  lngLabel: any;
-  loading: any;
-  receiverName: any;
-  receiverPhone: any;
+  latLabel: string;
+  lngLabel: string;
+  loading: boolean;
+  receiverName: string;
+  receiverPhone: string;
   region: any;
   router: any;
   selectedChip: any;
@@ -43,9 +46,9 @@ interface Props {
   setReceiverPhone: React.Dispatch<React.SetStateAction<any>>;
   setSelectedChip: React.Dispatch<React.SetStateAction<any>>;
   setStep: React.Dispatch<React.SetStateAction<any>>;
-  shortAddress: any;
-  styles: any;
-  tokens: any;
+  shortAddress: string;
+  styles: AddAddressStyles;
+  tokens: ThemeTokens;
 }
 
 export function AddressFormPane(props: Props) {

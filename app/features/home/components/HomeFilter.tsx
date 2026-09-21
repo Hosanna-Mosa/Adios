@@ -3,25 +3,27 @@ import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
 import { HomeFilterSORTBY } from "./HomeFilterSORTBY";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Section of HomeFilterModal, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
-  activeFilterTab: any;
+  accent: ServiceTokens;
+  activeFilterTab: string;
   availableCuisines: any[];
-  clearAllFilters: any;
-  filter99Store: any;
-  filterCostRange: any;
-  filterFastDelivery: any;
-  filterMinRating: any;
-  filterOffers: any;
-  filterOpenNow: any;
-  filterVegNonVeg: any;
+  clearAllFilters: () => void;
+  filter99Store: boolean;
+  filterCostRange: string;
+  filterFastDelivery: boolean;
+  filterMinRating: number;
+  filterOffers: boolean;
+  filterOpenNow: boolean;
+  filterVegNonVeg: string;
   filteredAndSortedItems: any;
   selectedCuisines: any[];
-  selectedSort: any;
+  selectedSort: string;
   setActiveFilterTab: React.Dispatch<React.SetStateAction<any>>;
   setFilter99Store: React.Dispatch<React.SetStateAction<any>>;
   setFilterCostRange: React.Dispatch<React.SetStateAction<any>>;
@@ -33,8 +35,8 @@ interface Props {
   setIsFilterModalVisible: React.Dispatch<React.SetStateAction<any>>;
   setSelectedCuisines: React.Dispatch<React.SetStateAction<any>>;
   setSelectedSort: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeFilter(props: Props) {

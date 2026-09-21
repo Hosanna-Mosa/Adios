@@ -2,6 +2,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type PickupConfirmationStyles } from "@/features/ride/pickup-confirmation.styles";
 
 // Moved out of app/pickup-confirmation.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -10,11 +13,11 @@ interface Props {
   pickupCoords: any;
   PROVIDER_GOOGLE: any;
   MapView: any;
-  accent: any;
-  insets: any;
+  accent: ServiceTokens;
+  insets: EdgeInsets;
   mapRef: any;
-  styles: any;
-  tokens: any;
+  styles: PickupConfirmationStyles;
+  tokens: ThemeTokens;
   useCurrentLocation: any;
 }
 

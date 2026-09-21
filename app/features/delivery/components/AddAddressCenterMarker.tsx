@@ -1,13 +1,15 @@
 import { ActivityIndicator, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { type ThemeTokens } from "@/constants/colors";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  isResolvingAddress: any;
-  styles: any;
-  tokens: any;
+  isResolvingAddress: boolean;
+  styles: AddAddressStyles;
+  tokens: ThemeTokens;
 }
 
 export function AddAddressCenterMarker({

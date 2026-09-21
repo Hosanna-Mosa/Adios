@@ -1,0 +1,180 @@
+import { StyleSheet } from "react-native";
+import { Colors } from "@/constants/colors";
+import { typography } from "@/constants/typography";
+
+/** Merged from the part files that used to sit beside this one: they were
+ *  split only to satisfy a 150-line cap, and re-spread here at runtime. */
+export const styles = StyleSheet.create({
+
+  root: {
+    flex: 1,
+    backgroundColor: Colors.surfaceContainerLow,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.surfaceContainer,
+    gap: 12,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  backBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: Colors.surfaceContainer,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCenter: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: Colors.surfaceContainer,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.success,
+    borderWidth: 2,
+    borderColor: Colors.white,
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+  },
+  headerName: {
+    fontSize: typography.sizes.medium,
+    fontWeight: "700",
+    color: Colors.text,
+    letterSpacing: -0.3,
+  },
+  headerStatus: {
+    fontSize: typography.sizes.small,
+    color: Colors.success,
+    fontWeight: "600",
+  },
+  callBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: Colors.brandSkin,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  messagesList: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 8,
+    gap: 12,
+  },
+  messageRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+    marginBottom: 4,
+  },
+  messageRowUser: {
+    justifyContent: "flex-end",
+  },
+  messageRowDriver: {
+    justifyContent: "flex-start",
+  },
+  driverAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
+    backgroundColor: Colors.surfaceContainer,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  bubble: {
+    maxWidth: "75%",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 3,
+  },
+  bubbleUser: {
+    backgroundColor: Colors.brand,
+    borderBottomRightRadius: 6,
+  },
+  bubbleDriver: {
+    backgroundColor: Colors.white,
+    borderBottomLeftRadius: 6,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  bubbleTextUser: {
+    fontSize: typography.sizes.medium,
+    color: Colors.white,
+    fontWeight: "500",
+    lineHeight: typography.lineHeights.medium,
+  },
+  bubbleTextDriver: {
+    fontSize: typography.sizes.medium,
+    color: Colors.text,
+    fontWeight: "500",
+    lineHeight: typography.lineHeights.medium,
+  },
+
+  timeUser: {
+    fontSize: typography.sizes.small,
+    color: "rgba(255,255,255,0.7)",
+    fontWeight: "500",
+    alignSelf: "flex-end",
+  },
+  timeDriver: {
+    fontSize: typography.sizes.small,
+    color: Colors.textMuted,
+    fontWeight: "500",
+    alignSelf: "flex-end",
+  },
+  quickRepliesContainer: {
+    paddingVertical: 8,
+    backgroundColor: Colors.surfaceContainerLow,
+    borderTopWidth: 1,
+    borderTopColor: Colors.surfaceContainer,
+  },
+  quickRepliesList: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  quickReplyChip: {
+    backgroundColor: Colors.white,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  quickReplyText: {
+    fontSize: typography.sizes.small,
+    fontWeight: "600",
+    color: Colors.textSecondary,
+  },
+});

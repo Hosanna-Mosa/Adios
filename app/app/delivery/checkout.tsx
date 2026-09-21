@@ -1,9 +1,9 @@
 import { ScrollView } from "react-native";
 import { DeliveryCheckoutFooter } from "@/features/delivery/components/DeliveryCheckoutFooter";
-import { DeliveryCheckoutSection } from "@/features/delivery/components/DeliveryCheckoutSection";
-import { DeliveryCheckoutSection2 } from "@/features/delivery/components/DeliveryCheckoutSection2";
-import { DeliveryCheckoutSection3 } from "@/features/delivery/components/DeliveryCheckoutSection3";
-import { DeliveryCheckoutSection4 } from "@/features/delivery/components/DeliveryCheckoutSection4";
+import { RouteSummaryCard } from "@/features/delivery/components/RouteSummaryCard";
+import { StorePaymentEstimate } from "@/features/delivery/components/StorePaymentEstimate";
+import { DeliveryChargesCard } from "@/features/delivery/components/DeliveryChargesCard";
+import { PaymentMethodCard } from "@/features/delivery/components/PaymentMethodCard";
 import { DeliveryCheckoutHeader } from "@/features/delivery/components/DeliveryCheckoutHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useDeliveryCheckout } from "@/features/delivery/useDeliveryCheckout";
@@ -25,7 +25,7 @@ export default function DeliveryCheckoutScreen() {
       />
 
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
-        <DeliveryCheckoutSection
+        <RouteSummaryCard
           route={route}
           stops={stops}
           styles={styles}
@@ -33,13 +33,13 @@ export default function DeliveryCheckoutScreen() {
         />
 
         {itemsEstimate > 0 && (
-          <DeliveryCheckoutSection2
+          <StorePaymentEstimate
             itemsEstimate={itemsEstimate}
             styles={styles}
           />
         )}
 
-        <DeliveryCheckoutSection3
+        <DeliveryChargesCard
           deliveryFee={deliveryFee}
           price={price}
           route={route}
@@ -48,7 +48,7 @@ export default function DeliveryCheckoutScreen() {
           styles={styles}
         />
 
-        <DeliveryCheckoutSection4
+        <PaymentMethodCard
           styles={styles}
           tokens={tokens}
         />

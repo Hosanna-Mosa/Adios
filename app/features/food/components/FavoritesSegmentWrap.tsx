@@ -2,6 +2,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type FavoritesStyles } from "@/features/food/useFavorites";
 
 // Moved out of app/favorites.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -11,7 +12,7 @@ interface Props {
   activeFavorites: any;
   activeTab: any;
   setActiveTab: any;
-  styles: any;
+  styles: FavoritesStyles;
 }
 
 export function FavoritesSegmentWrap({

@@ -1,0 +1,105 @@
+import { StyleSheet } from "react-native";
+import { typography } from "@/constants/typography";
+import { Colors } from "@/constants/colors";
+
+export const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.75)", // slate-900 transparent
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: Colors.white,
+    borderRadius: 28,
+    padding: 24,
+    alignItems: "center",
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  iconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#0ea5e9", // sky blue driver primary
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+    shadowColor: "#0ea5e9",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  title: {
+    fontSize: typography.sizes.large,
+    fontWeight: "800",
+    color: "#0f172a",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: typography.sizes.medium,
+    color: "#475569",
+    textAlign: "center",
+    lineHeight: typography.lineHeights.medium,
+    marginBottom: 20,
+  },
+  warningContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fef2f2",
+    padding: 10,
+    borderRadius: 10,
+    gap: 8,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#fecaca",
+  },
+  warningText: {
+    flex: 1,
+    fontSize: typography.sizes.small,
+    fontWeight: "600",
+    color: "#ef4444",
+    lineHeight: typography.lineHeights.small,
+  },
+  buttonContainer: {
+    width: "100%",
+    gap: 10,
+  },
+  updateButton: {
+    width: "100%",
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#0ea5e9",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#0ea5e9",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  updateText: {
+    color: Colors.white,
+    fontWeight: "700",
+    fontSize: typography.sizes.medium,
+  },
+  laterButton: {
+    width: "100%",
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  laterText: {
+    color: "#64748b",
+    fontWeight: "600",
+    fontSize: typography.sizes.medium,
+  },
+});

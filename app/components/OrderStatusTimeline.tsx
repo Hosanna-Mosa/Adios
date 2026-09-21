@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { StyleSheet, Text, View, Animated } from "react-native";
+import { Text, View, Animated } from "react-native";
 import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { OrderStatus } from "@/contexts/deliveryStore";
@@ -75,7 +75,7 @@ export function OrderStatusTimeline({ currentStatus, serviceType }: Props) {
   const currentIndex = statusOrder.indexOf(effectiveStatus);
   const activeStep = steps[currentIndex] || steps[0];
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const colors = Colors[theme];
   const styles = React.useMemo(() => createStyles(colors), [theme]);
 
@@ -114,7 +114,7 @@ export function OrderStatusTimeline({ currentStatus, serviceType }: Props) {
     );
     pulse.start();
     return () => pulse.stop();
-  }, []);
+  }, [opacityAnim, pulseAnim]);
 
   return (
     <View style={styles.container}>

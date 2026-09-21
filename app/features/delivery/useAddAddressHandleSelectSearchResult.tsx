@@ -1,10 +1,11 @@
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
+import { createAddress, updateAddress } from "@/services/users.service";
+import { getPlaceDetails } from "@/services/places.service";
 
-// Part 4 of useAddAddress, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useAddAddress so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useAddAddressHandleSelectSearchResult(router: any, params: any, mapRef: any, user: any, setUser: any, isEditMode: any, selectedChip: any, label: any, addressLine: any, completeAddress: any, instructions: any, phone: any, receiverName: any, receiverPhone: any, landmark: any, setLoading: any, region: any, setRegion: any, setSearchQuery: any, setSearchResults: any, fetchAddressForCoords: any) {
   const { t } = useTranslation();
@@ -12,7 +13,7 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
     try {
       const details = Number.isFinite(Number(item.lat)) && Number.isFinite(Number(item.lng))
         ? { lat: Number(item.lat), lng: Number(item.lng) }
-        : await customFetch<any>(`/places/details/${item.id}`);
+        : await getPlaceDetails<any>(item.id);
       const newRegion = { ...region, latitude: details.lat, longitude: details.lng };
       setRegion(newRegion);
       mapRef.current?.animateToRegion(newRegion, 1000);
@@ -55,8 +56,8 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       };
 
       const updatedAddresses = isEditMode
-        ? await customFetch<any[]>(`/users/addresses/${params.editId}`, { method: "PATCH", body: JSON.stringify(payload) })
-        : await customFetch<any[]>("/users/addresses", { method: "POST", body: JSON.stringify(payload) });
+        ? await updateAddress(params.editId as string, payload)
+        : await createAddress(payload);
 
       if (user) setUser({ ...user, addresses: updatedAddresses });
 
@@ -76,7 +77,11 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
         const next: SelectedDeliveryAddress = {
           _id: saved._id,
           label: saved.label,
-          addressLine: saved.addressLine,
+          // The save endpoints always echo addressLine back, but the shared
+          // SavedAddress type marks it optional because the list endpoint may
+          // omit it. Cast rather than default to "", which would silently
+          // replace a missing line with an empty one.
+          addressLine: saved.addressLine as string,
           phone: saved.phone,
           receiverName: saved.receiverName,
           receiverPhone: saved.receiverPhone,

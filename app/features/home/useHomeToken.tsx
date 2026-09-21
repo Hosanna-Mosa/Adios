@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/contexts/authStore";
 
-// Part 4 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeToken(searchText: any, setSearchQuery: any) {
   const token = useAuthStore((s) => s.token);

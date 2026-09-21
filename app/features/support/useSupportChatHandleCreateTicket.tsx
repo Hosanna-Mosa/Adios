@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
 import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
+import { createSupportTicket } from "@/services/support.service";
 
-// Part 2 of useSupportChat, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSupportChat so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets: any, ticket: any, setTicket: any, newCategory: any, newTitle: any, setNewTitle: any, newMessage: any, setNewMessage: any, setCreatingTicket: any, flatListRef: any, fetchTickets: any) {
   useEffect(() => {
@@ -37,10 +37,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
     }
     setCreatingTicket(true);
     try {
-      const created = await customFetch<SupportTicket>("/support/tickets", {
-        method: "POST",
-        body: JSON.stringify({ title: newTitle.trim(), category: newCategory, message: newMessage.trim() }),
-      });
+      const created = await createSupportTicket<SupportTicket>({ title: newTitle.trim(), category: newCategory, message: newMessage.trim() });
       setAllTickets((prev: any) => [created, ...prev]);
       setTicket(created);
       setNewTitle("");

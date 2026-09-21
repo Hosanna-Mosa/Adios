@@ -7,17 +7,22 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { Step, getDistanceFromLatLonInKm } from "./useHelperTask.shared";
 
-// Part 1 of useHelperTask, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHelperTask so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHelperTaskInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.task;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const { radius } = useLocalSearchParams<{ radius?: string }>();
-  const { driver, currentCoords, currentLocation, setOrderId, setDriver, setServiceType } = useDeliveryStore();
+  const driver = useDeliveryStore((s) => s.driver);
+  const currentCoords = useDeliveryStore((s) => s.currentCoords);
+  const currentLocation = useDeliveryStore((s) => s.currentLocation);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setDriver = useDeliveryStore((s) => s.setDriver);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
 
   const [step, setStep] = useState<Step>("compose");
   const [taskType, setTaskType] = useState<string | null>(null);

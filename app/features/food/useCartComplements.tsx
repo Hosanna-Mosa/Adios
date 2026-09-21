@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { validateCoupon } from "@/services/payments.service";
 
-// Part 3 of useCart, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useCart so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useCartComplements(paramVendorName: any, items: any, getTotalPrice: any, vendorId: any, storeVendorName: any, fetchedVendorName: any, deliveryFee: any, menuItems: any, setShowPromoInput: any, promoCode: any, setPromoCode: any, appliedPromo: any, setAppliedPromo: any, setIsApplyingPromo: any, setPromoError: any) {
   const complements = useMemo(
@@ -24,13 +24,7 @@ export function useCartComplements(paramVendorName: any, items: any, getTotalPri
     setIsApplyingPromo(true);
     setPromoError(null);
     try {
-      const response = await customFetch<{ valid: boolean; code: string; discountAmount: number }>(
-        "/coupons/validate",
-        {
-          method: "POST",
-          body: JSON.stringify({ code: promoCode.trim().toUpperCase(), vendorId, subtotal }),
-        }
-      );
+      const response = await validateCoupon<{ valid: boolean; code: string; discountAmount: number }>({ code: promoCode.trim().toUpperCase(), vendorId, subtotal });
       if (response?.code) {
         setAppliedPromo({ code: response.code, discountAmount: Number(response.discountAmount) || 0 });
         setShowPromoInput(false);
@@ -49,10 +43,7 @@ export function useCartComplements(paramVendorName: any, items: any, getTotalPri
     const code = appliedPromo?.code;
     if (!code) return;
     let cancelled = false;
-    customFetch<{ code: string; discountAmount: number }>("/coupons/validate", {
-      method: "POST",
-      body: JSON.stringify({ code, vendorId, subtotal }),
-    })
+    validateCoupon({ code, vendorId, subtotal })
       .then((res) => {
         if (cancelled || !res?.code) return;
         setAppliedPromo({ code: res.code, discountAmount: Number(res.discountAmount) || 0 });

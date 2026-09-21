@@ -10,22 +10,28 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useServiceAccent } from "@/contexts/homeStore";
 import { ApplicableCoupon } from "./useFoodCheckout.shared";
 
-// Part 1 of useFoodCheckout, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useFoodCheckout so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useFoodCheckoutInsets() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   // The active Food/Meat mode owns the accent, so the mode the customer is
   // shopping in carries all the way through checkout.
   const accent = useServiceAccent();
   const styles = useMemo(() => createStyles(tokens, accent), [theme, accent]);
 
-  const { getItemCount, vendorId, items, clearCart } = useCartStore();
-  const { user, token } = useAuthStore();
-  const { setOrderId, setStatus, setServiceType } = useDeliveryStore();
+  const getItemCount = useCartStore((s) => s.getItemCount);
+  const vendorId = useCartStore((s) => s.vendorId);
+  const items = useCartStore((s) => s.items);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setStatus = useDeliveryStore((s) => s.setStatus);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
   // The address book owns the selection; checkout just reads it back.
   const selectedAddress = useDeliveryStore((s) => s.selectedAddress);
   const hydrateSelectedAddress = useDeliveryStore((s) => s.hydrateSelectedAddress);

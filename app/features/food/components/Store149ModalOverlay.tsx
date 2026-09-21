@@ -3,20 +3,23 @@ import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { DietMarker } from "./DietMarker";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type Store149Styles } from "@/features/food/149-store.styles";
 
 // Moved out of app/149-store.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   buildFoodItem: any;
-  accent: any;
+  accent: ServiceTokens;
   addCartItem: any;
   cartItems: any[];
-  insets: any;
+  insets: EdgeInsets;
   selectedItem: any;
   setIsSheetVisible: any;
-  styles: any;
-  tokens: any;
+  styles: Store149Styles;
+  tokens: ThemeTokens;
   updateCartQuantity: any;
 }
 

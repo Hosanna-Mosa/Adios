@@ -2,11 +2,11 @@ import { useRef, useState } from "react";
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { MapBackgroundRef } from "@/components/MapBackground";
+import { raiseSos } from "@/services/orders.service";
 
-// Part 2 of useTracking, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useTracking so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: any) {
   const { t } = useTranslation();
@@ -45,7 +45,7 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
           style: "destructive",
           onPress: async () => {
             try {
-              await customFetch(`/orders/${currentOrderId}/sos`, { method: "POST" });
+              await raiseSos(currentOrderId);
               Alert.alert(t("app.ride.sosDispatched"), t("app.ride.yourEmergencyAlertHasBeenSent"));
             } catch (err: any) {
               Alert.alert(t("actions.error"), err.message || t("app.ride.failedToTriggerSos"));

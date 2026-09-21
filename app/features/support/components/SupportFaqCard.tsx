@@ -2,17 +2,19 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type SupportStyles } from "@/features/support/support.styles";
 
 // Moved out of app/support.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   FAQS: any[];
-  accent: any;
+  accent: ServiceTokens;
   expandedFAQ: any;
-  styles: any;
+  styles: SupportStyles;
   toggleFAQ: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function SupportFaqCard({

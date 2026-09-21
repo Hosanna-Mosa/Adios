@@ -6,15 +6,18 @@ import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
 import { TaskComposeFormWhereTheWorkWhereTheWork } from "./TaskComposeFormWhereTheWorkWhereTheWork";
 import { TaskComposeFormWhereTheWorkTimeRequired } from "./TaskComposeFormWhereTheWorkTimeRequired";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
 
 // Section of TaskComposeForm, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
   TASK_TYPES: any[];
-  accent: any;
+  accent: ServiceTokens;
   activeField: any;
-  calculatedFare: any;
+  calculatedFare: number;
   customHours: any;
   customMinutes: any;
   description: any;
@@ -22,9 +25,9 @@ interface Props {
   durationMode: any;
   goToBidding: any;
   handleSearch: any;
-  handleUseCurrentLocation: any;
-  insets: any;
-  isProceedDisabled: any;
+  handleUseCurrentLocation: () => void;
+  insets: EdgeInsets;
+  isProceedDisabled: boolean;
   offer: any;
   pickupLocation: any;
   searchResults: any[];
@@ -35,11 +38,11 @@ interface Props {
   setDescription: React.Dispatch<React.SetStateAction<any>>;
   setDurationMode: React.Dispatch<React.SetStateAction<any>>;
   setTaskType: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: HelperTaskStyles;
   suggestedHigh: any;
   suggestedLow: any;
   taskType: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function TaskComposeFormWhereTheWork(props: Props) {

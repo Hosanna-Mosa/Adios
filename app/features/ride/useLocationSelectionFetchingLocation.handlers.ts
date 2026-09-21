@@ -1,6 +1,6 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { checkZone, searchPlacesJsonBiased } from "@/services/places.service";
 
 // Handlers lifted out of useLocationSelectionFetchingLocation: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -15,7 +15,7 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
 
     if (lat && lng) {
       try {
-        const checkRes = await customFetch<any>(`/zones/check?lat=${lat}&lng=${lng}`);
+        const checkRes = await checkZone(lat, lng);
         if (!checkRes || !checkRes.inZone) {
           Alert.alert("No Service", `No service at current ${type} location.`);
           if (type === 'pickup') {
@@ -87,10 +87,7 @@ export const buildHandleSearch = (setSearchResults: any, setIsSearching: any, se
       const locationQuery = pickup?.lat && pickup?.lng
         ? `&lat=${encodeURIComponent(String(pickup.lat))}&lng=${encodeURIComponent(String(pickup.lng))}`
         : "";
-      const data = await customFetch<any[]>(
-        `/places/autocomplete?input=${encodeURIComponent(text)}${locationQuery}`,
-        { responseType: "json" },
-      );
+      const data = await searchPlacesJsonBiased(text, locationQuery);
       if (requestId === searchRequestIdRef.current) {
         setSearchResults(Array.isArray(data) ? data : []);
       }

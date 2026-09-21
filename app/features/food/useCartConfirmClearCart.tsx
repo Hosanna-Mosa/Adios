@@ -2,8 +2,8 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import i18n from "@/i18n";
 
-// Part 4 of useCart, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useCart so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useCartConfirmClearCart(clearCart: any, deliveryFee: any, appliedPromo: any, displayVendorName: any, subtotal: any, discount: any, total: any) {
   const confirmClearCart = () => {

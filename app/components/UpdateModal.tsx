@@ -16,10 +16,10 @@ interface UpdateModalProps {
 
 export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss }: UpdateModalProps) {
   const { t } = useTranslation();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
 
   if (!visible) return null;
 

@@ -5,19 +5,21 @@ import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { type ServiceTokens } from "@/constants/colors";
 import { useCartStore } from "@/contexts/cartStore";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from the
 // screen's scope is now passed in as props.
 
 interface Props {
   item: any;
-  styles: any;
+  styles: HomeStyles;
   accent: ServiceTokens;
 }
 
 export function Store149Card({ item, styles, accent }: Props) {
   const { t } = useTranslation();
-  const { items: cItems, requestAddItem: addCartItem } = useCartStore();
+  const cItems = useCartStore((s) => s.items);
+  const addCartItem = useCartStore((s) => s.requestAddItem);
   const cartItem = cItems.find((i) => i._id === item._id);
 
   const handleAdd = () => {

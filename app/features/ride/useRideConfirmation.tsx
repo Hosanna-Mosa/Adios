@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useRideConfirmationInsets } from "./useRideConfirmationInsets";
 import { useRideConfirmationValidStops } from "./useRideConfirmationValidStops";
-import { useRideConfirmationPart3 } from "./useRideConfirmationPart3";
+import { useRideConfirmationMapFit } from "./useRideConfirmationMapFit";
 import { useRideConfirmationGetDisplayName } from "./useRideConfirmationGetDisplayName";
 import { useRideConfirmationPlaceOrder } from "./useRideConfirmationPlaceOrder";
 import { getEnabledTiers } from "./useRideConfirmation.shared";
@@ -18,7 +18,7 @@ import { getEnabledTiers } from "./useRideConfirmation.shared";
 export function useRideConfirmation() {
   const { insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares, booking, setBooking, showDatePicker, setShowDatePicker, reserveDate, setReserveDate, reserveHour, setReserveHour, reserveMinute, setReserveMinute, reserveAmpm, setReserveAmpm, confirmedReservation, setConfirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, setUserLocation, nearbyDrivers, setNearbyDrivers, mapReady, setMapReady, routeCoordinates, setRouteCoordinates, mapRef, stops } = useRideConfirmationInsets();
   const { validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap, initialRegion } = useRideConfirmationValidStops(pickupCoords, dropCoords, mapRef, stops);
-  const {  } = useRideConfirmationPart3(params, selectedTier, pickupCoords, dropCoords, setNearbyDrivers, mapReady, setRouteCoordinates, stops, validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap);
+  const {  } = useRideConfirmationMapFit(params, selectedTier, pickupCoords, dropCoords, setNearbyDrivers, mapReady, setRouteCoordinates, stops, validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap);
   const { getDisplayName, handleShareRoute, handleAddStopFromMap, handleRecenter } = useRideConfirmationGetDisplayName(params, setUserLocation, mapRef, stops, pickupIsValid, dropIsValid, fitTripToMap);
   const { placeOrder } = useRideConfirmationPlaceOrder(params, selectedTier, tierFares, setBooking, setShowDatePicker, setConfirmedReservation, pickupCoords, dropCoords, stops);
   const { t } = useTranslation();

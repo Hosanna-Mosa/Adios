@@ -18,6 +18,8 @@ const cyan = "#aec7f5";
 // that read Colors[theme].xxx keep working untouched; new screens being
 // rebuilt against the new mockups should import `designTokens` instead.
 export type ServiceTokens = { accent: string; skin: string; on: string };
+/** The five service accents a screen can theme itself with. */
+export type ServiceKey = "food" | "meat" | "ride" | "task" | "delivery";
 export type ThemeTokens = {
   bg: string;
   surface: string;
@@ -122,112 +124,9 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
 // "corporate" card. `elevation` values map directly onto RN's shadow* style
 // props (iOS) — Android additionally needs the numeric `elevation` prop,
 // included per level.
-export const radius = {
-  sm: 10,
-  md: 16,
-  lg: 22,
-  pill: 999,
-};
 
-export const elevation = {
-  sm: {
-    shadowColor: "#14101E",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  md: {
-    shadowColor: "#14101E",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 6,
-  },
-  lg: {
-    shadowColor: "#14101E",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.14,
-    shadowRadius: 32,
-    elevation: 12,
-  },
-} as const;
-
-// Tuples typed for react-native-linear-gradient / expo-linear-gradient's
-// `colors` prop (requires at least 2 entries).
-export const gradients: {
-  light: Record<"brand" | "food" | "meat" | "ride" | "task" | "delivery", [string, string]>;
-  dark: Record<"brand" | "food" | "meat" | "ride" | "task" | "delivery", [string, string]>;
-} = {
-  light: {
-    brand: ["#4F3CF2", "#7C63F5"],
-    food: ["#E8720C", "#F3924A"],
-    meat: ["#C13566", "#D65F8A"],
-    ride: ["#0A7EA8", "#3AA7CE"],
-    task: ["#6C4FE0", "#9078EE"],
-    delivery: ["#5B8A1E", "#82AE49"],
-  },
-  dark: {
-    brand: ["#8B7FFF", "#B0A6FF"],
-    food: ["#FF9A4D", "#FFB878"],
-    meat: ["#F589AC", "#FAAAC6"],
-    ride: ["#4FC7EC", "#82D9F3"],
-    task: ["#B7A6FF", "#D0C4FF"],
-    delivery: ["#A6D65C", "#C1E58A"],
-  },
-};
-
-export default {
-  light: {
-    text: "#1A1720",
-    textSecondary: "#56505E",
-    textMuted: "#8B8494",
-    background: "#FAF8F5",
-    surface: "#ffffff",
-    surfaceSecondary: "#F0ECE6",
-    border: "#E4DFD7",
-    borderLight: "#F0ECE6",
-    tint: "#4F3CF2",
-    primary: "#4F3CF2",
-    primaryDark: "#3D2ED1",
-    primaryLight: "#879fcb",
-    teal,
-    tealDark,
-    cyan,
-    success: "#16794F",
-    warning: "#92600A",
-    error: "#C22A1E",
-    tabIconDefault: "#8B8494",
-    tabIconSelected: "#4F3CF2",
-    shadow: "rgba(20, 16, 30, 0.06)",
-    overlay: "rgba(20, 16, 30, 0.4)",
-    cardGradientStart: "#4F3CF2",
-    cardGradientEnd: "#7C63F5",
-  },
-  dark: {
-    text: "#F5F2F8",
-    textSecondary: "#B3ACBD",
-    textMuted: "#8B8494",
-    background: "#131118",
-    surface: "#1E1B24",
-    surfaceSecondary: "#2E2A36",
-    border: "#2E2A36",
-    borderLight: "#2E2A36",
-    tint: "#8B7FFF",
-    primary: "#8B7FFF",
-    primaryDark: "#7263FF",
-    primaryLight: "#1b365c",
-    teal: "#73b5fe",
-    tealDark: "#0061a5",
-    cyan: "#73b5fe",
-    success: "#4FD495",
-    warning: "#E9B44C",
-    error: "#FF8579",
-    tabIconDefault: "#8B8494",
-    tabIconSelected: "#8B7FFF",
-    shadow: "rgba(0, 0, 0, 0.4)",
-    overlay: "rgba(0, 0, 0, 0.7)",
-    cardGradientStart: "#8B7FFF",
-    cardGradientEnd: "#2E2A36",
-  },
-};
+// Re-exported so the many `from "@/constants/colors"` imports keep working
+// after the split. These are the only two re-exports here — see scales.ts and
+// colors.legacy.ts for the definitions.
+export { radius, elevation, gradients } from "@/constants/scales";
+export { default } from "@/constants/colors.legacy";

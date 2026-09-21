@@ -1,32 +1,37 @@
 import { Text, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 
-// Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// One row in the helper-task progress list. Replaces HelperTaskCheckRow{,2,3},
+// which were the same row in two states: a completed step (tick, default text
+// colour) and a still-waiting step (hollow marker, accent text).
+//
+// `delay` stays a prop because the three rows stagger in at 60/0/100ms.
 
 interface Props {
-  accent: any;
-  calculatedFare: any;
-  currentTaskPrice: any;
-  offer: any;
-  styles: any;
+  state: "done" | "pending";
+  label: string;
+  delay: number;
+  accent: { on: string; accent: string };
+  styles: {
+    checkRow: object;
+    checkDone: object;
+    checkPending: object;
+    checkText: object;
+  };
 }
 
-export function HelperTaskCheckRow({
-  accent,
-  calculatedFare,
-  currentTaskPrice,
-  offer,
-  styles,
-}: Props) {
-  const { t } = useTranslation();
+export function HelperTaskCheckRow({ state, label, delay, accent, styles }: Props) {
+  const isDone = state === "done";
   return (
-    <Animated.View style={styles.checkRow} entering={fadeInUp(60)}>
-      <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
-      <Text style={styles.checkText}>{t("app.delivery.taskPublished")}{currentTaskPrice ?? offer ?? calculatedFare}</Text>
+    <Animated.View style={styles.checkRow} entering={fadeInUp(delay)}>
+      {isDone ? (
+        <View style={styles.checkDone}><Ionicons name="checkmark" size={13} color={accent.on} /></View>
+      ) : (
+        <View style={styles.checkPending} />
+      )}
+      <Text style={isDone ? styles.checkText : [styles.checkText, { color: accent.accent }]}>{label}</Text>
     </Animated.View>
   );
 }

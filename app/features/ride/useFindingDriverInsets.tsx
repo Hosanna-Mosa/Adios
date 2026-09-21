@@ -8,16 +8,15 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { buildFindingDriverInsetsEffect } from "./useFindingDriverInsets.effects";
 
-// Part 1 of useFindingDriver, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useFindingDriver so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useFindingDriverInsets() {
   const insets = useSafeAreaInsets();
   const { orderId, isReserved, dateTimeStr } = useLocalSearchParams<{ orderId: string; isReserved?: string; dateTimeStr?: string }>();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.ride;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);

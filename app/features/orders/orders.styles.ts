@@ -85,3 +85,6 @@ export const createStyles = (tokens: ThemeTokens) =>
     reviewSubmitBtn: { flex: 1, borderRadius: 12, paddingVertical: 13, alignItems: "center" },
     reviewSubmitBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
   });
+
+/** Exact shape of this feature's stylesheet, for components that take it as a prop. */
+export type OrdersStyles = ReturnType<typeof createStyles>;

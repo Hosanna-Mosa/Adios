@@ -4,17 +4,20 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type MeatStyles } from "@/features/meat/meat-centers.styles";
 
 // Moved out of app/meat-centers.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  insets: any;
+  insets: EdgeInsets;
   searchOpen: any;
   selectedAddress: any;
   setSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  styles: any;
-  tokens: any;
+  styles: MeatStyles;
+  tokens: ThemeTokens;
 }
 
 export function MeatCentersTopRow({

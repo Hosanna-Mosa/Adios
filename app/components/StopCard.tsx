@@ -15,10 +15,10 @@ interface Props {
 }
 
 export function StopCard({ stop, index, onRemove, onPress }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
-  const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = React.useMemo(() => createStyles(tokens, accent), [theme, accent, tokens]);
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress?.(stop)} activeOpacity={0.85}>

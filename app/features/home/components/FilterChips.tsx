@@ -4,12 +4,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { type ServiceTokens } from "@/constants/colors";
 import { translateFoodTag } from "@/i18n/foodTagLabels";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from
 // the screen's scope is now passed in as props.
 
 interface Props {
-  styles: any;
+  styles: HomeStyles;
   accent: ServiceTokens;
   activeService: string;
   activeFilterCount: number;

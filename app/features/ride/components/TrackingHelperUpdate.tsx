@@ -1,13 +1,15 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { type ServiceTokens } from "@/constants/colors";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   helperStatus: any;
-  styles: any;
+  styles: TrackingStyles;
 }
 
 export function TrackingHelperUpdate({

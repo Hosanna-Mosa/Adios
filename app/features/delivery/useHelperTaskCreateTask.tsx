@@ -1,9 +1,9 @@
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { socketService } from "@/utils/socketService";
+import { createOrder } from "@/services/orders.service";
 
-// Part 5 of useHelperTask, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHelperTask so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver: any, setServiceType: any, setStep: any, pickupLocation: any, dropoffLocation: any, pickupCoords: any, dropoffCoords: any, isPickupValid: any, isDropoffValid: any, description: any, offer: any, setIsCreating: any, setLocalOrderId: any, setCurrentTaskPrice: any, assignedDriver: any, setAssignedDriver: any, totalHours: any, calculatedFare: any) {
   const createTask = async () => {
@@ -18,10 +18,7 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver:
       if (isDropoffValid && dropoffCoords?.lat) {
         stops.push({ sequence: 2, type: "drop", address: dropoffLocation, lat: dropoffCoords?.lat, lng: dropoffCoords?.lng });
       }
-      const order = await customFetch<{ _id: string; customerPrice?: number; totalPrice?: number }>("/orders", {
-        method: "POST",
-        body: JSON.stringify({ serviceType: "helper", stops, duration: totalHours, totals: { total: finalOffer } }),
-      });
+      const order = await createOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>({ serviceType: "helper", stops, duration: totalHours, totals: { total: finalOffer } });
       if (!order?._id) throw new Error("Invalid response from server. No order ID returned.");
       setOrderId(order._id);
       setLocalOrderId(order._id);

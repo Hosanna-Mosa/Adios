@@ -5,6 +5,9 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -12,19 +15,19 @@ import { typography } from "@/constants/typography";
 
 interface Props {
   ENABLED_TIERS: any[];
-  accent: any;
+  accent: ServiceTokens;
   booking: any;
-  handleAddStopFromMap: any;
-  insets: any;
+  handleAddStopFromMap: () => void;
+  insets: EdgeInsets;
   loadingFares: any;
   placeOrder: any;
   selectedFare: any;
   selectedTier: any;
   setSelectedTier: React.Dispatch<React.SetStateAction<any>>;
   setShowDatePicker: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: RideConfirmationStyles;
   tierFares: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function TripChooserSheet({

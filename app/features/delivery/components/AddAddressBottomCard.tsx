@@ -4,21 +4,24 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { modalSlideUp } from "@/motion/presets";
 import { AddressMapPane } from "./AddressMapPane";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   cityOrCountry: any;
-  insets: any;
-  isResolvingAddress: any;
-  latLabel: any;
-  lngLabel: any;
+  insets: EdgeInsets;
+  isResolvingAddress: boolean;
+  latLabel: string;
+  lngLabel: string;
   searchInputRef: any;
   setStep: any;
-  shortAddress: any;
-  styles: any;
+  shortAddress: string;
+  styles: AddAddressStyles;
 }
 
 export function AddAddressBottomCard({

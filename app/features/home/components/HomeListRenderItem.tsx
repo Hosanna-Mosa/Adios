@@ -5,7 +5,7 @@ import { HomeSkeletonCard } from "@/features/home/components/HomeSkeletonCard";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { staggerListItem } from "@/motion/presets";
 
-// The home list's row renderer, lifted out of IndexSection so both files
+// The home list's row renderer, lifted out of HomeListSection so both files
 // stay under 150 lines. The markup is unchanged.
 
 export const buildHomeListRenderItem = (accent: any, activeService: any, styles: any, tokens: any) =>

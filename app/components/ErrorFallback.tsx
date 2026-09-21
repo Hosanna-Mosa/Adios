@@ -8,7 +8,7 @@ import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { createSupportTicket } from "@/services/support.service";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -24,10 +24,10 @@ function localCrashRef(): string {
 }
 
 export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
@@ -49,14 +49,11 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
     if (reported) return;
     setReporting(true);
     try {
-      await customFetch("/support/tickets", {
-        method: "POST",
-        body: JSON.stringify({
+      await createSupportTicket({
           title: `App crash · ref ${crashRef}`,
           category: "OPERATIONAL ISSUE",
           message: `The app crashed with: "${error.message}". Local reference ${crashRef}.`,
-        }),
-      });
+        });
       setReported(true);
     } catch (reportError) {
       console.error("Failed to file crash report:", reportError);

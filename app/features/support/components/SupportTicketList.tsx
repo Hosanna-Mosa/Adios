@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { SupportTicketListIssueCategory } from "./SupportTicketListIssueCategory";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type SupportChatStyles } from "@/features/support/support-chat.styles";
 
 // Moved out of app/support-chat.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -12,23 +15,23 @@ interface Props {
   formatDate: any;
   STATUS_LABEL: any;
   CATEGORIES: any[];
-  accent: any;
+  accent: ServiceTokens;
   allTickets: any[];
   creatingTicket: any;
-  handleCreateTicket: any;
+  handleCreateTicket: () => void;
   handleReopen: any;
-  insets: any;
+  insets: EdgeInsets;
   newCategory: any;
   newMessage: any;
-  newTitle: any;
+  newTitle: string;
   setNewCategory: React.Dispatch<React.SetStateAction<any>>;
   setNewMessage: React.Dispatch<React.SetStateAction<any>>;
   setNewTitle: React.Dispatch<React.SetStateAction<any>>;
   setTicket: React.Dispatch<React.SetStateAction<any>>;
   setViewMode: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: SupportChatStyles;
   ticket: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function SupportTicketList(props: Props) {

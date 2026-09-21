@@ -3,6 +3,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -14,8 +15,8 @@ interface Props {
   pickupStop: any;
   setShowCancelSheet: React.Dispatch<React.SetStateAction<any>>;
   spinStyle: any;
-  styles: any;
-  tierLabel: any;
+  styles: FindingDriverStyles;
+  tierLabel: string;
 }
 
 export function FindingDriverSheet({

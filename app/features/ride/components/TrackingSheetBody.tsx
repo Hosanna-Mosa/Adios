@@ -1,18 +1,14 @@
+import { TrackingFooterButton } from "@/features/ride/components/TrackingFooterButton";
 import { Linking, View } from "react-native";
-import { TrackingFooterBtnOutline } from "@/features/ride/components/TrackingFooterBtnOutline";
-import { TrackingFooterBtnOutline2 } from "@/features/ride/components/TrackingFooterBtnOutline2";
-import { TrackingFooterBtnOutline3 } from "@/features/ride/components/TrackingFooterBtnOutline3";
-import { TrackingFooterBtnOutline4 } from "@/features/ride/components/TrackingFooterBtnOutline4";
+import { useTranslation } from "react-i18next";
 import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
 import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
 import { TrackingPinCard } from "@/features/ride/components/TrackingPinCard";
-import { TrackingPinCard2 } from "@/features/ride/components/TrackingPinCard2";
-import { TrackingPinCard3 } from "@/features/ride/components/TrackingPinCard3";
 import { TrackingPartnerRow } from "@/features/ride/components/TrackingPartnerRow";
 import { TrackingTimelineBlock } from "@/features/ride/components/TrackingTimelineBlock";
 import { TrackingFindingWrap } from "@/features/ride/components/TrackingFindingWrap";
 
-// The tracking bottom sheet's contents, split out of TrackingSection11Section2
+// The tracking bottom sheet's contents, split out of TrackingBottomSheet
 // so both files stay under 150 lines. The markup is unchanged.
 
 import type { Props } from "./TrackingSheetBody.props";
@@ -21,6 +17,7 @@ export function TrackingSheetBody(props: Props) {
   const { accent, deliveryOtp, deliveryStop, driver, eta, formatClock, handleSOS, handleShareTrip,
   helperStatus, isHelper, isRide, orderCreatedAt, pickupLabel, pulse1Style, pulse2Style,
   setTripModalVisible, startOtp, status, stops, styles, timeline, tokens, unreadCount } = props;
+  const { t } = useTranslation();
   return (
     <>
     {!driver ? (
@@ -62,21 +59,26 @@ export function TrackingSheetBody(props: Props) {
         {isRide && startOtp && ["confirmed", "driver_assigned", "en_route_pickup", "arrived_pickup"].includes(status) && (
           <TrackingPinCard
             accent={accent}
-            startOtp={startOtp}
+            otp={startOtp}
+            label={t("app.ride.startRidePin")}
+            hint={t("app.ride.giveThisToYourCaptainTo")}
             styles={styles}
           />
         )}
         {isRide && deliveryOtp && status === "arrived_delivery" && (
-          <TrackingPinCard2
+          <TrackingPinCard
             accent={accent}
-            deliveryOtp={deliveryOtp}
+            otp={deliveryOtp}
+            label={t("app.ride.endRidePin")}
             styles={styles}
           />
         )}
         {!isRide && !isHelper && deliveryOtp && (
-          <TrackingPinCard3
+          <TrackingPinCard
             accent={accent}
-            deliveryOtp={deliveryOtp}
+            otp={deliveryOtp}
+            label={t("app.ride.deliveryPin")}
+            hint={t("app.ride.onlyGiveThisCodeWhenYour")}
             styles={styles}
           />
         )}
@@ -104,24 +106,30 @@ export function TrackingSheetBody(props: Props) {
         {/* Footer actions */}
         {isRide ? (
           <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-            <TrackingFooterBtnOutline
-              handleShareTrip={handleShareTrip}
+            <TrackingFooterButton
+              label={t("app.ride.shareTrip")}
+              onPress={handleShareTrip}
               styles={styles}
             />
-            <TrackingFooterBtnOutline2
-              handleSOS={handleSOS}
+            <TrackingFooterButton
+              label={t("app.ride.emergency")}
+              onPress={handleSOS}
+              tone="danger"
               styles={styles}
               tokens={tokens}
             />
           </View>
         ) : (
           <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-            <TrackingFooterBtnOutline3
-              setTripModalVisible={setTripModalVisible}
+            <TrackingFooterButton
+              label={t("app.ride.orderDetails")}
+              onPress={() => setTripModalVisible(true)}
               styles={styles}
             />
-            <TrackingFooterBtnOutline4
-              handleSOS={handleSOS}
+            <TrackingFooterButton
+              label={t("app.ride.help")}
+              onPress={handleSOS}
+              tone="danger"
               styles={styles}
               tokens={tokens}
             />

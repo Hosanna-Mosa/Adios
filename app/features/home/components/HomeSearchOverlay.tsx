@@ -7,6 +7,9 @@ import { DishSearchResultItem } from "./DishSearchResultItem";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { HomeSearchOverlaySearchForDishes } from "./HomeSearchOverlaySearchForDishes";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it
 // used to read from the screen's scope is now a prop of the same name, so
@@ -15,24 +18,24 @@ import { HomeSearchOverlaySearchForDishes } from "./HomeSearchOverlaySearchForDi
 // tightening them is a separate change with its own test pass.
 
 interface Props {
-  activeService: any;
-  accent: any;
+  activeService: string;
+  accent: ServiceTokens;
   addRecentSearch: any;
-  clearRecentSearches: any;
-  insets: any;
-  isSearchVisible: any;
-  isSearching: any;
+  clearRecentSearches: () => void;
+  insets: EdgeInsets;
+  isSearchVisible: boolean;
+  isSearching: boolean;
   listData: any[];
   recentSearches: any[];
   searchBackdropAnimatedStyle: any;
   searchBackdropOpacity: any;
   searchSheetAnimatedStyle: any;
-  searchText: any;
+  searchText: string;
   searchTranslateY: any;
   setIsSearchActive: React.Dispatch<React.SetStateAction<any>>;
   setSearchText: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeSearchOverlay(props: Props) {

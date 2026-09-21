@@ -5,20 +5,23 @@ import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
 
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   handleSearch: any;
-  insets: any;
+  insets: EdgeInsets;
   router: any;
   searchInputRef: any;
   searchQuery: any;
   searching: any;
-  styles: any;
-  tokens: any;
+  styles: AddAddressStyles;
+  tokens: ThemeTokens;
 }
 
 export function AddAddressSearchRow({

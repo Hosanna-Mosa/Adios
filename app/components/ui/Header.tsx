@@ -59,7 +59,7 @@ export function Header({
   entering,
   accessibilityLabel = "Go back",
 }: Props) {
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
 

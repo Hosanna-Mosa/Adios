@@ -1,19 +1,23 @@
 import { Modal } from "react-native";
 import { TrackingModalOverlay } from "./TrackingModalOverlay";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
+import type { OrderStop } from "@/types/models";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  currentOrderId: any;
-  insets: any;
-  pickupLabel: any;
+  accent: ServiceTokens;
+  currentOrderId: string | null;
+  insets: EdgeInsets;
+  pickupLabel: string;
   setTripModalVisible: any;
-  stops: any;
-  styles: any;
-  tokens: any;
-  totalPrice: any;
+  stops: OrderStop[];
+  styles: TrackingStyles;
+  tokens: ThemeTokens;
+  totalPrice: number | null;
   tripModalVisible: any;
 }
 

@@ -3,8 +3,8 @@ import { runOnJS, useAnimatedScrollHandler } from "react-native-reanimated";
 import { useHomeStore } from "@/contexts/homeStore";
 import { HOME_SKELETON_ITEMS } from "./useHome.shared";
 
-// Part 11 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, loadingDrivers: any, searchText: any, selectedAddress: any, setDistanceOption: any, setCustomDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, searchedDishes: any, selectedSort: any, setSelectedSort: any, filter99Store: any, setFilter99Store: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, showHomeSkeleton: any, filteredAndSortedItems: any, scrollY: any, isStickyVisibleShared: any, setIsStickyVisible: any) {
   const onMainScroll = useAnimatedScrollHandler((event) => {

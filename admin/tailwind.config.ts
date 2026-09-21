@@ -72,6 +72,14 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        // Brand teal used by AppSidebar — a distinct shade from --primary,
+        // kept as its own token so its exact hex is preserved verbatim
+        // (see tailwind.config.ts Phase 1 token migration).
+        brand: {
+          teal: "#00665c",
+          "teal-soft": "#e6f4f2",
+          "teal-tint": "#eefcfb",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

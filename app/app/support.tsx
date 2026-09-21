@@ -1,19 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { Linking, Platform, StyleSheet } from "react-native";
+import { Linking, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { router, useFocusEffect } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
 import { Header } from "@/components/ui/Header";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
+import { getOrders } from "@/services/orders.service";
 
 // SERVICE_META and FAQS moved inside SupportScreen() as useMemo values — see
 // ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
@@ -47,9 +45,9 @@ interface FAQItem {
 
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const styles = useMemo(() => createStyles(tokens), [theme]);
+  const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
   const { t } = useTranslation();
 
   const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = useMemo(() => ({
@@ -75,7 +73,7 @@ export default function SupportScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      customFetch<any[]>("/orders")
+      getOrders()
         .then((data) => setRecentOrder(data && data.length > 0 ? data[0] : null))
         .catch(() => {});
     }, [])

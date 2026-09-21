@@ -1,412 +1,73 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Pagination } from "@/components/shared/Pagination";
-import { fadeIn } from "@/components/motion/variants";
-import { Store, Plus, MoreVertical, Search, MapPin, Star, Edit2, Trash2, Eye } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminFetch } from "@/lib/api-client";
-import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
-
-interface DayHours {
-  open: string;
-  close: string;
-  closed?: boolean;
-}
-
-type WeeklyHours = Partial<Record<DayKey, DayHours>>;
-
-/** Server-evaluated open/closed verdict returned on every vendor row. */
-interface OpenState {
-  isOpen: boolean;
-  label: string;
-  opensAt: string | null;
-  today: string | null;
-  week: { day: string; hours: string }[];
-}
-
-interface Vendor {
-  _id: string;
-  name: string;
-  googlePlaceId: string;
-  address: string;
-  rating: number;
-  reviews: string;
-  isPureVeg: boolean;
-  phone: string;
-  email: string;
-  commissionRate?: number;
-  onboardingStatus?: string;
-  isManuallyClosed?: boolean;
-  openingHours?: WeeklyHours;
-  openState?: OpenState;
-}
-
-const WEEK_DAYS: { key: DayKey; label: string }[] = [
-  { key: "mon", label: "Monday" },
-  { key: "tue", label: "Tuesday" },
-  { key: "wed", label: "Wednesday" },
-  { key: "thu", label: "Thursday" },
-  { key: "fri", label: "Friday" },
-  { key: "sat", label: "Saturday" },
-  { key: "sun", label: "Sunday" },
-];
-
-type HoursDraft = Record<DayKey, { open: string; close: string; closed: boolean }>;
-
-const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
-  WEEK_DAYS.reduce((draft, { key }) => {
-    const day = hours?.[key];
-    draft[key] = {
-      open: day?.open || "09:00",
-      close: day?.close || "22:00",
-      closed: day?.closed === true,
-    };
-    return draft;
-  }, {} as HoursDraft);
-
-const toWeeklyHours = (draft: HoursDraft): WeeklyHours =>
-  WEEK_DAYS.reduce((hours, { key }) => {
-    const day = draft[key];
-    hours[key] = day.closed
-      ? { open: day.open, close: day.close, closed: true }
-      : { open: day.open, close: day.close };
-    return hours;
-  }, {} as WeeklyHours);
-
-const hasWeeklyHours = (hours?: WeeklyHours) => !!hours && Object.keys(hours).length > 0;
-
-function OpeningHoursEditor({ draft, onChange }: { draft: HoursDraft; onChange: (next: HoursDraft) => void }) {
-  const setDay = (key: DayKey, patch: Partial<HoursDraft[DayKey]>) =>
-    onChange({ ...draft, [key]: { ...draft[key], ...patch } });
-
-  return (
-    <div className="space-y-2">
-      {WEEK_DAYS.map(({ key, label }) => (
-        <div key={key} className="flex items-center gap-2">
-          <span className="w-[70px] shrink-0 text-xs font-semibold text-muted-foreground">{label}</span>
-          {draft[key].closed ? (
-            <span className="flex-1 text-xs text-muted-foreground italic">Closed all day</span>
-          ) : (
-            <div className="flex flex-1 items-center gap-2">
-              <Input
-                type="time"
-                value={draft[key].open}
-                onChange={e => setDay(key, { open: e.target.value })}
-                className="h-9 w-[110px] text-xs"
-              />
-              <span className="text-xs text-muted-foreground">to</span>
-              <Input
-                type="time"
-                value={draft[key].close}
-                onChange={e => setDay(key, { close: e.target.value })}
-                className="h-9 w-[110px] text-xs"
-              />
-            </div>
-          )}
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={draft[key].closed}
-              onChange={e => setDay(key, { closed: e.target.checked })}
-              className="h-3.5 w-3.5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-            />
-            Closed
-          </label>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
-  // A manual close always wins, exactly as the server evaluates it — so the pill is
-  // right the instant the toggle is flipped, before the list has refetched.
-  const manuallyClosed = isManuallyClosed === true;
-  const isOpen = manuallyClosed ? false : openState ? openState.isOpen : true;
-  const label = manuallyClosed ? "Closed" : openState?.label || "Open now";
-
-  return (
-    <div className="space-y-1">
-      <span className={`inline-block text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-        isOpen
-          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-      }`}>
-        {label}
-      </span>
-      <p className="text-[10px] text-muted-foreground">
-        {isManuallyClosed ? "Closed by admin" : openState?.today || "No hours set"}
-      </p>
-    </div>
-  );
-}
+import { useVendorsList } from "@/features/vendors/hooks/useVendorsList";
+import { useVendorAddForm } from "@/features/vendors/hooks/useVendorAddForm";
+import { useVendorEditForm } from "@/features/vendors/hooks/useVendorEditForm";
+import { VendorFilters } from "@/features/vendors/components/VendorFilters";
+import { VendorTable } from "@/features/vendors/components/VendorTable";
+import { VendorAddDialog } from "@/features/vendors/components/VendorAddDialog";
+import { VendorEditDialog } from "@/features/vendors/components/VendorEditDialog";
+import { VendorViewDialog } from "@/features/vendors/components/VendorViewDialog";
 
 export default function Vendors() {
-  const queryClient = useQueryClient();
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  
-  // View/Edit states
-  const [viewingVendor, setViewingVendor] = useState<Vendor | null>(null);
-  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isViewOpen, setIsViewOpen] = useState(false);
-  const [commRate, setCommRate] = useState<number>(10);
+  const {
+    vendors,
+    isLoading,
+    filterSearch,
+    setFilterSearch,
+    filterStatus,
+    setFilterStatus,
+    filterVeg,
+    setFilterVeg,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    filteredVendors,
+    paginatedVendors,
+    handleDeleteClick,
+    updateVendorMutation,
+    isViewOpen,
+    setIsViewOpen,
+    viewingVendor,
+    commRate,
+    setCommRate,
+    handleViewClick,
+    handleToggleManuallyClosed,
+    handleSaveCommission,
+    handleApprove,
+    handleReject,
+  } = useVendorsList();
 
-  // Edit form state
-  const [editForm, setEditForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    isPureVeg: false,
-    address: "",
-    isManuallyClosed: false
-  });
+  const {
+    isAddOpen,
+    setIsAddOpen,
+    newVendor,
+    setNewVendor,
+    searchQuery,
+    selectedPlace,
+    suggestions,
+    isSearching,
+    handleSearch,
+    handleSelectSuggestion,
+    handleSubmit,
+    isSubmitting,
+  } = useVendorAddForm();
 
-  // Kept beside editForm rather than inside it: an outlet with no schedule must stay
-  // "always open", so the week is only written when the admin explicitly turns it on.
-  const [editHoursEnabled, setEditHoursEnabled] = useState(false);
-  const [editHours, setEditHours] = useState<HoursDraft>(() => toHoursDraft());
+  const {
+    isEditOpen,
+    setIsEditOpen,
+    editForm,
+    setEditForm,
+    editHoursEnabled,
+    setEditHoursEnabled,
+    editHours,
+    setEditHours,
+    handleEditClick,
+    handleEditSubmit,
+    isSaving,
+  } = useVendorEditForm(updateVendorMutation);
 
-  const deleteVendorMutation = useMutation({
-    mutationFn: (id: string) => adminFetch(`/vendors/${id}`, { method: "DELETE" }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor deleted successfully");
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to delete vendor");
-    }
-  });
-
-  const updateVendorMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => adminFetch(`/vendors/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(data)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor updated successfully");
-      setIsEditOpen(false);
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to update vendor");
-    }
-  });
-
-  const handleEditClick = (vendor: Vendor) => {
-    setEditingVendor(vendor);
-    setEditForm({
-      name: vendor.name,
-      email: vendor.email || "",
-      phone: vendor.phone,
-      isPureVeg: vendor.isPureVeg,
-      address: vendor.address,
-      isManuallyClosed: vendor.isManuallyClosed === true
-    });
-    setEditHoursEnabled(hasWeeklyHours(vendor.openingHours));
-    setEditHours(toHoursDraft(vendor.openingHours));
-    setIsEditOpen(true);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingVendor) return;
-    updateVendorMutation.mutate({
-      id: editingVendor._id,
-      // An empty object clears the schedule, which the server reads as "always open".
-      data: { ...editForm, openingHours: editHoursEnabled ? toWeeklyHours(editHours) : {} }
-    });
-  };
-
-  const handleDeleteClick = (vendor: Vendor) => {
-    if (confirm(`Are you sure you want to delete ${vendor.name}?`)) {
-      deleteVendorMutation.mutate(vendor._id);
-    }
-  };
-
-  const handleViewClick = (vendor: any) => {
-    setViewingVendor(vendor);
-    setCommRate(vendor.commissionRate || 10);
-    setIsViewOpen(true);
-  };
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const autocompleteInputRef = useRef<HTMLInputElement>(null);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
-
-  // List Filters
-  const [filterSearch, setFilterSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterVeg, setFilterVeg] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [newVendor, setNewVendor] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    password: "",
-    isPureVeg: false,
-    country: "India",
-    state: "",
-    city: ""
-  });
-
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-
-  const { data: vendors, isLoading } = useQuery({
-    queryKey: ["vendors"],
-    queryFn: () => adminFetch<Vendor[]>("/vendors/nearby?lat=0&lng=0"), // Default fetch
-  });
-
-  // The View dialog holds a snapshot, so after an availability toggle refetches the list
-  // it would keep rendering the openState it was opened with. Re-sync it from the fresh row.
-  useEffect(() => {
-    if (!isViewOpen) return;
-    setViewingVendor((current) => {
-      if (!current) return current;
-      return (vendors || []).find((v) => v._id === current._id) || current;
-    });
-  }, [vendors, isViewOpen]);
-
-  const createVendorMutation = useMutation({
-    mutationFn: (data: any) => adminFetch("/vendors", {
-      method: "POST",
-      body: JSON.stringify(data)
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor added successfully");
-      setIsAddOpen(false);
-      resetForm();
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Failed to add vendor");
-    }
-  });
-
-  const handleSearch = async (val: string) => {
-    setSearchQuery(val);
-    if (val.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      // Construction for Text Search works best with "Business Name in City, State"
-      const locationContext = `${newVendor.city}, ${newVendor.state}, ${newVendor.country}`
-        .split(",")
-        .map(s => s.trim())
-        .filter(s => s !== "")
-        .join(", ");
-
-      const fullQuery = locationContext ? `${val} in ${locationContext}` : val;
-      
-      const data = await adminFetch<any[]>(`/vendors/search-google?query=${encodeURIComponent(fullQuery)}&types=establishment`);
-      setSuggestions(data || []);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handleSelectSuggestion = async (suggestion: any) => {
-    setSearchQuery(suggestion.description);
-    setSuggestions([]);
-    
-    try {
-      toast.loading("Fetching place details...");
-      const details = await adminFetch<any>(`/vendors/place-details/${suggestion.place_id}`);
-      setSelectedPlace(details);
-      setNewVendor(prev => ({
-        ...prev,
-        name: details.name
-      }));
-      toast.dismiss();
-    } catch (error) {
-      toast.error("Failed to fetch restaurant details");
-    }
-  };
-
-  const resetForm = () => {
-    setNewVendor({
-      name: "",
-      email: "",
-      phone: "",
-      password: "",
-      isPureVeg: false,
-      country: "India",
-      state: "",
-      city: ""
-    });
-    setSelectedPlace(null);
-    setSearchQuery("");
-    setSuggestions([]);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPlace) {
-      toast.error("Please search and select a restaurant");
-      return;
-    }
-
-    if (!newVendor.password) {
-      toast.error("Please set a password for the vendor");
-      return;
-    }
-
-    const payload = {
-      ...newVendor,
-      googlePlaceId: selectedPlace.place_id,
-      address: selectedPlace.formatted_address,
-      location: {
-        type: "Point",
-        coordinates: [selectedPlace.geometry.location.lng, selectedPlace.geometry.location.lat]
-      },
-      image: selectedPlace.photos?.[0]?.photo_reference 
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${selectedPlace.photos[0].photo_reference}&key=AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA`
-        : "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=500",
-      rating: selectedPlace.rating || 0,
-      reviews: selectedPlace.user_ratings_total?.toString() || "0",
-    };
-
-    createVendorMutation.mutate(payload);
-  };
-
-  const filteredVendors = (vendors || []).filter(vendor => {
-    const searchLower = filterSearch.toLowerCase();
-    const matchesSearch = vendor.name.toLowerCase().includes(searchLower) || vendor.address.toLowerCase().includes(searchLower);
-    const status = (vendor as any).onboardingStatus || "draft";
-    const matchesStatus = filterStatus === "all" || status === filterStatus;
-    const matchesVeg = filterVeg === "all" || (filterVeg === "veg" && vendor.isPureVeg) || (filterVeg === "nonveg" && !vendor.isPureVeg);
-    return matchesSearch && matchesStatus && matchesVeg;
-  });
-
-  const itemsPerPage = 8;
-  const totalPages = Math.ceil(filteredVendors.length / itemsPerPage) || 1;
-  const safePage = Math.min(currentPage, totalPages);
-  const paginatedVendors = filteredVendors.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+  const emptyLabel = vendors?.length === 0 ? "No vendors found. Add your first restaurant!" : "No vendors match your filters.";
 
   return (
     <DashboardLayout searchPlaceholder="Search vendors...">
@@ -416,525 +77,64 @@ export default function Vendors() {
             <h1 className="page-header">Vendor Management</h1>
             <p className="page-subtitle">Onboard and manage your restaurant partners.</p>
           </div>
-          
-          <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Add Vendor
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Restaurant</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">Country</label>
-                    <Input 
-                      value={newVendor.country} 
-                      onChange={e => setNewVendor({...newVendor, country: e.target.value})}
-                      placeholder="India"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">State</label>
-                    <Input 
-                      value={newVendor.state} 
-                      onChange={e => setNewVendor({...newVendor, state: e.target.value})}
-                      placeholder="Telangana"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold uppercase text-muted-foreground">City</label>
-                    <Input 
-                      value={newVendor.city} 
-                      onChange={e => setNewVendor({...newVendor, city: e.target.value})}
-                      placeholder="Hyderabad"
-                      className="h-9 text-xs"
-                    />
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Search Google Maps</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      placeholder="Start typing restaurant name..." 
-                      className="pl-9"
-                    />
-                    
-                    {/* Custom Suggestions Dropdown */}
-                    {suggestions.length > 0 && (
-                      <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-auto">
-                        {suggestions.map((s) => (
-                          <button
-                            key={s.place_id}
-                            type="button"
-                            onClick={() => handleSelectSuggestion(s)}
-                            className="w-full text-left px-4 py-2 text-sm hover:bg-muted transition-colors border-b border-border last:border-0"
-                          >
-                            <p className="font-medium text-foreground">{s.structured_formatting?.main_text || s.description}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{s.structured_formatting?.secondary_text || s.description}</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {isSearching && (
-                      <div className="absolute right-3 top-2.5">
-                        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      </div>
-                    )}
-                  </div>
-                  {selectedPlace && (
-                    <div className="mt-2 p-3 bg-muted rounded-lg border border-border">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                        <div>
-                          <p className="text-sm font-semibold">{selectedPlace.name}</p>
-                          <p className="text-xs text-muted-foreground">{selectedPlace.formatted_address}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
-                    <Input 
-                      type="email" 
-                      value={newVendor.email} 
-                      onChange={e => setNewVendor({...newVendor, email: e.target.value})}
-                      placeholder="owner@restaurant.com" 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
-                    <Input 
-                      value={newVendor.phone} 
-                      onChange={e => setNewVendor({...newVendor, phone: e.target.value})}
-                      placeholder="+91 98765 43210" 
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Vendor Password</label>
-                  <Input 
-                    type="password"
-                    value={newVendor.password} 
-                    onChange={e => setNewVendor({...newVendor, password: e.target.value})}
-                    placeholder="Set a password for vendor login"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={createVendorMutation.isPending}>
-                  {createVendorMutation.isPending ? "Adding..." : "Confirm & Save Vendor"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <VendorAddDialog
+            isOpen={isAddOpen}
+            onOpenChange={setIsAddOpen}
+            newVendor={newVendor}
+            onChange={setNewVendor}
+            searchQuery={searchQuery}
+            suggestions={suggestions}
+            isSearching={isSearching}
+            selectedPlace={selectedPlace}
+            onSearch={handleSearch}
+            onSelectSuggestion={handleSelectSuggestion}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 items-center bg-card p-4 rounded-xl border border-border">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by restaurant name or location..."
-              value={filterSearch}
-              onChange={(e) => { setFilterSearch(e.target.value); setCurrentPage(1); }}
-              className="pl-9 w-full"
-            />
-          </div>
-          <select
-            value={filterStatus}
-            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
-          >
-            <option value="all">All Statuses</option>
-            <option value="approved">Approved</option>
-            <option value="submitted">Submitted</option>
-            <option value="draft">Draft</option>
-            <option value="rejected">Rejected</option>
-          </select>
-          <select
-            value={filterVeg}
-            onChange={(e) => { setFilterVeg(e.target.value); setCurrentPage(1); }}
-            className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-primary w-full md:w-auto"
-          >
-            <option value="all">All Dietary</option>
-            <option value="veg">Pure Veg</option>
-            <option value="nonveg">Multi-Cuisine</option>
-          </select>
-        </div>
+        <VendorFilters filterSearch={filterSearch} onSearchChange={setFilterSearch} filterStatus={filterStatus} onStatusChange={setFilterStatus} filterVeg={filterVeg} onVegChange={setFilterVeg} />
 
         <div className="section-card overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-muted/50">
-                <th className="table-header-text text-left px-6 py-3">Restaurant</th>
-                <th className="table-header-text text-left px-6 py-3">Location</th>
-                <th className="table-header-text text-left px-6 py-3">Rating</th>
-                <th className="table-header-text text-left px-6 py-3">Availability</th>
-                <th className="table-header-text text-left px-6 py-3">Contact</th>
-                <th className="table-header-text text-left px-6 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">Loading vendors...</td></tr>
-              ) : vendors?.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors found. Add your first restaurant!</td></tr>
-              ) : paginatedVendors.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center text-muted-foreground">No vendors match your filters.</td></tr>
-              ) : (
-                <AnimatePresence mode="popLayout" initial={false}>
-                {paginatedVendors.map((vendor) => (
-                    <motion.tr
-                      key={vendor._id}
-                      layout
-                      variants={fadeIn}
-                      initial="hidden"
-                      animate="visible"
-                      exit={{ opacity: 0 }}
-                      className="border-t border-border hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Store className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                              <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
-                                (vendor as any).onboardingStatus === "approved" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" :
-                                (vendor as any).onboardingStatus === "rejected" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400" :
-                                (vendor as any).onboardingStatus === "submitted" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                                "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                              }`}>
-                                {(vendor as any).onboardingStatus || "draft"}
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? "Pure Veg" : "Multi-Cuisine"}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-foreground max-w-[200px] truncate">{vendor.address}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <Star className="h-3.5 w-3.5 text-warning fill-warning" />
-                          <span className="text-sm font-medium text-foreground">{vendor.rating}</span>
-                          <span className="text-xs text-muted-foreground">({vendor.reviews})</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <AvailabilityPill openState={vendor.openState} isManuallyClosed={vendor.isManuallyClosed} />
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="text-sm text-foreground">{vendor.phone}</p>
-                        <p className="text-xs text-muted-foreground">{vendor.email}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button className="p-1 hover:bg-muted rounded transition-colors">
-                              <MoreVertical className="h-4 w-4 text-muted-foreground" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleViewClick(vendor)} className="gap-2 cursor-pointer">
-                              <Eye className="h-4 w-4 text-muted-foreground" /> View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditClick(vendor)} className="gap-2 cursor-pointer">
-                              <Edit2 className="h-4 w-4 text-muted-foreground" /> Edit Restaurant
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteClick(vendor)} className="gap-2 text-destructive focus:text-destructive cursor-pointer">
-                              <Trash2 className="h-4 w-4" /> Delete Restaurant
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </motion.tr>
-                ))}
-                </AnimatePresence>
-              )}
-            </tbody>
-          </table>
-
-          <Pagination
-            currentPage={safePage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            itemLabel="vendors"
-            shownCount={paginatedVendors.length}
-            totalCount={filteredVendors.length}
+          <VendorTable
+            vendors={paginatedVendors}
+            isLoading={isLoading}
+            emptyLabel={emptyLabel}
+            onViewClick={handleViewClick}
+            onEditClick={handleEditClick}
+            onDeleteClick={handleDeleteClick}
           />
+
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} itemLabel="vendors" shownCount={paginatedVendors.length} totalCount={filteredVendors.length} />
         </div>
       </div>
 
-      {/* View Details Dialog */}
-      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[485px] rounded-3xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Restaurant Details</DialogTitle>
-          </DialogHeader>
-          {viewingVendor && (
-            <div className="space-y-4 py-4 text-sm">
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Name:</span>
-                <span className="font-medium text-foreground">{viewingVendor.name}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Email:</span>
-                <span className="font-medium text-foreground">{viewingVendor.email || "N/A"}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Phone:</span>
-                <span className="font-medium text-foreground">{viewingVendor.phone}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Address:</span>
-                <span className="font-medium text-foreground text-right max-w-[250px] break-words">{viewingVendor.address}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Rating:</span>
-                <span className="font-medium text-foreground">{viewingVendor.rating} ★ ({viewingVendor.reviews} reviews)</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Pure Veg:</span>
-                <span className="font-medium text-foreground">{viewingVendor.isPureVeg ? "Yes" : "No"}</span>
-              </div>
-              <div className="flex justify-between border-b pb-2 border-border">
-                <span className="font-semibold text-muted-foreground">Current Onboarding:</span>
-                <span className="font-medium text-foreground uppercase">{(viewingVendor as any).onboardingStatus || "draft"}</span>
-              </div>
+      <VendorViewDialog
+        isOpen={isViewOpen}
+        onOpenChange={setIsViewOpen}
+        vendor={viewingVendor}
+        commRate={commRate}
+        onCommRateChange={setCommRate}
+        isUpdating={updateVendorMutation.isPending}
+        onToggleManuallyClosed={handleToggleManuallyClosed}
+        onSaveCommission={handleSaveCommission}
+        onApprove={handleApprove}
+        onReject={handleReject}
+      />
 
-              {/* Open / Closed Control Section */}
-              <div className="p-3 bg-muted rounded-xl space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <label className="font-bold text-foreground text-xs block">Order Availability</label>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      A closed outlet drops out of the app's "Open now" filter.
-                    </p>
-                  </div>
-                  <AvailabilityPill openState={viewingVendor.openState} isManuallyClosed={viewingVendor.isManuallyClosed} />
-                </div>
-                <Button
-                  size="sm"
-                  variant={viewingVendor.isManuallyClosed ? "default" : "destructive"}
-                  className="w-full rounded-lg"
-                  disabled={updateVendorMutation.isPending}
-                  onClick={() => {
-                    const nextClosed = !viewingVendor.isManuallyClosed;
-                    updateVendorMutation.mutate({
-                      id: viewingVendor._id,
-                      data: { isManuallyClosed: nextClosed }
-                    });
-                    setViewingVendor({ ...viewingVendor, isManuallyClosed: nextClosed });
-                  }}
-                >
-                  {viewingVendor.isManuallyClosed ? "Reopen Restaurant" : "Close Restaurant Now"}
-                </Button>
-                {viewingVendor.openState?.week?.length ? (
-                  <div className="space-y-0.5 pt-1 border-t border-border/60">
-                    {viewingVendor.openState.week.map((day) => (
-                      <div key={day.day} className="flex justify-between text-[11px]">
-                        <span className="text-muted-foreground">{day.day}</span>
-                        <span className="font-medium text-foreground">{day.hours}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/60">
-                    No weekly hours set — open around the clock unless closed above.
-                  </p>
-                )}
-              </div>
-
-              {/* Commission Control Section */}
-              <div className="p-3 bg-muted rounded-xl space-y-2">
-                <label className="font-bold text-foreground text-xs block">Platform Commission Rate (%)</label>
-                <div className="flex gap-2">
-                  <Input 
-                    type="number" 
-                    value={commRate} 
-                    onChange={e => setCommRate(Number(e.target.value))}
-                    className="h-9 w-24 bg-card"
-                    min="0"
-                    max="100"
-                  />
-                  <Button 
-                    size="sm" 
-                    onClick={() => {
-                      updateVendorMutation.mutate({
-                        id: viewingVendor._id,
-                        data: { commissionRate: commRate }
-                      });
-                      setViewingVendor({ ...viewingVendor, commissionRate: commRate });
-                    }}
-                  >
-                    Save Rate
-                  </Button>
-                </div>
-              </div>
-
-              {/* Legal Documentation Info */}
-              <div className="mt-2 border-t border-border pt-4 space-y-2">
-                <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Legal & Merchant Details</h4>
-                <div className="grid grid-cols-2 gap-2 text-xs bg-muted/50 p-2.5 rounded-lg border border-border">
-                  <div>
-                    <span className="font-semibold text-muted-foreground block">GSTIN / PAN</span>
-                    <span className="font-medium text-foreground">{(viewingVendor as any).legal?.gstin || (viewingVendor as any).legal?.panNumber || "Not Provided"}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-muted-foreground block">FSSAI License</span>
-                    <span className="font-medium text-foreground">{(viewingVendor as any).legal?.fssaiNumber || "Not Provided"}</span>
-                  </div>
-                  <div className="col-span-2 mt-1 pt-1 border-t border-border/50">
-                    <span className="font-semibold text-muted-foreground block">Bank Settlement A/C</span>
-                    <span className="font-medium text-foreground">
-                      {(viewingVendor as any).legal?.bankAccount ? `${(viewingVendor as any).legal.bankAccount} (${(viewingVendor as any).legal.ifsc})` : "Not Provided"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Approval Toggles */}
-              <div className="flex gap-2 pt-2">
-                <Button 
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg"
-                  onClick={() => {
-                    updateVendorMutation.mutate({
-                      id: viewingVendor._id,
-                      data: { onboardingStatus: "approved" }
-                    });
-                    setViewingVendor({ ...viewingVendor, onboardingStatus: "approved" });
-                  }}
-                >
-                  Approve Restaurant
-                </Button>
-                <Button 
-                  variant="destructive"
-                  className="flex-1 rounded-lg"
-                  onClick={() => {
-                    updateVendorMutation.mutate({
-                      id: viewingVendor._id,
-                      data: { onboardingStatus: "rejected" }
-                    });
-                    setViewingVendor({ ...viewingVendor, onboardingStatus: "rejected" });
-                  }}
-                >
-                  Reject
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Vendor Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-[520px] rounded-3xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Edit Restaurant</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Name</label>
-              <Input
-                value={editForm.name}
-                onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
-              <Input
-                type="email"
-                value={editForm.email}
-                onChange={e => setEditForm({ ...editForm, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Phone</label>
-              <Input
-                value={editForm.phone}
-                onChange={e => setEditForm({ ...editForm, phone: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Address</label>
-              <Input
-                value={editForm.address}
-                onChange={e => setEditForm({ ...editForm, address: e.target.value })}
-                required
-              />
-            </div>
-            <div className="flex items-center gap-2 py-2">
-              <input
-                type="checkbox"
-                id="editIsPureVeg"
-                checked={editForm.isPureVeg}
-                onChange={e => setEditForm({ ...editForm, isPureVeg: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-              />
-              <label htmlFor="editIsPureVeg" className="text-sm font-medium cursor-pointer select-none">Is Pure Veg</label>
-            </div>
-
-            <div className="space-y-3 rounded-2xl border border-border p-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="editIsManuallyClosed"
-                  checked={editForm.isManuallyClosed}
-                  onChange={e => setEditForm({ ...editForm, isManuallyClosed: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                />
-                <label htmlFor="editIsManuallyClosed" className="text-sm font-medium cursor-pointer select-none">
-                  Temporarily closed (stop taking orders)
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2 border-t border-border pt-3">
-                <input
-                  type="checkbox"
-                  id="editHoursEnabled"
-                  checked={editHoursEnabled}
-                  onChange={e => setEditHoursEnabled(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                />
-                <label htmlFor="editHoursEnabled" className="text-sm font-medium cursor-pointer select-none">
-                  Set weekly opening hours
-                </label>
-              </div>
-
-              {editHoursEnabled ? (
-                <OpeningHoursEditor draft={editHours} onChange={setEditHours} />
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Without a schedule this restaurant is treated as open around the clock.
-                </p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" disabled={updateVendorMutation.isPending}>
-              {updateVendorMutation.isPending ? "Updating..." : "Save Changes"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <VendorEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        editForm={editForm}
+        onChange={setEditForm}
+        editHoursEnabled={editHoursEnabled}
+        onHoursEnabledChange={setEditHoursEnabled}
+        editHours={editHours}
+        onHoursChange={setEditHours}
+        onSubmit={handleEditSubmit}
+        isSaving={isSaving}
+      />
     </DashboardLayout>
   );
 }

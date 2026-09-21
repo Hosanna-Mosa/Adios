@@ -1,33 +1,22 @@
 import React, { useMemo, useState } from "react";
-import { StyleSheet, Text } from "react-native";
-import { useTranslation } from "react-i18next";
-import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies, typography } from "@/constants/typography";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
+import {
+  getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  type NotificationItem,
+} from "@/services/notifications.service";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
-import { fadeInUp } from "@/motion/presets";
-
 import { NotificationsHeader } from "@/features/profile/components/NotificationsHeader";
 import { NotificationsCenter } from "@/features/profile/components/NotificationsCenter";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { NotificationsBody } from "@/features/profile/components/NotificationsBody";
-
-interface NotificationItem {
-  _id: string;
-  title: string;
-  body: string;
-  type: string;
-  category: string;
-  isRead: boolean;
-  createdAt: string;
-  data?: any;
-}
+import { createStyles } from "@/features/profile/notifications.styles";
+import { NotificationsEmptyState } from "@/features/profile/components/NotificationsEmptyState";
 
 const CATEGORY_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   order_status: "receipt",
@@ -49,19 +38,18 @@ function formatWhen(iso: string): string {
 }
 
 export default function NotificationsScreen() {
-  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
-  const styles = useMemo(() => createStyles(tokens, accent), [theme]);
+  const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
 
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchList = async () => {
     try {
-      const data = await customFetch<NotificationItem[]>("/notifications");
+      const data = await getNotifications();
       setItems(data || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
@@ -79,7 +67,7 @@ export default function NotificationsScreen() {
   const handleOpen = async (item: NotificationItem) => {
     if (!item.isRead) {
       setItems((prev) => prev.map((n) => (n._id === item._id ? { ...n, isRead: true } : n)));
-      customFetch(`/notifications/${item._id}/read`, { method: "PATCH" }).catch(() => {});
+      markNotificationRead(item._id).catch(() => {});
     }
     navigateToNotificationTarget(item.data);
   };
@@ -87,7 +75,7 @@ export default function NotificationsScreen() {
   const handleMarkAllRead = async () => {
     setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
     try {
-      await customFetch("/notifications/read-all", { method: "PATCH" });
+      await markAllNotificationsRead();
     } catch (err) {
       console.error("Failed to mark all read:", err);
     }
@@ -110,10 +98,7 @@ export default function NotificationsScreen() {
           styles={styles}
         />
       ) : items.length === 0 ? (
-        <Animated.View style={styles.center} entering={fadeInUp(0)}>
-          <Ionicons name="notifications-off-outline" size={32} color={tokens.muted} />
-          <Text style={styles.emptyText}>{t("app.notifications.nothingHereYetOrderAndAccount")}</Text>
-        </Animated.View>
+        <NotificationsEmptyState styles={styles} tokens={tokens} />
       ) : (
         <NotificationsBody
           CATEGORY_ICON={CATEGORY_ICON}
@@ -129,21 +114,3 @@ export default function NotificationsScreen() {
     </ScreenShell>
   );
 }
-
-const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
-  StyleSheet.create({
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingVertical: 12 },
-    backBtn: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerTitle: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
-    markAllText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: accent.accent },
-
-    center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 40 },
-    emptyText: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.sec, textAlign: "center", lineHeight: typography.lineHeights.medium },
-
-    row: { flexDirection: "row", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 13 },
-    rowIcon: { width: 36, height: 36, borderRadius: 11, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-    rowTitle: { flex: 0, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
-    unreadDot: { width: 6, height: 6, borderRadius: 3 },
-    rowBody: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 3 },
-    rowTime: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, marginTop: 5 },
-  });

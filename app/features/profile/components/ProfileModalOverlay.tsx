@@ -2,23 +2,25 @@ import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View 
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type ProfileStyles } from "@/features/profile/profile.styles";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   changingPassword: any;
-  confirmPassword: any;
+  confirmPassword: string;
   currentPassword: any;
-  handleChangePassword: any;
+  handleChangePassword: () => void;
   newPassword: any;
   setConfirmPassword: any;
   setCurrentPassword: any;
   setNewPassword: any;
   setSecurityVisible: any;
-  styles: any;
-  tokens: any;
+  styles: ProfileStyles;
+  tokens: ThemeTokens;
 }
 
 export function ProfileModalOverlay({

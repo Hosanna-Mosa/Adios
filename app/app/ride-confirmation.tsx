@@ -1,6 +1,3 @@
-import { Text, TouchableOpacity } from "react-native";
-import { useTranslation } from "react-i18next";
-import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 import { RideMapPanel } from "@/features/ride/components/RideMapPanel";
 import { TripChooserSheet } from "@/features/ride/components/TripChooserSheet";
@@ -10,6 +7,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { RideConfirmBody } from "@/features/ride/components/RideConfirmBody";
 import { RideConfirmFooterActions } from "@/features/ride/components/RideConfirmFooterActions";
 import { useRideConfirmation } from "@/features/ride/useRideConfirmation";
+import { BackToHomeButton } from "@/features/ride/components/BackToHomeButton";
 
 export default function RideConfirmationScreen() {
   const {
@@ -21,7 +19,6 @@ export default function RideConfirmationScreen() {
   fitTripToMap, initialRegion, getDisplayName, handleShareRoute, handleAddStopFromMap,
   handleRecenter, placeOrder, ENABLED_TIERS
   } = useRideConfirmation();
-  const { t } = useTranslation();
 
   if (confirmedReservation) {
     return (
@@ -37,9 +34,7 @@ export default function RideConfirmationScreen() {
           <RideConfirmFooterActions
             styles={styles}
           />
-          <TouchableOpacity style={styles.footerSecondaryBtn} onPress={() => router.replace("/(tabs)")}>
-            <Text style={styles.footerSecondaryBtnText}>{t("app.rideconfirmation.backToHome")}</Text>
-          </TouchableOpacity>
+          <BackToHomeButton styles={styles} />
         </Animated.View>
       </ScreenShell>
     );

@@ -1,102 +1,11 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { clearRemoteCart, putCart } from "@/services/cart.service";
 import { useAuthStore } from "@/contexts/authStore";
-
-export interface FoodItem {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  isVeg: boolean;
-  images: string[];
-}
-
-export interface CartItem extends FoodItem {
-  quantity: number;
-}
-
-/** An add that was blocked because the cart already holds another outlet's items. */
-export interface PendingCartConflict {
-  item: FoodItem;
-  vendorId: string;
-  vendorName?: string;
-}
-
-/** A correction the server made after checking the cart against the outlet's live menu. */
-export interface CartSyncNotice {
-  itemId: string;
-  name: string;
-  status: "price_changed" | "unavailable" | "removed";
-  /** Only on "price_changed". */
-  previousPrice?: number;
-  price?: number;
-}
-
-/** "idle" = nobody signed in yet, "hydrating" = restoring this account's cart, "ready" = safe to push. */
-export type CartStatus = "idle" | "hydrating" | "ready";
-
-interface CartState {
-  items: CartItem[];
-  vendorId: string | null;
-  vendorName: string | null;
-  isHoveringSearch: boolean;
-  /** The account this cart belongs to. A different account never inherits these items. */
-  ownerId: string | null;
-  status: CartStatus;
-  pendingConflict: PendingCartConflict | null;
-  /** Corrections from the last hydrate — stale prices fixed, sold-out lines dropped. */
-  syncNotices: CartSyncNotice[];
-  clearSyncNotices: () => void;
-  setIsHoveringSearch: (hovering: boolean) => void;
-  addItem: (item: FoodItem, vendorId: string, vendorName?: string) => void;
-  /** Returns 'added' when the item went in, 'conflict' when a dialog is now pending. */
-  requestAddItem: (item: FoodItem, vendorId: string, vendorName?: string) => "added" | "conflict";
-  /** 'clear' empties the cart then adds the pending item. 'keep' discards the pending item. */
-  resolveConflict: (choice: "clear" | "keep") => void;
-  removeItem: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
-  clearCart: () => void;
-  /** Swaps the whole cart in one write — used by reorder so a burst is a single sync. */
-  replaceCart: (vendorId: string | null, items: CartItem[], vendorName?: string) => void;
-  hydrate: (userId: string) => Promise<void>;
-  reset: () => void;
-  getTotalPrice: () => number;
-  getItemCount: () => number;
-}
-
-const cartKey = (userId: string) => `cart:${userId}`;
-
-const toWire = (items: CartItem[]) =>
-  items.map((item) => ({
-    itemId: item._id,
-    name: item.name || "Item",
-    description: item.description ?? "",
-    price: Number(item.price) || 0,
-    category: item.category ?? "",
-    isVeg: item.isVeg !== false,
-    images: Array.isArray(item.images) ? item.images.filter((url) => typeof url === "string") : [],
-    quantity: Math.max(1, Math.round(Number(item.quantity) || 1)),
-  }));
-
-const fromWire = (rows: any[]): CartItem[] =>
-  (rows ?? [])
-    .map((row) => ({
-      _id: String(row?.itemId ?? row?._id ?? ""),
-      name: String(row?.name ?? ""),
-      description: String(row?.description ?? ""),
-      price: Number(row?.price) || 0,
-      category: String(row?.category ?? ""),
-      isVeg: row?.isVeg !== false,
-      images: Array.isArray(row?.images) && row.images.length
-        ? row.images
-        : row?.image
-          ? [String(row.image)]
-          : [],
-      quantity: Math.max(1, Math.round(Number(row?.quantity) || 1)),
-    }))
-    .filter((item) => !!item._id);
+import type { CartItem, CartState, CartSyncNotice } from "@/contexts/cart.types";
+import { cartKey, toWire } from "@/contexts/cart.wire";
+import { createHydrate } from "@/contexts/cart.hydrate";
+export type { CartItem, CartState, CartStatus, CartSyncNotice, FoodItem, PendingCartConflict } from "@/contexts/cart.types";
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
 // One chain rather than parallel requests, so a stale +1 can never land after a
@@ -108,7 +17,7 @@ let syncChain: Promise<void> = Promise.resolve();
  * `owner`/`token` are passed explicitly on sign-out, where the auth store has
  * already dropped the credentials the pending write still needs.
  */
-function runSync(owner?: string, token?: string | null) {
+export function runSync(owner?: string, token?: string | null) {
   const { ownerId, status, items, vendorId } = useCartStore.getState();
   const targetOwner = owner ?? ownerId;
   if (!targetOwner) return;
@@ -128,13 +37,9 @@ function runSync(owner?: string, token?: string | null) {
     try {
       const headers = authToken ? { authorization: `Bearer ${authToken}` } : undefined;
       if (!snapshot.items.length) {
-        await customFetch("/cart", { method: "DELETE", headers });
+        await clearRemoteCart(headers);
       } else {
-        await customFetch("/cart", {
-          method: "PUT",
-          headers,
-          body: JSON.stringify({ vendorId: snapshot.vendorId, items: toWire(snapshot.items) }),
-        });
+        await putCart({ vendorId: snapshot.vendorId, items: toWire(snapshot.items) }, headers);
       }
     } catch {
       // Offline or a failed request: the local cart is untouched and the mirror
@@ -257,40 +162,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     scheduleSync();
   },
 
-  hydrate: async (userId) => {
-    if (get().ownerId === userId && get().status !== "idle") return;
-    // Starts empty, so a different account never sees the previous one's items,
-    // not even for a frame.
-    set({ ownerId: userId, status: "hydrating", items: [], vendorId: null, vendorName: null, pendingConflict: null, syncNotices: [] });
-
-    try {
-      const raw = await AsyncStorage.getItem(cartKey(userId));
-      if (raw && get().ownerId === userId) {
-        const cached = JSON.parse(raw);
-        set({ items: Array.isArray(cached?.items) ? cached.items : [], vendorId: cached?.vendorId ?? null });
-      }
-    } catch {
-      // A corrupt mirror just means we wait for the server copy.
-    }
-
-    try {
-      const data = await customFetch<{ vendorId: string | null; items: any[]; changes?: CartSyncNotice[] }>(
-        "/cart",
-      );
-      // A late response for an account that has since signed out must not repaint.
-      if (get().ownerId !== userId) return;
-      const items = fromWire(data?.items ?? []);
-      const vendorId = data?.vendorId ?? null;
-      // The server reconciles the stored cart against the live menu, so this
-      // response — not the local mirror — is what the customer should see.
-      set({ items, vendorId, syncNotices: Array.isArray(data?.changes) ? data.changes : [] });
-      await AsyncStorage.setItem(cartKey(userId), JSON.stringify({ vendorId, items })).catch(() => {});
-    } catch {
-      // Offline sign-in: keep the locally mirrored cart rather than blanking it.
-    } finally {
-      if (get().ownerId === userId) set({ status: "ready" });
-    }
-  },
+  hydrate: createHydrate(set, get),
 
   reset: () => {
     if (syncTimer) {
@@ -309,45 +181,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 }));
 
-const ownerIdOf = (state: { user: any | null; token: string | null }) => {
-  if (!state.token || !state.user) return null;
-  const id = state.user._id || state.user.id;
-  return id ? String(id) : null;
-};
-
-let lastOwnerId: string | null = null;
-let lastToken: string | null = null;
-
-/**
- * The cart follows the account, not the JS runtime. Every sign-in path
- * (cold-start restore, password login, OTP login) and sign-out ends in an auth
- * store write, so one subscription covers all of them — including an account
- * switch, which resets before it hydrates.
- */
-function syncOwnerFromAuth(state: { user: any | null; token: string | null }) {
-  const nextOwner = ownerIdOf(state);
-  const previousOwner = lastOwnerId;
-  const previousToken = lastToken;
-  lastOwnerId = nextOwner;
-  lastToken = state.token;
-
-  if (nextOwner === previousOwner) return;
-
-  if (previousOwner) {
-    // Sign-out drops the token before any debounced write has run, so the last
-    // edit is pushed here with the credentials it was made under.
-    if (syncTimer) {
-      clearTimeout(syncTimer);
-      syncTimer = null;
-    }
-    runSync(previousOwner, previousToken);
-  }
-
-  useCartStore.getState().reset();
-  if (nextOwner) {
-    void useCartStore.getState().hydrate(nextOwner);
+/** Cancels a pending debounced push — used on sign-out and on reset. */
+export function clearSyncTimer() {
+  if (syncTimer) {
+    clearTimeout(syncTimer);
+    syncTimer = null;
   }
 }
-
-useAuthStore.subscribe((state) => syncOwnerFromAuth(state));
-syncOwnerFromAuth(useAuthStore.getState());

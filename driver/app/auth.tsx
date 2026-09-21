@@ -1,371 +1,30 @@
-import { Feather } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
-import * as React from "react";
-import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Alert,
-} from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
+import React from "react";
+import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "@/constants/colors";
-import { useDriverStore } from "@/store/driverStore";
-import Constants from "expo-constants";
-import { Button } from "@/components/ui/Button";
-import { TextField } from "@/components/ui/TextField";
-import { fadeInUp, SPRING } from "@/motion/presets";
-
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
-const MOCK_OTP = "123456";
-
-type AuthMode = "signin" | "signup";
-type AuthStep = "form" | "otp";
+import { AuthBrandHeader, AuthForm, OtpForm } from "@/features/auth/components";
+import { useAuthFlow } from "@/features/auth/hooks/useAuthFlow";
+import { styles } from "@/features/auth/auth.styles";
+import { Box } from "@/components/ui/Box";
+import { KeyboardView } from "@/components/ui/KeyboardView";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
-  const [mode, setMode] = useState<AuthMode>("signin");
-  const [step, setStep] = useState<AuthStep>("form");
-  const [phone, setPhone] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [loading, setLoading] = useState(false);
-  const otpRefs = React.useRef<(TextInput | null)[]>([]);
-  const slideAnim = useSharedValue(0);
-  const slideAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: interpolate(slideAnim.value, [0, 1], [300, 0]) }],
-  }));
-  const { loginWithPassword, refreshSession } = useDriverStore();
-
-  const routeAfterAuth = async () => {
-    const sessionValid = await refreshSession();
-    if (!sessionValid) {
-      Alert.alert("Session expired", "Please sign in again.");
-      return;
-    }
-
-    const { hasCompletedOnboarding } = useDriverStore.getState();
-    router.replace(hasCompletedOnboarding ? "/(tabs)" : "/onboarding");
-  };
-
-  // ── Sign In ──────────────────────────────────────────────────
-
-  const handleSignIn = async () => {
-    if (phone.length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid 10-digit phone number");
-      return;
-    }
-    if (!password) {
-      Alert.alert("Password Required", "Please enter your password");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await loginWithPassword(`+91${phone}`, password);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      await routeAfterAuth();
-    } catch (err: any) {
-      const msg = err?.message || "Login failed";
-      if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("sign up")) {
-        Alert.alert("Account Not Found", "No account found with this number. Please sign up first.", [
-          { text: "Sign Up", onPress: () => setMode("signup") },
-          { text: "Cancel", style: "cancel" },
-        ]);
-      } else {
-        Alert.alert("Login Failed", msg);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── Sign Up ──────────────────────────────────────────────────
-
-  const handleSendOTP = async () => {
-    if (!name.trim()) {
-      Alert.alert("Name Required", "Please enter your full name");
-      return;
-    }
-    if (phone.length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid 10-digit phone number");
-      return;
-    }
-    if (!password) {
-      Alert.alert("Password Required", "Please create a password");
-      return;
-    }
-    if (password.length < 6) {
-      Alert.alert("Weak Password", "Password must be at least 6 characters");
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert("Passwords Don't Match", "Please make sure both passwords match");
-      return;
-    }
-
-    setLoading(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    try {
-      const response = await fetch(`${apiUrl}/auth/request-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone}` }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
-
-      setStep("otp");
-      slideAnim.value = withSpring(1, SPRING);
-    } catch (err: any) {
-      Alert.alert("Error", err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOTPChange = (text: string, idx: number) => {
-    const newOtp = [...otp];
-    newOtp[idx] = text;
-    setOtp(newOtp);
-    if (text && idx < 5) {
-      otpRefs.current[idx + 1]?.focus();
-    }
-    if (idx === 5 && text) {
-      const fullOtp = [...newOtp].join("");
-      handleVerifyOTP(fullOtp);
-    }
-  };
-
-  const handleKeyPress = (e: { nativeEvent: { key: string } }, idx: number) => {
-    if (e.nativeEvent.key === "Backspace" && !otp[idx] && idx > 0) {
-      otpRefs.current[idx - 1]?.focus();
-    }
-  };
-
-  const handleVerifyOTP = async (enteredOtp?: string) => {
-    const fullOtp = enteredOtp || otp.join("");
-    if (fullOtp.length < 6) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: `+91${phone}`,
-          code: fullOtp,
-          role: "DRIVER",
-          name: name.trim(),
-          password,
-        }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Verification failed");
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      const { setAuthenticated } = useDriverStore.getState();
-      setAuthenticated(data.user.name, data.user.phone, data.token, data.user.id || data.user._id);
-      await routeAfterAuth();
-    } catch (err: any) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert("Invalid OTP", err.message);
-      setOtp(["", "", "", "", "", ""]);
-      otpRefs.current[0]?.focus();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const switchMode = (newMode: AuthMode) => {
-    if (newMode === mode) return;
-    setMode(newMode);
-    setStep("form");
-    setOtp(["", "", "", "", "", ""]);
-    setPassword("");
-    setConfirmPassword("");
-    setName("");
-  };
-
-  // ── Render ───────────────────────────────────────────────────
-
-  const renderForm = () => (
-    <View style={styles.formSection}>
-      {/* Tabs */}
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signin" && styles.tabActive]}
-          onPress={() => switchMode("signin")}
-        >
-          <Text style={[styles.tabText, mode === "signin" && styles.tabTextActive]}>Sign In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, mode === "signup" && styles.tabActive]}
-          onPress={() => switchMode("signup")}
-        >
-          <Text style={[styles.tabText, mode === "signup" && styles.tabTextActive]}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.formTitle}>
-        {mode === "signin" ? "Welcome Back!" : "Join as Driver"}
-      </Text>
-      <Text style={styles.formSubtitle}>
-        {mode === "signin"
-          ? "Sign in with your phone number and password"
-          : "Create your account to start delivering"}
-      </Text>
-
-      {/* Name field — sign up only */}
-      {mode === "signup" && (
-        <Animated.View entering={fadeInUp(0)}>
-          <TextField
-            label="Your Name"
-            icon={<Feather name="user" size={18} color={Colors.brand} />}
-            placeholder="Enter your full name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-          />
-        </Animated.View>
-      )}
-
-      {/* Phone */}
-      <Animated.View entering={fadeInUp(40)}>
-        <TextField
-          label="Phone Number"
-          icon={
-            <View style={styles.countryCodeGroup}>
-              <Text style={styles.countryCode}>+91</Text>
-              <View style={styles.phoneDivider} />
-            </View>
-          }
-          placeholder="Enter 10-digit number"
-          value={phone}
-          onChangeText={(t) => setPhone(t.replace(/[^0-9]/g, "").slice(0, 10))}
-          keyboardType="phone-pad"
-        />
-      </Animated.View>
-
-      {/* Password */}
-      <Animated.View entering={fadeInUp(80)}>
-        <TextField
-          label="Password"
-          icon={<Feather name="lock" size={18} color={Colors.brand} />}
-          placeholder={mode === "signin" ? "Enter your password" : "Create a password (6+ chars)"}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </Animated.View>
-
-      {/* Confirm Password — sign up only */}
-      {mode === "signup" && (
-        <Animated.View entering={fadeInUp(120)}>
-          <TextField
-            label="Confirm Password"
-            icon={<Feather name="shield" size={18} color={Colors.brand} />}
-            placeholder="Re-enter your password"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
-        </Animated.View>
-      )}
-
-      {/* Submit button */}
-      <Button
-        title={
-          loading
-            ? mode === "signin" ? "Signing in..." : "Sending OTP..."
-            : mode === "signin" ? "Sign In" : "Get OTP"
-        }
-        onPress={mode === "signin" ? handleSignIn : handleSendOTP}
-        loading={loading}
-        icon={!loading ? <Feather name={mode === "signin" ? "log-in" : "arrow-right"} size={18} color={Colors.onBrand} /> : undefined}
-        fullWidth
-        style={{ marginTop: 4 }}
-      />
-
-      {/* Bottom switch hint */}
-      <TouchableOpacity
-        style={styles.switchButton}
-        onPress={() => switchMode(mode === "signin" ? "signup" : "signin")}
-      >
-        <Text style={styles.switchText}>
-          {mode === "signin"
-            ? "Don't have an account? Sign Up"
-            : "Already have an account? Sign In"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderOTP = () => (
-    <Animated.View
-      style={[styles.formSection, slideAnimatedStyle]}
-    >
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => {
-          setStep("form");
-          setOtp(["", "", "", "", "", ""]);
-        }}
-      >
-        <Feather name="arrow-left" size={20} color={Colors.text} />
-      </TouchableOpacity>
-
-      <Text style={styles.formTitle}>Verify Phone</Text>
-      <Text style={styles.formSubtitle}>
-        Enter the 6-digit code sent to{'\n'}+91 {phone}
-      </Text>
-      <Text style={styles.demoHint}>Demo OTP: {MOCK_OTP}</Text>
-
-      <View style={styles.otpContainer}>
-        {otp.map((digit, idx) => (
-          <TextInput
-            key={idx}
-            ref={(r) => { otpRefs.current[idx] = r; }}
-            style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
-            value={digit}
-            onChangeText={(t) => handleOTPChange(t.slice(-1), idx)}
-            onKeyPress={(e) => handleKeyPress(e, idx)}
-            keyboardType="number-pad"
-            maxLength={1}
-            selectTextOnFocus
-          />
-        ))}
-      </View>
-
-      <Button
-        title={loading ? "Creating account..." : "Verify & Create Account"}
-        onPress={() => handleVerifyOTP()}
-        loading={loading}
-        disabled={otp.join("").length < 6}
-        icon={!loading ? <Feather name="check" size={18} color={Colors.onBrand} /> : undefined}
-        fullWidth
-      />
-
-      <TouchableOpacity style={styles.resendButton} onPress={handleSendOTP}>
-        <Text style={styles.resendText}>Resend OTP</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+  const {
+    mode, step, phone, setPhone, name, setName,
+    password, setPassword, confirmPassword, setConfirmPassword,
+    otp, setOtp, loading, otpRefs, slideAnimatedStyle,
+    switchMode, setStep,
+    handleSignIn, handleSendOTP, handleVerifyOTP,
+    handleOTPChange, handleKeyPress,
+    MOCK_OTP,
+  } = useAuthFlow();
 
   return (
-    <KeyboardAvoidingView
+    <KeyboardView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View
+      <Box
         style={[
           styles.inner,
           {
@@ -374,220 +33,43 @@ export default function AuthScreen() {
           },
         ]}
       >
-        <View style={styles.logoSection}>
-          <View style={styles.logoContainer}>
-            <Feather name="truck" size={moderateScale(40)} color={Colors.white} />
-          </View>
-          <Text style={styles.appName}>Flavour Driver</Text>
-          <Text style={styles.tagline}>Driver Partner App</Text>
-        </View>
+        <AuthBrandHeader appName="Flavour Driver" tagline="Driver Partner App" />
 
-        {step === "form" ? renderForm() : renderOTP()}
-      </View>
-    </KeyboardAvoidingView>
+        {step === "form" ? (
+          <AuthForm
+            mode={mode}
+            onSwitchMode={switchMode}
+            name={name}
+            onNameChange={setName}
+            phone={phone}
+            onPhoneChange={setPhone}
+            password={password}
+            onPasswordChange={setPassword}
+            confirmPassword={confirmPassword}
+            onConfirmPasswordChange={setConfirmPassword}
+            loading={loading}
+            onSignIn={handleSignIn}
+            onSendOTP={handleSendOTP}
+          />
+        ) : (
+          <OtpForm
+            phone={phone}
+            otp={otp}
+            otpRefs={otpRefs}
+            mockOtp={MOCK_OTP}
+            loading={loading}
+            onOtpChange={handleOTPChange}
+            onKeyPress={handleKeyPress}
+            onVerify={() => handleVerifyOTP()}
+            onResend={handleSendOTP}
+            onBack={() => {
+              setStep("form");
+              setOtp(["", "", "", "", "", ""]);
+            }}
+            animatedStyle={slideAnimatedStyle}
+          />
+        )}
+      </Box>
+    </KeyboardView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  inner: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center",
-    gap: 24,
-  },
-  logoSection: {
-    alignItems: "center",
-    gap: 6,
-  },
-  logoContainer: {
-    width: moderateScale(72),
-    height: moderateScale(72),
-    borderRadius: moderateScale(22),
-    backgroundColor: Colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  appName: {
-    fontSize: moderateScale(26),
-    fontWeight: "800",
-    color: Colors.text,
-    letterSpacing: -0.5,
-  },
-  tagline: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    fontWeight: "500",
-  },
-  formSection: {
-    gap: 14,
-  },
-  countryCodeGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  formTitle: {
-    fontSize: moderateScale(22),
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  formSubtitle: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    lineHeight: 20,
-    marginTop: -6,
-  },
-  demoHint: {
-    fontSize: moderateScale(13),
-    color: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: moderateScale(8),
-    alignSelf: "flex-start",
-    fontWeight: "500",
-  },
-  tabRow: {
-    flexDirection: "row",
-    backgroundColor: Colors.surfaceAlt,
-    borderRadius: moderateScale(10),
-    padding: 3,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 8,
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-  },
-  tabActive: {
-    backgroundColor: Colors.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  tabText: {
-    fontSize: moderateScale(14),
-    fontWeight: "600",
-    color: Colors.textSecondary,
-  },
-  tabTextActive: {
-    color: Colors.primary,
-  },
-  inputGroup: {
-    gap: 5,
-  },
-  inputLabel: {
-    fontSize: moderateScale(13),
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    borderRadius: moderateScale(12),
-    paddingHorizontal: 14,
-    height: moderateScale(48),
-    gap: 10,
-    backgroundColor: Colors.surface,
-  },
-  countryCode: {
-    fontSize: moderateScale(16),
-    fontWeight: "600",
-    color: Colors.text,
-  },
-  phoneDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: Colors.border,
-  },
-  input: {
-    flex: 1,
-    fontSize: moderateScale(16),
-    color: Colors.text,
-  },
-  primaryButton: {
-    height: moderateScale(50),
-    borderRadius: moderateScale(25),
-    backgroundColor: Colors.primary,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 8,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-    marginTop: 4,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-  primaryButtonText: {
-    color: Colors.white,
-    fontSize: moderateScale(16),
-    fontWeight: "700",
-  },
-  otpContainer: {
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "center",
-    marginVertical: 4,
-  },
-  otpBox: {
-    width: moderateScale(44),
-    height: moderateScale(50),
-    borderRadius: moderateScale(10),
-    borderWidth: 1.5,
-    borderColor: Colors.border,
-    backgroundColor: Colors.surface,
-    textAlign: "center",
-    fontSize: moderateScale(20),
-    fontWeight: "700",
-    color: Colors.text,
-  },
-  otpBoxFilled: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-  },
-  backButton: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: Colors.surfaceAlt,
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "flex-start",
-  },
-  resendButton: {
-    alignItems: "center",
-    paddingVertical: 12,
-  },
-  resendText: {
-    fontSize: moderateScale(15),
-    color: Colors.primary,
-    fontWeight: "600",
-  },
-  switchButton: {
-    alignItems: "center",
-    paddingVertical: 2,
-  },
-  switchText: {
-    fontSize: moderateScale(14),
-    color: Colors.textSecondary,
-    fontWeight: "500",
-  },
-});

@@ -2,6 +2,9 @@ import { FlatList } from "react-native";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { NotificationsRow } from "./NotificationsRow";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type NotificationsStyles } from "@/features/profile/notifications.styles";
 
 // Moved out of app/notifications.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -9,12 +12,12 @@ import { NotificationsRow } from "./NotificationsRow";
 interface Props {
   formatWhen: any;
   CATEGORY_ICON: any;
-  accent: any;
+  accent: ServiceTokens;
   handleOpen: any;
-  insets: any;
+  insets: EdgeInsets;
   items: any;
-  styles: any;
-  tokens: any;
+  styles: NotificationsStyles;
+  tokens: ThemeTokens;
 }
 
 export function NotificationsBody({

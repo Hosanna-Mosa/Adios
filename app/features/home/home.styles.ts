@@ -20,3 +20,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => ({
   ...createChipBadgeStyles(tokens, accent),
   ...createDistanceApplyTextStyles(tokens, accent),
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type HomeStyles = ReturnType<typeof createStyles>;

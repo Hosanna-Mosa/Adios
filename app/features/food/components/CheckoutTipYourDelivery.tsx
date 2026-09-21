@@ -2,21 +2,23 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Section of CheckoutBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
   TIP_OPTIONS: any[];
-  accent: any;
-  isOtherTip: any;
-  otherTipText: any;
+  accent: ServiceTokens;
+  isOtherTip: boolean;
+  otherTipText: string;
   setIsOtherTip: React.Dispatch<React.SetStateAction<any>>;
   setOtherTipText: React.Dispatch<React.SetStateAction<any>>;
   setTipAmount: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
+  styles: CheckoutStyles;
   tipAmount: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function CheckoutTipYourDelivery({

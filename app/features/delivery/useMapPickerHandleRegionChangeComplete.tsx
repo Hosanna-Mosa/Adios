@@ -2,11 +2,11 @@ import * as Location from "expo-location";
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import i18n from "@/i18n";
+import { checkZone } from "@/services/places.service";
 
-// Part 2 of useMapPicker, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useMapPicker so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: any, step: any, region: any, setRegion: any, address: any, setAddress: any, setLoading: any, setRecentering: any, mapRef: any) {
   const { t } = useTranslation();
@@ -52,7 +52,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      const checkRes = await customFetch<any>(`/zones/check?lat=${region.latitude}&lng=${region.longitude}`);
+      const checkRes = await checkZone(region.latitude, region.longitude);
       if (!checkRes || !checkRes.inZone) {
         const stepLabel = step === "pickup" ? i18n.t("app.delivery.pickupWord") : i18n.t("app.delivery.dropWord");
         Alert.alert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));

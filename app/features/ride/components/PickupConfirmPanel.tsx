@@ -2,6 +2,8 @@ import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { modalSlideUp } from "@/motion/presets";
+import { type ThemeTokens } from "@/constants/colors";
+import { type PickupConfirmationStyles } from "@/features/ride/pickup-confirmation.styles";
 
 // Moved out of app/pickup-confirmation.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -13,8 +15,8 @@ interface Props {
   loadingEstimate: any;
   params: any;
   recenter: any;
-  styles: any;
-  tokens: any;
+  styles: PickupConfirmationStyles;
+  tokens: ThemeTokens;
   updatePickup: any;
 }
 

@@ -5,14 +5,17 @@ import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type DeliveryEntryStyles } from "@/features/delivery/useDeliveryEntry.shared";
 
 // Moved out of app/delivery/entry.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  insets: any;
-  styles: any;
-  tokens: any;
+  insets: EdgeInsets;
+  styles: DeliveryEntryStyles;
+  tokens: ThemeTokens;
 }
 
 export function DeliveryEntryHeader({

@@ -3,20 +3,23 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   addressIssue: any;
-  insets: any;
-  isPlacingOrder: any;
+  insets: EdgeInsets;
+  isPlacingOrder: boolean;
   placeOrder: any;
   scheduledFor: any;
-  styles: any;
-  tokens: any;
-  total: any;
+  styles: CheckoutStyles;
+  tokens: ThemeTokens;
+  total: number;
 }
 
 export function CheckoutFooter({

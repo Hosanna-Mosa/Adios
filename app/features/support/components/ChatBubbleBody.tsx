@@ -1,14 +1,16 @@
 import { Text, View } from "react-native";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type ChatStyles } from "@/features/support/useChat.shared";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   item: any;
-  isUser: any;
-  accent: any;
-  styles: any;
-  tokens: any;
+  isUser: boolean;
+  accent: ServiceTokens;
+  styles: ChatStyles;
+  tokens: ThemeTokens;
 }
 
 export function ChatBubbleBody({

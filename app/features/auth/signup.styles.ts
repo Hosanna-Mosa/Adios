@@ -17,3 +17,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => ({
   ...createRootStyles(tokens, accent),
   ...createStrengthLabelStyles(tokens, accent),
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type SignupStyles = ReturnType<typeof createStyles>;

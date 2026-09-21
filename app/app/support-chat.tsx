@@ -1,16 +1,15 @@
 import { useMemo } from "react";
+import { router } from "expo-router";
 import { SupportTicketList } from "@/features/support/components/SupportTicketList";
 import { FlatList } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SupportMessageBubble } from "@/features/support/components/SupportMessageBubble";
 import { SupportChatHeader } from "@/features/support/components/SupportChatHeader";
-import { SupportChatHeader2 } from "@/features/support/components/SupportChatHeader2";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
-import { getSupportCategories } from "@/features/support/useSupportChat";
-import { useSupportChat } from "@/features/support/useSupportChat";
+import { getSupportCategories, useSupportChat } from "@/features/support/useSupportChat";
 
 export default function SupportChatScreen() {
   const {
@@ -46,11 +45,11 @@ export default function SupportChatScreen() {
     return (
       <ScreenShell keyboardAvoiding>
         <SupportChatHeader
-          STATUS_LABEL={STATUS_LABEL}
+          title={t("app.support.flavourSupport")}
+          subtitle={`${t("app.support.case")}${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
+          onBack={() => setViewMode("cases")}
           insets={insets}
-          setViewMode={setViewMode}
           styles={styles}
-          ticket={ticket}
           tokens={tokens}
         />
 
@@ -99,7 +98,9 @@ export default function SupportChatScreen() {
   // -----------------------------------------------------------------------
   return (
     <ScreenShell keyboardAvoiding>
-      <SupportChatHeader2
+      <SupportChatHeader
+        title={t("app.support.yourCases")}
+        onBack={() => router.back()}
         insets={insets}
         styles={styles}
         tokens={tokens}

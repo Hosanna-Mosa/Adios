@@ -4,15 +4,15 @@ import * as Location from "expo-location";
 import { createStyles } from "./meat-centers.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { QuickFilter } from "./useMeatCenters.shared";
+import { getMeatCentresByUrl } from "@/services/catalog.service";
 
-// Part 1 of useMeatCenters, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useMeatCenters so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useMeatCentersInsets() {
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.meat;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -52,7 +52,7 @@ export function useMeatCentersInsets() {
       if (activeQuickFilters.has("rating")) url += "&minRating=4";
       if (activeQuickFilters.has("open")) url += "&openNow=true";
 
-      const data = await customFetch<any>(url);
+      const data = await getMeatCentresByUrl(url);
 
       if (Array.isArray(data)) {
         setHasMore(data.length >= 20);

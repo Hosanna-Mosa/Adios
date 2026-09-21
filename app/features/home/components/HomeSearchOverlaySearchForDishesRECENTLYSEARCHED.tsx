@@ -6,21 +6,23 @@ import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { DishSearchResultItem } from "./DishSearchResultItem";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Section of HomeSearchOverlaySearchForDishes, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  activeService: any;
-  accent: any;
-  clearRecentSearches: any;
-  isSearching: any;
+  activeService: string;
+  accent: ServiceTokens;
+  clearRecentSearches: () => void;
+  isSearching: boolean;
   listData: any[];
   recentSearches: any[];
-  searchText: any;
+  searchText: string;
   setSearchText: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({

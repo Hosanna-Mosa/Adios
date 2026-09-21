@@ -1,8 +1,8 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import i18n from "@/i18n";
+import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -102,10 +102,7 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
 
       let finalOrderId: string;
 
-      const rzpOrderResponse = await customFetch<any>("/payments/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: total }),
-      });
+      const rzpOrderResponse = await createPaymentOrder(total);
 
       const rzpResult = await RazorpayIntegration.open({
         order_id: rzpOrderResponse.id,
@@ -117,15 +114,12 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         theme: rzpOrderResponse.theme,
       });
 
-      const verifyResponse = await customFetch<any>("/payments/verify", {
-        method: "POST",
-        body: JSON.stringify({
+      const verifyResponse = await verifyPayment({
           razorpay_payment_id: rzpResult.razorpay_payment_id,
           razorpay_order_id: rzpResult.razorpay_order_id,
           razorpay_signature: rzpResult.razorpay_signature,
           orderData: orderDataPayload,
-        }),
-      });
+        });
 
       finalOrderId = verifyResponse.order._id || verifyResponse.order.id;
 

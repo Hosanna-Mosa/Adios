@@ -79,3 +79,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     saveBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
   });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type AddAddressStyles = ReturnType<typeof createStyles>;

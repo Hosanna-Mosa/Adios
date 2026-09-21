@@ -2,7 +2,10 @@ import React from "react";
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
+import { setBookingPreference } from "@/services/users.service";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -10,17 +13,17 @@ import { customFetch } from "@/utils/api/custom-fetch";
 
 interface Props {
   user: any;
-  accent: any;
+  accent: ServiceTokens;
   bookingFor: any;
-  insets: any;
+  insets: EdgeInsets;
   savingPreference: any;
   setBookingFor: React.Dispatch<React.SetStateAction<any>>;
   setSavingPreference: React.Dispatch<React.SetStateAction<any>>;
   setShowBookingForSheet: React.Dispatch<React.SetStateAction<any>>;
   setSomeoneContact: React.Dispatch<React.SetStateAction<any>>;
   someoneContact: any;
-  styles: any;
-  tokens: any;
+  styles: DropLocationStyles;
+  tokens: ThemeTokens;
 }
 
 export function BookingForSheet({
@@ -98,13 +101,10 @@ export function BookingForSheet({
             if (user?.id) {
               try {
                 setSavingPreference(true);
-                await customFetch("/users/booking-preference", {
-                  method: "PATCH",
-                  body: JSON.stringify({
+                await setBookingPreference({
                     type: bookingFor,
                     contactNumber: bookingFor === "someone_else" ? someoneContact.trim() : undefined,
-                  }),
-                });
+                  });
               } catch (error: any) {
                 Alert.alert(t("app.ride.saveFailed"), error.message || t("app.ride.couldNotSaveBookingPreference"));
                 return;

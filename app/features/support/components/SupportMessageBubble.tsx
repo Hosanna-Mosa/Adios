@@ -3,6 +3,7 @@ import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { fadeInUp } from "@/motion/presets";
+import { type SupportChatStyles } from "@/features/support/support-chat.styles";
 
 // Moved out of app/support-chat.tsx. The JSX is unchanged; what it used to read from the
 // screen's scope is now passed in as props.
@@ -15,7 +16,7 @@ export interface ChatMessage {
 
 interface Props {
   item: ChatMessage;
-  styles: any;
+  styles: SupportChatStyles;
   accent: { accent: string; skin: string; on: string };
   tokens: ThemeTokens;
 }

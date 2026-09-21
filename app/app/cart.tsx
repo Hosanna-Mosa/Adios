@@ -1,10 +1,10 @@
-import { CartBody } from "@/features/food/components/CartBody";
+import { CartContents } from "@/features/food/components/CartContents";
 import { AppTabBar } from "@/components/AppTabBar";
 import { CartFooter } from "@/features/food/components/CartFooter";
 import { CartHeader } from "@/features/food/components/CartHeader";
-import { CartHeader3 } from "@/features/food/components/CartHeader3";
+import { CartVendorHeader } from "@/features/food/components/CartVendorHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
-import { CartBody2 } from "@/features/food/components/CartBody2";
+import { EmptyCartBody } from "@/features/food/components/EmptyCartBody";
 import { CartRestoringState } from "@/features/food/components/CartRestoringState";
 import { useCart } from "@/features/food/useCart";
 
@@ -40,7 +40,7 @@ export default function CartScreen() {
     const daysAgo = lastOrder ? Math.max(0, Math.floor((Date.now() - new Date(lastOrder.createdAt).getTime()) / 86400000)) : null;
 
     return (
-      <CartBody2
+      <EmptyCartBody
         daysAgo={daysAgo}
         lastOrder={lastOrder}
         lastVendorName={lastVendorName}
@@ -58,7 +58,7 @@ export default function CartScreen() {
 
   return (
     <ScreenShell>
-      <CartHeader3
+      <CartVendorHeader
         confirmClearCart={confirmClearCart}
         displayVendorName={displayVendorName}
         insets={insets}
@@ -66,7 +66,7 @@ export default function CartScreen() {
         tokens={tokens}
       />
 
-      <CartBody
+      <CartContents
         accent={accent}
         addItem={addItem}
         appliedPromo={appliedPromo}

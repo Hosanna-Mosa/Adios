@@ -2,31 +2,34 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
-import { LandingFieldWrapper } from "./LandingFieldWrapper";
+import { PhoneOrEmailField } from "./PhoneOrEmailField";
 import { LandingForgotRow } from "./LandingForgotRow";
-import { LandingFieldWrapper2 } from "./LandingFieldWrapper2";
+import { PasswordField } from "./PasswordField";
 import { LandingLogoMark } from "./LandingLogoMark";
 import { Button } from "@/components/ui/Button";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type LandingStyles } from "@/features/home/index.styles";
 
 // Moved out of app/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   Reanimated: any;
-  handleContinueWithOtp: any;
-  handleForgotPassword: any;
-  handleSignIn: any;
+  handleContinueWithOtp: () => void;
+  handleForgotPassword: () => void;
+  handleSignIn: () => void;
   identifier: any;
-  insets: any;
-  isPasswordVisible: any;
-  loading: any;
-  password: any;
+  insets: EdgeInsets;
+  isPasswordVisible: boolean;
+  loading: boolean;
+  password: string;
   sendingOtp: any;
   setIdentifier: any;
   setIsPasswordVisible: any;
   setPassword: any;
-  styles: any;
-  tokens: any;
+  styles: LandingStyles;
+  tokens: ThemeTokens;
 }
 
 export function LandingBody({
@@ -68,14 +71,14 @@ export function LandingBody({
 
       {/* Form */}
       <Reanimated.View style={styles.form} entering={fadeInUp(90)}>
-        <LandingFieldWrapper
+        <PhoneOrEmailField
           identifier={identifier}
           setIdentifier={setIdentifier}
           styles={styles}
           tokens={tokens}
         />
 
-        <LandingFieldWrapper2
+        <PasswordField
           isPasswordVisible={isPasswordVisible}
           password={password}
           setIsPasswordVisible={setIsPasswordVisible}

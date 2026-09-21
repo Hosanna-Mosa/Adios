@@ -2,8 +2,8 @@ import { Share, Alert } from "react-native";
 import { router } from "expo-router";
 import * as Location from "expo-location";
 
-// Part 4 of useRideConfirmation, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideConfirmation so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideConfirmationGetDisplayName(params: any, setUserLocation: any, mapRef: any, stops: any, pickupIsValid: any, dropIsValid: any, fitTripToMap: any) {
   const getDisplayName = (addr: string) => {

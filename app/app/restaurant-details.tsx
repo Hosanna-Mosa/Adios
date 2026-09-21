@@ -1,4 +1,4 @@
-import { View, ScrollView, ActivityIndicator } from "react-native";
+import { View, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { AppTabBar } from "@/components/AppTabBar";
 import { Header } from "@/components/ui/Header";
@@ -11,6 +11,7 @@ import { VendorAddressSection } from "@/features/food/components/VendorAddressSe
 import { VendorContactRow } from "@/features/food/components/VendorContactRow";
 import { MeatDetailsNotice } from "@/features/food/components/MeatDetailsNotice";
 import { useRestaurantDetails } from "@/features/food/useRestaurantDetails";
+import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 
 export default function RestaurantDetails() {
   const {
@@ -28,7 +29,7 @@ export default function RestaurantDetails() {
       />
 
       {loading ? (
-        <ActivityIndicator size="large" color={accent.accent} style={{ marginTop: 60 }} />
+        <FullScreenLoader color={accent.accent} style={{ marginTop: 60 }} />
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
           <VendorIdentityCard

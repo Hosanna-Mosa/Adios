@@ -1,0 +1,87 @@
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { adminFetch } from "@/lib/api-client";
+import type { MeatCenter } from "../meatCenterTypes";
+
+/**
+ * The meat-center list/delete state for MeatCenters.tsx (work queue item
+ * #5), plus its View Details dialog -- kept here rather than its own hook
+ * because it shares this hook's `updateCenterMutation` and the vendor-
+ * resync effect below, the same reasoning as useVendorsList (item #4).
+ * MeatCenters' View dialog is simpler than Vendors' (no commission rate,
+ * no legal info, no approve/reject), so there's less here than the
+ * Vendors equivalent.
+ */
+export function useMeatCentersList() {
+  const queryClient = useQueryClient();
+  const [viewingCenter, setViewingCenter] = useState<MeatCenter | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+
+  const { data: centers, isLoading } = useQuery({
+    queryKey: ["meat-centers"],
+    queryFn: () => adminFetch<MeatCenter[]>("/meat/nearby?lat=0&lng=0&all=true"),
+  });
+
+  // The View dialog holds a snapshot, so after an availability toggle refetches the list
+  // it would keep rendering the openState it was opened with. Re-sync it from the fresh row.
+  useEffect(() => {
+    if (!isViewOpen) return;
+    setViewingCenter((current) => {
+      if (!current) return current;
+      return (centers || []).find((c) => c._id === current._id) || current;
+    });
+  }, [centers, isViewOpen]);
+
+  const deleteCenterMutation = useMutation({
+    mutationFn: (id: string) => adminFetch(`/meat/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meat-centers"] });
+      toast.success("Meat Center deleted successfully");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to delete meat center");
+    },
+  });
+
+  const updateCenterMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<MeatCenter> }) => adminFetch(`/meat/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["meat-centers"] });
+      toast.success("Meat Center updated successfully");
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to update meat center");
+    },
+  });
+
+  const handleDeleteClick = (center: MeatCenter) => {
+    if (confirm(`Are you sure you want to delete ${center.name}?`)) {
+      deleteCenterMutation.mutate(center._id);
+    }
+  };
+
+  const handleViewClick = (center: MeatCenter) => {
+    setViewingCenter(center);
+    setIsViewOpen(true);
+  };
+
+  const handleToggleManuallyClosed = () => {
+    if (!viewingCenter) return;
+    const nextClosed = !viewingCenter.isManuallyClosed;
+    updateCenterMutation.mutate({ id: viewingCenter._id, data: { isManuallyClosed: nextClosed } });
+    setViewingCenter({ ...viewingCenter, isManuallyClosed: nextClosed });
+  };
+
+  return {
+    centers,
+    isLoading,
+    handleDeleteClick,
+    updateCenterMutation,
+    isViewOpen,
+    setIsViewOpen,
+    viewingCenter,
+    handleViewClick,
+    handleToggleManuallyClosed,
+  };
+}

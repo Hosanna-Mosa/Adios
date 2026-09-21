@@ -129,3 +129,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
     color: accent.accent,
   },
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type OtpStyles = ReturnType<typeof createStyles>;

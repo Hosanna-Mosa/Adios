@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -11,8 +13,8 @@ import { moderateScale } from "react-native-size-matters";
 interface Props {
   confirmedReservation: any;
   getDisplayName: any;
-  insets: any;
-  styles: any;
+  insets: EdgeInsets;
+  styles: RideConfirmationStyles;
 }
 
 export function RideConfirmBody({

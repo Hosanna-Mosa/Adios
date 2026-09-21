@@ -2,8 +2,8 @@ import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RIDE_TYPES, readStopLines, resolveServiceKey } from "./useOrders.shared";
 
-// Part 3 of useOrders, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useOrders so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useOrdersHandleReorder(reorderIntoCart: any) {
   const handleReorder = (order: any) => {

@@ -2,27 +2,28 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
-import { HelperTaskCheckRow3 } from "./HelperTaskCheckRow3";
 import { HelperTaskCheckRow } from "./HelperTaskCheckRow";
 import { HelperTaskFooter } from "./HelperTaskFooter";
-import { HelperTaskCheckRow2 } from "./HelperTaskCheckRow2";
 import { HelperTaskTitleRow } from "./HelperTaskTitleRow";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  calculatedFare: any;
-  currentTaskPrice: any;
-  handleCancel: any;
+  accent: ServiceTokens;
+  calculatedFare: number;
+  currentTaskPrice: number | null;
+  handleCancel: () => void;
   handleIncreasePrice: any;
-  insets: any;
+  insets: EdgeInsets;
   isIncreasingPrice: any;
   offer: any;
-  rejectedCount: any;
-  styles: any;
-  totalContacted: any;
+  rejectedCount: number;
+  styles: HelperTaskStyles;
+  totalContacted: number;
 }
 
 export function HelperTaskBody({
@@ -52,20 +53,25 @@ export function HelperTaskBody({
 
         <View style={{ gap: 12, marginTop: 18 }}>
           <HelperTaskCheckRow
+            state="done"
+            label={`${t("app.delivery.taskPublished")}${currentTaskPrice ?? offer ?? calculatedFare}`}
+            delay={60}
             accent={accent}
-            calculatedFare={calculatedFare}
-            currentTaskPrice={currentTaskPrice}
-            offer={offer}
             styles={styles}
           />
           {totalContacted > 0 && (
-            <HelperTaskCheckRow2
+            <HelperTaskCheckRow
+              state="done"
+              label={`${totalContacted} ${t("app.delivery.helpersNotified")}`}
+              delay={0}
               accent={accent}
               styles={styles}
-              totalContacted={totalContacted}
             />
           )}
-          <HelperTaskCheckRow3
+          <HelperTaskCheckRow
+            state="pending"
+            label={t("app.delivery.waitingForTheFirstAcceptance")}
+            delay={100}
             accent={accent}
             styles={styles}
           />

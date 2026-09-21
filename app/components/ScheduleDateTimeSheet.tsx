@@ -1,20 +1,6 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ActivityIndicator, Modal, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import Colors from "@/constants/colors";
-import { useThemeStore } from "@/contexts/themeStore";
-import { createStyles } from "./ScheduleDateTimeSheet.styles";
 import { useScheduleDateTimeSheet } from "./useScheduleDateTimeSheet";
 
 type Props = {

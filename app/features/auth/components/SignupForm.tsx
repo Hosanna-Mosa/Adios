@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type SignupStyles } from "@/features/auth/signup.styles";
 
 // Moved out of app/signup.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -12,11 +14,11 @@ interface Props {
   strengthLabelText: any;
   strengthLabelColor: any;
   barFillFor: any;
-  email: any;
-  isPasswordVisible: any;
-  isPhoneDisabled: any;
-  name: any;
-  password: any;
+  email: string;
+  isPasswordVisible: boolean;
+  isPhoneDisabled: boolean;
+  name: string;
+  password: string;
   passwordStrength: any;
   phoneNumber: any;
   setEmail: any;
@@ -24,8 +26,8 @@ interface Props {
   setName: any;
   setPassword: any;
   setPhoneNumber: any;
-  styles: any;
-  tokens: any;
+  styles: SignupStyles;
+  tokens: ThemeTokens;
 }
 
 export function SignupForm({

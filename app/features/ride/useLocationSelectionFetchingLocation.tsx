@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { RecentPlace, recentLocationsKeyFor, toRecentPlace } from "./useLocationSelection.shared";
 import { buildHandleSearch, buildHandleSelection } from "./useLocationSelectionFetchingLocation.handlers";
 import { buildHandleStopSelection } from "./useLocationSelectionFetchingLocation.stops";
+import { getPlaceDetails } from "@/services/places.service";
 
-// Part 3 of useLocationSelection, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useLocationSelection so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useLocationSelectionFetchingLocation(params: any, serviceId: any, name: any, user: any, pickup: any, setPickup: any, drop: any, setDrop: any, stops: any, setStops: any, bookingFor: any, someoneContact: any, setRecentPlaces: any, setIsNavigating: any) {
   useEffect(() => {
@@ -100,7 +100,7 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
     try {
       const details = Number.isFinite(Number(result.lat)) && Number.isFinite(Number(result.lng))
         ? { lat: Number(result.lat), lng: Number(result.lng) }
-        : await customFetch<{ lat: number, lng: number }>(`/places/details/${result.id}`);
+        : await getPlaceDetails(result.id);
       const completeData = {
         description: result.address,
         lat: details.lat,

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type ThemeTokens } from "@/constants/colors";
+import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -12,7 +14,7 @@ interface Props {
   drop: any;
   dropRef: any;
   handleSelection: any;
-  isSearching: any;
+  isSearching: boolean;
   pickup: any;
   pickupRef: any;
   recentPlaces: any[];
@@ -20,11 +22,11 @@ interface Props {
   searchError: any;
   searchLoading: any;
   searchResults: any[];
-  searchText: any;
+  searchText: string;
   selectResult: any;
   selectSavedAddress: any;
-  styles: any;
-  tokens: any;
+  styles: DropLocationStyles;
+  tokens: ThemeTokens;
 }
 
 export function PlacesList({

@@ -4,8 +4,8 @@ import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import i18n from "@/i18n";
 
-// Part 4 of useRideSearching, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideSearching so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideSearchingShowTripDetails(currentOrderId: any, setGlobalDriver: any, setGlobalStatus: any, setTripDetailsVisible: any, setCancelReasonVisible: any, setCancelConfirmVisible: any, setSelectedCancelReason: any) {
   React.useEffect(() => {

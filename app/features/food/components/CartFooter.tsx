@@ -1,14 +1,16 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type CartStyles } from "@/features/food/cart.styles";
 
 // Moved out of app/cart.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   goToCheckout: any;
-  insets: any;
-  styles: any;
-  total: any;
+  insets: EdgeInsets;
+  styles: CartStyles;
+  total: number;
 }
 
 export function CartFooter({

@@ -13,7 +13,7 @@ import { getDefaultTimeParts, timePartsOf } from "./ScheduleDateTimeSheet.helper
 export function useScheduleDateTimeSheet(visible: any, onClose: any, onConfirm: any, initialDate: any, accent: any) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const colors = Colors[theme];
   const primary = accent || colors.primary;
   const styles = React.useMemo(() => createStyles(colors, primary), [theme, primary]);

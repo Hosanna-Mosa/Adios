@@ -1,6 +1,7 @@
 import { ScrollView, Text, TouchableOpacity } from "react-native";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
+import { type ChatStyles } from "@/features/support/useChat.shared";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -8,7 +9,7 @@ import { staggerListItem } from "@/motion/presets";
 interface Props {
   QUICK_REPLIES: any[];
   sendMessage: any;
-  styles: any;
+  styles: ChatStyles;
 }
 
 export function ChatQuickRepliesRow({

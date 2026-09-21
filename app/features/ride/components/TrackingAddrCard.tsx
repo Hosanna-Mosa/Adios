@@ -1,17 +1,20 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type TrackingStyles } from "@/features/ride/tracking.styles";
+import type { OrderStop } from "@/types/models";
 
 // Moved out of app/tracking.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   deliveryStop: any;
-  isRide: any;
-  pickupLabel: any;
-  stops: any;
-  styles: any;
-  tokens: any;
+  isRide: boolean;
+  pickupLabel: string;
+  stops: OrderStop[];
+  styles: TrackingStyles;
+  tokens: ThemeTokens;
 }
 
 export function TrackingAddrCard({

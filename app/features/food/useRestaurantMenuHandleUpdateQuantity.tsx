@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
-// Part 2 of useRestaurantMenu, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRestaurantMenu so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRestaurantMenuHandleUpdateQuantity(updateQuantity: any, getItemCount: any, activeCategory: any, setActiveCategory: any, setScrolledPast: any, scrollViewRef: any, loadingItems: any, setLoadingItems: any) {
   const handleUpdateQuantity = (itemId: string, newQty: number) => {

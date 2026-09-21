@@ -1,10 +1,10 @@
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
+import { resolveTicket, sendTicketMessage } from "@/services/support.service";
 
-// Part 3 of useSupportChat, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSupportChat so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets: any, ticket: any, setTicket: any, inputText: any, setInputText: any, setSubmittingReply: any, fetchTickets: any) {
   const handleSendMessage = async () => {
@@ -13,10 +13,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
     setInputText("");
     setSubmittingReply(true);
     try {
-      const updatedTicket = await customFetch<SupportTicket>(`/support/tickets/${ticket._id}/messages`, {
-        method: "POST",
-        body: JSON.stringify({ text: messageText }),
-      });
+      const updatedTicket = await sendTicketMessage<SupportTicket>(ticket._id, messageText);
       setTicket(updatedTicket);
     } catch (error: any) {
       Alert.alert(i18n.t("app.support.messageNotSent"), error.message || i18n.t("app.ride.pleaseTryAgain"));
@@ -29,10 +26,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
   const handleResolve = async (approve: boolean) => {
     if (!ticket) return;
     try {
-      const updated = await customFetch<SupportTicket>(`/support/tickets/${ticket._id}/resolve`, {
-        method: "POST",
-        body: JSON.stringify({ approve }),
-      });
+      const updated = await resolveTicket<SupportTicket>(ticket._id, approve);
       setTicket(updated);
       setAllTickets((prev: any) => prev.map((t: any) => (t._id === updated._id ? updated : t)));
     } catch (err: any) {
@@ -42,10 +36,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
 
   const handleReopen = async (t: SupportTicket) => {
     try {
-      await customFetch(`/support/tickets/${t._id}/messages`, {
-        method: "POST",
-        body: JSON.stringify({ text: "Re-opening this case — I still need help with it." }),
-      });
+      await sendTicketMessage(t._id, "Re-opening this case — I still need help with it.");
       await fetchTickets(true);
       setTicket(t);
       setViewMode("chat");

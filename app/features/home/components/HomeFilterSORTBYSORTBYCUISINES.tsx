@@ -3,18 +3,20 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Section of HomeFilterSORTBYSORTBY, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
-  activeFilterTab: any;
+  accent: ServiceTokens;
+  activeFilterTab: string;
   availableCuisines: any[];
   selectedCuisines: any[];
   setSelectedCuisines: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeFilterSORTBYSORTBYCUISINES({

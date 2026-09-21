@@ -2,8 +2,8 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import i18n from "@/i18n";
+import { cancelOrder, getOrderJson } from "@/services/orders.service";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
@@ -66,7 +66,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     const checkOrderStatus = async () => {
       if (isTransitioned) return;
       try {
-        const orderData = await customFetch<any>(`/orders/${orderId}`, { responseType: "json" });
+        const orderData = await getOrderJson(orderId);
         if (orderData) {
           if (orderData.serviceType) useDeliveryStore.getState().setServiceType(orderData.serviceType);
           setOrderSummary({
@@ -130,7 +130,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
               router.replace("/(tabs)");
               if (orderId) {
                 try {
-                  await customFetch(`/orders/${orderId}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+                  await cancelOrder(orderId);
                 } catch (error) {
                   console.error("Failed to cancel order on backend:", error);
                 }

@@ -10,7 +10,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { RazorpayIntegration } from "@/utils/razorpay";
-import { customFetch } from "@/utils/api/custom-fetch";
+import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
 
 // State, data loading and handlers for app/delivery/checkout.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -76,14 +76,21 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["deli
 export function useDeliveryCheckout() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const { stops, price, route, setStatus, setOrderId, setServiceType, vendorId } = useDeliveryStore();
-  const { user, token } = useAuthStore();
+  const stops = useDeliveryStore((s) => s.stops);
+  const price = useDeliveryStore((s) => s.price);
+  const route = useDeliveryStore((s) => s.route);
+  const setStatus = useDeliveryStore((s) => s.setStatus);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
+  const vendorId = useDeliveryStore((s) => s.vendorId);
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
 
   const itemsEstimate = useMemo(
     () => stops.reduce((sum, s) => sum + (s.items || []).reduce((iSum, i) => iSum + (i.estimatedPrice || 0) * i.quantity, 0), 0),
@@ -101,10 +108,7 @@ export function useDeliveryCheckout() {
 
     setIsProcessing(true);
     try {
-      const rzpOrder = await customFetch<any>("/payments/create-order", {
-        method: "POST",
-        body: JSON.stringify({ amount: price.total }),
-      });
+      const rzpOrder = await createPaymentOrder(({ amount: price.total }).amount);
 
       const paymentResult = await RazorpayIntegration.open({
         key: rzpOrder.key,
@@ -116,9 +120,7 @@ export function useDeliveryCheckout() {
         theme: rzpOrder.theme,
       });
 
-      const verifyResponse = await customFetch<any>("/payments/verify", {
-        method: "POST",
-        body: JSON.stringify({
+      const verifyResponse = await verifyPayment({
           ...paymentResult,
           orderData: {
             stops: stops.map((s) => ({ ...s, items: s.items || [] })),
@@ -126,8 +128,7 @@ export function useDeliveryCheckout() {
             totalPrice: price.total,
             vendorId,
           },
-        }),
-      });
+        });
 
       const finalOrder = verifyResponse.order;
       setOrderId(finalOrder._id || finalOrder.id);
@@ -148,3 +149,6 @@ export function useDeliveryCheckout() {
   stopCharges, handleConfirm
   };
 }
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type DeliveryCheckoutStyles = ReturnType<typeof createStyles>;

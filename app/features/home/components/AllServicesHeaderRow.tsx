@@ -3,14 +3,16 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
 
 // Moved out of app/all-services.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  insets: any;
+  insets: EdgeInsets;
   styles: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function AllServicesHeaderRow({

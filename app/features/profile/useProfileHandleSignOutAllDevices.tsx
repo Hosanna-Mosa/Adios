@@ -1,11 +1,9 @@
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { customFetch } from "@/utils/api/custom-fetch";
-import { useLanguageStore } from "@/contexts/languageStore";
 
-// Part 3 of useProfile, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useProfile so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoading: any, unreadCount: any, setSecurityVisible: any, setSigningOutAll: any) {
   const { t } = useTranslation();
@@ -22,7 +20,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
           onPress: async () => {
             try {
               setSigningOutAll(true);
-              await customFetch("/auth/logout-all", { method: "POST" });
+              await signOutAllDevices();
             } catch (err: any) {
               console.error("Sign out of all devices error:", err);
               Alert.alert(t("app.profile.errorTitle"), err?.message || t("app.profile.couldntSignOutAllDevices"));

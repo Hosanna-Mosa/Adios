@@ -1,0 +1,45 @@
+import React from "react";
+
+import { Feather } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
+import { styles } from "../notifications.styles";
+import { CATEGORY_ICON, formatWhen } from "../utils/notifications";
+import type { NotificationItem } from "../utils/notifications";
+import { Touchable } from "@/components/ui/Touchable";
+import { Box } from "@/components/ui/Box";
+import { AppText } from "@/components/ui/AppText";
+
+/** One notification: category icon, title with unread dot, body, and age. */
+export function NotificationRow({
+  item,
+  onPress,
+}: {
+  item: NotificationItem;
+  onPress: () => void;
+}) {
+  return (
+    <Touchable
+      style={[styles.row, !item.isRead && styles.rowUnread]}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+      <Box style={[styles.rowIcon, { backgroundColor: item.isRead ? Colors.surfaceAlt : Colors.primaryLight }]}>
+        <Feather
+          name={CATEGORY_ICON[item.category] || "bell"}
+          size={16}
+          color={item.isRead ? Colors.textSecondary : Colors.primaryDark}
+        />
+      </Box>
+      <Box style={{ flex: 1, minWidth: 0 }}>
+        <Box style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <AppText style={[styles.rowTitle, !item.isRead && styles.rowTitleUnread]} numberOfLines={1}>
+            {item.title}
+          </AppText>
+          {!item.isRead && <Box style={styles.unreadDot} />}
+        </Box>
+        <AppText style={styles.rowBody} numberOfLines={2}>{item.body}</AppText>
+        <AppText style={styles.rowTime}>{formatWhen(item.createdAt)}</AppText>
+      </Box>
+    </Touchable>
+  );
+}

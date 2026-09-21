@@ -4,8 +4,8 @@ import { interpolate, useAnimatedStyle, useSharedValue } from "react-native-rean
 import { STRIDE } from "./constants";
 import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";
 
-// Part 10 of useHome, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useHome so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nearbyDriversCount: any, loadingDrivers: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any) {
   const { t } = useTranslation();

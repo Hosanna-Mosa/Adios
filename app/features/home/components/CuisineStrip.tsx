@@ -2,6 +2,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { translateFoodTag } from "@/i18n/foodTagLabels";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to
 // read from the screen's scope is now passed in as props. CUISINE_EMOJI came
@@ -22,7 +23,7 @@ const CUISINE_EMOJI: { [key: string]: string } = {
 };
 
 interface Props {
-  styles: any;
+  styles: HomeStyles;
   activeService: string;
   cuisineChips: string[];
   selectedCuisines: string[];

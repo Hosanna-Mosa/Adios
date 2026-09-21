@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useCartStore } from "@/contexts/cartStore";
 import { createStyles } from "./149-store.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
+import { getStore149 } from "@/services/catalog.service";
 
 // State, data loading and handlers for app/149-store.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -21,8 +21,11 @@ import { useAppTabBarHeight } from "@/components/AppTabBar";
 export function useStore149() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { currentCoords, currentLocation } = useDeliveryStore();
-  const { items: cartItems, requestAddItem: addCartItem, updateQuantity: updateCartQuantity } = useCartStore();
+  const currentCoords = useDeliveryStore((s) => s.currentCoords);
+  const currentLocation = useDeliveryStore((s) => s.currentLocation);
+  const cartItems = useCartStore((s) => s.items);
+  const addCartItem = useCartStore((s) => s.requestAddItem);
+  const updateCartQuantity = useCartStore((s) => s.updateQuantity);
   const [store149Items, setStore149Items] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +33,7 @@ export function useStore149() {
   const [isSheetVisible, setIsSheetVisible] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.food;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -62,7 +65,7 @@ export function useStore149() {
     const fetchItems = async () => {
       try {
         setLoading(true);
-        const data = await customFetch<any>(`/food/store-149?lat=${lat}&lng=${lng}`);
+        const data = await getStore149(lat, lng);
         if (!cancelled && Array.isArray(data)) setStore149Items(data);
       } catch (error) {
         console.error("Error fetching 149 store items:", error);

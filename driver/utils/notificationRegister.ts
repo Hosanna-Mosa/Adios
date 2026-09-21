@@ -2,6 +2,7 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -13,7 +14,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 
 export async function registerForPushNotificationsAsync(token: string) {
   if (!Device.isDevice) {

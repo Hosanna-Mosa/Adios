@@ -2,21 +2,23 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type HomeStyles } from "@/features/home/home.styles";
 
 // Section of HomeFilterSORTBYSORTBY, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
-  activeFilterTab: any;
-  filterCostRange: any;
-  filterMinRating: any;
-  filterVegNonVeg: any;
+  accent: ServiceTokens;
+  activeFilterTab: string;
+  filterCostRange: string;
+  filterMinRating: number;
+  filterVegNonVeg: string;
   setFilterCostRange: React.Dispatch<React.SetStateAction<any>>;
   setFilterMinRating: React.Dispatch<React.SetStateAction<any>>;
   setFilterVegNonVeg: React.Dispatch<React.SetStateAction<any>>;
-  styles: any;
-  tokens: any;
+  styles: HomeStyles;
+  tokens: ThemeTokens;
 }
 
 export function HomeFilterSORTBYSORTBYRATINGS({

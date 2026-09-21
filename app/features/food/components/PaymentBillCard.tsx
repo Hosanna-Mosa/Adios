@@ -1,17 +1,19 @@
 import { Text, View } from "react-native";
+import { type ThemeTokens } from "@/constants/colors";
+import { type PaymentStyles } from "@/features/food/usePayment.shared";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
   couponCode: any;
-  deliveryFee: any;
-  discount: any;
-  styles: any;
-  subtotal: any;
-  tip: any;
-  tokens: any;
-  total: any;
+  deliveryFee: number | null;
+  discount: number;
+  styles: PaymentStyles;
+  subtotal: number;
+  tip: number;
+  tokens: ThemeTokens;
+  total: number;
 }
 
 export function PaymentBillCard({

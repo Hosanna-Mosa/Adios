@@ -2,16 +2,17 @@ import { ActivityIndicator, FlatList, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
+import { type ServiceTokens } from "@/constants/colors";
 
 // Moved out of app/meat-centers.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   fetchMeatCenters: any;
   getCoords: any;
   loadMore: any;
-  loading: any;
+  loading: boolean;
   loadingMore: any;
   renderHeader: any;
   selectedCategory: any;

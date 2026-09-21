@@ -5,12 +5,12 @@ import MapView from "@/components/maps";
 import { createStyles } from "./ride-confirmation.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { getEnabledTiers, FareEstimate, isValidCoordinate } from "./useRideConfirmation.shared";
+import { estimateFare } from "@/services/orders.service";
 
-// Part 1 of useRideConfirmation, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideConfirmation so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideConfirmationInsets() {
   const insets = useSafeAreaInsets();
@@ -27,7 +27,7 @@ export function useRideConfirmationInsets() {
     riderContact?: string;
   }>();
 
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.ride;
   const styles = useMemo(() => createStyles(tokens, accent, insets), [theme, insets]);
@@ -99,7 +99,7 @@ export function useRideConfirmationInsets() {
                 dropLng: String(dropCoords.longitude),
                 serviceType: tier.id,
               });
-              const estimate = await customFetch<FareEstimate>(`/orders/estimate-fare?${query}`, { responseType: "json" });
+              const estimate = await estimateFare<FareEstimate>(query);
               return [tier.id, estimate] as const;
             } catch {
               return [tier.id, null] as const;

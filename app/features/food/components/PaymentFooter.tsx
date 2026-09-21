@@ -1,15 +1,18 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type PaymentStyles } from "@/features/food/usePayment.shared";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  handlePayment: any;
-  insets: any;
+  accent: ServiceTokens;
+  handlePayment: () => void;
+  insets: EdgeInsets;
   processing: any;
-  styles: any;
-  total: any;
+  styles: PaymentStyles;
+  total: number;
 }
 
 export function PaymentFooter({

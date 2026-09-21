@@ -5,16 +5,16 @@ import { useLocalSearchParams } from "expo-router";
 import { createStyles } from "./support-chat.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { getSupportCategories, SupportTicket } from "./useSupportChat.shared";
+import { getSupportTickets } from "@/services/support.service";
 
-// Part 1 of useSupportChat, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useSupportChat so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useSupportChatInsets() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ ticketId?: string }>();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
@@ -38,7 +38,7 @@ export function useSupportChatInsets() {
   const fetchTickets = async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const tickets = await customFetch<SupportTicket[]>("/support/tickets");
+      const tickets = await getSupportTickets<SupportTicket[]>();
       setAllTickets(tickets || []);
 
       // Opened via a deep link (notification tap) with a specific ticket in mind — jump

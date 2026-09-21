@@ -4,6 +4,9 @@ import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } fr
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";
+import { type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -11,10 +14,10 @@ import { typography } from "@/constants/typography";
 
 interface Props {
   ENABLED_TIERS: any[];
-  accent: any;
+  accent: ServiceTokens;
   booking: any;
   dateOptions: any[];
-  insets: any;
+  insets: EdgeInsets;
   placeOrder: any;
   reserveAmpm: any;
   reserveDate: any;
@@ -27,8 +30,8 @@ interface Props {
   setReserveHour: React.Dispatch<React.SetStateAction<any>>;
   setReserveMinute: React.Dispatch<React.SetStateAction<any>>;
   setShowDatePicker: React.Dispatch<React.SetStateAction<any>>;
-  showDatePicker: any;
-  styles: any;
+  showDatePicker: boolean;
+  styles: RideConfirmationStyles;
 }
 
 export function SchedulePickerSheet({

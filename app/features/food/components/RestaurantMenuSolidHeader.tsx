@@ -2,19 +2,22 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type RestaurantMenuStyles } from "@/features/food/restaurant-menu.styles";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: any;
-  id: any;
-  insets: any;
-  isFavorite: any;
-  name: any;
-  styles: any;
+  accent: ServiceTokens;
+  id: string | string[];
+  insets: EdgeInsets;
+  isFavorite: boolean;
+  name: string | string[];
+  styles: RestaurantMenuStyles;
   toggleFavorite: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function RestaurantMenuSolidHeader({

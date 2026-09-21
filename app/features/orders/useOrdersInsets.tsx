@@ -4,17 +4,17 @@ import { useFocusEffect } from "expo-router";
 import { createStyles } from "./orders.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 import { resolveServiceKey } from "./useOrders.shared";
+import { getOrders } from "@/services/orders.service";
 
-// Part 1 of useOrders, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useOrders so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useOrdersInsets() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useAppTabBarHeight();
-  const { theme } = useThemeStore();
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const styles = useMemo(() => createStyles(tokens), [theme]);
 
@@ -41,7 +41,7 @@ export function useOrdersInsets() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const data = await customFetch<any[]>("/orders");
+      const data = await getOrders();
       if (data) setOrders(data);
     } catch (err) {
       console.error("Fetch orders error:", err);

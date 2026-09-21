@@ -1,8 +1,8 @@
-import { customFetch } from "@/utils/api/custom-fetch";
 import { cleanApiMessage } from "./useFoodCheckout.shared";
+import { validateCoupon } from "@/services/payments.service";
 
-// Part 2 of useFoodCheckout, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useFoodCheckout so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useFoodCheckoutActiveTip(vendorId: any, selectedAddress: any, setShowPromoInput: any, setPromoCodeText: any, appliedPromo: any, setAppliedPromo: any, setIsApplyingPromo: any, setApplyingCode: any, setPromoError: any, tipAmount: any, isOtherTip: any, otherTipText: any, subtotal: any, deliveryFee: any) {
   const activeTip = isOtherTip ? Number(otherTipText) || 0 : tipAmount;
@@ -29,13 +29,7 @@ export function useFoodCheckoutActiveTip(vendorId: any, selectedAddress: any, se
     setApplyingCode(trimmed);
     setPromoError(null);
     try {
-      const response = await customFetch<{ valid: boolean; code: string; discountAmount: number }>(
-        "/coupons/validate",
-        {
-          method: "POST",
-          body: JSON.stringify({ code: trimmed, vendorId, subtotal }),
-        }
-      );
+      const response = await validateCoupon<{ valid: boolean; code: string; discountAmount: number }>({ code: trimmed, vendorId, subtotal });
       if (response?.code) {
         setAppliedPromo({ code: response.code, discountAmount: Number(response.discountAmount) || 0 });
         setShowPromoInput(false);

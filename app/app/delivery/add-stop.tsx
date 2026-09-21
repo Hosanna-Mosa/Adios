@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { Header } from "@/components/ui/Header";
 import { AddStopFooter } from "@/features/delivery/components/AddStopFooter";
-import { AddStopSection } from "@/features/delivery/components/AddStopSection";
-import { AddStopSection2 } from "@/features/delivery/components/AddStopSection2";
-import { AddStopSection3 } from "@/features/delivery/components/AddStopSection3";
+import { PickupAddressField } from "@/features/delivery/components/PickupAddressField";
+import { ItemsToPickUpField } from "@/features/delivery/components/ItemsToPickUpField";
+import { NearbySuggestionsList } from "@/features/delivery/components/NearbySuggestionsList";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useAddStop } from "@/features/delivery/useAddStop";
 
@@ -28,7 +28,7 @@ export default function AddStopScreen() {
       />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <AddStopSection
+        <PickupAddressField
           accent={accent}
           address={address}
           addressInput={addressInput}
@@ -44,7 +44,7 @@ export default function AddStopScreen() {
           tokens={tokens}
         />
 
-        <AddStopSection2
+        <ItemsToPickUpField
           accent={accent}
           addItemToLocal={addItemToLocal}
           items={items}
@@ -58,7 +58,7 @@ export default function AddStopScreen() {
         />
 
         {nearbySuggestions.length > 0 && (
-          <AddStopSection3
+          <NearbySuggestionsList
             formatDistance={formatDistance}
             getDistanceMeters={getDistanceMeters}
             accent={accent}

@@ -1,11 +1,11 @@
 import React from "react";
 import { Alert } from "react-native";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { normalizeServiceType, parseFare } from "./useRideSearching.shared";
 import i18n from "@/i18n";
+import { createOrder } from "@/services/orders.service";
 
-// Part 3 of useRideSearching, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useRideSearching so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useRideSearchingFare(setCurrentOrderId: any, setGlobalServiceType: any, mapRef: any, params: any, selectedCancelReason: any, pickupCoords: any, dropCoords: any) {
   const fare = parseFare(params.fareTotal, params.ridePrice);
@@ -39,10 +39,7 @@ export function useRideSearchingFare(setCurrentOrderId: any, setGlobalServiceTyp
   React.useEffect(() => {
     const createRideOrder = async () => {
       try {
-        const order = await customFetch<any>("/orders", {
-          method: "POST",
-          responseType: "json",
-          body: JSON.stringify({
+        const order = await createOrder<any>({
             serviceType: normalizeServiceType(params.serviceId),
             stops: [
               {
@@ -58,8 +55,7 @@ export function useRideSearchingFare(setCurrentOrderId: any, setGlobalServiceTyp
                 type: "drop",
               },
             ],
-          }),
-        });
+          });
 
         const id = order?._id || order?.id;
         if (id) {

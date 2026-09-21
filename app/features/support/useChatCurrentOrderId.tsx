@@ -5,21 +5,29 @@ import { useLocalSearchParams } from "expo-router";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { socketService } from "@/utils/socketService";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RIDE_TYPES, createStyles } from "./useChat.shared";
+import { getOrder, getOrderChat } from "@/services/orders.service";
 
-// Part 1 of useChat, kept under the 150-line file limit. The parts run in
-// the order they were written, so React sees the same hook sequence.
+// Split out of useChat so each file stays small. Kept in the original call
+// order, so React still sees the same hook sequence.
 
 export function useChatCurrentOrderId() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderId?: string }>();
-  const {
-    currentOrderId, driver, activeChat, addChatMessage, setUnreadCount, setIsChatActive, serviceType, status,
-    setOrderId, setDriver, setServiceType, setChatMessages,
-  } = useDeliveryStore();
-  const { theme } = useThemeStore();
+  const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
+  const driver = useDeliveryStore((s) => s.driver);
+  const activeChat = useDeliveryStore((s) => s.activeChat);
+  const addChatMessage = useDeliveryStore((s) => s.addChatMessage);
+  const setUnreadCount = useDeliveryStore((s) => s.setUnreadCount);
+  const setIsChatActive = useDeliveryStore((s) => s.setIsChatActive);
+  const serviceType = useDeliveryStore((s) => s.serviceType);
+  const status = useDeliveryStore((s) => s.status);
+  const setOrderId = useDeliveryStore((s) => s.setOrderId);
+  const setDriver = useDeliveryStore((s) => s.setDriver);
+  const setServiceType = useDeliveryStore((s) => s.setServiceType);
+  const setChatMessages = useDeliveryStore((s) => s.setChatMessages);
+  const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
 
   const isRide = RIDE_TYPES.includes(serviceType?.toLowerCase() || "");
@@ -46,7 +54,7 @@ export function useChatCurrentOrderId() {
 
     setOrderId(deepLinkOrderId);
 
-    customFetch<any>(`/orders/${deepLinkOrderId}`)
+    getOrder(deepLinkOrderId)
       .then((order) => {
         if (order?.serviceType) setServiceType(order.serviceType);
         if (order?.driver) {
@@ -60,7 +68,7 @@ export function useChatCurrentOrderId() {
       })
       .catch((err) => console.error("[Chat] Failed to load order for deep link:", err));
 
-    customFetch<any[]>(`/orders/${deepLinkOrderId}/chat`)
+    getOrderChat(deepLinkOrderId)
       .then((history) => {
         setChatMessages(
           (history || []).map((m) => ({

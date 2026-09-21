@@ -1,9 +1,9 @@
 import { ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Header } from "@/components/ui/Header";
-import { SavedAddressesSection } from "@/features/delivery/components/SavedAddressesSection";
-import { SavedAddressesSection2 } from "@/features/delivery/components/SavedAddressesSection2";
-import { SavedAddressesSection3 } from "@/features/delivery/components/SavedAddressesSection3";
+import { SavedAddressRow } from "@/features/delivery/components/SavedAddressRow";
+import { SavedAddressesList } from "@/features/delivery/components/SavedAddressesList";
+import { RecentAddressesList } from "@/features/delivery/components/RecentAddressesList";
 import { SavedAddressesEmptyWrap } from "@/features/delivery/components/SavedAddressesEmptyWrap";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useSavedAddresses } from "@/features/delivery/useSavedAddresses";
@@ -34,7 +34,7 @@ export default function SavedAddressesScreen() {
         />
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
-          <SavedAddressesSection
+          <SavedAddressRow
             accent={accent}
             currentLocLoading={currentLocLoading}
             handleUseCurrentLocation={handleUseCurrentLocation}
@@ -42,7 +42,7 @@ export default function SavedAddressesScreen() {
             styles={styles}
           />
 
-          <SavedAddressesSection2
+          <SavedAddressesList
             accent={accent}
             addresses={addresses}
             deletingId={deletingId}
@@ -57,7 +57,7 @@ export default function SavedAddressesScreen() {
           />
 
           {(recentLoading || recentLocations.length > 0) && (
-            <SavedAddressesSection3
+            <RecentAddressesList
               accent={accent}
               handleSelectRecentLocation={handleSelectRecentLocation}
               recentLoading={recentLoading}

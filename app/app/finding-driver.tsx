@@ -1,13 +1,12 @@
 import { CancelRideSheet } from "@/features/ride/components/CancelRideSheet";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
+import { View, StyleSheet } from "react-native";
 import { FindingDriverSheet } from "@/features/ride/components/FindingDriverSheet";
 import { MapBackground } from "@/components/MapBackground";
 import { FindingDriverRadarWrap } from "@/features/ride/components/FindingDriverRadarWrap";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { FindingDriverBody } from "@/features/ride/components/FindingDriverBody";
 import { useFindingDriver } from "@/features/ride/useFindingDriver";
+import { FindingDriverBackButton } from "@/features/ride/components/FindingDriverBackButton";
 
 export default function FindingDriverScreen() {
   const {
@@ -39,9 +38,12 @@ export default function FindingDriverScreen() {
         styles={styles}
       />
 
-      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => setShowCancelSheet(true)}>
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
+      <FindingDriverBackButton
+        insets={insets}
+        onPress={() => setShowCancelSheet(true)}
+        styles={styles}
+        tokens={tokens}
+      />
 
       <FindingDriverSheet
         dropStop={dropStop}

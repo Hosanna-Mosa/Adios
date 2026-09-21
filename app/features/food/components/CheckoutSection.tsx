@@ -4,26 +4,28 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type CheckoutStyles } from "@/features/food/checkout.styles";
 
 // Section of CheckoutBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  accent: any;
+  accent: ServiceTokens;
   appliedPromo: any;
   applyCode: any;
   applyingCode: any;
-  isApplyingPromo: any;
+  isApplyingPromo: boolean;
   offers: any[];
-  promoCodeText: any;
-  promoError: any;
+  promoCodeText: string;
+  promoError: string | null;
   removeCode: any;
   setPromoCodeText: React.Dispatch<React.SetStateAction<any>>;
   setShowPromoInput: React.Dispatch<React.SetStateAction<any>>;
-  showPromoInput: any;
-  styles: any;
-  subtotal: any;
-  tokens: any;
+  showPromoInput: boolean;
+  styles: CheckoutStyles;
+  subtotal: number;
+  tokens: ThemeTokens;
 }
 
 export function CheckoutSection({

@@ -71,3 +71,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   sheetRating: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 8 },
   sheetDescription: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10 },
 });
+
+/** Exact shape of this screen's stylesheet, for components that take it as a prop. */
+export type Store149Styles = ReturnType<typeof createStyles>;

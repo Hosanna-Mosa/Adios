@@ -1,6 +1,6 @@
 import { useRestaurantMenuId } from "./useRestaurantMenuId";
 import { useRestaurantMenuHandleUpdateQuantity } from "./useRestaurantMenuHandleUpdateQuantity";
-import { useRestaurantMenuPart3 } from "./useRestaurantMenuPart3";
+import { useRestaurantMenuLoader } from "./useRestaurantMenuLoader";
 import { useRestaurantMenuFilteredMenu } from "./useRestaurantMenuFilteredMenu";
 
 // State, data loading and handlers for app/restaurant-menu.tsx.
@@ -10,7 +10,7 @@ import { useRestaurantMenuFilteredMenu } from "./useRestaurantMenuFilteredMenu";
 export function useRestaurantMenu() {
   const { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems, setLoadingItems, handleAddToCart } = useRestaurantMenuId();
   const { handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress } = useRestaurantMenuHandleUpdateQuantity(updateQuantity, getItemCount, activeCategory, setActiveCategory, setScrolledPast, scrollViewRef, loadingItems, setLoadingItems);
-  const {  } = useRestaurantMenuPart3(id, isMeat, highlightDishId, setVendorId, setLoading, menu, setMenu, setActiveCategory, setHighlightedItemId, handleCategoryPress);
+  const {  } = useRestaurantMenuLoader(id, isMeat, highlightDishId, setVendorId, setLoading, menu, setMenu, setActiveCategory, setHighlightedItemId, handleCategoryPress);
   const { groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts } = useRestaurantMenuFilteredMenu(isMeat, categories, minOrderValue, time, distance, address, menu, activeCategory, setActiveCategory, searchQuery, vegOnly);
 
   return {

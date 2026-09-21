@@ -5,16 +5,20 @@ import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type DeliveryCheckoutStyles } from "@/features/delivery/useDeliveryCheckout";
+import type { OrderStop } from "@/types/models";
 
 // Moved out of app/delivery/checkout.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  insets: any;
+  insets: EdgeInsets;
   route: any;
-  stops: any;
-  styles: any;
-  tokens: any;
+  stops: OrderStop[];
+  styles: DeliveryCheckoutStyles;
+  tokens: ThemeTokens;
 }
 
 export function DeliveryCheckoutHeader({

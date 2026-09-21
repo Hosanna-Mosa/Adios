@@ -5,9 +5,10 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { SupportContactRow } from "./SupportContactRow";
-import { SupportContactRow2 } from "./SupportContactRow2";
 import { SupportFaqCard } from "./SupportFaqCard";
-import { SupportContactRow3 } from "./SupportContactRow3";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type SupportStyles } from "@/features/support/support.styles";
 
 // Moved out of app/support.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -16,16 +17,16 @@ interface Props {
   formatRelativeDate: any;
   Linking: any;
   FAQS: any;
-  accent: any;
+  accent: ServiceTokens;
   expandedFAQ: any;
-  insets: any;
-  isActive: any;
+  insets: EdgeInsets;
+  isActive: boolean;
   meta: any;
   recentOrder: any;
-  recentTitle: any;
-  styles: any;
+  recentTitle: string;
+  styles: SupportStyles;
   toggleFAQ: any;
-  tokens: any;
+  tokens: ThemeTokens;
 }
 
 export function SupportBody({
@@ -75,18 +76,37 @@ export function SupportBody({
       <Text style={styles.sectionLabel}>{t("app.support.contactUs")}</Text>
       <Animated.View entering={fadeInUp(120)} style={{ gap: 10 }}>
         <SupportContactRow
+          icon="chatbubble-ellipses"
+          iconSize={17}
+          iconBackground={tokens.brandSkin}
+          iconColor={tokens.brand}
+          label={t("app.support.liveChat")}
+          description={t("app.support.messageOurSupportTeam")}
+          onPress={() => router.push("/support-chat")}
           styles={styles}
           tokens={tokens}
         />
 
-        <SupportContactRow2
-          Linking={Linking}
+        <SupportContactRow
+          icon="call"
+          iconSize={16}
+          iconBackground={tokens.sunken}
+          iconColor={tokens.sec}
+          label={t("app.support.callHelpline")}
+          description="1800 202 4477 · 7 AM – 1 AM"
+          onPress={() => Linking.openURL("tel:18002024477")}
           styles={styles}
           tokens={tokens}
         />
 
-        <SupportContactRow3
-          Linking={Linking}
+        <SupportContactRow
+          icon="mail"
+          iconSize={16}
+          iconBackground={tokens.sunken}
+          iconColor={tokens.sec}
+          label={t("app.support.emailUs")}
+          description={t("app.support.careflavourinWithin24Hours")}
+          onPress={() => Linking.openURL("mailto:care@flavour.in")}
           styles={styles}
           tokens={tokens}
         />
