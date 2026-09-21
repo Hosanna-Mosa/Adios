@@ -1,6 +1,8 @@
 import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
+import { useLanguageStore } from "@/contexts/languageStore";
+import { signOutAllDevices } from "@/services/users.service";
 
 // Split out of useProfile so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
