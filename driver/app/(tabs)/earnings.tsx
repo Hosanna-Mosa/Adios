@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -23,6 +24,7 @@ import { Refresh } from "@/components/ui/Refresh";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export default function EarningsScreen() {
+  const { t } = useTranslation();
   const tabBarHeight = useDriverTabBarHeight();
   const {
     earnings,
@@ -47,7 +49,7 @@ export default function EarningsScreen() {
           <Refresh refreshing={isRefreshing} onRefresh={() => loadEarnings(true)} />
         }
       >
-        <AppText style={styles.headerTitle}>Earnings</AppText>
+        <AppText style={styles.headerTitle}>{t("tabs.earnings")}</AppText>
 
         {isLoading ? (
           <EarningsLoadingCard />
@@ -69,17 +71,17 @@ export default function EarningsScreen() {
               onPress={() => {
                 if (!earnings.bank.verified) {
                   Alert.alert(
-                    "Bank details required",
-                    "You need to add your payout bank details before you can cash out. Would you like to set them up now?",
+                    t("earnings.bankDetailsRequired"),
+                    t("earnings.addPayoutBankDetailsPrompt"),
                     [
-                      { text: "Not now", style: "cancel" },
-                      { text: "Add Bank Details", onPress: () => router.push("/payout-setup") },
+                      { text: t("jobs.notNow"), style: "cancel" },
+                      { text: t("earnings.addBankDetails"), onPress: () => router.push("/payout-setup") },
                     ]
                   );
                 } else if (earnings.availableBalance < 100) {
                   Alert.alert(
-                    "Minimum balance required",
-                    `You need at least Rs.100 to cash out. Your current available balance is ${formatCurrency(earnings.availableBalance)}.`
+                    t("earnings.minimumBalanceRequired"),
+                    t("earnings.needAtLeast100ToCashOut", { value: formatCurrency(earnings.availableBalance), defaultValue: "You need at least Rs.100 to cash out. Your current available balance is {{value}}." })
                   );
                 } else {
                   setCashOutVisible(true);
