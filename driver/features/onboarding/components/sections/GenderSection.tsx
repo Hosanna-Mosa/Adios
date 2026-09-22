@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { staggerListItem } from "@/motion/presets";
 import { useOnboardingCtx } from "../../OnboardingContext";
@@ -6,13 +7,13 @@ import { FieldColumn } from "../FieldColumn";
 import { SelectCard } from "../SelectCard";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
-const OPTIONS = [
-  { id: "male", label: "Male" },
-  { id: "female", label: "Female" },
-];
-
 export function GenderSection() {
+  const { t } = useTranslation();
   const { step1 } = useOnboardingCtx();
+  const OPTIONS = [
+    { id: "male", label: t("onboarding.male") },
+    { id: "female", label: t("onboarding.female") },
+  ];
 
   return (
     <FieldColumn gap={12}>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { validateAadhaarFormat } from "../../validators";
@@ -12,35 +13,37 @@ import { ValidationErrorBox } from "../ValidationErrorBox";
 
 /** Aadhaar was not used for identity — we only collect it for the record. */
 function FormalityNotes({ aadhaarNumber }: { aadhaarNumber: string }) {
+  const { t } = useTranslation();
   const digits = aadhaarNumber.replace(/\s/g, "");
   return (
     <>
       <InfoBanner
         icon="info"
-        text="Aadhaar details collected for records. PAN was used for identity verification."
+        text={t("onboarding.aadhaarDetailsCollectedForRecords")}
         type="info"
       />
       {digits.length > 0 &&
         (validateAadhaarFormat(digits) ? (
-          <InfoBanner icon="check-circle" text="Valid Aadhaar format" type="success" />
+          <InfoBanner icon="check-circle" text={t("onboarding.validAadhaarFormat")} type="success" />
         ) : (
-          <ValidationErrorBox message="Invalid Aadhaar number. Must be 12 digits and cannot start with 0 or 1." />
+          <ValidationErrorBox message={t("onboarding.invalidAadhaarNumber")} />
         ))}
     </>
   );
 }
 
 function VerifyForm() {
+  const { t } = useTranslation();
   const { identity, saving, handleVerifyAadhaar, goToNextSection } = useOnboardingCtx();
   return (
     <>
       <ConsentCheckbox
         checked={identity.consentAadhaar}
         onToggle={() => identity.setConsentAadhaar(!identity.consentAadhaar)}
-        label="I consent to share my Aadhaar details with Triozen for identity verification via third-party services (Surepass)."
+        label={t("onboarding.consentAadhaar")}
       />
       <PrimaryButton
-        title="Verify Aadhaar"
+        title={t("onboarding.verifyAadhaar")}
         onPress={handleVerifyAadhaar}
         disabled={
           identity.aadhaarNumber.replace(/\s/g, "").length < 12 ||
@@ -50,18 +53,19 @@ function VerifyForm() {
         loading={saving}
         icon="shield"
       />
-      <AlternateIdLink label="Skip, I&apos;ll use PAN card →" onPress={goToNextSection} />
+      <AlternateIdLink label={t("onboarding.skipIllUsePanCard")} onPress={goToNextSection} />
     </>
   );
 }
 
 export function AadhaarSection() {
+  const { t } = useTranslation();
   const { identity } = useOnboardingCtx();
 
   return (
     <FieldColumn gap={16}>
       <FormInput
-        label="Aadhaar Number"
+        label={t("onboarding.aadhaarNumber")}
         value={identity.aadhaarNumber}
         onChangeText={(t) => {
           const cleaned = t.replace(/[^0-9]/g, "").slice(0, 12);
@@ -77,7 +81,7 @@ export function AadhaarSection() {
       ) : !identity.aadhaarVerified ? (
         <VerifyForm />
       ) : (
-        <InfoBanner icon="check-circle" text="Aadhaar verified successfully!" type="success" />
+        <InfoBanner icon="check-circle" text={t("onboarding.aadhaarVerifiedSuccessfully")} type="success" />
       )}
     </FieldColumn>
   );

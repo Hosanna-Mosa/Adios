@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../OnboardingContext";
 import { PrimaryButton } from "./PrimaryButton";
@@ -8,19 +9,20 @@ import { Box } from "@/components/ui/Box";
 const SAVE_THEN_NEXT = ["gender", "vehicle", "zone", "aadhaar", "pan", "license", "bank"];
 
 export function OnboardingBottomButton() {
+  const { t } = useTranslation();
   const {
     currentKey, nextSection, saving, docs,
     canProceedSection, saveCurrentSectionData, handleCompleteOnboarding,
     goToNextSection, goToNextStep,
   } = useOnboardingCtx();
 
-  const nextLabel = nextSection?.label ? `Next — ${nextSection.label}` : "Continue";
+  const nextLabel = nextSection?.label ? `${t("onboarding.next")} — ${nextSection.label}` : t("actions.continue");
   const ready = canProceedSection();
 
   if (currentKey === "selfie" && docs.selfieCaptured) {
     return (
       <PrimaryButton
-        title="Complete & Activate"
+        title={t("onboarding.completeAndActivate")}
         onPress={handleCompleteOnboarding}
         icon="check"
         loading={saving}
@@ -32,7 +34,7 @@ export function OnboardingBottomButton() {
   if (currentKey === "homeAddress" && ready) {
     return (
       <PrimaryButton
-        title="Save & Continue"
+        title={t("onboarding.saveAndContinue")}
         onPress={async () => {
           await saveCurrentSectionData();
           goToNextStep();
@@ -47,7 +49,7 @@ export function OnboardingBottomButton() {
     const saveAndContinue = currentKey === "vehicle" || currentKey === "zone";
     return (
       <PrimaryButton
-        title={saveAndContinue ? "Save & Continue" : nextLabel}
+        title={saveAndContinue ? t("onboarding.saveAndContinue") : nextLabel}
         onPress={async () => {
           await saveCurrentSectionData();
           goToNextSection();
@@ -65,7 +67,7 @@ export function OnboardingBottomButton() {
 
   return (
     <PrimaryButton
-      title="Continue"
+      title={t("actions.continue")}
       onPress={goToNextSection}
       disabled={!ready}
       icon="arrow-right"

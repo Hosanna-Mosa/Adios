@@ -1,6 +1,7 @@
 import React from "react";
 
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { PrimaryButton } from "./PrimaryButton";
 import { Box } from "@/components/ui/Box";
 
@@ -20,6 +21,7 @@ export function IdentityBottomButton({
   goNext,
   totalSections,
 }: any) {
+    const { t } = useTranslation();
     const oneVerified = aadhaarVerified || panVerified;
 
     if (oneVerified && totalSections === 1) {
@@ -35,7 +37,7 @@ export function IdentityBottomButton({
       if (canProceedSection()) {
         return (
           <PrimaryButton
-            title="Done"
+            title={t("actions.done")}
             onPress={() => router.back()}
             icon="check"
           />
@@ -47,7 +49,7 @@ export function IdentityBottomButton({
     if (currentKey === "aadhaar" && aadhaarVerified) {
       return (
         <PrimaryButton
-          title={`Next — ${visibleSections[sectionIdx + 1]?.label || "PAN Card"}`}
+          title={`${t("onboarding.next")} — ${visibleSections[sectionIdx + 1]?.label || t("onboarding.sections.pan")}`}
           onPress={goNext}
           icon="arrow-right"
         />
@@ -57,7 +59,7 @@ export function IdentityBottomButton({
     if (currentKey === "pan" && panVerified) {
       return (
         <PrimaryButton
-          title="Done"
+          title={t("actions.done")}
           onPress={() => router.back()}
           icon="check"
         />
@@ -68,7 +70,7 @@ export function IdentityBottomButton({
       // Formality mode: Aadhaar fields filled, PAN already verified → show Done
       return (
         <PrimaryButton
-          title="Done"
+          title={t("actions.done")}
           onPress={() => router.back()}
           icon="check"
         />
@@ -79,7 +81,7 @@ export function IdentityBottomButton({
       // Formality mode: PAN fields filled, Aadhaar already verified → show Done
       return (
         <PrimaryButton
-          title="Done"
+          title={t("actions.done")}
           onPress={() => router.back()}
           icon="check"
         />

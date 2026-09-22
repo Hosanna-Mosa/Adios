@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { validatePANFormat } from "../../validators";
@@ -12,38 +13,40 @@ import { ValidationErrorBox } from "../ValidationErrorBox";
 
 /** PAN was not used for identity — we only collect it for the record. */
 function FormalityNotes({ panNumber, panName }: { panNumber: string; panName: string }) {
+  const { t } = useTranslation();
   const formatOk = validatePANFormat(panNumber);
   return (
     <>
       <InfoBanner
         icon="info"
-        text="PAN details collected for records. Aadhaar was used for identity verification."
+        text={t("onboarding.panDetailsCollectedForRecords")}
         type="info"
       />
       {panNumber.length > 0 && !formatOk && (
-        <ValidationErrorBox message="Invalid PAN number. Format should be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)." />
+        <ValidationErrorBox message={t("onboarding.invalidPanNumber")} />
       )}
       {panName.length > 0 && panName.length < 3 && (
-        <ValidationErrorBox message="Name must be at least 3 characters." />
+        <ValidationErrorBox message={t("onboarding.nameMustBeAtLeast3Characters")} />
       )}
       {formatOk && panName.length >= 3 && (
-        <InfoBanner icon="check-circle" text="Valid PAN details" type="success" />
+        <InfoBanner icon="check-circle" text={t("onboarding.validPanDetails")} type="success" />
       )}
     </>
   );
 }
 
 function VerifyForm() {
+  const { t } = useTranslation();
   const { identity, saving, handleVerifyPAN, goToPrevSection } = useOnboardingCtx();
   return (
     <>
       <ConsentCheckbox
         checked={identity.consentPAN}
         onToggle={() => identity.setConsentPAN(!identity.consentPAN)}
-        label="I consent to share my PAN details with Triozen for identity verification via third-party services (Surepass)."
+        label={t("onboarding.consentPan")}
       />
       <PrimaryButton
-        title="Verify PAN"
+        title={t("onboarding.verifyPan")}
         onPress={handleVerifyPAN}
         disabled={
           identity.panNumber.length < 10 ||
@@ -54,18 +57,19 @@ function VerifyForm() {
         loading={saving}
         icon="shield"
       />
-      <AlternateIdLink label="← Go back to Aadhaar" onPress={goToPrevSection} />
+      <AlternateIdLink label={t("onboarding.goBackToAadhaar")} onPress={goToPrevSection} />
     </>
   );
 }
 
 export function PanSection() {
+  const { t } = useTranslation();
   const { identity } = useOnboardingCtx();
 
   return (
     <FieldColumn gap={16}>
       <FormInput
-        label="PAN Number"
+        label={t("onboarding.panNumber")}
         value={identity.panNumber}
         onChangeText={(t) => identity.setPanNumber(t.toUpperCase().slice(0, 10))}
         placeholder="ABCDE1234F"
@@ -73,10 +77,10 @@ export function PanSection() {
         icon="file-text"
       />
       <FormInput
-        label="Name as on PAN Card"
+        label={t("onboarding.nameAsOnPanCard")}
         value={identity.panName}
         onChangeText={identity.setPanName}
-        placeholder="Enter full name"
+        placeholder={t("onboarding.enterFullName")}
         autoCapitalize="words"
         icon="user"
       />
@@ -85,7 +89,7 @@ export function PanSection() {
       ) : !identity.panVerified ? (
         <VerifyForm />
       ) : (
-        <InfoBanner icon="check-circle" text="PAN verified successfully!" type="success" />
+        <InfoBanner icon="check-circle" text={t("onboarding.panVerifiedSuccessfully")} type="success" />
       )}
     </FieldColumn>
   );

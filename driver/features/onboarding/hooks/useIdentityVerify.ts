@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
 
 import { Dimensions, ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSharedValue, useAnimatedStyle, withSpring, interpolate } from "react-native-reanimated";
-import { SECTIONS } from "../identityVerifySections";
+import { getIdentityVerifySections } from "../identityVerifySections";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 import { SPRING } from "@/motion/presets";
@@ -13,6 +14,7 @@ import { useIdentityVerifyActions } from "./useIdentityVerifyActions";
  *
  * Lifted out of app/identity-verify.tsx unchanged. */
 export function useIdentityVerify() {
+  const { t, i18n: i18nInstance } = useTranslation();
 
   const [sectionIdx, setSectionIdx] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -40,14 +42,14 @@ export function useIdentityVerify() {
 
   // ── Dynamic sections: once one ID is verified, remove the other ──────────────
   const visibleSections = React.useMemo(() => {
-    let sections = [...SECTIONS];
+    let sections = getIdentityVerifySections();
     if (aadhaarVerified) {
       sections = sections.filter((s) => s.key !== "pan");
     } else if (panVerified) {
       sections = sections.filter((s) => s.key !== "aadhaar");
     }
     return sections;
-  }, [aadhaarVerified, panVerified]);
+  }, [aadhaarVerified, panVerified, i18nInstance.language]);
 
   const totalSections = visibleSections.length;
   const currentKey = visibleSections[sectionIdx]?.key;
@@ -101,13 +103,13 @@ export function useIdentityVerify() {
   const sectionSubtitle = (): string => {
     if (currentKey === "aadhaar") {
       return panVerified
-        ? "Aadhaar details collected for records (PAN was used for identity verification)."
-        : "Enter your 12-digit Aadhaar number to verify your identity.";
+        ? t("onboarding.formalitySubtitles.aadhaar")
+        : t("onboarding.sectionSubtitles.aadhaar");
     }
     if (currentKey === "pan") {
       return aadhaarVerified
-        ? "PAN details collected for records (Aadhaar was used for identity verification)."
-        : "Enter your PAN details for identity verification.";
+        ? t("onboarding.formalitySubtitles.pan")
+        : t("onboarding.sectionSubtitles.pan");
     }
     return "";
   };

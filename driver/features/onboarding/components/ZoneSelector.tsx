@@ -1,5 +1,6 @@
 import React from "react";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { FormInput } from "./FormInput";
 import { zoneSelectorStyles as styles } from "./ZoneSelector.styles";
@@ -32,6 +33,7 @@ export function ZoneSelector({
   onSelectZone: (id: string) => void;
   onOpenZoneMap: (zone: Zone) => void;
 }) {
+  const { t } = useTranslation();
   const filtered = zones.filter((z) =>
     z.name.toLowerCase().includes(searchText.toLowerCase()),
   );
@@ -40,10 +42,10 @@ export function ZoneSelector({
   return (
     <Box style={styles.wrap}>
       <FormInput
-        label="Search Zone"
+        label={t("onboarding.searchZone")}
         value={searchText}
         onChangeText={onSearchChange}
-        placeholder="Search by city or zone name..."
+        placeholder={t("onboarding.searchByCityOrZoneName")}
         icon="search"
       />
 
@@ -51,7 +53,7 @@ export function ZoneSelector({
         <Box style={styles.dropdown}>
           <ScrollBox nestedScrollEnabled={true} style={styles.scroll}>
             {filtered.length === 0 ? (
-              <AppText style={styles.empty}>No matching zones found.</AppText>
+              <AppText style={styles.empty}>{t("onboarding.noMatchingZonesFound")}</AppText>
             ) : (
               filtered.map((z) => (
                 <Touchable key={z._id} onPress={() => onSelectZone(z._id)} style={styles.row}>
@@ -65,7 +67,7 @@ export function ZoneSelector({
 
       {selected && (
         <Box style={styles.selectedWrap}>
-          <AppText style={styles.selectedLabel}>Selected Preferred Zone:</AppText>
+          <AppText style={styles.selectedLabel}>{t("onboarding.selectedPreferredZone")}</AppText>
           <Touchable onPress={() => onOpenZoneMap(selected)} style={styles.selectedCard}>
             <Box style={styles.selectedIconWrap}>
               <Feather name="map-pin" size={20} color={Colors.info} />
@@ -73,9 +75,9 @@ export function ZoneSelector({
             <Box style={styles.selectedCopy}>
               <AppText style={styles.selectedName}>{selected.name}</AppText>
               <AppText style={styles.selectedDesc}>
-                {selected.description || "Operational geofence area."}
+                {selected.description || t("onboarding.operationalGeofenceArea")}
               </AppText>
-              <AppText style={styles.selectedLink}>🗺️ View Zone Coverage Map</AppText>
+              <AppText style={styles.selectedLink}>🗺️ {t("onboarding.viewZoneCoverageMap")}</AppText>
             </Box>
             <Feather name="chevron-right" size={20} color={Colors.info} />
           </Touchable>

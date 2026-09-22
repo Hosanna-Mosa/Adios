@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -25,35 +26,36 @@ export function BankAccountForm({
   ifsc: string;
   onIfscChange: (t: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.card}>
       <BankField
-        label="Account Number"
+        label={t("onboarding.accountNumber")}
         icon="credit-card"
         value={accountNumber}
         onChangeText={onAccountNumberChange}
-        placeholder="Enter account number"
+        placeholder={t("onboarding.enterAccountNumber")}
         keyboardType="number-pad"
       />
 
       <BankField
-        label="Confirm Account Number"
+        label={t("onboarding.confirmAccountNumber")}
         icon="check-square"
         value={confirmAccount}
         onChangeText={onConfirmAccountChange}
-        placeholder="Re-enter account number"
+        placeholder={t("onboarding.reEnterAccountNumber")}
         keyboardType="number-pad"
       />
 
       {confirmAccount.length > 0 && !accountsMatch && (
         <Box style={styles.errorRow}>
           <Feather name="alert-circle" size={15} color={Colors.error} />
-          <AppText style={styles.errorText}>Account numbers don&apos;t match</AppText>
+          <AppText style={styles.errorText}>{t("onboarding.accountNumbersDontMatch")}</AppText>
         </Box>
       )}
 
       <BankField
-        label="IFSC Code"
+        label={t("onboarding.ifscCode")}
         icon="map-pin"
         value={ifsc}
         onChangeText={onIfscChange}

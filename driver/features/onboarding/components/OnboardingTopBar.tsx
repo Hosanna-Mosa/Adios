@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -17,6 +18,7 @@ export function OnboardingTopBar({
   onBack: () => void;
   onSkip: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.topBar}>
       {canGoBack ? (
@@ -27,7 +29,7 @@ export function OnboardingTopBar({
         <Box style={{ width: 40 }} />
       )}
       <Touchable onPress={onSkip} style={styles.topBarBtn}>
-        <AppText style={styles.skipText}>Skip</AppText>
+        <AppText style={styles.skipText}>{t("actions.skip")}</AppText>
       </Touchable>
     </Box>
   );
