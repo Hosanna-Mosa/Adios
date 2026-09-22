@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
@@ -14,19 +15,20 @@ export function TimersGrid({
   prepTimeRemaining: number;
   waitingComp: number;
 }) {
+  const { t } = useTranslation();
   const prep =
     prepTimeRemaining > 0
       ? `${Math.floor(prepTimeRemaining / 60)}:${(prepTimeRemaining % 60).toString().padStart(2, "0")}`
-      : "Food Ready";
+      : t("jobs.foodReady");
 
   return (
     <Box style={styles.timersGrid}>
       <Box style={styles.timerBlock}>
-        <AppText style={styles.timerBlockLabel}>Prep Status</AppText>
+        <AppText style={styles.timerBlockLabel}>{t("jobs.prepStatus")}</AppText>
         <AppText style={styles.timerBlockVal}>{prep}</AppText>
       </Box>
       <Box style={styles.timerBlock}>
-        <AppText style={styles.timerBlockLabel}>Waiting Fee Earned</AppText>
+        <AppText style={styles.timerBlockLabel}>{t("jobs.waitingFeeEarned")}</AppText>
         <AppText style={[styles.timerBlockVal, { color: Colors.success }]}>
           +{formatCurrency(waitingComp)}
         </AppText>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -22,6 +23,10 @@ export function OnlineStatusCard({
   onToggle: () => void;
   scooterAnimatedStyle: StyleProp<ViewStyle>;
 }) {
+  const { t } = useTranslation();
+  const serviceLabels = activeServices
+    .map((s) => (s === "ride" ? t("jobs.rideHailing") : t("jobs.foodDelivery")))
+    .join(" & ");
   return (
     <>
       <PressBox style={styles.statusCard} onPress={onToggle}>
@@ -39,10 +44,12 @@ export function OnlineStatusCard({
         </Box>
         <Box style={styles.statusCardCopy}>
           <AppText style={styles.statusCardTitle}>
-            {isOnline ? `Online for ${activeServices.join(" & ").toLowerCase()}` : "You're Offline"}
+            {isOnline
+              ? t("jobs.onlineForServices", { value: serviceLabels, defaultValue: "Online for {{value}}" })
+              : t("jobs.youreOffline")}
           </AppText>
           <AppText style={styles.statusCardDesc}>
-            {isOnline ? "You're visible to customers" : "Tap to go online"}
+            {isOnline ? t("jobs.youreVisibleToCustomers") : t("jobs.tapToGoOnline")}
           </AppText>
         </Box>
         <Box
@@ -60,7 +67,7 @@ export function OnlineStatusCard({
       <AnimatedBox style={[styles.onlineBadgeHero, scooterAnimatedStyle]}>
         <Box style={[styles.onlineBadgeDot, !isOnline && { backgroundColor: Colors.textMuted }]} />
         <AppText style={[styles.onlineBadgeText, !isOnline && { color: Colors.textMuted }]}>
-          {isOnline ? "ONLINE" : "OFFLINE"}
+          {isOnline ? t("jobs.onlineCaps") : t("jobs.offlineCaps")}
         </AppText>
       </AnimatedBox>
     </>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import Colors from "@/constants/colors";
 import { styles } from "../../active-order.styles";
@@ -15,29 +16,31 @@ import { DeliveryEarningsBreakdown } from "./DeliveryEarningsBreakdown";
 import { AppTextInput } from "@/components/ui/AppTextInput";
 import { Box } from "@/components/ui/Box";
 
-const DEMAND_ZONES = [
-  "Koramangala 5th Block (Surge 1.8x)",
-  "Indiranagar 100 Feet Road (Surge 1.5x)",
-];
-
 export function DeliveryCompletedStage() {
+  const { t } = useTranslation();
   const { verification, handleStatusTransition } = useActiveOrderCtx();
+
+  // Place names are proper nouns and stay untranslated; only "Surge" is.
+  const demandZones = [
+    t("jobs.surgeZoneKoramangala", { defaultValue: "Koramangala 5th Block (Surge 1.8x)" }),
+    t("jobs.surgeZoneIndiranagar", { defaultValue: "Indiranagar 100 Feet Road (Surge 1.5x)" }),
+  ];
 
   return (
     <CompletedScroll>
       <CompletionHeader
-        title="Delivery Completed!"
-        subtitle="Earnings have been added to your wallet."
+        title={t("jobs.deliveryCompleted")}
+        subtitle={t("jobs.earningsAddedToWallet")}
       />
 
       <DeliveryEarningsBreakdown />
 
       <Box style={styles.feedbackSection}>
-        <ChecklistGroup title="RATE YOUR EXPERIENCE" />
+        <ChecklistGroup title={t("jobs.rateYourExperience")} />
         <RatingStars rating={verification.rating} onRate={verification.setRating} />
         <AppTextInput
           style={styles.feedbackInput}
-          placeholder="Any operational issues? Write comments here..."
+          placeholder={t("jobs.anyOperationalIssuesWriteComments")}
           placeholderTextColor={Colors.textMuted}
           multiline
           value={verification.feedback}
@@ -45,10 +48,10 @@ export function DeliveryCompletedStage() {
         />
       </Box>
 
-      <HighDemandZones title="HIGH DEMAND ZONES" zones={DEMAND_ZONES} />
+      <HighDemandZones title={t("jobs.highDemandZones")} zones={demandZones} />
 
       <StageActionButton
-        label="Finish & Return to Home"
+        label={t("jobs.finishAndReturnToHome")}
         onPress={handleStatusTransition}
         style={{ marginVertical: 16 }}
       />

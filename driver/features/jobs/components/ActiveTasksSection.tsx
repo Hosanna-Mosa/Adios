@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { ActiveTaskCard } from "./ActiveTaskCard";
 import { NoActiveTasksCard } from "./NoActiveTasksCard";
@@ -12,12 +13,13 @@ export function ActiveTasksSection({
   currentOrder: any;
   isOnline: boolean;
 }) {
+  const { t } = useTranslation();
   const stops = currentOrder?.stops;
   const last = stops?.[stops.length - 1];
 
   return (
     <>
-      <SectionHeading title="Active Tasks" />
+      <SectionHeading title={t("jobs.activeTasks")} />
       {currentOrder ? (
         <ActiveTaskCard
           mode={currentOrder.serviceType?.toLowerCase() === "helper" ? "delivery" : "ride"}
@@ -27,10 +29,10 @@ export function ActiveTasksSection({
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "Just Now"
+              : t("profile.justNow")
           }
-          pickup={stops?.[0]?.address || stops?.[0]?.locationName || "Pickup Location"}
-          dropoff={last?.address || last?.locationName || "Drop-off Location"}
+          pickup={stops?.[0]?.address || stops?.[0]?.locationName || t("jobs.pickupLocation")}
+          dropoff={last?.address || last?.locationName || t("jobs.dropoffLocation")}
           onGo={() => router.push("/active-order")}
         />
       ) : (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Alert, Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -10,6 +11,7 @@ import type { Hotspot } from "../components/HighDemandAreas";
  * Going online is gated on identity verification — the driver is sent to the
  * verify screen rather than silently refused. Lifted out of the home screen. */
 export function useOnlineActions({ onServicesChosen }: { onServicesChosen: (mode: "ride" | "delivery") => void }) {
+  const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const isOnline = useDriverStore((s) => s.isOnline);
   const goOffline = useDriverStore((s) => s.goOffline);
@@ -28,21 +30,21 @@ export function useOnlineActions({ onServicesChosen }: { onServicesChosen: (mode
 
     try {
       const supported = await Linking.canOpenURL(url);
-      if (!supported) throw new Error("Google Maps link is not supported");
+      if (!supported) throw new Error(t("jobs.googleMapsLinkNotSupported"));
       await Linking.openURL(url);
     } catch {
-      Alert.alert("Unable to open maps", "Please try again from this device.");
+      Alert.alert(t("jobs.unableToOpenMaps"), t("jobs.pleaseTryAgainFromThisDevice"));
     }
   };
 
   const handleToggleOnline = () => {
     if (isOnline) {
       Alert.alert(
-        "Go Offline",
-        "Are you sure you want to go offline? You will stop receiving new requests.",
+        t("jobs.goOffline"),
+        t("jobs.areYouSureYouWantToGoOffline"),
         [
-          { text: "Cancel", style: "cancel" },
-          { text: "Go Offline", style: "destructive", onPress: () => goOffline() }
+          { text: t("actions.cancel"), style: "cancel" },
+          { text: t("jobs.goOffline"), style: "destructive", onPress: () => goOffline() }
         ]
       );
       return;
@@ -51,12 +53,12 @@ export function useOnlineActions({ onServicesChosen }: { onServicesChosen: (mode
     // Check identity verification before allowing go-online
     if (!identityVerified) {
       Alert.alert(
-        "Identity Verification Required",
-        "To start receiving orders, you must verify at least one government ID (Aadhaar or PAN Card).",
+        t("jobs.identityVerificationRequired"),
+        t("jobs.verifyAtLeastOneGovernmentId"),
         [
-          { text: "Not Now", style: "cancel" },
+          { text: t("jobs.notNow"), style: "cancel" },
           {
-            text: "Verify Now",
+            text: t("jobs.verifyNow"),
             onPress: () => router.push("/identity-verify"),
           },
         ]

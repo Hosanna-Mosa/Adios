@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { OptionPicker, OrderStage, OtpEntry, StageActionButton } from "../order";
@@ -7,20 +8,27 @@ import { CancelDeliveryButton } from "./CancelDeliveryButton";
 const DELIVERY_OPTIONS = ["door", "gate", "contactless"] as const;
 
 export function DeliveryArrivedStage() {
+  const { t } = useTranslation();
   const { verification, handleStatusTransition } = useActiveOrderCtx();
 
+  const deliveryOptionLabel = (opt: (typeof DELIVERY_OPTIONS)[number]) =>
+    opt === "door" ? t("jobs.deliveryOptionDoor")
+    : opt === "gate" ? t("jobs.deliveryOptionGate")
+    : t("jobs.deliveryOptionContactless");
+
   return (
-    <OrderStage title="Confirm Customer Delivery">
+    <OrderStage title={t("jobs.confirmCustomerDelivery")}>
       <OptionPicker
-        label="DELIVERY TYPE"
+        label={t("jobs.deliveryType")}
         options={DELIVERY_OPTIONS}
         selected={verification.deliveryOption}
         onSelect={verification.setDeliveryOption}
+        renderLabel={deliveryOptionLabel}
       />
 
       <OtpEntry
-        label="CUSTOMER CONFIRMATION OTP"
-        placeholder="Enter 4-Digit OTP"
+        label={t("jobs.customerConfirmationOtp")}
+        placeholder={t("jobs.enter4DigitOtp")}
         maxLength={4}
         value={verification.customerOTP}
         onChangeText={(val) => {
@@ -28,11 +36,11 @@ export function DeliveryArrivedStage() {
           verification.setCustomerOTPError(false);
         }}
         hasError={verification.customerOTPError}
-        errorText="Invalid OTP code. Please ask the customer for the correct delivery code."
+        errorText={t("jobs.invalidOtpAskCustomerDeliveryCode")}
       />
 
       <StageActionButton
-        label="Verify OTP & Complete Delivery"
+        label={t("jobs.verifyOtpAndCompleteDelivery")}
         onPress={handleStatusTransition}
       />
       <CancelDeliveryButton />

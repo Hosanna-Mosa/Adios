@@ -1,5 +1,6 @@
 import { Alert } from "react-native";
 
+import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { mapApiOrder } from "../orderMapper";
 import type { DriverState, GetDriverState, Order, SetDriverState } from "../types";
@@ -51,9 +52,9 @@ export const createOrderLifecycleSlice = (
 
     if (incomingOrder.isReserved) {
       Alert.alert(
-        "Ride Reserved Successfully",
-        "You have successfully accepted this scheduled ride reservation. We will notify you 15 minutes before the pickup time.",
-        [{ text: "OK" }],
+        i18n.t("jobs.rideReservedSuccessfully"),
+        i18n.t("jobs.rideReservationAcceptedNotifyBeforePickup"),
+        [{ text: i18n.t("actions.ok") }],
       );
       set({ currentOrder: null, incomingOrder: null, activeChat: [], unreadCount: 0 });
       return;

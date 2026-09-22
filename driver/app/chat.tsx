@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FlatList, Platform, Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
@@ -16,14 +17,14 @@ import { MessageComposer } from "@/components/shared/MessageComposer";
 import { KeyboardView } from "@/components/ui/KeyboardView";
 import { List } from "@/components/ui/List";
 
-const QUICK_REPLIES = [
-  "On my way!",
-  "Running late, sorry",
-  "At the door",
-  "Thank you!",
-];
-
 export default function DriverChatScreen() {
+  const { t } = useTranslation();
+  const QUICK_REPLIES = [
+    t("jobs.quickReplyOnMyWay"),
+    t("jobs.quickReplyRunningLate"),
+    t("jobs.quickReplyAtTheDoor"),
+    t("jobs.quickReplyThankYou"),
+  ];
   const insets = useSafeAreaInsets();
   const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive } = useDriverStore();
   const [inputText, setInputText] = useState("");
@@ -97,7 +98,7 @@ export default function DriverChatScreen() {
       keyboardVerticalOffset={0}
     >
       <CustomerChatHeader
-        customerName={currentOrder?.customerName || "Customer"}
+        customerName={currentOrder?.customerName || t("jobs.customer")}
         paddingTop={insets.top + (Platform.OS === "web" ? 67 : 0) + 12}
         onBack={() => router.back()}
         onCall={() => Linking.openURL(`tel:${currentOrder?.customerPhone || "1234567890"}`)}

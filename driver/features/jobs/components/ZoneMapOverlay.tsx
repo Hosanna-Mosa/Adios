@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -17,6 +18,7 @@ export function ZoneMapOverlay({
   description?: string | null;
   onBack: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.headerOverlay}>
       <Touchable style={styles.roundBackBtn} onPress={onBack}>
@@ -25,7 +27,7 @@ export function ZoneMapOverlay({
       <Box style={styles.titleContainer}>
         <AppText style={styles.headerTitle}>{name}</AppText>
         <AppText style={styles.headerSubtitle} numberOfLines={2}>
-          {description || "Operational geofence coverage area."}
+          {description || t("jobs.operationalGeofenceCoverageArea")}
         </AppText>
       </Box>
     </Box>

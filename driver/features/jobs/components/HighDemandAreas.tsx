@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
@@ -26,12 +27,13 @@ interface HighDemandAreasProps {
 }
 
 export function HighDemandAreas({ hotspots, isLoading = false, onAreaPress }: HighDemandAreasProps) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.section}>
       <Box style={styles.header}>
-        <AppText style={styles.sectionTitle}>High Demand Areas</AppText>
+        <AppText style={styles.sectionTitle}>{t("jobs.highDemandAreas")}</AppText>
         <Touchable style={styles.viewAllBtn}>
-          <AppText style={styles.viewAllText}>View all</AppText>
+          <AppText style={styles.viewAllText}>{t("jobs.viewAll")}</AppText>
           <Feather name="chevron-right" size={14} color={Colors.primary} />
         </Touchable>
       </Box>

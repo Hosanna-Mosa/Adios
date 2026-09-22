@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -14,6 +15,7 @@ import { RestaurantOtpEntry } from "./RestaurantOtpEntry";
 import { Box } from "@/components/ui/Box";
 
 export function DeliveryPickingItemsStage() {
+  const { t } = useTranslation();
   const {
     prepTimeRemaining, waitingComp, foodItems, verification,
     handleReportIssue, handleStatusTransition,
@@ -22,11 +24,11 @@ export function DeliveryPickingItemsStage() {
     verification;
 
   return (
-    <OrderStage title="Wait & Verify Order">
+    <OrderStage title={t("jobs.waitAndVerifyOrder")}>
       <TimersGrid prepTimeRemaining={prepTimeRemaining} waitingComp={waitingComp} />
 
       <Box style={styles.checklistScroll}>
-        <ChecklistGroup title="ITEMS IN ORDER" />
+        <ChecklistGroup title={t("jobs.itemsInOrder")} />
         {foodItems.map((item: any, idx: number) => (
           <ChecklistRow
             key={idx}
@@ -39,15 +41,15 @@ export function DeliveryPickingItemsStage() {
           />
         ))}
 
-        <ChecklistGroup title="PACKAGE SAFETY CHECKS" />
+        <ChecklistGroup title={t("jobs.packageSafetyChecks")} />
         <ChecklistRow
           checked={sealedChecked}
-          label="Food package is sealed and tamper-proof"
+          label={t("jobs.foodPackageIsSealedAndTamperProof")}
           onToggle={() => setSealedChecked(!sealedChecked)}
         />
         <ChecklistRow
           checked={countChecked}
-          label="Verified correct item count against invoice"
+          label={t("jobs.verifiedCorrectItemCountAgainstInvoice")}
           onToggle={() => setCountChecked(!countChecked)}
         />
 
@@ -57,7 +59,7 @@ export function DeliveryPickingItemsStage() {
       <PickupActionRow
         onReportIssue={handleReportIssue}
         onConfirm={handleStatusTransition}
-        confirmLabel="Confirm Picked Up"
+        confirmLabel={t("jobs.confirmPickedUp")}
       />
       <CancelDeliveryButton />
     </OrderStage>

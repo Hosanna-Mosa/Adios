@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { taskBannerStyles as styles } from "./TaskAssignmentBanner.styles";
 import { Touchable } from "@/components/ui/Touchable";
@@ -14,14 +15,15 @@ export function TaskAssignmentBanner({
   canStartTask: boolean;
   onStartTask: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.banner}>
       <Box style={styles.copy}>
-        <AppText style={styles.title}>Discuss Task Details</AppText>
+        <AppText style={styles.title}>{t("jobs.discussTaskDetails")}</AppText>
         <AppText style={styles.subtitle}>
           {canStartTask
-            ? "Customer has assigned the task! You can start now."
-            : "Wait for the customer to assign the task."}
+            ? t("jobs.customerHasAssignedTheTask")
+            : t("jobs.waitForCustomerToAssignTask")}
         </AppText>
       </Box>
       <Touchable
@@ -29,7 +31,7 @@ export function TaskAssignmentBanner({
         disabled={!canStartTask}
         onPress={onStartTask}
       >
-        <AppText style={styles.buttonText}>Start Task</AppText>
+        <AppText style={styles.buttonText}>{t("jobs.startTask")}</AppText>
       </Touchable>
     </Box>
   );

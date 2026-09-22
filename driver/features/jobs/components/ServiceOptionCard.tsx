@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import type { StyleProp, ViewStyle } from "react-native";
@@ -31,6 +32,7 @@ export function ServiceOptionCard({
   press: { animatedStyle: any; onPressIn: () => void; onPressOut: () => void };
   iconStyle?: StyleProp<ViewStyle>;
 }) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox style={press.animatedStyle}>
       <PressBox
@@ -61,7 +63,7 @@ export function ServiceOptionCard({
         </Box>
         {selected && (
           <AnimatedBox entering={fadeIn()} style={styles.selectedBadge}>
-            <AppText style={styles.selectedBadgeText}>Selected</AppText>
+            <AppText style={styles.selectedBadgeText}>{t("jobs.selected")}</AppText>
           </AnimatedBox>
         )}
       </PressBox>
