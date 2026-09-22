@@ -40,7 +40,7 @@ export function useAuthActions({
       return;
     }
     if (!password) {
-      Alert.alert(t("auth.passwordRequired"), t("auth.pleaseEnterYourPassword"));
+      Alert.alert(t("auth.passwordRequired"), t("auth.enterYourPassword"));
       return;
     }
 

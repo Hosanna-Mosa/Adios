@@ -93,7 +93,9 @@
     "verificationFailed": "Verification failed",
     "invalidOtp": "Invalid OTP",
     "sessionExpired": "Session expired",
-    "pleaseSignInAgain": "Please sign in again."
+    "pleaseSignInAgain": "Please sign in again.",
+    "loginRequired": "Login required",
+    "pleaseSignInAgainToContinueAsDriver": "Please sign in again to continue as a driver."
   },
   "earnings": {
     "thisWeeksBalance": "This Week's Balance",

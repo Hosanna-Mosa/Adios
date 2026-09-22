@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router, useSegments } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
 import { useLanguageStore } from "@/store/languageStore";
@@ -12,6 +13,7 @@ import { useLanguageStore } from "@/store/languageStore";
  * Returns false until hydration completes — render nothing before then, or
  * the app flashes the auth screen at a signed-in driver. */
 export function useAuthGate() {
+  const { t } = useTranslation();
   const segments = useSegments();
   const token = useDriverStore((s) => s.token);
   const isAuthenticated = useDriverStore((s) => s.isAuthenticated);
@@ -87,7 +89,7 @@ export function useAuthGate() {
       // Show a helpful alert if session expired
       if (needsLoginPrompt && !loginPromptShown.current) {
         loginPromptShown.current = true;
-        Alert.alert("Login required", "Please sign in again to continue as a driver.");
+        Alert.alert(t("auth.loginRequired"), t("auth.pleaseSignInAgainToContinueAsDriver"));
         setNeedsLoginPrompt(false);
       }
       return;
@@ -106,7 +108,7 @@ export function useAuthGate() {
     if (!isAllowedOnboardingScreen) {
       router.replace("/onboarding");
     }
-  }, [hydrated, isAuthenticated, token, hasCompletedOnboarding, needsLoginPrompt, segments, languageConfirmed]);
+  }, [hydrated, isAuthenticated, token, hasCompletedOnboarding, needsLoginPrompt, segments, languageConfirmed, t]);
 
   return { hydrated, token };
 }

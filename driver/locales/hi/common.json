@@ -93,7 +93,9 @@
     "verificationFailed": "सत्यापन विफल",
     "invalidOtp": "अमान्य OTP",
     "sessionExpired": "सत्र समाप्त हो गया",
-    "pleaseSignInAgain": "कृपया फिर से साइन इन करें।"
+    "pleaseSignInAgain": "कृपया फिर से साइन इन करें।",
+    "loginRequired": "लॉगिन आवश्यक है",
+    "pleaseSignInAgainToContinueAsDriver": "ड्राइवर के रूप में जारी रखने के लिए कृपया फिर से साइन इन करें।"
   },
   "earnings": {
     "thisWeeksBalance": "इस सप्ताह का बैलेंस",

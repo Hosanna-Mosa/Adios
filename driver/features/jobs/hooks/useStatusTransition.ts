@@ -92,7 +92,7 @@ export function useStatusTransition(args: Args) {
     }
     verification.setRestaurantOTPError(false);
     await updateOrderStatus("en_route_delivery", verification.restaurantOTP);
-  }, [foodItems, verification, currentOrder, updateOrderStatus]);
+  }, [foodItems, verification, currentOrder, updateOrderStatus, t]);
 
   return useCallback(async () => {
     const status = currentOrder?.status?.toLowerCase() || "";

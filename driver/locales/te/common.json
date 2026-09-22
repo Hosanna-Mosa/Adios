@@ -93,7 +93,9 @@
     "verificationFailed": "ధృవీకరణ విఫలమైంది",
     "invalidOtp": "చెల్లని OTP",
     "sessionExpired": "సెషన్ గడువు ముగిసింది",
-    "pleaseSignInAgain": "దయచేసి మళ్లీ సైన్ ఇన్ చేయండి."
+    "pleaseSignInAgain": "దయచేసి మళ్లీ సైన్ ఇన్ చేయండి.",
+    "loginRequired": "లాగిన్ అవసరం",
+    "pleaseSignInAgainToContinueAsDriver": "డ్రైవర్‌గా కొనసాగించడానికి దయచేసి మళ్లీ సైన్ ఇన్ చేయండి."
   },
   "earnings": {
     "thisWeeksBalance": "ఈ వారం బ్యాలెన్స్",
