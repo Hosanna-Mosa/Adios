@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { useLanguageStore } from "@/store/languageStore";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
 
 type Actions = Pick<
@@ -79,6 +81,10 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
 
   logout: () => {
     AsyncStorage.removeItem("driver-store"); // Clear persistence on logout
+    // Keep the persisted language choice; only the in-memory "gate passed"
+    // flag resets, so Select Language reappears (pre-selected) before the
+    // next login instead of being skipped.
+    useLanguageStore.getState().resetLanguageGate();
     set({
       isAuthenticated: false,
       hasCompletedOnboarding: false,
@@ -100,7 +106,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
     });
     const text = await response.text();
     const data = text ? JSON.parse(text) : {};
-    if (!response.ok) throw new Error(data.message || "Login failed");
+    if (!response.ok) throw new Error(data.message || i18n.t("auth.loginFailed"));
 
     set({
       isAuthenticated: true,
