@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import type { SupportTicket } from "../types";
 
 /** Creating a ticket and replying to one. Split out of useSupportChat so both
@@ -18,10 +19,11 @@ export function useTicketActions({
 }: any) {
   const [creatingTicket, setCreatingTicket] = useState(false);
   const [submittingReply, setSubmittingReply] = useState(false);
+  const { t } = useTranslation();
 
   const handleCreateTicket = async () => {
     if (!newTitle.trim() || !newMessage.trim()) {
-      Alert.alert("Required fields", "Please fill in the summary and description");
+      Alert.alert(t("support.requiredFields"), t("support.pleaseFillInTheSummaryAndDescription"));
       return;
     }
 
@@ -38,9 +40,9 @@ export function useTicketActions({
       setTicket(created);
       setAllTickets((prev: SupportTicket[]) => [created, ...prev]);
       setViewMode("chat");
-      Alert.alert("Ticket Created", "Partner Support has received your case and will respond shortly.");
+      Alert.alert(t("support.ticketCreated"), t("support.partnerSupportHasReceivedYourCase"));
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create support ticket");
+      Alert.alert(t("auth.errorTitle"), error.message || t("support.failedToCreateSupportTicket"));
     } finally {
       setCreatingTicket(false);
     }
@@ -60,7 +62,7 @@ export function useTicketActions({
       });
       setTicket(updatedTicket);
     } catch (error: any) {
-      Alert.alert("Failed to send message", error.message || "Please try again.");
+      Alert.alert(t("support.failedToSendMessage"), error.message || t("earnings.pleaseTryAgain"));
       setInputText(messageText); // restore text
     } finally {
       setSubmittingReply(false);

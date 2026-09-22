@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import type { SupportTicket } from "../types";
@@ -18,6 +19,12 @@ export function SupportChatHeader({
   paddingTop: number;
   onBack: () => void;
 }) {
+  const { t } = useTranslation();
+  const STATUS_LABEL: Record<SupportTicket["status"], string> = {
+    OPEN: t("support.statusLabel.open"),
+    RESOLVED: t("support.statusLabel.resolved"),
+    PENDING_RESOLVE: t("support.statusLabel.pendingResolve"),
+  };
   return (
     <Box style={[styles.header, { paddingTop, borderBottomColor: Colors.border }]}>
       <Touchable style={styles.backBtn} onPress={onBack}>
@@ -30,8 +37,8 @@ export function SupportChatHeader({
         </Box>
         {ticket && (
           <Box>
-            <AppText style={[styles.headerName, { color: Colors.text }]}>Partner Support</AppText>
-            <AppText style={styles.headerStatus}>Ticket {ticket.ticketId} • {ticket.status}</AppText>
+            <AppText style={[styles.headerName, { color: Colors.text }]}>{t("support.partnerSupport")}</AppText>
+            <AppText style={styles.headerStatus}>{t("support.ticket")} {ticket.ticketId} • {STATUS_LABEL[ticket.status]}</AppText>
           </Box>
         )}
       </Box>

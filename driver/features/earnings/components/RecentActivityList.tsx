@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { styles } from "../earnings.styles";
 import { formatCurrency, formatRelativeTime } from "../utils/format";
@@ -17,11 +18,12 @@ export interface EarningsTransaction {
 
 /** Recent payouts and adjustments, newest first. */
 export function RecentActivityList({ transactions }: { transactions: EarningsTransaction[] }) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox entering={fadeInUp(120)} style={styles.sectionCard}>
-      <AppText style={styles.sectionTitle}>Recent Activity</AppText>
+      <AppText style={styles.sectionTitle}>{t("earnings.recentActivity")}</AppText>
       {transactions.length === 0 ? (
-        <AppText style={styles.emptyText}>No completed earnings yet.</AppText>
+        <AppText style={styles.emptyText}>{t("earnings.noCompletedEarningsYet")}</AppText>
       ) : (
         transactions.map((tx, idx) => (
           <AnimatedBox key={tx.id} entering={staggerListItem(idx)}>

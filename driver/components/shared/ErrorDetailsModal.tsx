@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { styles } from "./ErrorFallback.styles";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { PressBox } from "@/components/ui/PressBox";
@@ -27,6 +28,7 @@ export function ErrorDetailsModal({
   monoFont: string | undefined;
   bottomInset: number;
 }) {
+  const { t } = useTranslation();
   return (
     <ModalBox visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Box style={styles.modalOverlay}>
@@ -41,10 +43,10 @@ export function ErrorDetailsModal({
               },
             ]}
           >
-            <AppText style={[styles.modalTitle, { color: theme.text }]}>Error Details</AppText>
+            <AppText style={[styles.modalTitle, { color: theme.text }]}>{t("errors.errorDetails")}</AppText>
             <PressBox
               onPress={onClose}
-              accessibilityLabel="Close error details"
+              accessibilityLabel={t("errors.closeErrorDetails")}
               accessibilityRole="button"
               style={({ pressed }) => [styles.closeButton, { opacity: pressed ? 0.6 : 1 }]}
             >

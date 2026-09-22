@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { CreateTicketForm } from "./CreateTicketForm";
@@ -33,9 +34,10 @@ export function CreateTicketView({
   submitting: boolean;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={[styles.root, { backgroundColor: Colors.background }]}>
-      <ScreenHeader title="Create Support Ticket" paddingTop={paddingTop} onBack={onBack} />
+      <ScreenHeader title={t("support.createSupportTicket")} paddingTop={paddingTop} onBack={onBack} />
 
       <KeyboardView
         style={{ flex: 1 }}

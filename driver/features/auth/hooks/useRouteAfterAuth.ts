@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Alert } from "react-native";
+import i18n from "@/i18n";
 import { useDriverStore } from "@/store/driverStore";
 
 /** Where a driver lands once signed in: the tabs if onboarding is finished,
@@ -10,7 +11,7 @@ export function useRouteAfterAuth() {
   const routeAfterAuth = async () => {
     const sessionValid = await refreshSession();
     if (!sessionValid) {
-      Alert.alert("Session expired", "Please sign in again.");
+      Alert.alert(i18n.t("auth.sessionExpired"), i18n.t("auth.pleaseSignInAgain"));
       return;
     }
 

@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { reloadAppAsync } from "expo";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { styles } from "./ErrorFallback.styles";
@@ -19,6 +20,7 @@ export type ErrorFallbackProps = {
 
 export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { isDark, theme, monoFont } = useErrorFallbackTheme();
 
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -48,11 +50,11 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
 
       <Box style={styles.content}>
         <AppText style={[styles.title, { color: theme.text }]}>
-          Something went wrong
+          {t("errors.somethingWentWrong")}
         </AppText>
 
         <AppText style={[styles.message, { color: theme.textSecondary }]}>
-          Please reload the app to continue.
+          {t("errors.pleaseReloadTheAppToContinue")}
         </AppText>
 
         <PressBox
@@ -67,7 +69,7 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
           ]}
         >
           <AppText style={[styles.buttonText, { color: theme.buttonText }]}>
-            Try Again
+            {t("errors.tryAgain")}
           </AppText>
         </PressBox>
       </Box>
@@ -97,11 +99,11 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
                 ]}
               >
                 <AppText style={[styles.modalTitle, { color: theme.text }]}>
-                  Error Details
+                  {t("errors.errorDetails")}
                 </AppText>
                 <PressBox
                   onPress={() => setIsModalVisible(false)}
-                  accessibilityLabel="Close error details"
+                  accessibilityLabel={t("errors.closeErrorDetails")}
                   accessibilityRole="button"
                   style={({ pressed }) => [
                     styles.closeButton,

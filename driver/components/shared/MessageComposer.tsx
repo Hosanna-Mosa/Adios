@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { typography } from "@/constants/typography";
@@ -31,11 +32,12 @@ export function MessageComposer({
   onChangeText,
   onSend,
   paddingBottom,
-  placeholder = "Type a message...",
+  placeholder,
   maxLength = 300,
   disabled = false,
   testID,
 }: Props) {
+  const { t } = useTranslation();
   const canSend = !!value.trim() && !disabled;
 
   return (
@@ -43,7 +45,7 @@ export function MessageComposer({
       <Box style={styles.inputContainer}>
         <AppTextInput
           style={styles.textInput}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("chat.typeAMessage")}
           placeholderTextColor={Colors.textMuted}
           value={value}
           onChangeText={onChangeText}
@@ -56,7 +58,7 @@ export function MessageComposer({
         onPress={onSend}
         disabled={!canSend}
         accessibilityRole="button"
-        accessibilityLabel="Send message"
+        accessibilityLabel={t("chat.sendMessage")}
       >
         <Box style={styles.sendIcon}>
           <Feather name="send" size={moderateScale(19)} color={Colors.white} />

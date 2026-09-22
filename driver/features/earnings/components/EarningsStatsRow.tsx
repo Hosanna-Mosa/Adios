@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { fadeInUp } from "@/motion/presets";
 import { styles } from "../earnings.styles";
 import { Box } from "@/components/ui/Box";
@@ -14,15 +15,16 @@ export function EarningsStatsRow({
   onlineHours: number;
   totalDistance: number | string;
 }) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox entering={fadeInUp(180)} style={styles.bottomStats}>
       <Box style={styles.statCard}>
         <AppText style={styles.statValue}>{onlineHours.toFixed(1)}h</AppText>
-        <AppText style={styles.statLabel}>Online Hours</AppText>
+        <AppText style={styles.statLabel}>{t("earnings.onlineHours")}</AppText>
       </Box>
       <Box style={styles.statCard}>
         <AppText style={styles.statValue}>{totalDistance} km</AppText>
-        <AppText style={styles.statLabel}>Total Distance</AppText>
+        <AppText style={styles.statLabel}>{t("earnings.totalDistance")}</AppText>
       </Box>
     </AnimatedBox>
   );

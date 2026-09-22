@@ -1,5 +1,6 @@
 import { Platform, useColorScheme } from "react-native";
 import { Colors } from "@/constants/colors";
+import i18n from "@/i18n";
 
 /** The crash screen deliberately uses its own colours rather than the app
  * palette: it has to stay readable when the app's own theming is what broke.
@@ -27,9 +28,9 @@ export function useErrorFallbackTheme() {
 
 /** Error message plus stack, formatted for the details sheet. */
 export function formatErrorDetails(error: Error): string {
-  let details = `Error: ${error.message}\n\n`;
+  let details = `${i18n.t("errors.errorLabel")}: ${error.message}\n\n`;
   if (error.stack) {
-    details += `Stack Trace:\n${error.stack}`;
+    details += `${i18n.t("errors.stackTrace")}:\n${error.stack}`;
   }
   return details;
 }

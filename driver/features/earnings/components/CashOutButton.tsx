@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { Box } from "@/components/ui/Box";
@@ -15,6 +16,7 @@ interface CashOutButtonProps {
 }
 
 export function CashOutButton({ onPress, disabled = false, isLoading = false }: CashOutButtonProps) {
+  const { t } = useTranslation();
   return (
     <PressBox
       style={[styles.button, disabled && styles.buttonDisabled]}
@@ -24,7 +26,7 @@ export function CashOutButton({ onPress, disabled = false, isLoading = false }: 
       <Box style={styles.iconContainer}>
         <Feather name="dollar-sign" size={18} color={Colors.white} />
       </Box>
-      <AppText style={styles.text}>Cash Out</AppText>
+      <AppText style={styles.text}>{t("earnings.cashOut")}</AppText>
       {isLoading ? (
         <Loader size="small" color={Colors.white} />
       ) : (

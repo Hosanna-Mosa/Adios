@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/colors";
 import { typography } from "@/constants/typography";
@@ -26,9 +27,10 @@ interface Props {
  * padding, back-button shape and title weight. One spec now, so the four
  * screens stop drifting apart. */
 export function ScreenHeader({ title, onBack, paddingTop, right, testID }: Props) {
+  const { t } = useTranslation();
   return (
     <Box style={[styles.header, { paddingTop }]} testID={testID}>
-      <Touchable style={styles.backBtn} onPress={onBack} accessibilityRole="button" accessibilityLabel="Go back">
+      <Touchable style={styles.backBtn} onPress={onBack} accessibilityRole="button" accessibilityLabel={t("actions.goBack")}>
         <Ionicons name="arrow-back" size={moderateScale(22)} color={Colors.text} />
       </Touchable>
       <AppText style={styles.headerTitle} numberOfLines={1}>

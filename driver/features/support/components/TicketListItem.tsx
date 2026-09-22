@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import type { SupportTicket } from "../types";
 import { ticketStyles as styles } from "./TicketListItem.styles";
@@ -15,6 +16,12 @@ export function TicketListItem({
   ticket: SupportTicket;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
+  const STATUS_LABEL: Record<SupportTicket["status"], string> = {
+    OPEN: t("support.statusLabel.open"),
+    RESOLVED: t("support.statusLabel.resolved"),
+    PENDING_RESOLVE: t("support.statusLabel.pendingResolve"),
+  };
   const isOpen = ticket.status === "OPEN" || ticket.status === "PENDING_RESOLVE";
 
   return (
@@ -23,7 +30,7 @@ export function TicketListItem({
         <Box style={styles.titleWrap}>
           <AppText style={styles.title} numberOfLines={1}>{ticket.title}</AppText>
           <AppText style={styles.meta}>
-            ID: {ticket.ticketId} • {ticket.category}
+            {t("support.id")}: {ticket.ticketId} • {ticket.category}
           </AppText>
         </Box>
         <Box
@@ -38,14 +45,14 @@ export function TicketListItem({
               { color: isOpen ? Colors.success : Colors.textSecondary },
             ]}
           >
-            {ticket.status}
+            {STATUS_LABEL[ticket.status]}
           </AppText>
         </Box>
       </Box>
       <AppText style={styles.preview} numberOfLines={2}>{ticket.message}</AppText>
       <Box style={styles.bottomRow}>
         <AppText style={styles.date}>{new Date(ticket.createdAt).toLocaleDateString()}</AppText>
-        <AppText style={styles.continue}>Continue Chat →</AppText>
+        <AppText style={styles.continue}>{t("support.continueChat")}</AppText>
       </Box>
     </Touchable>
   );

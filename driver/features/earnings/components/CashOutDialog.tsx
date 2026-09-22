@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { AppModal } from "@/components/shared/AppModal";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
@@ -26,28 +27,29 @@ export function CashOutDialog({
   onCancel: () => void;
   isCashingOut: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <AppModal visible={visible} onClose={onCancel} presentation="card">
-      <AppText style={styles.modalTitle}>Confirm Cash Out</AppText>
+      <AppText style={styles.modalTitle}>{t("earnings.confirmCashOut")}</AppText>
       <AppText style={styles.modalText}>
-        {formatCurrency(amount)} will be transferred through Razorpay.
+        {t("earnings.willBeTransferredThroughRazorpay", { value: formatCurrency(amount), defaultValue: "{{value}} will be transferred through Razorpay." })}
       </AppText>
       <TextField
         value={password}
         onChangeText={onPasswordChange}
-        placeholder="Driver password"
+        placeholder={t("earnings.driverPassword")}
         secureTextEntry
         style={{ marginBottom: 14 }}
       />
       <Box style={styles.modalActions}>
         <Button
-          title="Cancel"
+          title={t("actions.cancel")}
           variant="secondary"
           size="sm"
           onPress={onCancel}
           disabled={isCashingOut}
         />
-        <Button title="Confirm" size="sm" onPress={onConfirm} loading={isCashingOut} />
+        <Button title={t("actions.confirm")} size="sm" onPress={onConfirm} loading={isCashingOut} />
       </Box>
     </AppModal>
   );

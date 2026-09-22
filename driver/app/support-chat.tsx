@@ -2,11 +2,13 @@ import { Platform, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {  } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { CreateTicketView, SupportLoading, TicketChatView, TicketListView } from "@/features/support/components";
 import { useSupportChat } from "@/features/support/hooks/useSupportChat";
 
 export default function SupportChatScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   const {
     viewMode, setViewMode, loading, setLoading,
@@ -20,7 +22,7 @@ export default function SupportChatScreen() {
 
   if (loading) {
     return (
-      <SupportLoading message="Loading support session..." />
+      <SupportLoading message={t("support.loadingSupportSession")} />
     );
   }
 
@@ -79,12 +81,12 @@ export default function SupportChatScreen() {
           // Submitting a new message reopens the ticket
           await supportFetch(`/support/tickets/${ticket!._id}/messages`, {
             method: "POST",
-            body: JSON.stringify({ text: "Re-opening this case. I still need assistance." }),
+            body: JSON.stringify({ text: t("support.reOpeningThisCase") }),
           });
           await fetchTickets(true);
           setViewMode("chat");
         } catch (err: any) {
-          Alert.alert("Error", err.message || "Failed to reopen ticket");
+          Alert.alert(t("auth.errorTitle"), err.message || t("support.failedToReopenTicket"));
         } finally {
           setLoading(false);
         }
@@ -104,7 +106,7 @@ export default function SupportChatScreen() {
           });
           setTicket(updated);
         } catch (err: any) {
-          Alert.alert("Error", err.message || "Failed to update ticket");
+          Alert.alert(t("auth.errorTitle"), err.message || t("support.failedToUpdateTicket"));
         } finally {
           setLoading(false);
         }
