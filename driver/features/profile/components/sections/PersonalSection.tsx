@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -44,26 +45,27 @@ export function PersonalSection({
   onCancel: () => void;
   onSave: () => void;
 }) {
+  const { t } = useTranslation();
   if (isEditing) {
     return (
       <Box style={modalStyles.formWrap}>
         <EditField
-          label="Name"
+          label={t("profile.name")}
           value={values.name}
           onChangeText={(t) => onChange("name", t)}
           icon="user"
-          placeholder="Your name"
+          placeholder={t("profile.yourName")}
         />
         <EditField
-          label="Username"
+          label={t("profile.username")}
           value={values.username}
           onChangeText={(t) => onChange("username", t)}
           icon="at-sign"
-          placeholder="username"
+          placeholder={t("profile.usernamePlaceholder")}
           autoCapitalize="none"
         />
         <EditField
-          label="Email"
+          label={t("profile.email")}
           value={values.email}
           onChangeText={(t) => onChange("email", t)}
           icon="mail"
@@ -72,11 +74,11 @@ export function PersonalSection({
           autoCapitalize="none"
         />
         <EditField
-          label="Phone"
+          label={t("profile.phone")}
           value={values.phone}
           onChangeText={(t) => onChange("phone", t)}
           icon="phone"
-          placeholder="Phone number"
+          placeholder={t("profile.phoneNumber")}
           keyboardType="phone-pad"
         />
 
@@ -85,8 +87,8 @@ export function PersonalSection({
         <ModalFormActions
           onCancel={onCancel}
           onConfirm={onSave}
-          confirmLabel="Save Changes"
-          busyLabel="Saving..."
+          confirmLabel={t("profile.saveChanges")}
+          busyLabel={t("profile.saving")}
           busy={isSaving}
         />
       </Box>
@@ -98,7 +100,7 @@ export function PersonalSection({
       <SectionFieldRows fields={fields} />
       <ModalActionButton
         icon={<Feather name="edit-2" size={15} color={Colors.primary} />}
-        label="Edit Profile"
+        label={t("profile.editProfile")}
         onPress={onStartEditing}
       />
     </Box>

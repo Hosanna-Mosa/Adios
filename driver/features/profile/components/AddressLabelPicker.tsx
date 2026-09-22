@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -12,6 +13,14 @@ const ICON_FOR: Record<string, keyof typeof Feather.glyphMap> = {
   Work: "briefcase",
 };
 
+// `opt` is the stored address label value (kept in English) — only the
+// displayed chip text is translated.
+const LABEL_KEY_FOR: Record<string, string> = {
+  Home: "profile.addressLabelHome",
+  Work: "profile.addressLabelWork",
+  Other: "profile.addressLabelOther",
+};
+
 /** "Save as" chips — Home / Work / Other. */
 export function AddressLabelPicker({
   options,
@@ -22,9 +31,10 @@ export function AddressLabelPicker({
   selected: string;
   onSelect: (label: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.section}>
-      <AppText style={styles.sectionTitle}>Save as</AppText>
+      <AppText style={styles.sectionTitle}>{t("profile.saveAs")}</AppText>
       <Box style={styles.labelRow}>
         {options.map((opt) => {
           const isActive = selected === opt;
@@ -40,7 +50,7 @@ export function AddressLabelPicker({
                 color={isActive ? Colors.white : Colors.textSecondary}
               />
               <AppText style={[styles.labelChipText, isActive && styles.labelChipTextActive]}>
-                {opt}
+                {LABEL_KEY_FOR[opt] ? t(LABEL_KEY_FOR[opt]) : opt}
               </AppText>
             </Touchable>
           );

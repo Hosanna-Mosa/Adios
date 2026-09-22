@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 
 /** Adding a payout account from the profile tab. */
 export function useProfileBank(onSaved: () => void) {
+  const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const [showBankForm, setShowBankForm] = useState(false);
   const [newBankAccount, setNewBankAccount] = useState("");
@@ -14,7 +16,7 @@ export function useProfileBank(onSaved: () => void) {
   const handleAddBankAccount = async () => {
     if (!token) return;
     if (newBankAccount.length < 9 || newBankIfsc.length < 8) {
-      Alert.alert("Validation", "Enter valid bank account and IFSC code");
+      Alert.alert(t("profile.validation"), t("profile.enterValidBankAccountAndIfsc"));
       return;
     }
 
@@ -36,7 +38,7 @@ export function useProfileBank(onSaved: () => void) {
 
       if (!response.ok) {
         const errData = await response.json();
-        throw new Error(errData.message || "Failed to add bank account");
+        throw new Error(errData.message || t("profile.failedToAddBankAccount"));
       }
 
       // Reload profile to show new account
@@ -44,9 +46,9 @@ export function useProfileBank(onSaved: () => void) {
       setShowBankForm(false);
       setNewBankAccount("");
       setNewBankIfsc("");
-      Alert.alert("Added", "Bank account added successfully.");
+      Alert.alert(t("profile.added"), t("profile.bankAccountAddedSuccessfully"));
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to add bank account");
+      Alert.alert(t("auth.errorTitle"), error.message || t("profile.failedToAddBankAccount"));
     } finally {
       setIsSavingBank(false);
     }

@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import {
@@ -22,6 +23,7 @@ import { Box } from "@/components/ui/Box";
 const LABEL_OPTIONS = ["Home", "Work", "Other"];
 
 export default function AddAddressScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const {
     isEditMode,
@@ -45,7 +47,7 @@ export default function AddAddressScreen() {
       style={styles.container}
     >
       <ScreenHeader
-        title={isEditMode ? "Edit Address" : "Add New Address"}
+        title={isEditMode ? t("profile.editAddress") : t("profile.addNewAddress")}
         paddingTop={insets.top + (Platform.OS === "web" ? 20 : 0)}
         onBack={() => router.back()}
       />
@@ -56,17 +58,17 @@ export default function AddAddressScreen() {
       >
         <AddressLabelPicker options={LABEL_OPTIONS} selected={label} onSelect={setLabel} />
 
-        <AddressSection title="Address Details">
+        <AddressSection title={t("profile.addressDetails")}>
 
           <Box style={styles.inputGroup}>
             <AddressFieldHeader
-              label="Full Address *"
+              label={t("profile.fullAddress")}
               fetching={fetchingLoc}
               onUseCurrentLocation={handleGetCurrentLocation}
             />
             <AppTextInput
               style={styles.input}
-              placeholder="e.g. 12, MG Road, Koramangala, Bangalore"
+              placeholder={t("profile.egFullAddress")}
               placeholderTextColor={Colors.textMuted}
               value={addressLine}
               onChangeText={(text) => {
@@ -90,16 +92,16 @@ export default function AddAddressScreen() {
           </Box>
         </AddressSection>
 
-        <AddressSection title="Contact Details">
+        <AddressSection title={t("profile.contactDetails")}>
           <AddressTextField
-            label="Receiver&apos;s Name"
-            placeholder="Enter receiver name"
+            label={t("profile.receiversName")}
+            placeholder={t("profile.enterReceiverName")}
             value={receiverName}
             onChangeText={setReceiverName}
           />
           <AddressTextField
-            label="Phone Number"
-            placeholder="Enter phone number"
+            label={t("profile.phoneNumber")}
+            placeholder={t("profile.enterPhoneNumber")}
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
@@ -108,7 +110,7 @@ export default function AddAddressScreen() {
       </ScrollBox>
 
       <AddressSaveBar
-        label={isEditMode ? "Update Address" : "Save Address"}
+        label={isEditMode ? t("profile.updateAddress") : t("profile.saveAddress")}
         loading={loading}
         onPress={handleSave}
         paddingBottom={insets.bottom + 16}

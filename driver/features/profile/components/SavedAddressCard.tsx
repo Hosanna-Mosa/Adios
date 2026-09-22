@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -21,6 +22,15 @@ export function SavedAddressCard({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
+  const addressLabelText =
+    address.label === "Home"
+      ? t("profile.addressLabelHome")
+      : address.label === "Work" || address.label === "Office"
+      ? t("profile.addressLabelWork")
+      : address.label === "Other"
+      ? t("profile.addressLabelOther")
+      : address.label;
   return (
     <AnimatedBox entering={staggerListItem(index)} style={styles.addressCard}>
       <Box style={styles.addressIconBox}>
@@ -37,7 +47,7 @@ export function SavedAddressCard({
         />
       </Box>
       <Box style={styles.addressInfo}>
-        <AppText style={styles.addressLabel}>{address.label}</AppText>
+        <AppText style={styles.addressLabel}>{addressLabelText}</AppText>
         <AppText style={styles.addressLine} numberOfLines={2}>
           {address.addressLine}
         </AppText>

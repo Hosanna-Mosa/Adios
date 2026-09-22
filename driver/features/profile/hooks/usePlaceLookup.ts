@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import * as Location from "expo-location";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -15,6 +16,7 @@ export function usePlaceLookup({
   setAddressLat: (v: number | null) => void;
   setAddressLng: (v: number | null) => void;
 }) {
+  const { t } = useTranslation();
   const { token } = useDriverStore();
   const [fetchingLoc, setFetchingLoc] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -43,7 +45,7 @@ export function usePlaceLookup({
       setFetchingLoc(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permissions are required to fetch your current location.");
+        Alert.alert(t("profile.permissionDenied"), t("profile.locationPermissionsRequired"));
         return;
       }
 
@@ -74,10 +76,10 @@ export function usePlaceLookup({
 
         setAddressLine(parts.join(", "));
       } else {
-        setAddressLine(`Coords: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        setAddressLine(`${t("onboarding.coords")}: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
       }
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to fetch current location.");
+      Alert.alert(t("auth.errorTitle"), error.message || t("profile.failedToFetchCurrentLocation"));
     } finally {
       setFetchingLoc(false);
     }

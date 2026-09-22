@@ -2,6 +2,7 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
 import { Alert, Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
@@ -17,72 +18,79 @@ import { styles } from "@/features/profile/profile.styles";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { AppText } from "@/components/ui/AppText";
 
-const MENU_ITEMS = [
-  {
-    section: "Account",
-    items: [
-      { icon: "user" as const, label: "Personal Info", color: Colors.primary },
-      {
-        icon: "credit-card" as const,
-        label: "Payment Details",
-        color: Colors.violet,
-      },
-      {
-        icon: "file-text" as const,
-        label: "Documents",
-        color: Colors.warning,
-      },
-    ],
-  },
-  {
-    section: "Address",
-    items: [
-      {
-        icon: "map-pin" as const,
-        label: "Saved Addresses",
-        color: Colors.tertiary,
-        action: "saved-addresses" as const,
-      },
-    ],
-  },
-  {
-    section: "Vehicle",
-    items: [
-      { icon: "truck" as const, label: "Vehicle Info", color: Colors.primary },
-      {
-        icon: "shield" as const,
-        label: "Insurance",
-        color: Colors.success,
-      },
-    ],
-  },
-  {
-    section: "Support",
-    items: [
-      {
-        icon: "help-circle" as const,
-        label: "Help Center",
-        color: Colors.primary,
-      },
-      {
-        icon: "message-circle" as const,
-        label: "Contact Support",
-        color: Colors.violet,
-      },
-    ],
-  },
-];
-
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { driverName, driverPhone, earnings, logout, isOnline } =
     useDriverStore();
 
+  const MENU_ITEMS = [
+    {
+      section: t("profile.account"),
+      items: [
+        { icon: "user" as const, label: t("profile.personalInfo"), color: Colors.primary },
+        {
+          icon: "credit-card" as const,
+          label: t("profile.paymentDetails"),
+          color: Colors.violet,
+        },
+        {
+          icon: "file-text" as const,
+          label: t("profile.documents"),
+          color: Colors.warning,
+        },
+      ],
+    },
+    {
+      section: t("profile.address"),
+      items: [
+        {
+          icon: "map-pin" as const,
+          label: t("profile.savedAddresses"),
+          color: Colors.tertiary,
+          action: "saved-addresses" as const,
+        },
+      ],
+    },
+    {
+      section: t("profile.vehicle"),
+      items: [
+        { icon: "truck" as const, label: t("profile.vehicleInfo"), color: Colors.primary },
+        {
+          icon: "shield" as const,
+          label: t("profile.insurance"),
+          color: Colors.success,
+        },
+      ],
+    },
+    {
+      section: t("support.partnerSupport", "Support"),
+      items: [
+        {
+          icon: "help-circle" as const,
+          label: t("profile.helpCenter"),
+          color: Colors.primary,
+        },
+        {
+          icon: "message-circle" as const,
+          label: t("profile.contactSupport"),
+          color: Colors.violet,
+        },
+        {
+          icon: "globe" as const,
+          label: t("language.language"),
+          color: Colors.tertiary,
+          action: "language-settings" as const,
+        },
+      ],
+    },
+  ];
+
   const handleLogout = () => {
-    Alert.alert("Go Offline & Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("profile.goOfflineAndLogout"), t("profile.areYouSureYouWantToLogout"), [
+      { text: t("actions.cancel"), style: "cancel" },
       {
-        text: "Logout",
+        text: t("actions.logout"),
         style: "destructive",
         onPress: () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -105,7 +113,7 @@ export default function ProfileScreen() {
       ]}
       showsVerticalScrollIndicator={false}
     >
-      <ProfilePageHeader title="Profile" onClose={() => router.back()} />
+      <ProfilePageHeader title={t("tabs.profile")} onClose={() => router.back()} />
 
       <ProfileIdentityCard
         driverName={driverName}
@@ -115,9 +123,9 @@ export default function ProfileScreen() {
 
       <ProfileStatsRow
         stats={[
-          { value: earnings.totalDeliveries, label: "Deliveries" },
-          { value: "4.9", label: "Rating" },
-          { value: "98%", label: "Acceptance" },
+          { value: earnings.totalDeliveries, label: t("profile.deliveries") },
+          { value: "4.9", label: t("profile.rating") },
+          { value: "98%", label: t("profile.acceptance") },
         ]}
       />
 
@@ -131,6 +139,8 @@ export default function ProfileScreen() {
           onSelect={(item) => {
             if (item.action === "saved-addresses") {
               router.push("/saved-addresses");
+            } else if (item.action === "language-settings") {
+              router.push("/language-settings");
             }
           }}
         />
@@ -138,7 +148,7 @@ export default function ProfileScreen() {
 
       <LogoutButton onPress={handleLogout} />
 
-      <AppText style={styles.versionText}>Flavour Driver v1.0.0</AppText>
+      <AppText style={styles.versionText}>{t("auth.flavourDriver")} v1.0.0</AppText>
     </ScrollBox>
   );
 }

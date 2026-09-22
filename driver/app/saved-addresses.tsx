@@ -1,6 +1,7 @@
 import { router, useFocusEffect } from "expo-router";
 import React, { useState, useCallback } from "react";
 import { Alert, Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
@@ -17,6 +18,7 @@ import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Box } from "@/components/ui/Box";
 
 export default function SavedAddressesScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { token } = useDriverStore();
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -44,10 +46,10 @@ export default function SavedAddressesScreen() {
   };
 
   const handleDeleteAddress = (id: string) => {
-    Alert.alert("Delete Address", "Are you sure you want to remove this address?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("profile.deleteAddress"), t("profile.areYouSureYouWantToRemoveThisAddress"), [
+      { text: t("actions.cancel"), style: "cancel" },
       {
-        text: "Delete",
+        text: t("profile.delete"),
         style: "destructive",
         onPress: async () => {
           try {
@@ -61,7 +63,7 @@ export default function SavedAddressesScreen() {
             const updated = await res.json();
             setAddresses(Array.isArray(updated) ? updated : []);
           } catch (err: any) {
-            Alert.alert("Error", err.message || "Failed to delete address");
+            Alert.alert(t("auth.errorTitle"), err.message || t("profile.failedToDeleteAddress"));
           } finally {
             setLoading(false);
           }
@@ -80,7 +82,7 @@ export default function SavedAddressesScreen() {
   return (
     <Box style={styles.root}>
       <ScreenHeader
-        title="Saved Addresses"
+        title={t("profile.savedAddresses")}
         paddingTop={insets.top + (Platform.OS === "web" ? 20 : 0)}
         onBack={() => router.back()}
       />

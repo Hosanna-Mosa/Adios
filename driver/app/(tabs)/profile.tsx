@@ -1,4 +1,5 @@
 
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,7 +13,7 @@ import { SectionContent } from "@/features/profile/components/sections";
 import { styles } from "@/features/profile/profile-tab.styles";
 import { useProfileSections } from "@/features/profile/profileSections";
 import { useProfileTab } from "@/features/profile/hooks/useProfileTab";
-import { GENDERS } from "@/features/profile/genders";
+import { getGenders } from "@/features/profile/genders";
 import { ProfileTabBody } from "@/features/profile/components";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Refresh } from "@/components/ui/Refresh";
@@ -24,6 +25,7 @@ import { Refresh } from "@/components/ui/Refresh";
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const tabBarHeight = useDriverTabBarHeight();
   const resetOnboarding = useDriverStore((s) => s.resetOnboarding);
   const tab = useProfileTab();
@@ -62,7 +64,7 @@ export default function ProfileScreen() {
         {isLoading ? (
           <ProfileLoadingCard />
         ) : !profile ? (
-          <ProfileUnavailableCard message="Profile data is not available." />
+          <ProfileUnavailableCard message={t("profile.profileDataNotAvailable")} />
         ) : (
           <>
             <ProfileTabBody
@@ -90,7 +92,7 @@ export default function ProfileScreen() {
         <SectionContent
           {...tab}
           selectedSection={selectedSection}
-          GENDERS={GENDERS}
+          GENDERS={getGenders()}
           handleCloseModal={handleCloseModal}
         />
       </ProfileSectionModal>

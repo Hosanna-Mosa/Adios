@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { LinearGradient } from "expo-linear-gradient";
 import { gradients } from "@/constants/colors";
@@ -8,6 +9,7 @@ import { AppText } from "@/components/ui/AppText";
 
 /** Gradient sign-out button. */
 export function SignOutButton({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
   return (
     <PressBox style={styles.signOutButtonWrap} onPress={onPress}>
       <LinearGradient
@@ -16,7 +18,7 @@ export function SignOutButton({ onPress }: { onPress: () => void }) {
         end={{ x: 1, y: 0 }}
         style={styles.signOutGradient}
       >
-        <AppText style={styles.signOutText}>Sign Out</AppText>
+        <AppText style={styles.signOutText}>{t("profile.signOut")}</AppText>
       </LinearGradient>
     </PressBox>
   );
@@ -24,10 +26,11 @@ export function SignOutButton({ onPress }: { onPress: () => void }) {
 
 /** Development shortcut that clears onboarding and restarts the flow. */
 export function RetakeOnboardingButton({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation();
   return (
     <PressBox style={styles.devButton} onPress={onPress}>
       <AppText style={styles.devBadge}>DEV</AppText>
-      <AppText style={styles.devButtonText}>Retake Onboarding</AppText>
+      <AppText style={styles.devButtonText}>{t("profile.retakeOnboarding")}</AppText>
     </PressBox>
   );
 }
