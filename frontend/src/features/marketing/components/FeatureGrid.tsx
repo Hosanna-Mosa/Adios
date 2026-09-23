@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { FadeIn } from "../../../components/motion/FadeIn";
 
 type Props = { activeMode: "food" | "ride" };
 
 export function FeatureGrid({ activeMode }: Props) {
+  const { t } = useTranslation();
   return (
     <section
       id="services"
@@ -21,11 +23,10 @@ export function FeatureGrid({ activeMode }: Props) {
             }`}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-primary font-display mb-4">
-              One Platform, Refined Life
+              {t("featureGrid.foodTitle")}
             </h2>
             <p className="text-secondary-app text-sm md:text-base leading-relaxed font-body">
-              Flavor integrates three essential pillars of the modern lifestyle
-              into a single, seamless executive experience.
+              {t("featureGrid.foodSubtitle")}
             </p>
           </div>
 
@@ -38,11 +39,10 @@ export function FeatureGrid({ activeMode }: Props) {
             }`}
           >
             <h2 className="text-3xl md:text-4xl font-bold text-primary font-display mb-4">
-              Movement, Restructured
+              {t("featureGrid.rideTitle")}
             </h2>
             <p className="text-secondary-app text-sm md:text-base leading-relaxed font-body">
-              Our custom mobility workflows ensure you travel with max
-              efficiency and zero friction.
+              {t("featureGrid.rideSubtitle")}
             </p>
           </div>
         </div>
@@ -62,11 +62,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="restaurant" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                Culinary Excellence
+                {t("featureGrid.culinaryExcellenceTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Access a curated selection of the city's finest kitchens. Every
-                meal is handled with white-glove care from chef to table.
+                {t("featureGrid.culinaryExcellenceDesc")}
               </p>
             </div>
 
@@ -75,11 +74,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="directions_car" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                Executive Motion
+                {t("featureGrid.executiveMotionTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Premium transportation for the discerning professional.
-                Professional chauffeurs and high-end vehicles at your command.
+                {t("featureGrid.executiveMotionDesc")}
               </p>
             </div>
 
@@ -88,11 +86,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="local_shipping" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                Swift Logistics
+                {t("featureGrid.swiftLogisticsTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Secure, real-time parcel delivery and personal tasks managed by
-                our elite logistics network with total discretion.
+                {t("featureGrid.swiftLogisticsDesc")}
               </p>
             </div>
           </div>
@@ -110,11 +107,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="flight" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                Airport Transfers
+                {t("featureGrid.airportTransfersTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Punctual, stress-free transit to and from major hubs. Real-time
-                flight tracking ensures we're always there before you land.
+                {t("featureGrid.airportTransfersDesc")}
               </p>
             </div>
 
@@ -123,11 +119,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="apartment" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                City Commutes
+                {t("featureGrid.cityCommutesTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Reliable point-to-point travel within the metropolitan core.
-                Turn transit time into productive working minutes.
+                {t("featureGrid.cityCommutesDesc")}
               </p>
             </div>
 
@@ -136,11 +131,10 @@ export function FeatureGrid({ activeMode }: Props) {
                 <Icon name="schedule" className="text-2xl" />
               </div>
               <h3 className="text-xl font-semibold text-primary font-display mb-3">
-                Hourly Hire
+                {t("featureGrid.hourlyHireTitle")}
               </h3>
               <p className="text-secondary-app text-sm leading-relaxed font-body">
-                Dedicated vehicle and chauffeur at your disposal for multi-stop
-                meetings or full-day itineraries.
+                {t("featureGrid.hourlyHireDesc")}
               </p>
             </div>
           </div>

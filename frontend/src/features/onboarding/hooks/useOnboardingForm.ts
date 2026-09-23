@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useGoogleMaps } from "../../../hooks/useGoogleMaps";
 import { apiFetch } from "../../../lib/api-client";
 import { parseCsvRows, parseXlsxRows } from "../../../lib/spreadsheet";
 import {
-  STEPS,
-  PARTNER_COPY,
+  getSteps,
+  getPartnerCopy,
   CUISINE_OPTIONS,
   MEAT_CATEGORY_OPTIONS,
   DAYS,
@@ -104,21 +105,22 @@ const createDefaultDayTimeSlots = (): DayTimeSlots =>
   }, {} as DayTimeSlots);
 
 export function useOnboardingForm() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const partnerType: PartnerType =
     searchParams.get("type") === "meat" ? "meat" : "food";
   const isMeatPartner = partnerType === "meat";
-  const copy = PARTNER_COPY[partnerType];
+  const copy = getPartnerCopy()[partnerType];
   const categoryOptions = isMeatPartner
     ? MEAT_CATEGORY_OPTIONS
     : CUISINE_OPTIONS;
-  const onboardingSteps = STEPS.map((stepItem) =>
+  const onboardingSteps = getSteps().map((stepItem) =>
     stepItem.num === 1
       ? { ...stepItem, label: copy.infoTitle }
       : stepItem.num === 2
         ? {
             ...stepItem,
-            label: isMeatPartner ? "Operational Details" : stepItem.label,
+            label: isMeatPartner ? t("onboarding.steps.operationalDetails") : stepItem.label,
           }
         : stepItem,
   );
@@ -397,7 +399,7 @@ export function useOnboardingForm() {
     if (otp === "1234") {
       setOtpVerified(true);
     } else {
-      alert("Invalid OTP! Please enter code '1234' for verification.");
+      alert(t("onboarding.invalidOtpDemoCode"));
     }
   };
 
@@ -419,8 +421,7 @@ export function useOnboardingForm() {
 
           reverseGeocode(lat, lng);
         },
-        () =>
-          alert("Unable to retrieve your location. Please search manually."),
+        () => alert(t("onboarding.unableToRetrieveLocation")),
       );
     }
   };
@@ -524,7 +525,7 @@ export function useOnboardingForm() {
 
     const extension = file.name.split(".").pop()?.toLowerCase();
     if (!["csv", "xlsx"].includes(extension || "")) {
-      setMenuUploadError("Upload a CSV or XLSX menu sheet.");
+      setMenuUploadError(t("onboarding.uploadCsvOrXlsx"));
       return;
     }
 
@@ -538,7 +539,7 @@ export function useOnboardingForm() {
     } catch (err) {
       setMenuUploadError(
         (err as { message?: string })?.message ||
-          "Unable to read the uploaded menu sheet.",
+          t("onboarding.unableToReadMenuSheet"),
       );
       setMenuUploadValid(false);
     }
@@ -741,7 +742,7 @@ export function useOnboardingForm() {
         setDraftSaved(false);
       }, 2500);
     } catch (err) {
-      alert("Error saving draft: " + (err as { message?: string }).message);
+      alert(t("onboarding.errorSavingDraft") + (err as { message?: string }).message);
     } finally {
       setIsSaving(false);
     }
@@ -757,7 +758,7 @@ export function useOnboardingForm() {
       setSubmitted(true);
     } catch (err) {
       alert(
-        "Error submitting application: " +
+        t("onboarding.errorSubmittingApplication") +
           (err as { message?: string }).message,
       );
     } finally {

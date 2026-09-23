@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { FileUploader } from "../../../components/shared/FileUploader";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
@@ -5,6 +6,7 @@ import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function StepKycDocuments({ form }: Props) {
+  const { t } = useTranslation();
   const {
     isMeatPartner,
     copy,
@@ -43,10 +45,10 @@ export function StepKycDocuments({ form }: Props) {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-4">
         <div>
           <h1 className="font-display text-2xl lg:text-3xl font-bold mb-1">
-            Documents &amp; Legal Verification
+            {t("onboarding.documentsAndLegalVerification")}
           </h1>
           <p className="text-secondary-app text-sm">
-            Upload the required documents to verify your business.
+            {t("onboarding.uploadRequiredDocuments")}
           </p>
         </div>
         <button
@@ -86,7 +88,7 @@ export function StepKycDocuments({ form }: Props) {
           className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-kinetic/10 text-brand-kinetic hover:bg-brand-kinetic/20 rounded-xl text-sm font-semibold transition-all border border-brand-kinetic/20 shadow-sm"
         >
           <Icon name="auto_fix_high" className="text-lg" />
-          Fill Step 3 Dummy Data
+          {t("onboarding.fillStep3DummyData")}
         </button>
       </div>
 
@@ -97,7 +99,7 @@ export function StepKycDocuments({ form }: Props) {
             <Icon name="badge" className="text-base text-brand-kinetic" />
           </div>
           <h2 className="font-display text-lg font-bold">
-            Tax &amp; Identity Verification
+            {t("onboarding.taxAndIdentityVerification")}
           </h2>
         </div>
 
@@ -105,7 +107,7 @@ export function StepKycDocuments({ form }: Props) {
           {/* PAN */}
           <div>
             <label className="block text-sm font-semibold mb-2">
-              PAN Card Details <span className="text-brand-kinetic">*</span>
+              {t("onboarding.panCardDetails")} <span className="text-brand-kinetic">*</span>
             </label>
             <input
               type="text"
@@ -118,7 +120,7 @@ export function StepKycDocuments({ form }: Props) {
               className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
             />
             <FileUploader
-              label="Upload PAN Card Copy"
+              label={t("onboarding.uploadPanCardCopy")}
               file={panFile}
               onChange={setPanFile}
             />
@@ -128,7 +130,7 @@ export function StepKycDocuments({ form }: Props) {
           <div className="border-t border-gray-100 pt-5">
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-semibold">
-                GSTIN Details{" "}
+                {t("onboarding.gstinDetails")}{" "}
                 {!gstExempt && <span className="text-brand-kinetic">*</span>}
               </label>
               <label className="flex items-center gap-2 text-xs font-medium text-secondary-app cursor-pointer">
@@ -154,7 +156,7 @@ export function StepKycDocuments({ form }: Props) {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
                 />
                 <FileUploader
-                  label="Upload GST Certificate"
+                  label={t("onboarding.uploadGstCertificate")}
                   file={gstFile}
                   onChange={setGstFile}
                 />
@@ -163,8 +165,10 @@ export function StepKycDocuments({ form }: Props) {
             {gstExempt && (
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
                 <p className="text-xs font-medium text-blue-700">
-                  Noted — your {isMeatPartner ? "meat center" : "restaurant"} is
-                  marked as GST exempt/composition scheme.
+                  {t("onboarding.gstExemptNoted", {
+                    value: isMeatPartner ? t("onboarding.meatCenterLower") : t("onboarding.restaurantLower"),
+                    defaultValue: "Noted — your {{value}} is marked as GST exempt/composition scheme.",
+                  })}
                 </p>
               </div>
             )}
@@ -185,7 +189,7 @@ export function StepKycDocuments({ form }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
-                FSSAI License Number{" "}
+                {t("onboarding.fssaiLicenseNumber")}{" "}
                 <span className="text-brand-kinetic">*</span>
               </label>
               <input
@@ -194,14 +198,14 @@ export function StepKycDocuments({ form }: Props) {
                 onChange={(e) =>
                   setFssaiNumber(e.target.value.replace(/\D/g, "").slice(0, 14))
                 }
-                placeholder="14-digit license number"
+                placeholder={t("onboarding.fourteenDigitLicenseNumber")}
                 maxLength={14}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">
-                FSSAI Expiry Date <span className="text-brand-kinetic">*</span>
+                {t("onboarding.fssaiExpiryDate")} <span className="text-brand-kinetic">*</span>
               </label>
               <input
                 type="date"
@@ -213,7 +217,7 @@ export function StepKycDocuments({ form }: Props) {
           </div>
 
           <FileUploader
-            label="Upload FSSAI License Copy"
+            label={t("onboarding.uploadFssaiLicenseCopy")}
             desc={copy.safetyUploadDescription}
             required
             file={fssaiFile}
@@ -232,7 +236,7 @@ export function StepKycDocuments({ form }: Props) {
             />
           </div>
           <h2 className="font-display text-lg font-bold">
-            Banking &amp; Payout Details
+            {t("onboarding.bankingAndPayoutDetails")}
           </h2>
         </div>
 
@@ -240,7 +244,7 @@ export function StepKycDocuments({ form }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
-                Bank Account Number{" "}
+                {t("onboarding.bankAccountNumber")}{" "}
                 <span className="text-brand-kinetic">*</span>
               </label>
               <input
@@ -249,13 +253,13 @@ export function StepKycDocuments({ form }: Props) {
                 onChange={(e) =>
                   setBankAccount(e.target.value.replace(/\D/g, "").slice(0, 18))
                 }
-                placeholder="Enter account number"
+                placeholder={t("onboarding.enterAccountNumber")}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">
-                Re-enter Account Number{" "}
+                {t("onboarding.reEnterAccountNumber")}{" "}
                 <span className="text-brand-kinetic">*</span>
               </label>
               <input
@@ -264,7 +268,7 @@ export function StepKycDocuments({ form }: Props) {
                 onChange={(e) =>
                   setBankConfirm(e.target.value.replace(/\D/g, "").slice(0, 18))
                 }
-                placeholder="Re-enter account number"
+                placeholder={t("onboarding.reEnterAccountNumberPlaceholder")}
                 className={`w-full px-4 py-3 rounded-xl border bg-white outline-none focus:ring-2 transition-all text-sm ${
                   bankConfirm && bankAccount !== bankConfirm
                     ? "border-red-300 focus:border-red-400 focus:ring-red-100"
@@ -275,7 +279,7 @@ export function StepKycDocuments({ form }: Props) {
               />
               {bankConfirm && bankAccount !== bankConfirm && (
                 <p className="text-xs text-red-500 mt-1">
-                  Account numbers do not match
+                  {t("onboarding.accountNumbersDoNotMatch")}
                 </p>
               )}
             </div>
@@ -283,7 +287,7 @@ export function StepKycDocuments({ form }: Props) {
 
           <div>
             <label className="block text-sm font-semibold mb-3">
-              Account Type <span className="text-brand-kinetic">*</span>
+              {t("onboarding.accountType")} <span className="text-brand-kinetic">*</span>
             </label>
             <div className="flex gap-3">
               <button
@@ -296,7 +300,7 @@ export function StepKycDocuments({ form }: Props) {
                 }`}
               >
                 <Icon name="savings" className="text-lg block mx-auto mb-1" />
-                Savings
+                {t("onboarding.savings")}
               </button>
               <button
                 type="button"
@@ -308,14 +312,14 @@ export function StepKycDocuments({ form }: Props) {
                 }`}
               >
                 <Icon name="business" className="text-lg block mx-auto mb-1" />
-                Current
+                {t("onboarding.current")}
               </button>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-semibold mb-2">
-              IFSC Code <span className="text-brand-kinetic">*</span>
+              {t("onboarding.ifscCode")} <span className="text-brand-kinetic">*</span>
             </label>
             <div className="flex gap-3">
               <input
@@ -335,7 +339,7 @@ export function StepKycDocuments({ form }: Props) {
                 disabled={ifsc.length !== 11}
                 className="px-5 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                Verify
+                {t("onboarding.verify")}
               </button>
             </div>
             {ifscFetched && (
@@ -345,7 +349,7 @@ export function StepKycDocuments({ form }: Props) {
                   className="text-base text-green-600"
                 />
                 <span className="text-xs font-medium text-green-700">
-                  IFSC verified — Bank details fetched successfully
+                  {t("onboarding.ifscVerifiedSuccess")}
                 </span>
               </div>
             )}
@@ -353,8 +357,8 @@ export function StepKycDocuments({ form }: Props) {
 
           <div className="border-t border-gray-100 pt-5">
             <FileUploader
-              label="Upload Cancelled Cheque / Bank Statement"
-              desc="Upload a clear image of your cancelled cheque or bank statement"
+              label={t("onboarding.uploadCancelledCheque")}
+              desc={t("onboarding.uploadCancelledChequeDesc")}
               required
               file={chequeFile}
               onChange={setChequeFile}

@@ -1,41 +1,41 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { StaggerList } from "../../../components/motion/StaggerList";
 import { StaggerItem } from "../../../components/motion/StaggerItem";
 
-const benefits = [
-  {
-    icon: "trending_up",
-    title: "Boost Your Revenue",
-    desc: "Join 500K+ partners and tap into a city-wide customer base hungry for your offerings.",
-  },
-  {
-    icon: "insights",
-    title: "Real-Time Analytics",
-    desc: "Get powerful insights on orders, peak hours, and customer preferences to grow your business.",
-  },
-  {
-    icon: "rocket_launch",
-    title: "Fast Onboarding",
-    desc: "Go from sign-up to live in under 48 hours with our dedicated partner support team.",
-  },
-  {
-    icon: "local_shipping",
-    title: "Delivery Infrastructure",
-    desc: "Leverage our fleet of verified drivers to deliver faster and farther than ever before.",
-  },
-];
-
 export function BenefitsGrid() {
+  const { t } = useTranslation();
+  const benefits = [
+    {
+      icon: "trending_up",
+      title: t("benefitsGrid.boostRevenueTitle"),
+      desc: t("benefitsGrid.boostRevenueDesc"),
+    },
+    {
+      icon: "insights",
+      title: t("benefitsGrid.realTimeAnalyticsTitle"),
+      desc: t("benefitsGrid.realTimeAnalyticsDesc"),
+    },
+    {
+      icon: "rocket_launch",
+      title: t("benefitsGrid.fastOnboardingTitle"),
+      desc: t("benefitsGrid.fastOnboardingDesc"),
+    },
+    {
+      icon: "local_shipping",
+      title: t("benefitsGrid.deliveryInfrastructureTitle"),
+      desc: t("benefitsGrid.deliveryInfrastructureDesc"),
+    },
+  ];
   return (
     <section className="py-20 lg:py-28">
       <div className="container max-w-[1280px] mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Why Partner with Hybrid?
+            {t("benefitsGrid.title")}
           </h2>
           <p className="text-secondary-app max-w-lg mx-auto">
-            Everything you need to grow your business and delight your
-            customers.
+            {t("benefitsGrid.subtitle")}
           </p>
         </div>
         <StaggerList
