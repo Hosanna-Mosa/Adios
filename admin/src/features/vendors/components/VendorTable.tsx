@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Store, MoreVertical, Star, Edit2, Trash2, Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AvailabilityPill } from "@/components/shared/AvailabilityPill";
@@ -11,6 +12,12 @@ const STATUS_BADGE_CLASS: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
 };
 const DEFAULT_STATUS_BADGE_CLASS = "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400";
+const STATUS_LABEL_KEY: Record<string, string> = {
+  approved: "catalog.approved",
+  rejected: "catalog.rejected",
+  submitted: "catalog.submitted",
+  draft: "catalog.draft",
+};
 
 interface VendorTableProps {
   vendors: Vendor[];
@@ -23,10 +30,11 @@ interface VendorTableProps {
 
 /** The vendor list table. */
 export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEditClick, onDeleteClick }: VendorTableProps) {
+  const { t } = useTranslation();
   const columns: DataTableColumn<Vendor>[] = [
     {
       key: "restaurant",
-      header: "Restaurant",
+      header: t("catalog.restaurant"),
       cell: (vendor) => {
         const status = vendor.onboardingStatus || "draft";
         return (
@@ -37,9 +45,9 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
             <div>
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${STATUS_BADGE_CLASS[status] ?? DEFAULT_STATUS_BADGE_CLASS}`}>{status}</span>
+                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${STATUS_BADGE_CLASS[status] ?? DEFAULT_STATUS_BADGE_CLASS}`}>{STATUS_LABEL_KEY[status] ? t(STATUS_LABEL_KEY[status]) : status}</span>
               </div>
-              <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? "Pure Veg" : "Multi-Cuisine"}</p>
+              <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? t("catalog.pureVeg") : t("catalog.multiCuisine")}</p>
             </div>
           </div>
         );
@@ -47,12 +55,12 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
     },
     {
       key: "location",
-      header: "Location",
+      header: t("catalog.location"),
       cell: (vendor) => <p className="text-sm text-foreground max-w-[200px] truncate">{vendor.address}</p>,
     },
     {
       key: "rating",
-      header: "Rating",
+      header: t("catalog.rating"),
       cell: (vendor) => (
         <div className="flex items-center gap-1.5">
           <Star className="h-3.5 w-3.5 text-warning fill-warning" />
@@ -63,12 +71,12 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
     },
     {
       key: "availability",
-      header: "Availability",
+      header: t("catalog.availability"),
       cell: (vendor) => <AvailabilityPill openState={vendor.openState} isManuallyClosed={vendor.isManuallyClosed} />,
     },
     {
       key: "contact",
-      header: "Contact",
+      header: t("catalog.contact"),
       cell: (vendor) => (
         <>
           <p className="text-sm text-foreground">{vendor.phone}</p>
@@ -78,7 +86,7 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
     },
     {
       key: "action",
-      header: "Action",
+      header: t("orders.action"),
       cell: (vendor) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -88,13 +96,13 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onViewClick(vendor)} className="gap-2 cursor-pointer">
-              <Eye className="h-4 w-4 text-muted-foreground" /> View Details
+              <Eye className="h-4 w-4 text-muted-foreground" /> {t("catalog.viewDetails")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onEditClick(vendor)} className="gap-2 cursor-pointer">
-              <Edit2 className="h-4 w-4 text-muted-foreground" /> Edit Restaurant
+              <Edit2 className="h-4 w-4 text-muted-foreground" /> {t("catalog.editRestaurant")}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteClick(vendor)} className="gap-2 text-destructive focus:text-destructive cursor-pointer">
-              <Trash2 className="h-4 w-4" /> Delete Restaurant
+              <Trash2 className="h-4 w-4" /> {t("catalog.deleteRestaurant")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -108,7 +116,7 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
       data={vendors}
       rowKey={(vendor) => vendor._id}
       isLoading={isLoading}
-      loadingLabel="Loading vendors..."
+      loadingLabel={t("catalog.loadingVendors")}
       emptyLabel={emptyLabel}
       headerRowClassName="bg-muted/50"
     />

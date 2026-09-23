@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Pagination } from "@/components/shared/Pagination";
 import { useVendorsList } from "@/features/vendors/hooks/useVendorsList";
@@ -10,6 +11,7 @@ import { VendorEditDialog } from "@/features/vendors/components/VendorEditDialog
 import { VendorViewDialog } from "@/features/vendors/components/VendorViewDialog";
 
 export default function Vendors() {
+  const { t } = useTranslation();
   const {
     vendors,
     isLoading,
@@ -67,15 +69,15 @@ export default function Vendors() {
     isSaving,
   } = useVendorEditForm(updateVendorMutation);
 
-  const emptyLabel = vendors?.length === 0 ? "No vendors found. Add your first restaurant!" : "No vendors match your filters.";
+  const emptyLabel = vendors?.length === 0 ? t("catalog.noVendorsFoundAddFirstDesc") : t("catalog.noVendorsMatchFiltersDesc");
 
   return (
-    <DashboardLayout searchPlaceholder="Search vendors...">
+    <DashboardLayout searchPlaceholder={t("catalog.searchVendors")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-header">Vendor Management</h1>
-            <p className="page-subtitle">Onboard and manage your restaurant partners.</p>
+            <h1 className="page-header">{t("catalog.vendorManagement")}</h1>
+            <p className="page-subtitle">{t("catalog.onboardManageRestaurantPartnersDesc")}</p>
           </div>
 
           <VendorAddDialog
@@ -106,7 +108,7 @@ export default function Vendors() {
             onDeleteClick={handleDeleteClick}
           />
 
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} itemLabel="vendors" shownCount={paginatedVendors.length} totalCount={filteredVendors.length} />
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} itemLabel={t("catalog.vendorsLower")} shownCount={paginatedVendors.length} totalCount={filteredVendors.length} />
         </div>
       </div>
 

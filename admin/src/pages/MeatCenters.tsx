@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useMeatCentersList } from "@/features/catalog/hooks/useMeatCentersList";
 import { useMeatCenterAddForm } from "@/features/catalog/hooks/useMeatCenterAddForm";
@@ -8,6 +9,7 @@ import { MeatCenterEditDialog } from "@/features/catalog/components/MeatCenterEd
 import { MeatCenterViewDialog } from "@/features/catalog/components/MeatCenterViewDialog";
 
 export default function MeatCenters() {
+  const { t } = useTranslation();
   const { centers, isLoading, handleDeleteClick, updateCenterMutation, isViewOpen, setIsViewOpen, viewingCenter, handleViewClick, handleToggleManuallyClosed } = useMeatCentersList();
 
   const { isAddOpen, setIsAddOpen, newCenter, setNewCenter, searchQuery, suggestions, isSearching, selectedPlace, handleSearch, handleSelectSuggestion, handleSubmit, isSubmitting } =
@@ -17,12 +19,12 @@ export default function MeatCenters() {
     useMeatCenterEditForm(updateCenterMutation);
 
   return (
-    <DashboardLayout searchPlaceholder="Search meat centers...">
+    <DashboardLayout searchPlaceholder={t("catalog.searchMeatCenters")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-header text-3xl font-bold">Meat Center Management</h1>
-            <p className="page-subtitle text-muted-foreground">Manage your meat delivery partners.</p>
+            <h1 className="page-header text-3xl font-bold">{t("catalog.meatCenterManagement")}</h1>
+            <p className="page-subtitle text-muted-foreground">{t("catalog.manageMeatDeliveryPartnersDesc")}</p>
           </div>
 
           <MeatCenterAddDialog

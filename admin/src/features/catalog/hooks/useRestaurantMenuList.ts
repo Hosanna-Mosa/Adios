@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { BASE_URL } from "@/lib/api-client";
 import type { MenuItem, Restaurant } from "../restaurantMenuTypes";
 
@@ -20,6 +21,7 @@ const authHeader = () => `Bearer ${localStorage.getItem("admin_token") || localS
  * current menu the same way).
  */
 export function useRestaurantMenuList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,7 +39,7 @@ export function useRestaurantMenuList() {
       const response = await fetch(`${BASE_URL}/food/restaurant-menu/restaurants`, {
         headers: { Authorization: authHeader() },
       });
-      if (!response.ok) throw new Error("Failed to fetch restaurants");
+      if (!response.ok) throw new Error(t("catalog.failedToFetchRestaurants"));
       return response.json();
     },
   });
@@ -51,12 +53,12 @@ export function useRestaurantMenuList() {
       const response = await fetch(`${BASE_URL}/food/restaurant-menu/restaurants/${restaurantId}`, {
         headers: { Authorization: authHeader() },
       });
-      if (!response.ok) throw new Error("Failed to fetch menu");
+      if (!response.ok) throw new Error(t("catalog.failedToFetchMenu"));
       const data = await response.json();
       setViewMenu(data.menu);
       return data.menu as MenuItem[];
     } catch (err) {
-      toast.error((err as Error).message || "Failed to load restaurant menu");
+      toast.error((err as Error).message || t("catalog.failedToLoadRestaurantMenu"));
       return null;
     } finally {
       setIsLoadingMenu(false);
@@ -69,20 +71,20 @@ export function useRestaurantMenuList() {
         method: "DELETE",
         headers: { Authorization: authHeader() },
       });
-      if (!response.ok) throw new Error("Failed to delete restaurant");
+      if (!response.ok) throw new Error(t("catalog.failedToDeleteRestaurant"));
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants-menu"] });
-      toast.success("Restaurant deleted successfully");
+      toast.success(t("catalog.restaurantDeletedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Delete failed");
+      toast.error(err.message || t("catalog.deleteFailed"));
     },
   });
 
   const handleDelete = (restaurant: Restaurant) => {
-    if (confirm(`Are you sure you want to delete ${restaurant.name} and all its menu items?`)) {
+    if (confirm(t("catalog.confirmDeleteRestaurantAndMenu", { name: restaurant.name, defaultValue: "Are you sure you want to delete {{name}} and all its menu items?" }))) {
       deleteMutation.mutate(restaurant._id);
     }
   };

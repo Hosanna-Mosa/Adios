@@ -1,4 +1,5 @@
 import { Edit, Trash2, Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LazyImage } from "@/components/shared/LazyImage";
@@ -25,6 +26,7 @@ interface MenuItemsEditTableProps {
  * either way) -- one shared component has to be correct in both contexts.
  */
 export function MenuItemsEditTable({ items, onChange, onUploadImage, maxHeightClassName }: MenuItemsEditTableProps) {
+  const { t } = useTranslation();
   const updateItem = <K extends keyof MenuItem>(idx: number, key: K, value: MenuItem[K]) => {
     const updated = [...items];
     updated[idx] = { ...updated[idx], [key]: value };
@@ -36,13 +38,13 @@ export function MenuItemsEditTable({ items, onChange, onUploadImage, maxHeightCl
       <table className="w-full text-sm text-left">
         <thead className="bg-[#f8fafc] border-b text-xs font-bold text-muted-foreground uppercase">
           <tr>
-            <th className="px-4 py-3 w-16">Photo</th>
-            <th className="px-4 py-3">Item Name</th>
-            <th className="px-4 py-3 w-28">Price</th>
-            <th className="px-4 py-3">Category</th>
-            <th className="px-4 py-3">Description</th>
-            <th className="px-4 py-3 w-20">Veg?</th>
-            <th className="px-4 py-3 w-16">Action</th>
+            <th className="px-4 py-3 w-16">{t("catalog.photo")}</th>
+            <th className="px-4 py-3">{t("catalog.itemName")}</th>
+            <th className="px-4 py-3 w-28">{t("catalog.price")}</th>
+            <th className="px-4 py-3">{t("catalog.category")}</th>
+            <th className="px-4 py-3">{t("catalog.description")}</th>
+            <th className="px-4 py-3 w-20">{t("catalog.vegQuestion")}</th>
+            <th className="px-4 py-3 w-16">{t("orders.action")}</th>
           </tr>
         </thead>
         <tbody className="divide-y">
