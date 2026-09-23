@@ -1280,5 +1280,24 @@
     "userColon": "उपयोगकर्ता: {{name}}",
     "userShort": "उपयोगकर्ता",
     "viewChat": "चैट देखें"
+  },
+  "system": {
+    "appStoreUrl": "ऐप स्टोर URL",
+    "appVersionManagement": "ऐप वर्शन प्रबंधन",
+    "appleIosApplication": "एप्पल iOS एप्लिकेशन",
+    "controlUpdatePromptsDesc": "iOS और Android के लिए अपडेट प्रॉम्प्ट, स्टोर रीडायरेक्ट और अनिवार्य बिल्ड जांच को नियंत्रित करें।",
+    "devicesOlderVersionLockedDesc": "इससे पुराना वर्शन चलाने वाले डिवाइस लॉक हो जाएंगे और अपडेट करने के लिए बाध्य होंगे।",
+    "failedToUpdateVersionSettings": "वर्शन सेटिंग्स अपडेट करने में विफल",
+    "googleAndroidApplication": "गूगल एंड्रॉइड एप्लिकेशन",
+    "latestVersion": "नवीनतम वर्शन",
+    "loadingVersionSettings": "वर्शन सेटिंग्स लोड हो रही हैं...",
+    "manageAndroidBuildsDesc": "ग्राहकों और ड्राइवरों के लिए एंड्रॉइड बिल्ड प्रबंधित करें",
+    "manageIosBuildsDesc": "ग्राहकों और ड्राइवरों के लिए iOS बिल्ड प्रबंधित करें",
+    "minimumRequiredVersion": "न्यूनतम आवश्यक वर्शन",
+    "platformVersionConfigsUpdated": "{{platform}} वर्शन कॉन्फ़िगरेशन सफलतापूर्वक अपडेट किए गए!",
+    "playStoreUrl": "प्ले स्टोर URL",
+    "pleaseFillAllFieldsBeforeSaving": "सहेजने से पहले कृपया सभी फ़ील्ड भरें।",
+    "saveAndroidConfiguration": "एंड्रॉइड कॉन्फ़िगरेशन सहेजें",
+    "saveIosConfiguration": "iOS कॉन्फ़िगरेशन सहेजें"
   }
 }

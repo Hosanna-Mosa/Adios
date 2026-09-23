@@ -1280,5 +1280,24 @@
     "userColon": "User: {{name}}",
     "userShort": "USER",
     "viewChat": "View Chat"
+  },
+  "system": {
+    "appStoreUrl": "App Store URL",
+    "appVersionManagement": "App Version Management",
+    "appleIosApplication": "Apple iOS Application",
+    "controlUpdatePromptsDesc": "Control update prompts, store redirects, and forced build checks for iOS & Android.",
+    "devicesOlderVersionLockedDesc": "Devices running a version older than this will be locked and forced to update.",
+    "failedToUpdateVersionSettings": "Failed to update version settings",
+    "googleAndroidApplication": "Google Android Application",
+    "latestVersion": "Latest Version",
+    "loadingVersionSettings": "Loading version settings...",
+    "manageAndroidBuildsDesc": "Manage Android builds for customers & drivers",
+    "manageIosBuildsDesc": "Manage iOS builds for customers & drivers",
+    "minimumRequiredVersion": "Minimum Required Version",
+    "platformVersionConfigsUpdated": "{{platform}} version configurations updated successfully!",
+    "playStoreUrl": "Play Store URL",
+    "pleaseFillAllFieldsBeforeSaving": "Please fill in all fields before saving.",
+    "saveAndroidConfiguration": "Save Android Configuration",
+    "saveIosConfiguration": "Save iOS Configuration"
   }
 }

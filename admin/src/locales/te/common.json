@@ -1280,5 +1280,24 @@
     "userColon": "వినియోగదారు: {{name}}",
     "userShort": "వినియోగదారు",
     "viewChat": "చాట్ చూడండి"
+  },
+  "system": {
+    "appStoreUrl": "యాప్ స్టోర్ URL",
+    "appVersionManagement": "యాప్ వెర్షన్ నిర్వహణ",
+    "appleIosApplication": "యాపిల్ iOS అప్లికేషన్",
+    "controlUpdatePromptsDesc": "iOS & Android కోసం అప్‌డేట్ ప్రాంప్ట్‌లు, స్టోర్ దారిమళ్లింపులు మరియు తప్పనిసరి బిల్డ్ చెక్‌లను నియంత్రించండి.",
+    "devicesOlderVersionLockedDesc": "దీని కంటే పాత వెర్షన్‌లో నడుస్తున్న పరికరాలు లాక్ చేయబడి, అప్‌డేట్ చేయమని బలవంతం చేయబడతాయి.",
+    "failedToUpdateVersionSettings": "వెర్షన్ సెట్టింగ్‌లను నవీకరించడంలో విఫలమైంది",
+    "googleAndroidApplication": "గూగుల్ ఆండ్రాయిడ్ అప్లికేషన్",
+    "latestVersion": "తాజా వెర్షన్",
+    "loadingVersionSettings": "వెర్షన్ సెట్టింగ్‌లు లోడ్ అవుతున్నాయి...",
+    "manageAndroidBuildsDesc": "కస్టమర్లు & డ్రైవర్ల కోసం ఆండ్రాయిడ్ బిల్డ్‌లను నిర్వహించండి",
+    "manageIosBuildsDesc": "కస్టమర్లు & డ్రైవర్ల కోసం iOS బిల్డ్‌లను నిర్వహించండి",
+    "minimumRequiredVersion": "కనీస అవసరమైన వెర్షన్",
+    "platformVersionConfigsUpdated": "{{platform}} వెర్షన్ కాన్ఫిగరేషన్‌లు విజయవంతంగా నవీకరించబడ్డాయి!",
+    "playStoreUrl": "ప్లే స్టోర్ URL",
+    "pleaseFillAllFieldsBeforeSaving": "సేవ్ చేయడానికి ముందు దయచేసి అన్ని ఫీల్డ్‌లను నింపండి.",
+    "saveAndroidConfiguration": "ఆండ్రాయిడ్ కాన్ఫిగరేషన్ సేవ్ చేయి",
+    "saveIosConfiguration": "iOS కాన్ఫిగరేషన్ సేవ్ చేయి"
   }
 }

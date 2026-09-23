@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import { Smartphone, Link2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { AppVersionConfig } from "../hooks/useAppVersions";
 
 interface PlatformVersionCardProps {
@@ -32,6 +33,7 @@ export function PlatformVersionCard({
   buttonClassName,
   buttonLabel,
 }: PlatformVersionCardProps) {
+  const { t } = useTranslation();
   return (
     <StaggerItem className="section-card p-6 flex flex-col gap-6">
       <div className="flex items-center gap-3">
@@ -46,7 +48,7 @@ export function PlatformVersionCard({
 
       <div className="space-y-4">
         <div>
-          <label className="text-xs font-semibold text-muted-foreground block mb-1">Latest Version</label>
+          <label className="text-xs font-semibold text-muted-foreground block mb-1">{t("system.latestVersion")}</label>
           <Input
             placeholder="e.g. 1.2.0"
             value={config.latest}
@@ -54,13 +56,13 @@ export function PlatformVersionCard({
           />
         </div>
         <div>
-          <label className="text-xs font-semibold text-muted-foreground block mb-1">Minimum Required Version</label>
+          <label className="text-xs font-semibold text-muted-foreground block mb-1">{t("system.minimumRequiredVersion")}</label>
           <Input
             placeholder="e.g. 1.1.0"
             value={config.minRequired}
             onChange={e => onChange({ ...config, minRequired: e.target.value })}
           />
-          <span className="text-[10px] text-muted-foreground mt-1 block">Devices running a version older than this will be locked and forced to update.</span>
+          <span className="text-[10px] text-muted-foreground mt-1 block">{t("system.devicesOlderVersionLockedDesc")}</span>
         </div>
         <div>
           <label className="text-xs font-semibold text-muted-foreground block mb-1">{storeLabel}</label>
