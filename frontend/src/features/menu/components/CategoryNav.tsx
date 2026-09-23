@@ -1,5 +1,13 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
+
+// "All" is a stable pseudo-category used for filtering/comparison — only its
+// displayed label is translated, real category names come from the vendor's
+// own menu data and are shown as-is.
+function categoryLabel(cat: string, t: (key: string) => string) {
+  return cat === "All" ? t("menu.allCategories") : cat;
+}
 
 type Props = {
   categories: string[];
@@ -20,6 +28,7 @@ export function CategoryNav({
   vegOnly,
   setVegOnly,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
       {/* Mobile-Only Horizontal Category & Filters Nav */}
@@ -34,7 +43,7 @@ export function CategoryNav({
             <Icon name="search" className="text-slate-400 text-lg" />
             <input
               type="text"
-              placeholder="Search dish..."
+              placeholder={t("menu.searchDish")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-sm w-full font-medium placeholder:font-normal"
@@ -69,7 +78,7 @@ export function CategoryNav({
                   : "bg-white text-slate-500 hover:bg-slate-50"
               }`}
             >
-              {cat}
+              {categoryLabel(cat, t)}
             </motion.button>
           ))}
         </div>
@@ -79,7 +88,7 @@ export function CategoryNav({
       <div className="hidden lg:block lg:col-span-1 space-y-6">
         <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 sticky top-28">
           <h2 className="font-black text-xl text-primary flex items-center gap-2">
-            <Icon name="tune" /> Filter
+            <Icon name="tune" /> {t("menu.filter")}
           </h2>
 
           {/* Search */}
@@ -88,7 +97,7 @@ export function CategoryNav({
               <Icon name="search" className="text-slate-400 text-lg" />
               <input
                 type="text"
-                placeholder="Search your craving..."
+                placeholder={t("menu.searchCraving")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-transparent border-none outline-none text-sm w-full font-medium"
@@ -105,7 +114,7 @@ export function CategoryNav({
               <div className="h-5 w-5 rounded-sm border-2 border-green-600 flex items-center justify-center bg-green-50">
                 <div className="h-2.5 w-2.5 rounded-full bg-green-600" />
               </div>
-              <span className="text-sm font-bold text-slate-700">Veg Only</span>
+              <span className="text-sm font-bold text-slate-700">{t("menu.vegOnly")}</span>
             </div>
             <div
               className={`w-10 h-6 rounded-full p-1 transition-colors ${vegOnly ? "bg-green-500" : "bg-slate-200"}`}
@@ -122,7 +131,7 @@ export function CategoryNav({
           {/* Categories list */}
           <div className="space-y-3">
             <label className="text-xs font-black text-slate-300 uppercase tracking-widest block">
-              Categories
+              {t("menu.categories")}
             </label>
             <div className="flex flex-col gap-1.5">
               {categories.map((cat) => (
@@ -135,7 +144,7 @@ export function CategoryNav({
                       : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                   }`}
                 >
-                  <span>{cat}</span>
+                  <span>{categoryLabel(cat, t)}</span>
                   {selectedCategory === cat && (
                     <Icon name="check" className="text-base" />
                   )}

@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { API_BASE_URL } from "@/lib/api-client";
 import { Icon } from "@/components/shared/Icon";
 import { MenuHeader } from "@/features/menu/components/MenuHeader";
 import { CategoryNav } from "@/features/menu/components/CategoryNav";
 import { MenuItemCard } from "@/features/menu/components/MenuItemCard";
+
+// "General" is a stable fallback for items with no category — only its
+// displayed label is translated; grouping/filtering still keys off it as-is.
+function categoryDisplay(cat: string, t: (key: string) => string) {
+  if (cat === "All") return t("menu.allCategories");
+  if (cat === "General") return t("menu.general");
+  return cat;
+}
 
 interface Restaurant {
   _id: string;
@@ -29,6 +38,7 @@ interface MenuItem {
 }
 
 export default function RestaurantMenuFront() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const highlightedItemId = searchParams.get("item");
@@ -49,7 +59,7 @@ export default function RestaurantMenuFront() {
           `${API_BASE_URL}/food/restaurant-menu/restaurants/${id}`,
         );
         if (!res.ok) {
-          throw new Error("Restaurant not found or database error");
+          throw new Error(t("menu.restaurantNotFoundError"));
         }
         const data = await res.json();
         setRestaurant(data.restaurant);
@@ -57,7 +67,7 @@ export default function RestaurantMenuFront() {
       } catch (err) {
         setError(
           (err as { message?: string })?.message ||
-            "Failed to load restaurant menu",
+            t("menu.failedToLoadMenu"),
         );
       } finally {
         setLoading(false);
@@ -89,7 +99,7 @@ export default function RestaurantMenuFront() {
           transition={{ repeat: Infinity, duration: 1.5 }}
           className="text-primary font-semibold text-lg"
         >
-          Loading Menu...
+          {t("menu.loadingMenu")}
         </motion.p>
       </div>
     );
@@ -100,16 +110,16 @@ export default function RestaurantMenuFront() {
       <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
         <Icon name="error" className="text-red-500 text-6xl mb-4" />
         <h1 className="text-2xl font-bold text-primary">
-          Oops! Something went wrong
+          {t("menu.somethingWentWrong")}
         </h1>
         <p className="text-slate-500 mt-2 max-w-md">
-          {error || "We couldn't find the restaurant you were looking for."}
+          {error || t("menu.restaurantNotFoundDesc")}
         </p>
         <Link
           to="/"
           className="mt-6 inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary/90 transition-all shadow-md"
         >
-          <Icon name="arrow_back" /> Back to Home
+          <Icon name="arrow_back" /> {t("menu.backToHome")}
         </Link>
       </div>
     );
@@ -175,10 +185,10 @@ export default function RestaurantMenuFront() {
                   <Icon name="search_off" className="text-slate-300 text-4xl" />
                 </div>
                 <h3 className="text-xl font-black text-slate-700">
-                  No Dishes Found
+                  {t("menu.noDishesFound")}
                 </h3>
                 <p className="text-slate-400 text-sm font-medium">
-                  Try adjusting your filters or search query.
+                  {t("menu.tryAdjustingFilters")}
                 </p>
                 <button
                   onClick={() => {
@@ -188,7 +198,7 @@ export default function RestaurantMenuFront() {
                   }}
                   className="mt-4 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-bold transition-colors"
                 >
-                  Clear Filters
+                  {t("menu.clearFilters")}
                 </button>
               </motion.div>
             ) : (
@@ -204,11 +214,11 @@ export default function RestaurantMenuFront() {
                 >
                   <div className="flex items-center gap-3 sticky top-[125px] md:static bg-menu-surface md:bg-transparent py-2 z-30">
                     <h3 className="text-xl md:text-2xl font-black text-primary capitalize tracking-tight">
-                      {category}
+                      {categoryDisplay(category, t)}
                     </h3>
                     <div className="h-px bg-slate-200 flex-1 hidden md:block" />
                     <span className="text-xs font-black bg-white border border-slate-200 text-slate-500 px-3 py-1 rounded-full shadow-sm">
-                      {items.length} {items.length === 1 ? "item" : "items"}
+                      {t("menu.itemCount", { count: items.length, defaultValue: "{{count}} items" })}
                     </span>
                   </div>
 

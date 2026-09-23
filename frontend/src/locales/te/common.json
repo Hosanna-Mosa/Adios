@@ -179,5 +179,30 @@
     "citiesCovered": "కవర్ చేయబడిన నగరాలు",
     "ordersProcessed": "ప్రాసెస్ చేయబడిన ఆర్డర్‌లు",
     "partnerRating": "భాగస్వామి రేటింగ్"
+  },
+  "menu": {
+    "allCategories": "అన్నీ",
+    "general": "సాధారణం",
+    "searchDish": "వంటకం కోసం శోధించండి...",
+    "searchCraving": "మీ కోరికను శోధించండి...",
+    "filter": "ఫిల్టర్",
+    "vegOnly": "వెజ్ మాత్రమే",
+    "categories": "వర్గాలు",
+    "backToHome": "హోమ్‌కు తిరిగి వెళ్లండి",
+    "restaurant": "రెస్టారెంట్",
+    "pureVeg": "ప్యూర్ వెజ్",
+    "vegAndNonVeg": "వెజ్ & నాన్-వెజ్",
+    "rating": "రేటింగ్",
+    "reviews": "రివ్యూలు",
+    "loadingMenu": "మెనూ లోడ్ అవుతోంది...",
+    "somethingWentWrong": "అయ్యో! ఏదో తప్పు జరిగింది",
+    "restaurantNotFoundDesc": "మీరు వెతుకుతున్న రెస్టారెంట్ మాకు కనుగొనబడలేదు.",
+    "restaurantNotFoundError": "రెస్టారెంట్ కనుగొనబడలేదు లేదా డేటాబేస్ లోపం",
+    "failedToLoadMenu": "రెస్టారెంట్ మెనూను లోడ్ చేయడంలో విఫలమైంది",
+    "noDishesFound": "వంటకాలు కనుగొనబడలేదు",
+    "tryAdjustingFilters": "మీ ఫిల్టర్‌లు లేదా శోధన ప్రశ్నను సర్దుబాటు చేయడానికి ప్రయత్నించండి.",
+    "clearFilters": "ఫిల్టర్‌లను క్లియర్ చేయండి",
+    "itemCount_one": "{{count}} వస్తువు",
+    "itemCount_other": "{{count}} వస్తువులు"
   }
 }

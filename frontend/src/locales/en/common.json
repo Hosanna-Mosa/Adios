@@ -179,5 +179,30 @@
     "citiesCovered": "Cities Covered",
     "ordersProcessed": "Orders Processed",
     "partnerRating": "Partner Rating"
+  },
+  "menu": {
+    "allCategories": "All",
+    "general": "General",
+    "searchDish": "Search dish...",
+    "searchCraving": "Search your craving...",
+    "filter": "Filter",
+    "vegOnly": "Veg Only",
+    "categories": "Categories",
+    "backToHome": "Back to Home",
+    "restaurant": "Restaurant",
+    "pureVeg": "Pure Veg",
+    "vegAndNonVeg": "Veg & Non-Veg",
+    "rating": "Rating",
+    "reviews": "Reviews",
+    "loadingMenu": "Loading Menu...",
+    "somethingWentWrong": "Oops! Something went wrong",
+    "restaurantNotFoundDesc": "We couldn't find the restaurant you were looking for.",
+    "restaurantNotFoundError": "Restaurant not found or database error",
+    "failedToLoadMenu": "Failed to load restaurant menu",
+    "noDishesFound": "No Dishes Found",
+    "tryAdjustingFilters": "Try adjusting your filters or search query.",
+    "clearFilters": "Clear Filters",
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items"
   }
 }

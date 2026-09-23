@@ -179,5 +179,30 @@
     "citiesCovered": "कवर किए गए शहर",
     "ordersProcessed": "प्रोसेस किए गए ऑर्डर",
     "partnerRating": "पार्टनर रेटिंग"
+  },
+  "menu": {
+    "allCategories": "सभी",
+    "general": "सामान्य",
+    "searchDish": "व्यंजन खोजें...",
+    "searchCraving": "अपनी पसंद खोजें...",
+    "filter": "फ़िल्टर",
+    "vegOnly": "केवल वेज",
+    "categories": "श्रेणियां",
+    "backToHome": "होम पर वापस जाएं",
+    "restaurant": "रेस्टोरेंट",
+    "pureVeg": "प्योर वेज",
+    "vegAndNonVeg": "वेज और नॉन-वेज",
+    "rating": "रेटिंग",
+    "reviews": "समीक्षाएं",
+    "loadingMenu": "मेनू लोड हो रहा है...",
+    "somethingWentWrong": "उफ़! कुछ गलत हो गया",
+    "restaurantNotFoundDesc": "हमें आपके द्वारा खोजा जा रहा रेस्टोरेंट नहीं मिला।",
+    "restaurantNotFoundError": "रेस्टोरेंट नहीं मिला या डेटाबेस त्रुटि",
+    "failedToLoadMenu": "रेस्टोरेंट मेनू लोड करने में विफल",
+    "noDishesFound": "कोई व्यंजन नहीं मिला",
+    "tryAdjustingFilters": "अपने फ़िल्टर या खोज क्वेरी को समायोजित करने का प्रयास करें।",
+    "clearFilters": "फ़िल्टर साफ़ करें",
+    "itemCount_one": "{{count}} आइटम",
+    "itemCount_other": "{{count}} आइटम"
   }
 }

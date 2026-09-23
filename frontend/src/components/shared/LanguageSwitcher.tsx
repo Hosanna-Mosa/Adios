@@ -11,8 +11,15 @@ const NATIVE_NAME: Record<SupportedLanguage, string> = {
 };
 
 /** Small language dropdown for the site header — light-weight equivalent of
- * the mobile apps' language-settings screen, without a mandatory gate. */
-export function LanguageSwitcher({ className }: { className?: string }) {
+ * the mobile apps' language-settings screen, without a mandatory gate.
+ * `variant="light"` swaps the trigger to white text for dark hero sections. */
+export function LanguageSwitcher({
+  className,
+  variant = "default",
+}: {
+  className?: string;
+  variant?: "default" | "light";
+}) {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -36,7 +43,11 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-label="Change language"
         aria-expanded={open}
-        className="flex items-center gap-1.5 text-sm font-medium text-secondary-app hover:text-primary transition-colors"
+        className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+          variant === "light"
+            ? "text-white/80 hover:text-white"
+            : "text-secondary-app hover:text-primary"
+        }`}
       >
         <Icon name="language" className="text-base" />
         <span>{NATIVE_NAME[current]}</span>
