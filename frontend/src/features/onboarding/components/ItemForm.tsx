@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import type { PartnerType, MenuItem } from "../types";
 
@@ -13,6 +14,7 @@ export function ItemForm({
   onCancel: () => void;
   partnerType?: PartnerType;
 }) {
+  const { t } = useTranslation();
   const isMeatItem = partnerType === "meat";
   const [name, setName] = useState(initialItem?.name || "");
   const [price, setPrice] = useState(initialItem?.price || "");
@@ -43,7 +45,7 @@ export function ItemForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold mb-1.5">
-            {isMeatItem ? "Product Name" : "Item Name"}{" "}
+            {isMeatItem ? t("onboarding.productName") : t("onboarding.itemName")}{" "}
             <span className="text-brand-kinetic">*</span>
           </label>
           <input
@@ -51,14 +53,16 @@ export function ItemForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={
-              isMeatItem ? "e.g. Chicken Curry Cut 500g" : "e.g. Butter Chicken"
+              isMeatItem
+                ? t("onboarding.itemNamePlaceholderMeat")
+                : t("onboarding.itemNamePlaceholderFood")
             }
             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
           />
         </div>
         <div>
           <label className="block text-sm font-semibold mb-1.5">
-            Price (₹) <span className="text-brand-kinetic">*</span>
+            {t("onboarding.priceLabel")} <span className="text-brand-kinetic">*</span>
           </label>
           <input
             type="text"
@@ -72,16 +76,16 @@ export function ItemForm({
 
       <div>
         <label className="block text-sm font-semibold mb-1.5">
-          Description{" "}
-          <span className="text-gray-400 font-normal">(Optional)</span>
+          {t("onboarding.description")}{" "}
+          <span className="text-gray-400 font-normal">({t("onboarding.optional")})</span>
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder={
             isMeatItem
-              ? "e.g. Fresh cut pieces, cleaned and packed"
-              : "e.g. Creamy tomato-based curry with tender chicken pieces"
+              ? t("onboarding.descriptionPlaceholderMeat")
+              : t("onboarding.descriptionPlaceholderFood")
           }
           rows={2}
           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm resize-none"
@@ -91,7 +95,7 @@ export function ItemForm({
       <div className="flex flex-wrap gap-6">
         {!isMeatItem && (
           <div>
-            <label className="block text-sm font-semibold mb-1.5">Type</label>
+            <label className="block text-sm font-semibold mb-1.5">{t("onboarding.type")}</label>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -105,7 +109,7 @@ export function ItemForm({
                 <span className="w-3 h-3 rounded-sm border-2 border-green-500 flex items-center justify-center shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                 </span>
-                Veg
+                {t("onboarding.veg")}
               </button>
               <button
                 type="button"
@@ -119,7 +123,7 @@ export function ItemForm({
                 <span className="w-3 h-3 rounded-sm border-2 border-red-500 flex items-center justify-center shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                 </span>
-                Non-Veg
+                {t("onboarding.nonVeg")}
               </button>
             </div>
           </div>
@@ -127,7 +131,7 @@ export function ItemForm({
 
         {/* Bestseller Toggle */}
         <div>
-          <label className="block text-sm font-semibold mb-1.5">Tags</label>
+          <label className="block text-sm font-semibold mb-1.5">{t("onboarding.tags")}</label>
           <button
             type="button"
             onClick={() => setIsBestseller(!isBestseller)}
@@ -138,7 +142,7 @@ export function ItemForm({
             }`}
           >
             <Icon name="local_fire_department" className="text-base" />
-            {isMeatItem ? "Featured" : "Bestseller"}
+            {isMeatItem ? t("onboarding.featured") : t("onboarding.bestseller")}
           </button>
         </div>
       </div>
@@ -146,8 +150,8 @@ export function ItemForm({
       {/* Photo Upload */}
       <div>
         <label className="block text-sm font-semibold mb-1.5">
-          {isMeatItem ? "Product Photo" : "Item Photo"}{" "}
-          <span className="text-gray-400 font-normal">(Optional)</span>
+          {isMeatItem ? t("onboarding.productPhoto") : t("onboarding.itemPhoto")}{" "}
+          <span className="text-gray-400 font-normal">({t("onboarding.optional")})</span>
         </label>
         <div className="flex items-center gap-3">
           {photo ? (
@@ -168,7 +172,7 @@ export function ItemForm({
             <div className="flex gap-2">
               <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-gray-300 text-xs font-medium text-secondary-app cursor-pointer hover:border-brand-kinetic/30 hover:text-brand-kinetic transition-all">
                 <Icon name="add_photo_alternate" className="text-lg" />
-                Upload Photo
+                {t("onboarding.uploadPhoto")}
                 <input
                   type="file"
                   accept="image/*"
@@ -187,7 +191,7 @@ export function ItemForm({
                 }
                 className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium text-secondary-app hover:text-brand-kinetic hover:border-brand-kinetic/30 transition-all"
               >
-                Use Dummy Photo
+                {t("onboarding.useDummyPhoto")}
               </button>
             </div>
           )}
@@ -201,7 +205,7 @@ export function ItemForm({
           onClick={onCancel}
           className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
         >
-          Cancel
+          {t("onboarding.cancel")}
         </button>
         <button
           type="button"
@@ -210,10 +214,10 @@ export function ItemForm({
           className="px-5 py-2.5 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {initialItem
-            ? "Update Item"
+            ? t("onboarding.updateItem")
             : isMeatItem
-              ? "Add Product"
-              : "Add to Menu"}
+              ? t("onboarding.addProduct")
+              : t("onboarding.addToMenu")}
         </button>
       </div>
     </div>

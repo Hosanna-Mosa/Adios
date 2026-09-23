@@ -1,11 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
-import { DAYS } from "../constants";
+import { DAYS, dayLabelShort } from "../constants";
 import { DayTimeSlotsEditor } from "./DayTimeSlotsEditor";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function StepTimings({ form }: Props) {
+  const { t } = useTranslation();
   const { selectedDays, setSelectedDays, setActiveTimingDay, toggleDay } = form;
   return (
     <section className="mb-10">
@@ -13,7 +15,7 @@ export function StepTimings({ form }: Props) {
         <div className="w-8 h-8 rounded-lg bg-brand-kinetic/10 flex items-center justify-center">
           <Icon name="schedule" className="text-base text-brand-kinetic" />
         </div>
-        <h2 className="font-display text-lg font-bold">Operational Timings</h2>
+        <h2 className="font-display text-lg font-bold">{t("onboarding.operationalTimings")}</h2>
       </div>
 
       <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
@@ -21,7 +23,7 @@ export function StepTimings({ form }: Props) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <label className="text-sm font-semibold">
-              Days of Operation <span className="text-brand-kinetic">*</span>
+              {t("onboarding.daysOfOperation")} <span className="text-brand-kinetic">*</span>
             </label>
             <button
               type="button"
@@ -32,7 +34,7 @@ export function StepTimings({ form }: Props) {
               }}
               className="text-xs font-semibold text-brand-kinetic hover:text-brand-kinetic/80 transition-colors"
             >
-              {selectedDays.length === 7 ? "Deselect All" : "Select All"}
+              {selectedDays.length === 7 ? t("onboarding.deselectAll") : t("onboarding.selectAll")}
             </button>
           </div>
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -50,7 +52,7 @@ export function StepTimings({ form }: Props) {
                     : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
                 }`}
               >
-                {day.slice(0, 3)}
+                {dayLabelShort(day)}
               </button>
             ))}
           </div>

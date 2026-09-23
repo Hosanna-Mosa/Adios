@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function SaveDraftModal({ form }: Props) {
+  const { t } = useTranslation();
   const {
     showSaveModal,
     setShowSaveModal,
@@ -25,18 +27,21 @@ export function SaveDraftModal({ form }: Props) {
               <Icon name="check_circle" className="text-3xl text-green-600" />
             </div>
             <h3 className="font-display text-xl font-bold mb-2">
-              Draft Saved!
+              {t("onboarding.draftSaved")}
             </h3>
             <p className="text-sm text-secondary-app">
-              We've sent a resume link to <strong>{saveEmail}</strong>. Check
-              your inbox to continue where you left off.
+              {t("onboarding.resumeLinkSentTo", {
+                email: saveEmail,
+                defaultValue: "We've sent a resume link to {{email}}.",
+              })}{" "}
+              {t("onboarding.checkInboxToResume")}
             </p>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-display text-lg font-bold">
-                Save Your Progress
+                {t("onboarding.saveYourProgress")}
               </h3>
               <button
                 onClick={() => setShowSaveModal(false)}
@@ -46,11 +51,10 @@ export function SaveDraftModal({ form }: Props) {
               </button>
             </div>
             <p className="text-sm text-secondary-app mb-5">
-              Enter your email and we'll send you a link to resume your
-              application anytime.
+              {t("onboarding.saveYourProgressDesc")}
             </p>
             <label className="block text-sm font-semibold mb-2">
-              Email Address
+              {t("onboarding.emailAddress")}
             </label>
             <input
               type="email"
@@ -64,14 +68,14 @@ export function SaveDraftModal({ form }: Props) {
                 onClick={() => setShowSaveModal(false)}
                 className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
               >
-                Cancel
+                {t("onboarding.cancel")}
               </button>
               <button
                 onClick={handleSaveDraft}
                 disabled={!saveEmail.includes("@") || isSaving}
                 className="flex-1 px-4 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSaving ? "Saving..." : "Send Link"}
+                {isSaving ? t("onboarding.saving") : t("onboarding.sendLink")}
               </button>
             </div>
           </>

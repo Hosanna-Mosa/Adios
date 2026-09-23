@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../components/shared/Icon";
 import { useOnboardingForm } from "../features/onboarding/hooks/useOnboardingForm";
 import { OnboardingStepper } from "../features/onboarding/components/OnboardingStepper";
@@ -11,6 +12,7 @@ import { StepContractReview } from "../features/onboarding/components/StepContra
 import { SaveDraftModal } from "../features/onboarding/components/SaveDraftModal";
 
 export default function PartnerOnboarding() {
+  const { t } = useTranslation();
   const form = useOnboardingForm();
   const {
     step,
@@ -40,19 +42,16 @@ export default function PartnerOnboarding() {
             <Icon name="check_circle" className="text-5xl text-green-600" />
           </div>
           <h1 className="font-display text-3xl font-bold mb-4">
-            Application Submitted!
+            {t("onboarding.applicationSubmitted")}
           </h1>
           <p className="text-secondary-app mb-8 leading-relaxed">
-            Thank you for partnering with Hybrid. Our team will review your
-            application and reach out within 24 hours to help you go live. After
-            approval, sign in to the vendor portal with your owner email or
-            phone number and the password you set.
+            {t("onboarding.applicationSubmittedDesc")}
           </p>
           <Link
             to="/"
             className="inline-block bg-brand-kinetic text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-brand-kinetic/90 transition-all"
           >
-            Back to Home
+            {t("onboarding.backToHome")}
           </Link>
         </div>
       </div>
@@ -81,7 +80,7 @@ export default function PartnerOnboarding() {
               {/* Mobile step indicator */}
               <div className="lg:hidden flex items-center gap-2 text-sm">
                 <span className="font-semibold text-on-surface">
-                  Step {step}/4
+                  {t("onboarding.stepOfFour", { value: step, defaultValue: "Step {{value}}/4" })}
                 </span>
                 <span className="text-secondary-app">
                   — {onboardingSteps[step - 1].label}
@@ -94,14 +93,14 @@ export default function PartnerOnboarding() {
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
               >
                 <Icon name="save" className="text-lg" />
-                <span className="hidden sm:inline">Save Draft</span>
+                <span className="hidden sm:inline">{t("onboarding.saveDraft")}</span>
               </button>
               <a
                 href="#"
                 className="text-sm text-secondary-app hover:text-on-surface transition-colors flex items-center gap-1"
               >
                 <Icon name="help_outline" className="text-lg" />
-                <span className="hidden sm:inline">Help</span>
+                <span className="hidden sm:inline">{t("onboarding.help")}</span>
               </a>
             </div>
           </div>
@@ -148,8 +147,8 @@ export default function PartnerOnboarding() {
                   <div className="mb-8">
                     <h1 className="font-display text-2xl lg:text-3xl font-bold mb-2">
                       {isMeatPartner
-                        ? "Operational Details"
-                        : "Menu & Operational Details"}
+                        ? t("onboarding.operationalDetailsTitle")
+                        : t("onboarding.menuAndOperationalDetailsTitle")}
                     </h1>
                     <p className="text-secondary-app text-sm">
                       {copy.menuHelp}
@@ -181,7 +180,7 @@ export default function PartnerOnboarding() {
                   className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
                 >
                   <Icon name="arrow_back" className="text-lg" />
-                  Back
+                  {t("onboarding.back")}
                 </button>
               ) : (
                 <Link
@@ -189,7 +188,7 @@ export default function PartnerOnboarding() {
                   className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
                 >
                   <Icon name="close" className="text-lg" />
-                  Cancel
+                  {t("onboarding.cancel")}
                 </Link>
               )}
 
@@ -199,7 +198,7 @@ export default function PartnerOnboarding() {
                   className="hidden sm:flex items-center gap-1.5 px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
                 >
                   <Icon name="save" className="text-lg" />
-                  Save Draft
+                  {t("onboarding.saveDraft")}
                 </button>
 
                 {step < 4 ? (
@@ -212,7 +211,7 @@ export default function PartnerOnboarding() {
                     }
                     className="flex items-center gap-2 px-8 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Next Step
+                    {t("onboarding.nextStep")}
                     <Icon name="arrow_forward" className="text-lg" />
                   </button>
                 ) : (
@@ -227,7 +226,7 @@ export default function PartnerOnboarding() {
                       name={isSubmitting ? "pending" : "how_to_reg"}
                       className="text-lg"
                     />
-                    {isSubmitting ? "Submitting..." : "Submit & Sign"}
+                    {isSubmitting ? t("onboarding.submitting") : t("onboarding.submitAndSign")}
                   </button>
                 )}
               </div>
