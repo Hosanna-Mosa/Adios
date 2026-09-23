@@ -1,1 +1,44 @@
-{}
+{
+  "header": {
+    "services": "सेवाएं",
+    "experience": "अनुभव",
+    "logistics": "लॉजिस्टिक्स",
+    "partners": "पार्टनर्स",
+    "downloadApp": "ऐप डाउनलोड करें",
+    "backToHome": "होम पर वापस जाएं"
+  },
+  "footer": {
+    "tagline": "आधुनिक पेशेवर के लिए उच्च-स्तरीय पाक कला और मोबिलिटी लॉजिस्टिक्स।",
+    "solutions": "समाधान",
+    "executiveFood": "एग्जीक्यूटिव फूड",
+    "executiveMotion": "एग्जीक्यूटिव मोशन",
+    "corporateAccounts": "कॉर्पोरेट खाते",
+    "partnerWithUs": "हमारे साथ पार्टनर बनें",
+    "support": "सहायता",
+    "helpCenter": "सहायता केंद्र",
+    "safetyProtocols": "सुरक्षा प्रोटोकॉल",
+    "privacyPolicy": "गोपनीयता नीति",
+    "termsOfService": "सेवा की शर्तें",
+    "download": "डाउनलोड",
+    "downloadOnThe": "डाउनलोड करें",
+    "appStore": "ऐप स्टोर",
+    "getItOn": "प्राप्त करें",
+    "googlePlay": "गूगल प्ले",
+    "copyright": "© 2026 Flavor Technologies Inc. सर्वाधिकार सुरक्षित।",
+    "privacy": "गोपनीयता",
+    "terms": "शर्तें",
+    "security": "सुरक्षा",
+    "contactSupport": "सहायता से संपर्क करें",
+    "minimalCopyright": "© 2024 Hybrid Technologies Inc. सर्वाधिकार सुरक्षित।"
+  },
+  "notFound": {
+    "title": "पृष्ठ नहीं मिला",
+    "description": "आप जिस पृष्ठ की तलाश कर रहे हैं वह मौजूद नहीं है या स्थानांतरित कर दिया गया है।",
+    "goHome": "होम पर जाएं"
+  },
+  "errorFallback": {
+    "title": "यह पृष्ठ लोड नहीं हुआ",
+    "description": "हमारी तरफ से कुछ गलत हो गया। आप रीफ़्रेश करने या होम पर वापस जाने का प्रयास कर सकते हैं।",
+    "tryAgain": "फिर से प्रयास करें"
+  }
+}

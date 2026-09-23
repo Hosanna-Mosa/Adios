@@ -1,1 +1,44 @@
-{}
+{
+  "header": {
+    "services": "Services",
+    "experience": "Experience",
+    "logistics": "Logistics",
+    "partners": "Partners",
+    "downloadApp": "Download App",
+    "backToHome": "Back to Home"
+  },
+  "footer": {
+    "tagline": "High-end culinary and mobility logistics for the modern professional.",
+    "solutions": "Solutions",
+    "executiveFood": "Executive Food",
+    "executiveMotion": "Executive Motion",
+    "corporateAccounts": "Corporate Accounts",
+    "partnerWithUs": "Partner with Us",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "safetyProtocols": "Safety Protocols",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "download": "Download",
+    "downloadOnThe": "Download on the",
+    "appStore": "App Store",
+    "getItOn": "Get it on",
+    "googlePlay": "Google Play",
+    "copyright": "© 2026 Flavor Technologies Inc. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "security": "Security",
+    "contactSupport": "Contact Support",
+    "minimalCopyright": "© 2024 Hybrid Technologies Inc. All rights reserved."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go home"
+  },
+  "errorFallback": {
+    "title": "This page didn't load",
+    "description": "Something went wrong on our end. You can try refreshing or head back home.",
+    "tryAgain": "Try again"
+  }
+}

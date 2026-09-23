@@ -1,1 +1,44 @@
-{}
+{
+  "header": {
+    "services": "సేవలు",
+    "experience": "అనుభవం",
+    "logistics": "లాజిస్టిక్స్",
+    "partners": "భాగస్వాములు",
+    "downloadApp": "యాప్‌ను డౌన్‌లోడ్ చేయండి",
+    "backToHome": "హోమ్‌కు తిరిగి వెళ్లండి"
+  },
+  "footer": {
+    "tagline": "ఆధునిక ప్రొఫెషనల్ కోసం ఉన్నత-స్థాయి వంటకాలు మరియు మొబిలిటీ లాజిస్టిక్స్.",
+    "solutions": "పరిష్కారాలు",
+    "executiveFood": "ఎగ్జిక్యూటివ్ ఫుడ్",
+    "executiveMotion": "ఎగ్జిక్యూటివ్ మోషన్",
+    "corporateAccounts": "కార్పొరేట్ ఖాతాలు",
+    "partnerWithUs": "మాతో భాగస్వామ్యం చేయండి",
+    "support": "సపోర్ట్",
+    "helpCenter": "సహాయ కేంద్రం",
+    "safetyProtocols": "భద్రతా ప్రోటోకాల్‌లు",
+    "privacyPolicy": "గోప్యతా విధానం",
+    "termsOfService": "సేవా నిబంధనలు",
+    "download": "డౌన్‌లోడ్",
+    "downloadOnThe": "డౌన్‌లోడ్ చేయండి",
+    "appStore": "యాప్ స్టోర్",
+    "getItOn": "పొందండి",
+    "googlePlay": "గూగుల్ ప్లే",
+    "copyright": "© 2026 Flavor Technologies Inc. అన్ని హక్కులు రిజర్వ్ చేయబడ్డాయి.",
+    "privacy": "గోప్యత",
+    "terms": "నిబంధనలు",
+    "security": "భద్రత",
+    "contactSupport": "సపోర్ట్‌ను సంప్రదించండి",
+    "minimalCopyright": "© 2024 Hybrid Technologies Inc. అన్ని హక్కులు రిజర్వ్ చేయబడ్డాయి."
+  },
+  "notFound": {
+    "title": "పేజీ కనుగొనబడలేదు",
+    "description": "మీరు వెతుకుతున్న పేజీ లేదు లేదా తరలించబడింది.",
+    "goHome": "హోమ్‌కు వెళ్లండి"
+  },
+  "errorFallback": {
+    "title": "ఈ పేజీ లోడ్ కాలేదు",
+    "description": "మా వైపు నుండి ఏదో తప్పు జరిగింది. మీరు రీఫ్రెష్ చేయడానికి లేదా హోమ్‌కు తిరిగి వెళ్లడానికి ప్రయత్నించవచ్చు.",
+    "tryAgain": "మళ్లీ ప్రయత్నించండి"
+  }
+}
