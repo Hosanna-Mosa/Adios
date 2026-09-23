@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useId, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Icon } from "./Icon";
 
 export function FileUploader({
@@ -16,14 +17,19 @@ export function FileUploader({
   onChange: (f: File | null) => void;
   accept?: string;
 }) {
+  const { t } = useTranslation();
   const [dragOver, setDragOver] = useState(false);
-  const fileInputId = `file-${label.replace(/[^a-zA-Z0-9]/g, "")}`;
+  // Not derived from `label` — a translated label may contain no
+  // ASCII/Latin characters (e.g. Telugu/Hindi), which would strip to an
+  // empty id and collide with other FileUploader instances on the page.
+  const fileInputId = `file-${useId()}`;
 
   const handleUseDummy = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const ext = accept.includes(".csv") ? "csv" : "png";
-    const dummyName = `${label.toLowerCase().replace(/[^a-z0-9]/g, "_")}_dummy.${ext}`;
+    const slug = label.toLowerCase().replace(/[^a-z0-9]/g, "_");
+    const dummyName = `${slug || "upload"}_dummy.${ext}`;
     const fileContent =
       ext === "csv"
         ? [
@@ -106,23 +112,23 @@ export function FileUploader({
               className="text-xs text-secondary-app/60 cursor-pointer"
             >
               <span className="text-brand-kinetic font-medium hover:underline">
-                Click to upload
+                {t("fileUploader.clickToUpload")}
               </span>{" "}
-              or drag & drop
+              {t("fileUploader.orDragAndDrop")}
             </label>
             <button
               type="button"
               onClick={handleUseDummy}
               className="text-xs font-semibold text-brand-kinetic bg-brand-kinetic/10 hover:bg-brand-kinetic/20 px-3 py-1 rounded-full transition-all border border-brand-kinetic/20"
             >
-              Use Dummy File
+              {t("fileUploader.useDummyFile")}
             </button>
           </div>
 
           <p className="text-[10px] text-secondary-app/40 mt-2">
             {accept.includes(".xlsx")
-              ? "CSV, XLSX (max 10MB)"
-              : "PDF, JPG, PNG (max 10MB)"}
+              ? t("fileUploader.csvXlsxMax10Mb")
+              : t("fileUploader.pdfJpgPngMax10Mb")}
           </p>
         </div>
       )}

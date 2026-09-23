@@ -525,5 +525,12 @@
     "nextStep": "अगला चरण",
     "submitting": "सबमिट हो रहा है...",
     "submitAndSign": "सबमिट करें और हस्ताक्षर करें"
+  },
+  "fileUploader": {
+    "clickToUpload": "अपलोड करने के लिए क्लिक करें",
+    "orDragAndDrop": "या खींचकर छोड़ें",
+    "useDummyFile": "डमी फ़ाइल का उपयोग करें",
+    "csvXlsxMax10Mb": "CSV, XLSX (अधिकतम 10MB)",
+    "pdfJpgPngMax10Mb": "PDF, JPG, PNG (अधिकतम 10MB)"
   }
 }

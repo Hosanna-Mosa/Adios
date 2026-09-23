@@ -525,5 +525,12 @@
     "nextStep": "Next Step",
     "submitting": "Submitting...",
     "submitAndSign": "Submit & Sign"
+  },
+  "fileUploader": {
+    "clickToUpload": "Click to upload",
+    "orDragAndDrop": "or drag & drop",
+    "useDummyFile": "Use Dummy File",
+    "csvXlsxMax10Mb": "CSV, XLSX (max 10MB)",
+    "pdfJpgPngMax10Mb": "PDF, JPG, PNG (max 10MB)"
   }
 }

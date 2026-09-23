@@ -525,5 +525,12 @@
     "nextStep": "తదుపరి దశ",
     "submitting": "సమర్పిస్తోంది...",
     "submitAndSign": "సమర్పించి సంతకం చేయండి"
+  },
+  "fileUploader": {
+    "clickToUpload": "అప్‌లోడ్ చేయడానికి క్లిక్ చేయండి",
+    "orDragAndDrop": "లేదా డ్రాగ్ & డ్రాప్ చేయండి",
+    "useDummyFile": "డమ్మీ ఫైల్‌ను ఉపయోగించండి",
+    "csvXlsxMax10Mb": "CSV, XLSX (గరిష్టంగా 10MB)",
+    "pdfJpgPngMax10Mb": "PDF, JPG, PNG (గరిష్టంగా 10MB)"
   }
 }
