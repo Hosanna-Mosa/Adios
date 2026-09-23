@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
 import type { Ticket } from "../types";
@@ -15,6 +16,7 @@ import type { Ticket } from "../types";
  * enough behavior that it's its own hook rather than a shared one.
  */
 export function useSupportChat() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -78,11 +80,11 @@ export function useSupportChat() {
       queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
       // If the ticket was resolved, it might be filtered out from active. Notify and potentially navigate away.
       if (data.status === "RESOLVED") {
-        toast.success(`Ticket ${data.ticketId} marked as Resolved!`);
+        toast.success(t("support.ticketMarkedAsResolved", { ticketId: data.ticketId, defaultValue: "Ticket {{ticketId}} marked as Resolved!" }));
       } else if (data.status === "PENDING_RESOLVE") {
-        toast.success(`Resolution request sent for ticket ${data.ticketId}`);
+        toast.success(t("support.resolutionRequestSentForTicket", { ticketId: data.ticketId, defaultValue: "Resolution request sent for ticket {{ticketId}}" }));
       } else {
-        toast.success("Ticket updated successfully!");
+        toast.success(t("support.ticketUpdatedSuccessfully"));
       }
     },
   });
