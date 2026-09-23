@@ -1,4 +1,5 @@
 import type { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,29 +27,30 @@ interface FoodItemFormProps {
  * submit button's wording.
  */
 export function FoodItemForm({ form, onChange, onSubmit, getRootProps, getInputProps, isDragActive, uploading, onRemoveImage, isSubmitting, submitLabel, submitPendingLabel }: FoodItemFormProps) {
+  const { t } = useTranslation();
   return (
     <form onSubmit={onSubmit} className="space-y-4 py-4">
       <FoodItemImageDropzone getRootProps={getRootProps} getInputProps={getInputProps} isDragActive={isDragActive} uploading={uploading} images={form.images} onRemoveImage={onRemoveImage} />
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Dish Name</label>
-        <Input value={form.name} onChange={(e) => onChange({ ...form, name: e.target.value })} placeholder="e.g. Special Chicken Biryani" />
+        <label className="text-sm font-medium">{t("vendorMenu.dishName")}</label>
+        <Input value={form.name} onChange={(e) => onChange({ ...form, name: e.target.value })} placeholder={t("vendorMenu.dishNamePlaceholder")} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <label className="text-sm font-medium">Price (₹)</label>
+          <label className="text-sm font-medium">{t("vendorMenu.priceLabel")}</label>
           <Input type="number" value={form.price} onChange={(e) => onChange({ ...form, price: e.target.value })} placeholder="299" />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">Category</label>
-          <Input value={form.category} onChange={(e) => onChange({ ...form, category: e.target.value })} placeholder="e.g. Starters" />
+          <label className="text-sm font-medium">{t("vendorMenu.category")}</label>
+          <Input value={form.category} onChange={(e) => onChange({ ...form, category: e.target.value })} placeholder={t("vendorMenu.categoryPlaceholder")} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Description</label>
-        <Textarea value={form.description} onChange={(e) => onChange({ ...form, description: e.target.value })} placeholder="Describe the dish, ingredients, etc." />
+        <label className="text-sm font-medium">{t("vendorMenu.description")}</label>
+        <Textarea value={form.description} onChange={(e) => onChange({ ...form, description: e.target.value })} placeholder={t("vendorMenu.descriptionPlaceholder")} />
       </div>
 
       <div className="flex items-center gap-4 py-2">
@@ -58,7 +60,7 @@ export function FoodItemForm({ form, onChange, onSubmit, getRootProps, getInputP
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all ${form.isVeg ? "border-success bg-success/5 text-success" : "border-border text-muted-foreground"}`}
         >
           <div className="h-3 w-3 rounded-full bg-success" />
-          Veg
+          {t("vendorMenu.veg")}
         </button>
         <button
           type="button"
@@ -66,7 +68,7 @@ export function FoodItemForm({ form, onChange, onSubmit, getRootProps, getInputP
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 transition-all ${!form.isVeg ? "border-destructive bg-destructive/5 text-destructive" : "border-border text-muted-foreground"}`}
         >
           <div className="h-3 w-3 rounded-full bg-destructive" />
-          Non-Veg
+          {t("vendorMenu.nonVeg")}
         </button>
       </div>
 

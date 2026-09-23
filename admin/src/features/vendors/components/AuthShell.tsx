@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 
 interface AuthShellProps {
@@ -18,6 +19,7 @@ interface AuthShellProps {
  * block's bottom margin (mb-10 vs mb-8), and the card's own content.
  */
 export function AuthShell({ icon, title, subtitle, children, headerClassName = "text-center mb-8" }: AuthShellProps) {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
@@ -34,7 +36,7 @@ export function AuthShell({ icon, title, subtitle, children, headerClassName = "
 
         <div className="bg-card border border-border p-8 rounded-3xl shadow-xl">{children}</div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">&copy; 2026 Precision Nav Logistics. All rights reserved.</p>
+        <p className="text-center text-xs text-muted-foreground mt-8">{t("auth.copyright")}</p>
       </FadeIn>
     </div>
   );

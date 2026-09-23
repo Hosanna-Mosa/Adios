@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
 import type { FoodItem, FoodItemFormData } from "../vendorMenuTypes";
 
@@ -13,6 +14,7 @@ const EMPTY_ITEM_FORM: FoodItemFormData = { name: "", description: "", price: ""
 
 /** All state/query/mutation/dropzone logic for VendorMenu.tsx (work queue item #8). */
 export function useVendorMenu() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -41,15 +43,15 @@ export function useVendorMenu() {
           } else {
             setNewItem((prev) => ({ ...prev, images: [...prev.images, ...data.imageUrls] }));
           }
-          toast.success("Images uploaded successfully");
+          toast.success(t("vendorMenu.imagesUploadedSuccessfully"));
         }
       } catch {
-        toast.error("Failed to upload images");
+        toast.error(t("vendorMenu.failedToUploadImages"));
       } finally {
         setUploading(false);
       }
     },
-    [isEditOpen]
+    [isEditOpen, t]
   );
 
   const dropzone = useDropzone({
@@ -78,7 +80,7 @@ export function useVendorMenu() {
     mutationFn: (data: FoodItemFormData) => adminFetch("/food", { method: "POST", body: JSON.stringify({ ...data, vendorId: vendorData._id }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-menu"] });
-      toast.success("Food item added successfully");
+      toast.success(t("vendorMenu.foodItemAddedSuccessfully"));
       setIsAddOpen(false);
       setNewItem(EMPTY_ITEM_FORM);
     },
@@ -88,7 +90,7 @@ export function useVendorMenu() {
     mutationFn: (id: string) => adminFetch(`/food/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-menu"] });
-      toast.success("Item removed from menu");
+      toast.success(t("vendorMenu.itemRemovedFromMenu"));
     },
   });
 
@@ -96,11 +98,11 @@ export function useVendorMenu() {
     mutationFn: ({ id, data }: { id: string; data: FoodItemFormData }) => adminFetch(`/food/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-menu"] });
-      toast.success("Food item updated successfully");
+      toast.success(t("vendorMenu.foodItemUpdatedSuccessfully"));
       setIsEditOpen(false);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update food item");
+      toast.error(err.message || t("vendorMenu.failedToUpdateFoodItem"));
     },
   });
 
@@ -116,13 +118,13 @@ export function useVendorMenu() {
       return { previousMenu };
     },
     onSuccess: (_item, { isAvailable }) => {
-      toast.success(isAvailable ? "Dish is back in stock" : "Dish marked out of stock");
+      toast.success(isAvailable ? t("vendorMenu.dishBackInStock") : t("vendorMenu.dishMarkedOutOfStock"));
     },
     onError: (err: Error, _variables, context) => {
       if (context?.previousMenu) {
         queryClient.setQueryData(menuQueryKey, context.previousMenu);
       }
-      toast.error(err.message || "Failed to update availability");
+      toast.error(err.message || t("vendorMenu.failedToUpdateAvailability"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-menu"] });
@@ -146,7 +148,7 @@ export function useVendorMenu() {
     e.preventDefault();
     if (!editingItem) return;
     if (!editItemForm.name || !editItemForm.price) {
-      toast.error("Please enter name and price");
+      toast.error(t("vendorMenu.pleaseEnterNameAndPrice"));
       return;
     }
     updateFoodMutation.mutate({ id: editingItem._id, data: editItemForm });
@@ -155,11 +157,11 @@ export function useVendorMenu() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItem.name || !newItem.price) {
-      toast.error("Please enter name and price");
+      toast.error(t("vendorMenu.pleaseEnterNameAndPrice"));
       return;
     }
     if (newItem.images.length === 0) {
-      toast.error("Please upload at least one image");
+      toast.error(t("vendorMenu.pleaseUploadAtLeastOneImage"));
       return;
     }
     addFoodMutation.mutate(newItem);

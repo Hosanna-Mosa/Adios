@@ -1,4 +1,5 @@
 import type { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FoodItemForm } from "./FoodItemForm";
 import type { FoodItemFormData } from "../vendorMenuTypes";
@@ -19,11 +20,12 @@ interface VendorEditDishDialogProps {
 
 /** The "Edit Dish" dialog. */
 export function VendorEditDishDialog({ isOpen, onOpenChange, form, onChange, onSubmit, getRootProps, getInputProps, isDragActive, uploading, onRemoveImage, isSubmitting }: VendorEditDishDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Edit Dish</DialogTitle>
+          <DialogTitle className="text-xl">{t("vendorMenu.editDish")}</DialogTitle>
         </DialogHeader>
         <FoodItemForm
           form={form}
@@ -35,8 +37,8 @@ export function VendorEditDishDialog({ isOpen, onOpenChange, form, onChange, onS
           uploading={uploading}
           onRemoveImage={onRemoveImage}
           isSubmitting={isSubmitting}
-          submitLabel="Save Changes"
-          submitPendingLabel="Saving..."
+          submitLabel={t("vendorMenu.saveChanges")}
+          submitPendingLabel={t("vendorMenu.savingEllipsis")}
         />
       </DialogContent>
     </Dialog>

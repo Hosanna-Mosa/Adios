@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
-import { toast } from "sonner";
 import type { ScheduledRequest } from "../vendorScheduledOrdersTypes";
 
 /** All state/query/mutation/socket logic for VendorScheduledOrders.tsx (work queue item #18). */
 export function useVendorScheduledOrders() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const [respondingId, setRespondingId] = useState<string | null>(null);
@@ -25,12 +27,12 @@ export function useVendorScheduledOrders() {
         body: JSON.stringify({ vendorId: vendorData._id, accepted }),
       }),
     onSuccess: (_, variables) => {
-      toast.success(variables.accepted ? "Scheduled delivery accepted" : "Scheduled delivery rejected");
+      toast.success(variables.accepted ? t("vendorDashboard.scheduledDeliveryAccepted") : t("vendorDashboard.scheduledDeliveryRejected"));
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
       setRespondingId(null);
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to update scheduled request");
+      toast.error(error.message || t("vendorScheduledOrders.failedToUpdateScheduledRequest"));
       setRespondingId(null);
     },
   });
