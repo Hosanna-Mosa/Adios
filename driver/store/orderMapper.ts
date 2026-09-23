@@ -1,4 +1,5 @@
 import type { Order } from "./types";
+import i18n from "@/i18n";
 
 const vendorField = (apiOrder: any, key: "name" | "phone") =>
   apiOrder.vendor?.[key] ||
@@ -15,8 +16,8 @@ export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
     duration: `${apiOrder.duration || 0} min`,
     earnings: Math.round(apiOrder.totalPrice * 0.8),
     status: apiOrder.status,
-    customerName: apiOrder.user?.name || fallback?.customerName || "Customer",
-    customerPhone: apiOrder.user?.phone || fallback?.customerPhone || "N/A",
+    customerName: apiOrder.user?.name || fallback?.customerName || i18n.t("jobs.customer"),
+    customerPhone: apiOrder.user?.phone || fallback?.customerPhone || i18n.t("jobs.notAvailableAbbr"),
     timestamp: new Date(apiOrder.createdAt),
     serviceType: apiOrder.serviceType,
     radius: apiOrder.radius,

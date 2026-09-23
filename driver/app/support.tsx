@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import {
@@ -7,36 +8,37 @@ import {
   FaqAccordion,
   SupportHero,
 } from "@/features/support/components";
-import { FAQS } from "@/features/support/faqs";
+import { getFaqs } from "@/features/support/faqs";
 import { styles } from "@/features/support/support.styles";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
-const CONTACT_OPTIONS = [
-  { id: "chat", icon: "message-square" as const, label: "Live Chat", description: "Instant support" },
-  { id: "call", icon: "phone" as const, label: "Call Support", description: "Talk to agent" },
-  { id: "email", icon: "mail" as const, label: "Email Us", description: "Reply in 1 hour" },
-];
-
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+
+  const CONTACT_OPTIONS = [
+    { id: "chat", icon: "message-square" as const, label: t("support.liveChat"), description: t("support.instantSupport") },
+    { id: "call", icon: "phone" as const, label: t("support.callSupport"), description: t("support.talkToAgent") },
+    { id: "email", icon: "mail" as const, label: t("support.emailUs"), description: t("support.replyIn1Hour") },
+  ];
 
   const handleContactOption = (type: string) => {
     if (type === "chat") {
       router.push("/support-chat");
     } else if (type === "call") {
-      Alert.alert("Calling Partner Support", "Connecting you to our driver hotline +1 (800) 555-DRIV...");
+      Alert.alert(t("support.callingPartnerSupport"), t("support.connectingYouToOurDriverHotline"));
     } else if (type === "email") {
-      Alert.alert("Email Partner Support", "Opening mail composer to partner-support@swiftradius.com...");
+      Alert.alert(t("support.emailPartnerSupport"), t("support.openingMailComposer"));
     }
   };
 
   return (
     <Box style={styles.root}>
       <ScreenHeader
-        title="Partner Support"
+        title={t("support.partnerSupport")}
         paddingTop={insets.top + 16}
         onBack={() => router.back()}
       />
@@ -46,12 +48,12 @@ export default function SupportScreen() {
         showsVerticalScrollIndicator={false}
       >
         <SupportHero
-          badge="DRIVERS HELPLINE"
-          title="How can we assist you today?"
-          subtitle="Get dynamic support resolution for active manifests, pricing adjustments, or document verifications."
+          badge={t("support.driversHelpline")}
+          title={t("support.howCanWeAssistYouToday")}
+          subtitle={t("support.getDynamicSupportResolution")}
         />
 
-        <AppText style={styles.sectionTitle}>Get in Touch</AppText>
+        <AppText style={styles.sectionTitle}>{t("support.getInTouch")}</AppText>
         <Box style={styles.contactGrid}>
           {CONTACT_OPTIONS.map((option) => (
             <ContactOptionCard
@@ -64,8 +66,8 @@ export default function SupportScreen() {
           ))}
         </Box>
 
-        <AppText style={[styles.sectionTitle, { marginTop: 32 }]}>Frequently Asked Questions</AppText>
-        <FaqAccordion faqs={FAQS} />
+        <AppText style={[styles.sectionTitle, { marginTop: 32 }]}>{t("support.frequentlyAskedQuestions")}</AppText>
+        <FaqAccordion faqs={getFaqs()} />
       </ScrollBox>
     </Box>
   );

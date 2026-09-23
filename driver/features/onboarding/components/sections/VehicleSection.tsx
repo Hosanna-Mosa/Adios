@@ -2,13 +2,14 @@ import React from "react";
 
 import { staggerListItem } from "@/motion/presets";
 import { useOnboardingCtx } from "../../OnboardingContext";
-import { VEHICLES } from "../../vehicles";
+import { getVehicles } from "../../vehicles";
 import { FieldColumn } from "../FieldColumn";
 import { SelectCard } from "../SelectCard";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export function VehicleSection() {
   const { step1 } = useOnboardingCtx();
+  const VEHICLES = getVehicles();
 
   return (
     <FieldColumn gap={12}>

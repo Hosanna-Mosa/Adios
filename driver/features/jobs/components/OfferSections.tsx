@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -16,11 +17,12 @@ export function OfferMetrics({
   radius?: number;
   duration?: string | null;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.detailsContainer}>
       <Box style={styles.detailRow}>
         <Ionicons name="location-outline" size={19} color={Colors.textSecondary} />
-        <AppText style={styles.detailText}>{distance || "N/A"}</AppText>
+        <AppText style={styles.detailText}>{distance || t("jobs.notAvailableAbbr")}</AppText>
       </Box>
       {radius !== undefined && (
         <Box style={styles.detailRow}>
@@ -30,7 +32,7 @@ export function OfferMetrics({
       )}
       <Box style={styles.detailRow}>
         <Ionicons name="time-outline" size={19} color={Colors.textSecondary} />
-        <AppText style={styles.detailText}>{duration || "N/A"}</AppText>
+        <AppText style={styles.detailText}>{duration || t("jobs.notAvailableAbbr")}</AppText>
       </Box>
     </Box>
   );
@@ -38,9 +40,10 @@ export function OfferMetrics({
 
 /** Pickup and drop stops on an incoming offer. */
 export function OfferRoute({ stops }: { stops?: any[] }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.infoSection}>
-      <AppText style={styles.sectionTitle}>ROUTE</AppText>
+      <AppText style={styles.sectionTitle}>{t("jobs.route")}</AppText>
       {stops?.map((stop, index) => (
         <Box key={`${stop.id || stop.address}-${index}`} style={styles.stopRow}>
           <MaterialIcons
@@ -50,7 +53,7 @@ export function OfferRoute({ stops }: { stops?: any[] }) {
           />
           <Box style={{ flex: 1, marginLeft: 8 }}>
             <AppText style={styles.stopLocationName}>
-              {stop.locationName || (stop.type === "pickup" ? "Restaurant" : "Customer")}
+              {stop.locationName || (stop.type === "pickup" ? t("jobs.restaurant") : t("jobs.customer"))}
             </AppText>
             <AppText style={styles.stopAddress} numberOfLines={1}>
               {stop.address}
@@ -70,12 +73,13 @@ export function OfferItems({
   vendorName?: string | null;
   items: any[];
 }) {
+  const { t } = useTranslation();
   if (items.length === 0) return null;
   return (
     <Box style={styles.infoSection}>
-      <AppText style={styles.sectionTitle}>ITEMS TO PICK UP</AppText>
+      <AppText style={styles.sectionTitle}>{t("jobs.itemsToPickUp")}</AppText>
       <Box style={styles.itemsRestaurantBlock}>
-        <AppText style={styles.itemsRestaurantName}>{vendorName || "Restaurant"}</AppText>
+        <AppText style={styles.itemsRestaurantName}>{vendorName || t("jobs.restaurant")}</AppText>
         {items.map((item: any, idx: number) => (
           <AppText key={idx} style={styles.itemRowText}>
             • {item.quantity}x {item.name}
@@ -88,9 +92,10 @@ export function OfferItems({
 
 /** How the job is paid for. */
 export function OfferPaymentMode({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.infoSection}>
-      <AppText style={styles.sectionTitle}>PAYMENT METHOD</AppText>
+      <AppText style={styles.sectionTitle}>{t("jobs.paymentMethod")}</AppText>
       <Box style={styles.paymentRow}>
         <Ionicons name="card-outline" size={18} color={Colors.success} />
         <AppText style={styles.paymentText}>{label}</AppText>

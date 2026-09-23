@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import { useDriverStore } from "@/store/driverStore";
 import { socketService } from "@/utils/socketService";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { formatCustomerChatMessage } from "@/utils/chatMessages";
 
 export function GlobalSocketHandler() {
+  const { t } = useTranslation();
   const currentOrderId = useDriverStore((s) => s.currentOrder?.id);
   const addChatMessage = useDriverStore((s) => s.addChatMessage);
 
@@ -48,7 +50,7 @@ export function GlobalSocketHandler() {
           });
 
           if (status === "picking_items") {
-            Alert.alert("Order Prepared", "The order is prepared and ready for pickup!");
+            Alert.alert(t("jobs.orderPrepared"), t("jobs.theOrderIsPreparedAndReadyForPickup"));
           }
         }
       }
@@ -60,7 +62,7 @@ export function GlobalSocketHandler() {
       socketService.off("receive_message", handleReceiveMessage);
       socketService.off("order_status_update", handleStatusUpdate);
     };
-  }, [currentOrderId]);
+  }, [currentOrderId, t]);
 
   return null;
 }

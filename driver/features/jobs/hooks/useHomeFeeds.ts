@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import type { Hotspot } from "../components/HighDemandAreas";
-import { fallbackHotspots } from "../fallbackHotspots";
+import { getFallbackHotspots } from "../fallbackHotspots";
 
 /** The three background feeds behind the home screen: high-demand hotspots,
  * scheduled rides and driver ads. Each refreshes on its own interval.
@@ -75,7 +75,7 @@ export function useHomeFeeds({
 
   const loadHighDemandAreas = useCallback(async () => {
     if (!apiUrl || !token) {
-      setHotspots(fallbackHotspots);
+      setHotspots(getFallbackHotspots());
       return;
     }
 
@@ -93,11 +93,11 @@ export function useHomeFeeds({
       if (Array.isArray(areas) && areas.length > 0) {
         setHotspots(areas);
       } else {
-        setHotspots(fallbackHotspots);
+        setHotspots(getFallbackHotspots());
       }
     } catch (error) {
       console.warn("High demand area fetch failed:", error);
-      setHotspots(fallbackHotspots);
+      setHotspots(getFallbackHotspots());
     } finally {
       setIsLoadingHotspots(false);
     }

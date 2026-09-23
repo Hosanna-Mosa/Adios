@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router, useLocalSearchParams } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -8,6 +9,7 @@ import { usePlaceLookup } from "./usePlaceLookup";
 /** Form state, place lookup and save for the add/edit address screen.
  * Lifted out of app/add-address.tsx unchanged. */
 export function useAddressForm() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const { token } = useDriverStore();
 
@@ -28,7 +30,7 @@ export function useAddressForm() {
 
   const handleSave = async () => {
     if (!addressLine.trim()) {
-      Alert.alert("Missing information", "Please enter your address.");
+      Alert.alert(t("profile.missingInformation"), t("profile.pleaseEnterYourAddress"));
       return;
     }
 
@@ -60,14 +62,16 @@ export function useAddressForm() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to save address");
+        throw new Error(err.message || t("profile.failedToSaveAddress"));
       }
 
-      Alert.alert("Success", isEditMode ? "Address updated successfully!" : "Address saved successfully!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      Alert.alert(
+        t("profile.success"),
+        isEditMode ? t("profile.addressUpdatedSuccessfully") : t("profile.addressSavedSuccessfully"),
+        [{ text: t("actions.ok"), onPress: () => router.back() }]
+      );
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to save address.");
+      Alert.alert(t("auth.errorTitle"), error.message || t("profile.failedToSaveAddress"));
     } finally {
       setLoading(false);
     }

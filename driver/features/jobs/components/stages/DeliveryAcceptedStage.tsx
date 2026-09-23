@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
 import { Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -19,6 +20,7 @@ import { PickupNavButton } from "./PickupNavButton";
 import { Box } from "@/components/ui/Box";
 
 export function DeliveryAcceptedStage() {
+  const { t } = useTranslation();
   const {
     currentOrder, pickupStop, deliveryStop, unreadCount, handleStatusTransition,
   } = useActiveOrderCtx();
@@ -26,7 +28,7 @@ export function DeliveryAcceptedStage() {
   return (
     <Box style={styles.stepContainer}>
       <StageTitleRow
-        title="Order Accepted"
+        title={t("jobs.orderAccepted")}
         actions={
           <ContactActions>
             <RoundCommButton
@@ -47,20 +49,20 @@ export function DeliveryAcceptedStage() {
       />
       <StopsPanel>
         <StopInfoItem
-          label="Pickup From"
-          name={currentOrder.vendorName || pickupStop?.locationName || "Restaurant"}
+          label={t("jobs.pickupFrom")}
+          name={currentOrder.vendorName || pickupStop?.locationName || t("jobs.restaurant")}
           address={pickupStop?.address}
           layout="row"
         />
         <StopsDivider />
         <StopInfoItem
-          label="Deliver To"
-          name={currentOrder.customerName || "Customer"}
+          label={t("jobs.deliverTo")}
+          name={currentOrder.customerName || t("jobs.customer")}
           address={deliveryStop?.address}
         />
       </StopsPanel>
 
-      <StageActionButton label="Start Travel to Restaurant" onPress={handleStatusTransition} />
+      <StageActionButton label={t("jobs.startTravelToRestaurant")} onPress={handleStatusTransition} />
       <CancelDeliveryButton />
     </Box>
   );

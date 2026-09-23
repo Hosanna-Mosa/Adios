@@ -1,5 +1,6 @@
 import React from "react";
 
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { TicketListItem } from "./TicketListItem";
@@ -24,9 +25,10 @@ export function TicketListView({
   onOpenTicket: (ticket: SupportTicket) => void;
   onStartNew: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={[styles.root, { backgroundColor: Colors.background }]}>
-      <ScreenHeader title="Support Sessions" paddingTop={paddingTop} onBack={onBack} />
+      <ScreenHeader title={t("support.supportSessions")} paddingTop={paddingTop} onBack={onBack} />
 
       <List
         data={tickets}
@@ -43,7 +45,7 @@ export function TicketListView({
             ]}
             onPress={onStartNew}
           >
-            <AppText style={styles.submitBtnText}>+ Start New Support Chat</AppText>
+            <AppText style={styles.submitBtnText}>{t("support.startNewSupportChat")}</AppText>
           </Touchable>
         )}
       />

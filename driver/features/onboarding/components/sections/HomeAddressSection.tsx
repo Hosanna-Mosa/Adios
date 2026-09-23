@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { FieldColumn } from "../FieldColumn";
@@ -6,18 +7,19 @@ import { FormInput } from "../FormInput";
 import { HomeAddressSuggestions, LocationVerifiedBox } from "../HomeAddressPicker";
 
 export function HomeAddressSection() {
+  const { t } = useTranslation();
   const { step1 } = useOnboardingCtx();
 
   return (
     <FieldColumn gap={16}>
       <FormInput
-        label="Full Home Address"
+        label={t("onboarding.fullHomeAddress")}
         value={step1.homeAddressLine}
         onChangeText={(t) => {
           step1.setHomeAddressLine(t);
           step1.fetchSuggestions(t);
         }}
-        placeholder="e.g. 12, MG Road, Rajahmundry"
+        placeholder={t("onboarding.egHomeAddress")}
         icon="home"
       />
 

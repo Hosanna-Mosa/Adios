@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { socketService } from "../../utils/socketService";
 import { mapApiOrder } from "../orderMapper";
@@ -45,7 +46,7 @@ export const createOrderStatusSlice = (
           orderFromApi = await res.json();
         } else {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.message || "Failed to update status on server");
+          throw new Error(errData.message || i18n.t("jobs.failedToUpdateStatusOnServer"));
         }
       } catch (e: any) {
         console.error("Failed to update order status via API:", e);

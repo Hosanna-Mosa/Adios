@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { Box } from "@/components/ui/Box";
@@ -8,6 +9,10 @@ import { AppText } from "@/components/ui/AppText";
 import { Touchable } from "@/components/ui/Touchable";
 
 interface StatItem {
+  /** Stable, untranslated identifier used only to pick the icon — never
+   * displayed. Kept separate from `label` so icon selection still works once
+   * `label` is a translated string. */
+  kind: "trips" | "balance" | "thisWeek";
   label: string;
   value: string;
   accent?: boolean;
@@ -18,8 +23,9 @@ interface PerformanceCardProps {
 }
 
 export function PerformanceCard({ stats }: PerformanceCardProps) {
-  const getIconForStat = (label: string) => {
-    switch (label.toLowerCase()) {
+  const { t } = useTranslation();
+  const getIconForStat = (kind: StatItem["kind"]) => {
+    switch (kind) {
       case 'trips':
         return (
           <Box style={[styles.iconCircle, { backgroundColor: '#eefaff' }]}>
@@ -32,7 +38,7 @@ export function PerformanceCard({ stats }: PerformanceCardProps) {
             <MaterialCommunityIcons name="wallet-outline" size={20} color={Colors.success} />
           </Box>
         );
-      case 'this week':
+      case 'thisWeek':
       default:
         return (
           <Box style={[styles.iconCircle, { backgroundColor: '#fff5e6' }]}>
@@ -45,17 +51,17 @@ export function PerformanceCard({ stats }: PerformanceCardProps) {
   return (
     <Box style={styles.card}>
       <Box style={styles.header}>
-        <AppText style={styles.title}>Today&apos;s Performance</AppText>
+        <AppText style={styles.title}>{t("earnings.todaysPerformance")}</AppText>
         <Touchable style={styles.dropdown}>
-          <AppText style={styles.dropdownText}>This Week</AppText>
+          <AppText style={styles.dropdownText}>{t("earnings.thisWeek")}</AppText>
           <Feather name="chevron-down" size={14} color={Colors.textSecondary} />
         </Touchable>
       </Box>
       <Box style={styles.statsRow}>
         {stats.map((stat) => (
-          <Box key={stat.label} style={styles.statItem}>
+          <Box key={stat.kind} style={styles.statItem}>
             <Box style={styles.statIconContainer}>
-              {getIconForStat(stat.label)}
+              {getIconForStat(stat.kind)}
             </Box>
             <AppText style={styles.statValue}>
               {stat.value}

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { Alert, Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL } from "@/utils/apiUrl";
@@ -12,15 +13,17 @@ export function useOrderActions(
   pickupStop: any,
   deliveryStop: any,
 ) {
+  const { t } = useTranslation();
+
   const handleSOS = useCallback(() => {
     if (!currentOrder) return;
     Alert.alert(
-      "Emergency SOS",
-      "Are you sure you want to trigger SOS? This will instantly alert our support team and emergency contacts.",
+      t("jobs.emergencySos"),
+      t("jobs.areYouSureYouWantToTriggerSos"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("actions.cancel"), style: "cancel" },
         {
-          text: "Trigger SOS",
+          text: t("jobs.triggerSos"),
           style: "destructive",
           onPress: async () => {
             try {
@@ -33,67 +36,67 @@ export function useOrderActions(
               });
               if (!response.ok) {
                 const err = await response.json();
-                throw new Error(err.message || "Failed to trigger SOS");
+                throw new Error(err.message || t("jobs.failedToTriggerSos"));
               }
               Alert.alert(
-                "SOS Dispatched",
-                "Your emergency alert has been sent. Support is on the way.",
+                t("jobs.sosDispatched"),
+                t("jobs.emergencyAlertSentSupportOnTheWay"),
               );
             } catch (err: any) {
               console.error("SOS trigger error:", err);
               Alert.alert(
-                "Error",
-                err.message || "Failed to trigger SOS. Please call emergency services.",
+                t("auth.errorTitle"),
+                err.message || t("jobs.failedToTriggerSosCallEmergency"),
               );
             }
           },
         },
       ],
     );
-  }, [currentOrder, token]);
+  }, [currentOrder, token, t]);
 
   const handleCancelOrder = useCallback(() => {
     if (!currentOrder) return;
     Alert.alert(
-      "Cancel Delivery",
-      "Are you sure you want to cancel this delivery? The order will be aborted.",
+      t("jobs.cancelDelivery"),
+      t("jobs.areYouSureYouWantToCancelThisDelivery"),
       [
-        { text: "No", style: "cancel" },
+        { text: t("jobs.no"), style: "cancel" },
         {
-          text: "Yes, Cancel",
+          text: t("jobs.yesCancel"),
           style: "destructive",
           onPress: async () => {
             try {
               await updateOrderStatus("CANCELLED" as any);
               useDriverStore.setState({ currentOrder: null, currentStep: 0 });
-              Alert.alert("Success", "Delivery has been cancelled.");
+              Alert.alert(t("profile.success"), t("jobs.deliveryHasBeenCancelled"));
             } catch (err: any) {
               console.error("Cancel order error:", err);
-              Alert.alert("Error", err.message || "Failed to cancel delivery.");
+              Alert.alert(t("auth.errorTitle"), err.message || t("jobs.failedToCancelDelivery"));
             }
           },
         },
       ],
     );
-  }, [currentOrder, updateOrderStatus]);
+  }, [currentOrder, updateOrderStatus, t]);
 
   const handleReportIssue = useCallback(() => {
-    Alert.alert("Report Operational Issue", "Select an issue to escalate to support:", [
+    Alert.alert(t("jobs.reportOperationalIssue"), t("jobs.selectAnIssueToEscalate"), [
       {
-        text: "Excessive Preparation Delay",
-        onPress: () => Alert.alert("Reported", "Escalation ticket raised."),
+        text: t("jobs.excessivePreparationDelay"),
+        onPress: () => Alert.alert(t("jobs.reported"), t("jobs.escalationTicketRaised")),
       },
       {
-        text: "Vehicle Breakdown",
-        onPress: () => Alert.alert("Assistance Requested", "Support will contact you."),
+        text: t("jobs.vehicleBreakdown"),
+        onPress: () => Alert.alert(t("jobs.assistanceRequested"), t("jobs.supportWillContactYou")),
       },
       {
-        text: "Restaurant is Closed",
-        onPress: () => Alert.alert("Reported", "Order cancellation initiated."),
+        text: t("jobs.restaurantIsClosed"),
+        onPress: () => Alert.alert(t("jobs.reported"), t("jobs.orderCancellationInitiated")),
       },
-      { text: "Cancel", style: "cancel" },
+      { text: t("actions.cancel"), style: "cancel" },
     ]);
-  }, []);
+  }, [t]);
 
   const openRideNavigation = useCallback(() => {
     const pickupAddress =
@@ -103,8 +106,8 @@ export function useOrderActions(
 
     if (!pickupAddress || !destinationAddress) {
       Alert.alert(
-        "Navigation unavailable",
-        "Pickup or destination address is missing for this ride.",
+        t("jobs.navigationUnavailable"),
+        t("jobs.pickupOrDestinationAddressMissing"),
       );
       return;
     }
@@ -112,7 +115,7 @@ export function useOrderActions(
     Linking.openURL(
       `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupAddress)}&destination=${encodeURIComponent(destinationAddress)}&travelmode=driving`,
     );
-  }, [pickupStop, deliveryStop]);
+  }, [pickupStop, deliveryStop, t]);
 
   return { handleSOS, handleCancelOrder, handleReportIssue, openRideNavigation };
 }

@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
 import { Dimensions } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ActiveOrderProvider } from "@/features/jobs/ActiveOrderContext";
@@ -19,6 +20,7 @@ const { height } = Dimensions.get("window");
 const TALL_SHEET_STATUSES = ["picking_items", "arrived_delivery", "delivered", "completed"];
 
 export default function ActiveOrderScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const order = useActiveOrder();
   const {
@@ -29,10 +31,10 @@ export default function ActiveOrderScreen() {
   if (!currentOrder) return null;
 
   const title = isRide
-    ? "Ride Active Task"
+    ? t("jobs.rideActiveTask")
     : isHelper
-      ? "Helper Active Task"
-      : "Delivery Active Task";
+      ? t("jobs.helperActiveTask")
+      : t("jobs.deliveryActiveTask");
 
   return (
     <ActiveOrderProvider value={order}>

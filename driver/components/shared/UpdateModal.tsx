@@ -1,5 +1,6 @@
 import React from "react";
 import { Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
 import { styles } from "./UpdateModal.styles";
 import { Colors } from "@/constants/colors";
@@ -16,6 +17,7 @@ interface UpdateModalProps {
 }
 
 export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss }: UpdateModalProps) {
+  const { t } = useTranslation();
   if (!visible) return null;
 
   const handleUpdate = () => {
@@ -38,23 +40,23 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
             <Feather name="download-cloud" size={40} color={Colors.white} />
           </Box>
 
-          <AppText style={styles.title}>New Driver App Version!</AppText>
-          <AppText style={styles.subtitle}>Update the FLAVOUR Driver app to continue receiving orders smoothly.</AppText>
+          <AppText style={styles.title}>{t("errors.newDriverAppVersion")}</AppText>
+          <AppText style={styles.subtitle}>{t("errors.updateFlavourDriverToContinue")}</AppText>
 
           {forceUpdate && (
             <Box style={styles.warningContainer}>
               <Feather name="alert-triangle" size={16} color="#ef4444" />
-              <AppText style={styles.warningText}>This update is mandatory to continue online duties.</AppText>
+              <AppText style={styles.warningText}>{t("errors.updateMandatoryToContinueOnlineDuties")}</AppText>
             </Box>
           )}
 
           <Box style={styles.buttonContainer}>
             <Touchable style={styles.updateButton} onPress={handleUpdate} activeOpacity={0.85}>
-              <AppText style={styles.updateText}>Update Now</AppText>
+              <AppText style={styles.updateText}>{t("errors.updateNow")}</AppText>
             </Touchable>
 
             <Touchable style={styles.laterButton} onPress={onDismiss} activeOpacity={0.8}>
-              <AppText style={styles.laterText}>Maybe Later</AppText>
+              <AppText style={styles.laterText}>{t("errors.maybeLater")}</AppText>
             </Touchable>
           </Box>
         </Box>

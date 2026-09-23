@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FlatList } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import type { SupportTicket } from "../types";
@@ -12,6 +13,7 @@ import { useTicketLiveUpdates } from "./useTicketLiveUpdates";
  *
  * Lifted out of app/support-chat.tsx unchanged. */
 export function useSupportChat() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const token = useDriverStore((s) => s.token);
   const [viewMode, setViewMode] = useState<"loading" | "list" | "chat" | "create">("loading");
@@ -33,7 +35,7 @@ export function useSupportChat() {
   }, [ticket]);
 
   const supportFetch = async (endpoint: string, options: RequestInit = {}) => {
-    if (!token || !apiUrl) throw new Error("Authentication or API configuration is missing");
+    if (!token || !apiUrl) throw new Error(t("support.authenticationOrApiConfigMissing"));
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

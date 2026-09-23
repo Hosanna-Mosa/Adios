@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -10,15 +11,15 @@ import { AppText } from "@/components/ui/AppText";
 
 /** How to reach support, shown under the account fields. */
 export function SupportSection({ fields }: { fields: Field[] }) {
+  const { t } = useTranslation();
   return (
     <Box>
       <SectionFieldRows fields={fields} />
       <Box style={modalStyles.supportBox}>
         <Feather name="headphones" size={20} color={Colors.primary} />
-        <AppText style={modalStyles.supportTitle}>Need help?</AppText>
+        <AppText style={modalStyles.supportTitle}>{t("profile.needHelp")}</AppText>
         <AppText style={modalStyles.supportText}>
-          Contact our support team at support@triozen.com or call us at
-          +91-XXXXX-XXXXX for assistance.
+          {t("profile.contactSupportTeam")}
         </AppText>
       </Box>
     </Box>

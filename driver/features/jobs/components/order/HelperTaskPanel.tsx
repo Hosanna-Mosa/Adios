@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -36,6 +37,7 @@ export function TaskProgressBar({
   isOvertime: boolean;
   hoursBooked: string | number;
 }) {
+  const { t } = useTranslation();
   return (
     <>
       <Box style={styles.progressTrack}>
@@ -48,8 +50,8 @@ export function TaskProgressBar({
         <Box style={[{ flex: Math.max(0, 100 - Math.round(progress)) }, styles.progressRest]} />
       </Box>
       <Box style={styles.progressLabels}>
-        <AppText style={styles.progressLabel}>{isOvertime ? "Overtime" : "Elapsed"}</AppText>
-        <AppText style={styles.progressLabel}>{hoursBooked} Hours Booked</AppText>
+        <AppText style={styles.progressLabel}>{isOvertime ? t("jobs.overtime") : t("jobs.elapsed")}</AppText>
+        <AppText style={styles.progressLabel}>{t("jobs.hoursBookedN", { value: hoursBooked, defaultValue: "{{value}} Hours Booked" })}</AppText>
       </Box>
     </>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Alert, Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -16,6 +17,7 @@ import { ScrollBox } from "@/components/ui/ScrollBox";
 import { KeyboardView } from "@/components/ui/KeyboardView";
 
 export default function PayoutSetupScreen() {
+  const { t: translate } = useTranslation();
   const insets = useSafeAreaInsets();
   const token = useDriverStore((s) => s.token);
   const params = useLocalSearchParams<{
@@ -39,7 +41,7 @@ export default function PayoutSetupScreen() {
     if (!canSave) return;
 
     if (!token) {
-      Alert.alert("Session expired", "Please sign in again.");
+      Alert.alert(translate("auth.sessionExpired"), translate("auth.pleaseSignInAgain"));
       return;
     }
 
@@ -66,14 +68,14 @@ export default function PayoutSetupScreen() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to save bank details");
+        throw new Error(errData.message || translate("earnings.failedToSaveBankDetails"));
       }
 
-      Alert.alert("Bank details saved", "Your payout account has been set up. You can now cash out your earnings.", [
-        { text: "OK", onPress: () => router.back() },
+      Alert.alert(translate("earnings.bankDetailsSaved"), translate("earnings.payoutAccountSetUpCanCashOut"), [
+        { text: translate("actions.ok"), onPress: () => router.back() },
       ]);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Could not save bank details. Please try again.");
+      Alert.alert(translate("auth.errorTitle"), error.message || translate("earnings.couldNotSaveBankDetails"));
     } finally {
       setSaving(false);
     }
@@ -86,7 +88,7 @@ export default function PayoutSetupScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScreenHeader
-          title="Payout Setup"
+          title={translate("earnings.payoutSetup")}
           paddingTop={insets.top + 16}
           onBack={() => router.back()}
         />
@@ -97,8 +99,8 @@ export default function PayoutSetupScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <SecureNotice
-            title="Secure payout setup"
-            text="Add the account where your delivery earnings should be settled. Make sure the details are correct."
+            title={translate("onboarding.securePayoutSetup")}
+            text={translate("earnings.addAccountEarningsSettledMakeSureCorrect")}
           />
 
           <BankAccountForm
@@ -113,7 +115,7 @@ export default function PayoutSetupScreen() {
         </ScrollBox>
 
         <SaveBar
-          label="Save Bank Details"
+          label={translate("earnings.saveBankDetails")}
           onPress={handleSave}
           disabled={!canSave}
           saving={saving}

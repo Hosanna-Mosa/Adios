@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -22,6 +23,7 @@ export function DocumentsSection({
   onAddPan: () => void;
   onAddLicense: () => void;
 }) {
+  const { t } = useTranslation();
   const showActions = !hasPan || !hasLicense;
 
   return (
@@ -32,14 +34,14 @@ export function DocumentsSection({
           {!hasPan && (
             <ModalActionButton
               icon={<Feather name="plus-circle" size={16} color={Colors.primary} />}
-              label="Add PAN Card"
+              label={t("profile.addPanCard")}
               onPress={onAddPan}
             />
           )}
           {!hasLicense && (
             <ModalActionButton
               icon={<Feather name="plus-circle" size={16} color={Colors.primary} />}
-              label="Add Driving License"
+              label={t("profile.addDrivingLicense")}
               onPress={onAddLicense}
             />
           )}

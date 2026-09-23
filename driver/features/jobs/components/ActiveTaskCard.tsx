@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { styles } from "./ActiveTaskCard.styles";
 import { PressBox } from "@/components/ui/PressBox";
@@ -14,13 +15,14 @@ interface ActiveTaskCardProps {
 }
 
 export function ActiveTaskCard({ mode, time, pickup, dropoff, onGo }: ActiveTaskCardProps) {
+  const { t } = useTranslation();
   const isRide = mode === "ride";
 
   return (
     <Box style={styles.card}>
       <Box style={styles.header}>
           <Box style={[styles.badge, isRide ? styles.badgeRide : styles.badgeDelivery]}>
-          <AppText style={[styles.badgeText, !isRide && styles.badgeTextDelivery]}>{isRide ? "Next Ride" : "Next Delivery"}</AppText>
+          <AppText style={[styles.badgeText, !isRide && styles.badgeTextDelivery]}>{isRide ? t("jobs.nextRide") : t("jobs.nextDelivery")}</AppText>
         </Box>
         <AppText style={styles.time}>{time}</AppText>
       </Box>
@@ -33,18 +35,18 @@ export function ActiveTaskCard({ mode, time, pickup, dropoff, onGo }: ActiveTask
         </Box>
         <Box style={styles.addresses}>
           <Box style={styles.addressItem}>
-            <AppText style={styles.addressLabel}>Pickup</AppText>
+            <AppText style={styles.addressLabel}>{t("jobs.pickup")}</AppText>
             <AppText style={styles.addressText}>{pickup}</AppText>
           </Box>
           <Box style={styles.addressItem}>
-            <AppText style={styles.addressLabel}>Drop-off</AppText>
+            <AppText style={styles.addressLabel}>{t("jobs.dropoff")}</AppText>
             <AppText style={styles.addressText}>{dropoff}</AppText>
           </Box>
         </Box>
       </Box>
 
       <PressBox style={[styles.goButton, isRide ? styles.goButtonRide : styles.goButtonDelivery]} onPress={onGo}>
-        <AppText style={styles.goButtonText}>Go</AppText>
+        <AppText style={styles.goButtonText}>{t("jobs.go")}</AppText>
       </PressBox>
     </Box>
   );

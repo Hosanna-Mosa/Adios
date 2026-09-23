@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -13,6 +14,7 @@ import { useProfilePassword } from "./useProfilePassword";
  *
  * Lifted out of app/(tabs)/profile.tsx unchanged. */
 export function useProfileTab() {
+  const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const setIdentityVerified = useDriverStore((s) => s.setIdentityVerified);
   const logout = useDriverStore((s) => s.logout);
@@ -46,35 +48,35 @@ export function useProfileTab() {
         return;
       }
       if (response.status === 404) {
-        throw new Error("Profile service unavailable. Please try again shortly.");
+        throw new Error(t("profile.profileServiceUnavailable"));
       }
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to load profile");
+      if (!response.ok) throw new Error(data.message || t("profile.failedToLoadProfile"));
       setProfile(data);
       if (data.verification?.identity != null) {
         setIdentityVerified(data.verification.identity);
       }
     } catch (error: any) {
-      Alert.alert("Profile unavailable", error.message || "Please try again.");
+      Alert.alert(t("profile.profileUnavailable"), error.message || t("earnings.pleaseTryAgain"));
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
   const initials = useMemo(() => {
-    const name = profile?.account.name || "Driver";
+    const name = profile?.account.name || t("profile.driver");
     return name
       .split(" ")
       .map((part) => part[0])
       .join("")
       .slice(0, 2)
       .toUpperCase();
-  }, [profile?.account.name]);
+  }, [profile?.account.name, t]);
 
   // ── Enter edit mode ──────────────────────────────────────────────────────
   const editing = useProfileEditing(profile, () => loadProfile());
@@ -82,10 +84,10 @@ export function useProfileTab() {
   const bank = useProfileBank(() => loadProfile());
 
   const handleLogout = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("profile.signOut"), t("profile.areYouSureYouWantToSignOut"), [
+      { text: t("actions.cancel"), style: "cancel" },
       {
-        text: "Sign Out",
+        text: t("profile.signOut"),
         style: "destructive",
         onPress: () => {
           logout();

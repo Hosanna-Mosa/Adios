@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -35,12 +36,6 @@ export function useDriverTabBarHeight() {
   return insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + TOP_CLEARANCE;
 }
 
-const TABS: { key: TabKey; label: string; icon: keyof typeof Feather.glyphMap; route: string }[] = [
-  { key: "home", label: "Home", icon: "home", route: "/(tabs)" },
-  { key: "earnings", label: "Earnings", icon: "bar-chart-2", route: "/(tabs)/earnings" },
-  { key: "profile", label: "Profile", icon: "user", route: "/(tabs)/profile" },
-];
-
 /**
  * Floating pill tab bar for the driver app, matching the customer app's
  * AppTabBar treatment (spring-animated sliding indicator, glass blur,
@@ -49,6 +44,13 @@ const TABS: { key: TabKey; label: string; icon: keyof typeof Feather.glyphMap; r
  */
 export function DriverTabBar({ active }: DriverTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+
+  const TABS: { key: TabKey; label: string; icon: keyof typeof Feather.glyphMap; route: string }[] = [
+    { key: "home", label: t("tabs.home"), icon: "home", route: "/(tabs)" },
+    { key: "earnings", label: t("tabs.earnings"), icon: "bar-chart-2", route: "/(tabs)/earnings" },
+    { key: "profile", label: t("tabs.profile"), icon: "user", route: "/(tabs)/profile" },
+  ];
 
   const [pillWidth, setPillWidth] = React.useState(0);
   const segmentWidth = pillWidth / ALL_TAB_KEYS.length;

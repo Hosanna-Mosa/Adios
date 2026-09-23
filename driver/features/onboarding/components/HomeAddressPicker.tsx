@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -42,15 +43,16 @@ export function HomeAddressSuggestions({
 
 /** Confirmation that the typed home address resolved to coordinates. */
 export function LocationVerifiedBox({ lat, lng }: { lat: number | null; lng: number | null }) {
+  const { t } = useTranslation();
   if (lat === null || lng === null) return null;
 
   return (
     <Box style={styles.verifiedBox}>
       <Feather name="check-circle" size={18} color={Colors.successBright} />
       <Box style={styles.verifiedCopy}>
-        <AppText style={styles.verifiedTitle}>Location Verified Geometrically</AppText>
+        <AppText style={styles.verifiedTitle}>{t("onboarding.locationVerifiedGeometrically")}</AppText>
         <AppText style={styles.verifiedCoords}>
-          Coords: [${lng.toFixed(4)}, ${lat.toFixed(4)}]
+          {t("onboarding.coords")}: [${lng.toFixed(4)}, ${lat.toFixed(4)}]
         </AppText>
       </Box>
     </Box>

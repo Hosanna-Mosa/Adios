@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useCallback } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import {
   otpMatches,
@@ -23,6 +24,7 @@ type Args = {
 
 /** Advances the order one stage, running whatever check that stage requires. */
 export function useStatusTransition(args: Args) {
+  const { t } = useTranslation();
   const {
     currentOrder, isHelper, isRide, foodItems, verification,
     updateOrderStatus, completeOrder, stopSimulation,
@@ -59,23 +61,23 @@ export function useStatusTransition(args: Args) {
       await updateOrderStatus("delivered", verification.customerOTP);
     } catch (err: any) {
       verification.setCustomerOTPError(true);
-      warnVerificationFailed(err, "Customer");
+      warnVerificationFailed(err, t("jobs.customer"));
     }
-  }, [currentOrder, verification, updateOrderStatus, finish]);
+  }, [currentOrder, verification, updateOrderStatus, finish, t]);
 
   /** Food delivery has an extra "picking_items" checklist gate. */
   const runPickingItems = useCallback(async () => {
     const allItemsChecked = foodItems.every((item: any) => verification.checkedItems[item.name]);
     if (!allItemsChecked) {
-      Alert.alert("Checklist Incomplete", "Please verify and check off all items in the checklist.");
+      Alert.alert(t("jobs.checklistIncomplete"), t("jobs.pleaseVerifyAndCheckOffAllItems"));
       return;
     }
     if (!verification.sealedChecked) {
-      Alert.alert("Tamper-proof Seal Check", "Please verify and check the sealed packaging box.");
+      Alert.alert(t("jobs.tamperProofSealCheck"), t("jobs.pleaseVerifyAndCheckSealedPackaging"));
       return;
     }
     if (!verification.countChecked) {
-      Alert.alert("Item Count Check", "Please verify and check the item count box.");
+      Alert.alert(t("jobs.itemCountCheck"), t("jobs.pleaseVerifyAndCheckItemCount"));
       return;
     }
     if (
@@ -90,7 +92,7 @@ export function useStatusTransition(args: Args) {
     }
     verification.setRestaurantOTPError(false);
     await updateOrderStatus("en_route_delivery", verification.restaurantOTP);
-  }, [foodItems, verification, currentOrder, updateOrderStatus]);
+  }, [foodItems, verification, currentOrder, updateOrderStatus, t]);
 
   return useCallback(async () => {
     const status = currentOrder?.status?.toLowerCase() || "";
@@ -114,12 +116,12 @@ export function useStatusTransition(args: Args) {
       return;
     }
     if (status === "arrived_delivery") {
-      await confirmDelivery(isRide ? "Rider" : "Customer");
+      await confirmDelivery(isRide ? t("jobs.rider") : t("jobs.customer"));
       return;
     }
     if (status === "delivered") finish();
   }, [
     currentOrder, isHelper, isRide, verification, updateOrderStatus,
-    stopSimulation, runHelper, runPickingItems, confirmDelivery, finish,
+    stopSimulation, runHelper, runPickingItems, confirmDelivery, finish, t,
   ]);
 }

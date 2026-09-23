@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform, FlatList } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { ResolveRequestPrompt } from "./ResolveRequestPrompt";
@@ -40,6 +41,7 @@ export function TicketChatView({
   onStartNew: () => void;
   onResolve: (approve: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <KeyboardView
       style={[styles.root, { backgroundColor: Colors.background }]}
@@ -81,7 +83,7 @@ export function TicketChatView({
         />
       ) : (
         <MessageComposer
-          placeholder="Type a message to Support..."
+          placeholder={t("support.typeAMessageToSupport")}
           maxLength={400}
           value={inputText}
           onChangeText={setInputText}

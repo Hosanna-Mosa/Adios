@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { PerformanceCard } from "@/features/earnings/components/PerformanceCard";
@@ -19,7 +20,7 @@ import {
   ServiceToggle,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/home.styles";
-import { fallbackHotspots } from "@/features/jobs/fallbackHotspots";
+import { getFallbackHotspots } from "@/features/jobs/fallbackHotspots";
 import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
 import { useOnlineActions } from "@/features/jobs/hooks/useOnlineActions";
 import { useScooterAnimation } from "@/features/jobs/hooks/useScooterAnimation";
@@ -28,11 +29,12 @@ import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Box } from "@/components/ui/Box";
 
 export default function HomeScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useDriverTabBarHeight();
   const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
-  const [hotspots, setHotspots] = useState<Hotspot[]>(fallbackHotspots);
+  const [hotspots, setHotspots] = useState<Hotspot[]>(getFallbackHotspots);
   const [isLoadingHotspots, setIsLoadingHotspots] = useState(false);
   const isOnline = useDriverStore((s) => s.isOnline);
   const homeMode = useDriverStore((s) => s.homeMode);
@@ -91,9 +93,9 @@ export default function HomeScreen() {
           {/* Today's Performance */}
           <PerformanceCard
             stats={[
-              { label: "Trips", value: String(earnings.totalDeliveries) },
-              { label: "Balance", value: formatCurrency(earnings.today, { decimals: false }), accent: true },
-              { label: "This Week", value: formatCurrency(earnings.week, { decimals: false }) },
+              { kind: "trips", label: t("earnings.trips"), value: String(earnings.totalDeliveries) },
+              { kind: "balance", label: t("earnings.balance"), value: formatCurrency(earnings.today, { decimals: false }), accent: true },
+              { kind: "thisWeek", label: t("earnings.thisWeek"), value: formatCurrency(earnings.week, { decimals: false }) },
             ]}
           />
 
@@ -115,8 +117,8 @@ export default function HomeScreen() {
 
           {/* Safety Alerts */}
           <SafetyAlertCard
-            title="Safety Alert"
-            message="Road closure reported on Main St due to construction. Use alternate route."
+            title={t("jobs.safetyAlert")}
+            message={t("jobs.roadClosureReportedOnMainSt")}
           />
         </Box>
       </ScrollBox>

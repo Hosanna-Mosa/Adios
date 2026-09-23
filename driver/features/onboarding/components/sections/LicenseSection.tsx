@@ -1,6 +1,7 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React from "react";
 import { Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { dlStyles } from "../../onboarding.styles";
@@ -11,20 +12,20 @@ import { InfoBanner } from "../InfoBanner";
 import { ExpiryDateField, LicenseFormatError } from "../LicenseFields";
 import { Box } from "@/components/ui/Box";
 
-const FORMAT_HINT = (
-  <>
-    Invalid format. Expected 2 letters (state code) + 2 digits (RTO) + 4 digits (year) + 7 digits
-    (serial).{"\n"}E.g. {"HR-06-2020-1234567"}
-  </>
-);
-
 export function LicenseSection() {
+  const { t } = useTranslation();
   const { docs } = useOnboardingCtx();
+  const formatHint = (
+    <>
+      {t("onboarding.dlFormatHint", "Invalid format. Expected 2 letters (state code) + 2 digits (RTO) + 4 digits (year) + 7 digits (serial).")}
+      {"\n"}{t("onboarding.egDlFormat", "E.g. HR-06-2020-1234567")}
+    </>
+  );
 
   return (
     <FieldColumn gap={16}>
       <FormInput
-        label="Driving License Number"
+        label={t("onboarding.drivingLicenseNumber")}
         value={docs.dlNumber}
         onChangeText={(t) => docs.setDlNumber(t.toUpperCase().slice(0, 19))}
         placeholder="HR-06-2020-1234567"
@@ -33,17 +34,17 @@ export function LicenseSection() {
       />
       {docs.dlNumber.length > 0 &&
         (validateDLFormat(docs.dlNumber) ? (
-          <InfoBanner icon="check-circle" text="Valid license number format" type="success" />
+          <InfoBanner icon="check-circle" text={t("onboarding.validLicenseNumberFormat")} type="success" />
         ) : (
           <Box style={dlStyles.errorBox}>
-            <LicenseFormatError message={FORMAT_HINT} />
+            <LicenseFormatError message={formatHint} />
           </Box>
         ))}
 
       <ExpiryDateField
-        label="Expiry Date"
+        label={t("onboarding.expiryDate")}
         value={docs.dlExpiry}
-        placeholder="Select Expiry Date"
+        placeholder={t("onboarding.selectExpiryDate")}
         onPress={() => docs.setShowDatePicker(true)}
       />
 

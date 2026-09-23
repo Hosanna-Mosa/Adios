@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import i18n from "@/i18n";
 
 export type UpdateStatus = (status: any, otp?: string) => Promise<any>;
 
@@ -8,11 +9,16 @@ export function otpMatches(entered: string, expected: string | undefined, fallba
   return entered.toLowerCase() === target || entered === "9999";
 }
 
+/** `who` is an already-translated display label (e.g. "Customer"/"Rider"). */
 export function warnVerificationFailed(err: any, who: string) {
   console.warn(`${who} verification failed:`, err?.message);
   Alert.alert(
-    "Verification Failed",
-    err?.message || `Invalid OTP code. Please verify with the ${who.toLowerCase()}.`,
+    i18n.t("jobs.verificationFailed"),
+    err?.message ||
+      i18n.t("jobs.invalidOtpPleaseVerifyWith", {
+        value: who.toLowerCase(),
+        defaultValue: "Invalid OTP code. Please verify with the {{value}}.",
+      }),
   );
 }
 

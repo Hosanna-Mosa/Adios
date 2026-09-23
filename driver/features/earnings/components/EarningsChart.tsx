@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import Svg, { Rect } from "react-native-svg";
+import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { Box } from "@/components/ui/Box";
@@ -11,7 +12,20 @@ interface EarningsChartProps {
   height?: number;
 }
 
+// `day` values from the API stay as English abbreviations (Mon..Sun); only
+// the displayed label is translated.
+const DAY_LABEL_KEY: Record<string, string> = {
+  Mon: "earnings.dayMon",
+  Tue: "earnings.dayTue",
+  Wed: "earnings.dayWed",
+  Thu: "earnings.dayThu",
+  Fri: "earnings.dayFri",
+  Sat: "earnings.daySat",
+  Sun: "earnings.daySun",
+};
+
 export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
+  const { t } = useTranslation();
   const maxAmount = Math.max(...data.map((d) => d.amount));
   const barWidth = 28;
   const gap = 10;
@@ -19,7 +33,7 @@ export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
 
   return (
     <Box style={styles.container}>
-      <AppText style={styles.title}>This Week</AppText>
+      <AppText style={styles.title}>{t("earnings.thisWeek")}</AppText>
       <Box style={styles.chartArea}>
         <Svg width={chartWidth} height={height - 30}>
           {data.map((item, index) => {
@@ -46,7 +60,7 @@ export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
           {data.map((item, index) => (
             <Box key={item.day} style={{ width: barWidth, marginHorizontal: gap / 2 }}>
               <AppText style={[styles.label, index === data.length - 1 && styles.labelToday]}>
-                {item.day}
+                {DAY_LABEL_KEY[item.day] ? t(DAY_LABEL_KEY[item.day]) : item.day}
               </AppText>
             </Box>
           ))}

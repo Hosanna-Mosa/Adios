@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -17,15 +18,16 @@ export function NotificationsHeader({
   onBack: () => void;
   onMarkAllRead: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.header}>
       <Touchable style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
       </Touchable>
-      <AppText style={styles.headerTitle}>Notifications</AppText>
+      <AppText style={styles.headerTitle}>{t("profile.notifications")}</AppText>
       {unreadCount > 0 && (
         <Touchable onPress={onMarkAllRead}>
-          <AppText style={styles.markAllText}>Mark all read</AppText>
+          <AppText style={styles.markAllText}>{t("profile.markAllRead")}</AppText>
         </Touchable>
       )}
     </Box>
