@@ -53,7 +53,7 @@ export function MenuItemsEditTable({ items, onChange, onUploadImage, maxHeightCl
               <td className="px-4 py-2 text-center">
                 <div className="relative group w-10 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                   {item.images && item.images.length > 0 ? (
-                    <LazyImage src={item.images[0]} alt="item" className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
+                    <LazyImage src={item.images[0]} alt={item.name || t("catalog.itemName")} className="w-full h-full object-cover" wrapperClassName="w-full h-full" />
                   ) : (
                     <Upload className="h-4 w-4 text-slate-400" />
                   )}
