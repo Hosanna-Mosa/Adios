@@ -114,5 +114,70 @@
     "readyForNextLevelDesc": "Join the exclusive circle of executives who trust Flavor for their daily mobility and culinary needs.",
     "getStarted": "Get Started",
     "contactSales": "Contact Sales"
+  },
+  "benefitsGrid": {
+    "title": "Why Partner with Hybrid?",
+    "subtitle": "Everything you need to grow your business and delight your customers.",
+    "boostRevenueTitle": "Boost Your Revenue",
+    "boostRevenueDesc": "Join 500K+ partners and tap into a city-wide customer base hungry for your offerings.",
+    "realTimeAnalyticsTitle": "Real-Time Analytics",
+    "realTimeAnalyticsDesc": "Get powerful insights on orders, peak hours, and customer preferences to grow your business.",
+    "fastOnboardingTitle": "Fast Onboarding",
+    "fastOnboardingDesc": "Go from sign-up to live in under 48 hours with our dedicated partner support team.",
+    "deliveryInfrastructureTitle": "Delivery Infrastructure",
+    "deliveryInfrastructureDesc": "Leverage our fleet of verified drivers to deliver faster and farther than ever before."
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Get your business on Hybrid in four simple steps.",
+    "registerTitle": "Register Your Business",
+    "registerDesc": "Fill out a quick form with your business details, location, and service type.",
+    "verifyTitle": "Verify & Setup",
+    "verifyDesc": "Our team verifies your documents and helps you set up your menu or service listings.",
+    "goLiveTitle": "Go Live",
+    "goLiveDesc": "Start receiving orders and ride requests within 48 hours. Track everything in real time.",
+    "growTitle": "Grow & Earn",
+    "growDesc": "Access analytics, promotional tools, and dedicated support to scale your business."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about partnering with Hybrid.",
+    "documentsQ": "What documents do I need to register?",
+    "documentsA": "You'll need your business license, FSSAI certificate (for restaurants), GST registration, and valid ID proof.",
+    "onboardingTimeQ": "How long does the onboarding process take?",
+    "onboardingTimeA": "Most partners go live within 24-48 hours after submitting all required documents.",
+    "commissionQ": "What commission does Hybrid charge?",
+    "commissionA": "Our commission structure starts at 15% and varies based on location, service type, and volume. Contact our team for a personalized quote.",
+    "multiServiceQ": "Can I offer both food delivery and ride services?",
+    "multiServiceA": "Absolutely! Many of our partners operate multiple services. We provide a unified dashboard to manage everything.",
+    "commitmentQ": "Is there a minimum commitment period?",
+    "commitmentA": "No long-term contracts. We believe in earning your partnership every day with transparent terms."
+  },
+  "partnerCta": {
+    "title": "Ready to Grow with Us?",
+    "subtitle": "Join 500K+ partners and start reaching more customers today.",
+    "getStartedNow": "Get Started Now"
+  },
+  "partnerTypeCards": {
+    "startOnboarding": "Start onboarding",
+    "chooseYourPartnerType": "Choose your partner type",
+    "close": "Close",
+    "foodRestaurant": "Food Restaurant",
+    "foodRestaurantDesc": "Restaurant details, menu, food license, and payout setup.",
+    "meatCenter": "Meat Center",
+    "meatCenterDesc": "Meat center details, product list, FSSAI, and payout setup."
+  },
+  "partnerHero": {
+    "eyebrow": "Partner with Hybrid",
+    "headline": "Grow Your Business with",
+    "subtitle": "Join India's fastest-growing urban platform. Whether you run a restaurant, a fleet, or a service — we help you reach more customers and earn more.",
+    "getStartedToday": "Get Started Today",
+    "seeHowItWorks": "See How It Works"
+  },
+  "partnerStats": {
+    "registeredPartners": "Registered Partners",
+    "citiesCovered": "Cities Covered",
+    "ordersProcessed": "Orders Processed",
+    "partnerRating": "Partner Rating"
   }
 }

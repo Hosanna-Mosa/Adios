@@ -1,44 +1,30 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { StaggerList } from "../../../components/motion/StaggerList";
 import { StaggerItem } from "../../../components/motion/StaggerItem";
 
-const faqs = [
-  {
-    q: "What documents do I need to register?",
-    a: "You'll need your business license, FSSAI certificate (for restaurants), GST registration, and valid ID proof.",
-  },
-  {
-    q: "How long does the onboarding process take?",
-    a: "Most partners go live within 24-48 hours after submitting all required documents.",
-  },
-  {
-    q: "What commission does Hybrid charge?",
-    a: "Our commission structure starts at 15% and varies based on location, service type, and volume. Contact our team for a personalized quote.",
-  },
-  {
-    q: "Can I offer both food delivery and ride services?",
-    a: "Absolutely! Many of our partners operate multiple services. We provide a unified dashboard to manage everything.",
-  },
-  {
-    q: "Is there a minimum commitment period?",
-    a: "No long-term contracts. We believe in earning your partnership every day with transparent terms.",
-  },
-];
-
 export function FaqAccordion() {
+  const { t } = useTranslation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const faqs = [
+    { q: t("faq.documentsQ"), a: t("faq.documentsA") },
+    { q: t("faq.onboardingTimeQ"), a: t("faq.onboardingTimeA") },
+    { q: t("faq.commissionQ"), a: t("faq.commissionA") },
+    { q: t("faq.multiServiceQ"), a: t("faq.multiServiceA") },
+    { q: t("faq.commitmentQ"), a: t("faq.commitmentA") },
+  ];
 
   return (
     <section className="py-20 lg:py-28 bg-surface-container-low/30">
       <div className="container max-w-[800px] mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            Frequently Asked Questions
+            {t("faq.title")}
           </h2>
           <p className="text-secondary-app max-w-md mx-auto">
-            Everything you need to know about partnering with Hybrid.
+            {t("faq.subtitle")}
           </p>
         </div>
         <StaggerList inView className="space-y-3">
