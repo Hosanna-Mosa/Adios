@@ -5,7 +5,7 @@ import { useLocalSearchParams } from "expo-router";
 import { createStyles } from "./support-chat.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { CATEGORIES, SupportTicket } from "./useSupportChat.shared";
+import { getSupportCategories, SupportTicket } from "./useSupportChat.shared";
 import { getSupportTickets } from "@/services/support.service";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
@@ -26,7 +26,7 @@ export function useSupportChatInsets() {
   const [inputText, setInputText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
 
-  const [newCategory, setNewCategory] = useState(CATEGORIES[0].value);
+  const [newCategory, setNewCategory] = useState(getSupportCategories()[0].value);
   const [newTitle, setNewTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [creatingTicket, setCreatingTicket] = useState(false);

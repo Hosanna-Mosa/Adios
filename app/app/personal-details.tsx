@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Alert, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -16,6 +17,7 @@ import { PersonalDetailsBody } from "@/features/auth/components/PersonalDetailsB
 import { getProfile, updateProfile } from "@/services/users.service";
 
 export default function PersonalDetailsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
@@ -65,7 +67,7 @@ export default function PersonalDetailsScreen() {
         router.back();
       }
     } catch (err: any) {
-      Alert.alert("Couldn't save", err.message || "Please try again.");
+      Alert.alert(t("app.personaldetails.couldntSave"), err.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setSaving(false);
     }

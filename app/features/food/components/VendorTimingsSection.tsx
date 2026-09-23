@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";
@@ -15,15 +16,16 @@ interface Props {
 }
 
 export function VendorTimingsSection({ openState, isOpenNow, todayName, styles }: Props) {
+  const { t } = useTranslation();
   if (!openState?.week?.length) return null;
 
   return (
     <Animated.View entering={fadeInUp(45)} style={styles.section}>
-      <Text style={styles.sectionLabel}>Timings</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.timings")}</Text>
       <View style={styles.card}>
         <View style={styles.timingTodayRow}>
-          <Text style={styles.timingTodayLabel}>Today</Text>
-          <Text style={styles.timingTodayValue}>{openState.today || (isOpenNow ? "Open now" : "Closed today")}</Text>
+          <Text style={styles.timingTodayLabel}>{t("app.food.today")}</Text>
+          <Text style={styles.timingTodayValue}>{openState.today || (isOpenNow ? t("app.home.openNow") : t("app.food.closedToday"))}</Text>
         </View>
         {openState.week.map((entry) => {
           const isToday = entry.day === todayName;

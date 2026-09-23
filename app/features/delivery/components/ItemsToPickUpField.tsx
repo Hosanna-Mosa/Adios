@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type AddStopStyles } from "@/features/delivery/add-stop.styles";
@@ -31,11 +32,12 @@ export function ItemsToPickUpField({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
       <View style={styles.itemsHeadRow}>
-        <Text style={styles.sectionLabel}>What to pick up?</Text>
-        <Text style={styles.itemsCount}>{items.length} {items.length === 1 ? "item" : "items"}</Text>
+        <Text style={styles.sectionLabel}>{t("app.delivery.whatToPickUp")}</Text>
+        <Text style={styles.itemsCount}>{t("app.food.itemCount", { count: items.length })}</Text>
       </View>
       <View style={styles.itemsCard}>
         {items.map((item, idx) => (
@@ -51,7 +53,7 @@ export function ItemsToPickUpField({
         <View style={styles.addItemRow}>
           <TextInput
             style={styles.addItemInput}
-            placeholder="Item name"
+            placeholder={t("app.delivery.itemName")}
             placeholderTextColor={tokens.muted}
             value={newItemName}
             onChangeText={setNewItemName}
@@ -60,7 +62,7 @@ export function ItemsToPickUpField({
           />
           <TextInput
             style={styles.addItemPriceInput}
-            placeholder="₹ est."
+            placeholder={t("app.delivery.est")}
             placeholderTextColor={tokens.muted}
             value={newItemPrice}
             onChangeText={setNewItemPrice}
@@ -71,7 +73,7 @@ export function ItemsToPickUpField({
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.itemsHint}>Prices are your estimate. The rider pays the real amount at the counter and you settle the difference at checkout.</Text>
+      <Text style={styles.itemsHint}>{t("app.delivery.pricesAreYourEstimateTheRider")}</Text>
     </View>
   );
 }

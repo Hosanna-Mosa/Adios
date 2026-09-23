@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -48,14 +49,15 @@ export function SignupForm({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.form} entering={fadeInUp(80)}>
       <View style={styles.fieldWrapper}>
-        <Text style={styles.fieldLabel}>Full name</Text>
+        <Text style={styles.fieldLabel}>{t("app.auth.fullName")}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Rahul Verma"
+            placeholder={t("app.auth.rahulVerma")}
             placeholderTextColor={tokens.muted}
             value={name}
             onChangeText={setName}
@@ -65,7 +67,7 @@ export function SignupForm({
       </View>
 
       <View style={styles.fieldWrapper}>
-        <Text style={styles.fieldLabel}>Phone number</Text>
+        <Text style={styles.fieldLabel}>{t("app.auth.phoneNumber")}</Text>
         <View
           style={[
             styles.inputContainer,
@@ -87,11 +89,11 @@ export function SignupForm({
       </View>
 
       <View style={styles.fieldWrapper}>
-        <Text style={styles.fieldLabel}>Email</Text>
+        <Text style={styles.fieldLabel}>{t("app.auth.email")}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="rahul.verma@gmail.com"
+            placeholder={t("app.auth.rahulvermagmailcom")}
             placeholderTextColor={tokens.muted}
             value={email}
             onChangeText={setEmail}
@@ -103,11 +105,11 @@ export function SignupForm({
       </View>
 
       <View style={styles.fieldWrapper}>
-        <Text style={styles.fieldLabel}>Password</Text>
+        <Text style={styles.fieldLabel}>{t("app.auth.password")}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Min. 8 characters"
+            placeholder={t("app.auth.min8Characters")}
             placeholderTextColor={tokens.muted}
             value={password}
             onChangeText={setPassword}

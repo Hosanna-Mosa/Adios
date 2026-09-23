@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -43,6 +44,7 @@ interface Props {
 
 export function CartContents(props: Props) {
   const { accent, addItem, clearSyncNotices, complements, insets, items, styles, syncNotices, tokens, updateQuantity, vendorId } = props;
+  const { t } = useTranslation();
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>
       {syncNotices.length > 0 && (
@@ -51,15 +53,15 @@ export function CartContents(props: Props) {
             <Feather name="alert-circle" size={moderateScale(16)} color={tokens.warning} />
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.noticeTitle}>
-                {syncNotices.length === 1 ? "1 item was updated" : `${syncNotices.length} items were updated`}
+                {t("app.food.itemWasUpdatedCount", { count: syncNotices.length })}
               </Text>
               {syncNotices.map((notice) => (
                 <Text key={notice.itemId} style={styles.noticeLine}>
                   {notice.status === "price_changed"
-                    ? `${notice.name} is now ₹${notice.price} (was ₹${notice.previousPrice})`
+                    ? t("app.food.isNowPriceWasPrice", { name: notice.name, price: notice.price, previousPrice: notice.previousPrice })
                     : notice.status === "unavailable"
-                      ? `${notice.name} is sold out and was removed`
-                      : `${notice.name} is no longer on the menu and was removed`}
+                      ? t("app.food.isSoldOutAndWasRemoved", { name: notice.name })
+                      : t("app.food.isNoLongerOnTheMenu", { name: notice.name })}
                 </Text>
               ))}
             </View>
@@ -106,14 +108,14 @@ export function CartContents(props: Props) {
             </Animated.View>
           ))}
           <TouchableOpacity style={styles.addMoreRow} onPress={() => router.back()}>
-            <Text style={styles.addMoreText}>+ Add more items</Text>
+            <Text style={styles.addMoreText}>{t("app.food.addMoreItems")}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {complements.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Complement your cart</Text>
+          <Text style={styles.sectionLabel}>{t("app.food.complementYourCart")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
             {complements.slice(0, 8).map((comp, idx) => (
               <Animated.View key={comp._id} entering={staggerListItem(idx)} style={styles.complementCard}>

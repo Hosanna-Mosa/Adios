@@ -1,4 +1,5 @@
 import { Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
@@ -19,12 +20,13 @@ export function HelperTaskOfferBlock({
   styles,
   totalHours,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.offerBlock} entering={fadeInUp(0)}>
-      <Text style={styles.offerEyebrow}>Current offer</Text>
+      <Text style={styles.offerEyebrow}>{t("app.delivery.currentOffer")}</Text>
       <Text style={styles.offerAmount}>₹{offer ?? calculatedFare}</Text>
       <Text style={styles.offerSub}>
-        for {Math.floor(totalHours)}h {Math.round((totalHours % 1) * 60)}m · about ₹{Math.round((offer ?? calculatedFare) / totalHours)}/hour
+        for {Math.floor(totalHours)}h {Math.round((totalHours % 1) * 60)}{t("app.delivery.mAbout")}{Math.round((offer ?? calculatedFare) / totalHours)}/hour
       </Text>
     </Animated.View>
   );

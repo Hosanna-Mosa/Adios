@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { deleteAddress } from "@/services/users.service";
@@ -7,6 +8,7 @@ import { deleteAddress } from "@/services/users.service";
 // order, so React still sees the same hook sequence.
 
 export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addresses: any, setAddresses: any, loading: any, selectingId: any, deletingId: any, setDeletingId: any) {
+  const { t } = useTranslation();
   const handleEditAddress = (item: any) => {
     if (selectingId || deletingId) return;
     const lat = item.location?.coordinates?.[1] ?? item.coordinates?.lat ?? "";
@@ -17,10 +19,10 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const handleDeleteAddress = (id: string) => {
     if (selectingId || deletingId) return;
-    Alert.alert("Delete address", "Are you sure you want to remove this address?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("app.delivery.deleteAddress"), t("app.delivery.areYouSureRemoveAddress"), [
+      { text: t("actions.cancel"), style: "cancel" },
       {
-        text: "Delete",
+        text: t("app.delivery.deleteWord"),
         style: "destructive",
         onPress: async () => {
           try {
@@ -32,7 +34,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
             if (String(selectedAddress?._id || "") === String(id)) setSelectedAddress(null);
           } catch (err: any) {
             console.error("Delete error:", err);
-            Alert.alert("Error", err.message || "Failed to delete address");
+            Alert.alert(t("actions.error"), err.message || t("app.delivery.failedToDeleteAddress"));
           } finally {
             setDeletingId(null);
           }
@@ -42,10 +44,10 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
   };
 
   const handleMoreOptions = (addr: any) => {
-    Alert.alert(addr.label || "Address", undefined, [
-      { text: "Edit", onPress: () => handleEditAddress(addr) },
-      { text: "Delete", style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(addr.label || t("app.ride.addressFallback"), undefined, [
+      { text: t("app.delivery.editWord"), onPress: () => handleEditAddress(addr) },
+      { text: t("app.delivery.deleteWord"), style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
+      { text: t("actions.cancel"), style: "cancel" },
     ]);
   };
 

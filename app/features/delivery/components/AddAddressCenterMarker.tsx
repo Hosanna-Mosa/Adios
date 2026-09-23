@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ThemeTokens } from "@/constants/colors";
 import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
 
@@ -16,13 +17,14 @@ export function AddAddressCenterMarker({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.centerMarker} pointerEvents="none">
       <View style={styles.dragHint}>
         {isResolvingAddress ? (
           <ActivityIndicator size="small" color={tokens.bg} />
         ) : (
-          <Text style={styles.dragHintText}>Move the pin to adjust</Text>
+          <Text style={styles.dragHintText}>{t("app.delivery.moveThePinToAdjust")}</Text>
         )}
       </View>
       <View style={styles.dragHintStem} />

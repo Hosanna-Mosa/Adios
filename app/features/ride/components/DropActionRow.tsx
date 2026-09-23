@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Animated from "react-native-reanimated";
@@ -27,13 +28,14 @@ export function DropActionRow({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(80)} style={styles.actionRow}>
       <TouchableOpacity
         style={styles.actionBtn}
         onPress={handleAddStop}
       >
-        <Text style={styles.actionBtnText}>+ Add stop</Text>
+        <Text style={styles.actionBtnText}>{t("app.ride.addStop")}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.actionBtn}
@@ -52,7 +54,7 @@ export function DropActionRow({
         })}
       >
         <Ionicons name="locate-outline" size={15} color={tokens.sec} />
-        <Text style={styles.actionBtnText}>Select on map</Text>
+        <Text style={styles.actionBtnText}>{t("app.ride.selectOnMap")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );

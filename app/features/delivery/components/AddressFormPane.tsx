@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeIn, fadeInUp, staggerListItem } from "@/motion/presets";
@@ -52,13 +53,14 @@ interface Props {
 
 export function AddressFormPane(props: Props) {
   const { insets, isEditMode, router, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <View style={{ flex: 1 }}>
       <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
         <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isEditMode ? "Edit address" : "Add address"}</Text>
+        <Text style={styles.headerTitle}>{isEditMode ? t("app.delivery.editAddress") : t("app.delivery.addAddress")}</Text>
       </Animated.View>
 
       <AddressFormPaneSaveAs {...props} />

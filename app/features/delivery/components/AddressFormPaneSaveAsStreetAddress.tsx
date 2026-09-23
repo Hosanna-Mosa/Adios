@@ -1,5 +1,6 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type ThemeTokens } from "@/constants/colors";
@@ -43,35 +44,36 @@ export function AddressFormPaneSaveAsStreetAddress({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <Animated.View style={styles.section} entering={fadeInUp(180)}>
-      <Text style={styles.fieldLabel}>Street address</Text>
+      <Text style={styles.fieldLabel}>{t("app.delivery.streetAddress")}</Text>
       <View style={styles.fieldRow}>
-        <TextInput style={styles.fieldInput} placeholder="Street address" placeholderTextColor={tokens.muted} value={addressLine} onChangeText={setAddressLine} />
+        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.streetAddress")} placeholderTextColor={tokens.muted} value={addressLine} onChangeText={setAddressLine} />
         <TouchableOpacity onPress={handleUseCurrentLocation}><Ionicons name="locate-outline" size={17} color={tokens.sec} /></TouchableOpacity>
       </View>
-      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Apartment / suite / floor · optional</Text>
+      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("app.delivery.apartmentSuiteFloorOptional")}</Text>
       <View style={styles.fieldRow}>
-        <TextInput style={styles.fieldInput} placeholder="Apartment / suite / floor" placeholderTextColor={tokens.muted} value={completeAddress} onChangeText={setCompleteAddress} />
+        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.apartmentSuiteFloor")} placeholderTextColor={tokens.muted} value={completeAddress} onChangeText={setCompleteAddress} />
       </View>
-      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Landmark · optional</Text>
+      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("app.delivery.landmarkOptional")}</Text>
       <View style={styles.fieldRow}>
-        <TextInput style={styles.fieldInput} placeholder="Opposite the blue water tank" placeholderTextColor={tokens.muted} value={landmark} onChangeText={setLandmark} />
+        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.oppositeTheBlueWaterTank")} placeholderTextColor={tokens.muted} value={landmark} onChangeText={setLandmark} />
       </View>
     </Animated.View>
 
     <Animated.View style={styles.section} entering={fadeInUp(210)}>
-      <Text style={styles.sectionLabel}>Receiver details</Text>
-      <Text style={styles.fieldLabel}>Receiver name · optional</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.receiverDetails")}</Text>
+      <Text style={styles.fieldLabel}>{t("app.delivery.receiverNameOptional")}</Text>
       <View style={styles.fieldRow}>
-        <TextInput style={styles.fieldInput} placeholder="Who is receiving this order?" placeholderTextColor={tokens.muted} value={receiverName} onChangeText={setReceiverName} />
+        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.whoIsReceivingThisOrder")} placeholderTextColor={tokens.muted} value={receiverName} onChangeText={setReceiverName} />
       </View>
-      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>Receiver phone · optional</Text>
+      <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("app.delivery.receiverPhoneOptional")}</Text>
       <View style={styles.fieldRow}>
         <TextInput
           style={styles.fieldInput}
-          placeholder="10-digit mobile number"
+          placeholder={t("app.delivery.10digitMobileNumber")}
           placeholderTextColor={tokens.muted}
           keyboardType="phone-pad"
           maxLength={10}
@@ -79,15 +81,15 @@ export function AddressFormPaneSaveAsStreetAddress({
           onChangeText={(text) => setReceiverPhone(text.replace(/\D/g, ""))}
         />
       </View>
-      <Text style={styles.fieldHint}>Leave these blank to deliver to your own name and number.</Text>
+      <Text style={styles.fieldHint}>{t("app.delivery.leaveTheseBlankToDeliverTo")}</Text>
     </Animated.View>
 
     <Animated.View style={styles.section} entering={fadeInUp(270)}>
-      <Text style={styles.sectionLabel}>Delivery instructions</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.deliveryInstructions")}</Text>
       <View style={styles.instructionsBox}>
         <TextInput
           style={styles.instructionsInput}
-          placeholder="Gate 2, ask the guard for tower B…"
+          placeholder={t("app.delivery.gate2AskTheGuardFor")}
           placeholderTextColor={tokens.muted}
           multiline
           maxLength={200}

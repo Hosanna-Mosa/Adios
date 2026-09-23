@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
 
@@ -16,10 +17,11 @@ export function HelperTaskFooter({
   insets,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel}>
-        <Text style={styles.cancelBtnText}>Cancel task</Text>
+        <Text style={styles.cancelBtnText}>{t("app.delivery.cancelTask")}</Text>
       </TouchableOpacity>
     </View>
   );

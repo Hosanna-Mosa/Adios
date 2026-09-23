@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type TrackingStyles } from "@/features/ride/tracking.styles";
 import type { OrderStop } from "@/types/models";
@@ -25,6 +26,7 @@ export function TrackingAddrCard({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.addrCard}>
       <View style={styles.addrRail}>
@@ -34,11 +36,11 @@ export function TrackingAddrCard({
       </View>
       <View style={{ flex: 1, minWidth: 0, gap: 12 }}>
         <View>
-          <Text style={styles.addrLabel}>{isRide ? "Pickup" : "Picked up from"}</Text>
+          <Text style={styles.addrLabel}>{isRide ? t("app.ride.pickup") : t("app.ride.pickedUpFrom")}</Text>
           <Text style={styles.addrText} numberOfLines={1}>{pickupLabel}</Text>
         </View>
         <View>
-          <Text style={styles.addrLabel}>{isRide ? "Drop-off" : "Delivering to"}</Text>
+          <Text style={styles.addrLabel}>{isRide ? t("app.ride.dropoff") : t("app.ride.deliveringTo")}</Text>
           <Text style={styles.addrText} numberOfLines={1}>{deliveryStop?.address || stops?.[stops.length - 1]?.address || "—"}</Text>
         </View>
       </View>

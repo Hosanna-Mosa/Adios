@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type SupportChatStyles } from "@/features/support/support-chat.styles";
@@ -17,10 +18,11 @@ export function SupportChatLoading({
   insets,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.center, { paddingTop: insets.top }]}>
       <ActivityIndicator size="large" color={accent.accent} />
-      <Text style={styles.loadingText}>Loading your cases…</Text>
+      <Text style={styles.loadingText}>{t("app.support.loadingYourCases")}</Text>
     </View>
   );
 }

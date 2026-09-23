@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type ServiceTokens } from "@/constants/colors";
@@ -21,6 +22,7 @@ export function HelperTaskSection({
   setOffer,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.section} entering={fadeInUp(80)}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
@@ -28,7 +30,7 @@ export function HelperTaskSection({
           <Text style={styles.offerStepBtnText}>−</Text>
         </TouchableOpacity>
         <View style={styles.offerStepsMid}>
-          <Text style={styles.offerStepsMidText}>₹20 steps</Text>
+          <Text style={styles.offerStepsMidText}>{t("app.delivery.20Steps")}</Text>
         </View>
         <TouchableOpacity style={[styles.offerStepBtn, { backgroundColor: accent.accent, borderWidth: 0 }]} onPress={() => setOffer((o) => (o ?? calculatedFare) + 20)}>
           <Text style={[styles.offerStepBtnText, { color: accent.on }]}>+</Text>

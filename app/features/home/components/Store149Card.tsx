@@ -1,6 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { type ServiceTokens } from "@/constants/colors";
 import { useCartStore } from "@/contexts/cartStore";
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function Store149Card({ item, styles, accent }: Props) {
+  const { t } = useTranslation();
   const cItems = useCartStore((s) => s.items);
   const addCartItem = useCartStore((s) => s.requestAddItem);
   const cartItem = cItems.find((i) => i._id === item._id);
@@ -26,7 +28,7 @@ export function Store149Card({ item, styles, accent }: Props) {
       name: item.name,
       description: item.description || "",
       price: item.price,
-      category: item.category || "149 Store",
+      category: item.category || t("app.food.categoryFallback.store149"),
       isVeg: item.isVeg,
       images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"],
     };

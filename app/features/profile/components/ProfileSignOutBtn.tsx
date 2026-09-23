@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ThemeTokens } from "@/constants/colors";
 import { type ProfileStyles } from "@/features/profile/profile.styles";
 
@@ -18,9 +19,10 @@ export function ProfileSignOutBtn({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout} disabled={loading} activeOpacity={0.8}>
-      {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>Sign out</Text>}
+      {loading ? <ActivityIndicator size="small" color={tokens.error} /> : <Text style={styles.signOutBtnText}>{t("app.profile.signOut")}</Text>}
     </TouchableOpacity>
   );
 }

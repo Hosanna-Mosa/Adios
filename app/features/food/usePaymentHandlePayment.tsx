@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { RazorpayIntegration } from "@/utils/razorpay";
 import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
@@ -7,17 +8,18 @@ import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
 // order, so React still sees the same hook sequence.
 
 export function usePaymentHandlePayment(params: any, theme: any, items: any, vendorId: any, clearCart: any, setOrderId: any, setStatus: any, setServiceType: any, user: any, token: any, selectedAddress: any, setProcessing: any, vendor: any, subtotal: any, deliveryFee: any, tip: any, discount: any, couponCode: any, total: any, vendorName: any) {
+  const { t } = useTranslation();
   const handlePayment = async () => {
     if (!user || !token) {
-      Alert.alert("Login required", "Please log in before placing your order.");
+      Alert.alert(t("app.food.loginRequired"), t("app.food.pleaseLogInBeforePlacingYour"));
       return;
     }
     if (!vendorId || items.length === 0) {
-      Alert.alert("Cart is empty", "Please add items before paying.");
+      Alert.alert(t("app.food.cartIsEmpty"), t("app.food.pleaseAddItemsBeforePaying"));
       return;
     }
     if (!selectedAddress?.addressLine) {
-      Alert.alert("Address required", "Please select a delivery address.");
+      Alert.alert(t("app.food.addressRequired"), t("app.food.pleaseSelectADeliveryAddress"));
       router.push("/delivery/saved-addresses");
       return;
     }
@@ -90,7 +92,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
       router.replace({ pathname: "/finding-driver", params: { orderId: finalOrder._id || finalOrder.id } });
     } catch (error: any) {
       console.error("Payment failed", error);
-      Alert.alert("Payment failed", error?.message || "Please try again.");
+      Alert.alert(t("app.food.paymentFailed"), error?.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setProcessing(false);
     }

@@ -1,12 +1,6 @@
 
 
 // Module-level values shared by the parts of useFindingDriver.
-
-export const TIER_LABEL: Record<string, string> = {
-  bike: "Bike",
-  auto: "Auto",
-  cab: "Cab Economy",
-  cab_prime: "Cab Prime",
-};
-
-export const CANCEL_REASONS = ["Waiting too long", "Booked by mistake", "Fare is too high", "Found another ride", "Other"];
+// TIER_LABEL and CANCEL_REASONS moved into useFindingDriverShowCancelSheet()
+// as useMemo values so their text can call t() — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.

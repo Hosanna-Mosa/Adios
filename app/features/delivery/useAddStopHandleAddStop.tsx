@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { DeliveryItem } from "@/contexts/deliveryStore";
 
@@ -6,13 +7,14 @@ import { DeliveryItem } from "@/contexts/deliveryStore";
 // order, so React still sees the same hook sequence.
 
 export function useAddStopHandleAddStop(address: any, storeName: any, items: any, setItems: any, newItemName: any, setNewItemName: any, newItemPrice: any, setNewItemPrice: any, coords: any, addStop: any) {
+  const { t } = useTranslation();
   const handleAddStop = () => {
     if (!address.trim()) {
-      Alert.alert("Required", "Please provide an address for the pickup.");
+      Alert.alert(t("app.delivery.required"), t("app.delivery.pleaseProvideAnAddressForThe"));
       return;
     }
     if (items.length === 0) {
-      Alert.alert("Items needed", "Please add at least one item to pick up at this location.");
+      Alert.alert(t("app.delivery.itemsNeeded"), t("app.delivery.pleaseAddAtLeastOneItem"));
       return;
     }
     addStop(address, storeName || undefined, items, coords?.lat, coords?.lng);

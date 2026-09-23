@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { SupportTicketListIssueCategory } from "./SupportTicketListIssueCategory";
@@ -35,6 +36,7 @@ interface Props {
 
 export function SupportTicketList(props: Props) {
   const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens } = props;
+  const { t } = useTranslation();
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
       {allTickets.length > 0 && (
@@ -63,13 +65,13 @@ export function SupportTicketList(props: Props) {
                   {isResolved && (
                     <View style={styles.caseActionRow}>
                       <TouchableOpacity style={styles.caseActionOutline} onPress={() => handleReopen(t)}>
-                        <Text style={styles.caseActionOutlineText}>Reopen case</Text>
+                        <Text style={styles.caseActionOutlineText}>{t("app.support.reopenCase")}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[styles.caseActionFilled, { backgroundColor: accent.skin, borderColor: accent.accent }]}
                         onPress={() => { setNewTitle(""); setNewMessage(""); }}
                       >
-                        <Text style={[styles.caseActionFilledText, { color: accent.accent }]}>Start new chat</Text>
+                        <Text style={[styles.caseActionFilledText, { color: accent.accent }]}>{t("app.support.startNewChat")}</Text>
                       </TouchableOpacity>
                     </View>
                   )}
@@ -80,7 +82,7 @@ export function SupportTicketList(props: Props) {
         </View>
       )}
 
-      <Text style={styles.sectionLabel}>Raise a new ticket</Text>
+      <Text style={styles.sectionLabel}>{t("app.support.raiseANewTicket")}</Text>
       <SupportTicketListIssueCategory {...props} />
     </ScrollView>
   );

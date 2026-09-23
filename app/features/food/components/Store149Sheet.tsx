@@ -1,4 +1,5 @@
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -54,6 +55,7 @@ export function Store149Sheet({
   updateCartQuantity,
   visibleItems,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sheet}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScrollContent}>
@@ -75,18 +77,18 @@ export function Store149Sheet({
         </View>
       ) : lat == null || lng == null ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>Set a delivery address</Text>
-          <Text style={styles.emptyStateText}>We pick the ₹149 meals from outlets around your address, so we need one first.</Text>
+          <Text style={styles.emptyStateTitle}>{t("app.food.setADeliveryAddress")}</Text>
+          <Text style={styles.emptyStateText}>{t("app.food.wePickThe149MealsFrom")}</Text>
           <TouchableOpacity style={styles.emptyStateBtn} onPress={() => router.push("/delivery/saved-addresses")}>
-            <Text style={styles.emptyStateBtnText}>Choose an address</Text>
+            <Text style={styles.emptyStateBtnText}>{t("app.food.chooseAnAddress")}</Text>
           </TouchableOpacity>
         </View>
       ) : store149Items.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>Nothing at ₹149 near {areaLabel}</Text>
-          <Text style={styles.emptyStateText}>No outlet around {areaLine} is running the ₹149 menu right now. Try another address.</Text>
+          <Text style={styles.emptyStateTitle}>{t("app.food.nothingAt149Near")} {areaLabel}</Text>
+          <Text style={styles.emptyStateText}>{t("app.food.noOutletAround")} {areaLine} {t("app.food.isRunningThe149MenuRight")}</Text>
           <TouchableOpacity style={styles.emptyStateBtn} onPress={() => router.push("/delivery/saved-addresses")}>
-            <Text style={styles.emptyStateBtnText}>Change address</Text>
+            <Text style={styles.emptyStateBtnText}>{t("app.food.changeAddress")}</Text>
           </TouchableOpacity>
         </View>
       ) : (

@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -32,20 +33,21 @@ export function Store149HeroHeader({
   store149Items,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(0)} style={[styles.heroHeader, { paddingTop: insets.top + 4 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={accent.on} />
       </TouchableOpacity>
-      <Text style={styles.heroEyebrow}>Craving? Any dish</Text>
-      <Text style={styles.heroHeadline}>Everything{"\n"}at ₹149</Text>
+      <Text style={styles.heroEyebrow}>{t("app.food.cravingAnyDish")}</Text>
+      <Text style={styles.heroHeadline}>{t("app.food.everything")}{"\n"}{t("app.food.at149")}</Text>
       <TouchableOpacity style={styles.heroLocationRow} activeOpacity={0.8} onPress={() => router.push("/delivery/saved-addresses")}>
         <Ionicons name="location-sharp" size={moderateScale(13)} color={accent.on} />
-        <Text style={styles.heroLocationText} numberOfLines={1}>Near {areaLabel} · {areaLine}</Text>
+        <Text style={styles.heroLocationText} numberOfLines={1}>{t("app.food.near")} {areaLabel} · {areaLine}</Text>
         <Ionicons name="chevron-forward" size={moderateScale(13)} color={accent.on} />
       </TouchableOpacity>
       <Text style={styles.heroSubtext}>
-        {store149Items.length} dishes{outletCount > 0 ? ` · ${outletCount} outlets` : ""}{farthestKm ? ` within ${farthestKm} km` : ""}
+        {t("app.food.dishesCount", { count: store149Items.length })}{outletCount > 0 ? ` · ${t("app.food.outletsCount", { count: outletCount })}` : ""}{farthestKm ? ` ${t("app.food.withinKm", { km: farthestKm })}` : ""}
       </Text>
     </Animated.View>
   );

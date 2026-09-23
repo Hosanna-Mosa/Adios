@@ -1,4 +1,5 @@
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
@@ -46,21 +47,22 @@ interface Props {
 
 export function TaskComposeFormWhereTheWork(props: Props) {
   const { TASK_TYPES, accent, calculatedFare, goToBidding, insets, isProceedDisabled, offer, setTaskType, styles, suggestedHigh, suggestedLow, taskType } = props;
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
-      <Animated.Text style={styles.headline} entering={fadeInUp(0)}>What do you need?</Animated.Text>
+      <Animated.Text style={styles.headline} entering={fadeInUp(0)}>{t("app.delivery.whatDoYouNeed")}</Animated.Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-        {TASK_TYPES.map((t, i) => {
-          const isSelected = taskType === t;
+        {TASK_TYPES.map((type, i) => {
+          const isSelected = taskType === type;
           return (
-            <Animated.View key={t} entering={staggerListItem(i, 30)}>
+            <Animated.View key={type} entering={staggerListItem(i, 30)}>
               <TouchableOpacity
                 style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                onPress={() => setTaskType(isSelected ? null : t)}
+                onPress={() => setTaskType(isSelected ? null : type)}
               >
-                <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{t}</Text>
+                <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{type}</Text>
               </TouchableOpacity>
             </Animated.View>
           );
@@ -75,12 +77,12 @@ export function TaskComposeFormWhereTheWork(props: Props) {
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       {calculatedFare > 0 && (
         <View style={styles.suggestedRow}>
-          <Text style={styles.suggestedLabel}>Suggested offer</Text>
+          <Text style={styles.suggestedLabel}>{t("app.delivery.suggestedOffer")}</Text>
           <Text style={styles.suggestedValue}>₹{suggestedLow} – ₹{suggestedHigh}</Text>
         </View>
       )}
       <TouchableOpacity style={[styles.primaryBtn, isProceedDisabled && { opacity: 0.5 }]} disabled={isProceedDisabled} onPress={goToBidding}>
-        <Text style={styles.primaryBtnText}>Set your offer</Text>
+        <Text style={styles.primaryBtnText}>{t("app.delivery.setYourOffer")}</Text>
       </TouchableOpacity>
     </View>
     </>

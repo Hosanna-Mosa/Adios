@@ -1,8 +1,13 @@
 
 
-// Since native Razorpay depends on prebuild/development client, 
+// Since native Razorpay depends on prebuild/development client,
 // we provide a versatile interface for either native or web-based checkout.
 // In this implementation, we simulate the 'SUCCESS' flow for local testing.
+//
+// i18n review note: `mockSuccess` below is hardcoded `true`, so the
+// "Payment Cancelled by User" error is dead code in the current build — it
+// never actually reaches a user. Left untranslated deliberately; revisit if
+// a real failure path is wired in.
 
 export const RazorpayIntegration = {
   open: async (options: any): Promise<{ razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }> => {

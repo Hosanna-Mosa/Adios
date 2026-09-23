@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -12,6 +13,7 @@ import { MEAT_TYPES } from "./useMeatCenters.shared";
 // order, so React still sees the same hook sequence.
 
 export function useMeatCentersVisibleCenters(tokens: any, accent: any, styles: any, meatCenters: any, selectedCategory: any, setSelectedCategory: any, activeQuickFilters: any, searchOpen: any, searchText: any, setSearchText: any, toggleQuickFilter: any) {
+  const { t } = useTranslation();
   const visibleCenters = useMemo(() => {
     let list = meatCenters;
     if (searchText.trim()) {
@@ -41,9 +43,9 @@ export function useMeatCentersVisibleCenters(tokens: any, accent: any, styles: a
   const renderHeader = () => (
     <>
       <Animated.View entering={fadeInUp(0)} style={styles.headline}>
-        <Text style={styles.headlineText}>Meat centers near you</Text>
+        <Text style={styles.headlineText}>{t("app.meat.meatCentersNearYou")}</Text>
         <Text style={styles.headlineSub}>
-          {openCount} of {meatCenters.length} open now · cut fresh on order
+          {openCount} of {meatCenters.length} {t("app.meat.openNowCutFreshOnOrder")}
         </Text>
       </Animated.View>
 
@@ -52,7 +54,7 @@ export function useMeatCentersVisibleCenters(tokens: any, accent: any, styles: a
           <Ionicons name="search" size={moderateScale(16)} color={tokens.sec} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search centers or meat type"
+            placeholder={t("app.meat.searchCentersOrMeatType")}
             placeholderTextColor={tokens.muted}
             value={searchText}
             onChangeText={setSearchText}

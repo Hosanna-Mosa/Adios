@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -32,6 +33,7 @@ export function CheckoutFooter({
   tokens,
   total,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       {!!addressIssue && (
@@ -42,7 +44,7 @@ export function CheckoutFooter({
         >
           <Ionicons name="alert-circle" size={moderateScale(14)} color={tokens.error} />
           <Text style={styles.blockedNoteText}>{addressIssue}</Text>
-          <Text style={styles.changeLink}>Fix</Text>
+          <Text style={styles.changeLink}>{t("app.food.fix")}</Text>
         </TouchableOpacity>
       )}
       <TouchableOpacity
@@ -55,7 +57,7 @@ export function CheckoutFooter({
           <ActivityIndicator size="small" color={accent.on} />
         ) : (
           <>
-            <Text style={styles.placeOrderBtnText}>{scheduledFor ? "Schedule order" : "Place order"}</Text>
+            <Text style={styles.placeOrderBtnText}>{scheduledFor ? t("app.food.scheduleOrder") : t("app.food.placeOrder")}</Text>
             <Text style={styles.placeOrderBtnPrice}>· ₹{total}</Text>
           </>
         )}

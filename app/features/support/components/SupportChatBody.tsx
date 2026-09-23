@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -40,19 +41,20 @@ export function SupportChatBody({
   ticket,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return isResolved ? (
     <View style={[styles.resolvedNotice, { paddingBottom: insets.bottom + 16 }]}>
       <Ionicons name="checkmark-circle" size={16} color={tokens.success} />
-      <Text style={styles.resolvedText}>This case has been marked resolved.</Text>
+      <Text style={styles.resolvedText}>{t("app.support.thisCaseHasBeenMarkedResolved")}</Text>
       <View style={{ flexDirection: "row", gap: 12, marginTop: 6 }}>
         <TouchableOpacity style={styles.reopenBtn} onPress={() => handleReopen(ticket)}>
-          <Text style={[styles.reopenBtnText, { color: accent.accent }]}>Reopen case</Text>
+          <Text style={[styles.reopenBtnText, { color: accent.accent }]}>{t("app.support.reopenCase")}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.reopenBtn, { backgroundColor: accent.accent, borderColor: accent.accent }]}
           onPress={() => { setNewTitle(""); setNewMessage(""); setViewMode("cases"); }}
         >
-          <Text style={[styles.reopenBtnText, { color: accent.on }]}>Start new chat</Text>
+          <Text style={[styles.reopenBtnText, { color: accent.on }]}>{t("app.support.startNewChat")}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -61,7 +63,7 @@ export function SupportChatBody({
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
-          placeholder="Reply to support…"
+          placeholder={t("app.support.replyToSupport")}
           placeholderTextColor={tokens.muted}
           value={inputText}
           onChangeText={setInputText}

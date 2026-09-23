@@ -1,5 +1,6 @@
 import { CheckoutBody } from "@/features/food/components/CheckoutBody";
 import { CheckoutFooter } from "@/features/food/components/CheckoutFooter";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { Header } from "@/components/ui/Header";
 import { ScheduleDateTimeSheet } from "@/components/ScheduleDateTimeSheet";
@@ -15,11 +16,12 @@ export default function FoodCheckoutScreen() {
   setShowScheduleSheet, subtotal, deliveryFee, activeTip, total, receiverName, receiverPhone,
   addressIssue, applyCode, removeCode, placeOrder
   } = useFoodCheckout();
+  const { t } = useTranslation();
 
   return (
     <ScreenShell>
       <Header
-        title="Checkout"
+        title={t("app.checkout.checkout")}
         onBack={() => router.back()}
         style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}
       />
@@ -82,9 +84,9 @@ export default function FoodCheckoutScreen() {
           setScheduledFor(date);
           setShowScheduleSheet(false);
         }}
-        title="Schedule delivery"
-        subtitle="Pick when you want your food delivered"
-        confirmLabel="Confirm slot"
+        title={t("app.checkout.scheduleDelivery")}
+        subtitle={t("app.checkout.pickWhenYouWantYourFood")}
+        confirmLabel={t("app.checkout.confirmSlot")}
         initialDate={scheduledFor ?? undefined}
         accent={accent.accent}
       />

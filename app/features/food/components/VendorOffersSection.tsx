@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";
@@ -13,11 +14,12 @@ interface Props {
 }
 
 export function VendorOffersSection({ offers, styles }: Props) {
+  const { t } = useTranslation();
   if (offers.length === 0) return null;
 
   return (
     <Animated.View entering={fadeInUp(30)} style={styles.section}>
-      <Text style={styles.sectionLabel}>Offers</Text>
+      <Text style={styles.sectionLabel}>{t("app.food.offers")}</Text>
       <View style={styles.card}>
         {offers.map((offer, index) => (
           <View key={offer.code} style={[styles.offerRow, index > 0 && styles.offerRowDivider]}>

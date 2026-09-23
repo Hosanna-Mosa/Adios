@@ -1,7 +1,7 @@
 import { useSupportChatInsets } from "./useSupportChatInsets";
 import { useSupportChatHandleCreateTicket } from "./useSupportChatHandleCreateTicket";
 import { useSupportChatHandleSendMessage } from "./useSupportChatHandleSendMessage";
-export { CATEGORIES } from "./useSupportChat.shared";
+export { getSupportCategories } from "./useSupportChat.shared";
 
 // State, data loading and handlers for app/support-chat.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks

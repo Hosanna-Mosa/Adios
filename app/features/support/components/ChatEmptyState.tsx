@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { type ChatStyles } from "@/features/support/useChat.shared";
@@ -17,10 +18,11 @@ export function ChatEmptyState({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptyState}>
       <Ionicons name="chatbubbles-outline" size={32} color={tokens.muted} />
-      <Text style={styles.emptyStateText}>Messages with your {partnerLabel.toLowerCase()} will show up here.</Text>
+      <Text style={styles.emptyStateText}>{t("app.support.messagesWithVarWillShowUpHere", { value: partnerLabel.toLowerCase() })}</Text>
     </View>
   );
 }

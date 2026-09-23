@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Constants from "expo-constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
@@ -19,6 +20,7 @@ const PING_TIMEOUT_MS = 6000;
  * fabricated always-on/always-off indicator.
  */
 export function OfflineBanner() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
@@ -68,10 +70,10 @@ export function OfflineBanner() {
       <View style={styles.toast}>
         <View style={styles.dot} />
         <Text style={styles.text} numberOfLines={1}>
-          You&apos;re offline{minsAgo != null ? ` · last synced ${minsAgo}m ago` : ""}
+          {t("app.OfflineBanner.youaposreOffline")}{minsAgo != null ? ` · last synced ${minsAgo}m ago` : ""}
         </Text>
         <TouchableOpacity onPress={ping} disabled={checking}>
-          <Text style={styles.retry}>{checking ? "Checking…" : "Retry"}</Text>
+          <Text style={styles.retry}>{checking ? t("app.OfflineBanner.checking") : t("app.OfflineBanner.retry")}</Text>
         </TouchableOpacity>
       </View>
     </View>

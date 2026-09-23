@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
 import { getOrder } from "@/services/orders.service";
@@ -8,6 +9,7 @@ import { getOrder } from "@/services/orders.service";
 // order, so React still sees the same hook sequence.
 
 export function useHelperTaskSuggestedLow(setDriver: any, step: any, setStep: any, setPickupLocation: any, setPickupCoords: any, setIsPickupValid: any, localOrderId: any, setCurrentTaskPrice: any, setRejectedCount: any, setTotalContacted: any, setStartOtp: any, setAssignedDriver: any, calculatedFare: any) {
+  const { t } = useTranslation();
   const suggestedLow = Math.round(calculatedFare * 0.85 / 5) * 5;
   const suggestedHigh = Math.round(calculatedFare * 1.15 / 5) * 5;
 
@@ -51,7 +53,7 @@ export function useHelperTaskSuggestedLow(setDriver: any, step: any, setStep: an
       }
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("Permission denied", "Please enable location services to find your current location.");
+        Alert.alert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToFind"));
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -67,7 +69,7 @@ export function useHelperTaskSuggestedLow(setDriver: any, step: any, setStep: an
       }
     } catch (error) {
       console.warn("Helper task: GPS fetch failed:", error);
-      Alert.alert("Error", "Could not fetch your current location. Please type it manually.");
+      Alert.alert(t("actions.error"), t("app.delivery.couldNotFetchYourCurrentLocation"));
     }
   };
 

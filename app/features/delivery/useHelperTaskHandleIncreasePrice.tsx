@@ -1,10 +1,12 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { cancelOrder, increaseOrderPrice } from "@/services/orders.service";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
 export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, pickupCoords: any, isPickupValid: any, description: any, setOffer: any, localOrderId: any, setLocalOrderId: any, setIsIncreasingPrice: any, setCurrentTaskPrice: any, setAssignedDriver: any, calculatedFare: any) {
+  const { t } = useTranslation();
   const handleIncreasePrice = async (amount: number) => {
     if (!localOrderId) return;
     setIsIncreasingPrice(amount);
@@ -13,17 +15,17 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
       if (updatedOrder?.customerPrice) setCurrentTaskPrice(updatedOrder.customerPrice);
       else if (updatedOrder?.totalPrice) setCurrentTaskPrice(updatedOrder.totalPrice);
     } catch {
-      Alert.alert("Error", "Failed to increase task price.");
+      Alert.alert(t("actions.error"), t("app.delivery.failedToIncreaseTaskPrice"));
     } finally {
       setIsIncreasingPrice(null);
     }
   };
 
   const handleCancel = () => {
-    Alert.alert("Cancel this task?", "This can't be undone.", [
-      { text: "Keep task", style: "cancel" },
+    Alert.alert(t("app.delivery.cancelThisTask"), t("app.delivery.thisCantBeUndone"), [
+      { text: t("app.delivery.keepTask"), style: "cancel" },
       {
-        text: "Cancel task",
+        text: t("app.delivery.cancelTask"),
         style: "destructive",
         onPress: async () => {
           if (localOrderId) {
@@ -44,11 +46,11 @@ export function useHelperTaskHandleIncreasePrice(setOrderId: any, setStep: any, 
 
   const goToBidding = () => {
     if (!isPickupValid || !pickupCoords?.lat) {
-      Alert.alert("Missing details", "Please select a valid pickup location.");
+      Alert.alert(t("app.delivery.missingDetails"), t("app.delivery.pleaseSelectAValidPickupLocation"));
       return;
     }
     if (!description.trim()) {
-      Alert.alert("Missing details", "Please provide a brief description of the work.");
+      Alert.alert(t("app.delivery.missingDetails"), t("app.delivery.pleaseProvideABriefDescriptionOf"));
       return;
     }
     setOffer((prev: any) => prev ?? calculatedFare);

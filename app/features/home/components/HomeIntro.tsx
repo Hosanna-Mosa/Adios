@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
@@ -12,6 +13,7 @@ import type { Props } from "./HomeBody.props";
 export function HomeIntro(props: Props) {
   const { accent, activeService, areaLabel, areaLine, insets, searchBarAnimatedStyle,
   setIsDistanceSheetOpen, setIsSearchActive, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <>
       {/* Top row: delivery address + avatar. Needs the safe-area inset since
@@ -29,7 +31,7 @@ export function HomeIntro(props: Props) {
 
       {/* Headline */}
       <Text style={styles.headline}>
-        {activeService === "Meat" ? "Fresh Meat Daily!" : "Craving something\ndelicious?"}
+        {activeService === "Meat" ? t("app.home.freshMeatDaily") : t("app.home.cravingSomethingDelicious")}
       </Text>
 
       {/* Search bar */}
@@ -37,7 +39,7 @@ export function HomeIntro(props: Props) {
         <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
           <Ionicons name="search" size={moderateScale(16)} color={accent.accent} />
           <Text style={styles.searchPlaceholder} numberOfLines={1}>
-            {activeService === "Meat" ? "Search “mutton curry cut”, “prawns”" : "Search “biryani”, “Bawarchi”"}
+            {activeService === "Meat" ? t("app.home.searchMuttonCurryCutPrawns") : t("app.home.searchBiryaniBawarchi")}
           </Text>
         </TouchableOpacity>
       </Animated.View>

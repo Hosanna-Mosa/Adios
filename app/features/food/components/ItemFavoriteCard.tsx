@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
@@ -11,6 +12,7 @@ import { staggerListItem } from "@/motion/presets";
 // components/ui/ or components/shared/ if a second feature needs it.
 
 export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: { item: any; index: number; tokens: ThemeTokens; styles: any; onUnfavorite: (itemId: string) => void }) {
+  const { t } = useTranslation();
   const isMeat = !!item.isMeat;
   const accent = tokens.services[isMeat ? "meat" : "food"];
 
@@ -32,7 +34,7 @@ export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: 
         </View>
         {isMeat && (
           <View style={[styles.serviceTag, { backgroundColor: accent.skin }]}>
-            <Text style={[styles.serviceTagText, { color: accent.accent }]}>Meat</Text>
+            <Text style={[styles.serviceTagText, { color: accent.accent }]}>{t("app.serviceMeta.meat")}</Text>
           </View>
         )}
         <Text style={styles.cardMeta} numberOfLines={1}>₹{item.price}</Text>
@@ -41,7 +43,7 @@ export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: 
           activeOpacity={0.85}
           onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item.vendorId, isMeat: isMeat ? "true" : "false", highlightDishId: item._id } })}
         >
-          <Text style={[styles.reorderBtnText, { color: accent.on }]}>View dish</Text>
+          <Text style={[styles.reorderBtnText, { color: accent.on }]}>{t("app.food.viewDish")}</Text>
         </TouchableOpacity>
       </View>
     </Animated.View>

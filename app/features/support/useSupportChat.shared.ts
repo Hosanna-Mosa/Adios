@@ -20,15 +20,22 @@ export interface SupportTicket {
   updatedAt: string;
 }
 
-export // The `category` field is free text on the backend — these four are simply
-// the ones already seeded/expected by the admin dashboard's own icon
-// matching (admin/src/pages/Support.tsx keys off "BILLING", "QUALITY", etc.
-// in the category string), so they're kept exactly as-is rather than
-// adopting the mockup's own wording, which would silently break that
-// matching for every ticket raised from this screen.
-const CATEGORIES = [
-  { label: "Operational issue", value: "OPERATIONAL ISSUE" },
-  { label: "Delayed delivery", value: "DELAYED DELIVERY" },
-  { label: "Quality control", value: "QUALITY CONTROL" },
-  { label: "Billing adjustment", value: "BILLING ADJUSTMENT" },
-];
+import i18n from "@/i18n";
+
+// The `value` field is free text on the backend — these four are simply the
+// ones already seeded/expected by the admin dashboard's own icon matching
+// (admin/src/pages/Support.tsx keys off "BILLING", "QUALITY", etc. in the
+// category string), so `value` is kept exactly as-is rather than adopting
+// the mockup's own wording, which would silently break that matching for
+// every ticket raised from this screen. Only `label` (what the customer
+// sees) is translated. A function rather than a static array so `label` can
+// call t() — see getEnabledTiers() in useRideConfirmation.shared.ts for the
+// same non-hook-module pattern.
+export function getSupportCategories() {
+  return [
+    { label: i18n.t("app.support.categories.operationalIssue"), value: "OPERATIONAL ISSUE" },
+    { label: i18n.t("app.support.categories.delayedDelivery"), value: "DELAYED DELIVERY" },
+    { label: i18n.t("app.support.categories.qualityControl"), value: "QUALITY CONTROL" },
+    { label: i18n.t("app.support.categories.billingAdjustment"), value: "BILLING ADJUSTMENT" },
+  ];
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ServiceKey, type ThemeTokens } from "@/constants/colors";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
@@ -37,14 +38,15 @@ export function OrdersFilterSheet({
   toggleServiceFilter,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal visible={showFilterSheet} transparent animationType="slide" onRequestClose={() => setShowFilterSheet(false)}>
       <View style={styles.sheetOverlay}>
         <TouchableOpacity style={styles.sheetScrim} activeOpacity={1} onPress={() => setShowFilterSheet(false)} />
         <View style={styles.filterSheet}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.filterSheetTitle}>Filter orders</Text>
-          <Text style={styles.sectionLabel}>Service</Text>
+          <Text style={styles.filterSheetTitle}>{t("app.orders.filterOrders")}</Text>
+          <Text style={styles.sectionLabel}>{t("app.orders.service")}</Text>
           <View style={{ gap: 8, marginBottom: 20 }}>
             {Object.entries(SERVICE_META).filter(([k]) => k !== "bike" && k !== "auto" && k !== "cab" && k !== "cab_prime").map(([key, meta]) => {
               const isSelected = pendingServiceFilters.has(key);
@@ -67,10 +69,10 @@ export function OrdersFilterSheet({
           </View>
           <View style={{ flexDirection: "row", gap: 10 }}>
             <TouchableOpacity style={styles.clearBtn} onPress={() => setPendingServiceFilters(new Set())}>
-              <Text style={styles.clearBtnText}>Clear all</Text>
+              <Text style={styles.clearBtnText}>{t("app.orders.clearAll")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.showBtn, { backgroundColor: tokens.brand }]} onPress={applyFilters}>
-              <Text style={[styles.showBtnText, { color: tokens.onBrand }]}>Show {pendingCount} orders</Text>
+              <Text style={[styles.showBtnText, { color: tokens.onBrand }]}>{t("app.orders.showOrdersCount", { count: pendingCount })}</Text>
             </TouchableOpacity>
           </View>
         </View>

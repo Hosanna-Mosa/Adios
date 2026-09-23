@@ -6,7 +6,7 @@ import { createStyles } from "./ride-confirmation.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { ENABLED_TIERS, FareEstimate, isValidCoordinate } from "./useRideConfirmation.shared";
+import { getEnabledTiers, FareEstimate, isValidCoordinate } from "./useRideConfirmation.shared";
 import { estimateFare } from "@/services/orders.service";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
@@ -90,7 +90,7 @@ export function useRideConfirmationInsets() {
       setLoadingFares(true);
       try {
         const results = await Promise.all(
-          ENABLED_TIERS.map(async (tier) => {
+          getEnabledTiers().map(async (tier) => {
             try {
               const query = new URLSearchParams({
                 pickupLat: String(pickupCoords.latitude),

@@ -1,13 +1,15 @@
+import { useMemo } from "react";
 import { router } from "expo-router";
 import { SupportTicketList } from "@/features/support/components/SupportTicketList";
 import { FlatList } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SupportMessageBubble } from "@/features/support/components/SupportMessageBubble";
 import { SupportChatHeader } from "@/features/support/components/SupportChatHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
-import { CATEGORIES, useSupportChat } from "@/features/support/useSupportChat";
+import { getSupportCategories, useSupportChat } from "@/features/support/useSupportChat";
 
 export default function SupportChatScreen() {
   const {
@@ -16,6 +18,14 @@ export default function SupportChatScreen() {
   newMessage, setNewMessage, creatingTicket, flatListRef, handleCreateTicket, handleSendMessage,
   handleResolve, handleReopen
   } = useSupportChat();
+  const { t } = useTranslation();
+
+  const STATUS_LABEL: Record<string, string> = useMemo(() => ({
+    OPEN: t("app.supportChat.statusLabel.open"),
+    RESOLVED: t("app.supportChat.statusLabel.resolved"),
+    PENDING_RESOLVE: t("app.supportChat.statusLabel.pendingResolve"),
+  }), [t]);
+  const CATEGORIES = useMemo(() => getSupportCategories(), [t]);
 
   if (loading) {
     return (
@@ -35,8 +45,8 @@ export default function SupportChatScreen() {
     return (
       <ScreenShell keyboardAvoiding>
         <SupportChatHeader
-          title="Flavour Support"
-          subtitle={`Case #${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
+          title={t("app.support.flavourSupport")}
+          subtitle={`${t("app.support.case")}${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
           onBack={() => setViewMode("cases")}
           insets={insets}
           styles={styles}
@@ -89,7 +99,7 @@ export default function SupportChatScreen() {
   return (
     <ScreenShell keyboardAvoiding>
       <SupportChatHeader
-        title="Your cases"
+        title={t("app.support.yourCases")}
         onBack={() => router.back()}
         insets={insets}
         styles={styles}
@@ -122,11 +132,8 @@ export default function SupportChatScreen() {
   );
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  OPEN: "Open",
-  RESOLVED: "Resolved",
-  PENDING_RESOLVE: "Awaiting your reply",
-};
+// STATUS_LABEL moved inside SupportChatScreen() as a useMemo value — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString([], { day: "numeric", month: "short" });

@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { modalSlideUp } from "@/motion/presets";
 import { type ThemeTokens } from "@/constants/colors";
@@ -30,10 +31,11 @@ export function PickupConfirmPanel({
   tokens,
   updatePickup,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={modalSlideUp} style={styles.panel}>
       <View style={styles.handle} />
-      <Text style={styles.title}>Double check pickup point</Text>
+      <Text style={styles.title}>{t("app.ride.doubleCheckPickupPoint")}</Text>
 
       <TouchableOpacity style={styles.addressCard} onPress={recenter} activeOpacity={0.85}>
         <Text style={styles.addressTitle} numberOfLines={1}>
@@ -58,7 +60,7 @@ export function PickupConfirmPanel({
       </View>
 
       <TouchableOpacity style={styles.updateButton} onPress={updatePickup}>
-        <Text style={styles.updateButtonText}>Update pickup</Text>
+        <Text style={styles.updateButtonText}>{t("app.ride.updatePickup")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );

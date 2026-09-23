@@ -1,5 +1,6 @@
 import { TrackingFooterButton } from "@/features/ride/components/TrackingFooterButton";
 import { Linking, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
 import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
 import { TrackingPinCard } from "@/features/ride/components/TrackingPinCard";
@@ -16,6 +17,7 @@ export function TrackingSheetBody(props: Props) {
   const { accent, deliveryOtp, deliveryStop, driver, eta, formatClock, handleSOS, handleShareTrip,
   helperStatus, isHelper, isRide, orderCreatedAt, pickupLabel, pulse1Style, pulse2Style,
   setTripModalVisible, startOtp, status, stops, styles, timeline, tokens, unreadCount } = props;
+  const { t } = useTranslation();
   return (
     <>
     {!driver ? (
@@ -58,8 +60,8 @@ export function TrackingSheetBody(props: Props) {
           <TrackingPinCard
             accent={accent}
             otp={startOtp}
-            label="Start ride PIN"
-            hint="Give this to your captain to start the trip."
+            label={t("app.ride.startRidePin")}
+            hint={t("app.ride.giveThisToYourCaptainTo")}
             styles={styles}
           />
         )}
@@ -67,7 +69,7 @@ export function TrackingSheetBody(props: Props) {
           <TrackingPinCard
             accent={accent}
             otp={deliveryOtp}
-            label="End ride PIN"
+            label={t("app.ride.endRidePin")}
             styles={styles}
           />
         )}
@@ -75,8 +77,8 @@ export function TrackingSheetBody(props: Props) {
           <TrackingPinCard
             accent={accent}
             otp={deliveryOtp}
-            label="Delivery PIN"
-            hint="Only give this code when your items are safely received."
+            label={t("app.ride.deliveryPin")}
+            hint={t("app.ride.onlyGiveThisCodeWhenYour")}
             styles={styles}
           />
         )}
@@ -105,12 +107,12 @@ export function TrackingSheetBody(props: Props) {
         {isRide ? (
           <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
             <TrackingFooterButton
-              label="Share trip"
+              label={t("app.ride.shareTrip")}
               onPress={handleShareTrip}
               styles={styles}
             />
             <TrackingFooterButton
-              label="Emergency"
+              label={t("app.ride.emergency")}
               onPress={handleSOS}
               tone="danger"
               styles={styles}
@@ -120,12 +122,12 @@ export function TrackingSheetBody(props: Props) {
         ) : (
           <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
             <TrackingFooterButton
-              label="Order details"
+              label={t("app.ride.orderDetails")}
               onPress={() => setTripModalVisible(true)}
               styles={styles}
             />
             <TrackingFooterButton
-              label="Help"
+              label={t("app.ride.help")}
               onPress={handleSOS}
               tone="danger"
               styles={styles}

@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -20,12 +21,13 @@ export function CartHeader({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
       <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitleSolo}>Cart</Text>
+      <Text style={styles.headerTitleSolo}>{t("tabs.cart")}</Text>
     </View>
   );
 }

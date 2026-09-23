@@ -1,6 +1,7 @@
 import React from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -46,6 +47,7 @@ export function RouteInputCard({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(0)} style={styles.inputCard}>
       <View style={styles.dotsContainer}>
@@ -97,7 +99,7 @@ export function RouteInputCard({
           <View key={stop.id}>
             <View style={styles.stopInputRow}>
               <GooglePlacesAutocomplete
-                placeholder="Add stop"
+                placeholder={t("app.ride.addStopPlaceholder")}
                 onPress={(data, details = null) => handleStopSelection(stop.id, data, details)}
                 fetchDetails={true}
                 query={{ key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY, language: "en" }}
@@ -131,7 +133,7 @@ export function RouteInputCard({
           <Text style={[styles.fieldLabel, { color: accent.accent }]}>Drop</Text>
           <GooglePlacesAutocomplete
             ref={dropRef}
-            placeholder="Search destination"
+            placeholder={t("app.ride.searchDestination")}
             onPress={(data, details = null) => handleSelection('drop', data, details)}
             fetchDetails={true}
             query={{ key: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY, language: "en" }}

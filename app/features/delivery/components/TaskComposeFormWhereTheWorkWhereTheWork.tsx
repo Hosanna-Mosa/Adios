@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -36,6 +37,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.section} entering={fadeInUp(80)}>
       <View style={styles.locationCard}>
@@ -46,11 +48,11 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
         </View>
         <View style={{ flex: 1, minWidth: 0, gap: 10 }}>
           <View>
-            <Text style={styles.fieldLabel}>Where the work starts</Text>
+            <Text style={styles.fieldLabel}>{t("app.delivery.whereTheWorkStarts")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
-                placeholder="Pickup location"
+                placeholder={t("app.delivery.pickupLocation")}
                 placeholderTextColor={tokens.muted}
                 value={pickupLocation}
                 onChangeText={(t) => handleSearch(t, "pickup")}
@@ -73,11 +75,11 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
           </View>
           <View style={{ height: 1, backgroundColor: tokens.border }} />
           <View>
-            <Text style={styles.fieldLabel}>Where it ends</Text>
+            <Text style={styles.fieldLabel}>{t("app.delivery.whereItEnds")}</Text>
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
-                placeholder="Drop-off (optional)"
+                placeholder={t("app.delivery.dropoffOptional")}
                 placeholderTextColor={tokens.muted}
                 value={dropoffLocation}
                 onChangeText={(t) => handleSearch(t, "dropoff")}
