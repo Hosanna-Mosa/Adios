@@ -4,6 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { UserProfileForm } from "../userDetailTypes";
 
+const ROLE_LABEL_KEY: Record<string, string> = {
+  USER: "users.roleUser",
+  DRIVER: "users.roleDriver",
+  ADMIN: "users.roleAdmin",
+};
+
 interface UserEditFormProps {
   form: UserProfileForm;
   onChange: (form: UserProfileForm) => void;
@@ -37,9 +43,9 @@ export function UserEditForm({ form, onChange, onSubmit, isSaving }: UserEditFor
             value={form.role}
             onChange={(e) => onChange({ ...form, role: e.target.value })}
           >
-            <option value="USER">USER</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="DRIVER">DRIVER</option>
+            <option value="USER">{t(ROLE_LABEL_KEY.USER)}</option>
+            <option value="ADMIN">{t(ROLE_LABEL_KEY.ADMIN)}</option>
+            <option value="DRIVER">{t(ROLE_LABEL_KEY.DRIVER)}</option>
           </select>
         </div>
 
