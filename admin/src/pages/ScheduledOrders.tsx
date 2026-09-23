@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useScheduledOrders } from "@/features/orders/hooks/useScheduledOrders";
 import { ScheduledOrdersHeader } from "@/features/orders/components/ScheduledOrdersHeader";
@@ -6,6 +7,7 @@ import { ScheduledOrdersTable } from "@/features/orders/components/ScheduledOrde
 import { RejectScheduledOrderDialog } from "@/features/orders/components/RejectScheduledOrderDialog";
 
 export default function ScheduledOrders() {
+  const { t } = useTranslation();
   const {
     orders,
     isLoading,
@@ -31,7 +33,7 @@ export default function ScheduledOrders() {
   } = useScheduledOrders();
 
   return (
-    <DashboardLayout searchPlaceholder="Search scheduled orders...">
+    <DashboardLayout searchPlaceholder={t("orders.searchScheduledOrders")}>
       <div className="space-y-6">
         <ScheduledOrdersHeader statusFilter={statusFilter} onFilterChange={handleFilterChange} />
 

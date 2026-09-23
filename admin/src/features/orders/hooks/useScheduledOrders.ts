@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { scheduleStatusOf, type ScheduledOrder, type ScheduleStatus } from "../scheduledOrdersTypes";
 
 /** All state/query/mutation/pagination logic for ScheduledOrders.tsx (work queue item #18). */
 export function useScheduledOrders() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<"ALL" | ScheduleStatus>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,12 +28,12 @@ export function useScheduledOrders() {
       }),
     onSuccess: (_data, { action }) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "scheduled-orders"] });
-      toast.success(action === "accept" ? "Scheduled order accepted" : "Scheduled order rejected");
+      toast.success(action === "accept" ? t("orders.scheduledOrderAccepted") : t("orders.scheduledOrderRejected"));
       setRejectingOrder(null);
       setRejectReason("");
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update the scheduled order");
+      toast.error(err.message || t("orders.failedToUpdateScheduledOrder"));
     },
   });
 

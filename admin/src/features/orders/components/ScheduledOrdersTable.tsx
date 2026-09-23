@@ -1,8 +1,9 @@
 import { CalendarClock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/shared/Pagination";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
-import { statusStyles, scheduleStatusOf, orderLabel, formatDate, formatSlot, type ScheduledOrder } from "../scheduledOrdersTypes";
+import { getStatusStyle, scheduleStatusOf, orderLabel, formatDate, formatSlot, type ScheduledOrder } from "../scheduledOrdersTypes";
 
 interface ScheduledOrdersTableProps {
   isLoading: boolean;
@@ -22,34 +23,35 @@ function buildColumns(
   isDeciding: boolean,
   decidingId: string | undefined,
   onAccept: (id: string) => void,
-  onRejectClick: (order: ScheduledOrder) => void
+  onRejectClick: (order: ScheduledOrder) => void,
+  t: (key: string, opts?: Record<string, unknown>) => string
 ): DataTableColumn<ScheduledOrder>[] {
   return [
     {
       key: "order",
-      header: "Order",
+      header: t("orders.order"),
       cell: (order) => (
         <>
           <p className="text-sm font-medium text-foreground">{orderLabel(order._id)}</p>
           <p className="text-xs text-muted-foreground">
-            ₹{order.totalPrice || 0} · {order.items?.length || 0} item{(order.items?.length || 0) === 1 ? "" : "s"}
+            ₹{order.totalPrice || 0} · {t("orders.nItems", { count: order.items?.length || 0, defaultValue: "{{count}} items" })}
           </p>
         </>
       ),
     },
     {
       key: "customer",
-      header: "Customer",
+      header: t("orders.customer"),
       cell: (order) => (
         <>
-          <p className="text-sm text-foreground">{order.user?.name || "Customer"}</p>
-          <p className="text-xs text-muted-foreground">{order.user?.phone || "N/A"}</p>
+          <p className="text-sm text-foreground">{order.user?.name || t("orders.customer")}</p>
+          <p className="text-xs text-muted-foreground">{order.user?.phone || t("orders.notAvailableShort")}</p>
         </>
       ),
     },
     {
       key: "restaurant",
-      header: "Restaurant",
+      header: t("orders.restaurant"),
       cell: (order) => (
         <>
           <p className="text-sm text-foreground">{order.vendor?.name || "—"}</p>
@@ -59,22 +61,22 @@ function buildColumns(
     },
     {
       key: "slot",
-      header: "Requested Slot",
+      header: t("orders.requestedSlot"),
       cell: (order) => (
         <>
           <p className="text-sm font-medium text-foreground">{formatSlot(order.scheduledFor)}</p>
           <p className="text-xs text-muted-foreground">
-            Booked {formatDate(order.createdAt, "MMM d, hh:mm a")}
+            {t("orders.bookedOn", { date: formatDate(order.createdAt, "MMM d, hh:mm a"), defaultValue: "Booked {{date}}" })}
           </p>
         </>
       ),
     },
     {
       key: "status",
-      header: "Status",
+      header: t("users.status"),
       cell: (order) => {
         const scheduleStatus = scheduleStatusOf(order);
-        const status = statusStyles[scheduleStatus];
+        const status = getStatusStyle(scheduleStatus, t);
         const StatusIcon = status.icon;
         return (
           <>
@@ -91,7 +93,7 @@ function buildColumns(
     },
     {
       key: "action",
-      header: "Action",
+      header: t("orders.action"),
       cell: (order) => {
         const scheduleStatus = scheduleStatusOf(order);
         const isDecidingThisOrder = isDeciding && decidingId === order._id;
@@ -104,7 +106,7 @@ function buildColumns(
               disabled={isDecidingThisOrder}
               onClick={() => onRejectClick(order)}
             >
-              Reject
+              {t("orders.reject")}
             </Button>
             <Button
               size="sm"
@@ -112,11 +114,11 @@ function buildColumns(
               disabled={isDecidingThisOrder}
               onClick={() => onAccept(order._id)}
             >
-              {isDecidingThisOrder ? "Saving..." : "Accept"}
+              {isDecidingThisOrder ? t("orders.savingEllipsis") : t("orders.accept")}
             </Button>
           </div>
         ) : (
-          <span className="text-xs text-muted-foreground">No action needed</span>
+          <span className="text-xs text-muted-foreground">{t("orders.noActionNeeded")}</span>
         );
       },
     },
@@ -137,25 +139,26 @@ export function ScheduledOrdersTable({
   totalPages,
   onPageChange,
 }: ScheduledOrdersTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="section-card">
       <div className="flex items-center justify-between p-6 pb-4">
         <div className="flex items-center gap-2">
           <CalendarClock className="h-4 w-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">Booked Slots</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t("orders.bookedSlots")}</h3>
         </div>
       </div>
 
       <DataTable
-        columns={buildColumns(isDeciding, decidingId, onAccept, onRejectClick)}
+        columns={buildColumns(isDeciding, decidingId, onAccept, onRejectClick, t)}
         data={paginatedOrders}
         rowKey={(order) => order._id}
         isLoading={isLoading}
-        loadingLabel="Loading scheduled orders..."
+        loadingLabel={t("orders.loadingScheduledOrders")}
         emptyLabel={
           hasAnyOrders
-            ? "No scheduled orders match the filter."
-            : "No scheduled orders yet. They appear here as soon as a customer books a later slot at checkout."
+            ? t("orders.noScheduledOrdersMatchFilter")
+            : t("orders.noScheduledOrdersYetDesc")
         }
       />
 
@@ -163,7 +166,7 @@ export function ScheduledOrdersTable({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={onPageChange}
-        itemLabel="scheduled orders"
+        itemLabel={t("orders.scheduledOrdersLower")}
         shownCount={paginatedOrders.length}
         totalCount={filteredOrders.length}
       />
