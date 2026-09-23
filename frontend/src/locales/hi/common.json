@@ -541,5 +541,8 @@
     "browserCannotReadXlsx": "यह ब्राउज़र यहां XLSX फ़ाइलें नहीं पढ़ सकता। कृपया एक CSV फ़ाइल अपलोड करें।",
     "unableToReadXlsxFile": "XLSX फ़ाइल पढ़ने में असमर्थ।",
     "xlsxMustIncludeFirstWorksheet": "XLSX फ़ाइल में पहली वर्कशीट अवश्य होनी चाहिए।"
+  },
+  "apiClient": {
+    "requestFailed": "अनुरोध विफल रहा"
   }
 }

@@ -541,5 +541,8 @@
     "browserCannotReadXlsx": "ఈ బ్రౌజర్ ఇక్కడ XLSX ఫైళ్లను చదవలేదు. దయచేసి CSV ఫైల్‌ను అప్‌లోడ్ చేయండి.",
     "unableToReadXlsxFile": "XLSX ఫైల్‌ను చదవడం సాధ్యం కాలేదు.",
     "xlsxMustIncludeFirstWorksheet": "XLSX ఫైల్‌లో మొదటి వర్క్‌షీట్ తప్పనిసరిగా ఉండాలి."
+  },
+  "apiClient": {
+    "requestFailed": "అభ్యర్థన విఫలమైంది"
   }
 }

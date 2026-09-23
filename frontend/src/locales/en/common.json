@@ -541,5 +541,8 @@
     "browserCannotReadXlsx": "This browser cannot read XLSX files here. Please upload a CSV file.",
     "unableToReadXlsxFile": "Unable to read the XLSX file.",
     "xlsxMustIncludeFirstWorksheet": "The XLSX file must include a first worksheet."
+  },
+  "apiClient": {
+    "requestFailed": "Request failed"
   }
 }
