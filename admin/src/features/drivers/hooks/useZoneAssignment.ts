@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { AdminDriver, AdminZone } from "../types";
 
@@ -11,6 +12,7 @@ import type { AdminDriver, AdminZone } from "../types";
  * rather than folded into one hook for the whole page.
  */
 export function useZoneAssignment() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAssignZoneOpen, setIsAssignZoneOpen] = useState(false);
   const [selectedDriverForZone, setSelectedDriverForZone] = useState<string>("");
@@ -36,10 +38,10 @@ export function useZoneAssignment() {
       adminFetch(`/admin/drivers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver dossier updated successfully");
+      toast.success(t("drivers.driverDossierUpdatedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update driver dossier");
+      toast.error(err.message || t("drivers.failedToUpdateDriverDossier"));
     },
   });
 
@@ -48,7 +50,7 @@ export function useZoneAssignment() {
       { id: driverId, data: { preferredZone: zoneId } },
       {
         onSuccess: () => {
-          toast.success(zoneId ? "Zone assigned successfully" : "Zone unassigned successfully");
+          toast.success(zoneId ? t("drivers.zoneAssignedSuccessfully") : t("drivers.zoneUnassignedSuccessfully"));
           queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
         },
       }
@@ -71,7 +73,7 @@ export function useZoneAssignment() {
 
   const handleConfirmAssign = () => {
     if (!selectedDriverForZone) {
-      toast.error("Please select a driver");
+      toast.error(t("drivers.pleaseSelectADriver"));
       return;
     }
     handleAssignZone(selectedDriverForZone, selectedZoneForDriver || null);

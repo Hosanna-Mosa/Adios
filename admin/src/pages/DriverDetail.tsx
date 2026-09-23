@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -12,6 +13,7 @@ import { DriverDetailZoneDialog } from "@/features/drivers/components/DriverDeta
 import { OrderChatDialog } from "@/components/shared/OrderChatDialog";
 
 export default function DriverDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -55,10 +57,10 @@ export default function DriverDetail() {
     return (
       <DashboardLayout>
         <div className="max-w-md mx-auto text-center py-12 space-y-4">
-          <h2 className="text-xl font-bold text-destructive">Error Loading Driver Details</h2>
-          <p className="text-muted-foreground">The requested driver profile could not be found or there was an issue retrieving the data.</p>
+          <h2 className="text-xl font-bold text-destructive">{t("drivers.errorLoadingDriverDetails")}</h2>
+          <p className="text-muted-foreground">{t("drivers.requestedDriverNotFoundDesc")}</p>
           <Button onClick={() => navigate("/drivers")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Drivers Directory
+            <ArrowLeft className="h-4 w-4" /> {t("drivers.backToDriversDirectory")}
           </Button>
         </div>
       </DashboardLayout>
@@ -88,7 +90,7 @@ export default function DriverDetail() {
           </div>
 
           <div className="lg:col-span-2 bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
-            <h3 className="text-lg font-bold text-foreground">Executed Trips & Deliveries</h3>
+            <h3 className="text-lg font-bold text-foreground">{t("drivers.executedTripsAndDeliveries")}</h3>
             <DriverTripsTable orders={orders} onViewChat={setSelectedOrderChat} />
           </div>
         </div>

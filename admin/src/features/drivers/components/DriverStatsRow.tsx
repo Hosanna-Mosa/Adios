@@ -1,4 +1,5 @@
 import { Truck, Users as UsersIcon, Star, DollarSign, Compass } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 
@@ -104,6 +105,7 @@ interface DriverStatsRowProps {
 
 /** The Fleet Directory tab's top 5 stat cards. Pure presentation, driven by props. */
 export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsToday }: DriverStatsRowProps) {
+  const { t } = useTranslation();
   return (
     <StaggerList className="grid grid-cols-1 md:grid-cols-5 gap-4">
       {/* Card 1: Total Registered */}
@@ -113,11 +115,11 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
               <UsersIcon className="h-4.5 w-4.5" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total Registered</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("drivers.totalRegistered")}</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">{totalRegistered}</p>
-            <p className="text-[11px] font-semibold text-emerald-500 mt-1">+2 this week</p>
+            <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.plus2ThisWeek")}</p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -132,12 +134,12 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
               <Truck className="h-4.5 w-4.5" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">On-Duty Drivers</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("drivers.onDutyDrivers")}</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">{onlineDrivers}</p>
             <p className="text-[11px] font-semibold text-emerald-500 mt-1">
-              {totalRegistered > 0 ? Math.round((onlineDrivers / totalRegistered) * 100) : 0}% of total
+              {t("drivers.percentOfTotal", { percent: totalRegistered > 0 ? Math.round((onlineDrivers / totalRegistered) * 100) : 0, defaultValue: "{{percent}}% of total" })}
             </p>
           </div>
         </div>
@@ -153,11 +155,11 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500">
               <Star className="h-4.5 w-4.5 fill-amber-500" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Average Rating</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("vendorDashboard.averageRating")}</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">4.8</p>
-            <p className="text-[11px] font-semibold text-amber-500 mt-1">+0.2 this week</p>
+            <p className="text-[11px] font-semibold text-amber-500 mt-1">{t("drivers.plus02ThisWeek")}</p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -172,11 +174,11 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
               <DollarSign className="h-4.5 w-4.5" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Today's Earnings</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("drivers.todaysEarnings")}</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">{totalEarningsToday}</p>
-            <p className="text-[11px] font-semibold text-muted-foreground mt-1">Target: ₹0</p>
+            <p className="text-[11px] font-semibold text-muted-foreground mt-1">{t("drivers.targetColonZero", { defaultValue: "Target: ₹0" })}</p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -191,11 +193,11 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
               <Compass className="h-4.5 w-4.5" />
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Fleet Health</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("drivers.fleetHealth")}</p>
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">98%</p>
-            <p className="text-[11px] font-semibold text-emerald-500 mt-1">Healthy</p>
+            <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.healthy")}</p>
           </div>
         </div>
         <div className="self-center">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useJsApiLoader } from "@react-google-maps/api";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { CheckCircle, UserPlus, AlertTriangle } from "lucide-react";
 import type { ReactNode } from "react";
@@ -37,6 +38,7 @@ const DEFAULT_MANIFESTS = [
 
 /** All state/query logic for Dashboard.tsx (work queue item #15). */
 export function useDashboard() {
+  const { t } = useTranslation();
   const [timeScale, setTimeScale] = useState<"DAILY" | "WEEKLY">("DAILY");
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [downloadTitle, setDownloadTitle] = useState("");
@@ -70,23 +72,23 @@ export function useDashboard() {
   };
 
   const openOperationalReport = () => {
-    setDownloadTitle("Operational Summary Report");
+    setDownloadTitle(t("dashboard.operationalSummaryReport"));
     setDownloadData([
-      { Metric: "Total Orders", Value: stats?.totalOrders || 0 },
-      { Metric: "Active Drivers", Value: stats?.activeDrivers || 0 },
-      { Metric: "Total Users", Value: stats?.totalUsers || 0 },
-      { Metric: "Total Revenue", Value: `INR ${stats?.totalRevenue || 0}` },
-      { Metric: "Report Type", Value: "Logistics Dashboard Summary" },
+      { [t("dashboard.reportMetric")]: t("dashboard.totalOrders"), [t("dashboard.reportValue")]: stats?.totalOrders || 0 },
+      { [t("dashboard.reportMetric")]: t("dashboard.activeDrivers"), [t("dashboard.reportValue")]: stats?.activeDrivers || 0 },
+      { [t("dashboard.reportMetric")]: t("dashboard.totalUsers"), [t("dashboard.reportValue")]: stats?.totalUsers || 0 },
+      { [t("dashboard.reportMetric")]: t("dashboard.totalRevenue"), [t("dashboard.reportValue")]: `INR ${stats?.totalRevenue || 0}` },
+      { [t("dashboard.reportMetric")]: t("dashboard.reportType"), [t("dashboard.reportValue")]: t("dashboard.logisticsDashboardSummary") },
     ]);
     setIsDownloadOpen(true);
   };
 
   const openFleetReport = () => {
-    setDownloadTitle("Fleet Performance Allocation Report");
+    setDownloadTitle(t("dashboard.fleetPerformanceAllocationReport"));
     setDownloadData([
-      { District: "North Bay District", "Recomm. Drivers": 12, "Current Status": "Surge", "Efficiency Increase": "+18%" },
-      { District: "Downtown Area", "Recomm. Drivers": 5, "Current Status": "Optimal", "Efficiency Increase": "+10%" },
-      { District: "East Corridor", "Recomm. Drivers": 8, "Current Status": "Normal", "Efficiency Increase": "+8%" },
+      { [t("dashboard.district")]: t("dashboard.northBayDistrict"), [t("dashboard.recommDrivers")]: 12, [t("dashboard.currentStatus")]: t("dashboard.statusSurge"), [t("dashboard.efficiencyIncrease")]: "+18%" },
+      { [t("dashboard.district")]: t("dashboard.downtownArea"), [t("dashboard.recommDrivers")]: 5, [t("dashboard.currentStatus")]: t("dashboard.statusOptimal"), [t("dashboard.efficiencyIncrease")]: "+10%" },
+      { [t("dashboard.district")]: t("dashboard.eastCorridor"), [t("dashboard.recommDrivers")]: 8, [t("dashboard.currentStatus")]: t("dashboard.statusNormal"), [t("dashboard.efficiencyIncrease")]: "+8%" },
     ]);
     setIsDownloadOpen(true);
   };

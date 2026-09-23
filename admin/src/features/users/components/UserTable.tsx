@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Eye, Ban, Mail, Trash2, Phone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import type { AdminUser } from "../types";
 
@@ -11,12 +12,20 @@ interface UserTableProps {
   onDelete: (user: AdminUser) => void;
 }
 
+const ROLE_LABEL_KEY: Record<string, string> = {
+  USER: "users.roleUser",
+  DRIVER: "users.roleDriver",
+  ADMIN: "users.roleAdmin",
+  SUPPORT: "users.roleSupport",
+};
+
 /** The 7-column user list table, moved verbatim out of Users.tsx onto DataTable. */
 export function UserTable({ data, isLoading, onBan, onDelete }: UserTableProps) {
+  const { t } = useTranslation();
   const columns: DataTableColumn<AdminUser>[] = [
     {
       key: "details",
-      header: "User Details",
+      header: t("users.userDetails"),
       cell: (u) => (
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-foreground">
@@ -33,60 +42,60 @@ export function UserTable({ data, isLoading, onBan, onDelete }: UserTableProps) 
     },
     {
       key: "role",
-      header: "Role",
+      header: t("users.role"),
       cell: (u) => (
         <span className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${u.role === "ADMIN" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-          {u.role}
+          {ROLE_LABEL_KEY[u.role] ? t(ROLE_LABEL_KEY[u.role]) : u.role}
         </span>
       ),
     },
     {
       key: "status",
-      header: "Status",
+      header: t("users.status"),
       cell: (u) => (
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${u.isBlocked ? "bg-destructive" : "bg-success"}`} />
-          <span className="text-sm text-foreground">{u.isBlocked ? "Blocked" : "Active"}</span>
+          <span className="text-sm text-foreground">{u.isBlocked ? t("users.blocked") : t("users.active")}</span>
         </div>
       ),
     },
     {
       key: "orders",
-      header: "Orders",
+      header: t("users.orders"),
       cell: (u) => <span className="text-sm font-semibold text-foreground">{u.addresses?.length || 0}</span>,
     },
     {
       key: "joined",
-      header: "Joined",
+      header: t("users.joined"),
       cell: (u) => <span className="text-sm text-muted-foreground">{new Date(u.createdAt).toLocaleDateString()}</span>,
     },
     {
       key: "lastActive",
-      header: "Last Active",
+      header: t("users.lastActive"),
       cell: (u) => <span className="text-sm text-muted-foreground">{new Date(u.updatedAt).toLocaleDateString()}</span>,
     },
     {
       key: "actions",
-      header: "Actions",
+      header: t("dashboard.action"),
       cell: (u) => (
         <div className="flex items-center gap-1.5">
-          <Link to={`/users/${u._id}`} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="View details">
+          <Link to={`/users/${u._id}`} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.viewDetails")}>
             <Eye className="h-4 w-4" />
           </Link>
-          <button onClick={() => toast.success(`Initiating call with user ${u.name} at ${u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Call User">
+          <button onClick={() => toast.success(t("users.initiatingCallWith", { name: u.name, phone: u.phone, defaultValue: "Initiating call with user {{name}} at {{phone}}..." }))} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.callUser")}>
             <Phone className="h-4 w-4" />
           </button>
-          <button onClick={() => toast.info(`Drafting email to ${u.email || u.phone}...`)} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title="Message User">
+          <button onClick={() => toast.info(t("users.draftingEmailTo", { contact: u.email || u.phone, defaultValue: "Drafting email to {{contact}}..." }))} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.messageUser")}>
             <Mail className="h-4 w-4" />
           </button>
           <button
             onClick={() => onBan(u)}
             className={`p-1.5 rounded-full transition-colors ${u.isBlocked ? "bg-destructive/10 text-destructive hover:bg-destructive/20" : "bg-primary/10 text-primary hover:bg-primary/20"}`}
-            title={u.isBlocked ? "Unblock User" : "Block User"}
+            title={u.isBlocked ? t("users.unblockUser") : t("users.blockUser")}
           >
             <Ban className="h-4 w-4" />
           </button>
-          <button onClick={() => onDelete(u)} className="p-1.5 rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors" title="Delete User">
+          <button onClick={() => onDelete(u)} className="p-1.5 rounded-full bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors" title={t("users.deleteUser")}>
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -100,8 +109,8 @@ export function UserTable({ data, isLoading, onBan, onDelete }: UserTableProps) 
       data={data}
       rowKey={(u) => u._id}
       isLoading={isLoading}
-      loadingLabel="Loading users..."
-      emptyLabel="No users found matching the filter."
+      loadingLabel={t("users.loadingUsers")}
+      emptyLabel={t("users.noUsersFoundMatchingFilter")}
     />
   );
 }

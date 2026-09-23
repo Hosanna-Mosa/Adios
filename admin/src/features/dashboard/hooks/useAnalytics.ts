@@ -2,10 +2,23 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { AnalyticsData } from "../analyticsTypes";
 
 const TIME_RANGES = ["Last 7 Days", "Last 30 Days", "Last 90 Days", "Year to Date"];
+
+const TIME_RANGE_LABEL_KEY: Record<string, string> = {
+  "Last 7 Days": "analytics.last7Days",
+  "Last 30 Days": "analytics.last30Days",
+  "Last 90 Days": "analytics.last90Days",
+  "Year to Date": "analytics.yearToDate",
+};
+
+/** Translated display label for a time-range value — the value itself
+ * (used for state and cycling via TIME_RANGES.indexOf) is never translated. */
+export const timeRangeLabel = (range: string, t: (key: string) => string): string =>
+  TIME_RANGE_LABEL_KEY[range] ? t(TIME_RANGE_LABEL_KEY[range]) : range;
 
 const DEFAULT_VELOCITY_DATA = [
   { day: "MON", orders: 1800 },
@@ -25,6 +38,7 @@ const DEFAULT_ANOMALIES = [
 
 /** All state/query logic for Analytics.tsx (work queue item #17). */
 export function useAnalytics() {
+  const { t } = useTranslation();
   const [selectedWeek, setSelectedWeek] = useState("W3");
   const [timeRange, setTimeRange] = useState("Last 30 Days");
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
@@ -41,13 +55,14 @@ export function useAnalytics() {
 
   const handleRangeChange = () => {
     const nextIndex = (TIME_RANGES.indexOf(timeRange) + 1) % TIME_RANGES.length;
-    setTimeRange(TIME_RANGES[nextIndex]);
-    toast.success(`Analytics dashboard updated for: ${TIME_RANGES[nextIndex]}`);
+    const nextRange = TIME_RANGES[nextIndex];
+    setTimeRange(nextRange);
+    toast.success(t("analytics.dashboardUpdatedFor", { range: timeRangeLabel(nextRange, t), defaultValue: "Analytics dashboard updated for: {{range}}" }));
   };
 
   const handleSelectWeek = (w: string) => {
     setSelectedWeek(w);
-    toast.success(`Revenue stream updated for week: ${w}`);
+    toast.success(t("analytics.revenueStreamUpdatedForWeek", { week: w, defaultValue: "Revenue stream updated for week: {{week}}" }));
   };
 
   const velocityData = analyticsData?.velocityData || DEFAULT_VELOCITY_DATA;
@@ -62,13 +77,13 @@ export function useAnalytics() {
   const anomalies = analyticsData?.anomalies || DEFAULT_ANOMALIES;
 
   const downloadData = [
-    { Metric: "Total Orders", Value: "12,842" },
-    { Metric: "Net Revenue", Value: "INR 482.5k" },
-    { Metric: "Avg. Delivery Time", Value: "34.2m" },
-    { Metric: "Active Drivers", Value: "842" },
+    { [t("dashboard.reportMetric")]: t("analytics.totalOrders"), [t("dashboard.reportValue")]: "12,842" },
+    { [t("dashboard.reportMetric")]: t("analytics.netRevenue"), [t("dashboard.reportValue")]: "INR 482.5k" },
+    { [t("dashboard.reportMetric")]: t("analytics.avgDeliveryTime"), [t("dashboard.reportValue")]: "34.2m" },
+    { [t("dashboard.reportMetric")]: t("dashboard.activeDrivers"), [t("dashboard.reportValue")]: "842" },
     ...anomalies.map((a) => ({
-      Metric: `Anomaly: ${a.id} (${a.driver})`,
-      Value: `${a.status} - ${a.activity}`,
+      [t("dashboard.reportMetric")]: t("analytics.anomalyMetric", { id: a.id, driver: a.driver, defaultValue: "Anomaly: {{id}} ({{driver}})" }),
+      [t("dashboard.reportValue")]: `${a.status} - ${a.activity}`,
     })),
   ];
 

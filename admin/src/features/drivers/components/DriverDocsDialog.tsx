@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DriverKycPanel } from "./DriverKycPanel";
 import type { AdminDriver } from "../types";
@@ -22,41 +23,42 @@ export function DriverDocsDialog({
   onApprove,
   onReject,
 }: DriverDocsDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Driver Dossier & Onboarding</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("drivers.driverDossierAndOnboarding")}</DialogTitle>
         </DialogHeader>
         {driver && (
           <div className="space-y-4 py-4 text-sm">
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Full Name:</span>
+              <span className="font-semibold text-muted-foreground">{t("users.fullNameColon")}</span>
               <span className="font-medium text-foreground">{driver.user?.name}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Phone:</span>
+              <span className="font-semibold text-muted-foreground">{t("users.phoneColon")}</span>
               <span className="font-medium text-foreground">{driver.user?.phone}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Email:</span>
-              <span className="font-medium text-foreground">{driver.user?.email || "N/A"}</span>
+              <span className="font-semibold text-muted-foreground">{t("vendorAuth.emailAddress")}:</span>
+              <span className="font-medium text-foreground">{driver.user?.email || t("vendorDashboard.notAvailable")}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Vehicle Type:</span>
+              <span className="font-semibold text-muted-foreground">{t("drivers.vehicleTypeColon")}</span>
               <span className="font-medium text-foreground uppercase">{driver.vehicleType || "bike"}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Duty Status:</span>
+              <span className="font-semibold text-muted-foreground">{t("drivers.dutyStatusColon")}</span>
               <span className="font-medium text-foreground">{driver.status}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Onboarding Status:</span>
+              <span className="font-semibold text-muted-foreground">{t("drivers.onboardingStatusColon")}</span>
               <span className="font-medium text-foreground uppercase">{driver.onboardingStatus || "not_started"}</span>
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
-              <span className="font-semibold text-muted-foreground">Active Location:</span>
-              <span className="font-medium text-foreground">{driver.currentLocation?.coordinates?.join(", ") || "Unknown"}</span>
+              <span className="font-semibold text-muted-foreground">{t("drivers.activeLocationColon")}</span>
+              <span className="font-medium text-foreground">{driver.currentLocation?.coordinates?.join(", ") || t("drivers.unknown")}</span>
             </div>
 
             <DriverKycPanel

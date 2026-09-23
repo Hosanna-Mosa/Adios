@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { adminFetch } from "@/lib/api-client";
 import type { DevDriver } from "../devDriversTypes";
 
 /** All state/query/mutation logic for DevDrivers.tsx (work queue item #18). */
 export function useDevDrivers() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
@@ -20,11 +22,11 @@ export function useDevDrivers() {
         method: "POST",
       }),
     onSuccess: (res) => {
-      toast.success(res.message || "10 Dev Drivers seeded!");
+      toast.success(res.message || t("drivers.tenDevDriversSeeded"));
       queryClient.invalidateQueries({ queryKey: ["admin-dev-drivers"] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to seed dev drivers");
+      toast.error(err.message || t("drivers.failedToSeedDevDrivers"));
     },
   });
 
@@ -34,11 +36,11 @@ export function useDevDrivers() {
         method: "DELETE",
       }),
     onSuccess: (res) => {
-      toast.success(res.message || "All mock dev drivers deleted!");
+      toast.success(res.message || t("drivers.allMockDevDriversDeleted"));
       queryClient.invalidateQueries({ queryKey: ["admin-dev-drivers"] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete dev drivers");
+      toast.error(err.message || t("drivers.failedToDeleteDevDrivers"));
     },
   });
 
@@ -49,12 +51,12 @@ export function useDevDrivers() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      toast.success("Driver configuration updated successfully!");
+      toast.success(t("drivers.driverConfigurationUpdatedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["admin-dev-drivers"] });
       setUpdatingId(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update driver settings");
+      toast.error(err.message || t("drivers.failedToUpdateDriverSettings"));
       setUpdatingId(null);
     },
   });
@@ -78,7 +80,7 @@ export function useDevDrivers() {
     const latitude = parseFloat(latStr);
     const longitude = parseFloat(lngStr);
     if (isNaN(latitude) || isNaN(longitude)) {
-      toast.error("Please enter valid latitude and longitude numbers.");
+      toast.error(t("drivers.pleaseEnterValidLatLng"));
       return;
     }
     setUpdatingId(driver._id);

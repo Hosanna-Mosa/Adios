@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { DownloadReportDialog } from "@/components/shared/DownloadReportDialog";
 import { useAnalytics } from "@/features/dashboard/hooks/useAnalytics";
@@ -10,10 +11,11 @@ import { DriverSaturationMap } from "@/features/dashboard/components/DriverSatur
 import { AnomalyTable } from "@/features/dashboard/components/AnomalyTable";
 
 export default function Analytics() {
+  const { t } = useTranslation();
   const { selectedWeek, handleSelectWeek, timeRange, handleRangeChange, isDownloadOpen, setIsDownloadOpen, isLoaded, isLoading, velocityData, heatmapData, anomalies, downloadData } = useAnalytics();
 
   return (
-    <DashboardLayout searchPlaceholder="Search logistics metrics...">
+    <DashboardLayout searchPlaceholder={t("analytics.searchLogisticsMetrics")}>
       <div className="space-y-6">
         <AnalyticsHeader timeRange={timeRange} onRangeChange={handleRangeChange} onExportClick={() => setIsDownloadOpen(true)} />
 
@@ -29,7 +31,7 @@ export default function Analytics() {
           <DriverSaturationMap isLoaded={isLoaded} />
         </div>
 
-        <DownloadReportDialog open={isDownloadOpen} onOpenChange={setIsDownloadOpen} title="Logistics Analytics Performance Report" data={downloadData} />
+        <DownloadReportDialog open={isDownloadOpen} onOpenChange={setIsDownloadOpen} title={t("analytics.logisticsAnalyticsPerformanceReport")} data={downloadData} />
 
         <AnomalyTable anomalies={anomalies} />
       </div>
