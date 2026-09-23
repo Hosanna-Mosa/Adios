@@ -210,5 +210,93 @@
     "newPasswordsDoNotMatch": "New passwords do not match",
     "passwordChangedSuccessfully": "Password changed successfully",
     "failedToChangePassword": "Failed to change password"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "savingEllipsis": "Saving...",
+    "searchEllipsis": "Search...",
+    "filterColon": "Filter: {{value}}",
+    "loadingEllipsis": "Loading...",
+    "noResultsFound": "No results found.",
+    "pageNotFound": "Oops! Page not found",
+    "returnToHome": "Return to Home"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "liveOrders": "Live Orders",
+    "scheduledOrders": "Scheduled Orders",
+    "drivers": "Drivers",
+    "devDrivers": "Dev Drivers",
+    "users": "Users",
+    "vendors": "Vendors",
+    "restaurantMenu": "Restaurant Menu",
+    "meatCenters": "Meal Centers",
+    "meatPricing": "Meal Pricing",
+    "zones": "Zones",
+    "payments": "Payments",
+    "analytics": "Analytics",
+    "support": "Support",
+    "supportCases": "Support Cases",
+    "activeChats": "Active Chats",
+    "coupons": "Coupons",
+    "appUpdates": "App Updates",
+    "banners": "Banners",
+    "foodAndServices": "Food & Services",
+    "needHelp": "Need Help?",
+    "contactSupportForAssistance": "Contact support for assistance.",
+    "contactSupport": "Contact Support",
+    "signOut": "Sign Out"
+  },
+  "notifications": {
+    "justNow": "Just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "notifications": "Notifications",
+    "markAllRead": "Mark all read",
+    "nothingHereYet": "Nothing here yet."
+  },
+  "pagination": {
+    "showingXOfY": "Showing {{shown}} of {{total}} {{item}}",
+    "items": "items"
+  },
+  "downloadReport": {
+    "noDataAvailableToExport": "No data available to export",
+    "spreadsheetDownloadedSuccessfully": "Excel/CSV spreadsheet downloaded successfully!",
+    "failedToGenerateSpreadsheet": "Failed to generate spreadsheet",
+    "popupBlocked": "Popup blocked! Please allow popups to export PDF.",
+    "reportGeneratedOn": "Precision Nav Logistics Report — Generated on {{date}}",
+    "pdfReportGeneratedSuccessfully": "PDF Report generated successfully!",
+    "failedToGeneratePdf": "Failed to generate PDF",
+    "exportReport": "Export Report",
+    "selectPreferredFileFormatFor": "Select your preferred file format for:",
+    "spreadsheet": "Spreadsheet",
+    "excelCsv": "Excel / CSV",
+    "pdfDocument": "PDF Document",
+    "savePrintPdf": "Save / Print PDF"
+  },
+  "orderChat": {
+    "chatLogFor": "Chat Log for {{orderId}}",
+    "loadingChatMessages": "Loading chat messages...",
+    "noChatHistoryRecorded": "No chat history recorded for this trip.",
+    "driver": "Driver",
+    "user": "User"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "hours": {
+    "closedAllDay": "Closed all day",
+    "to": "to",
+    "closed": "Closed",
+    "openNow": "Open now",
+    "closedByAdmin": "Closed by admin",
+    "noHoursSet": "No hours set"
   }
 }

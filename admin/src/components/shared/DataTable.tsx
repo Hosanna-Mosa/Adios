@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { fadeIn } from "@/components/motion/variants";
 
 export interface DataTableColumn<T> {
@@ -53,8 +54,8 @@ export function DataTable<T>({
   data,
   rowKey,
   isLoading = false,
-  loadingLabel = "Loading...",
-  emptyLabel = "No results found.",
+  loadingLabel,
+  emptyLabel,
   rowClassName,
   onRowClick,
   headerRowClassName,
@@ -63,6 +64,9 @@ export function DataTable<T>({
   tableClassName,
   theadClassName,
 }: DataTableProps<T>) {
+  const { t } = useTranslation();
+  const resolvedLoadingLabel = loadingLabel ?? t("common.loadingEllipsis");
+  const resolvedEmptyLabel = emptyLabel ?? t("common.noResultsFound");
   return (
     <table className={tableClassName ?? "w-full"}>
       <thead className={theadClassName}>
@@ -78,13 +82,13 @@ export function DataTable<T>({
         {isLoading ? (
           <tr>
             <td colSpan={columns.length} className={stateCellClassName ?? DEFAULT_STATE_CELL_CLASS}>
-              {loadingLabel}
+              {resolvedLoadingLabel}
             </td>
           </tr>
         ) : data.length === 0 ? (
           <tr>
             <td colSpan={columns.length} className={stateCellClassName ?? DEFAULT_STATE_CELL_CLASS}>
-              {emptyLabel}
+              {resolvedEmptyLabel}
             </td>
           </tr>
         ) : (

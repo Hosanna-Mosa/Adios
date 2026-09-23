@@ -210,5 +210,93 @@
     "newPasswordsDoNotMatch": "కొత్త పాస్‌వర్డ్‌లు సరిపోలడం లేదు",
     "passwordChangedSuccessfully": "పాస్‌వర్డ్ విజయవంతంగా మార్చబడింది",
     "failedToChangePassword": "పాస్‌వర్డ్‌ను మార్చడంలో విఫలమైంది"
+  },
+  "common": {
+    "cancel": "రద్దు చేయండి",
+    "confirm": "నిర్ధారించండి",
+    "savingEllipsis": "సేవ్ చేస్తోంది...",
+    "searchEllipsis": "శోధించండి...",
+    "filterColon": "ఫిల్టర్: {{value}}",
+    "loadingEllipsis": "లోడ్ అవుతోంది...",
+    "noResultsFound": "ఫలితాలు కనుగొనబడలేదు.",
+    "pageNotFound": "అయ్యో! పేజీ కనుగొనబడలేదు",
+    "returnToHome": "హోమ్‌కు తిరిగి వెళ్లండి"
+  },
+  "sidebar": {
+    "dashboard": "డాష్‌బోర్డ్",
+    "liveOrders": "లైవ్ ఆర్డర్‌లు",
+    "scheduledOrders": "షెడ్యూల్ చేసిన ఆర్డర్‌లు",
+    "drivers": "డ్రైవర్‌లు",
+    "devDrivers": "డెవ్ డ్రైవర్‌లు",
+    "users": "వినియోగదారులు",
+    "vendors": "వెండర్‌లు",
+    "restaurantMenu": "రెస్టారెంట్ మెనూ",
+    "meatCenters": "మీట్ సెంటర్‌లు",
+    "meatPricing": "మీట్ ధరలు",
+    "zones": "జోన్‌లు",
+    "payments": "చెల్లింపులు",
+    "analytics": "అనలిటిక్స్",
+    "support": "సపోర్ట్",
+    "supportCases": "సపోర్ట్ కేసులు",
+    "activeChats": "క్రియాశీల చాట్‌లు",
+    "coupons": "కూపన్‌లు",
+    "appUpdates": "యాప్ అప్‌డేట్‌లు",
+    "banners": "బ్యానర్‌లు",
+    "foodAndServices": "ఫుడ్ & సర్వీసెస్",
+    "needHelp": "సహాయం కావాలా?",
+    "contactSupportForAssistance": "సహాయం కోసం సపోర్ట్‌ను సంప్రదించండి.",
+    "contactSupport": "సపోర్ట్‌ను సంప్రదించండి",
+    "signOut": "సైన్ అవుట్"
+  },
+  "notifications": {
+    "justNow": "ఇప్పుడే",
+    "minutesAgo": "{{count}} నిమిషాల క్రితం",
+    "hoursAgo": "{{count}} గంటల క్రితం",
+    "notifications": "నోటిఫికేషన్‌లు",
+    "markAllRead": "అన్నీ చదివినట్లు గుర్తించండి",
+    "nothingHereYet": "ఇక్కడ ఇంకా ఏమీ లేదు."
+  },
+  "pagination": {
+    "showingXOfY": "{{total}}లో {{shown}} {{item}} చూపిస్తోంది",
+    "items": "అంశాలు"
+  },
+  "downloadReport": {
+    "noDataAvailableToExport": "ఎగుమతి చేయడానికి డేటా అందుబాటులో లేదు",
+    "spreadsheetDownloadedSuccessfully": "Excel/CSV స్ప్రెడ్‌షీట్ విజయవంతంగా డౌన్‌లోడ్ చేయబడింది!",
+    "failedToGenerateSpreadsheet": "స్ప్రెడ్‌షీట్‌ను రూపొందించడంలో విఫలమైంది",
+    "popupBlocked": "పాప్అప్ నిరోధించబడింది! PDFని ఎగుమతి చేయడానికి దయచేసి పాప్అప్‌లను అనుమతించండి.",
+    "reportGeneratedOn": "ప్రెసిషన్ నావ్ లాజిస్టిక్స్ నివేదిక — {{date}}న రూపొందించబడింది",
+    "pdfReportGeneratedSuccessfully": "PDF నివేదిక విజయవంతంగా రూపొందించబడింది!",
+    "failedToGeneratePdf": "PDFని రూపొందించడంలో విఫలమైంది",
+    "exportReport": "నివేదికను ఎగుమతి చేయండి",
+    "selectPreferredFileFormatFor": "దీని కోసం మీకు నచ్చిన ఫైల్ ఫార్మాట్‌ను ఎంచుకోండి:",
+    "spreadsheet": "స్ప్రెడ్‌షీట్",
+    "excelCsv": "Excel / CSV",
+    "pdfDocument": "PDF పత్రం",
+    "savePrintPdf": "PDFను సేవ్ / ప్రింట్ చేయండి"
+  },
+  "orderChat": {
+    "chatLogFor": "{{orderId}} కోసం చాట్ లాగ్",
+    "loadingChatMessages": "చాట్ సందేశాలు లోడ్ అవుతున్నాయి...",
+    "noChatHistoryRecorded": "ఈ ట్రిప్ కోసం చాట్ చరిత్ర రికార్డ్ చేయబడలేదు.",
+    "driver": "డ్రైవర్",
+    "user": "వినియోగదారుడు"
+  },
+  "days": {
+    "monday": "సోమవారం",
+    "tuesday": "మంగళవారం",
+    "wednesday": "బుధవారం",
+    "thursday": "గురువారం",
+    "friday": "శుక్రవారం",
+    "saturday": "శనివారం",
+    "sunday": "ఆదివారం"
+  },
+  "hours": {
+    "closedAllDay": "రోజంతా మూసివేయబడింది",
+    "to": "నుండి",
+    "closed": "మూసివేయబడింది",
+    "openNow": "ఇప్పుడు తెరిచి ఉంది",
+    "closedByAdmin": "అడ్మిన్ చేత మూసివేయబడింది",
+    "noHoursSet": "గంటలు సెట్ చేయబడలేదు"
   }
 }

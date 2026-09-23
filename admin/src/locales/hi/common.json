@@ -210,5 +210,93 @@
     "newPasswordsDoNotMatch": "नए पासवर्ड मेल नहीं खाते",
     "passwordChangedSuccessfully": "पासवर्ड सफलतापूर्वक बदला गया",
     "failedToChangePassword": "पासवर्ड बदलने में विफल"
+  },
+  "common": {
+    "cancel": "रद्द करें",
+    "confirm": "पुष्टि करें",
+    "savingEllipsis": "सेव हो रहा है...",
+    "searchEllipsis": "खोजें...",
+    "filterColon": "फ़िल्टर: {{value}}",
+    "loadingEllipsis": "लोड हो रहा है...",
+    "noResultsFound": "कोई परिणाम नहीं मिला।",
+    "pageNotFound": "उफ़! पेज नहीं मिला",
+    "returnToHome": "होम पर वापस जाएं"
+  },
+  "sidebar": {
+    "dashboard": "डैशबोर्ड",
+    "liveOrders": "लाइव ऑर्डर",
+    "scheduledOrders": "निर्धारित ऑर्डर",
+    "drivers": "ड्राइवर",
+    "devDrivers": "डेव ड्राइवर",
+    "users": "उपयोगकर्ता",
+    "vendors": "वेंडर",
+    "restaurantMenu": "रेस्टोरेंट मेनू",
+    "meatCenters": "मीट सेंटर",
+    "meatPricing": "मीट मूल्य निर्धारण",
+    "zones": "ज़ोन",
+    "payments": "भुगतान",
+    "analytics": "एनालिटिक्स",
+    "support": "सपोर्ट",
+    "supportCases": "सपोर्ट केस",
+    "activeChats": "सक्रिय चैट",
+    "coupons": "कूपन",
+    "appUpdates": "ऐप अपडेट",
+    "banners": "बैनर",
+    "foodAndServices": "फ़ूड एंड सर्विसेज़",
+    "needHelp": "मदद चाहिए?",
+    "contactSupportForAssistance": "सहायता के लिए सपोर्ट से संपर्क करें।",
+    "contactSupport": "सपोर्ट से संपर्क करें",
+    "signOut": "साइन आउट"
+  },
+  "notifications": {
+    "justNow": "अभी अभी",
+    "minutesAgo": "{{count}} मिनट पहले",
+    "hoursAgo": "{{count}} घंटे पहले",
+    "notifications": "सूचनाएं",
+    "markAllRead": "सभी को पढ़ा हुआ चिह्नित करें",
+    "nothingHereYet": "अभी यहां कुछ नहीं है।"
+  },
+  "pagination": {
+    "showingXOfY": "{{total}} में से {{shown}} {{item}} दिखा रहे हैं",
+    "items": "आइटम"
+  },
+  "downloadReport": {
+    "noDataAvailableToExport": "निर्यात करने के लिए कोई डेटा उपलब्ध नहीं है",
+    "spreadsheetDownloadedSuccessfully": "Excel/CSV स्प्रेडशीट सफलतापूर्वक डाउनलोड हुई!",
+    "failedToGenerateSpreadsheet": "स्प्रेडशीट बनाने में विफल",
+    "popupBlocked": "पॉपअप ब्लॉक हो गया! PDF निर्यात करने के लिए कृपया पॉपअप की अनुमति दें।",
+    "reportGeneratedOn": "प्रिसिजन नैव लॉजिस्टिक्स रिपोर्ट — {{date}} को जनरेट की गई",
+    "pdfReportGeneratedSuccessfully": "PDF रिपोर्ट सफलतापूर्वक बनाई गई!",
+    "failedToGeneratePdf": "PDF बनाने में विफल",
+    "exportReport": "रिपोर्ट निर्यात करें",
+    "selectPreferredFileFormatFor": "इसके लिए अपना पसंदीदा फ़ाइल फ़ॉर्मेट चुनें:",
+    "spreadsheet": "स्प्रेडशीट",
+    "excelCsv": "Excel / CSV",
+    "pdfDocument": "PDF दस्तावेज़",
+    "savePrintPdf": "PDF सेव / प्रिंट करें"
+  },
+  "orderChat": {
+    "chatLogFor": "{{orderId}} के लिए चैट लॉग",
+    "loadingChatMessages": "चैट संदेश लोड हो रहे हैं...",
+    "noChatHistoryRecorded": "इस ट्रिप के लिए कोई चैट इतिहास दर्ज नहीं किया गया।",
+    "driver": "ड्राइवर",
+    "user": "उपयोगकर्ता"
+  },
+  "days": {
+    "monday": "सोमवार",
+    "tuesday": "मंगलवार",
+    "wednesday": "बुधवार",
+    "thursday": "गुरुवार",
+    "friday": "शुक्रवार",
+    "saturday": "शनिवार",
+    "sunday": "रविवार"
+  },
+  "hours": {
+    "closedAllDay": "पूरे दिन बंद",
+    "to": "से",
+    "closed": "बंद",
+    "openNow": "अभी खुला है",
+    "closedByAdmin": "एडमिन द्वारा बंद",
+    "noHoursSet": "कोई समय निर्धारित नहीं"
   }
 }
