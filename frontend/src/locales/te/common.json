@@ -51,7 +51,9 @@
     "rideEyebrow": "ఎగ్జిక్యూటివ్ మొబిలిటీ",
     "rideHeadlineLine1": "ఎగ్జిక్యూటివ్ మోషన్,",
     "rideHeadlineLine2": "పునర్నిర్వచించబడింది.",
-    "rideSubtitle": "మీ ఆదేశంతో ప్రొఫెషనల్ రవాణా. ఎయిర్‌పోర్ట్ ట్రాన్స్‌ఫర్‌ల నుండి సిటీ కమ్యూట్‌ల వరకు, ప్రయాణం యొక్క గోల్డ్ స్టాండర్డ్‌ను అనుభవించండి."
+    "rideSubtitle": "మీ ఆదేశంతో ప్రొఫెషనల్ రవాణా. ఎయిర్‌పోర్ట్ ట్రాన్స్‌ఫర్‌ల నుండి సిటీ కమ్యూట్‌ల వరకు, ప్రయాణం యొక్క గోల్డ్ స్టాండర్డ్‌ను అనుభవించండి.",
+    "refinedHamburgerTasteAlt": "మెరుగైన హాంబర్గర్ రుచి",
+    "executiveMobilityVehicleAlt": "ఎగ్జిక్యూటివ్ మొబిలిటీ వాహనం"
   },
   "featureGrid": {
     "foodTitle": "ఒక్క ప్లాట్‌ఫారమ్, మెరుగైన జీవితం",
@@ -104,7 +106,8 @@
     "carsAvailable": "3 కార్లు అందుబాటులో ఉన్నాయి",
     "executiveSedan": "ఎగ్జిక్యూటివ్ సెడాన్",
     "executiveSedanModels": "BMW 5-సిరీస్ లేదా Mercedes E-క్లాస్",
-    "confirmEliteRide": "ఎలైట్ రైడ్‌ను నిర్ధారించండి"
+    "confirmEliteRide": "ఎలైట్ రైడ్‌ను నిర్ధారించండి",
+    "burgerAlt": "బర్గర్"
   },
   "ctaBand": {
     "stepIntoTheWorld": "Flavor ప్రపంచంలోకి అడుగు పెట్టండి",
@@ -544,5 +547,8 @@
   },
   "apiClient": {
     "requestFailed": "అభ్యర్థన విఫలమైంది"
+  },
+  "languageSwitcher": {
+    "changeLanguage": "భాషను మార్చండి"
   }
 }

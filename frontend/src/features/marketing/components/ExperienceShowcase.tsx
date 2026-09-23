@@ -121,7 +121,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                     <div className="h-28 bg-neutral-200 relative">
                       <LazyImage
                         src={mockupBurgerImg}
-                        alt="Burger"
+                        alt={t("experienceShowcase.burgerAlt")}
                         className="w-full h-full object-cover"
                         wrapperClassName="w-full h-full"
                       />

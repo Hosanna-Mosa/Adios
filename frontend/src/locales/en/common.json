@@ -51,7 +51,9 @@
     "rideEyebrow": "Executive Mobility",
     "rideHeadlineLine1": "Executive Motion,",
     "rideHeadlineLine2": "Redefined.",
-    "rideSubtitle": "Professional transportation at your command. From airport transfers to city commutes, experience the gold standard of travel."
+    "rideSubtitle": "Professional transportation at your command. From airport transfers to city commutes, experience the gold standard of travel.",
+    "refinedHamburgerTasteAlt": "Refined Hamburger Taste",
+    "executiveMobilityVehicleAlt": "Executive Mobility Vehicle"
   },
   "featureGrid": {
     "foodTitle": "One Platform, Refined Life",
@@ -104,7 +106,8 @@
     "carsAvailable": "3 cars available",
     "executiveSedan": "Executive Sedan",
     "executiveSedanModels": "BMW 5-Series or Mercedes E-Class",
-    "confirmEliteRide": "Confirm Elite Ride"
+    "confirmEliteRide": "Confirm Elite Ride",
+    "burgerAlt": "Burger"
   },
   "ctaBand": {
     "stepIntoTheWorld": "Step Into the World of Flavor",
@@ -544,5 +547,8 @@
   },
   "apiClient": {
     "requestFailed": "Request failed"
+  },
+  "languageSwitcher": {
+    "changeLanguage": "Change language"
   }
 }

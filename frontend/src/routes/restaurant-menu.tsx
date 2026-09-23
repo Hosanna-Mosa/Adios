@@ -77,7 +77,7 @@ export default function RestaurantMenuFront() {
     if (id) {
       fetchRestaurantData();
     }
-  }, [id]);
+  }, [id, t]);
 
   // Shared via a "share this dish" link — scroll straight to it once the menu has loaded.
   useEffect(() => {

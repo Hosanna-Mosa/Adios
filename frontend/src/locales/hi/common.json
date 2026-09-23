@@ -51,7 +51,9 @@
     "rideEyebrow": "एग्जीक्यूटिव मोबिलिटी",
     "rideHeadlineLine1": "एग्जीक्यूटिव मोशन,",
     "rideHeadlineLine2": "फिर से परिभाषित।",
-    "rideSubtitle": "आपके आदेश पर पेशेवर परिवहन। एयरपोर्ट ट्रांसफर से लेकर शहर की यात्राओं तक, यात्रा के स्वर्ण मानक का अनुभव करें।"
+    "rideSubtitle": "आपके आदेश पर पेशेवर परिवहन। एयरपोर्ट ट्रांसफर से लेकर शहर की यात्राओं तक, यात्रा के स्वर्ण मानक का अनुभव करें।",
+    "refinedHamburgerTasteAlt": "परिष्कृत हैमबर्गर स्वाद",
+    "executiveMobilityVehicleAlt": "एग्जीक्यूटिव मोबिलिटी वाहन"
   },
   "featureGrid": {
     "foodTitle": "एक प्लेटफॉर्म, परिष्कृत जीवन",
@@ -104,7 +106,8 @@
     "carsAvailable": "3 कारें उपलब्ध हैं",
     "executiveSedan": "एग्जीक्यूटिव सेडान",
     "executiveSedanModels": "BMW 5-सीरीज़ या Mercedes E-क्लास",
-    "confirmEliteRide": "एलीट राइड की पुष्टि करें"
+    "confirmEliteRide": "एलीट राइड की पुष्टि करें",
+    "burgerAlt": "बर्गर"
   },
   "ctaBand": {
     "stepIntoTheWorld": "Flavor की दुनिया में कदम रखें",
@@ -544,5 +547,8 @@
   },
   "apiClient": {
     "requestFailed": "अनुरोध विफल रहा"
+  },
+  "languageSwitcher": {
+    "changeLanguage": "भाषा बदलें"
   }
 }

@@ -20,7 +20,7 @@ export function LanguageSwitcher({
   className?: string;
   variant?: "default" | "light";
 }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const current = (i18n.language as SupportedLanguage) || "en";
@@ -41,7 +41,7 @@ export function LanguageSwitcher({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Change language"
+        aria-label={t("languageSwitcher.changeLanguage")}
         aria-expanded={open}
         className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
           variant === "light"

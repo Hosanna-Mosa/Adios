@@ -28,7 +28,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
         >
           <LazyImage
             src={burgerHeroImg}
-            alt="Refined Hamburger Taste"
+            alt={t("hero.refinedHamburgerTasteAlt")}
             className="w-full h-full object-cover"
             wrapperClassName="w-full h-full"
           />
@@ -46,7 +46,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
         >
           <LazyImage
             src={carHeroImg}
-            alt="Executive Mobility Vehicle"
+            alt={t("hero.executiveMobilityVehicleAlt")}
             className="w-full h-full object-cover"
             wrapperClassName="w-full h-full"
           />
@@ -147,7 +147,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
           >
             <LazyImage
               src={carHeroImg}
-              alt="Executive Mobility Vehicle"
+              alt={t("hero.executiveMobilityVehicleAlt")}
               className="w-full h-full object-cover"
               wrapperClassName="w-full h-full"
             />
@@ -167,7 +167,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
           >
             <LazyImage
               src={burgerHeroImg}
-              alt="Refined Hamburger Taste"
+              alt={t("hero.refinedHamburgerTasteAlt")}
               className="w-full h-full object-cover"
               wrapperClassName="w-full h-full"
             />
