@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { FadeIn } from "../../../components/motion/FadeIn";
 
 type Props = { activeMode: "food" | "ride" };
 
 export function CtaBand({ activeMode }: Props) {
+  const { t } = useTranslation();
   return (
     <section
       id="download"
@@ -20,11 +22,10 @@ export function CtaBand({ activeMode }: Props) {
             }`}
           >
             <h2 className="text-3xl md:text-4xl font-extrabold text-primary font-display mb-4">
-              Step Into the World of Flavor
+              {t("ctaBand.stepIntoTheWorld")}
             </h2>
             <p className="text-secondary-app text-base max-w-lg mb-8 leading-relaxed font-body">
-              Elevate your standards. Join a community of discerning individuals
-              who value time, quality, and the art of living well.
+              {t("ctaBand.stepIntoTheWorldDesc")}
             </p>
 
             {/* App Store Badges */}
@@ -36,10 +37,10 @@ export function CtaBand({ activeMode }: Props) {
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Download on the
+                    {t("footer.downloadOnThe")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    App Store
+                    {t("footer.appStore")}
                   </span>
                 </div>
               </a>
@@ -50,17 +51,16 @@ export function CtaBand({ activeMode }: Props) {
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Get it on
+                    {t("footer.getItOn")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    Google Play
+                    {t("footer.googlePlay")}
                   </span>
                 </div>
               </a>
             </div>
             <span className="text-xs text-secondary-app font-medium font-body">
-              Serving major global hubs. Movement, Taste, and Logistics,
-              Refined.
+              {t("ctaBand.servingGlobalHubs")}
             </span>
           </div>
 
@@ -86,11 +86,10 @@ export function CtaBand({ activeMode }: Props) {
 
             <div className="relative z-10 flex flex-col items-center">
               <h2 className="text-3xl md:text-4xl font-extrabold text-white font-display mb-4">
-                Ready for the Next Level?
+                {t("ctaBand.readyForNextLevel")}
               </h2>
               <p className="text-white/70 text-base max-w-lg mb-8 leading-relaxed font-body">
-                Join the exclusive circle of executives who trust Flavor for
-                their daily mobility and culinary needs.
+                {t("ctaBand.readyForNextLevelDesc")}
               </p>
 
               {/* Custom CTA Action Buttons */}
@@ -99,13 +98,13 @@ export function CtaBand({ activeMode }: Props) {
                   href="#download"
                   className="bg-brand-kinetic text-on-surface font-semibold text-sm px-8 py-3.5 rounded hover:bg-brand-kinetic/90 hover:scale-105 active:scale-95 transition-all shadow-md"
                 >
-                  Get Started
+                  {t("ctaBand.getStarted")}
                 </a>
                 <a
                   href="#sales"
                   className="border border-white/20 text-white font-semibold text-sm px-8 py-3.5 rounded hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
                 >
-                  Contact Sales
+                  {t("ctaBand.contactSales")}
                 </a>
               </div>
             </div>

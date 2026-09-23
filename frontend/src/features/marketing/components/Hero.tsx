@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { LazyImage } from "../../../components/shared/LazyImage";
 import { FadeIn } from "../../../components/motion/FadeIn";
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function Hero({ activeMode, setActiveMode }: Props) {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
       {/* Desktop-only full-bleed shaded background images */}
@@ -64,7 +66,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 : "text-secondary-app hover:text-primary"
             }`}
           >
-            Food
+            {t("hero.food")}
           </button>
           <button
             onClick={() => setActiveMode("ride")}
@@ -74,7 +76,7 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 : "text-secondary-app hover:text-primary"
             }`}
           >
-            Rides
+            {t("hero.rides")}
           </button>
         </div>
       </div>
@@ -92,16 +94,14 @@ export function Hero({ activeMode, setActiveMode }: Props) {
             }`}
           >
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-kinetic mb-4 block font-display text-left">
-              A Lifestyle Ecosystem
+              {t("hero.foodEyebrow")}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary leading-[1.1] mb-6 font-display tracking-tight text-left">
-              Flavor: Movement <br />
-              and Taste, Refined.
+              {t("hero.foodHeadlineLine1")} <br />
+              {t("hero.foodHeadlineLine2")}
             </h1>
             <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              Navigate your day with executive-level precision. From world-class
-              dining to seamless transportation and expert logistics, your world
-              is now delivered and driven.
+              {t("hero.foodSubtitle")}
             </p>
 
             {/* App Store Badges */}
@@ -113,10 +113,10 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Download on the
+                    {t("footer.downloadOnThe")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    App Store
+                    {t("footer.appStore")}
                   </span>
                 </div>
               </a>
@@ -127,10 +127,10 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Get it on
+                    {t("footer.getItOn")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    Google Play
+                    {t("footer.googlePlay")}
                   </span>
                 </div>
               </a>
@@ -183,16 +183,14 @@ export function Hero({ activeMode, setActiveMode }: Props) {
             }`}
           >
             <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-kinetic mb-4 block font-display text-left">
-              Executive Mobility
+              {t("hero.rideEyebrow")}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary leading-[1.1] mb-6 font-display tracking-tight text-left">
-              Executive Motion, <br />
-              Redefined.
+              {t("hero.rideHeadlineLine1")} <br />
+              {t("hero.rideHeadlineLine2")}
             </h1>
             <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              Professional transportation at your command. From airport
-              transfers to city commutes, experience the gold standard of
-              travel.
+              {t("hero.rideSubtitle")}
             </p>
 
             {/* App Store Badges */}
@@ -204,10 +202,10 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 <Icon name="grid_view" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Download on the
+                    {t("footer.downloadOnThe")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    App Store
+                    {t("footer.appStore")}
                   </span>
                 </div>
               </a>
@@ -218,10 +216,10 @@ export function Hero({ activeMode, setActiveMode }: Props) {
                 <Icon name="play_arrow" className="text-xl" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Get it on
+                    {t("footer.getItOn")}
                   </span>
                   <span className="text-[15px] font-bold mt-0.5">
-                    Google Play
+                    {t("footer.googlePlay")}
                   </span>
                 </div>
               </a>
