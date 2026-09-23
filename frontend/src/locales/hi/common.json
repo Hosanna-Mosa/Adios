@@ -532,5 +532,14 @@
     "useDummyFile": "डमी फ़ाइल का उपयोग करें",
     "csvXlsxMax10Mb": "CSV, XLSX (अधिकतम 10MB)",
     "pdfJpgPngMax10Mb": "PDF, JPG, PNG (अधिकतम 10MB)"
+  },
+  "spreadsheet": {
+    "uploadedSheetEmpty": "अपलोड की गई शीट खाली है।",
+    "missingColumns": "गायब कॉलम: {{columns}}",
+    "addAtLeastOneItemRow": "अपलोड की गई शीट में कम से कम एक आइटम पंक्ति जोड़ें।",
+    "unableToReadUploadedMenuSheet": "अपलोड की गई मेनू शीट पढ़ने में असमर्थ।",
+    "browserCannotReadXlsx": "यह ब्राउज़र यहां XLSX फ़ाइलें नहीं पढ़ सकता। कृपया एक CSV फ़ाइल अपलोड करें।",
+    "unableToReadXlsxFile": "XLSX फ़ाइल पढ़ने में असमर्थ।",
+    "xlsxMustIncludeFirstWorksheet": "XLSX फ़ाइल में पहली वर्कशीट अवश्य होनी चाहिए।"
   }
 }

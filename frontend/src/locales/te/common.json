@@ -532,5 +532,14 @@
     "useDummyFile": "డమ్మీ ఫైల్‌ను ఉపయోగించండి",
     "csvXlsxMax10Mb": "CSV, XLSX (గరిష్టంగా 10MB)",
     "pdfJpgPngMax10Mb": "PDF, JPG, PNG (గరిష్టంగా 10MB)"
+  },
+  "spreadsheet": {
+    "uploadedSheetEmpty": "అప్‌లోడ్ చేసిన షీట్ ఖాళీగా ఉంది.",
+    "missingColumns": "తప్పిపోయిన కాలమ్‌లు: {{columns}}",
+    "addAtLeastOneItemRow": "అప్‌లోడ్ చేసిన షీట్‌కు కనీసం ఒక అంశం అడ్డు వరుసను జోడించండి.",
+    "unableToReadUploadedMenuSheet": "అప్‌లోడ్ చేసిన మెనూ షీట్‌ను చదవడం సాధ్యం కాలేదు.",
+    "browserCannotReadXlsx": "ఈ బ్రౌజర్ ఇక్కడ XLSX ఫైళ్లను చదవలేదు. దయచేసి CSV ఫైల్‌ను అప్‌లోడ్ చేయండి.",
+    "unableToReadXlsxFile": "XLSX ఫైల్‌ను చదవడం సాధ్యం కాలేదు.",
+    "xlsxMustIncludeFirstWorksheet": "XLSX ఫైల్‌లో మొదటి వర్క్‌షీట్ తప్పనిసరిగా ఉండాలి."
   }
 }

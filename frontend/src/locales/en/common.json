@@ -532,5 +532,14 @@
     "useDummyFile": "Use Dummy File",
     "csvXlsxMax10Mb": "CSV, XLSX (max 10MB)",
     "pdfJpgPngMax10Mb": "PDF, JPG, PNG (max 10MB)"
+  },
+  "spreadsheet": {
+    "uploadedSheetEmpty": "The uploaded sheet is empty.",
+    "missingColumns": "Missing columns: {{columns}}",
+    "addAtLeastOneItemRow": "Add at least one item row to the uploaded sheet.",
+    "unableToReadUploadedMenuSheet": "Unable to read the uploaded menu sheet.",
+    "browserCannotReadXlsx": "This browser cannot read XLSX files here. Please upload a CSV file.",
+    "unableToReadXlsxFile": "Unable to read the XLSX file.",
+    "xlsxMustIncludeFirstWorksheet": "The XLSX file must include a first worksheet."
   }
 }

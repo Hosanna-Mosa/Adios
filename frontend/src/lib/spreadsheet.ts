@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 const normalizeHeader = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -56,7 +58,7 @@ const parseCsvLine = (line: string) => {
 
 const rowsFromTable = (rows: string[][], requiredColumns: string[]) => {
   if (rows.length === 0) {
-    throw new Error("The uploaded sheet is empty.");
+    throw new Error(i18n.t("spreadsheet.uploadedSheetEmpty"));
   }
 
   const headers = rows[0].map(toCanonicalHeader);
@@ -66,7 +68,12 @@ const rowsFromTable = (rows: string[][], requiredColumns: string[]) => {
   );
 
   if (missingColumns.length > 0) {
-    throw new Error(`Missing columns: ${missingColumns.join(", ")}`);
+    throw new Error(
+      i18n.t("spreadsheet.missingColumns", {
+        columns: missingColumns.join(", "),
+        defaultValue: "Missing columns: {{columns}}",
+      }),
+    );
   }
 
   const parsedRows = rows
@@ -92,7 +99,7 @@ const rowsFromTable = (rows: string[][], requiredColumns: string[]) => {
     );
 
   if (parsedRows.length === 0) {
-    throw new Error("Add at least one item row to the uploaded sheet.");
+    throw new Error(i18n.t("spreadsheet.addAtLeastOneItemRow"));
   }
 
   return parsedRows;
@@ -103,7 +110,7 @@ const readFileAsText = (file: File) =>
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ""));
     reader.onerror = () =>
-      reject(new Error("Unable to read the uploaded menu sheet."));
+      reject(new Error(i18n.t("spreadsheet.unableToReadUploadedMenuSheet")));
     reader.readAsText(file);
   });
 
@@ -134,9 +141,7 @@ const getXmlText = async (bytes: Uint8Array, method: number) => {
 
   const DecompressionCtor = window.DecompressionStream;
   if (!DecompressionCtor) {
-    throw new Error(
-      "This browser cannot read XLSX files here. Please upload a CSV file.",
-    );
+    throw new Error(i18n.t("spreadsheet.browserCannotReadXlsx"));
   }
 
   const blobBuffer = bytes.buffer.slice(
@@ -162,7 +167,7 @@ const readZipEntries = async (buffer: ArrayBuffer) => {
   }
 
   if (eocdOffset === -1) {
-    throw new Error("Unable to read the XLSX file.");
+    throw new Error(i18n.t("spreadsheet.unableToReadXlsxFile"));
   }
 
   const totalEntries = view.getUint16(eocdOffset + 10, true);
@@ -211,7 +216,7 @@ const parseXlsxRows = async (file: File, requiredColumns: string[]) => {
   const sheetEntry = entries.get("xl/worksheets/sheet1.xml");
 
   if (!sheetEntry) {
-    throw new Error("The XLSX file must include a first worksheet.");
+    throw new Error(i18n.t("spreadsheet.xlsxMustIncludeFirstWorksheet"));
   }
 
   const sharedStrings = entries.get("xl/sharedStrings.xml")
