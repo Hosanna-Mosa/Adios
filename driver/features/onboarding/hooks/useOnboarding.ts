@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import {
+  getDigilockerSubtitle,
   getFormalitySubtitles,
   getSectionSubtitles,
   getSectionTitles,
@@ -47,9 +48,15 @@ export function useOnboarding() {
   const formality =
     (nav.currentKey === "aadhaar" && identity.panVerified) ||
     (nav.currentKey === "pan" && identity.aadhaarVerified);
-  const sectionSubtitle = nav.currentKey
-    ? (formality && getFormalitySubtitles()[nav.currentKey]) || getSectionSubtitles()[nav.currentKey]
-    : undefined;
+  // Read from government records — nothing for the driver to type.
+  const fromDigilocker =
+    ((nav.currentKey === "aadhaar" || nav.currentKey === "pan") && identity.digilockerVerified) ||
+    (nav.currentKey === "license" && docs.dlVerified);
+  const sectionSubtitle = !nav.currentKey
+    ? undefined
+    : fromDigilocker
+      ? getDigilockerSubtitle()
+      : (formality && getFormalitySubtitles()[nav.currentKey]) || getSectionSubtitles()[nav.currentKey];
 
   return {
     saving, setSaving,

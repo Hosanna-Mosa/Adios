@@ -99,8 +99,8 @@ export class OnboardingController {
    */
   async getDigilockerAuthUrl(req: AuthRequest, res: Response) {
     try {
-      const state = (req.query.state as string) || Math.random().toString(36).substring(7);
-      const result = await onboardingService.getDigilockerAuthUrl(state);
+      const { userId } = req.user!;
+      const result = await onboardingService.getDigilockerAuthUrl(userId);
       return res.json(result);
     } catch (error: any) {
       console.error("[ONBOARDING] Get DigiLocker auth URL error:", error);
@@ -114,13 +114,13 @@ export class OnboardingController {
   async verifyDigilocker(req: AuthRequest, res: Response) {
     try {
       const { userId } = req.user!;
-      const { code } = req.body;
+      const { code, state } = req.body;
 
       if (!code) {
         return res.status(400).json({ message: "Authorization code is required" });
       }
 
-      const result = await onboardingService.verifyDigilocker(userId, code);
+      const result = await onboardingService.verifyDigilocker(userId, code, state);
       return res.json(result);
     } catch (error: any) {
       console.error("[ONBOARDING] Verify DigiLocker error:", error);

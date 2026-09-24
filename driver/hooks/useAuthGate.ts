@@ -103,9 +103,19 @@ export function useAuthGate() {
       return;
     }
 
-    // Authenticated but onboarding incomplete
-    const isAllowedOnboardingScreen = inOnboarding || segments[0] === "zone-map";
-    if (!isAllowedOnboardingScreen) {
+    // Authenticated but onboarding incomplete. Screens reachable *from* the
+    // onboarding flow have to be listed here — anything else gets bounced back
+    // to /onboarding, which remounts it and loses the driver's progress.
+    const ALLOWED_DURING_ONBOARDING = [
+      "onboarding",
+      "zone-map",
+      "digilocker-verify",
+      // Where the DigiLocker deep link lands. It pops itself immediately, but
+      // it has to survive this guard long enough to do so.
+      "digilocker-callback",
+      "identity-verify",
+    ];
+    if (!ALLOWED_DURING_ONBOARDING.includes(segments[0] as string)) {
       router.replace("/onboarding");
     }
   }, [hydrated, isAuthenticated, token, hasCompletedOnboarding, needsLoginPrompt, segments, languageConfirmed, t]);

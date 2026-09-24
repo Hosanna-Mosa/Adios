@@ -14,6 +14,7 @@ import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
 import { QueueManager } from "./services/queue.service";
 import { SchedulerService } from "./services/scheduler.service";
+import { logDigilockerConfig } from "./services/digilocker";
 
 // Routes
 import authRoutes from "./modules/auth/auth.routes";
@@ -35,6 +36,7 @@ import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
 import cartRoutes from "./modules/cart/cart.routes";
 import couponsRoutes from "./modules/coupons/coupons.routes";
+import digilockerRoutes from "./modules/digilocker/digilocker.routes";
 
 const app = express();
 const server = http.createServer(app);
@@ -127,6 +129,7 @@ connectDB().then(async () => {
   app.use("/api/v1/banners", bannersRoutes);
   app.use("/api/v1/cart", cartRoutes);
   app.use("/api/v1/coupons", couponsRoutes);
+  app.use("/api/v1/digilocker", digilockerRoutes);
 
   // Global Error Handler Middleware
   app.use(globalErrorHandler);
@@ -139,6 +142,9 @@ connectDB().then(async () => {
 
     // Initialize periodic scheduler
     SchedulerService.getInstance().startScheduler();
+
+    // Report which DigiLocker backend is active (sandbox vs live)
+    logDigilockerConfig();
   });
 }).catch((error) => {
   console.error("Database initialization failed", error);

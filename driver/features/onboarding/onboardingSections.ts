@@ -64,6 +64,14 @@ export function getSectionSubtitles(): Record<OnboardingSectionKey, string> {
   };
 }
 
+// Aadhaar / PAN / licence already read from DigiLocker — nothing to type.
+export function getDigilockerSubtitle(): string {
+  return i18n.t(
+    "onboarding.digilockerVerifiedSubtitle",
+    "Verified from your government records via DigiLocker.",
+  );
+}
+
 // When the *other* ID has already been verified, the remaining one is collected
 // for records only — the copy changes to say so.
 export function getFormalitySubtitles(): Partial<Record<OnboardingSectionKey, string>> {

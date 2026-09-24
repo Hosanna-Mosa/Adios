@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { DigiLockerDivider, DigiLockerField, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { validateAadhaarFormat } from "../../validators";
 import { AlternateIdLink } from "../AlternateIdLink";
@@ -62,8 +63,35 @@ export function AadhaarSection() {
   const { t } = useTranslation();
   const { identity } = useOnboardingCtx();
 
+  // Read from the government record — nothing to type, and nothing to
+  // validate. The stored number is masked, so running it through the
+  // manual 12-digit check would show a permanent "invalid" error.
+  if (identity.digilockerVerified) {
+    return (
+      <FieldColumn gap={16}>
+        <DigiLockerPrompt verified />
+        <DigiLockerField label={t("onboarding.aadhaarNumber")} value={identity.aadhaarNumber} />
+        {!!identity.panNumber && (
+          <DigiLockerField label={t("onboarding.panNumber")} value={identity.panNumber} />
+        )}
+        <InfoBanner
+          icon="shield"
+          text={t("onboarding.aadhaarLast4Stored", "Only the last 4 digits of your Aadhaar are stored.")}
+          type="info"
+        />
+      </FieldColumn>
+    );
+  }
+
   return (
     <FieldColumn gap={16}>
+      {!identity.aadhaarVerified && !identity.panVerified && (
+        <>
+          <DigiLockerPrompt returnTo="/onboarding" />
+          <DigiLockerDivider />
+        </>
+      )}
+
       <FormInput
         label={t("onboarding.aadhaarNumber")}
         value={identity.aadhaarNumber}
