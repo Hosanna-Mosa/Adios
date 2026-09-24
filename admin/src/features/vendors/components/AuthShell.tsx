@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 interface AuthShellProps {
   icon: ReactNode;
@@ -25,6 +26,10 @@ export function AuthShell({ icon, title, subtitle, children, headerClassName = "
       <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
         <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[60%] bg-primary/20 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[60%] bg-primary/10 blur-[120px] rounded-full" />
+      </div>
+
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher />
       </div>
 
       <FadeIn className="w-full max-w-md p-8 relative z-10">
