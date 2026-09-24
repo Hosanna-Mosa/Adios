@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useSupportIssues } from "@/features/support/hooks/useSupportIssues";
 import { SupportIssuesStats } from "@/features/support/components/SupportIssuesStats";
@@ -8,6 +9,7 @@ import { TicketCardGrid } from "@/features/support/components/TicketCardGrid";
 import { CreateTicketDialog } from "@/features/support/components/CreateTicketDialog";
 
 export default function SupportIssues() {
+  const { t } = useTranslation();
   const {
     activeTab,
     setActiveTab,
@@ -30,25 +32,25 @@ export default function SupportIssues() {
   const resolvedCount = ticketsList.filter((t) => t.status === "RESOLVED").length;
 
   return (
-    <DashboardLayout searchPlaceholder="Search tickets...">
+    <DashboardLayout searchPlaceholder={t("support.searchTickets")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-header">Support Cases</h1>
-            <p className="page-subtitle">Track, filter, and resolve user issues and logistics complaints.</p>
+            <h1 className="page-header">{t("support.supportCases")}</h1>
+            <p className="page-subtitle">{t("support.trackFilterResolveDesc")}</p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => toast.success("System audit support logs exported as CSV!")}
+              onClick={() => toast.success(t("support.systemAuditLogsExported"))}
               className="px-5 py-2.5 border border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors shadow-sm"
             >
-              Export Logs
+              {t("support.exportLogs")}
             </button>
             <button
               onClick={() => setIsCreateOpen(true)}
               className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"
             >
-              <Plus className="h-4 w-4" /> Create Ticket
+              <Plus className="h-4 w-4" /> {t("support.createTicket")}
             </button>
           </div>
         </div>

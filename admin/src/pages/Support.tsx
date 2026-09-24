@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useSupportTickets } from "@/features/support/hooks/useSupportTickets";
 import { TicketStatusTabs } from "@/features/support/components/TicketStatusTabs";
@@ -7,6 +8,7 @@ import { SupportChatPanel } from "@/features/support/components/SupportChatPanel
 import { CreateTicketDialog } from "@/features/support/components/CreateTicketDialog";
 
 export default function Support() {
+  const { t } = useTranslation();
   const {
     activeTab,
     setActiveTab,
@@ -28,22 +30,22 @@ export default function Support() {
   } = useSupportTickets();
 
   return (
-    <DashboardLayout searchPlaceholder="Search logistics cases...">
+    <DashboardLayout searchPlaceholder={t("support.searchLogisticsCases")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-header">Support Resolution</h1>
-            <p className="page-subtitle">Manage customer queries and real-time logistics escalations.</p>
+            <h1 className="page-header">{t("support.supportResolution")}</h1>
+            <p className="page-subtitle">{t("support.manageCustomerQueriesDesc")}</p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => toast.success("System audit support logs exported as CSV!")}
+              onClick={() => toast.success(t("support.systemAuditLogsExported"))}
               className="px-5 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
             >
-              Export Logs
+              {t("support.exportLogs")}
             </button>
             <button onClick={() => setIsCreateOpen(true)} className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-              Create Ticket
+              {t("support.createTicket")}
             </button>
           </div>
         </div>

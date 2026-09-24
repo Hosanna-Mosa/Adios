@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { VendorPasswordField } from "./VendorPasswordField";
 import type { useVendorPasswordChange } from "../hooks/useVendorPasswordChange";
@@ -23,6 +24,7 @@ export function VendorChangePasswordForm({
   setShowConfirm,
   handleChangePassword,
 }: VendorChangePasswordFormProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn className="bg-card border border-border rounded-3xl p-8 shadow-sm">
       <div className="flex items-center gap-4 mb-8">
@@ -30,17 +32,17 @@ export function VendorChangePasswordForm({
           <ShieldCheck className="h-7 w-7 text-primary" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-foreground">Change Password</h2>
+          <h2 className="text-xl font-bold text-foreground">{t("vendorSettings.changePassword")}</h2>
           <p className="text-sm text-muted-foreground">
-            Update your account password. You'll be signed out after the change.
+            {t("vendorSettings.updateAccountPasswordDesc")}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleChangePassword} className="space-y-6">
         <VendorPasswordField
-          label="Current Password"
-          placeholder="Enter your current password"
+          label={t("vendorSettings.currentPassword")}
+          placeholder={t("vendorSettings.enterCurrentPassword")}
           value={currentPassword}
           onChange={setCurrentPassword}
           show={showCurrent}
@@ -48,43 +50,43 @@ export function VendorChangePasswordForm({
         />
 
         <VendorPasswordField
-          label="New Password"
-          placeholder="Enter new password (min. 6 characters)"
+          label={t("vendorSettings.newPassword")}
+          placeholder={t("vendorSettings.enterNewPasswordMin6")}
           value={newPassword}
           onChange={setNewPassword}
           show={showNew}
           onToggleShow={() => setShowNew(!showNew)}
           hint={
             newPassword.length > 0 && newPassword.length < 6 && (
-              <p className="text-xs text-destructive mt-1">Password must be at least 6 characters</p>
+              <p className="text-xs text-destructive mt-1">{t("vendorAuth.passwordMustBeAtLeast6Characters")}</p>
             )
           }
         />
 
         <VendorPasswordField
-          label="Confirm New Password"
-          placeholder="Re-enter your new password"
+          label={t("vendorSettings.confirmNewPassword")}
+          placeholder={t("vendorAuth.reEnterNewPassword")}
           value={confirmPassword}
           onChange={setConfirmPassword}
           show={showConfirm}
           onToggleShow={() => setShowConfirm(!showConfirm)}
           hint={
             confirmPassword.length > 0 && newPassword !== confirmPassword && (
-              <p className="text-xs text-destructive mt-1">Passwords do not match</p>
+              <p className="text-xs text-destructive mt-1">{t("vendorAuth.passwordsDoNotMatch")}</p>
             )
           }
         />
 
         {/* Validation Checklist */}
         <div className="bg-muted/30 p-4 rounded-2xl space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Requirements</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("vendorSettings.requirements")}</p>
           <div className="flex items-center gap-2">
             <div className={`h-2 w-2 rounded-full ${newPassword.length >= 6 ? "bg-success" : "bg-muted-foreground/30"}`} />
-            <span className="text-sm text-muted-foreground">At least 6 characters</span>
+            <span className="text-sm text-muted-foreground">{t("vendorSettings.atLeast6Characters")}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className={`h-2 w-2 rounded-full ${newPassword === confirmPassword && confirmPassword.length > 0 ? "bg-success" : "bg-muted-foreground/30"}`} />
-            <span className="text-sm text-muted-foreground">Passwords match</span>
+            <span className="text-sm text-muted-foreground">{t("vendorSettings.passwordsMatch")}</span>
           </div>
         </div>
 
@@ -96,10 +98,10 @@ export function VendorChangePasswordForm({
           {isLoading ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              Changing Password...
+              {t("vendorSettings.changingPasswordEllipsis")}
             </>
           ) : (
-            "Change Password"
+            t("vendorSettings.changePassword")
           )}
         </Button>
       </form>

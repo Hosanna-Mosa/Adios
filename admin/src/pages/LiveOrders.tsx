@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Plus } from "lucide-react";
 import { useLiveOrders } from "@/features/orders/hooks/useLiveOrders";
@@ -7,6 +8,7 @@ import { LiveOrdersTable } from "@/features/orders/components/LiveOrdersTable";
 import { ManualDispatchDialog } from "@/features/orders/components/ManualDispatchDialog";
 
 export default function LiveOrders() {
+  const { t } = useTranslation();
   const {
     orders,
     isLoading,
@@ -22,7 +24,7 @@ export default function LiveOrders() {
   } = useLiveOrders();
 
   return (
-    <DashboardLayout searchPlaceholder="Search orders, drivers...">
+    <DashboardLayout searchPlaceholder={t("orders.searchOrdersDrivers")}>
       <div className="space-y-6">
         <LiveOrdersHeader statusFilter={statusFilter} setStatusFilter={setStatusFilter} onManualOrderClick={() => setIsManualOpen(true)} />
 

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { adminFetch } from "@/lib/api-client";
 
 /** All state/submit logic for VendorSettings.tsx (work queue item #18). */
 export function useVendorPasswordChange() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const isMeatVendor = vendorData.role === "meat_vendor";
@@ -21,17 +23,17 @@ export function useVendorPasswordChange() {
     e.preventDefault();
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all fields");
+      toast.error(t("vendorAuth.pleaseFillInAllFields"));
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error(t("vendorSettings.newPasswordMustBeAtLeast6Characters"));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error(t("vendorSettings.newPasswordsDoNotMatch"));
       return;
     }
 
@@ -44,14 +46,14 @@ export function useVendorPasswordChange() {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
 
-      toast.success("Password changed successfully");
+      toast.success(t("vendorSettings.passwordChangedSuccessfully"));
 
       // Sign out after password change — force re-login with new password
       localStorage.removeItem("vendor_token");
       localStorage.removeItem("vendor_data");
       navigate("/vendor-login");
     } catch (error) {
-      toast.error((error as Error).message || "Failed to change password");
+      toast.error((error as Error).message || t("vendorSettings.failedToChangePassword"));
     } finally {
       setIsLoading(false);
     }

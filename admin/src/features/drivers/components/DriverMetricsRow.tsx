@@ -1,4 +1,5 @@
 import { ShoppingBag, CheckCircle2, XCircle, MapPin, Wallet } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 
@@ -44,6 +45,7 @@ export function DriverMetricsRow({
   ordersTodayCount,
   totalEarningsToday,
 }: DriverMetricsRowProps) {
+  const { t } = useTranslation();
   return (
     <StaggerList className="grid grid-cols-2 md:grid-cols-5 gap-4">
       <StaggerItem className="bg-card rounded-xl border border-border p-4 flex items-center gap-3.5 shadow-sm">
@@ -51,9 +53,9 @@ export function DriverMetricsRow({
           <ShoppingBag className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Orders</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("dashboard.totalOrders")}</p>
           <p className="text-lg font-bold text-foreground mt-0.5">{totalOrdersCount}</p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
+          <p className="text-[9px] text-muted-foreground">{t("drivers.today")}</p>
         </div>
       </StaggerItem>
 
@@ -62,9 +64,9 @@ export function DriverMetricsRow({
           <CheckCircle2 className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Completed Orders</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("drivers.completedOrders")}</p>
           <p className="text-lg font-bold text-foreground mt-0.5">{completedCount}</p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
+          <p className="text-[9px] text-muted-foreground">{t("drivers.today")}</p>
         </div>
       </StaggerItem>
 
@@ -73,9 +75,9 @@ export function DriverMetricsRow({
           <XCircle className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Cancelled Orders</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("drivers.cancelledOrders")}</p>
           <p className="text-lg font-bold text-foreground mt-0.5">{cancelledCount}</p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
+          <p className="text-[9px] text-muted-foreground">{t("drivers.today")}</p>
         </div>
       </StaggerItem>
 
@@ -84,11 +86,11 @@ export function DriverMetricsRow({
           <MapPin className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Distance</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("drivers.totalDistance")}</p>
           <p className="text-lg font-bold text-foreground mt-0.5">
             {ordersTodayCount > 0 ? `${(ordersTodayCount * 6.5).toFixed(1)} km` : "156 km"}
           </p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
+          <p className="text-[9px] text-muted-foreground">{t("drivers.today")}</p>
         </div>
       </StaggerItem>
 
@@ -97,9 +99,9 @@ export function DriverMetricsRow({
           <Wallet className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Earnings</p>
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t("drivers.totalEarnings")}</p>
           <p className="text-lg font-bold text-foreground mt-0.5">{totalEarningsToday}</p>
-          <p className="text-[9px] text-muted-foreground">Today</p>
+          <p className="text-[9px] text-muted-foreground">{t("drivers.today")}</p>
         </div>
       </StaggerItem>
     </StaggerList>

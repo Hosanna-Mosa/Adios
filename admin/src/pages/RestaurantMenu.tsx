@@ -1,4 +1,5 @@
 import { Loader2, Store } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useRestaurantMenuList } from "@/features/catalog/hooks/useRestaurantMenuList";
 import { useRestaurantAddFlow } from "@/features/catalog/hooks/useRestaurantAddFlow";
@@ -12,6 +13,7 @@ import { RestaurantViewDialog } from "@/features/catalog/components/RestaurantVi
 import { RestaurantQrDialog } from "@/features/catalog/components/RestaurantQrDialog";
 
 export default function RestaurantMenu() {
+  const { t } = useTranslation();
   const {
     isLoading,
     searchQuery,
@@ -76,8 +78,8 @@ export default function RestaurantMenu() {
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold text-[#00665c] tracking-tight">Restaurant Menu Manager</h1>
-            <p className="text-muted-foreground text-sm">Add restaurants, upload menu images, extract menu via AI OCR, and manage menus.</p>
+            <h1 className="text-3xl font-extrabold text-[#00665c] tracking-tight">{t("catalog.restaurantMenuManager")}</h1>
+            <p className="text-muted-foreground text-sm">{t("catalog.restaurantMenuManagerDesc")}</p>
           </div>
           <RestaurantAddDialog
             isOpen={isAddOpen}
@@ -105,13 +107,13 @@ export default function RestaurantMenu() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="h-10 w-10 text-[#00665c] animate-spin" />
-            <p className="text-muted-foreground text-sm font-semibold">Loading Restaurants...</p>
+            <p className="text-muted-foreground text-sm font-semibold">{t("catalog.loadingRestaurants")}</p>
           </div>
         ) : filteredRestaurants.length === 0 ? (
           <div className="text-center py-20 border border-dashed rounded-3xl space-y-3 bg-white">
             <Store className="h-12 w-12 text-muted-foreground mx-auto" />
-            <p className="text-lg font-bold text-foreground">No Restaurants Found</p>
-            <p className="text-muted-foreground text-sm">Add your first restaurant to get started.</p>
+            <p className="text-lg font-bold text-foreground">{t("catalog.noRestaurantsFound")}</p>
+            <p className="text-muted-foreground text-sm">{t("catalog.addFirstRestaurantToGetStarted")}</p>
           </div>
         ) : (
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)]">

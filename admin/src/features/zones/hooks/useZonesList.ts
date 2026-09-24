@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { adminFetch } from "@/lib/api-client";
 import type { AdminZone, LatLng } from "../types";
@@ -20,6 +21,7 @@ export const DEFAULT_CENTER: LatLng = { lat: 12.92, lng: 77.64 }; // HSR Layout,
  * `isLoaded` is returned here and threaded to both.
  */
 export function useZonesList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedZone, setSelectedZone] = useState<AdminZone | null>(null);
   const [mapCenter, setMapCenter] = useState<LatLng>(DEFAULT_CENTER);
@@ -68,7 +70,7 @@ export function useZonesList() {
     mutationFn: (zoneId: string) => adminFetch(`/zones/${zoneId}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "zones"] });
-      toast.success("Zone deleted successfully");
+      toast.success(t("zones.zoneDeletedSuccessfully"));
       if (selectedZone && zones.length > 1) {
         const remaining = zones.filter((z) => z._id !== selectedZone._id);
         if (remaining.length > 0) handleSelectZone(remaining[0]);
@@ -77,7 +79,7 @@ export function useZonesList() {
       }
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete zone");
+      toast.error(error.message || t("zones.failedToDeleteZone"));
     },
   });
 
@@ -86,16 +88,16 @@ export function useZonesList() {
       adminFetch(`/zones/${zoneId}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "zones"] });
-      toast.success("Zone updated successfully");
+      toast.success(t("zones.zoneUpdatedSuccessfully"));
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to update zone");
+      toast.error(error.message || t("zones.failedToUpdateZone"));
     },
   });
 
   const handleDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this zone?")) {
+    if (confirm(t("zones.confirmDeleteZone"))) {
       deleteZoneMutation.mutate(id);
     }
   };
@@ -112,7 +114,7 @@ export function useZonesList() {
 
   const handleRename = (zone: AdminZone, e: React.MouseEvent) => {
     e.stopPropagation();
-    const newName = prompt("Enter new name for this zone:", zone.name);
+    const newName = prompt(t("zones.enterNewNameForZone"), zone.name);
     if (newName && newName.trim() !== "" && newName !== zone.name) {
       toggleZoneMutation.mutate({ zoneId: zone._id, data: { name: newName.trim() } });
     }

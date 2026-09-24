@@ -1,4 +1,5 @@
 import { MessageSquare, Plus, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { LazyImage } from "@/components/shared/LazyImage";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
@@ -37,6 +38,7 @@ export function DriverZoneTab({
   onRemoveZone,
   onOpenChatModal,
 }: DriverZoneTabProps) {
+  const { t } = useTranslation();
   const rows: DriverWithZoneRow[] = drivers.map((d) => {
     const assignedZoneId =
       typeof d.preferredZone === "object" && d.preferredZone ? d.preferredZone._id : d.preferredZone;
@@ -47,7 +49,7 @@ export function DriverZoneTab({
   const columns: DataTableColumn<DriverWithZoneRow>[] = [
     {
       key: "driver",
-      header: "Driver",
+      header: t("dashboard.driver"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (d) => (
@@ -67,19 +69,19 @@ export function DriverZoneTab({
     },
     {
       key: "contact",
-      header: "Contact",
+      header: t("drivers.contact"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (d) => (
         <>
-          <p className="text-sm font-medium text-foreground">{d.user?.phone || "N/A"}</p>
-          <p className="text-xs text-muted-foreground">{d.user?.email || "N/A"}</p>
+          <p className="text-sm font-medium text-foreground">{d.user?.phone || t("vendorDashboard.notAvailable")}</p>
+          <p className="text-xs text-muted-foreground">{d.user?.email || t("vendorDashboard.notAvailable")}</p>
         </>
       ),
     },
     {
       key: "zone",
-      header: "Assigned Zone",
+      header: t("drivers.assignedZone"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (d) => (
@@ -88,20 +90,20 @@ export function DriverZoneTab({
             d.__zoneObj ? "bg-emerald-50 text-emerald-700 border border-emerald-100" : "bg-zinc-50 text-zinc-500 border border-zinc-100"
           }`}
         >
-          {d.__zoneObj ? d.__zoneObj.name : "No Zone Assigned"}
+          {d.__zoneObj ? d.__zoneObj.name : t("drivers.noZoneAssigned")}
         </span>
       ),
     },
     {
       key: "zoneType",
-      header: "Zone Type",
+      header: t("drivers.zoneType"),
       headerClassName: HEADER_CLASS,
       cellClassName: "px-6 py-4 text-sm text-muted-foreground",
-      cell: (d) => (d.__zoneObj ? d.__zoneObj.type : "N/A"),
+      cell: (d) => (d.__zoneObj ? d.__zoneObj.type : t("vendorDashboard.notAvailable")),
     },
     {
       key: "actions",
-      header: "Actions",
+      header: t("dashboard.action"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (d) => {
@@ -113,20 +115,20 @@ export function DriverZoneTab({
               onClick={() => onEditClick(d._id, assignedZoneId || "")}
               className="px-3 py-1.5 border border-border bg-white text-xs font-semibold rounded-lg text-foreground hover:bg-muted/50 transition-colors shadow-sm"
             >
-              Edit
+              {t("drivers.edit")}
             </button>
             {d.__zoneObj && (
               <button
                 onClick={() => onRemoveZone(d._id, d.user?.name)}
                 className="px-3 py-1.5 border border-transparent bg-rose-50 text-xs font-semibold rounded-lg text-rose-600 hover:bg-rose-100 transition-colors"
               >
-                Delete
+                {t("drivers.delete")}
               </button>
             )}
             <button
               onClick={() => onOpenChatModal(d)}
               className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              title="View Order Chats"
+              title={t("drivers.viewOrderChats")}
             >
               <MessageSquare className="h-4 w-4" />
             </button>
@@ -140,15 +142,15 @@ export function DriverZoneTab({
     <div className="bg-card rounded-2xl border border-border p-6 shadow-sm space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-lg font-bold text-foreground">Zone Assignments</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage and link drivers to operational regions/zones.</p>
+          <h3 className="text-lg font-bold text-foreground">{t("drivers.zoneAssignments")}</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">{t("drivers.manageAndLinkDriversDesc")}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative w-64">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search drivers..."
+              placeholder={t("drivers.searchDriversEllipsis")}
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-9 h-10 rounded-xl bg-muted/30 border-border"
@@ -158,7 +160,7 @@ export function DriverZoneTab({
             onClick={onAssignClick}
             className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
-            <Plus className="h-4 w-4" /> Assign Zone to Driver
+            <Plus className="h-4 w-4" /> {t("drivers.assignZoneToDriver")}
           </button>
         </div>
       </div>
@@ -168,7 +170,7 @@ export function DriverZoneTab({
           columns={columns}
           data={rows}
           rowKey={(d) => d._id}
-          emptyLabel="No drivers found matching the search query."
+          emptyLabel={t("drivers.noDriversFoundMatchingSearch")}
           headerRowClassName="border-t border-border bg-muted/20 text-muted-foreground uppercase text-[10px] tracking-wider font-semibold"
           rowClassName="hover:bg-muted/10 transition-colors"
           stateCellClassName="px-6 py-12 text-center text-muted-foreground text-sm"

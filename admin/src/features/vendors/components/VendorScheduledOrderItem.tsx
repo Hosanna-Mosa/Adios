@@ -1,8 +1,9 @@
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Clock, Phone, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerItem } from "@/components/motion/StaggerItem";
-import { statusStyles, type ScheduledRequest } from "../vendorScheduledOrdersTypes";
+import { getStatusStyle, type ScheduledRequest } from "../vendorScheduledOrdersTypes";
 
 interface VendorScheduledOrderItemProps {
   request: ScheduledRequest;
@@ -12,7 +13,8 @@ interface VendorScheduledOrderItemProps {
 
 /** One scheduled-delivery request card in the VendorScheduledOrders list. */
 export function VendorScheduledOrderItem({ request, isResponding, onRespond }: VendorScheduledOrderItemProps) {
-  const status = statusStyles[request.status];
+  const { t } = useTranslation();
+  const status = getStatusStyle(request.status, t);
   const StatusIcon = status.icon;
 
   return (
@@ -32,11 +34,11 @@ export function VendorScheduledOrderItem({ request, isResponding, onRespond }: V
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-semibold">{request.customerName || "Customer"}</span>
+              <span className="font-semibold">{request.customerName || t("vendorDashboard.customer")}</span>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">{request.customerPhone || "N/A"}</span>
+              <span className="text-muted-foreground">{request.customerPhone || t("vendorDashboard.notAvailable")}</span>
             </div>
             <div className="flex items-center gap-2 md:col-span-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -47,9 +49,16 @@ export function VendorScheduledOrderItem({ request, isResponding, onRespond }: V
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Requested {format(new Date(request.createdAt), "MMM d, yyyy · hh:mm a")}
+            {t("vendorScheduledOrders.requestedOn", {
+              date: format(new Date(request.createdAt), "MMM d, yyyy · hh:mm a"),
+              defaultValue: "Requested {{date}}",
+            })}
             {request.respondedAt
-              ? ` · Responded ${format(new Date(request.respondedAt), "MMM d, yyyy · hh:mm a")}`
+              ? " · " +
+                t("vendorScheduledOrders.respondedOn", {
+                  date: format(new Date(request.respondedAt), "MMM d, yyyy · hh:mm a"),
+                  defaultValue: "Responded {{date}}",
+                })
               : ""}
           </p>
         </div>
@@ -62,14 +71,14 @@ export function VendorScheduledOrderItem({ request, isResponding, onRespond }: V
               disabled={isResponding}
               onClick={() => onRespond(request.requestId, false)}
             >
-              Reject
+              {t("vendorDashboard.reject")}
             </Button>
             <Button
               className="h-11 rounded-2xl font-bold min-w-[110px] bg-primary hover:bg-primary/95"
               disabled={isResponding}
               onClick={() => onRespond(request.requestId, true)}
             >
-              {isResponding ? "Saving..." : "Accept"}
+              {isResponding ? t("vendorDashboard.saving") : t("vendorDashboard.accept")}
             </Button>
           </div>
         )}

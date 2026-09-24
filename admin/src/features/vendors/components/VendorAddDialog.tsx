@@ -1,4 +1,5 @@
 import { Plus, MapPin, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,39 +35,40 @@ export function VendorAddDialog({
   onSubmit,
   isSubmitting,
 }: VendorAddDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Add Vendor
+          {t("catalog.addVendor")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add New Restaurant</DialogTitle>
+          <DialogTitle>{t("catalog.addNewRestaurant")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">Country</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.country")}</label>
               <Input value={newVendor.country} onChange={(e) => onChange({ ...newVendor, country: e.target.value })} placeholder="India" className="h-9 text-xs" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">State</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.state")}</label>
               <Input value={newVendor.state} onChange={(e) => onChange({ ...newVendor, state: e.target.value })} placeholder="Telangana" className="h-9 text-xs" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">City</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.city")}</label>
               <Input value={newVendor.city} onChange={(e) => onChange({ ...newVendor, city: e.target.value })} placeholder="Hyderabad" className="h-9 text-xs" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Search Google Maps</label>
+            <label className="text-sm font-medium">{t("catalog.searchGoogleMaps")}</label>
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input value={searchQuery} onChange={(e) => onSearch(e.target.value)} placeholder="Start typing restaurant name..." className="pl-9" />
+              <Input value={searchQuery} onChange={(e) => onSearch(e.target.value)} placeholder={t("catalog.startTypingRestaurantName")} className="pl-9" />
 
               {suggestions.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-auto">
@@ -104,22 +106,22 @@ export function VendorAddDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
+              <label className="text-sm font-medium">{t("catalog.email")}</label>
               <Input type="email" value={newVendor.email} onChange={(e) => onChange({ ...newVendor, email: e.target.value })} placeholder="owner@restaurant.com" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Phone</label>
+              <label className="text-sm font-medium">{t("catalog.phone")}</label>
               <Input value={newVendor.phone} onChange={(e) => onChange({ ...newVendor, phone: e.target.value })} placeholder="+91 98765 43210" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Vendor Password</label>
-            <Input type="password" value={newVendor.password} onChange={(e) => onChange({ ...newVendor, password: e.target.value })} placeholder="Set a password for vendor login" />
+            <label className="text-sm font-medium">{t("catalog.vendorPassword")}</label>
+            <Input type="password" value={newVendor.password} onChange={(e) => onChange({ ...newVendor, password: e.target.value })} placeholder={t("catalog.setPasswordForVendorLogin")} />
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Adding..." : "Confirm & Save Vendor"}
+            {isSubmitting ? t("catalog.addingEllipsis") : t("catalog.confirmAndSaveVendor")}
           </Button>
         </form>
       </DialogContent>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 // Unused in the original page too -- kept as a faithful move, not cleaned up.
 import { StatusBadge } from "@/components/shared/StatusBadge";
@@ -11,6 +12,7 @@ import { FleetInsightPanel } from "@/features/dashboard/components/FleetInsightP
 import { ActiveManifestsTable } from "@/features/dashboard/components/ActiveManifestsTable";
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const {
     timeScale,
     setTimeScale,
@@ -30,15 +32,15 @@ export default function Dashboard() {
   } = useDashboard();
 
   return (
-    <DashboardLayout searchPlaceholder="Search orders, drivers, or routes...">
+    <DashboardLayout searchPlaceholder={t("dashboard.searchPlaceholder")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-header">Operational Overview</h1>
-            <p className="page-subtitle">Real-time supply chain performance metrics.</p>
+            <h1 className="page-header">{t("dashboard.operationalOverview")}</h1>
+            <p className="page-subtitle">{t("dashboard.realTimeSupplyChainMetrics")}</p>
           </div>
           <button onClick={openOperationalReport} className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-            Generate Report
+            {t("dashboard.generateReport")}
           </button>
         </div>
 

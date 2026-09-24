@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { VendorLayout } from "@/components/layout/VendorLayout";
 import { useVendorMenu } from "@/features/vendors/hooks/useVendorMenu";
 import { VendorAddDishDialog } from "@/features/vendors/components/VendorAddDishDialog";
@@ -6,6 +7,7 @@ import { VendorEditDishDialog } from "@/features/vendors/components/VendorEditDi
 import { VendorMenuGrid } from "@/features/vendors/components/VendorMenuGrid";
 
 export default function VendorMenu() {
+  const { t } = useTranslation();
   const {
     vendorData,
     menu,
@@ -38,12 +40,12 @@ export default function VendorMenu() {
   }
 
   return (
-    <VendorLayout searchPlaceholder="Search menu items...">
+    <VendorLayout searchPlaceholder={t("vendorMenu.searchMenuItems")}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Menu Management</h1>
-            <p className="text-muted-foreground">Add, edit, or remove dishes from your restaurant.</p>
+            <h1 className="text-3xl font-bold text-foreground">{t("vendorMenu.menuManagement")}</h1>
+            <p className="text-muted-foreground">{t("vendorMenu.addEditOrRemoveDishes")}</p>
           </div>
 
           <VendorAddDishDialog

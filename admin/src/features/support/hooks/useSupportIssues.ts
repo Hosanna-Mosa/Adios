@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
 import type { NewTicketForm, Ticket } from "../types";
@@ -17,6 +18,7 @@ const EMPTY_NEW_TICKET: NewTicketForm = { title: "", category: "OPERATIONAL ISSU
  * its own hook, not a shared one.
  */
 export function useSupportIssues() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "RESOLVED">("ACTIVE");
@@ -41,7 +43,7 @@ export function useSupportIssues() {
       queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
       setIsCreateOpen(false);
       setNewTicket(EMPTY_NEW_TICKET);
-      toast.success(`Ticket ${data.ticketId} created successfully!`);
+      toast.success(t("support.ticketCreatedSuccessfully", { ticketId: data.ticketId, defaultValue: "Ticket {{ticketId}} created successfully!" }));
       // Navigate to chat for the newly created ticket
       navigate(`/support/chats/${data._id}`);
     },
@@ -71,7 +73,7 @@ export function useSupportIssues() {
   const handleCreateTicketSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTicket.title || !newTicket.message) {
-      toast.error("Please enter a title and message.");
+      toast.error(t("support.pleaseEnterTitleAndMessage"));
       return;
     }
     createTicketMutation.mutate(newTicket);

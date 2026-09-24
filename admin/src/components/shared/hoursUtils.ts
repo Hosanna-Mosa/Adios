@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 export type DayKey = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
 export interface DayHours {
@@ -26,18 +28,26 @@ export type HoursDraft = Record<DayKey, { open: string; close: string; closed: b
  * owns, so per the "does it know business logic? how many features use
  * it?" placement rule this belongs in shared, not duplicated per feature.
  */
-export const WEEK_DAYS: { key: DayKey; label: string }[] = [
-  { key: "mon", label: "Monday" },
-  { key: "tue", label: "Tuesday" },
-  { key: "wed", label: "Wednesday" },
-  { key: "thu", label: "Thursday" },
-  { key: "fri", label: "Friday" },
-  { key: "sat", label: "Saturday" },
-  { key: "sun", label: "Sunday" },
-];
+export const WEEK_DAY_KEYS: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+const DAY_LABEL_KEY: Record<DayKey, string> = {
+  mon: "days.monday",
+  tue: "days.tuesday",
+  wed: "days.wednesday",
+  thu: "days.thursday",
+  fri: "days.friday",
+  sat: "days.saturday",
+  sun: "days.sunday",
+};
+
+/** Translated display label for a week-day key — the key itself (used for
+ * state and the HoursDraft/WeeklyHours record) is never translated. Called
+ * at render time (not cached at module load) so it stays current across
+ * language switches. */
+export const dayLabel = (key: DayKey): string => i18n.t(DAY_LABEL_KEY[key]);
 
 export const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
-  WEEK_DAYS.reduce((draft, { key }) => {
+  WEEK_DAY_KEYS.reduce((draft, key) => {
     const day = hours?.[key];
     draft[key] = {
       open: day?.open || "09:00",
@@ -48,7 +58,7 @@ export const toHoursDraft = (hours?: WeeklyHours): HoursDraft =>
   }, {} as HoursDraft);
 
 export const toWeeklyHours = (draft: HoursDraft): WeeklyHours =>
-  WEEK_DAYS.reduce((hours, { key }) => {
+  WEEK_DAY_KEYS.reduce((hours, key) => {
     const day = draft[key];
     hours[key] = day.closed ? { open: day.open, close: day.close, closed: true } : { open: day.open, close: day.close };
     return hours;

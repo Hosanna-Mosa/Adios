@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -18,12 +19,12 @@ interface NotificationItem {
   data?: { deepLink?: { app?: string; screen: string; params?: Record<string, string> } };
 }
 
-function formatWhen(iso: string): string {
+function formatWhen(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("notifications.justNow");
+  if (diffMin < 60) return t("notifications.minutesAgo", { count: diffMin, defaultValue: "{{count}}m ago" });
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffHr < 24) return t("notifications.hoursAgo", { count: diffHr, defaultValue: "{{count}}h ago" });
   return new Date(iso).toLocaleDateString([], { day: "numeric", month: "short" });
 }
 
@@ -35,6 +36,7 @@ function resolveAdminPath(deepLink?: { screen: string; params?: Record<string, s
 }
 
 export function NotificationBell() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -101,16 +103,16 @@ export function NotificationBell() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <span className="text-sm font-bold text-foreground">Notifications</span>
+          <span className="text-sm font-bold text-foreground">{t("notifications.notifications")}</span>
           {unreadCount > 0 && (
             <button className="text-xs font-semibold text-primary hover:underline" onClick={handleMarkAllRead}>
-              Mark all read
+              {t("notifications.markAllRead")}
             </button>
           )}
         </div>
         <ScrollArea className="max-h-96">
           {items.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-8 px-4">Nothing here yet.</p>
+            <p className="text-xs text-muted-foreground text-center py-8 px-4">{t("notifications.nothingHereYet")}</p>
           ) : (
             <div className="divide-y divide-border">
               {items.map((item) => (
@@ -124,7 +126,7 @@ export function NotificationBell() {
                     {!item.isRead && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.body}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">{formatWhen(item.createdAt)}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{formatWhen(item.createdAt, t)}</p>
                 </button>
               ))}
             </div>

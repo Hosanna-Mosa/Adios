@@ -1,5 +1,6 @@
 import { FadeIn } from "@/components/motion/FadeIn";
 import { CheckCircle, Truck as TruckIcon, Package } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { TimelineStep } from "../orderDetailTypes";
 
 interface OrderTimelineProps {
@@ -8,9 +9,10 @@ interface OrderTimelineProps {
 
 /** The "Order Logistics Flow" timeline card on OrderDetail.tsx. */
 export function OrderTimeline({ timelineSteps }: OrderTimelineProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn className="section-card p-6 mb-6">
-      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-6">Order Logistics Flow</p>
+      <p className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mb-6">{t("orders.orderLogisticsFlow")}</p>
       <div className="space-y-0">
         {timelineSteps.map((step, i) => (
           <div key={i} className="flex gap-4 relative">

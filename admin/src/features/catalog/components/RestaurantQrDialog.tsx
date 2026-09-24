@@ -1,5 +1,6 @@
 import QRCode from "react-qr-code";
 import { Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { Restaurant } from "../restaurantMenuTypes";
@@ -13,11 +14,12 @@ interface RestaurantQrDialogProps {
 
 /** The digital-menu QR code dialog for a restaurant. */
 export function RestaurantQrDialog({ isOpen, onOpenChange, restaurant, onDownload }: RestaurantQrDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm rounded-3xl p-6 text-center flex flex-col items-center">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-xl font-bold text-[#00665c] text-center w-full">Digital Menu QR Code</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-[#00665c] text-center w-full">{t("catalog.digitalMenuQrCode")}</DialogTitle>
           <p className="text-muted-foreground text-sm text-center">{restaurant?.name}</p>
         </DialogHeader>
 
@@ -33,12 +35,12 @@ export function RestaurantQrDialog({ isOpen, onOpenChange, restaurant, onDownloa
           )}
         </div>
 
-        <p className="text-xs text-slate-500 mb-6 px-4">Customers can scan this QR code to view your digital menu instantly. Print this to place on your tables!</p>
+        <p className="text-xs text-slate-500 mb-6 px-4">{t("catalog.scanQrCodeInstructionsDesc")}</p>
 
         <DialogFooter className="w-full flex justify-center">
           <Button onClick={onDownload} className="bg-[#00665c] hover:bg-[#005249] rounded-xl px-8 w-full flex items-center gap-2">
             <Download className="h-4 w-4" />
-            Download PNG
+            {t("catalog.downloadPng")}
           </Button>
         </DialogFooter>
       </DialogContent>

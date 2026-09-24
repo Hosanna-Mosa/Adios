@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
 import { playChime } from "../playChime";
@@ -8,6 +9,7 @@ import type { ScheduledDeliveryRequest, StatusDisplay, VendorData, VendorOrder }
 
 /** All state/query/socket logic for VendorDashboard.tsx (work queue item #7). */
 export function useVendorDashboard() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const vendorData: VendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const isMeatVendor = vendorData.role === "meat_vendor";
@@ -36,13 +38,13 @@ export function useVendorDashboard() {
         body: JSON.stringify({ vendorId: vendorData._id, accepted }),
       }),
     onSuccess: (_, variables) => {
-      toast.success(variables.accepted ? "Scheduled delivery accepted" : "Scheduled delivery rejected");
+      toast.success(variables.accepted ? t("vendorDashboard.scheduledDeliveryAccepted") : t("vendorDashboard.scheduledDeliveryRejected"));
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
       setIsScheduleModalOpen(false);
       setScheduledRequest(null);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to respond to scheduled delivery");
+      toast.error(err.message || t("vendorDashboard.failedToRespondToScheduledDelivery"));
     },
   });
 
@@ -62,13 +64,19 @@ export function useVendorDashboard() {
     const handleNewOrder = (data: { id: string }) => {
       console.log("[SOCKET] New order received:", data);
       playChime();
-      toast.success(`New order received! Order ${data.id.startsWith("ORD-") ? data.id : `#${data.id.slice(-6).toUpperCase()}`}`, {
-        duration: 8000,
-        action: {
-          label: "Refresh",
-          onClick: () => queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] }),
+      toast.success(
+        t("vendorDashboard.newOrderReceived", {
+          id: data.id.startsWith("ORD-") ? data.id : `#${data.id.slice(-6).toUpperCase()}`,
+          defaultValue: "New order received! Order {{id}}",
+        }),
+        {
+          duration: 8000,
+          action: {
+            label: t("vendorDashboard.refresh"),
+            onClick: () => queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] }),
+          },
         },
-      });
+      );
       queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
     };
 
@@ -88,9 +96,13 @@ export function useVendorDashboard() {
       setScheduledRequest(data);
       setIsScheduleModalOpen(true);
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
-      toast.info(`New scheduled delivery request for ${new Date(data.scheduledFor).toLocaleString()}`, {
-        duration: 8000,
-      });
+      toast.info(
+        t("vendorDashboard.newScheduledDeliveryRequestFor", {
+          when: new Date(data.scheduledFor).toLocaleString(),
+          defaultValue: "New scheduled delivery request for {{when}}",
+        }),
+        { duration: 8000 },
+      );
     };
 
     socketService.on("new_order_vendor", handleNewOrder);
@@ -102,7 +114,7 @@ export function useVendorDashboard() {
       socketService.off("order_status_update_vendor", handleStatusUpdate);
       socketService.off("scheduled_delivery_request", handleScheduledDeliveryRequest);
     };
-  }, [vendorData._id, selectedOrder]);
+  }, [vendorData._id, selectedOrder, queryClient, t]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
@@ -112,11 +124,11 @@ export function useVendorDashboard() {
       }),
     onSuccess: (updatedOrder) => {
       queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-      toast.success("Order status updated successfully!");
+      toast.success(t("vendorDashboard.orderStatusUpdatedSuccessfully"));
       setSelectedOrder(updatedOrder);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update order status");
+      toast.error(err.message || t("vendorDashboard.failedToUpdateOrderStatus"));
     },
   });
 
@@ -138,23 +150,23 @@ export function useVendorDashboard() {
     switch (s) {
       case "created":
       case "searching_driver":
-        return { text: "Searching Driver", color: "bg-blue-500/10 text-blue-600 border-blue-200" };
+        return { text: t("orderStatus.searchingDriver"), color: "bg-blue-500/10 text-blue-600 border-blue-200" };
       case "driver_assigned":
-        return { text: "Driver Assigned", color: "bg-amber-500/10 text-amber-600 border-amber-200" };
+        return { text: t("orderStatus.driverAssigned"), color: "bg-amber-500/10 text-amber-600 border-amber-200" };
       case "arrived_pickup":
-        return { text: "Driver Arrived", color: "bg-violet-500/10 text-violet-600 border-violet-200" };
+        return { text: t("orderStatus.driverArrived"), color: "bg-violet-500/10 text-violet-600 border-violet-200" };
       case "picking_items":
-        return { text: "Preparing / Pick Up", color: "bg-pink-500/10 text-pink-600 border-pink-200" };
+        return { text: t("orderStatus.preparingPickUp"), color: "bg-pink-500/10 text-pink-600 border-pink-200" };
       case "en_route_delivery":
       case "in_transit":
-        return { text: "Out for Delivery", color: "bg-sky-500/10 text-sky-600 border-sky-200" };
+        return { text: t("orderStatus.outForDelivery"), color: "bg-sky-500/10 text-sky-600 border-sky-200" };
       case "arrived_delivery":
-        return { text: "Driver at Customer", color: "bg-purple-500/10 text-purple-600 border-purple-200" };
+        return { text: t("orderStatus.driverAtCustomer"), color: "bg-purple-500/10 text-purple-600 border-purple-200" };
       case "delivered":
       case "completed":
-        return { text: "Delivered", color: "bg-emerald-500/10 text-emerald-600 border-emerald-200" };
+        return { text: t("orderStatus.delivered"), color: "bg-emerald-500/10 text-emerald-600 border-emerald-200" };
       default:
-        return { text: status || "UNKNOWN", color: "bg-gray-500/10 text-gray-600 border-gray-200" };
+        return { text: status || t("orderStatus.unknown"), color: "bg-gray-500/10 text-gray-600 border-gray-200" };
     }
   };
 

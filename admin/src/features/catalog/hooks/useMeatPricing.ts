@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 
 export interface GlobalPrice {
@@ -12,6 +13,7 @@ export interface GlobalPrice {
 
 /** All state/query/mutation logic for MeatPricing.tsx (work queue item #18). */
 export function useMeatPricing() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [localPrices, setLocalPrices] = useState<Record<string, number>>({});
 
@@ -33,11 +35,11 @@ export function useMeatPricing() {
         body: JSON.stringify({ items: updatedItems }),
       }),
     onSuccess: () => {
-      toast.success("Global prices updated successfully!");
+      toast.success(t("catalog.globalPricesUpdatedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["global-meat-prices"] });
       setLocalPrices({});
     },
-    onError: () => toast.error("Failed to update prices"),
+    onError: () => toast.error(t("catalog.failedToUpdatePrices")),
   });
 
   const handlePriceChange = (name: string, value: string) => {
@@ -50,7 +52,7 @@ export function useMeatPricing() {
       price,
     }));
     if (itemsToUpdate.length === 0) {
-      toast.info("No changes to save");
+      toast.info(t("catalog.noChangesToSave"));
       return;
     }
     updateMutation.mutate(itemsToUpdate);

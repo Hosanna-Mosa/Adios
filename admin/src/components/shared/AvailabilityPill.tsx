@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { OpenState } from "./hoursUtils";
 
 /**
@@ -6,11 +7,12 @@ import type { OpenState } from "./hoursUtils";
  * dialogs.
  */
 export function AvailabilityPill({ openState, isManuallyClosed }: { openState?: OpenState; isManuallyClosed?: boolean }) {
+  const { t } = useTranslation();
   // A manual close always wins, exactly as the server evaluates it — so the pill is
   // right the instant the toggle is flipped, before the list has refetched.
   const manuallyClosed = isManuallyClosed === true;
   const isOpen = manuallyClosed ? false : openState ? openState.isOpen : true;
-  const label = manuallyClosed ? "Closed" : openState?.label || "Open now";
+  const label = manuallyClosed ? t("hours.closed") : openState?.label || t("hours.openNow");
 
   return (
     <div className="space-y-1">
@@ -21,7 +23,7 @@ export function AvailabilityPill({ openState, isManuallyClosed }: { openState?: 
       >
         {label}
       </span>
-      <p className="text-[10px] text-muted-foreground">{isManuallyClosed ? "Closed by admin" : openState?.today || "No hours set"}</p>
+      <p className="text-[10px] text-muted-foreground">{isManuallyClosed ? t("hours.closedByAdmin") : openState?.today || t("hours.noHoursSet")}</p>
     </div>
   );
 }

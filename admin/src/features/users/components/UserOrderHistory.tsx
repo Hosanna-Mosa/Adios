@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import type { UserOrderItem } from "../userDetailTypes";
@@ -14,10 +15,11 @@ interface UserOrderHistoryProps {
 
 /** The "Order & Execution History" table on UserDetail. */
 export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) {
+  const { t } = useTranslation();
   const columns: DataTableColumn<UserOrderItem>[] = [
     {
       key: "id",
-      header: "Order ID",
+      header: t("dashboard.orderId"),
       headerClassName: HEADER_CLASS,
       cellClassName: `${CELL_CLASS} font-semibold text-primary`,
       cell: (order) => (
@@ -28,21 +30,21 @@ export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) 
     },
     {
       key: "serviceType",
-      header: "Service Type",
+      header: t("users.serviceType"),
       headerClassName: HEADER_CLASS,
       cellClassName: `${CELL_CLASS} uppercase font-medium`,
       cell: (order) => order.serviceType,
     },
     {
       key: "fare",
-      header: "Fare",
+      header: t("users.fare"),
       headerClassName: HEADER_CLASS,
       cellClassName: `${CELL_CLASS} font-semibold`,
       cell: (order) => `₹${order.totalPrice}`,
     },
     {
       key: "status",
-      header: "Status",
+      header: t("users.status"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (order) => (
@@ -61,19 +63,19 @@ export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) 
     },
     {
       key: "date",
-      header: "Date",
+      header: t("users.date"),
       headerClassName: HEADER_CLASS,
       cellClassName: `${CELL_CLASS} text-muted-foreground`,
       cell: (order) => new Date(order.createdAt).toLocaleDateString(),
     },
     {
       key: "action",
-      header: "Action",
+      header: t("dashboard.action"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
       cell: (order) => (
         <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 rounded-lg" onClick={() => onViewChat(order._id)}>
-          <MessageSquare className="h-3 w-3" /> View Chat
+          <MessageSquare className="h-3 w-3" /> {t("users.viewChat")}
         </Button>
       ),
     },
@@ -81,13 +83,13 @@ export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) 
 
   return (
     <div className="lg:col-span-2 bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
-      <h3 className="text-lg font-bold text-foreground">Order & Execution History</h3>
+      <h3 className="text-lg font-bold text-foreground">{t("users.orderAndExecutionHistory")}</h3>
       <div className="overflow-x-auto">
         <DataTable
           columns={columns}
           data={orders}
           rowKey={(order) => order._id}
-          emptyLabel="No orders recorded for this customer account."
+          emptyLabel={t("users.noOrdersRecordedForCustomer")}
           headerRowClassName="bg-muted/50 text-xs"
           tbodyClassName="text-xs"
           stateCellClassName="px-4 py-8 text-center text-muted-foreground"

@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import { MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { SupportChatHeader } from "./SupportChatHeader";
 import { SupportChatMessages } from "./SupportChatMessages";
@@ -19,6 +20,7 @@ interface SupportChatWindowProps {
 
 /** The right-pane chat window: header, message history, and composer -- or an empty state when nothing is selected. */
 export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onTypedMessageChange, onKeyDown, onSend, onResolve, onReopen }: SupportChatWindowProps) {
+  const { t } = useTranslation();
   return (
     <div className="section-card flex flex-col h-full lg:col-span-2">
       {ticket ? (
@@ -31,8 +33,8 @@ export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onType
         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-3">
           <MessageSquare className="h-12 w-12 text-muted-foreground/40 animate-pulse" />
           <div className="text-center">
-            <p className="font-semibold text-foreground">No active conversation</p>
-            <p className="text-xs">Select a chat from the sidebar, or go back to the issues list.</p>
+            <p className="font-semibold text-foreground">{t("support.noActiveConversation")}</p>
+            <p className="text-xs">{t("support.selectChatFromSidebarDesc")}</p>
           </div>
         </div>
       )}

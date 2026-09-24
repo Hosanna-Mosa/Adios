@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { useListQuery } from "@/hooks/useListQuery";
 import type { AdminUser } from "../types";
 
-const ROLE_FILTER_OPTIONS = [
-  { value: "ALL", label: "All Users" },
-  { value: "USER", label: "Customers (USER)" },
-  { value: "DRIVER", label: "Drivers" },
-  { value: "ADMIN", label: "Admins" },
-  { value: "BLOCKED", label: "Blocked Only" },
+const getRoleFilterOptions = (t: (key: string) => string) => [
+  { value: "ALL", label: t("users.allUsers") },
+  { value: "USER", label: t("users.customersFilterLabel") },
+  { value: "DRIVER", label: t("sidebar.drivers") },
+  { value: "ADMIN", label: t("users.admins") },
+  { value: "BLOCKED", label: t("users.blockedOnly") },
 ];
 
 const EMPTY_NEW_USER = { name: "", email: "", phone: "", password: "", role: "USER" };
@@ -21,6 +22,7 @@ const EMPTY_NEW_USER = { name: "", email: "", phone: "", password: "", role: "US
  * behavior from the original inline implementation.
  */
 export function useUsersList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [roleFilter, setRoleFilterState] = useState("ALL");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -54,12 +56,12 @@ export function useUsersList() {
       adminFetch("/admin/users", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      toast.success("User created successfully");
+      toast.success(t("users.userCreatedSuccessfully"));
       setIsAddOpen(false);
       setNewUser(EMPTY_NEW_USER);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to create user");
+      toast.error(err.message || t("users.failedToCreateUser"));
     },
   });
 
@@ -67,10 +69,10 @@ export function useUsersList() {
     mutationFn: (id: string) => adminFetch(`/admin/users/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      toast.success("User deleted successfully");
+      toast.success(t("users.userDeletedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete user");
+      toast.error(err.message || t("users.failedToDeleteUser"));
     },
   });
 
@@ -79,24 +81,24 @@ export function useUsersList() {
       adminFetch(`/admin/users/${id}`, { method: "PUT", body: JSON.stringify({ isBlocked }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
-      toast.success("User block status updated successfully");
+      toast.success(t("users.userBlockStatusUpdated"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to change user status");
+      toast.error(err.message || t("users.failedToChangeUserStatus"));
     },
   });
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUser.name || !newUser.phone) {
-      toast.error("Name and phone are required");
+      toast.error(t("users.nameAndPhoneRequired"));
       return;
     }
     createUserMutation.mutate(newUser);
   };
 
   const handleDeleteClick = (user: AdminUser) => {
-    if (confirm(`Are you sure you want to delete user ${user.name}?`)) {
+    if (confirm(t("users.confirmDeleteUser", { name: user.name, defaultValue: "Are you sure you want to delete user {{name}}?" }))) {
       deleteUserMutation.mutate(user._id);
     }
   };
@@ -136,7 +138,7 @@ export function useUsersList() {
     setSearchQuery,
     roleFilter,
     setRoleFilter,
-    roleFilterOptions: ROLE_FILTER_OPTIONS,
+    roleFilterOptions: getRoleFilterOptions(t),
     currentPage: safePage,
     setCurrentPage,
     totalPages,

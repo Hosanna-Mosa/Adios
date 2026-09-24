@@ -1,4 +1,5 @@
 import { Plus, PlusCircle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -48,20 +49,21 @@ export function RestaurantAddDialog({
   onSave,
   isSaving,
 }: RestaurantAddDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button className="bg-[#00665c] hover:bg-[#005249] text-white flex items-center gap-2 px-5 py-6 rounded-2xl shadow-md transition-all">
-          <Plus className="h-5 w-5" /> Add Restaurant Menu
+          <Plus className="h-5 w-5" /> {t("catalog.addRestaurantMenu")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-[#00665c]">
-            {step === 1 && "Step 1: Restaurant Details"}
-            {step === 2 && "Step 2: Upload Menu Images"}
-            {step === 3 && "Step 3: Review & Edit Extracted Menu"}
+            {step === 1 && t("catalog.step1RestaurantDetails")}
+            {step === 2 && t("catalog.step2UploadMenuImages")}
+            {step === 3 && t("catalog.step3ReviewEditExtractedMenu")}
           </DialogTitle>
         </DialogHeader>
 
@@ -69,18 +71,18 @@ export function RestaurantAddDialog({
           <form onSubmit={onNext} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="name">Restaurant Name *</Label>
+                <Label htmlFor="name">{t("catalog.restaurantNameRequired")}</Label>
                 <Input
                   id="name"
                   required
-                  placeholder="e.g. Grand Bawarchi"
+                  placeholder={t("catalog.egGrandBawarchi")}
                   value={restaurantForm.name}
                   onChange={(e) => setRestaurantForm({ ...restaurantForm, name: e.target.value })}
                   className="rounded-xl"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone">{t("catalog.phoneNumberRequired")}</Label>
                 <Input
                   id="phone"
                   required
@@ -91,7 +93,7 @@ export function RestaurantAddDialog({
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="email">Email (Optional)</Label>
+                <Label htmlFor="email">{t("catalog.emailOptional")}</Label>
                 <Input
                   id="email"
                   placeholder="e.g. info@bawarchi.com"
@@ -103,12 +105,12 @@ export function RestaurantAddDialog({
               <div className="space-y-1.5 flex items-center gap-3 pt-6">
                 <Switch id="isPureVeg" checked={restaurantForm.isPureVeg} onCheckedChange={(checked) => setRestaurantForm({ ...restaurantForm, isPureVeg: checked })} />
                 <Label htmlFor="isPureVeg" className="cursor-pointer font-semibold">
-                  Pure Vegetarian Restaurant
+                  {t("catalog.pureVegetarianRestaurant")}
                 </Label>
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="address">Address *</Label>
+              <Label htmlFor="address">{t("catalog.addressRequired")}</Label>
               <Input
                 id="address"
                 required
@@ -121,7 +123,7 @@ export function RestaurantAddDialog({
 
             <DialogFooter className="pt-4 border-t">
               <Button type="submit" className="bg-[#00665c] hover:bg-[#005249] rounded-xl px-6">
-                Next: Upload Menu
+                {t("catalog.nextUploadMenu")}
               </Button>
             </DialogFooter>
           </form>
@@ -141,7 +143,7 @@ export function RestaurantAddDialog({
         {step === 3 && (
           <div className="space-y-6 py-4">
             <div className="bg-[#f0fdfa] border border-teal-200 p-4 rounded-xl text-sm text-[#00665c] font-medium">
-              ✨ AI extracted the following menu items. Please review, edit, or add/delete items below.
+              ✨ {t("catalog.aiExtractedMenuItemsDesc")}
             </div>
 
             <MenuItemsEditTable items={extractedMenu} onChange={setExtractedMenu} onUploadImage={onUploadImage} maxHeightClassName="max-h-[40vh]" />
@@ -150,20 +152,20 @@ export function RestaurantAddDialog({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setExtractedMenu([...extractedMenu, { name: "New Food Item", price: 100, description: "", category: "General", isVeg: true }])}
+                onClick={() => setExtractedMenu([...extractedMenu, { name: t("catalog.newFoodItem"), price: 100, description: "", category: t("catalog.generalCategory"), isVeg: true }])}
                 className="rounded-xl flex items-center gap-1.5"
               >
-                <PlusCircle className="h-4 w-4" /> Add Item
+                <PlusCircle className="h-4 w-4" /> {t("catalog.addItem")}
               </Button>
             </div>
 
             <div className="flex justify-between pt-4 border-t">
               <Button variant="outline" onClick={() => setStep(2)} className="rounded-xl">
-                Back
+                {t("catalog.back")}
               </Button>
               <Button onClick={onSave} disabled={isSaving} className="bg-[#00665c] hover:bg-[#005249] rounded-xl px-6 flex items-center gap-2">
                 {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-                Save Restaurant & Menu
+                {t("catalog.saveRestaurantAndMenu")}
               </Button>
             </div>
           </div>

@@ -1,7 +1,9 @@
 import { CreditCard, Box, Package } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { Ticket } from "../types";
+import { ticketStatusLabel } from "../ticketLabels";
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -12,12 +14,13 @@ interface TicketListProps {
 
 /** The scrollable list of ticket cards (not a table -- the original page never used one). */
 export function TicketList({ tickets, isLoading, selectedTicketId, onSelect }: TicketListProps) {
+  const { t } = useTranslation();
   return (
     <StaggerList className="flex-1 overflow-auto p-4 space-y-3">
       {isLoading ? (
-        <div className="py-10 text-center text-muted-foreground">Loading support cases...</div>
+        <div className="py-10 text-center text-muted-foreground">{t("support.loadingSupportCases")}</div>
       ) : tickets.length === 0 ? (
-        <div className="py-10 text-center text-muted-foreground">No cases found in this category.</div>
+        <div className="py-10 text-center text-muted-foreground">{t("support.noCasesFoundInCategory")}</div>
       ) : (
         tickets.map((ticket) => (
           <StaggerItem
@@ -41,7 +44,7 @@ export function TicketList({ tickets, isLoading, selectedTicketId, onSelect }: T
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-foreground">{ticket.title}</p>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ticket.status === "OPEN" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{ticket.status}</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ticket.status === "OPEN" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>{ticketStatusLabel(ticket.status, t)}</span>
                     {ticket.userRole && (
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
@@ -67,7 +70,7 @@ export function TicketList({ tickets, isLoading, selectedTicketId, onSelect }: T
                       .join("")}
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    User: {ticket.user} {ticket.userRole ? `(${ticket.userRole})` : ""}
+                    {t("support.userColon", { name: ticket.user, defaultValue: "User: {{name}}" })} {ticket.userRole ? `(${ticket.userRole})` : ""}
                   </span>
                 </div>
                 <span className="text-xs text-muted-foreground">{ticket.time}</span>

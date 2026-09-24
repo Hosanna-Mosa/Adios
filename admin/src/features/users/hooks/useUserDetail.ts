@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { OrderChatMessage, UserDetailResponse, UserProfileForm } from "../userDetailTypes";
 
@@ -9,6 +10,7 @@ const EMPTY_FORM: UserProfileForm = { name: "", email: "", phone: "", role: "USE
 
 /** All state/query/mutation logic for UserDetail.tsx (work queue item #11). */
 export function useUserDetail(id: string | undefined) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -45,11 +47,11 @@ export function useUserDetail(id: string | undefined) {
         body: JSON.stringify(updateData),
       }),
     onSuccess: () => {
-      toast.success("User profile updated successfully");
+      toast.success(t("users.userProfileUpdatedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["admin-user-detail", id] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update profile");
+      toast.error(err.message || t("users.failedToUpdateProfile"));
     },
   });
 
@@ -60,23 +62,23 @@ export function useUserDetail(id: string | undefined) {
         body: JSON.stringify({ isBlocked }),
       }),
     onSuccess: (res) => {
-      const statusText = res.user.isBlocked ? "blocked" : "unblocked";
-      toast.success(`User has been ${statusText}`);
+      const statusText = res.user.isBlocked ? t("users.blockedLower") : t("users.unblockedLower");
+      toast.success(t("users.userHasBeenStatus", { status: statusText, defaultValue: "User has been {{status}}" }));
       queryClient.invalidateQueries({ queryKey: ["admin-user-detail", id] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update block status");
+      toast.error(err.message || t("users.failedToUpdateBlockStatus"));
     },
   });
 
   const deleteUserMutation = useMutation({
     mutationFn: () => adminFetch(`/admin/users/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      toast.success("User account deleted successfully");
+      toast.success(t("users.userAccountDeletedSuccessfully"));
       navigate("/users");
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete user");
+      toast.error(err.message || t("users.failedToDeleteUser"));
     },
   });
 
@@ -86,7 +88,7 @@ export function useUserDetail(id: string | undefined) {
   };
 
   const handleDeleteClick = () => {
-    if (confirm("WARNING: This will permanently delete this user and their associated records. Are you sure?")) {
+    if (confirm(t("users.confirmPermanentlyDeleteUser"))) {
       deleteUserMutation.mutate();
     }
   };

@@ -1,4 +1,5 @@
 import { Loader2, Upload } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,9 +13,10 @@ interface BannerUploaderProps {
 
 /** The banner form's Image field: a URL input plus a file-upload button that fills it in. */
 export function BannerUploader({ imageUrl, onImageUrlChange, onFileUpload, uploading }: BannerUploaderProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      <Label htmlFor="imageUrl">Image</Label>
+      <Label htmlFor="imageUrl">{t("catalog.image")}</Label>
       <div className="flex gap-2">
         <Input id="imageUrl" value={imageUrl} onChange={(e) => onImageUrlChange(e.target.value)} placeholder="https://images.unsplash.com/photo-..." required className="flex-1" />
         <div className="relative">

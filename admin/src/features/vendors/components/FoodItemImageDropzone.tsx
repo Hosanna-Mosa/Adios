@@ -1,5 +1,6 @@
 import type { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
 import { Loader2, Upload, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { LazyImage } from "@/components/shared/LazyImage";
 
 interface FoodItemImageDropzoneProps {
@@ -18,14 +19,15 @@ interface FoodItemImageDropzoneProps {
  * form is open (see useVendorMenu's onDrop).
  */
 export function FoodItemImageDropzone({ getRootProps, getInputProps, isDragActive, uploading, images, onRemoveImage }: FoodItemImageDropzoneProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">Images</label>
+      <label className="text-sm font-medium">{t("vendorMenu.images")}</label>
       <div {...getRootProps()} className={`border-2 border-dashed rounded-2xl p-6 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 ${isDragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
         <input {...getInputProps()} />
         {uploading ? <Loader2 className="h-8 w-8 text-primary animate-spin" /> : <Upload className="h-8 w-8 text-muted-foreground" />}
-        <p className="text-sm font-medium">Drag & drop images, or click to select</p>
-        <p className="text-xs text-muted-foreground">Upload up to 5 images for this dish</p>
+        <p className="text-sm font-medium">{t("vendorMenu.dragDropOrClickToSelect")}</p>
+        <p className="text-xs text-muted-foreground">{t("vendorMenu.uploadUpTo5Images")}</p>
       </div>
 
       {images.length > 0 && (

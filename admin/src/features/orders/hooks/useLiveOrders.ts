@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import type { LiveOrder, ManualOrderForm } from "../liveOrdersTypes";
 
 /** All state/query/derived-stats logic for LiveOrders.tsx (work queue item #18). */
 export function useLiveOrders() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [isManualOpen, setIsManualOpen] = useState(false);
   const [manualOrder, setManualOrder] = useState<ManualOrderForm>({
@@ -25,10 +27,10 @@ export function useLiveOrders() {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualOrder.customer || !manualOrder.pickup || !manualOrder.dropoff) {
-      toast.error("Please fill in all order details.");
+      toast.error(t("orders.fillAllOrderDetails"));
       return;
     }
-    toast.success(`Manual dispatch initiated for ${manualOrder.customer}! Searching closest driver...`);
+    toast.success(t("orders.manualDispatchInitiated", { name: manualOrder.customer, defaultValue: "Manual dispatch initiated for {{name}}! Searching closest driver..." }));
     setIsManualOpen(false);
     setManualOrder({ customer: "", pickup: "", dropoff: "", deliveryFee: "150" });
   };

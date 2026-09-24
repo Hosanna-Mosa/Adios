@@ -8,8 +8,8 @@ export interface Transaction {
   statusVariant: string;
 }
 
-export const revenueBreakdown = [
-  { label: "Direct Shipping", pct: 65, width: "65%" },
-  { label: "Premium Express", pct: 25, width: "25%" },
-  { label: "Last Mile Local", pct: 10, width: "10%" },
+export const getRevenueBreakdown = (t: (key: string) => string) => [
+  { label: t("orders.directShipping"), pct: 65, width: "65%" },
+  { label: t("orders.premiumExpress"), pct: 25, width: "25%" },
+  { label: t("orders.lastMileLocal"), pct: 10, width: "10%" },
 ];

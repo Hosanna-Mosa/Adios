@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface TicketStatusTabsProps {
   activeTab: "ACTIVE" | "RESOLVED";
   onTabChange: (tab: "ACTIVE" | "RESOLVED") => void;
@@ -7,6 +9,7 @@ interface TicketStatusTabsProps {
 
 /** The Active/Resolved tab switcher above the ticket list. */
 export function TicketStatusTabs({ activeTab, onTabChange, openCount, resolvedCount }: TicketStatusTabsProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex border-b border-border">
       <button
@@ -15,7 +18,7 @@ export function TicketStatusTabs({ activeTab, onTabChange, openCount, resolvedCo
           activeTab === "ACTIVE" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
         }`}
       >
-        Active Complaints ({openCount})
+        {t("support.activeComplaintsCount", { count: openCount, defaultValue: "Active Complaints ({{count}})" })}
       </button>
       <button
         onClick={() => onTabChange("RESOLVED")}
@@ -23,7 +26,7 @@ export function TicketStatusTabs({ activeTab, onTabChange, openCount, resolvedCo
           activeTab === "RESOLVED" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
         }`}
       >
-        Resolved ({resolvedCount})
+        {t("support.resolvedCount", { count: resolvedCount, defaultValue: "Resolved ({{count}})" })}
       </button>
     </div>
   );

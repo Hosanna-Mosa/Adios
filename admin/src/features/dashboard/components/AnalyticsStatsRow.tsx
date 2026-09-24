@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { StatCard } from "@/components/shared/StatCard";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -13,19 +14,20 @@ import { StaggerItem } from "@/components/motion/StaggerItem";
  * not wired up to real data.
  */
 export function AnalyticsStatsRow() {
+  const { t } = useTranslation();
   return (
     <StaggerList className="grid grid-cols-4 gap-4">
       <StaggerItem>
-        <StatCard label="Total Orders" value="12,842" badge="+14.2%" badgeColor="success" />
+        <StatCard label={t("analytics.totalOrders")} value="12,842" badge="+14.2%" badgeColor="success" />
       </StaggerItem>
       <StaggerItem>
-        <StatCard label="Net Revenue" value="₹482.5k" badge="+8.4%" badgeColor="success" />
+        <StatCard label={t("analytics.netRevenue")} value="₹482.5k" badge="+8.4%" badgeColor="success" />
       </StaggerItem>
       <StaggerItem>
-        <StatCard label="Avg. Delivery" value="34.2m" badge="-2.1%" badgeColor="destructive" />
+        <StatCard label={t("analytics.avgDelivery")} value="34.2m" badge="-2.1%" badgeColor="destructive" />
       </StaggerItem>
       <StaggerItem>
-        <StatCard label="Active Drivers" value="842" badge="98% cap." badgeColor="success" />
+        <StatCard label={t("dashboard.activeDrivers")} value="842" badge={t("analytics.capacityPercent", { defaultValue: "98% cap." })} badgeColor="success" />
       </StaggerItem>
     </StaggerList>
   );

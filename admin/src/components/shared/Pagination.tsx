@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -14,15 +15,21 @@ export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
-  itemLabel = "items",
+  itemLabel,
   shownCount,
   totalCount,
 }: PaginationProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t border-border">
       {shownCount !== undefined && totalCount !== undefined ? (
         <p className="text-sm text-muted-foreground">
-          Showing {shownCount} of {totalCount} {itemLabel}
+          {t("pagination.showingXOfY", {
+            shown: shownCount,
+            total: totalCount,
+            item: itemLabel ?? t("pagination.items"),
+            defaultValue: "Showing {{shown}} of {{total}} {{item}}",
+          })}
         </p>
       ) : (
         <span />

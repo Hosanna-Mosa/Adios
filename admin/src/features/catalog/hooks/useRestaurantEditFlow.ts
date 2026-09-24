@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { BASE_URL } from "@/lib/api-client";
 import { authHeader } from "./useRestaurantMenuList";
 import { uploadMenuItemImage } from "./uploadMenuItemImage";
@@ -20,6 +21,7 @@ interface UseRestaurantEditFlowOptions {
  * menu the same way.
  */
 export function useRestaurantEditFlow({ fetchMenu }: UseRestaurantEditFlowOptions) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
@@ -50,16 +52,16 @@ export function useRestaurantEditFlow({ fetchMenu }: UseRestaurantEditFlowOption
         headers: { "Content-Type": "application/json", Authorization: authHeader() },
         body: JSON.stringify(data.body),
       });
-      if (!response.ok) throw new Error("Failed to update restaurant");
+      if (!response.ok) throw new Error(t("catalog.failedToUpdateRestaurant"));
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants-menu"] });
-      toast.success("Restaurant and menu updated successfully");
+      toast.success(t("catalog.restaurantAndMenuUpdatedSuccessfully"));
       setIsEditOpen(false);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Update failed");
+      toast.error(err.message || t("catalog.updateFailed"));
     },
   });
 
@@ -76,10 +78,10 @@ export function useRestaurantEditFlow({ fetchMenu }: UseRestaurantEditFlowOption
         const updated = [...editMenu];
         updated[index].images = [url];
         setEditMenu(updated);
-        toast.success("Photo uploaded successfully");
+        toast.success(t("catalog.photoUploadedSuccessfully"));
       }
     } catch (err) {
-      toast.error((err as Error).message || "Upload failed");
+      toast.error((err as Error).message || t("catalog.uploadFailed"));
     }
   };
 

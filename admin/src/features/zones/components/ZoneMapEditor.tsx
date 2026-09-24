@@ -1,5 +1,6 @@
 import { GoogleMap, Polygon as MapPolygon, Circle as MapCircle, Marker } from "@react-google-maps/api";
 import { Map as MapIcon, RefreshCw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { LatLng } from "../types";
 
 interface ZoneMapEditorProps {
@@ -30,23 +31,24 @@ export function ZoneMapEditor({
   onCircleCenterChange,
   onPolygonMarkerDragEnd,
 }: ZoneMapEditorProps) {
+  const { t } = useTranslation();
   return (
     <div className="h-[350px] md:h-auto bg-muted/40 relative flex flex-col justify-end">
       <div className="absolute top-4 left-4 right-4 bg-background/90 backdrop-blur-sm p-3 rounded-lg border border-border shadow-md text-[11px] z-10 space-y-1">
         <p className="font-semibold text-foreground flex items-center gap-1">
-          <MapIcon className="h-3.5 w-3.5 text-primary" /> Live Drawing Engine
+          <MapIcon className="h-3.5 w-3.5 text-primary" /> {t("zones.liveDrawingEngine")}
         </p>
         <p className="text-muted-foreground leading-normal">
           {type === "circle"
-            ? "Click anywhere on the map to set the circular center point. Drag the blue marker to adjust center location."
-            : "Click points sequentially on the map to outline the polygon geofence shape. Drag node markers (1, 2, 3...) to adjust vertices live."}
+            ? t("zones.clickToSetCircularCenterDesc")
+            : t("zones.clickToOutlinePolygonDesc")}
         </p>
       </div>
 
       {!isLoaded ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
           <RefreshCw className="h-6 w-6 animate-spin mb-2 text-primary" />
-          <p className="text-xs">Loading Live Preview Map...</p>
+          <p className="text-xs">{t("zones.loadingLivePreviewMap")}</p>
         </div>
       ) : (
         <GoogleMap
@@ -123,7 +125,7 @@ export function ZoneMapEditor({
       )}
 
       <div className="absolute bottom-4 right-4 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-border shadow-md text-[10px] font-semibold text-muted-foreground z-10 uppercase tracking-wider">
-        Interactive Drawing Active
+        {t("zones.interactiveDrawingActive")}
       </div>
     </div>
   );

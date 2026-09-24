@@ -1,4 +1,5 @@
 import { Drumstick, IndianRupee } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -12,18 +13,19 @@ interface GlobalPriceListProps {
 
 /** The "Standard Chicken Items" price-editing list on MeatPricing. */
 export function GlobalPriceList({ prices, isLoading, onPriceChange }: GlobalPriceListProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
       <div className="p-6 border-b border-border bg-muted/20">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Drumstick className="h-5 w-5 text-primary" />
-          Standard Chicken Items
+          {t("catalog.standardChickenItems")}
         </h2>
       </div>
 
       <StaggerList className="divide-y divide-border">
         {isLoading ? (
-          <div className="p-12 text-center text-muted-foreground">Loading global prices...</div>
+          <div className="p-12 text-center text-muted-foreground">{t("catalog.loadingGlobalPrices")}</div>
         ) : (
           prices?.map((item) => (
             <StaggerItem key={item.name} className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
@@ -33,7 +35,7 @@ export function GlobalPriceList({ prices, isLoading, onPriceChange }: GlobalPric
                 </div>
                 <div>
                   <p className="font-bold text-foreground">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">Weight: {item.weight}</p>
+                  <p className="text-sm text-muted-foreground">{t("catalog.weightColon", { value: item.weight, defaultValue: "Weight: {{value}}" })}</p>
                 </div>
               </div>
 
@@ -42,7 +44,7 @@ export function GlobalPriceList({ prices, isLoading, onPriceChange }: GlobalPric
                   <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input type="number" className="pl-9 h-11 text-lg font-semibold" defaultValue={item.price} onChange={(e) => onPriceChange(item.name, e.target.value)} />
                 </div>
-                <span className="text-xs text-muted-foreground uppercase font-medium">per unit</span>
+                <span className="text-xs text-muted-foreground uppercase font-medium">{t("catalog.perUnit")}</span>
               </div>
             </StaggerItem>
           ))

@@ -1,8 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RefreshCw, Navigation, Settings, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { DevDriver } from "../devDriversTypes";
+
+const VEHICLE_SHORT_LABEL_KEY: Record<string, string> = {
+  bike: "drivers.vehicleShortBike",
+  auto: "drivers.vehicleShortAuto",
+  car: "drivers.vehicleShortCar",
+};
 
 interface DevDriverCardProps {
   driver: DevDriver;
@@ -14,6 +21,7 @@ interface DevDriverCardProps {
 
 /** One dev-driver's status/vehicle/coordinates card on DevDrivers.tsx. */
 export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleChange, onLocationSubmit }: DevDriverCardProps) {
+  const { t } = useTranslation();
   const [lng, lat] = driver.currentLocation?.coordinates || [82.2475, 16.9891];
 
   return (
@@ -43,7 +51,7 @@ export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleCha
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground flex items-center gap-1.5">
-            <Settings className="h-4 w-4" /> Vehicle Type
+            <Settings className="h-4 w-4" /> {t("drivers.vehicleType")}
           </span>
           <div className="flex gap-1.5">
             {(["bike", "auto", "car"] as const).map((type) => (
@@ -56,7 +64,7 @@ export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleCha
                     : "bg-card border-border hover:bg-muted text-muted-foreground"
                 }`}
               >
-                {type}
+                {t(VEHICLE_SHORT_LABEL_KEY[type])}
               </button>
             ))}
           </div>
@@ -64,7 +72,7 @@ export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleCha
 
         <div className="space-y-2 border-t border-border/50 pt-3">
           <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-            <Navigation className="h-3.5 w-3.5" /> Set Location Coordinates
+            <Navigation className="h-3.5 w-3.5" /> {t("drivers.setLocationCoordinates")}
           </span>
           <form
             onSubmit={(e) => {
@@ -79,21 +87,21 @@ export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleCha
             className="grid grid-cols-2 gap-2"
           >
             <div>
-              <label className="text-[10px] text-muted-foreground">Latitude</label>
+              <label className="text-[10px] text-muted-foreground">{t("drivers.latitude")}</label>
               <Input
                 name="lat"
                 defaultValue={lat.toFixed(6)}
                 className="h-8 text-xs"
-                placeholder="Lat"
+                placeholder={t("drivers.lat")}
               />
             </div>
             <div>
-              <label className="text-[10px] text-muted-foreground">Longitude</label>
+              <label className="text-[10px] text-muted-foreground">{t("drivers.longitude")}</label>
               <Input
                 name="lng"
                 defaultValue={lng.toFixed(6)}
                 className="h-8 text-xs"
-                placeholder="Lng"
+                placeholder={t("drivers.lng")}
               />
             </div>
             <Button
@@ -105,7 +113,7 @@ export function DevDriverCard({ driver, updatingId, onStatusToggle, onVehicleCha
               {updatingId === driver._id ? (
                 <RefreshCw className="h-3 w-3 animate-spin mr-1.5" />
               ) : null}
-              Update Coordinates
+              {t("drivers.updateCoordinates")}
             </Button>
           </form>
         </div>

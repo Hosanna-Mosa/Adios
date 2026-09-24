@@ -1,5 +1,6 @@
 import type { DropzoneInputProps, DropzoneRootProps } from "react-dropzone";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FoodItemForm } from "./FoodItemForm";
@@ -21,17 +22,18 @@ interface VendorAddDishDialogProps {
 
 /** The "Add New Dish" dialog. */
 export function VendorAddDishDialog({ isOpen, onOpenChange, form, onChange, onSubmit, getRootProps, getInputProps, isDragActive, uploading, onRemoveImage, isSubmitting }: VendorAddDishDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2 px-6 h-11 rounded-xl">
           <Plus className="h-4 w-4" />
-          Add New Dish
+          {t("vendorMenu.addNewDish")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Add New Dish</DialogTitle>
+          <DialogTitle className="text-xl">{t("vendorMenu.addNewDish")}</DialogTitle>
         </DialogHeader>
         <FoodItemForm
           form={form}
@@ -43,8 +45,8 @@ export function VendorAddDishDialog({ isOpen, onOpenChange, form, onChange, onSu
           uploading={uploading}
           onRemoveImage={onRemoveImage}
           isSubmitting={isSubmitting}
-          submitLabel="Add Item to Menu"
-          submitPendingLabel="Adding..."
+          submitLabel={t("vendorMenu.addItemToMenu")}
+          submitPendingLabel={t("vendorMenu.adding")}
         />
       </DialogContent>
     </Dialog>
