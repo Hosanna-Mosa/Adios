@@ -1,4 +1,5 @@
 import { ScrollView, Text, TextInput, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -43,35 +44,36 @@ export function PersonalDetailsBody({
   user,
   username,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
       <View style={{ gap: 12 }}>
         <Animated.View entering={staggerListItem(0)}>
-          <Text style={styles.label}>Full name</Text>
-          <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder="Your name" placeholderTextColor={tokens.muted} />
+          <Text style={styles.label}>{t("app.auth.fullName")}</Text>
+          <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder={t("app.auth.yourName")} placeholderTextColor={tokens.muted} />
         </Animated.View>
         <Animated.View entering={staggerListItem(1)}>
-          <Text style={styles.label}>Username</Text>
-          <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder="@handle" autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <Text style={styles.label}>{t("app.auth.username")}</Text>
+          <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder={t("app.auth.handle")} autoCapitalize="none" placeholderTextColor={tokens.muted} />
         </Animated.View>
         <Animated.View entering={staggerListItem(2)}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder="your@email.com" keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <Text style={styles.label}>{t("app.auth.email")}</Text>
+          <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder={t("app.auth.youremailcom")} keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
         </Animated.View>
         <Animated.View entering={staggerListItem(3)}>
-          <Text style={styles.label}>Phone</Text>
+          <Text style={styles.label}>{t("app.auth.phone")}</Text>
           <PersonalDetailsPhoneField
             styles={styles}
             user={user}
           />
-          <Text style={styles.phoneHint}>This is your login number. Contact <Text style={styles.phoneHintLink} onPress={() => router.push("/support")}>support</Text> to change it — there&apos;s no self-serve way to re-verify a new number yet.</Text>
+          <Text style={styles.phoneHint}>{t("app.auth.thisIsYourLoginNumberContact")} <Text style={styles.phoneHintLink} onPress={() => router.push("/support")}>{t("app.auth.supportLinkText")}</Text> {t("app.auth.toChangeItThereapossNoSelfserve")}</Text>
         </Animated.View>
       </View>
     </ScrollView>
 
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-      <Button title="Update profile" onPress={handleSave} loading={saving} fullWidth />
+      <Button title={t("app.auth.updateProfile")} onPress={handleSave} loading={saving} fullWidth />
     </View>
     </>
   );

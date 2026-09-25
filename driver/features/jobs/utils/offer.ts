@@ -1,5 +1,6 @@
 /** Reading an incoming order offer: what kind of job it is, what's in it,
  * and how to title it. Pure functions, lifted out of IncomingOrderModal. */
+import i18n from "@/i18n";
 
 export function isHelperJob(serviceType?: string | null) {
   return serviceType?.toLowerCase() === "helper";
@@ -39,16 +40,16 @@ export function offerTitle({
   isRide: boolean;
   isHelper: boolean;
 }) {
-  if (isReserved) return "New Reserved Ride!";
-  if (isRide) return "New Ride Request!";
-  if (isHelper) return "New Helper!";
-  return "New Delivery Request!";
+  if (isReserved) return i18n.t("jobs.newReservedRide");
+  if (isRide) return i18n.t("jobs.newRideRequest");
+  if (isHelper) return i18n.t("jobs.newHelper");
+  return i18n.t("jobs.newDeliveryRequest");
 }
 
 /** reservedAt arrives as an ISO string from the API but as a Date from the
  * mock order helper, so accept both. */
 export function formatReservedAt(reservedAt?: string | Date | null) {
-  if (!reservedAt) return "N/A";
+  if (!reservedAt) return i18n.t("jobs.notAvailableAbbr");
   return new Date(reservedAt).toLocaleString([], {
     weekday: "short",
     month: "short",

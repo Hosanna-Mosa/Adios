@@ -1,5 +1,6 @@
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -57,6 +58,7 @@ interface Props {
 
 export function CheckoutBody(props: Props) {
   const { addressIssue, insets, receiverName, receiverPhone, selectedAddress, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
       <Animated.View entering={fadeInUp(0)} style={styles.section}>
@@ -69,12 +71,12 @@ export function CheckoutBody(props: Props) {
             <Text style={styles.addressAvatarText}>{(selectedAddress?.label || "H")[0].toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.addressTitle}>Deliver to {selectedAddress?.label || "…"}</Text>
+            <Text style={styles.addressTitle}>{t("app.food.deliverTo")} {selectedAddress?.label || "…"}</Text>
             <Text style={styles.addressLine} numberOfLines={2}>
               {selectedAddress?.addressLine || "Select a delivery address"}
             </Text>
             {!!selectedAddress?.landmark && (
-              <Text style={styles.addressContact}>Near {selectedAddress.landmark}</Text>
+              <Text style={styles.addressContact}>{t("app.delivery.near")} {selectedAddress.landmark}</Text>
             )}
             {(!!receiverName || !!receiverPhone) && (
               <Text style={styles.addressContact}>{[receiverName, receiverPhone].filter(Boolean).join(" · ")}</Text>
@@ -86,7 +88,7 @@ export function CheckoutBody(props: Props) {
               </View>
             )}
           </View>
-          <Text style={styles.changeLink}>Change</Text>
+          <Text style={styles.changeLink}>{t("app.delivery.change")}</Text>
         </TouchableOpacity>
       </Animated.View>
 

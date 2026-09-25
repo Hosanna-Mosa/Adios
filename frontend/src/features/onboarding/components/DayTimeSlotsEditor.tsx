@@ -1,10 +1,13 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { TimePicker } from "../../../components/shared/TimePicker";
+import { dayLabel } from "../constants";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function DayTimeSlotsEditor({ form }: Props) {
+  const { t } = useTranslation();
   const {
     copy,
     selectedDays,
@@ -19,7 +22,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
     <div className="border-t border-gray-100 pt-5">
       <div className="flex items-center justify-between mb-3">
         <label className="text-sm font-semibold">
-          Opening &amp; Closing Hours
+          {t("onboarding.openingAndClosingHours")}
         </label>
         <button
           type="button"
@@ -27,7 +30,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
           className="flex items-center gap-1 text-xs font-semibold text-brand-kinetic hover:text-brand-kinetic/80 transition-colors"
         >
           <Icon name="add" className="text-base" />
-          Add Slot
+          {t("onboarding.addSlot")}
         </button>
       </div>
       <p className="text-xs text-secondary-app mb-3">{copy.operatingHelp}</p>
@@ -43,7 +46,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
                 : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
             }`}
           >
-            {day}
+            {dayLabel(day)}
           </button>
         ))}
       </div>
@@ -52,13 +55,13 @@ export function DayTimeSlotsEditor({ form }: Props) {
         {(dayTimeSlots[activeTimingDay] || []).map((slot, i) => (
           <div key={i} className="flex items-end gap-3">
             <TimePicker
-              label="Opening Time"
+              label={t("onboarding.openingTime")}
               value={slot.open}
               onChange={(v) => updateTimeSlot(activeTimingDay, i, "open", v)}
             />
             <span className="text-sm text-secondary-app pb-2.5">—</span>
             <TimePicker
-              label="Closing Time"
+              label={t("onboarding.closingTime")}
               value={slot.close}
               onChange={(v) => updateTimeSlot(activeTimingDay, i, "close", v)}
             />
@@ -73,7 +76,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
             )}
             <div className="pb-2.5">
               <span className="text-[10px] text-secondary-app/60 font-medium">
-                Slot {i + 1}
+                {t("onboarding.slotN", { value: i + 1, defaultValue: "Slot {{value}}" })}
               </span>
             </div>
           </div>

@@ -16,23 +16,29 @@ export interface ScheduledOrder {
   items?: { id: string; name: string; quantity: number; price: number }[];
 }
 
-export const statusStyles: Record<ScheduleStatus, { label: string; className: string; icon: typeof Hourglass }> = {
+const STATUS_STYLE_META: Record<ScheduleStatus, { className: string; icon: typeof Hourglass }> = {
   pending: {
-    label: "Pending",
     className: "bg-amber-500/10 text-amber-700 border-amber-200",
     icon: Hourglass,
   },
   accepted: {
-    label: "Accepted",
     className: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
     icon: CheckCircle2,
   },
   rejected: {
-    label: "Rejected",
     className: "bg-rose-500/10 text-rose-700 border-rose-200",
     icon: XCircle,
   },
 };
+
+export function getStatusStyle(status: ScheduleStatus, t: (key: string) => string) {
+  const labelKey: Record<ScheduleStatus, string> = {
+    pending: "orders.statusPending",
+    accepted: "orders.statusAccepted",
+    rejected: "orders.statusRejected",
+  };
+  return { label: t(labelKey[status]), ...STATUS_STYLE_META[status] };
+}
 
 // Orders created before a verdict exists carry a null scheduleStatus — they are still awaiting one.
 export const scheduleStatusOf = (order: ScheduledOrder): ScheduleStatus => order.scheduleStatus || "pending";

@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -41,18 +42,19 @@ interface FilterBarProps {
 export function FilterBar({
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Search...",
+  searchPlaceholder,
   filters = [],
   actions,
   className,
 }: FilterBarProps) {
+  const { t } = useTranslation();
   return (
     <div className={className ?? "flex gap-3"}>
       <div className="relative w-64">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder={searchPlaceholder}
+          placeholder={searchPlaceholder ?? t("common.searchEllipsis")}
           value={searchValue}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-9 h-10 rounded-xl bg-muted/30 border-border"
@@ -62,7 +64,7 @@ export function FilterBar({
         <DropdownMenu key={idx}>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50">
-              <SlidersHorizontal className="h-4 w-4" /> {filter.triggerLabel ?? `Filter: ${filter.value}`}
+              <SlidersHorizontal className="h-4 w-4" /> {filter.triggerLabel ?? t("common.filterColon", { value: filter.value, defaultValue: "Filter: {{value}}" })}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

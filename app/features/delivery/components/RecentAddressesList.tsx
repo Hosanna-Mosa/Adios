@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -27,9 +28,10 @@ export function RecentAddressesList({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Recent</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.recent")}</Text>
       {recentLoading && recentLocations.length === 0 ? (
         <ActivityIndicator color={accent.accent} style={{ paddingVertical: 16 }} />
       ) : (
@@ -42,7 +44,7 @@ export function RecentAddressesList({
           >
             <View style={styles.recentIcon}><Ionicons name="time-outline" size={16} color={tokens.sec} /></View>
             <Text style={styles.recentName} numberOfLines={1}>{item.name}{item.address ? `, ${item.address}` : ""}</Text>
-            <Text style={styles.recentSave}>Save</Text>
+            <Text style={styles.recentSave}>{t("app.delivery.save")}</Text>
           </TouchableOpacity>
           </Animated.View>
         ))

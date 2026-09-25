@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -43,11 +44,12 @@ export function SupportBody({
   toggleFAQ,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 32 }} showsVerticalScrollIndicator={false}>
       <Animated.View entering={fadeInUp(0)}>
-        <Text style={styles.heroTitle}>How can we help?</Text>
+        <Text style={styles.heroTitle}>{t("app.support.howCanWeHelp")}</Text>
       </Animated.View>
 
       {recentOrder && (
@@ -61,7 +63,7 @@ export function SupportBody({
               <Ionicons name={meta?.accent === "ride" ? "car" : meta?.accent === "task" ? "construct" : meta?.accent === "delivery" ? "cube" : "fast-food"} size={19} color={accent.accent} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={[styles.recentEyebrow, { color: accent.accent }]}>{isActive ? "Active order" : "Recent order"}</Text>
+              <Text style={[styles.recentEyebrow, { color: accent.accent }]}>{isActive ? t("app.support.activeOrder") : t("app.support.recentOrder")}</Text>
               <Text style={styles.recentTitle} numberOfLines={1}>{recentTitle} · ₹{Math.round(recentOrder.totalPrice || 0)}</Text>
               <Text style={styles.recentMeta}>{formatRelativeDate(recentOrder.createdAt)}</Text>
             </View>
@@ -69,17 +71,17 @@ export function SupportBody({
           </TouchableOpacity>
         </Animated.View>
       )}
-      <Text style={styles.recentHint}>Most issues are about a specific order — start there and we&apos;ll skip the questions.</Text>
+      <Text style={styles.recentHint}>{t("app.support.mostIssuesAreAboutASpecific")}</Text>
 
-      <Text style={styles.sectionLabel}>Contact us</Text>
+      <Text style={styles.sectionLabel}>{t("app.support.contactUs")}</Text>
       <Animated.View entering={fadeInUp(120)} style={{ gap: 10 }}>
         <SupportContactRow
           icon="chatbubble-ellipses"
           iconSize={17}
           iconBackground={tokens.brandSkin}
           iconColor={tokens.brand}
-          label="Live chat"
-          description="Message our support team"
+          label={t("app.support.liveChat")}
+          description={t("app.support.messageOurSupportTeam")}
           onPress={() => router.push("/support-chat")}
           styles={styles}
           tokens={tokens}
@@ -90,7 +92,7 @@ export function SupportBody({
           iconSize={16}
           iconBackground={tokens.sunken}
           iconColor={tokens.sec}
-          label="Call helpline"
+          label={t("app.support.callHelpline")}
           description="1800 202 4477 · 7 AM – 1 AM"
           onPress={() => Linking.openURL("tel:18002024477")}
           styles={styles}
@@ -102,15 +104,15 @@ export function SupportBody({
           iconSize={16}
           iconBackground={tokens.sunken}
           iconColor={tokens.sec}
-          label="Email us"
-          description="care@flavour.in · within 24 hours"
+          label={t("app.support.emailUs")}
+          description={t("app.support.careflavourinWithin24Hours")}
           onPress={() => Linking.openURL("mailto:care@flavour.in")}
           styles={styles}
           tokens={tokens}
         />
       </Animated.View>
 
-      <Text style={[styles.sectionLabel, { marginTop: 22 }]}>Common questions</Text>
+      <Text style={[styles.sectionLabel, { marginTop: 22 }]}>{t("app.support.commonQuestions")}</Text>
       <SupportFaqCard
         FAQS={FAQS}
         accent={accent}

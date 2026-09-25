@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { type ServiceTokens } from "@/constants/colors";
@@ -24,13 +25,14 @@ export function NoRidersNearbyState({
   setIsRetryingDrivers,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.noServiceContainer}>
       <View style={[styles.emptyIconCircle, { backgroundColor: accent.skin }]}>
         <Ionicons name="bicycle-outline" size={26} color={accent.accent} />
       </View>
-      <Text style={styles.noServiceTitle}>No riders available nearby</Text>
-      <Text style={styles.noServiceSubtitle}>All captains nearby are on trips right now. It&apos;s usually a few minutes before one frees up.</Text>
+      <Text style={styles.noServiceTitle}>{t("app.home.noRidersAvailableNearby")}</Text>
+      <Text style={styles.noServiceSubtitle}>{t("app.home.allCaptainsNearbyAreOnTrips")}</Text>
       <TouchableOpacity
         style={[styles.noServiceButton, isRetryingDrivers && styles.noServiceButtonDisabled]}
         disabled={isRetryingDrivers}
@@ -47,11 +49,11 @@ export function NoRidersNearbyState({
         {isRetryingDrivers ? (
           <ActivityIndicator size="small" color={accent.on} />
         ) : (
-          <Text style={styles.noServiceButtonText}>Retry search</Text>
+          <Text style={styles.noServiceButtonText}>{t("app.home.retrySearch")}</Text>
         )}
       </TouchableOpacity>
       <TouchableOpacity style={styles.noServiceSecondaryButton} onPress={() => router.push("/delivery/saved-addresses")}>
-        <Text style={styles.noServiceSecondaryButtonText}>Change location</Text>
+        <Text style={styles.noServiceSecondaryButtonText}>{t("app.home.changeLocation")}</Text>
       </TouchableOpacity>
     </View>
   );

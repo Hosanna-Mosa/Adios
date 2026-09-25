@@ -2,6 +2,7 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import i18n from "@/i18n";
 import { cancelOrder, getOrderJson } from "@/services/orders.service";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
@@ -58,7 +59,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       if (timeoutTimer) clearTimeout(timeoutTimer);
       router.replace("/(tabs)");
       setTimeout(() => {
-        Alert.alert("Order cancelled", "Driver is unavailable.", [{ text: "OK", onPress: () => {} }], { cancelable: true });
+        Alert.alert(i18n.t("app.ride.orderCancelled"), i18n.t("app.ride.driverIsUnavailable"), [{ text: i18n.t("app.ride.ok"), onPress: () => {} }], { cancelable: true });
       }, 500);
     };
 
@@ -121,10 +122,10 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
         isTransitioned = true;
         if (pollIntervalId) clearInterval(pollIntervalId);
         Alert.alert(
-          "No captain found",
-          "Sorry, no captains are available to accept your reservation request right now. Please try scheduling again later.",
+          i18n.t("app.ride.noCaptainFound"),
+          i18n.t("app.ride.sorryNoCaptainsAreAvailableTo"),
           [{
-            text: "OK",
+            text: i18n.t("app.ride.ok"),
             onPress: async () => {
               router.replace("/(tabs)");
               if (orderId) {

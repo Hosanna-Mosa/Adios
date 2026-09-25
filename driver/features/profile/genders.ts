@@ -1,6 +1,9 @@
+import i18n from "@/i18n";
 
 /** Gender options in the profile edit form. */
-export const GENDERS = [
-  { id: "male", label: "Male", icon: "user" as const },
-  { id: "female", label: "Female", icon: "user" as const },
-];
+export function getGenders() {
+  return [
+    { id: "male", label: i18n.t("onboarding.male"), icon: "user" as const },
+    { id: "female", label: i18n.t("onboarding.female"), icon: "user" as const },
+  ];
+}

@@ -1,4 +1,5 @@
 import { Text, TextInput, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ThemeTokens } from "@/constants/colors";
 import { type LandingStyles } from "@/features/home/index.styles";
 
@@ -18,9 +19,10 @@ export function PhoneOrEmailField({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.fieldWrapper}>
-      <Text style={styles.fieldLabel}>Phone or email</Text>
+      <Text style={styles.fieldLabel}>{t("app.home.phoneOrEmail")}</Text>
       <View style={[styles.inputContainer, styles.inputContainerAccent]}>
         <TextInput
           style={styles.input}

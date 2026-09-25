@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -18,6 +19,7 @@ export function PaymentMethodCard({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.section} entering={fadeInUp(240)}>
       <View style={styles.methodRow}>
@@ -25,8 +27,8 @@ export function PaymentMethodCard({
           <Ionicons name="card-outline" size={moderateScale(17)} color={tokens.sec} />
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.methodTitle}>Razorpay</Text>
-          <Text style={styles.methodSub}>UPI, cards, wallets — choose on the next step</Text>
+          <Text style={styles.methodTitle}>{t("app.delivery.razorpay")}</Text>
+          <Text style={styles.methodSub}>{t("app.delivery.upiCardsWalletsChooseOnThe")}</Text>
         </View>
       </View>
     </Animated.View>

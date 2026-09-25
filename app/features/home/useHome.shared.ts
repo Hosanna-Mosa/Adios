@@ -28,12 +28,20 @@ export const DEFAULT_CUISINES = ["Biryani", "Tiffins", "Chinese", "Pizza", "Swee
 
 export const DEFAULT_MEAT_TYPES = ["Chicken", "Mutton", "Seafood", "Eggs"];
 
-export const FOOD_PROMOS = [
-  { eyebrow: "First order", headline: "50% off up to ₹120", caption: "Code FLAV50 · min ₹199" },
-  { eyebrow: "Late night", headline: "Open till 2 AM", caption: "42 outlets near you" },
-];
+// FOOD_PROMOS/MEAT_PROMOS moved into useHomeAvailableCuisines() as useMemo
+// values so their copy can call t() — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
-export const MEAT_PROMOS = [
-  { eyebrow: "Sunday special", headline: "Country chicken ₹399 / kg", caption: "" },
-  { eyebrow: "Cleaned & cut", headline: "No fee today", caption: "" },
-];
+// TAG_SEARCH_MAP's keys and values are deliberately left untranslated: this
+// map is only ever used internally to expand a search-chip tap into a
+// broader query term sent to /food/search (see useHomePart5.tsx) — it is
+// never rendered as visible text — and both sides are matched against real
+// English dish/category names in the database, so translating them would
+// silently break search instead of localizing anything a user sees.
+
+// DEFAULT_CUISINES/DEFAULT_MEAT_TYPES below are also left untranslated for a
+// related reason: they double as the fallback set of `cuisineChips`, whose
+// SAME string values are later compared against live vendor category data
+// when a customer filters by cuisine. Only the visible label is translated,
+// via CuisineStrip.tsx's translateFoodTag() display wrapper — the
+// underlying values that flow through app state/filtering stay in English.

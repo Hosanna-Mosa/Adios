@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -23,8 +24,9 @@ export function ScheduledRideCard({
   disabled: boolean;
   onStart: () => void;
 }) {
-  const pickup = ride.stops?.[0]?.address || "Pickup Location";
-  const drop = ride.stops?.[ride.stops.length - 1]?.address || "Drop Location";
+  const { t } = useTranslation();
+  const pickup = ride.stops?.[0]?.address || t("jobs.pickupLocation");
+  const drop = ride.stops?.[ride.stops.length - 1]?.address || t("jobs.dropLocation");
   const dateStr = formatReservedAt(ride.reservedAt);
 
   return (
@@ -51,7 +53,7 @@ export function ScheduledRideCard({
 
       <Box style={styles.scheduledFooter}>
         <Box>
-          <AppText style={styles.customerName}>Rider: {ride.user?.name || "Customer"}</AppText>
+          <AppText style={styles.customerName}>{t("jobs.riderColon", { value: ride.user?.name || t("jobs.customer"), defaultValue: "Rider: {{value}}" })}</AppText>
           <Box style={styles.badge}>
             <AppText style={styles.badgeText}>{ride.serviceType?.toUpperCase()}</AppText>
           </Box>
@@ -61,7 +63,7 @@ export function ScheduledRideCard({
           disabled={disabled}
           onPress={onStart}
         >
-          <AppText style={styles.startRideBtnText}>Start Ride</AppText>
+          <AppText style={styles.startRideBtnText}>{t("jobs.startRide")}</AppText>
         </Touchable>
       </Box>
     </AnimatedBox>

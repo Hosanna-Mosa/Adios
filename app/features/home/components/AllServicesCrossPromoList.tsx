@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -18,6 +19,7 @@ export function AllServicesCrossPromoList({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.crossPromoList}>
       <Animated.View entering={staggerListItem(0)}>
@@ -26,8 +28,8 @@ export function AllServicesCrossPromoList({
             <Ionicons name="construct-outline" size={moderateScale(18)} color={tokens.services.task.accent} />
           </View>
           <View style={styles.crossPromoTextWrap}>
-            <Text style={styles.crossPromoTitle}>Hire a helper</Text>
-            <Text style={styles.crossPromoSubtitle}>From ₹120 / hour</Text>
+            <Text style={styles.crossPromoTitle}>{t("app.home.hireAHelper")}</Text>
+            <Text style={styles.crossPromoSubtitle}>{t("app.home.from120Hour")}</Text>
           </View>
           <Ionicons name="chevron-forward" size={moderateScale(18)} color={tokens.muted} />
         </TouchableOpacity>
@@ -39,8 +41,8 @@ export function AllServicesCrossPromoList({
             <Ionicons name="cube-outline" size={moderateScale(18)} color={tokens.services.delivery.accent} />
           </View>
           <View style={styles.crossPromoTextWrap}>
-            <Text style={styles.crossPromoTitle}>Package delivery</Text>
-            <Text style={styles.crossPromoSubtitle}>Multi-stop courier · from ₹39</Text>
+            <Text style={styles.crossPromoTitle}>{t("app.delivery.packageDelivery")}</Text>
+            <Text style={styles.crossPromoSubtitle}>{t("app.home.multistopCourierFrom39")}</Text>
           </View>
           <View style={styles.betaBadge}>
             <Text style={styles.betaBadgeText}>Beta</Text>

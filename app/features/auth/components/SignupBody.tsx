@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -64,6 +65,7 @@ export function SignupBody({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <ScrollView
@@ -106,15 +108,15 @@ export function SignupBody({
             {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
           </View>
           <Text style={styles.termsText}>
-            I agree to the <Text style={styles.legalHighlight}>Terms</Text> and{" "}
-            <Text style={styles.legalHighlight}>Privacy Policy</Text>.
+            {t("app.auth.iAgreeToThe")} <Text style={styles.legalHighlight}>{t("app.auth.terms")}</Text> and{" "}
+            <Text style={styles.legalHighlight}>{t("app.auth.privacyPolicy")}</Text>.
           </Text>
         </TouchableOpacity>
       </Animated.View>
 
       <Animated.View entering={fadeInUp(220)}>
         <Button
-          title="Create account"
+          title={t("app.auth.createAccount")}
           onPress={handleRegister}
           disabled={!canSubmit}
           loading={loading}
@@ -130,7 +132,7 @@ export function SignupBody({
           activeOpacity={0.7}
         >
           <Text style={styles.loginLinkText}>
-            Already have one? <Text style={styles.loginLinkHighlight}>Sign in</Text>
+            {t("app.auth.alreadyHaveOne")} <Text style={styles.loginLinkHighlight}>{t("app.auth.signIn")}</Text>
           </Text>
         </TouchableOpacity>
       </Animated.View>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { router } from "expo-router";
 import { Colors } from "@/constants/colors";
@@ -23,6 +24,7 @@ export function ProfileTabBody({
   onLogout,
   onRetakeOnboarding,
 }: any) {
+  const { t } = useTranslation();
   return (
     <>
             <ProfileHeaderCard
@@ -35,36 +37,36 @@ export function ProfileTabBody({
 
             <ProfileStatsCard
               stats={[
-                { value: String(profile.stats.completedTrips), label: "Trips" },
-                { value: `${profile.stats.acceptanceRate}%`, label: "Acceptance" },
-                { value: profile.driver?.status === "online" ? "ONLINE" : "OFFLINE", label: "Status" },
+                { value: String(profile.stats.completedTrips), label: t("earnings.trips") },
+                { value: `${profile.stats.acceptanceRate}%`, label: t("profile.acceptance") },
+                { value: profile.driver?.status === "online" ? t("profile.online") : t("profile.offline"), label: t("profile.status") },
               ]}
             />
 
             <AnimatedBox entering={fadeInUp(120)} style={styles.docsRow}>
               <DocumentStatusCard
                 icon="file-text"
-                title="Driving License"
-                status="Expired"
+                title={t("profile.drivingLicense")}
+                status={t("profile.expired")}
                 tone={Colors.error}
                 toneSurface={Colors.errorLight}
               />
               <DocumentStatusCard
                 icon="shield"
-                title="Vehicle Insurance"
-                status="Valid"
+                title={t("profile.vehicleInsurance")}
+                status={t("profile.valid")}
                 tone={Colors.success}
                 toneSurface={Colors.successLight}
               />
             </AnimatedBox>
 
             <CurrentVehicleRow
-              label="Current Vehicle"
+              label={t("profile.currentVehicle")}
               detail={`${profile.vehicle.label} • *********4567`}
               onPress={() => onOpenSection("vehicle")}
             />
 
-            <AppText style={styles.sectionHeader}>Account</AppText>
+            <AppText style={styles.sectionHeader}>{t("profile.account")}</AppText>
 
             <AccountMenuList
               entries={sections}
@@ -75,6 +77,8 @@ export function ProfileTabBody({
                   router.push("/saved-addresses");
                 } else if (item.key === "notifications") {
                   router.push("/notifications");
+                } else if (item.key === "language") {
+                  router.push("/language-settings");
                 } else {
                   onOpenSection(item.key);
                 }

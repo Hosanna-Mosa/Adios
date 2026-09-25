@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { Phone, MoreVertical } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChatMessageList } from "./ChatMessageList";
@@ -17,8 +18,9 @@ interface SupportChatPanelProps {
 
 /** The right-side resolution chat panel: header, message history, and composer. */
 export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, onSend, onResolve, onReopen }: SupportChatPanelProps) {
+  const { t } = useTranslation();
   if (!ticket) {
-    return <div className="flex-1 flex items-center justify-center text-muted-foreground">Select a ticket complaint to start resolution chat.</div>;
+    return <div className="flex-1 flex items-center justify-center text-muted-foreground">{t("support.selectTicketToStartChatDesc")}</div>;
   }
 
   return (
@@ -38,7 +40,7 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-foreground">{ticket.user || "Platform User"}</p>
+              <p className="text-sm font-semibold text-foreground">{ticket.user || t("support.platformUser")}</p>
               {ticket.userRole && (
                 <span
                   className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
@@ -55,7 +57,7 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => toast.success(`Calling ${ticket.user}... Link established.`)} className="p-2 hover:bg-muted rounded-lg transition-colors border border-border">
+          <button onClick={() => toast.success(t("support.callingUserLinkEstablished", { name: ticket.user, defaultValue: "Calling {{name}}... Link established." }))} className="p-2 hover:bg-muted rounded-lg transition-colors border border-border">
             <Phone className="h-4 w-4 text-muted-foreground" />
           </button>
           <DropdownMenu>
@@ -66,10 +68,10 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onResolve} className="cursor-pointer">
-                Resolve Case
+                {t("support.resolveCase")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onReopen} className="cursor-pointer">
-                Re-open Case
+                {t("support.reopenCase")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
@@ -12,6 +13,7 @@ import { List } from "@/components/ui/List";
 import { Box } from "@/components/ui/Box";
 
 export default function DriverNotificationsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { token } = useDriverStore();
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -71,7 +73,7 @@ export default function DriverNotificationsScreen() {
       {loading ? (
         <NotificationsLoading />
       ) : items.length === 0 ? (
-        <NotificationsEmpty message="Nothing here yet. Job and account updates will show up in this list." />
+        <NotificationsEmpty message={t("profile.nothingHereYetNotificationsEmpty")} />
       ) : (
         <List
           data={items}

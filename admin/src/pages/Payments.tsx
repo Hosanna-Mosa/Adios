@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { usePayments } from "@/features/orders/hooks/usePayments";
 import { PaymentsStatsRow } from "@/features/orders/components/PaymentsStatsRow";
@@ -7,6 +8,7 @@ import { FluidityInsightPanel } from "@/features/orders/components/FluidityInsig
 import { TransactionDetailsDialog } from "@/features/orders/components/TransactionDetailsDialog";
 
 export default function Payments() {
+  const { t } = useTranslation();
   const {
     transactions,
     isLoading,
@@ -21,11 +23,11 @@ export default function Payments() {
   } = usePayments();
 
   return (
-    <DashboardLayout searchPlaceholder="Search transactions, IDs, or drivers...">
+    <DashboardLayout searchPlaceholder={t("orders.searchTransactionsIdsDrivers")}>
       <div className="space-y-6">
         <div>
-          <h1 className="page-header">Payments & Revenue</h1>
-          <p className="page-subtitle">Real-time financial reconciliation and delivery logistics performance.</p>
+          <h1 className="page-header">{t("orders.paymentsAndRevenue")}</h1>
+          <p className="page-subtitle">{t("orders.realTimeFinancialReconciliationDesc")}</p>
         </div>
 
         <PaymentsStatsRow totalEarned={totalEarned} />

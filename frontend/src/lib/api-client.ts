@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 const sanitizeEnvValue = (value?: string) => {
   if (!value) return "";
   return value.trim().replace(/^['"]+|['"]+$/g, "");
@@ -46,7 +48,7 @@ export async function apiFetch<T>(
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data?.message || "Request failed");
+    throw new Error(data?.message || i18n.t("apiClient.requestFailed"));
   }
 
   return data as T;

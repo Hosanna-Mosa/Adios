@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { fadeInUp } from "@/motion/presets";
 import { styles } from "../earnings.styles";
@@ -23,9 +24,10 @@ export function BalanceCard({
   trendLabel: string;
   bankLast4?: string | null;
 }) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox entering={fadeInUp(0)} style={styles.balanceCard}>
-      <AppText style={styles.balanceLabel}>This Week&apos;s Balance</AppText>
+      <AppText style={styles.balanceLabel}>{t("earnings.thisWeeksBalance")}</AppText>
       <Box style={styles.balanceRow}>
         <AppText style={styles.balanceAmount}>{formatCurrency(weekBalance)}</AppText>
         <Box style={styles.trendBadge}>
@@ -38,8 +40,8 @@ export function BalanceCard({
         </Box>
       </Box>
       <AppText style={styles.availableText}>
-        Available: {formatCurrency(availableBalance)}
-        {bankLast4 ? ` to bank ending ${bankLast4}` : ""}
+        {t("earnings.available")} {formatCurrency(availableBalance)}
+        {bankLast4 ? ` ${t("earnings.toBankEnding", { value: bankLast4, defaultValue: "to bank ending {{value}}" })}` : ""}
       </AppText>
     </AnimatedBox>
   );

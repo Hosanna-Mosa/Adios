@@ -3,7 +3,9 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Star, GitBranch, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { LiveOrder } from "../liveOrdersTypes";
+import { adminOrderStatusLabel } from "../adminOrderStatus";
 
 interface LiveOrdersTableProps {
   isLoading: boolean;
@@ -11,10 +13,10 @@ interface LiveOrdersTableProps {
   totalCount: number;
 }
 
-const columns: DataTableColumn<LiveOrder>[] = [
+const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string): DataTableColumn<LiveOrder>[] => [
   {
     key: "orderId",
-    header: "Order ID",
+    header: t("dashboard.orderId"),
     cellClassName: "px-6 py-4 text-sm font-medium text-primary",
     cell: (o) => (
       <Link to={`/live-orders/${o._id}`} className="hover:underline">
@@ -24,37 +26,37 @@ const columns: DataTableColumn<LiveOrder>[] = [
   },
   {
     key: "user",
-    header: "User",
+    header: t("orders.user"),
     cell: (o) => (
       <div className="flex items-center gap-3">
         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
           {o.user?.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2) || "U"}
         </div>
-        <span className="text-sm text-foreground">{o.user?.name || "Unknown User"}</span>
+        <span className="text-sm text-foreground">{o.user?.name || t("orders.unknownUser")}</span>
       </div>
     ),
   },
   {
     key: "stops",
-    header: "Stops",
+    header: t("orders.stops"),
     cell: (o) => (
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
         {o.stops?.length === 1 ? <MapPin className="h-3.5 w-3.5" /> : <GitBranch className="h-3.5 w-3.5" />}
-        {o.stops?.length || 0} stops
+        {t("orders.nStops", { count: o.stops?.length || 0, defaultValue: "{{count}} stops" })}
       </div>
     ),
   },
   {
     key: "status",
-    header: "Status",
-    cell: (o) => <StatusBadge status={o.status} variant={o.status === "DELIVERED" ? "delivered" : o.status === "PICKED_UP" ? "transit" : "assigned"} />,
+    header: t("users.status"),
+    cell: (o) => <StatusBadge status={adminOrderStatusLabel(o.status, t)} variant={o.status === "DELIVERED" ? "delivered" : o.status === "PICKED_UP" ? "transit" : "assigned"} />,
   },
   {
     key: "driver",
-    header: "Assigned Driver",
+    header: t("orders.assignedDriver"),
     cell: (o) => (
       <div className="flex items-center gap-2">
-        <span className={`text-sm ${!o.driver ? "italic text-muted-foreground" : "text-foreground"}`}>{o.driver?.user?.name || "Awaiting assignment..."}</span>
+        <span className={`text-sm ${!o.driver ? "italic text-muted-foreground" : "text-foreground"}`}>{o.driver?.user?.name || t("orders.awaitingAssignmentEllipsis")}</span>
         {o.driver && (
           <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
             <Star className="h-3 w-3 fill-warning text-warning" /> 4.8
@@ -65,11 +67,11 @@ const columns: DataTableColumn<LiveOrder>[] = [
   },
   {
     key: "eta",
-    header: "ETA",
+    header: t("orders.eta"),
     cell: (o) => (
       <div>
         <p className="text-sm font-medium text-foreground">{new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-        <p className={`text-xs text-muted-foreground`}>Created</p>
+        <p className={`text-xs text-muted-foreground`}>{t("orders.created")}</p>
       </div>
     ),
   },
@@ -77,12 +79,14 @@ const columns: DataTableColumn<LiveOrder>[] = [
 
 /** The "Ongoing Operations" table (rows + pagination) on LiveOrders.tsx. */
 export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveOrdersTableProps) {
+  const { t } = useTranslation();
+  const columns = getColumns(t);
   return (
     <div className="section-card">
       <div className="flex items-center justify-between p-6 pb-4">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse-dot" />
-          <h3 className="text-lg font-semibold text-foreground">Ongoing Operations</h3>
+          <h3 className="text-lg font-semibold text-foreground">{t("orders.ongoingOperations")}</h3>
         </div>
       </div>
 
@@ -91,24 +95,24 @@ export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveO
         data={filteredOrders}
         rowKey={(o) => o._id}
         isLoading={isLoading}
-        loadingLabel="Loading orders..."
-        emptyLabel="No orders found matching the filter."
+        loadingLabel={t("orders.loadingOrders")}
+        emptyLabel={t("orders.noOrdersFoundMatchingFilter")}
       />
 
       <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">Showing <span className="font-semibold text-foreground">{totalCount}</span> results</p>
+        <p className="text-sm text-muted-foreground">{t("orders.showingNResults", { count: totalCount, defaultValue: "Showing {{count}} results" })}</p>
         <div className="flex gap-1">
           <button
-            onClick={() => toast.info("No previous pages")}
+            onClick={() => toast.info(t("orders.noPreviousPages"))}
             className="px-3 py-1.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50"
           >
-            Previous
+            {t("orders.previous")}
           </button>
           <button
-            onClick={() => toast.info("No next pages")}
+            onClick={() => toast.info(t("orders.noNextPages"))}
             className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg font-medium"
           >
-            Next
+            {t("orders.next")}
           </button>
         </div>
       </div>

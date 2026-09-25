@@ -1,16 +1,18 @@
 import React from "react";
 import type { StyleProp, ViewStyle } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { OtpEntry } from "../order";
 
 export function RestaurantOtpEntry({ style }: { style?: StyleProp<ViewStyle> }) {
+  const { t } = useTranslation();
   const { verification } = useActiveOrderCtx();
 
   return (
     <OtpEntry
-      label="RESTAURANT PICKUP CODE"
-      placeholder="Enter 4-digit Pickup Code"
+      label={t("jobs.restaurantPickupCode")}
+      placeholder={t("jobs.enter4DigitPickupCode")}
       maxLength={8}
       value={verification.restaurantOTP}
       onChangeText={(val) => {
@@ -18,7 +20,7 @@ export function RestaurantOtpEntry({ style }: { style?: StyleProp<ViewStyle> }) 
         verification.setRestaurantOTPError(false);
       }}
       hasError={verification.restaurantOTPError}
-      errorText="Invalid code. Please ask the restaurant for the correct pickup code."
+      errorText={t("jobs.invalidCodeAskRestaurantForPickupCode")}
       style={style}
     />
   );

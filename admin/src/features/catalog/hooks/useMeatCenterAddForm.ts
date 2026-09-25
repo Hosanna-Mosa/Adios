@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { NewMeatCenterForm, PlaceDetails, PlaceSuggestion } from "../meatCenterTypes";
 
@@ -16,6 +17,7 @@ const EMPTY_FORM: NewMeatCenterForm = { name: "", phone: "", email: "", password
  * force-sharing one hook would need a pile of feature-specific branches.
  */
 export function useMeatCenterAddForm() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newCenter, setNewCenter] = useState<NewMeatCenterForm>(EMPTY_FORM);
@@ -28,12 +30,12 @@ export function useMeatCenterAddForm() {
     mutationFn: (data: Record<string, unknown>) => adminFetch("/meat", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meat-centers"] });
-      toast.success("Meat Center added successfully");
+      toast.success(t("catalog.meatCenterAddedSuccessfully"));
       setIsAddOpen(false);
       resetForm();
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to add meat center");
+      toast.error(error.message || t("catalog.failedToAddMeatCenter"));
     },
   });
 
@@ -92,13 +94,13 @@ export function useMeatCenterAddForm() {
     setSuggestions([]);
 
     try {
-      toast.loading("Fetching details...");
+      toast.loading(t("catalog.fetchingDetailsEllipsis"));
       const details = await adminFetch<PlaceDetails>(`/vendors/place-details/${suggestion.place_id}`);
       setSelectedPlace(details);
       setNewCenter((prev) => ({ ...prev, name: details.name }));
       toast.dismiss();
     } catch {
-      toast.error("Failed to fetch details");
+      toast.error(t("catalog.failedToFetchDetails"));
     }
   };
 
@@ -112,19 +114,19 @@ export function useMeatCenterAddForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPlace) {
-      toast.error("Please search and select a center from the map");
+      toast.error(t("catalog.pleaseSearchAndSelectCenterFromMap"));
       return;
     }
     if (!newCenter.phone.trim()) {
-      toast.error("Contact phone is required");
+      toast.error(t("catalog.contactPhoneRequired"));
       return;
     }
     if (!newCenter.email.trim()) {
-      toast.error("Email is required");
+      toast.error(t("catalog.emailRequired"));
       return;
     }
     if (!newCenter.password.trim()) {
-      toast.error("Password is required");
+      toast.error(t("catalog.passwordRequired"));
       return;
     }
 

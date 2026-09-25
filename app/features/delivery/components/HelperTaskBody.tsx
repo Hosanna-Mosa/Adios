@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { HelperTaskCheckRow } from "./HelperTaskCheckRow";
@@ -38,6 +39,7 @@ export function HelperTaskBody({
   styles,
   totalContacted,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <View style={{ flex: 1 }}>
@@ -46,13 +48,13 @@ export function HelperTaskBody({
           <HelperTaskTitleRow
             styles={styles}
           />
-          <Text style={styles.subtitle}>Matching you with helpers nearby.</Text>
+          <Text style={styles.subtitle}>{t("app.delivery.matchingYouWithHelpersNearby")}</Text>
         </Animated.View>
 
         <View style={{ gap: 12, marginTop: 18 }}>
           <HelperTaskCheckRow
             state="done"
-            label={`Task published · ₹${currentTaskPrice ?? offer ?? calculatedFare}`}
+            label={`${t("app.delivery.taskPublished")}${currentTaskPrice ?? offer ?? calculatedFare}`}
             delay={60}
             accent={accent}
             styles={styles}
@@ -60,7 +62,7 @@ export function HelperTaskBody({
           {totalContacted > 0 && (
             <HelperTaskCheckRow
               state="done"
-              label={`${totalContacted} helpers notified`}
+              label={`${totalContacted} ${t("app.delivery.helpersNotified")}`}
               delay={0}
               accent={accent}
               styles={styles}
@@ -68,7 +70,7 @@ export function HelperTaskBody({
           )}
           <HelperTaskCheckRow
             state="pending"
-            label="Waiting for the first acceptance"
+            label={t("app.delivery.waitingForTheFirstAcceptance")}
             delay={100}
             accent={accent}
             styles={styles}
@@ -77,12 +79,12 @@ export function HelperTaskBody({
 
         {totalContacted > 0 && rejectedCount > 0 && (
           <Animated.View style={styles.declineNote} entering={fadeInUp(0)}>
-            <Text style={styles.declineNoteText}>{rejectedCount} of {totalContacted} contacted helpers have passed so far — consider raising your offer.</Text>
+            <Text style={styles.declineNoteText}>{rejectedCount} {t("app.delivery.of")} {totalContacted} {t("app.delivery.contactedHelpersHavePassedSoFar")}</Text>
           </Animated.View>
         )}
 
         <Animated.View style={{ marginTop: 22 }} entering={fadeInUp(160)}>
-          <Text style={styles.sectionLabel}>Attract helpers faster</Text>
+          <Text style={styles.sectionLabel}>{t("app.delivery.attractHelpersFaster")}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
             {[10, 20, 30, 40, 50].map((amount, i) => (
               <Animated.View key={amount} entering={staggerListItem(i, 30)}>

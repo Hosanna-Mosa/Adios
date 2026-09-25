@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
 
+import i18n from "@/i18n";
 import type { GetDriverState, Order, SetDriverState } from "./types";
 
 const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime", "helper"];
@@ -56,13 +57,13 @@ export function registerOrderSocketHandlers(
     const incoming = get().incomingOrder;
     if (incoming && sameId(incoming.id, orderId)) {
       set({ incomingOrder: null });
-      Alert.alert("Order Cancelled", "This incoming order was cancelled by the customer.");
+      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t("jobs.incomingOrderCancelledByCustomer"));
     }
 
     const current = get().currentOrder;
     if (current && sameId(current.id, orderId)) {
       set({ currentOrder: null, currentStep: 0 });
-      Alert.alert("Order Cancelled", "The active order has been cancelled by the customer.");
+      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t("jobs.activeOrderCancelledByCustomer"));
       router.push("/(tabs)");
     }
   });
@@ -70,9 +71,9 @@ export function registerOrderSocketHandlers(
   socketService.on("upcoming_reserved_ride", (data: any) => {
     console.log("Upcoming reserved ride alert received:", data);
     Alert.alert(
-      "Upcoming Reserved Ride!",
-      `Your scheduled ride for ${data.customerName} starts in 15 minutes! Please prepare to travel.`,
-      [{ text: "Start Travel", onPress: () => get().startReservedRide(data.orderId) }],
+      i18n.t("jobs.upcomingReservedRide"),
+      i18n.t("jobs.scheduledRideStartsIn15Minutes", { value: data.customerName, defaultValue: "Your scheduled ride for {{value}} starts in 15 minutes! Please prepare to travel." }),
+      [{ text: i18n.t("jobs.startTravel"), onPress: () => get().startReservedRide(data.orderId) }],
       { cancelable: false },
     );
   });

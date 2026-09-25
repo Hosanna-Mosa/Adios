@@ -1,10 +1,12 @@
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useSupportChat } from "@/features/support/hooks/useSupportChat";
 import { SupportChatSidebar } from "@/features/support/components/SupportChatSidebar";
 import { SupportChatWindow } from "@/features/support/components/SupportChatWindow";
 
 export default function SupportChat() {
+  const { t } = useTranslation();
   const {
     navigateToIssues,
     navigateToChat,
@@ -21,15 +23,15 @@ export default function SupportChat() {
   } = useSupportChat();
 
   return (
-    <DashboardLayout searchPlaceholder="Search active chats...">
+    <DashboardLayout searchPlaceholder={t("support.searchActiveChats")}>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <button onClick={navigateToIssues} className="p-2 hover:bg-muted rounded-xl transition-colors border border-border bg-card shadow-sm" title="Back to Support Cases">
+          <button onClick={navigateToIssues} className="p-2 hover:bg-muted rounded-xl transition-colors border border-border bg-card shadow-sm" title={t("support.backToSupportCases")}>
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </button>
           <div>
-            <h1 className="page-header">Active Chats</h1>
-            <p className="page-subtitle">Real-time chat portal for ongoing user issues and resolution.</p>
+            <h1 className="page-header">{t("support.activeChats")}</h1>
+            <p className="page-subtitle">{t("support.realTimeChatPortalDesc")}</p>
           </div>
         </div>
 

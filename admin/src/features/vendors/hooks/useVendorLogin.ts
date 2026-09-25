@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { trackEvent } from "@/lib/analytics";
 
@@ -20,6 +21,7 @@ interface LoginResponse {
 
 /** All auth/forgot-password state and logic for VendorLogin.tsx (work queue item #9). */
 export function useVendorLogin() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [identifier, setIdentifier] = useState("");
@@ -36,7 +38,7 @@ export function useVendorLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) {
-      toast.error("Please fill in all fields");
+      toast.error(t("vendorAuth.pleaseFillInAllFields"));
       return;
     }
 
@@ -78,7 +80,7 @@ export function useVendorLogin() {
               });
               loginType = "support";
             } catch {
-              throw new Error("Invalid credentials for Vendor, Admin or Support");
+              throw new Error(t("vendorAuth.invalidCredentialsForAnyRole"));
             }
           }
         }
@@ -89,21 +91,21 @@ export function useVendorLogin() {
       if (loginType === "admin") {
         localStorage.setItem("admin_token", data.token);
         localStorage.setItem("admin_data", JSON.stringify(data.user));
-        toast.success(`Welcome back, Admin ${data.user.name}`);
+        toast.success(t("vendorAuth.welcomeBackAdmin", { name: data.user.name, defaultValue: "Welcome back, Admin {{name}}" }));
         navigate("/");
       } else if (loginType === "support") {
         localStorage.setItem("support_token", data.token);
         localStorage.setItem("support_data", JSON.stringify(data.user));
-        toast.success(`Welcome back, Support ${data.user.name}`);
+        toast.success(t("vendorAuth.welcomeBackSupport", { name: data.user.name, defaultValue: "Welcome back, Support {{name}}" }));
         navigate("/support-cases");
       } else {
         localStorage.setItem("vendor_token", data.token);
         localStorage.setItem("vendor_data", JSON.stringify(data));
-        toast.success(`Welcome back, ${data.name}`);
+        toast.success(t("vendorAuth.welcomeBack", { name: data.name, defaultValue: "Welcome back, {{name}}" }));
         navigate(data.role === "meat_vendor" ? "/vendor/meat-menu" : "/vendor/dashboard");
       }
     } catch (error) {
-      toast.error((error as Error).message || "Invalid credentials");
+      toast.error((error as Error).message || t("vendorAuth.invalidCredentials"));
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +113,7 @@ export function useVendorLogin() {
 
   const handleSendOtp = async () => {
     if (!forgotEmail) {
-      toast.error("Please enter your email address");
+      toast.error(t("vendorAuth.pleaseEnterYourEmailAddress"));
       return;
     }
 
@@ -130,10 +132,10 @@ export function useVendorLogin() {
         });
       }
 
-      toast.success("OTP sent to your email");
+      toast.success(t("vendorAuth.otpSentToEmail"));
       setForgotStep("otp");
     } catch (error) {
-      toast.error((error as Error).message || "Failed to send OTP");
+      toast.error((error as Error).message || t("vendorAuth.failedToSendOtp"));
     } finally {
       setIsLoading(false);
     }
@@ -141,17 +143,17 @@ export function useVendorLogin() {
 
   const handleResetPassword = async () => {
     if (!forgotOtp || !forgotNewPassword || !forgotConfirmPassword) {
-      toast.error("Please fill in all fields");
+      toast.error(t("vendorAuth.pleaseFillInAllFields"));
       return;
     }
 
     if (forgotNewPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("vendorAuth.passwordMustBeAtLeast6Characters"));
       return;
     }
 
     if (forgotNewPassword !== forgotConfirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error(t("vendorAuth.passwordsDoNotMatch"));
       return;
     }
 
@@ -178,10 +180,10 @@ export function useVendorLogin() {
         });
       }
 
-      toast.success("Password reset successfully!");
+      toast.success(t("vendorAuth.passwordResetSuccessBang"));
       setForgotStep("done");
     } catch (error) {
-      toast.error((error as Error).message || "Failed to reset password");
+      toast.error((error as Error).message || t("vendorAuth.failedToResetPassword"));
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +191,7 @@ export function useVendorLogin() {
 
   const handleVerifyOtp = () => {
     if (!forgotOtp || forgotOtp.length !== 6) {
-      toast.error("Please enter a valid 6-digit OTP");
+      toast.error(t("vendorAuth.pleaseEnterValid6DigitOtp"));
       return;
     }
     setForgotStep("reset");

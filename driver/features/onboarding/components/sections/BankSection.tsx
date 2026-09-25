@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { bankStyles } from "../../onboarding.styles";
@@ -12,37 +13,38 @@ import { Box } from "@/components/ui/Box";
 const digits = (t: string) => t.replace(/[^0-9]/g, "").slice(0, 18);
 
 export function BankSection() {
+  const { t } = useTranslation();
   const { docs, handleVerifyBank } = useOnboardingCtx();
 
   return (
     <Box style={bankStyles.wrap}>
       <BankNotice
-        title="Secure payout setup"
-        text="Add the account where your delivery earnings should be settled."
+        title={t("onboarding.securePayoutSetup")}
+        text={t("onboarding.addTheAccountWhereEarningsSettled")}
       />
 
       <Box style={bankStyles.card}>
         <FormInput
-          label="Account Number"
+          label={t("onboarding.accountNumber")}
           value={docs.bankAccount}
           onChangeText={(t) => docs.setBankAccount(digits(t))}
-          placeholder="Enter account number"
+          placeholder={t("onboarding.enterAccountNumber")}
           keyboardType="number-pad"
           icon="credit-card"
         />
         <FormInput
-          label="Confirm Account Number"
+          label={t("onboarding.confirmAccountNumber")}
           value={docs.bankConfirm}
           onChangeText={(t) => docs.setBankConfirm(digits(t))}
-          placeholder="Re-enter account number"
+          placeholder={t("onboarding.reEnterAccountNumber")}
           keyboardType="number-pad"
           icon="check-square"
         />
         {!!docs.bankConfirm && docs.bankAccount !== docs.bankConfirm && (
-          <BankMismatchRow message="Account numbers don&apos;t match" />
+          <BankMismatchRow message={t("onboarding.accountNumbersDontMatch")} />
         )}
         <FormInput
-          label="IFSC Code"
+          label={t("onboarding.ifscCode")}
           value={docs.ifsc}
           onChangeText={(t) => docs.setIfsc(t.toUpperCase().slice(0, 11))}
           placeholder="SBIN0001234"
@@ -51,7 +53,7 @@ export function BankSection() {
         />
         {!docs.bankVerified ? (
           <PrimaryButton
-            title="Verify Bank Account"
+            title={t("onboarding.verifyBankAccount")}
             onPress={handleVerifyBank}
             disabled={
               docs.bankAccount.length < 9 ||
@@ -63,7 +65,7 @@ export function BankSection() {
         ) : (
           <InfoBanner
             icon="check-circle"
-            text="Bank account verified! Payouts will be sent here."
+            text={t("onboarding.bankAccountVerifiedPayoutsWillBeSentHere")}
           />
         )}
       </Box>

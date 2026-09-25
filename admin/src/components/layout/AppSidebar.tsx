@@ -1,5 +1,6 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import {
   LayoutDashboard,
@@ -27,32 +28,35 @@ import {
   Image,
 } from "lucide-react";
 
-const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Live Orders", url: "/live-orders", icon: ShoppingCart },
-  { title: "Scheduled Orders", url: "/scheduled-orders", icon: CalendarClock },
-  { title: "Drivers", url: "/drivers", icon: Truck },
-  { title: "Dev Drivers", url: "/dev-drivers", icon: SlidersHorizontal },
-  { title: "Users", url: "/users", icon: Users },
-  { title: "Vendors", url: "/vendors", icon: Store },
-  { title: "Restaurant Menu", url: "/restaurant-menu", icon: Store },
-  { title: "Meal Centers", url: "/meat-centers", icon: Drumstick },
-  { title: "Meal Pricing", url: "/meat-pricing", icon: IndianRupee },
-  { title: "Zones", url: "/zones", icon: Map },
-  { title: "Payments", url: "/payments", icon: CreditCard },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Live Activity", url: "/live-activity", icon: Activity },
-  { title: "Support", url: "/support", icon: Headphones },
-  { title: "Support Cases", url: "/support-cases", icon: Headphones },
-  { title: "Active Chats", url: "/support/chats", icon: MessageSquare },
-  { title: "Coupons", url: "/coupons", icon: Ticket },
-  { title: "App Updates", url: "/app-updates", icon: RefreshCw },
-  { title: "Banners", url: "/banners", icon: Image },
-];
+function getNavItems(t: (key: string) => string) {
+  return [
+    { title: t("sidebar.dashboard"), url: "/dashboard", icon: LayoutDashboard },
+    { title: t("sidebar.liveOrders"), url: "/live-orders", icon: ShoppingCart },
+    { title: t("sidebar.scheduledOrders"), url: "/scheduled-orders", icon: CalendarClock },
+    { title: t("sidebar.drivers"), url: "/drivers", icon: Truck },
+    { title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal },
+    { title: t("sidebar.users"), url: "/users", icon: Users },
+    { title: t("sidebar.vendors"), url: "/vendors", icon: Store },
+    { title: t("sidebar.restaurantMenu"), url: "/restaurant-menu", icon: Store },
+    { title: t("sidebar.meatCenters"), url: "/meat-centers", icon: Drumstick },
+    { title: t("sidebar.meatPricing"), url: "/meat-pricing", icon: IndianRupee },
+    { title: t("sidebar.zones"), url: "/zones", icon: Map },
+    { title: t("sidebar.payments"), url: "/payments", icon: CreditCard },
+    { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
+    { title: t("sidebar.support"), url: "/support", icon: Headphones },
+    { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
+    { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
+    { title: t("sidebar.coupons"), url: "/coupons", icon: Ticket },
+    { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
+    { title: t("sidebar.banners"), url: "/banners", icon: Image },
+  ];
+}
 
 export function AppSidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const navItems = getNavItems(t);
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
@@ -69,7 +73,7 @@ export function AppSidebar() {
         <div className="px-6 py-6">
           <h1 className="text-xl font-extrabold text-brand-teal tracking-wide">FLAVOUR</h1>
           <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground font-bold mt-0.5">
-            FOOD & SERVICES
+            {t("sidebar.foodAndServices")}
           </p>
         </div>
 
@@ -88,7 +92,7 @@ export function AppSidebar() {
             return filteredNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.url);
             return (
-              <motion.div key={item.title} variants={fadeInUp}>
+              <motion.div key={item.url} variants={fadeInUp}>
                 <Link
                   to={item.url}
                   className={`flex items-center justify-between pl-6 pr-4 py-2.5 text-sm transition-colors rounded-r-full mr-4 ${
@@ -101,7 +105,7 @@ export function AppSidebar() {
                     <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
-                  {item.title === "Live Orders" && (
+                  {item.url === "/live-orders" && (
                     <span className="text-[10px] font-bold bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
                       24
                     </span>
@@ -122,26 +126,26 @@ export function AppSidebar() {
               <Headphones className="h-4.5 w-4.5" />
             </div>
             <div className="space-y-0.5">
-              <p className="text-xs font-bold text-foreground">Need Help?</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Contact support for assistance.</p>
+              <p className="text-xs font-bold text-foreground">{t("sidebar.needHelp")}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">{t("sidebar.contactSupportForAssistance")}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => navigate("/support")}
             className="w-full py-2 border border-border bg-white text-xs font-semibold rounded-xl text-foreground hover:bg-muted/50 transition-colors shadow-sm"
           >
-            Contact Support
+            {t("sidebar.contactSupport")}
           </button>
         </div>
 
         {/* Logout Button */}
         <div className="px-6 pt-3 border-t border-border">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
           >
             <LogOut className="h-[18px] w-[18px]" />
-            <span>Sign Out</span>
+            <span>{t("sidebar.signOut")}</span>
           </button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -19,6 +20,7 @@ export function CustomerChatHeader({
   onBack: () => void;
   onCall: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={[styles.header, { paddingTop }]}>
       <Touchable style={styles.backBtn} onPress={onBack}>
@@ -31,7 +33,7 @@ export function CustomerChatHeader({
         </Box>
         <Box>
           <AppText style={styles.headerName}>{customerName}</AppText>
-          <AppText style={styles.headerStatus}>Customer � Online</AppText>
+          <AppText style={styles.headerStatus}>{t("jobs.customerOnline")}</AppText>
         </Box>
       </Box>
       <Touchable style={styles.callBtn} onPress={onCall}>

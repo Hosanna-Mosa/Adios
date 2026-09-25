@@ -2,6 +2,7 @@
 // Text/TextInput accessors, so it must run before any module that renders text.
 import "@/utils/typographyPatch";
 
+import { useEffect } from "react";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -14,6 +15,8 @@ import { GlobalSocketHandler } from "@/components/shared/GlobalSocketHandler";
 import UpdateModal from "@/components/shared/UpdateModal";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/utils/networkLogger";
+import "@/i18n";
+import { useLanguageStore } from "@/store/languageStore";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useAppFonts } from "@/hooks/useAppFonts";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
@@ -40,6 +43,8 @@ function RootLayoutNav() {
 
   return (
     <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+      <Stack.Screen name="select-language" options={{ headerShown: false, animation: "fade" }} />
+      <Stack.Screen name="language-settings" options={{ headerShown: false, animation: "slide_from_bottom" }} />
       <Stack.Screen name="auth" options={{ headerShown: false, animation: "fade" }} />
       <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="identity-verify" options={{ headerShown: false, animation: "slide_from_bottom" }} />
@@ -53,6 +58,10 @@ function RootLayoutNav() {
 export default function RootLayout() {
   const { showUpdate, forceUpdate, storeUrl, handleDismissUpdate } = useVersionCheck();
   const fontsReady = useAppFonts();
+
+  useEffect(() => {
+    useLanguageStore.getState().hydrateLanguage();
+  }, []);
 
   if (!fontsReady) return null;
 

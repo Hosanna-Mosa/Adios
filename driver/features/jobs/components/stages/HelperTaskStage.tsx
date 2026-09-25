@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Alert, Linking, Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import Colors from "@/constants/colors";
 import { socketService } from "@/utils/socketService";
@@ -17,15 +18,15 @@ import {
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
-const QUICK_UPDATES = [
-  "Heading to you",
-  "Working on task",
-  "Shopping for items",
-  "Running slightly late",
-  "Almost done",
-];
-
 export function HelperTaskStage() {
+  const { t } = useTranslation();
+  const QUICK_UPDATES = [
+    t("jobs.quickUpdateHeadingToYou"),
+    t("jobs.quickUpdateWorkingOnTask"),
+    t("jobs.quickUpdateShoppingForItems"),
+    t("jobs.quickUpdateRunningSlightlyLate"),
+    t("jobs.quickUpdateAlmostDone"),
+  ];
   const {
     taskTimerSeconds, currentOrder, pickupStop, verification, handleStatusTransition,
   } = useActiveOrderCtx();
@@ -39,7 +40,7 @@ export function HelperTaskStage() {
     if (!pickupStop) return;
     const scheme = Platform.select({ ios: "maps://0,0?q=", android: "geo:0,0?q=" });
     const latLng = `${pickupStop.lat},${pickupStop.lng}`;
-    const label = "Customer Location";
+    const label = t("jobs.customerLocation");
     const url = Platform.select({
       ios: `${scheme}${label}@${latLng}`,
       android: `${scheme}${latLng}(${label})`,
@@ -49,7 +50,7 @@ export function HelperTaskStage() {
 
   const sendHelperUpdate = (text: string) => {
     socketService.emit("helper_status_update", { orderId: currentOrder.id, text });
-    Alert.alert("Update Sent", `Sent "${text}" to the customer.`);
+    Alert.alert(t("jobs.updateSent"), t("jobs.sentToCustomer", { value: text, defaultValue: 'Sent "{{value}}" to the customer.' }));
   };
 
   return (
@@ -63,7 +64,7 @@ export function HelperTaskStage() {
       />
 
       <QuickUpdateChips
-        heading="Send Quick Update to Customer"
+        heading={t("jobs.sendQuickUpdateToCustomer")}
         updates={QUICK_UPDATES}
         onSend={sendHelperUpdate}
       />
@@ -73,12 +74,12 @@ export function HelperTaskStage() {
         style={{ backgroundColor: Colors.brand, marginBottom: 16 }}
       >
         <Ionicons name="navigate" size={18} color={Colors.white} style={{ marginRight: 8 }} />
-        <AppText style={styles.actionBtnText}>Google Directions</AppText>
+        <AppText style={styles.actionBtnText}>{t("jobs.googleDirections")}</AppText>
       </StageActionButton>
 
       <OtpEntry
-        label="ENTER CUSTOMER COMPLETION OTP"
-        placeholder="Enter 4-Digit OTP"
+        label={t("jobs.enterCustomerCompletionOtp")}
+        placeholder={t("jobs.enter4DigitOtp")}
         maxLength={4}
         value={verification.customerOTP}
         onChangeText={(val) => {
@@ -86,12 +87,12 @@ export function HelperTaskStage() {
           verification.setCustomerOTPError(false);
         }}
         hasError={verification.customerOTPError}
-        errorText="Invalid OTP code. Please ask the customer for their task completion OTP."
+        errorText={t("jobs.invalidOtpAskCustomerTaskCompletion")}
         style={{ marginBottom: 20 }}
       />
 
       <StageActionButton
-        label="Verify OTP & Complete Task"
+        label={t("jobs.verifyOtpAndCompleteTask")}
         onPress={handleStatusTransition}
         style={isOvertime ? { backgroundColor: Colors.error } : null}
       />

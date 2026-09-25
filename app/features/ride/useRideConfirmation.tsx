@@ -1,9 +1,11 @@
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useRideConfirmationInsets } from "./useRideConfirmationInsets";
 import { useRideConfirmationValidStops } from "./useRideConfirmationValidStops";
 import { useRideConfirmationMapFit } from "./useRideConfirmationMapFit";
 import { useRideConfirmationGetDisplayName } from "./useRideConfirmationGetDisplayName";
 import { useRideConfirmationPlaceOrder } from "./useRideConfirmationPlaceOrder";
-export { ENABLED_TIERS } from "./useRideConfirmation.shared";
+import { getEnabledTiers } from "./useRideConfirmation.shared";
 
 // State, data loading and handlers for app/ride-confirmation.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -19,6 +21,8 @@ export function useRideConfirmation() {
   const {  } = useRideConfirmationMapFit(params, selectedTier, pickupCoords, dropCoords, setNearbyDrivers, mapReady, setRouteCoordinates, stops, validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap);
   const { getDisplayName, handleShareRoute, handleAddStopFromMap, handleRecenter } = useRideConfirmationGetDisplayName(params, setUserLocation, mapRef, stops, pickupIsValid, dropIsValid, fitTripToMap);
   const { placeOrder } = useRideConfirmationPlaceOrder(params, selectedTier, tierFares, setBooking, setShowDatePicker, setConfirmedReservation, pickupCoords, dropCoords, stops);
+  const { t } = useTranslation();
+  const ENABLED_TIERS = useMemo(() => getEnabledTiers(), [t]);
 
   return {
   insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares,
@@ -27,7 +31,7 @@ export function useRideConfirmation() {
   confirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, nearbyDrivers,
   setMapReady, routeCoordinates, mapRef, validStops, pickupIsValid, dropIsValid, tripCoordinates,
   fitTripToMap, initialRegion, getDisplayName, handleShareRoute, handleAddStopFromMap,
-  handleRecenter, placeOrder
+  handleRecenter, placeOrder, ENABLED_TIERS
   };
 }
 

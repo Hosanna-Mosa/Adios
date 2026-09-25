@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -23,20 +24,21 @@ export function SavedAddressesEmptyWrap({
   handleUseCurrentLocation,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.emptyWrap}>
       <View style={styles.emptyIconCircle}>
         <Ionicons name="location" size={moderateScale(28)} color={accent.accent} />
       </View>
-      <Text style={styles.emptyTitle}>No saved places</Text>
+      <Text style={styles.emptyTitle}>{t("app.delivery.noSavedPlaces")}</Text>
       <Text style={styles.emptySubtitle}>
-        Save the addresses you use often — home, work, your parents&apos; place — and every flow in Flavour gets one tap shorter.
+        {t("app.delivery.saveTheAddressesYouUseOften")}
       </Text>
       <TouchableOpacity style={styles.primaryBtn} onPress={() => router.push("/delivery/add-address")}>
-        <Text style={styles.primaryBtnText}>Add your first address</Text>
+        <Text style={styles.primaryBtnText}>{t("app.delivery.addYourFirstAddress")}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.secondaryBtn} onPress={handleUseCurrentLocation} disabled={currentLocLoading}>
-        {currentLocLoading ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={styles.secondaryBtnText}>Use current location</Text>}
+        {currentLocLoading ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={styles.secondaryBtnText}>{t("app.LocationPickerSheet.useCurrentLocation")}</Text>}
       </TouchableOpacity>
     </View>
   );

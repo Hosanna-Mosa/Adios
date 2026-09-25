@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 
@@ -26,6 +27,7 @@ export function BookAgainOverlayBike({
   showCancelReasons,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <TouchableOpacity
@@ -36,21 +38,21 @@ export function BookAgainOverlayBike({
     </TouchableOpacity>
 
     <View style={styles.bookAgainSheet}>
-      <Text style={styles.bookAgainTitle}>Searching for below services...</Text>
+      <Text style={styles.bookAgainTitle}>{t("app.ride.searchingForBelowServices")}</Text>
 
       <View style={styles.serviceSummaryCard}>
         <View style={styles.serviceLeft}>
           <View style={styles.serviceBikeBadge}>
             <MaterialCommunityIcons name="motorbike" size={30} color={colors.text} />
           </View>
-          <Text style={styles.serviceName}>Bike</Text>
+          <Text style={styles.serviceName}>{t("app.rideTierNames.bike")}</Text>
         </View>
         <Text style={styles.serviceFare}>₹{fare}</Text>
       </View>
 
       <View style={styles.bookDashedLine} />
 
-      <Text style={styles.locationTitle}>Location Details</Text>
+      <Text style={styles.locationTitle}>{t("app.ride.locationDetails")}</Text>
       <View style={styles.locationRows}>
         <View style={styles.locationRail}>
           <View style={styles.pickupSmallDot} />
@@ -78,27 +80,27 @@ export function BookAgainOverlayBike({
       </View>
 
       <View style={styles.totalFareRow}>
-        <Text style={styles.totalFareLabel}>Total Fare</Text>
+        <Text style={styles.totalFareLabel}>{t("app.ride.totalFare")}</Text>
         <Text style={styles.totalFareValue}>₹{fare}</Text>
       </View>
 
       <View style={styles.paymentRow}>
         <Ionicons name="cash-outline" size={20} color={colors.textSecondary} />
-        <Text style={styles.paymentText}>Paying via cash</Text>
+        <Text style={styles.paymentText}>{t("app.ride.payingViaCash")}</Text>
       </View>
 
       <TouchableOpacity
         style={styles.backYellowButton}
         onPress={() => setTripDetailsVisible(false)}
       >
-        <Text style={styles.backYellowText}>Back</Text>
+        <Text style={styles.backYellowText}>{t("app.ride.back")}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.cancelRideButton}
         onPress={showCancelReasons}
       >
-        <Text style={styles.cancelRideText}>Cancel Ride</Text>
+        <Text style={styles.cancelRideText}>{t("app.ride.cancelRide")}</Text>
       </TouchableOpacity>
     </View>
     </>

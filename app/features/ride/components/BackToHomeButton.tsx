@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import type { RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
 
@@ -10,9 +11,10 @@ interface Props {
 }
 
 export function BackToHomeButton({ styles }: Props) {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity style={styles.footerSecondaryBtn} onPress={() => router.replace("/(tabs)")}>
-      <Text style={styles.footerSecondaryBtnText}>Back to home</Text>
+      <Text style={styles.footerSecondaryBtnText}>{t("app.rideconfirmation.backToHome")}</Text>
     </TouchableOpacity>
   );
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -22,13 +23,14 @@ export function RouteSummaryCard({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.section} entering={fadeInUp(60)}>
-      <Text style={styles.sectionLabel}>Active route</Text>
+      <Text style={styles.sectionLabel}>{t("app.delivery.activeRoute")}</Text>
       {stops.length === 0 ? (
         <View style={styles.emptyStops}>
           <Ionicons name="location-outline" size={20} color={tokens.muted} />
-          <Text style={styles.emptyStopsText}>No stops added</Text>
+          <Text style={styles.emptyStopsText}>{t("app.delivery.noStopsAdded")}</Text>
         </View>
       ) : (
         <View style={styles.routeCard}>
@@ -44,19 +46,19 @@ export function RouteSummaryCard({
             <View style={styles.dropSquare} />
           </View>
           <View style={{ flex: 1, minWidth: 0, gap: 12 }}>
-            <Text style={styles.routeStartEnd}>Start</Text>
+            <Text style={styles.routeStartEnd}>{t("app.delivery.start")}</Text>
             {stops.map((stop) => (
               <View key={stop.id}>
                 <Text style={styles.stopName} numberOfLines={1}>{stop.storeName || stop.address}</Text>
                 {stop.items && stop.items.length > 0 && (
                   <Text style={styles.stopMeta}>
-                    {stop.items.length} {stop.items.length === 1 ? "item" : "items"}
-                    {stop.items.some((i) => i.estimatedPrice != null) ? ` · ₹${stop.items.reduce((s, i) => s + (i.estimatedPrice || 0) * i.quantity, 0)} est.` : ""}
+                    {t("app.food.itemCount", { count: stop.items.length })}
+                    {stop.items.some((i) => i.estimatedPrice != null) ? ` · ₹${stop.items.reduce((s, i) => s + (i.estimatedPrice || 0) * i.quantity, 0)} ${t("app.delivery.estLower")}` : ""}
                   </Text>
                 )}
               </View>
             ))}
-            <Text style={styles.routeStartEnd}>Drop</Text>
+            <Text style={styles.routeStartEnd}>{t("app.delivery.drop")}</Text>
           </View>
         </View>
       )}

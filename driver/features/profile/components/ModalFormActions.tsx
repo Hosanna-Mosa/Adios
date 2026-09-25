@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { modalActionStyles as styles } from "./ModalFormActions.styles";
 import { PressBox } from "@/components/ui/PressBox";
@@ -20,10 +21,11 @@ export function ModalFormActions({
   busyLabel: string;
   busy: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.editActions}>
       <PressBox style={styles.cancelBtn} onPress={onCancel}>
-        <AppText style={styles.cancelBtnText}>Cancel</AppText>
+        <AppText style={styles.cancelBtnText}>{t("actions.cancel")}</AppText>
       </PressBox>
       <PressBox
         style={[styles.saveBtn, busy && { opacity: 0.6 }]}

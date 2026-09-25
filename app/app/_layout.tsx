@@ -23,6 +23,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAuthStore } from "@/contexts/authStore";
+import { useIntroSplashStore } from "@/contexts/introSplashStore";
+import { useLanguageStore } from "@/contexts/languageStore";
+import "@/i18n";
 // Side-effect import: patches Text/TextInput to pair a weight with its font file.
 import "@/constants/applyFontPatch";
 // Side-effect import: subscribes the cart to the signed-in account. It used to
@@ -117,36 +120,64 @@ export default function RootLayout() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
+  const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
+  const introSplashDone = useIntroSplashStore((s) => s.introSplashDone);
   const segments = useSegments();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Initialize auth and restore the saved theme (both read AsyncStorage),
-      // then hide splash — resolving the theme first keeps the app from
-      // flashing light before settling on the user's choice.
-      Promise.all([initializeAuth(), useThemeStore.getState().hydrateTheme()]).then(() => {
+      // Initialize auth, restore the saved theme, and restore the saved
+      // language (all three read AsyncStorage), then hide splash — resolving
+      // these first keeps the app from flashing light/English before settling
+      // on the user's saved choices.
+      Promise.all([
+        initializeAuth(),
+        useThemeStore.getState().hydrateTheme(),
+        useLanguageStore.getState().hydrateLanguage(),
+      ]).then(() => {
         SplashScreen.hideAsync();
       });
     }
   }, [fontsLoaded, fontError]);
 
-  // Once auth is initialized and fonts are ready, redirect based on token
+  // Once auth/language are initialized and fonts are ready, redirect based on
+  // a restored session first, then the language gate, then the rest of the
+  // auth flow. Waits for the existing purple "FLAVOUR" splash inside
+  // app/index.tsx to finish first, so app/index.tsx is never replaced
+  // mid-animation — see contexts/introSplashStore.ts.
   useEffect(() => {
-    if (!(fontsLoaded || fontError) || !isInitialized) return;
+    if (!(fontsLoaded || fontError) || !isInitialized || !introSplashDone) return;
 
     const firstSegment = segments[0];
     const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
 
-    if (!token && !isAuthScreen) {
-      router.replace("/login");
+    // A restored session always wins — an authenticated user goes straight to
+    // the main app and never sees the language gate again this process.
+    if (token) {
+      if (isAuthScreen) {
+        router.replace("/(tabs)");
+      }
       return;
     }
 
-    if (token && isAuthScreen) {
-      // Token exists → go straight to the main app
-      router.replace("/(tabs)");
+    // Unauthenticated: the language gate takes priority over the rest of the
+    // auth flow, so Login (and every other auth screen) is read in the
+    // user's chosen language. `languageConfirmed` is in-memory only — reset
+    // on every cold start and after sign-out — so a *persisted* language
+    // choice can pre-select an option on that screen without ever letting it
+    // be skipped outright.
+    if (!languageConfirmed) {
+      if (firstSegment !== "select-language") {
+        router.replace("/select-language");
+      }
+      return;
     }
-  }, [isInitialized, token, fontsLoaded, fontError, segments]);
+
+
+    if (!isAuthScreen) {
+      router.replace("/login");
+    }
+  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone]);
   usePushNotifications(token);
   useAnalytics();
 

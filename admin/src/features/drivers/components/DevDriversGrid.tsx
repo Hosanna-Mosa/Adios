@@ -1,4 +1,5 @@
 import { RefreshCw, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { DevDriverCard } from "./DevDriverCard";
 import type { DevDriver } from "../devDriversTypes";
@@ -14,10 +15,11 @@ interface DevDriversGridProps {
 
 /** The loading/empty/grid states for the dev-driver cards on DevDrivers.tsx. */
 export function DevDriversGrid({ isLoading, drivers, updatingId, onStatusToggle, onVehicleChange, onLocationSubmit }: DevDriversGridProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20 text-muted-foreground">
-        <RefreshCw className="h-6 w-6 animate-spin text-primary mr-2" /> Loading Dev Drivers...
+        <RefreshCw className="h-6 w-6 animate-spin text-primary mr-2" /> {t("drivers.loadingDevDrivers")}
       </div>
     );
   }
@@ -26,9 +28,9 @@ export function DevDriversGrid({ isLoading, drivers, updatingId, onStatusToggle,
     return (
       <div className="section-card p-12 text-center flex flex-col items-center justify-center gap-4">
         <ShieldAlert className="h-12 w-12 text-warning" />
-        <h4 className="font-bold text-foreground">No Dev Drivers Seeded</h4>
+        <h4 className="font-bold text-foreground">{t("drivers.noDevDriversSeeded")}</h4>
         <p className="text-sm text-muted-foreground max-w-md">
-          Please click the button above to seed 10 mock drivers (check1 to check10) centered around Kakinada.
+          {t("drivers.pleaseClickButtonToSeedDesc")}
         </p>
       </div>
     );

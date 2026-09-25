@@ -1,5 +1,6 @@
 import { Alert } from "react-native";
 import { SupportTicket } from "./useSupportChat.shared";
+import i18n from "@/i18n";
 import { resolveTicket, sendTicketMessage } from "@/services/support.service";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
@@ -15,7 +16,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       const updatedTicket = await sendTicketMessage<SupportTicket>(ticket._id, messageText);
       setTicket(updatedTicket);
     } catch (error: any) {
-      Alert.alert("Message not sent", error.message || "Please try again.");
+      Alert.alert(i18n.t("app.support.messageNotSent"), error.message || i18n.t("app.ride.pleaseTryAgain"));
       setInputText(messageText);
     } finally {
       setSubmittingReply(false);

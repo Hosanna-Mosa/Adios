@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { LazyImage } from "../../../components/shared/LazyImage";
 import { FadeIn } from "../../../components/motion/FadeIn";
@@ -8,6 +9,7 @@ const mockupBurgerImg =
 type Props = { activeMode: "food" | "ride" };
 
 export function ExperienceShowcase({ activeMode }: Props) {
+  const { t } = useTranslation();
   return (
     <section id="experience" className="py-24 bg-surface-soft">
       <FadeIn inView className="max-w-[1440px] mx-auto px-10 md:px-20">
@@ -34,11 +36,11 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   <div className="px-4 py-2 border-b border-surface-container bg-white flex justify-between items-center">
                     <div>
                       <span className="text-[8px] uppercase tracking-wider text-secondary-app block">
-                        DELIVERY ADDRESS
+                        {t("experienceShowcase.deliveryAddress")}
                       </span>
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-bold text-primary">
-                          Executive Suite 402
+                          {t("experienceShowcase.executiveSuite")}
                         </span>
                         <Icon
                           name="keyboard_arrow_down"
@@ -69,7 +71,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                         />
                       </div>
                       <span className="text-[8px] font-bold text-secondary-app mt-1">
-                        Tasks
+                        {t("experienceShowcase.tasks")}
                       </span>
                     </div>
                     <div className="flex flex-col items-center">
@@ -80,7 +82,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                         />
                       </div>
                       <span className="text-[8px] font-bold text-secondary-app mt-1">
-                        Rides
+                        {t("hero.rides")}
                       </span>
                     </div>
                     <div className="flex flex-col items-center">
@@ -91,7 +93,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                         />
                       </div>
                       <span className="text-[8px] font-bold text-primary mt-1">
-                        Food
+                        {t("hero.food")}
                       </span>
                     </div>
                   </div>
@@ -99,17 +101,17 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   {/* Greeting & Custom Pills */}
                   <div className="p-4 bg-white">
                     <h4 className="text-sm font-bold text-primary mb-2 font-display">
-                      Good Evening, Julian
+                      {t("experienceShowcase.greeting")}
                     </h4>
                     <div className="flex gap-1.5 overflow-x-hidden">
                       <span className="text-[8px] font-extrabold px-2.5 py-1 bg-primary text-white rounded-full">
-                        All Food
+                        {t("experienceShowcase.allFood")}
                       </span>
                       <span className="text-[8px] font-bold px-2.5 py-1 bg-neutral-100 text-neutral-600 rounded-full">
-                        Michelin
+                        {t("experienceShowcase.michelin")}
                       </span>
                       <span className="text-[8px] font-bold px-2.5 py-1 bg-neutral-100 text-neutral-600 rounded-full">
-                        Artisan
+                        {t("experienceShowcase.artisan")}
                       </span>
                     </div>
                   </div>
@@ -119,18 +121,18 @@ export function ExperienceShowcase({ activeMode }: Props) {
                     <div className="h-28 bg-neutral-200 relative">
                       <LazyImage
                         src={mockupBurgerImg}
-                        alt="Burger"
+                        alt={t("experienceShowcase.burgerAlt")}
                         className="w-full h-full object-cover"
                         wrapperClassName="w-full h-full"
                       />
                       <span className="absolute top-2 left-2 bg-green-600 text-white text-[7px] font-bold px-1.5 py-0.5 rounded">
-                        PURE VEG
+                        {t("experienceShowcase.pureVeg")}
                       </span>
                     </div>
                     <div className="p-3">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-primary font-display">
-                          The Burger Club
+                          {t("experienceShowcase.burgerClub")}
                         </span>
                         <Icon
                           name="favorite"
@@ -141,9 +143,9 @@ export function ExperienceShowcase({ activeMode }: Props) {
                         <span className="text-amber-500 font-bold flex items-center">
                           4.9 ★
                         </span>
-                        <span>(1.2k+ reviews)</span>
+                        <span>{t("experienceShowcase.reviewsCount")}</span>
                         <span>•</span>
-                        <span>15-20 min</span>
+                        <span>{t("experienceShowcase.deliveryTime")}</span>
                       </div>
                     </div>
                   </div>
@@ -152,7 +154,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   <div className="absolute bottom-4 left-3 right-3 bg-white p-2.5 rounded-lg border border-secondary-fixed-dim shadow-md flex items-center gap-2">
                     <Icon name="search" className="text-primary text-sm" />
                     <span className="text-[9px] text-secondary-app font-medium">
-                      Order, book, or ship anything
+                      {t("experienceShowcase.searchPlaceholder")}
                     </span>
                   </div>
                 </div>
@@ -162,14 +164,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
             {/* Right Side Text Block */}
             <div className="text-left">
               <h2 className="text-3xl md:text-4xl font-extrabold text-primary font-display mb-6 tracking-tight">
-                Command Your Lifestyle
+                {t("experienceShowcase.commandYourLifestyle")}
               </h2>
               <p className="text-secondary-app text-base mb-8 leading-relaxed font-body">
-                Unlock the full power of Flavor with our unified mobile
-                interface. Switch effortlessly between services—book a black car
-                for your evening, order a gourmet meal for your arrival, or have
-                documents delivered across town—all within a single, secure
-                ecosystem.
+                {t("experienceShowcase.commandYourLifestyleDesc")}
               </p>
 
               {/* Feature Bullet Points */}
@@ -180,11 +178,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Unified Service Hub
+                      {t("experienceShowcase.unifiedServiceHub")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      One app for all your movement, culinary, and logistical
-                      needs.
+                      {t("experienceShowcase.unifiedServiceHubFoodDesc")}
                     </p>
                   </div>
                 </div>
@@ -195,11 +192,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Global Priority Access
+                      {t("experienceShowcase.globalPriorityAccess")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      Elite status across all service tiers for consistent
-                      excellence.
+                      {t("experienceShowcase.globalPriorityAccessDesc")}
                     </p>
                   </div>
                 </div>
@@ -210,10 +206,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Intelligent Routing
+                      {t("experienceShowcase.intelligentRouting")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      Predictive scheduling that anticipates your next move.
+                      {t("experienceShowcase.intelligentRoutingDesc")}
                     </p>
                   </div>
                 </div>
@@ -232,11 +228,11 @@ export function ExperienceShowcase({ activeMode }: Props) {
             {/* Left Side Text Block */}
             <div className="text-left order-2 lg:order-1">
               <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-kinetic mb-4 block font-display">
-                The Experience
+                {t("experienceShowcase.theExperience")}
               </span>
               <h2 className="text-3xl md:text-4xl font-extrabold text-primary font-display mb-6 tracking-tight">
-                Your Private Fleet, <br />
-                One Tap Away.
+                {t("experienceShowcase.privateFleetLine1")} <br />
+                {t("experienceShowcase.privateFleetLine2")}
               </h2>
 
               {/* Feature Bullet Points */}
@@ -247,11 +243,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Unified Service Hub
+                      {t("experienceShowcase.unifiedServiceHub")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      One elite app for all your executive movement and transit
-                      needs.
+                      {t("experienceShowcase.unifiedServiceHubRideDesc")}
                     </p>
                   </div>
                 </div>
@@ -262,11 +257,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Global Priority Standards
+                      {t("experienceShowcase.globalPriorityStandards")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      Experience a consistent standard of chauffeur excellence
-                      across all service tiers.
+                      {t("experienceShowcase.globalPriorityStandardsDesc")}
                     </p>
                   </div>
                 </div>
@@ -277,11 +271,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-primary font-display mb-1">
-                      Intelligent Predictive Routing
+                      {t("experienceShowcase.intelligentPredictiveRouting")}
                     </h4>
                     <p className="text-sm text-secondary-app leading-relaxed font-body">
-                      Our AI anticipates your schedule, suggesting airport
-                      transfers or city commutes when you need them most.
+                      {t("experienceShowcase.intelligentPredictiveRoutingDesc")}
                     </p>
                   </div>
                 </div>
@@ -348,10 +341,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                   <div className="absolute bottom-3 left-3 right-3 bg-white p-3 rounded-xl border border-secondary-fixed-dim shadow-2xl z-10 flex flex-col">
                     <div className="flex justify-between items-center mb-2.5">
                       <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
-                        Select Vehicle
+                        {t("experienceShowcase.selectVehicle")}
                       </span>
                       <span className="text-[8px] font-bold text-secondary-app">
-                        3 cars available
+                        {t("experienceShowcase.carsAvailable")}
                       </span>
                     </div>
                     <div className="space-y-1.5">
@@ -363,10 +356,10 @@ export function ExperienceShowcase({ activeMode }: Props) {
                           />
                           <div className="leading-none">
                             <span className="text-[9px] font-bold text-primary block">
-                              Executive Sedan
+                              {t("experienceShowcase.executiveSedan")}
                             </span>
                             <span className="text-[7px] text-secondary-app">
-                              BMW 5-Series or Mercedes E-Class
+                              {t("experienceShowcase.executiveSedanModels")}
                             </span>
                           </div>
                         </div>
@@ -376,7 +369,7 @@ export function ExperienceShowcase({ activeMode }: Props) {
                       </div>
                     </div>
                     <button className="w-full mt-3 bg-primary text-white text-[10px] font-bold py-2.5 rounded hover:bg-primary/90 transition-all text-center">
-                      Confirm Elite Ride
+                      {t("experienceShowcase.confirmEliteRide")}
                     </button>
                   </div>
                 </div>

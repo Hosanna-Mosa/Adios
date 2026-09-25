@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   available,
   field,
@@ -11,6 +12,7 @@ import {
 /** Turns the profile response into the list of sections the tab shows, each
  * with its own set of label/value rows. Pure assembly, no rendering. */
 export function useProfileSections(profile: any) {
+  const { t } = useTranslation();
   const sections = useMemo(() => {
     if (!profile) return [];
     const driver = profile.driver;
@@ -19,97 +21,104 @@ export function useProfileSections(profile: any) {
       {
         key: "personal",
         icon: "user" as const,
-        title: "Personal Info",
+        title: t("profile.personalInfo"),
         subtitle: profile.account.phone,
         fields: [
-          field("Name", profile.account.name),
-          field("Username", profile.account.username),
-          field("Email", profile.account.email),
-          field("Phone", profile.account.phone),
-          field("Gender", driver?.gender),
-          field("Member Since", formatMonthYear(profile.account.createdAt)),
+          field(t("profile.name"), profile.account.name),
+          field(t("profile.username"), profile.account.username),
+          field(t("profile.email"), profile.account.email),
+          field(t("profile.phone"), profile.account.phone),
+          field(t("onboarding.sections.gender"), driver?.gender),
+          field(t("profile.memberSince"), formatMonthYear(profile.account.createdAt)),
         ],
       },
       {
         key: "documents",
         icon: "file-text" as const,
-        title: "Document Center",
+        title: t("profile.documentCenter"),
         subtitle: profile.verification.documentsComplete
-          ? "All required documents complete"
-          : "Some documents are pending",
+          ? t("profile.allRequiredDocumentsComplete")
+          : t("profile.someDocumentsArePending"),
         fields: [
-          field("Onboarding Status", driver?.onboardingStatus),
-          field("Aadhaar", driver?.aadhaarNumber),
-          field("Aadhaar Verified", yesNo(driver?.aadhaarVerified)),
-          field("PAN", driver?.panNumber),
-          field("Driving License", driver?.dlNumber),
-          field("DL Expiry", formatDate(driver?.dlExpiry)),
-          field("DL Status", profile.verification.drivingLicense),
-          field("Selfie", available(driver?.selfieImage)),
+          field(t("profile.onboardingStatus"), driver?.onboardingStatus),
+          field(t("onboarding.sections.aadhaar"), driver?.aadhaarNumber),
+          field(t("profile.aadhaarVerified"), yesNo(driver?.aadhaarVerified)),
+          field(t("onboarding.sections.pan"), driver?.panNumber),
+          field(t("profile.drivingLicense"), driver?.dlNumber),
+          field(t("profile.dlExpiry"), formatDate(driver?.dlExpiry)),
+          field(t("profile.dlStatus"), profile.verification.drivingLicense),
+          field(t("onboarding.sections.selfie"), available(driver?.selfieImage)),
         ],
       },
       {
         key: "vehicle",
         icon: "truck" as const,
-        title: "Vehicle Details",
+        title: t("profile.vehicleDetails"),
         subtitle: profile.vehicle.label,
         fields: [
-          field("Vehicle Type", profile.vehicle.label),
-          field("Insurance Status", profile.vehicle.insuranceStatus),
-          field("Driver Status", driver?.status),
+          field(t("profile.vehicleType"), profile.vehicle.label),
+          field(t("profile.insuranceStatus"), profile.vehicle.insuranceStatus),
+          field(t("profile.driverStatus"), driver?.status),
         ],
       },
       {
         key: "bank",
         icon: "credit-card" as const,
-        title: "Payout Settings",
+        title: t("profile.payoutSettings"),
         subtitle: profile.verification.bank
-          ? "Bank account ready for cash out"
-          : "Add a bank account for payouts",
+          ? t("profile.bankAccountReadyForCashOut")
+          : t("profile.addABankAccountForPayouts"),
         fields: [
-          field("Bank Account", driver?.bankAccountNumber),
-          field("IFSC", driver?.bankIfsc),
-          field("Bank Verified", yesNo(driver?.bankVerified)),
+          field(t("profile.bankAccount"), driver?.bankAccountNumber),
+          field(t("profile.ifsc"), driver?.bankIfsc),
+          field(t("profile.bankVerified"), yesNo(driver?.bankVerified)),
         ],
       },
       {
         key: "address",
         icon: "map-pin" as const,
-        title: "Saved Addresses",
-        subtitle: `${profile.account.addresses?.length || 0} saved addresses`,
+        title: t("profile.savedAddresses"),
+        subtitle: t("profile.xSavedAddresses", { value: profile.account.addresses?.length || 0, defaultValue: "{{value}} saved addresses" }),
         fields: [],
       },
       {
         key: "notifications",
         icon: "bell" as const,
-        title: "Notifications",
-        subtitle: "Jobs, chat, payouts and account updates",
+        title: t("profile.notifications"),
+        subtitle: t("profile.jobsChatPayoutsAndAccountUpdates"),
+        fields: [],
+      },
+      {
+        key: "language",
+        icon: "globe" as const,
+        title: t("language.language"),
+        subtitle: t("profile.changeAppLanguage"),
         fields: [],
       },
       {
         key: "settings",
         icon: "settings" as const,
-        title: "Settings",
-        subtitle: "Account preferences",
+        title: t("profile.settings"),
+        subtitle: t("profile.accountPreferences"),
         fields: [
-          field("Default Location", formatCoordinates(profile.account.defaultLocation?.coordinates)),
-          field("Saved Addresses", String(profile.account.addresses.length)),
-          field("Member Since", formatDate(profile.account.createdAt)),
+          field(t("profile.defaultLocation"), formatCoordinates(profile.account.defaultLocation?.coordinates)),
+          field(t("profile.savedAddresses"), String(profile.account.addresses.length)),
+          field(t("profile.memberSince"), formatDate(profile.account.createdAt)),
         ],
       },
       {
         key: "support",
         icon: "message-circle" as const,
-        title: "Support",
-        subtitle: "Get help with your account",
+        title: t("support.partnerSupport", "Support"),
+        subtitle: t("profile.getHelpWithYourAccount"),
         fields: [
-          field("Phone", profile.account.phone),
-          field("Email", profile.account.email || "Not added"),
-          field("Completed Trips", String(profile.stats.completedTrips)),
+          field(t("profile.phone"), profile.account.phone),
+          field(t("profile.email"), profile.account.email || t("profile.notAdded")),
+          field(t("profile.completedTrips"), String(profile.stats.completedTrips)),
         ],
       },
     ];
-  }, [profile]);
+  }, [profile, t]);
 
 
   return sections;

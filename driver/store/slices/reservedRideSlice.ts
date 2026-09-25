@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 
+import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { mapApiOrder } from "../orderMapper";
 import type { DriverState, GetDriverState, Order, SetDriverState } from "../types";
@@ -7,12 +8,12 @@ import type { DriverState, GetDriverState, Order, SetDriverState } from "../type
 const placeholderRide = (orderId: string): Order =>
   ({
     id: orderId,
-    distance: "N/A",
-    duration: "N/A",
+    distance: i18n.t("jobs.notAvailableAbbr"),
+    duration: i18n.t("jobs.notAvailableAbbr"),
     earnings: 0,
     status: "driver_assigned",
-    customerName: "Customer",
-    customerPhone: "N/A",
+    customerName: i18n.t("jobs.customer"),
+    customerPhone: i18n.t("jobs.notAvailableAbbr"),
     timestamp: new Date(),
     serviceType: "ride",
     stops: [],

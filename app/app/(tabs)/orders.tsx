@@ -1,3 +1,6 @@
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 import { OrdersHeader } from "@/features/orders/components/OrdersHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useOrders } from "@/features/orders/useOrders";
@@ -14,6 +17,32 @@ export default function OrdersScreen() {
   past, serviceCounts, handleOpenReviewModal, handleSubmitReview, handleReorder, openFilterSheet,
   applyFilters, toggleServiceFilter, pendingCount, isEmpty
   } = useOrders();
+  const { t } = useTranslation();
+
+  const SCHEDULE_PILL: Record<string, string> = useMemo(() => ({
+    pending: t("app.schedulePill.awaitingRestaurant"),
+    accepted: t("app.schedulePill.confirmed"),
+    rejected: t("app.schedulePill.rejected"),
+  }), [t]);
+
+  const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = useMemo(() => ({
+    food: { label: t("app.serviceMeta.food"), accent: "food" },
+    meat: { label: t("app.serviceMeta.meat"), accent: "meat" },
+    bike: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    auto: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    cab: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    cab_prime: { label: t("app.serviceMeta.ride"), accent: "ride" },
+    helper: { label: t("app.serviceMeta.task"), accent: "task" },
+    delivery: { label: t("app.serviceMeta.delivery"), accent: "delivery" },
+  }), [t]);
+
+  const REVIEW_TAGS = useMemo(() => [
+    t("app.reviewTags.onTime"),
+    t("app.reviewTags.politePartner"),
+    t("app.reviewTags.greatQuality"),
+    t("app.reviewTags.wellPackaged"),
+    t("app.reviewTags.safeTrip"),
+  ], [t]);
 
   return (
     <ScreenShell>
@@ -80,37 +109,26 @@ function scheduledSlot(order: any): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-const SCHEDULE_PILL: Record<string, string> = {
-  pending: "Awaiting restaurant",
-  accepted: "Confirmed",
-  rejected: "Rejected",
-};
-
-const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = {
-  food: { label: "Food", accent: "food" },
-  meat: { label: "Meat", accent: "meat" },
-  bike: { label: "Ride", accent: "ride" },
-  auto: { label: "Ride", accent: "ride" },
-  cab: { label: "Ride", accent: "ride" },
-  cab_prime: { label: "Ride", accent: "ride" },
-  helper: { label: "Task", accent: "task" },
-  delivery: { label: "Delivery", accent: "delivery" },
-};
-
-const REVIEW_TAGS = ["⚡ On time", "😊 Polite partner", "🍱 Great quality", "📦 Well packaged", "🚗 Safe trip"];
+// SCHEDULE_PILL, SERVICE_META and REVIEW_TAGS moved inside OrdersScreen() as
+// useMemo values so their labels can call t() — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11 ("Constants Migration
+// Strategy"). Object/array keys (status codes, service ids) are untouched.
 
 function activeStatusCaption(order: any, serviceKey: string): string {
+  // Plain helper (not a hook) called from deep inside the render tree via a
+  // prop reference, so it uses the shared i18n instance's t() directly
+  // instead of the useTranslation() hook — see app/i18n.ts.
   const status = String(order.status || "").toUpperCase();
   if (serviceKey === "food" || serviceKey === "meat") {
-    if (["EN_ROUTE_DELIVERY", "PICKED_UP", "ON_THE_WAY"].includes(status)) return "Out for delivery";
-    if (["PICKING_ITEMS", "ARRIVED_PICKUP"].includes(status)) return "Preparing your order";
-    return "Order confirmed";
+    if (["EN_ROUTE_DELIVERY", "PICKED_UP", "ON_THE_WAY"].includes(status)) return i18n.t("app.tracking.deliveryLabels.outForDelivery", "Out for delivery");
+    if (["PICKING_ITEMS", "ARRIVED_PICKUP"].includes(status)) return i18n.t("app.orders.preparingYourOrder", "Preparing your order");
+    return i18n.t("app.chat.statusLabel.confirmed", "Order confirmed");
   }
   if (serviceKey === "helper") {
-    if (["EN_ROUTE_PICKUP", "DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return "Helper on the way";
-    return "Matching a helper";
+    if (["EN_ROUTE_PICKUP", "DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.orders.helperOnTheWay", "Helper on the way");
+    return i18n.t("app.orders.matchingAHelper", "Matching a helper");
   }
-  if (serviceKey === "delivery") return "Rider on the route";
-  if (["DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return "Captain assigned";
-  return "Finding your captain";
+  if (serviceKey === "delivery") return i18n.t("app.orders.riderOnTheRoute", "Rider on the route");
+  if (["DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.tracking.rideLabels.captainAssigned", "Captain assigned");
+  return i18n.t("app.orders.findingYourCaptain", "Finding your captain");
 }

@@ -1,3 +1,5 @@
+import i18n from "@/i18n";
+
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 export async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -15,8 +17,8 @@ export async function adminFetch<T>(endpoint: string, options: RequestInit = {})
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Unknown error" }));
-    throw new Error(error.message || "Request failed");
+    const error = await response.json().catch(() => ({ message: i18n.t("common.unknownError") }));
+    throw new Error(error.message || i18n.t("common.requestFailed"));
   }
 
   return response.json();

@@ -1,4 +1,5 @@
 import { Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -18,11 +19,16 @@ interface Props {
 }
 
 export function ChatSafetyBanner({ partnerLabel, isHelper, isRide, styles, tokens }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(60)} style={styles.safetyBanner}>
       <Ionicons name="shield-checkmark-outline" size={16} color={tokens.warning} />
       <Text style={styles.safetyText}>
-        Keep the conversation in Flavour. Don&apos;t share your PIN with the {partnerLabel.toLowerCase()} before the {isHelper ? "task" : isRide ? "ride" : "order"} starts.
+        {t("app.chat.safetyBanner", {
+          defaultValue: "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+          partner: partnerLabel.toLowerCase(),
+          context: isHelper ? t("app.chat.contextTask", "task") : isRide ? t("app.chat.contextRide", "ride") : t("app.chat.contextOrder", "order"),
+        })}
       </Text>
     </Animated.View>
   );

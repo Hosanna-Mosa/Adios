@@ -1,4 +1,5 @@
 import { Plus, MapPin, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,39 +35,40 @@ export function MeatCenterAddDialog({
   onSubmit,
   isSubmitting,
 }: MeatCenterAddDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          Add Meat Center
+          {t("catalog.addMeatCenter")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add New Meat Center</DialogTitle>
+          <DialogTitle>{t("catalog.addNewMeatCenter")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">Country</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.country")}</label>
               <Input value={newCenter.country} onChange={(e) => onChange({ ...newCenter, country: e.target.value })} placeholder="India" className="h-9 text-xs" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">State</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.state")}</label>
               <Input value={newCenter.state} onChange={(e) => onChange({ ...newCenter, state: e.target.value })} placeholder="Telangana" className="h-9 text-xs" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase text-muted-foreground">City</label>
+              <label className="text-[11px] font-semibold uppercase text-muted-foreground">{t("catalog.city")}</label>
               <Input value={newCenter.city} onChange={(e) => onChange({ ...newCenter, city: e.target.value })} placeholder="Hyderabad" className="h-9 text-xs" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Search on Map</label>
+            <label className="text-sm font-medium">{t("catalog.searchOnMap")}</label>
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input value={searchQuery} onChange={(e) => onSearch(e.target.value)} placeholder="Search meat shop name..." className="pl-9" />
+              <Input value={searchQuery} onChange={(e) => onSearch(e.target.value)} placeholder={t("catalog.searchMeatShopName")} className="pl-9" />
               {suggestions.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-[200px] overflow-auto">
                   {suggestions.map((s) => (
@@ -102,23 +104,23 @@ export function MeatCenterAddDialog({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Contact Phone</label>
+            <label className="text-sm font-medium">{t("catalog.contactPhone")}</label>
             <Input value={newCenter.phone} onChange={(e) => onChange({ ...newCenter, phone: e.target.value })} placeholder="+91 98765 43210" required />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email (Login)</label>
+              <label className="text-sm font-medium">{t("catalog.emailLogin")}</label>
               <Input type="email" value={newCenter.email} onChange={(e) => onChange({ ...newCenter, email: e.target.value })} placeholder="shop@example.com" required />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
-              <Input type="password" value={newCenter.password} onChange={(e) => onChange({ ...newCenter, password: e.target.value })} placeholder="Min. 8 characters" required />
+              <label className="text-sm font-medium">{t("catalog.password")}</label>
+              <Input type="password" value={newCenter.password} onChange={(e) => onChange({ ...newCenter, password: e.target.value })} placeholder={t("catalog.minCharacters", { count: 8, defaultValue: "Min. {{count}} characters" })} required />
             </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Adding..." : "Save Meat Center"}
+            {isSubmitting ? t("catalog.addingEllipsis") : t("catalog.saveMeatCenter")}
           </Button>
         </form>
       </DialogContent>

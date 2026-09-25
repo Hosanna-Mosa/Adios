@@ -1,6 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { useRouteAfterAuth } from "./useRouteAfterAuth";
@@ -31,14 +32,15 @@ export function useAuthActions({
   const [loading, setLoading] = useState(false);
   const { loginWithPassword } = useDriverStore();
   const routeAfterAuth = useRouteAfterAuth();
+  const { t } = useTranslation();
 
   const handleSignIn = async () => {
     if (phone.length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid 10-digit phone number");
+      Alert.alert(t("auth.invalidPhone"), t("auth.pleaseEnterAValid10DigitPhone"));
       return;
     }
     if (!password) {
-      Alert.alert("Password Required", "Please enter your password");
+      Alert.alert(t("auth.passwordRequired"), t("auth.enterYourPassword"));
       return;
     }
 
@@ -48,14 +50,14 @@ export function useAuthActions({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await routeAfterAuth();
     } catch (err: any) {
-      const msg = err?.message || "Login failed";
+      const msg = err?.message || t("auth.loginFailed");
       if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("sign up")) {
-        Alert.alert("Account Not Found", "No account found with this number. Please sign up first.", [
-          { text: "Sign Up", onPress: onSwitchToSignUp },
-          { text: "Cancel", style: "cancel" },
+        Alert.alert(t("auth.accountNotFound"), t("auth.noAccountFoundWithThisNumber"), [
+          { text: t("auth.signUp"), onPress: onSwitchToSignUp },
+          { text: t("actions.cancel"), style: "cancel" },
         ]);
       } else {
-        Alert.alert("Login Failed", msg);
+        Alert.alert(t("auth.loginFailed"), msg);
       }
     } finally {
       setLoading(false);
@@ -66,23 +68,23 @@ export function useAuthActions({
 
   const handleSendOTP = async () => {
     if (!name.trim()) {
-      Alert.alert("Name Required", "Please enter your full name");
+      Alert.alert(t("auth.nameRequired"), t("auth.pleaseEnterYourFullName"));
       return;
     }
     if (phone.length < 10) {
-      Alert.alert("Invalid Phone", "Please enter a valid 10-digit phone number");
+      Alert.alert(t("auth.invalidPhone"), t("auth.pleaseEnterAValid10DigitPhone"));
       return;
     }
     if (!password) {
-      Alert.alert("Password Required", "Please create a password");
+      Alert.alert(t("auth.passwordRequired"), t("auth.pleaseCreateAPassword"));
       return;
     }
     if (password.length < 6) {
-      Alert.alert("Weak Password", "Password must be at least 6 characters");
+      Alert.alert(t("auth.weakPassword"), t("auth.passwordMustBeAtLeast6Characters"));
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert("Passwords Don't Match", "Please make sure both passwords match");
+      Alert.alert(t("auth.passwordsDontMatch"), t("auth.pleaseMakeSureBothPasswordsMatch"));
       return;
     }
 
@@ -95,12 +97,12 @@ export function useAuthActions({
         body: JSON.stringify({ phone: `+91${phone}` }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to send OTP");
+      if (!response.ok) throw new Error(data.message || t("auth.failedToSendOtp"));
 
       setStep("otp");
       onAdvanceToOtp();
     } catch (err: any) {
-      Alert.alert("Error", err.message);
+      Alert.alert(t("auth.errorTitle"), err.message);
     } finally {
       setLoading(false);
     }
@@ -123,7 +125,7 @@ export function useAuthActions({
         }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Verification failed");
+      if (!response.ok) throw new Error(data.message || t("auth.verificationFailed"));
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const { setAuthenticated } = useDriverStore.getState();
@@ -131,7 +133,7 @@ export function useAuthActions({
       await routeAfterAuth();
     } catch (err: any) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert("Invalid OTP", err.message);
+      Alert.alert(t("auth.invalidOtp"), err.message);
       setOtp(["", "", "", "", "", ""]);
       otpRefs.current[0]?.focus();
     } finally {

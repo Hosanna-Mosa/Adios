@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { Coupon, NewCouponForm } from "../couponTypes";
 
@@ -17,6 +18,7 @@ const ITEMS_PER_PAGE = 8;
 
 /** All state/query/mutation logic for Coupons.tsx (work queue item #16). */
 export function useCoupons() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,13 +36,13 @@ export function useCoupons() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => {
-      toast.success("Coupon created successfully!");
+      toast.success(t("catalog.couponCreatedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
       setIsAddOpen(false);
       setNewCoupon(EMPTY_FORM);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to create coupon");
+      toast.error(err.message || t("catalog.failedToCreateCoupon"));
     },
   });
 
@@ -50,11 +52,11 @@ export function useCoupons() {
         method: "PUT",
       }),
     onSuccess: () => {
-      toast.success("Coupon status updated");
+      toast.success(t("catalog.couponStatusUpdated"));
       queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update status");
+      toast.error(err.message || t("catalog.failedToUpdateStatus"));
     },
   });
 
@@ -64,18 +66,18 @@ export function useCoupons() {
         method: "DELETE",
       }),
     onSuccess: () => {
-      toast.success("Coupon deleted successfully");
+      toast.success(t("catalog.couponDeletedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete coupon");
+      toast.error(err.message || t("catalog.failedToDeleteCoupon"));
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCoupon.code || !newCoupon.discountValue) {
-      toast.error("Please enter code and discount value");
+      toast.error(t("catalog.pleaseEnterCodeAndDiscountValue"));
       return;
     }
     createMutation.mutate({
@@ -92,7 +94,7 @@ export function useCoupons() {
   const isExpired = (coupon: Coupon) => !!coupon.expiryDate && new Date(coupon.expiryDate) <= new Date();
 
   const handleDelete = (id: string, code: string) => {
-    if (confirm(`Are you sure you want to delete coupon ${code}?`)) {
+    if (confirm(t("catalog.confirmDeleteCoupon", { code, defaultValue: "Are you sure you want to delete coupon {{code}}?" }))) {
       deleteMutation.mutate(id);
     }
   };

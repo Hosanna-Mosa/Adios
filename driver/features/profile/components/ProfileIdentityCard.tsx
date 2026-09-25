@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Colors } from "@/constants/colors";
 import { styles } from "../profile.styles";
@@ -15,6 +16,7 @@ export function ProfileIdentityCard({
   driverPhone?: string | null;
   isOnline: boolean;
 }) {
+  const { t } = useTranslation();
   const initials = driverName
     ? driverName
         .split(" ")
@@ -30,7 +32,7 @@ export function ProfileIdentityCard({
         <AppText style={styles.avatarText}>{initials}</AppText>
       </Box>
       <Box style={styles.profileInfo}>
-        <AppText style={styles.profileName}>{driverName || "Driver"}</AppText>
+        <AppText style={styles.profileName}>{driverName || t("profile.driver")}</AppText>
         <AppText style={styles.profilePhone}>{driverPhone || "+91 XXXXX XXXXX"}</AppText>
         <Box
           style={[
@@ -50,7 +52,7 @@ export function ProfileIdentityCard({
               { color: isOnline ? Colors.success : Colors.textMuted },
             ]}
           >
-            {isOnline ? "Online" : "Offline"}
+            {isOnline ? t("profile.online") : t("profile.offline")}
           </AppText>
         </Box>
       </Box>

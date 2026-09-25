@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -42,6 +43,7 @@ export function MenuVegOnly({
   tokens,
   vegOnly,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     <Image source={{ uri: (image as string) || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600" }} style={styles.heroImage} contentFit="cover" transition={200} />
@@ -79,7 +81,7 @@ export function MenuVegOnly({
         <View style={styles.vegRow}>
           <View style={styles.vegLeft}>
             <View style={styles.vegIconBox}><View style={styles.vegDot} /></View>
-            <Text style={styles.vegLabel}>Veg only</Text>
+            <Text style={styles.vegLabel}>{t("app.home.vegOnly")}</Text>
           </View>
           <TouchableOpacity
             style={[styles.vegSwitch, vegOnly && { backgroundColor: tokens.veg }]}
@@ -95,7 +97,7 @@ export function MenuVegOnly({
         <Ionicons name="search" size={moderateScale(15)} color={tokens.sec} />
         <TextInput
           style={styles.searchInput}
-          placeholder={`Search in ${name}`}
+          placeholder={t("app.food.searchInVar", { value: name })}
           placeholderTextColor={tokens.muted}
           value={searchQuery}
           onChangeText={setSearchQuery}

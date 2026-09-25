@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import React from "react";
 import { Linking } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
@@ -16,17 +17,18 @@ import {
 import { Box } from "@/components/ui/Box";
 
 export function RideAcceptedStage() {
+  const { t } = useTranslation();
   const {
     currentOrder, pickupStop, deliveryStop, unreadCount,
     openRideNavigation, handleStatusTransition,
   } = useActiveOrderCtx();
 
   return (
-    <OrderStage title="Ride Accepted">
+    <OrderStage title={t("jobs.rideAccepted")}>
       <Box style={styles.infoBox}>
         <StopInfoItem
-          label="Pickup Rider From"
-          name={currentOrder.customerName || "Rider"}
+          label={t("jobs.pickupRiderFrom")}
+          name={currentOrder.customerName || t("jobs.rider")}
           address={pickupStop?.address}
           layout="row"
           actions={
@@ -51,13 +53,13 @@ export function RideAcceptedStage() {
         />
         <StopsDivider />
         <StopInfoItem
-          label="Destination Location"
-          name={deliveryStop?.locationName || "Destination"}
+          label={t("jobs.destinationLocation")}
+          name={deliveryStop?.locationName || t("jobs.destination")}
           address={deliveryStop?.address}
         />
       </Box>
 
-      <StageActionButton label="Start Travel to Pickup" onPress={handleStatusTransition} />
+      <StageActionButton label={t("jobs.startTravelToPickup")} onPress={handleStatusTransition} />
     </OrderStage>
   );
 }

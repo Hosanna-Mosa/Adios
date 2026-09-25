@@ -1,6 +1,7 @@
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
 import { Truck as TruckIcon, Plus, Minus, Layers } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
+import { useTranslation } from "react-i18next";
 import type { MapMarker, OrderDriver } from "../orderDetailTypes";
 
 interface OrderRouteMapProps {
@@ -17,6 +18,7 @@ interface OrderRouteMapProps {
 
 /** The right-panel route map (Google Map + zoom/type controls + live-tracking card) on OrderDetail.tsx. */
 export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, setMapType, mapMarkers, polylinePath, driver }: OrderRouteMapProps) {
+  const { t } = useTranslation();
   return (
     <div className="relative h-full w-full flex-1 min-h-[400px]">
       {isLoaded ? (
@@ -53,7 +55,7 @@ export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, set
         </GoogleMap>
       ) : (
         <div className="bg-gradient-to-br from-primary/10 to-primary/20 absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
-          Loading Route Map...
+          {t("orders.loadingRouteMap")}
         </div>
       )}
 
@@ -82,20 +84,20 @@ export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, set
       {/* Vehicle Tracker */}
       {driver && (
         <div className="absolute bottom-6 left-6 right-6 bg-card/95 backdrop-blur rounded-xl shadow-lg p-4 z-10">
-          <p className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-2">Live Tracking</p>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-2">{t("orders.liveTracking")}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
                 <TruckIcon className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">{driver.user?.name || "Driver"}</p>
-                <p className="text-xs text-muted-foreground">Vehicle: {driver.vehicleNumber || "VAN"}</p>
+                <p className="text-sm font-bold text-foreground">{driver.user?.name || t("orders.driver")}</p>
+                <p className="text-xs text-muted-foreground">{t("orders.vehicleColon", { value: driver.vehicleNumber || "VAN", defaultValue: "Vehicle: {{value}}" })}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-foreground">Active <span className="text-sm font-normal text-muted-foreground">GPS</span></p>
-              <p className="text-xs text-muted-foreground">Steady Velocity</p>
+              <p className="text-3xl font-bold text-foreground">{t("orders.active")} <span className="text-sm font-normal text-muted-foreground">{t("orders.gps")}</span></p>
+              <p className="text-xs text-muted-foreground">{t("orders.steadyVelocity")}</p>
             </div>
           </div>
         </div>

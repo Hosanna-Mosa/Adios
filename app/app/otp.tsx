@@ -1,4 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { Button } from "@/components/ui/Button";
 import { fadeInUp } from "@/motion/presets";
@@ -15,6 +16,7 @@ export default function OTPScreen() {
   loading, tokens, accent, styles, handleChange, handleKeyPress, handleVerify, handleResend,
   handleCallInstead, isFilled
   } = useOTP();
+  const { t } = useTranslation();
 
   return (
     <KeyboardAvoidingView
@@ -62,7 +64,7 @@ export default function OTPScreen() {
 
         <Animated.View entering={fadeInUp(340)}>
           <Button
-            title="Verify & continue"
+            title={t("app.otp.verifyContinue")}
             onPress={handleVerify}
             disabled={!isFilled}
             loading={loading}

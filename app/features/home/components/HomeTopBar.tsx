@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { router } from "expo-router";
@@ -25,10 +26,11 @@ export function HomeTopBar({
   areaLine,
   setIsDistanceSheetOpen,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.topRow, { paddingTop: insets.top + 6 }]}>
       <TouchableOpacity style={styles.addressBlock} activeOpacity={0.7} onPress={() => router.push("/delivery/saved-addresses")}>
-        <Text style={styles.addressEyebrow}>Delivery to</Text>
+        <Text style={styles.addressEyebrow}>{t("app.home.deliveryTo")}</Text>
         <View style={styles.addressLabelRow}>
           <Text style={styles.addressLabel} numberOfLines={1}>{areaLabel}</Text>
           <Ionicons name="chevron-down" size={moderateScale(12)} color={tokens.sec} />

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -21,6 +22,7 @@ export function PrimaryButton({
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Touchable
       style={[btnStyles.button, disabled && btnStyles.disabled]}
@@ -29,7 +31,7 @@ export function PrimaryButton({
       activeOpacity={0.8}
     >
       {loading ? (
-        <AppText style={btnStyles.text}>Please wait...</AppText>
+        <AppText style={btnStyles.text}>{t("onboarding.pleaseWait")}</AppText>
       ) : (
         <>
           <AppText style={btnStyles.text}>{title}</AppText>

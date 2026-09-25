@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { ENABLED_TIERS } from "./useRideConfirmation.shared";
+import { getEnabledTiers } from "./useRideConfirmation.shared";
+import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
@@ -29,7 +30,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
       if (isReserved) {
         setShowDatePicker(false);
         setConfirmedReservation({
-          tierName: ENABLED_TIERS.find((t) => t.id === selectedTier)?.name,
+          tierName: getEnabledTiers().find((t) => t.id === selectedTier)?.name,
           dateTimeStr: reservedAt?.toLocaleString([], { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }),
           timeStr: reservedAt?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           fare: tierFares[selectedTier]?.fareBreakdown?.total,
@@ -40,7 +41,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
         router.push({ pathname: "/finding-driver", params: { orderId: res._id } });
       }
     } catch (e: any) {
-      Alert.alert("Booking failed", e.message);
+      Alert.alert(i18n.t("app.ride.bookingFailed"), e.message);
     } finally {
       setBooking(false);
     }

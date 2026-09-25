@@ -9,14 +9,24 @@ export const isValidCoordinate = (coordinate: { latitude: number; longitude: num
   Math.abs(coordinate.longitude) <= 180 &&
   !(coordinate.latitude === 0 && coordinate.longitude === 0);
 
-export // Only Bike and Auto are enabled anywhere in the app today (All Services
+import i18n from "@/i18n";
+
+// Only Bike and Auto are enabled anywhere in the app today (All Services
 // keeps Cab Economy/Prime commented out — a pre-existing decision, not one
 // made during this redesign), so those are the only two tiers this screen
 // can honestly compare fares for.
-const ENABLED_TIERS: { id: "bike" | "auto"; name: string; icon: string; capacity: string }[] = [
-  { id: "bike", name: "Bike", icon: "🏍", capacity: "1 seat" },
-  { id: "auto", name: "Auto", icon: "🛺", capacity: "3 seats" },
-];
+//
+// A function rather than a static array so `name`/`capacity` can call t() —
+// used from several plain (non-hook) modules alongside components, so it
+// reads the shared i18n instance directly instead of threading useTranslation()
+// through every consumer. See ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md,
+// Section 11.
+export function getEnabledTiers(): { id: "bike" | "auto"; name: string; icon: string; capacity: string }[] {
+  return [
+    { id: "bike", name: i18n.t("app.rideTierNames.bike"), icon: "🏍", capacity: i18n.t("app.rideConfirmation.capacity.bike") },
+    { id: "auto", name: i18n.t("app.rideTierNames.auto"), icon: "🛺", capacity: i18n.t("app.rideConfirmation.capacity.auto") },
+  ];
+}
 
 export type FareEstimate = { distanceInKm: number; estimatedMinutes: number; fareBreakdown: { total: number } };
 

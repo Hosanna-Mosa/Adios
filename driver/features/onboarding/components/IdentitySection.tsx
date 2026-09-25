@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { AlternateIdLink } from "./AlternateIdLink";
 import { ConsentCheckbox } from "./ConsentCheckbox";
 import { FieldColumn } from "./FieldColumn";
@@ -16,12 +17,13 @@ export function IdentitySection(props: any) {
     validateAadhaarFormat, validatePANFormat,
     handleVerifyAadhaar, handleVerifyPAN, goNext, goPrev,
   } = props;
+  const { t } = useTranslation();
 
     if (currentKey === "aadhaar") {
       return (
         <FieldColumn gap={16}>
           <FormInput
-            label="Aadhaar Number"
+            label={t("onboarding.aadhaarNumber")}
             value={aadhaarNumber}
             onChangeText={(t) => {
               const cleaned = t.replace(/[^0-9]/g, "").slice(0, 12);
@@ -39,14 +41,14 @@ export function IdentitySection(props: any) {
             <>
               <InfoBanner
                 icon="info"
-                text="Aadhaar details collected for records. PAN was used for identity verification."
+                text={t("onboarding.aadhaarDetailsCollectedForRecords")}
                 type="info"
               />
               {aadhaarNumber.replace(/\s/g, "").length > 0 &&
                 (validateAadhaarFormat(aadhaarNumber.replace(/\s/g, "")) ? (
-                  <InfoBanner icon="check-circle" text="Valid Aadhaar format" type="success" />
+                  <InfoBanner icon="check-circle" text={t("onboarding.validAadhaarFormat")} type="success" />
                 ) : (
-                  <ValidationErrorBox message="Invalid Aadhaar number. Must be 12 digits and cannot start with 0 or 1." />
+                  <ValidationErrorBox message={t("onboarding.invalidAadhaarNumber")} />
                 ))}
             </>
           ) : !aadhaarVerified ? (
@@ -55,21 +57,21 @@ export function IdentitySection(props: any) {
               <ConsentCheckbox
                 checked={consentAadhaar}
                 onToggle={() => setConsentAadhaar(!consentAadhaar)}
-                label="I consent to share my Aadhaar details with Triozen for identity verification via third-party services (Surepass)."
+                label={t("onboarding.consentAadhaar")}
               />
               <PrimaryButton
-                title="Verify Aadhaar"
+                title={t("onboarding.verifyAadhaar")}
                 onPress={handleVerifyAadhaar}
                 disabled={aadhaarNumber.replace(/\s/g, "").length < 12 || !consentAadhaar || saving}
                 loading={saving}
                 icon="shield"
               />
               {!panVerified && (
-                <AlternateIdLink label="Use PAN Card instead →" onPress={goNext} />
+                <AlternateIdLink label={t("onboarding.usePanCardInstead")} onPress={goNext} />
               )}
             </>
           ) : (
-            <InfoBanner icon="check-circle" text="Aadhaar verified successfully!" type="success" />
+            <InfoBanner icon="check-circle" text={t("onboarding.aadhaarVerifiedSuccessfully")} type="success" />
           )}
         </FieldColumn>
       );
@@ -79,7 +81,7 @@ export function IdentitySection(props: any) {
       return (
         <FieldColumn gap={16}>
           <FormInput
-            label="PAN Number"
+            label={t("onboarding.panNumber")}
             value={panNumber}
             onChangeText={(t) => setPanNumber(t.toUpperCase().slice(0, 10))}
             placeholder="ABCDE1234F"
@@ -87,10 +89,10 @@ export function IdentitySection(props: any) {
             icon="file-text"
           />
           <FormInput
-            label="Name as on PAN Card"
+            label={t("onboarding.nameAsOnPanCard")}
             value={panName}
             onChangeText={setPanName}
-            placeholder="Enter full name"
+            placeholder={t("onboarding.enterFullName")}
             autoCapitalize="words"
             icon="user"
           />
@@ -100,17 +102,17 @@ export function IdentitySection(props: any) {
             <>
               <InfoBanner
                 icon="info"
-                text="PAN details collected for records. Aadhaar was used for identity verification."
+                text={t("onboarding.panDetailsCollectedForRecords")}
                 type="info"
               />
               {panNumber.length > 0 && !validatePANFormat(panNumber) && (
-                <ValidationErrorBox message="Invalid PAN number. Format should be 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)." />
+                <ValidationErrorBox message={t("onboarding.invalidPanNumber")} />
               )}
               {panName.length > 0 && panName.length < 3 && (
-                <ValidationErrorBox message="Name must be at least 3 characters." />
+                <ValidationErrorBox message={t("onboarding.nameMustBeAtLeast3Characters")} />
               )}
               {validatePANFormat(panNumber) && panName.length >= 3 && (
-                <InfoBanner icon="check-circle" text="Valid PAN details" type="success" />
+                <InfoBanner icon="check-circle" text={t("onboarding.validPanDetails")} type="success" />
               )}
             </>
           ) : !panVerified ? (
@@ -119,21 +121,21 @@ export function IdentitySection(props: any) {
               <ConsentCheckbox
                 checked={consentPAN}
                 onToggle={() => setConsentPAN(!consentPAN)}
-                label="I consent to share my PAN details with Triozen for identity verification via third-party services (Surepass)."
+                label={t("onboarding.consentPan")}
               />
               <PrimaryButton
-                title="Verify PAN"
+                title={t("onboarding.verifyPan")}
                 onPress={handleVerifyPAN}
                 disabled={panNumber.length < 10 || panName.length < 3 || !consentPAN || saving}
                 loading={saving}
                 icon="shield"
               />
               {!aadhaarVerified && (
-                <AlternateIdLink label="← Use Aadhaar instead" onPress={goPrev} />
+                <AlternateIdLink label={t("onboarding.useAadhaarInstead")} onPress={goPrev} />
               )}
             </>
           ) : (
-            <InfoBanner icon="check-circle" text="PAN verified successfully!" type="success" />
+            <InfoBanner icon="check-circle" text={t("onboarding.panVerifiedSuccessfully")} type="success" />
           )}
         </FieldColumn>
       );

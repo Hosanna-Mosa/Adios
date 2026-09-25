@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Alert } from "react-native";
 import { socketService } from "@/utils/socketService";
 import { SupportTicket } from "./useSupportChat.shared";
+import i18n from "@/i18n";
 import { createSupportTicket } from "@/services/support.service";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
@@ -31,7 +32,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
 
   const handleCreateTicket = async () => {
     if (!newTitle.trim() || !newMessage.trim()) {
-      Alert.alert("Missing details", "Add a title and a short description first.");
+      Alert.alert(i18n.t("app.delivery.missingDetails"), i18n.t("app.support.addATitleAndAShort"));
       return;
     }
     setCreatingTicket(true);
@@ -43,7 +44,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
       setNewMessage("");
       setViewMode("chat");
     } catch (error: any) {
-      Alert.alert("Couldn't submit", error.message || "Please try again.");
+      Alert.alert(i18n.t("app.ride.couldntSubmit"), error.message || i18n.t("app.ride.pleaseTryAgain"));
     } finally {
       setCreatingTicket(false);
     }

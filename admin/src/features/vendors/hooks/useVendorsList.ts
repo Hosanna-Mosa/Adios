@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { Vendor } from "../types";
 
@@ -15,6 +16,7 @@ const ITEMS_PER_PAGE = 8;
  * either of those, are their own hooks (useVendorAddForm, useVendorEditForm).
  */
 export function useVendorsList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [filterSearch, setFilterSearchState] = useState("");
   const [filterStatus, setFilterStatusState] = useState("all");
@@ -44,10 +46,10 @@ export function useVendorsList() {
     mutationFn: (id: string) => adminFetch(`/vendors/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor deleted successfully");
+      toast.success(t("catalog.vendorDeletedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete vendor");
+      toast.error(err.message || t("catalog.failedToDeleteVendor"));
     },
   });
 
@@ -62,15 +64,15 @@ export function useVendorsList() {
     mutationFn: ({ id, data }: { id: string; data: Partial<Vendor> }) => adminFetch(`/vendors/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor updated successfully");
+      toast.success(t("catalog.vendorUpdatedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update vendor");
+      toast.error(err.message || t("catalog.failedToUpdateVendor"));
     },
   });
 
   const handleDeleteClick = (vendor: Vendor) => {
-    if (confirm(`Are you sure you want to delete ${vendor.name}?`)) {
+    if (confirm(t("catalog.confirmDeleteVendor", { name: vendor.name, defaultValue: "Are you sure you want to delete {{name}}?" }))) {
       deleteVendorMutation.mutate(vendor._id);
     }
   };

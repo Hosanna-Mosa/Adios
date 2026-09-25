@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
@@ -29,6 +30,7 @@ import { ModalBox } from "@/components/ui/ModalBox";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export default function IncomingOrderModal() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { incomingOrder, acceptOrder, rejectOrder } = useDriverStore();
   const {
@@ -98,12 +100,12 @@ export default function IncomingOrderModal() {
               <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} />
             )}
 
-            <OfferPaymentMode label="Prepaid (Online Payment)" />
+            <OfferPaymentMode label={t("jobs.prepaidOnlinePayment")} />
           </ScrollBox>
 
           <Box style={styles.actionButtons}>
               <Button
-                title="Decline"
+                title={t("jobs.decline")}
                 variant="secondary"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -112,7 +114,7 @@ export default function IncomingOrderModal() {
                 style={{ flex: 1 }}
               />
               <Button
-                title="Accept Order"
+                title={t("jobs.acceptOrder")}
                 variant="primary"
                 style={{ flex: 1 }}
                 onPress={async () => {

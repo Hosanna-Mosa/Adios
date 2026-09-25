@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export interface AppVersionConfig {
   _id?: string;
@@ -17,6 +18,7 @@ interface AppVersionUpdateResponse {
 
 /** All state/query/mutation logic for AppVersions.tsx (work queue item #18). */
 export function useAppVersions() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // Platform configuration state
@@ -44,18 +46,18 @@ export function useAppVersions() {
         body: JSON.stringify(data),
       }),
     onSuccess: (res) => {
-      toast.success(`${res.data?.platform?.toUpperCase()} version configurations updated successfully!`);
+      toast.success(t("system.platformVersionConfigsUpdated", { platform: res.data?.platform?.toUpperCase(), defaultValue: "{{platform}} version configurations updated successfully!" }));
       queryClient.invalidateQueries({ queryKey: ["admin-app-versions"] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update version settings");
+      toast.error(err.message || t("system.failedToUpdateVersionSettings"));
     },
   });
 
   const handleSave = (platform: "ios" | "android") => {
     const data = platform === "ios" ? ios : android;
     if (!data.latest || !data.minRequired || !data.storeUrl) {
-      toast.error("Please fill in all fields before saving.");
+      toast.error(t("system.pleaseFillAllFieldsBeforeSaving"));
       return;
     }
     updateMutation.mutate(data);

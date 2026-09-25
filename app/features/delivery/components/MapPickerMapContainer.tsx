@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeIn } from "@/motion/presets";
@@ -35,6 +36,7 @@ export function MapPickerMapContainer({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.mapContainer}>
       <AppMapView
@@ -47,7 +49,7 @@ export function MapPickerMapContainer({
 
       <Animated.View entering={fadeIn(150)} style={styles.centerMarkerContainer} pointerEvents="none">
         <View style={styles.dragHint}>
-          <Text style={styles.dragHintText}>Drag to adjust</Text>
+          <Text style={styles.dragHintText}>{t("app.delivery.dragToAdjust")}</Text>
         </View>
         <View style={styles.dragHintStem} />
         <View style={styles.pinWrapper}>

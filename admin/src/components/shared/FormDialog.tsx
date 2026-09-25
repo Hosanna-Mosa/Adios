@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -28,13 +29,14 @@ export function FormDialog({
   title,
   onSubmit,
   submitLabel,
-  submitPendingLabel = "Saving...",
+  submitPendingLabel,
   isSubmitting = false,
   contentClassName = "sm:max-w-[450px] rounded-3xl",
   formClassName = "space-y-4 py-4",
   submitButtonClassName = "w-full mt-4",
   children,
 }: FormDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={contentClassName}>
@@ -44,7 +46,7 @@ export function FormDialog({
         <form onSubmit={onSubmit} className={formClassName}>
           {children}
           <Button type="submit" className={submitButtonClassName} disabled={isSubmitting}>
-            {isSubmitting ? submitPendingLabel : submitLabel}
+            {isSubmitting ? (submitPendingLabel ?? t("common.savingEllipsis")) : submitLabel}
           </Button>
         </form>
       </DialogContent>

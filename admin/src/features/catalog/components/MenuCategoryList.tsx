@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { MenuItem } from "../restaurantMenuTypes";
 
 interface MenuCategoryListProps {
@@ -6,9 +7,10 @@ interface MenuCategoryListProps {
 
 /** Read-only menu display, grouped by category -- used in the View Menu dialog. */
 export function MenuCategoryList({ items }: MenuCategoryListProps) {
+  const { t } = useTranslation();
   const grouped = items.reduce(
     (acc, item) => {
-      const cat = item.category || "General";
+      const cat = item.category || t("catalog.generalCategory");
       if (!acc[cat]) acc[cat] = [];
       acc[cat].push(item);
       return acc;

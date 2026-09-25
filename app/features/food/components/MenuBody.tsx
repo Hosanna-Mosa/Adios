@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
@@ -15,6 +16,7 @@ import type { Props } from "./MenuBody.props";
 
 export function MenuBody(props: Props) {
   const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
+  const { t } = useTranslation();
   return (
     <ScrollView
       ref={scrollViewRef}
@@ -37,7 +39,7 @@ export function MenuBody(props: Props) {
         <View style={styles.emptyMenu}>
           <Ionicons name="search-outline" size={48} color={tokens.muted} />
           <Text style={styles.emptyText}>
-            {searchQuery || vegOnly ? "No dishes match" : "Menu not available yet"}
+            {searchQuery || vegOnly ? t("app.food.noDishesMatch") : t("app.food.menuNotAvailableYet")}
           </Text>
         </View>
       ) : (
@@ -49,7 +51,7 @@ export function MenuBody(props: Props) {
           >
             <View style={styles.categoryHeadRow}>
               <Text style={styles.categoryTitle}>{category}</Text>
-              <Text style={styles.categoryCount}>{groupedMenu[category].length} items</Text>
+              <Text style={styles.categoryCount}>{t("app.food.itemCount", { count: groupedMenu[category].length })}</Text>
             </View>
 
             {groupedMenu[category].map((item, idx) => {
@@ -90,7 +92,7 @@ export function MenuBody(props: Props) {
                       transition={200}
                     />
                     {soldOut ? (
-                      <View style={styles.soldOutBadge}><Text style={styles.soldOutText}>Sold out</Text></View>
+                      <View style={styles.soldOutBadge}><Text style={styles.soldOutText}>{t("app.food.soldOut")}</Text></View>
                     ) : cartItem ? (
                       <View style={styles.qtyPill}>
                         <TouchableOpacity style={styles.qtyBtn} onPress={() => handleUpdateQuantity(item._id, cartItem.quantity - 1)} disabled={loadingItems[item._id]}>

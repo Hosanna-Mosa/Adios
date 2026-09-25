@@ -1,4 +1,5 @@
 import { Edit2, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { LazyImage } from "@/components/shared/LazyImage";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +16,7 @@ interface FoodItemCardProps {
 
 /** One dish tile in the vendor's menu grid. */
 export function FoodItemCard({ item, isToggling, onEditClick, onDeleteClick, onToggleAvailability }: FoodItemCardProps) {
+  const { t } = useTranslation();
   const inStock = isInStock(item);
 
   return (
@@ -48,10 +50,10 @@ export function FoodItemCard({ item, isToggling, onEditClick, onDeleteClick, onT
 
         <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-3">
           <div>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${inStock ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{inStock ? "In Stock" : "Out of Stock"}</span>
-            <p className="text-[11px] text-muted-foreground mt-1.5">{inStock ? "Customers can order this dish" : "Shows as sold out in the app"}</p>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${inStock ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>{inStock ? t("vendorMenu.inStock") : t("vendorMenu.outOfStock")}</span>
+            <p className="text-[11px] text-muted-foreground mt-1.5">{inStock ? t("vendorMenu.customersCanOrderThisDish") : t("vendorMenu.showsAsSoldOutInApp")}</p>
           </div>
-          <Switch checked={inStock} onCheckedChange={onToggleAvailability} disabled={isToggling} aria-label={`Availability for ${item.name}`} />
+          <Switch checked={inStock} onCheckedChange={onToggleAvailability} disabled={isToggling} aria-label={t("vendorMenu.availabilityForItem", { name: item.name, defaultValue: "Availability for {{name}}" })} />
         </div>
       </div>
     </StaggerItem>

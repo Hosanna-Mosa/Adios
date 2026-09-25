@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -17,13 +18,14 @@ export function SelfieCaptureSection({
   captured: boolean;
   onCapture: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={{ gap: 20, alignItems: "center" }}>
       <Box style={selfieSectionStyles.viewfinder}>
         <Box style={selfieSectionStyles.viewfinderInner}>
           <Feather name="camera" size={36} color={Colors.textMuted} />
           <AppText style={selfieSectionStyles.viewfinderText}>
-            Position your face within the frame
+            {t("onboarding.positionYourFaceWithinTheFrame")}
           </AppText>
         </Box>
         {/* Oval cutout guidelines */}
@@ -43,12 +45,12 @@ export function SelfieCaptureSection({
         </Touchable>
       ) : (
         <Box style={{ alignItems: "center", gap: 12 }}>
-          <InfoBanner icon="check-circle" text="Photo captured successfully!" />
+          <InfoBanner icon="check-circle" text={t("onboarding.photoCapturedSuccessfully")} />
         </Box>
       )}
 
       <AppText style={selfieSectionStyles.guidelines}>
-        Make sure your face is clearly visible, well-lit, and without hats or sunglasses.
+        {t("onboarding.faceGuidelines")}
       </AppText>
     </Box>
   );

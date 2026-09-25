@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface ZonePricingPanelProps {
   multiplier: string;
   onMultiplierChange: (value: string) => void;
@@ -14,9 +16,10 @@ interface ZonePricingPanelProps {
  * stays inline in ZoneForm.
  */
 export function ZonePricingPanel({ multiplier, onMultiplierChange }: ZonePricingPanelProps) {
+  const { t } = useTranslation();
   return (
     <div>
-      <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Price Multiplier (Surge)</label>
+      <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{t("zones.priceMultiplierSurge")}</label>
       <input
         type="number"
         step="0.1"

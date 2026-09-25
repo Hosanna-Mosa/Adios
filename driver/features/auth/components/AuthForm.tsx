@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
@@ -44,26 +45,27 @@ export function AuthForm({
   onSignIn,
   onSendOTP,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.formSection}>
       <AuthModeTabs mode={mode} onSwitchMode={onSwitchMode} />
 
       <AppText style={styles.formTitle}>
-        {mode === "signin" ? "Welcome Back!" : "Join as Driver"}
+        {mode === "signin" ? t("auth.welcomeBack") : t("auth.joinAsDriver")}
       </AppText>
       <AppText style={styles.formSubtitle}>
         {mode === "signin"
-          ? "Sign in with your phone number and password"
-          : "Create your account to start delivering"}
+          ? t("auth.signInWithYourPhoneNumberAndPassword")
+          : t("auth.createYourAccountToStartDelivering")}
       </AppText>
 
       {/* Name field — sign up only */}
       {mode === "signup" && (
         <AnimatedBox entering={fadeInUp(0)}>
           <TextField
-            label="Your Name"
+            label={t("auth.yourName")}
             icon={<Feather name="user" size={18} color={Colors.brand} />}
-            placeholder="Enter your full name"
+            placeholder={t("auth.enterYourFullName")}
             value={name}
             onChangeText={onNameChange}
             autoCapitalize="words"
@@ -74,14 +76,14 @@ export function AuthForm({
       {/* Phone */}
       <AnimatedBox entering={fadeInUp(40)}>
         <TextField
-          label="Phone Number"
+          label={t("auth.phoneNumber")}
           icon={
             <Box style={styles.countryCodeGroup}>
               <AppText style={styles.countryCode}>+91</AppText>
               <Box style={styles.phoneDivider} />
             </Box>
           }
-          placeholder="Enter 10-digit number"
+          placeholder={t("auth.enter10DigitNumber")}
           value={phone}
           onChangeText={(t) => onPhoneChange(t.replace(/[^0-9]/g, "").slice(0, 10))}
           keyboardType="phone-pad"
@@ -91,9 +93,9 @@ export function AuthForm({
       {/* Password */}
       <AnimatedBox entering={fadeInUp(80)}>
         <TextField
-          label="Password"
+          label={t("auth.password")}
           icon={<Feather name="lock" size={18} color={Colors.brand} />}
-          placeholder={mode === "signin" ? "Enter your password" : "Create a password (6+ chars)"}
+          placeholder={mode === "signin" ? t("auth.enterYourPassword") : t("auth.createAPassword6Chars")}
           value={password}
           onChangeText={onPasswordChange}
           secureTextEntry
@@ -104,9 +106,9 @@ export function AuthForm({
       {mode === "signup" && (
         <AnimatedBox entering={fadeInUp(120)}>
           <TextField
-            label="Confirm Password"
+            label={t("auth.confirmPassword")}
             icon={<Feather name="shield" size={18} color={Colors.brand} />}
-            placeholder="Re-enter your password"
+            placeholder={t("auth.reEnterYourPassword")}
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             secureTextEntry
@@ -118,8 +120,8 @@ export function AuthForm({
       <Button
         title={
           loading
-            ? mode === "signin" ? "Signing in..." : "Sending OTP..."
-            : mode === "signin" ? "Sign In" : "Get OTP"
+            ? mode === "signin" ? t("auth.signingIn") : t("auth.sendingOtp")
+            : mode === "signin" ? t("auth.signIn") : t("auth.getOtp")
         }
         onPress={mode === "signin" ? onSignIn : onSendOTP}
         loading={loading}
@@ -135,8 +137,8 @@ export function AuthForm({
       >
         <AppText style={styles.switchText}>
           {mode === "signin"
-            ? "Don't have an account? Sign Up"
-            : "Already have an account? Sign In"}
+            ? t("auth.dontHaveAnAccountSignUp")
+            : t("auth.alreadyHaveAnAccountSignIn")}
         </AppText>
       </Touchable>
     </Box>

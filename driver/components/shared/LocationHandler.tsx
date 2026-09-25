@@ -1,10 +1,12 @@
 import { useEffect, useRef } from "react";
 import { AppState, AppStateStatus } from "react-native";
 import * as Notifications from "expo-notifications";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { useLocationTracking } from "./useLocationTracking";
 
 export const LocationHandler = () => {
+  const { t } = useTranslation();
   const { isOnline, driverPhone, driverUserId, currentOrder } = useDriverStore();
   const appState = useRef(AppState.currentState);
   const isCheckingPermissions = useRef(false);
@@ -47,8 +49,8 @@ export const LocationHandler = () => {
           
           Notifications.scheduleNotificationAsync({
             content: {
-              title: "Status: Offline",
-              body: "Your app is minimized, so you are now offline and won't receive new orders.",
+              title: t("jobs.statusOffline"),
+              body: t("jobs.yourAppIsMinimizedSoYouAreNowOffline"),
               sound: true,
             },
             trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 1 },
@@ -62,7 +64,7 @@ export const LocationHandler = () => {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [t]);
 
 
   return null;

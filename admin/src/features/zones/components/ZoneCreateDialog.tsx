@@ -1,4 +1,5 @@
 import { MapPin, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ZoneForm } from "./ZoneForm";
 import { ZoneMapEditor } from "./ZoneMapEditor";
 import type { LatLng } from "../types";
@@ -56,6 +57,7 @@ interface ZoneCreateDialogProps {
  * "upgrading" it would be a real interaction change.
  */
 export function ZoneCreateDialog({ open, onClose, ...rest }: ZoneCreateDialogProps) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -64,7 +66,7 @@ export function ZoneCreateDialog({ open, onClose, ...rest }: ZoneCreateDialogPro
         <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30 bg-card">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-foreground text-base">Create Dynamic Pricing Zone</h3>
+            <h3 className="font-semibold text-foreground text-base">{t("zones.createDynamicPricingZone")}</h3>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground transition-colors">
             <X className="h-4 w-4" />

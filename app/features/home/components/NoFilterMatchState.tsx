@@ -1,4 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
@@ -19,17 +20,18 @@ export function NoFilterMatchState({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.noServiceContainer}>
       <View style={styles.emptyIconCircle}>
         <Ionicons name="funnel-outline" size={26} color={tokens.sec} />
       </View>
-      <Text style={styles.noServiceTitle}>No outlets match your filters</Text>
+      <Text style={styles.noServiceTitle}>{t("app.home.noOutletsMatchYourFilters")}</Text>
       <Text style={styles.noServiceSubtitle}>
-        Nothing nearby clears the {activeFilterCount === 1 ? "filter" : "filters"} you&apos;ve set. Try a lower rating or clear them.
+        {t("app.home.nothingNearbyClearsTheFilterCount", { count: activeFilterCount })}
       </Text>
       <TouchableOpacity style={styles.noServiceButton} onPress={clearAllFilters}>
-        <Text style={styles.noServiceButtonText}>Clear filters</Text>
+        <Text style={styles.noServiceButtonText}>{t("app.home.clearFilters")}</Text>
       </TouchableOpacity>
     </View>
   );

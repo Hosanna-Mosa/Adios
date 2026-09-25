@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {open && (
@@ -28,17 +30,17 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-brand-kinetic">
-                  Start onboarding
+                  {t("partnerTypeCards.startOnboarding")}
                 </p>
                 <h2 className="mt-1 font-display text-2xl font-bold text-on-surface">
-                  Choose your partner type
+                  {t("partnerTypeCards.chooseYourPartnerType")}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-secondary-app transition-colors hover:text-on-surface"
-                aria-label="Close"
+                aria-label={t("partnerTypeCards.close")}
               >
                 <Icon name="close" className="text-lg" />
               </button>
@@ -54,10 +56,10 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
                   <Icon name="restaurant" className="text-2xl" />
                 </div>
                 <p className="font-display text-lg font-bold text-on-surface">
-                  Food Restaurant
+                  {t("partnerTypeCards.foodRestaurant")}
                 </p>
                 <p className="mt-2 text-sm text-secondary-app">
-                  Restaurant details, menu, food license, and payout setup.
+                  {t("partnerTypeCards.foodRestaurantDesc")}
                 </p>
               </button>
 
@@ -70,10 +72,10 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
                   <Icon name="set_meal" className="text-2xl" />
                 </div>
                 <p className="font-display text-lg font-bold text-on-surface">
-                  Meat Center
+                  {t("partnerTypeCards.meatCenter")}
                 </p>
                 <p className="mt-2 text-sm text-secondary-app">
-                  Meat center details, product list, FSSAI, and payout setup.
+                  {t("partnerTypeCards.meatCenterDesc")}
                 </p>
               </button>
             </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
 import type { NewTicketForm, Ticket } from "../types";
@@ -9,6 +10,7 @@ const EMPTY_NEW_TICKET: NewTicketForm = { title: "", category: "OPERATIONAL ISSU
 
 /** All state/query/socket logic for Support.tsx (work queue item #10). */
 export function useSupportTickets() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"ACTIVE" | "RESOLVED">("ACTIVE");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -33,7 +35,7 @@ export function useSupportTickets() {
       setActiveTicketId(data._id);
       setIsCreateOpen(false);
       setNewTicket(EMPTY_NEW_TICKET);
-      toast.success(`Ticket ${data.ticketId} created successfully!`);
+      toast.success(t("support.ticketCreatedSuccessfully", { ticketId: data.ticketId, defaultValue: "Ticket {{ticketId}} created successfully!" }));
     },
   });
 
@@ -45,7 +47,7 @@ export function useSupportTickets() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
-      toast.success("Ticket updated successfully!");
+      toast.success(t("support.ticketUpdatedSuccessfully"));
     },
   });
 
@@ -98,7 +100,7 @@ export function useSupportTickets() {
   const handleCreateTicketSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTicket.title || !newTicket.message) {
-      toast.error("Please enter a title and message.");
+      toast.error(t("support.pleaseEnterTitleAndMessage"));
       return;
     }
     createTicketMutation.mutate(newTicket);

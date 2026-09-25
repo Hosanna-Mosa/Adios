@@ -6,7 +6,7 @@ import { fadeInUp } from "@/motion/presets";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { RideConfirmBody } from "@/features/ride/components/RideConfirmBody";
 import { RideConfirmFooterActions } from "@/features/ride/components/RideConfirmFooterActions";
-import { ENABLED_TIERS, useRideConfirmation } from "@/features/ride/useRideConfirmation";
+import { useRideConfirmation } from "@/features/ride/useRideConfirmation";
 import { BackToHomeButton } from "@/features/ride/components/BackToHomeButton";
 
 export default function RideConfirmationScreen() {
@@ -17,7 +17,7 @@ export default function RideConfirmationScreen() {
   confirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, nearbyDrivers,
   setMapReady, routeCoordinates, mapRef, validStops, pickupIsValid, dropIsValid, tripCoordinates,
   fitTripToMap, initialRegion, getDisplayName, handleShareRoute, handleAddStopFromMap,
-  handleRecenter, placeOrder
+  handleRecenter, placeOrder, ENABLED_TIERS
   } = useRideConfirmation();
 
   if (confirmedReservation) {

@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
@@ -27,22 +28,23 @@ export function FindingDriverSheet({
   styles,
   tierLabel,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sheet}>
       <View style={styles.sheetHandle} />
       <View style={styles.titleRow}>
         <Animated.View style={[styles.spinner, spinStyle]} />
-        <Text style={styles.title}>Finding your captain</Text>
+        <Text style={styles.title}>{t("app.ride.findingYourCaptain")}</Text>
       </View>
       <Text style={styles.subtitle}>
-        {tierLabel ? `Searching ${tierLabel} nearby. ` : "Searching nearby captains. "}Usually under a minute.
+        {tierLabel ? t("app.ride.searchingNearby", { tier: tierLabel, defaultValue: "Searching {{tier}} nearby. " }) : t("app.ride.searchingNearbyCaptains")}{t("app.ride.usuallyUnderAMinute")}
       </Text>
 
       {(orderSummary.totalPrice != null || pickupStop || dropStop) && (
         <Animated.View entering={fadeInUp(0)} style={styles.routeCard}>
           {orderSummary.totalPrice != null && (
             <View style={styles.routeCardHead}>
-              <Text style={styles.routeCardHeadLabel}>Total fare</Text>
+              <Text style={styles.routeCardHeadLabel}>{t("app.ride.totalFare")}</Text>
               <Text style={styles.routeCardHeadValue}>₹{Math.round(orderSummary.totalPrice)}</Text>
             </View>
           )}
@@ -70,14 +72,14 @@ export function FindingDriverSheet({
 
       {tierLabel && (
         <View style={styles.searchingChip}>
-          <Text style={styles.searchingLabel}>Searching</Text>
+          <Text style={styles.searchingLabel}>{t("app.ride.searching")}</Text>
           <Text style={styles.searchingValue}>{tierLabel}</Text>
         </View>
       )}
 
       <View style={{ marginTop: "auto" }}>
         <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowCancelSheet(true)} activeOpacity={0.85}>
-          <Text style={styles.cancelBtnText}>Cancel ride</Text>
+          <Text style={styles.cancelBtnText}>{t("app.ride.cancelRideLower")}</Text>
         </TouchableOpacity>
       </View>
     </View>

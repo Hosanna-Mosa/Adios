@@ -1,5 +1,6 @@
 import React from "react";
 import { Platform } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthBrandHeader, AuthForm, OtpForm } from "@/features/auth/components";
 import { useAuthFlow } from "@/features/auth/hooks/useAuthFlow";
@@ -9,6 +10,7 @@ import { KeyboardView } from "@/components/ui/KeyboardView";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const {
     mode, step, phone, setPhone, name, setName,
     password, setPassword, confirmPassword, setConfirmPassword,
@@ -33,7 +35,7 @@ export default function AuthScreen() {
           },
         ]}
       >
-        <AuthBrandHeader appName="Flavour Driver" tagline="Driver Partner App" />
+        <AuthBrandHeader appName={t("auth.flavourDriver")} tagline={t("auth.driverPartnerApp")} />
 
         {step === "form" ? (
           <AuthForm

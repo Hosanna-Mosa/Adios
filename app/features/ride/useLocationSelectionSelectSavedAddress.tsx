@@ -1,6 +1,7 @@
 import * as Location from "expo-location";
 import { Alert } from "react-native";
 import { router } from "expo-router";
+import i18n from "@/i18n";
 import { checkZone } from "@/services/places.service";
 
 // Split out of useLocationSelection so each file stays small. Kept in the original call
@@ -26,7 +27,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
       setFetchingLocation(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location permission is required.');
+        Alert.alert(i18n.t("app.ride.permissionDenied"), i18n.t("app.delivery.locationPermissionIsRequired"));
         setFetchingLocation(false);
         return;
       }
@@ -36,7 +37,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
       try {
         const checkRes = await checkZone(location.coords.latitude, location.coords.longitude);
         if (!checkRes || !checkRes.inZone) {
-          Alert.alert("No Service", "No service at current pickup location.");
+          Alert.alert(i18n.t("app.delivery.noService"), i18n.t("app.ride.noServiceAtCurrentPickupLocation"));
           pickupRef.current?.setAddressText("");
           setPickup(null);
           return;
@@ -80,7 +81,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
         }
       }
     } catch (error) {
-      Alert.alert('Error', 'Could not get current location');
+      Alert.alert(i18n.t("app.profile.errorTitle"), i18n.t("app.delivery.couldNotGetCurrentLocation"));
     } finally {
       setFetchingLocation(false);
     }

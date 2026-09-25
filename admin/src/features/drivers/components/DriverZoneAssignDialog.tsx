@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -29,21 +30,22 @@ export function DriverZoneAssignDialog({
   onSelectZone,
   onConfirm,
 }: DriverZoneAssignDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] rounded-2xl border-border">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-foreground">
-            {isEditing ? "Edit Zone Assignment" : "Assign Driver to Zone"}
+            {isEditing ? t("drivers.editZoneAssignment") : t("drivers.assignDriverToZone")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           {!isEditing && (
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-muted-foreground uppercase">Select Driver</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase">{t("drivers.selectDriver")}</label>
               <Select value={selectedDriverId} onValueChange={onSelectDriver}>
                 <SelectTrigger className="w-full rounded-xl">
-                  <SelectValue placeholder="Choose a driver..." />
+                  <SelectValue placeholder={t("drivers.chooseADriverEllipsis")} />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {drivers.map((d) => (
@@ -56,13 +58,13 @@ export function DriverZoneAssignDialog({
             </div>
           )}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-muted-foreground uppercase">Select Zone</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase">{t("drivers.selectZone")}</label>
             <Select value={selectedZoneId || "none"} onValueChange={(val) => onSelectZone(val === "none" ? "" : val)}>
               <SelectTrigger className="w-full rounded-xl">
-                <SelectValue placeholder="Select Zone..." />
+                <SelectValue placeholder={t("drivers.selectZoneEllipsis")} />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="none">No Zone Assigned</SelectItem>
+                <SelectItem value="none">{t("drivers.noZoneAssigned")}</SelectItem>
                 {zonesList.map((z) => (
                   <SelectItem key={z._id} value={z._id}>
                     {z.name} ({z.type})
@@ -73,10 +75,10 @@ export function DriverZoneAssignDialog({
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-xl">
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={onConfirm} className="rounded-xl">
-              {isEditing ? "Save Changes" : "Assign Zone"}
+              {isEditing ? t("vendorMenu.saveChanges") : t("drivers.assignZone")}
             </Button>
           </div>
         </div>

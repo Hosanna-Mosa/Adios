@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -15,6 +16,7 @@ export function HeadHomeToggle({
   homeMode: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <PressBox
       style={[styles.homeModeRow, homeMode && styles.homeModeRowActive]}
@@ -26,12 +28,12 @@ export function HeadHomeToggle({
         </Box>
         <Box style={styles.homeModeTextWrap}>
           <AppText style={[styles.homeModeLabel, homeMode && styles.homeModeLabelActive]}>
-            Head Home
+            {t("jobs.headHome")}
           </AppText>
           <AppText style={styles.homeModeDesc}>
             {homeMode
-              ? "Getting orders toward your home"
-              : "Receive orders heading toward home"}
+              ? t("jobs.gettingOrdersTowardYourHome")
+              : t("jobs.receiveOrdersHeadingTowardHome")}
           </AppText>
         </Box>
       </Box>

@@ -1,9 +1,11 @@
 import { VendorLayout } from "@/components/layout/VendorLayout";
 import { AlertCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useVendorMeatMenu } from "@/features/vendors/hooks/useVendorMeatMenu";
 import { VendorMeatMenuGrid } from "@/features/vendors/components/VendorMeatMenuGrid";
 
 export default function VendorMeatMenu() {
+  const { t } = useTranslation();
   const {
     menu,
     isLoading,
@@ -22,8 +24,8 @@ export default function VendorMeatMenu() {
     <VendorLayout>
       <div className="space-y-8 max-w-5xl mx-auto">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Meat Inventory</h1>
-          <p className="text-muted-foreground">Manage stock availability and update your daily prices.</p>
+          <h1 className="text-3xl font-bold text-foreground">{t("vendorMeatMenu.meatInventory")}</h1>
+          <p className="text-muted-foreground">{t("vendorMeatMenu.manageStockAndPrices")}</p>
         </div>
 
         <VendorMeatMenuGrid
@@ -44,13 +46,9 @@ export default function VendorMeatMenu() {
           <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
           <div className="text-sm text-muted-foreground space-y-1">
             <p>
-              <strong>Your daily controls:</strong> You can update the <strong>price</strong> and toggle
-              <strong> availability</strong> for each item below.
+              <strong>{t("vendorMeatMenu.yourDailyControlsColon")}</strong> {t("vendorMeatMenu.dailyControlsDesc")}
             </p>
-            <p>
-              Item names, weights, and categories are managed by the Admin and cannot be changed.
-              New items are added automatically by the Admin through global pricing updates.
-            </p>
+            <p>{t("vendorMeatMenu.itemsManagedByAdminDesc")}</p>
           </div>
         </div>
       </div>

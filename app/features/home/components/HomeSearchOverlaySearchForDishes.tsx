@@ -1,4 +1,5 @@
 import { ActivityIndicator, Dimensions, FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
@@ -32,6 +33,7 @@ interface Props {
 
 export function HomeSearchOverlaySearchForDishes(props: Props) {
   const { addRecentSearch, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <Animated.View
       style={[
@@ -44,7 +46,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
         <TouchableOpacity onPress={() => setIsSearchActive(false)}>
           <Ionicons name="arrow-back" size={moderateScale(22)} color={tokens.sec} />
         </TouchableOpacity>
-        <Text style={styles.searchSheetHeaderText}>Search for dishes & restaurants</Text>
+        <Text style={styles.searchSheetHeaderText}>{t("app.home.searchForDishesRestaurants")}</Text>
       </View>
 
       <View style={styles.searchSheetInputRow}>
@@ -52,7 +54,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
           <Ionicons name="search" size={moderateScale(18)} color={tokens.muted} />
           <TextInput
             style={styles.searchSheetInput}
-            placeholder="Try 'Bawarchi'"
+            placeholder={t("app.home.tryBawarchi")}
             placeholderTextColor={tokens.muted}
             value={searchText}
             onChangeText={setSearchText}

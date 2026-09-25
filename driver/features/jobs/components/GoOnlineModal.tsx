@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
@@ -20,6 +21,7 @@ interface GoOnlineModalProps {
 }
 
 export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [selectedServices, setSelectedServices] = React.useState<("food" | "ride")[]>(["ride", "food"]);
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -72,25 +74,30 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
               <Box style={styles.successIconWrap}>
                 <Feather name="check-circle" size={56} color={Colors.success} />
               </Box>
-              <AppText style={styles.successTitle}>You&apos;re Online!</AppText>
+              <AppText style={styles.successTitle}>{t("jobs.youreOnline")}</AppText>
               <AppText style={styles.successText}>
-                You&apos;ll receive orders for {selectedServices.join(" & ")}
+                {t("jobs.youllReceiveOrdersFor", {
+                  value: selectedServices
+                    .map((s) => (s === "ride" ? t("jobs.rideHailing") : t("jobs.foodDelivery")))
+                    .join(" & "),
+                  defaultValue: "You'll receive orders for {{value}}",
+                })}
               </AppText>
             </AnimatedBox>
           ) : (
             <>
               {/* Header */}
-              <AppText style={styles.title}>Go Online</AppText>
+              <AppText style={styles.title}>{t("jobs.goOnline")}</AppText>
               <AppText style={styles.subtitle}>
-                Select the services you want to be available for
+                {t("jobs.selectServicesYouWantToBeAvailableFor")}
               </AppText>
 
               {/* Service Options */}
               <Box style={styles.servicesContainer}>
                 <ServiceOptionCard
                   icon="navigation"
-                  name="Ride Hailing"
-                  description="Passenger pick-up & drop-off"
+                  name={t("jobs.rideHailing")}
+                  description={t("jobs.passengerPickupAndDropoff")}
                   selected={selectedServices.includes("ride")}
                   onToggle={() => toggleService("ride")}
                   press={ridePress}
@@ -98,8 +105,8 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
 
                 <ServiceOptionCard
                   icon="shopping-bag"
-                  name="Food Delivery"
-                  description="Restaurant orders to customers"
+                  name={t("jobs.foodDelivery")}
+                  description={t("jobs.restaurantOrdersToCustomers")}
                   selected={selectedServices.includes("food")}
                   onToggle={() => toggleService("food")}
                   press={foodPress}
@@ -110,21 +117,21 @@ export function GoOnlineModal({ visible, onClose, onGoOnline }: GoOnlineModalPro
               {/* Info note */}
               {selectedServices.length === 0 && (
                 <AppText style={styles.errorText}>
-                  Please select at least one service
+                  {t("jobs.pleaseSelectAtLeastOneService")}
                 </AppText>
               )}
 
               {/* Actions */}
               <Box style={styles.actions}>
                 <Button
-                  title={`Go Online${selectedServices.length > 0 ? ` (${selectedServices.length})` : ""}`}
+                  title={`${t("jobs.goOnline")}${selectedServices.length > 0 ? ` (${selectedServices.length})` : ""}`}
                   onPress={handleGoOnline}
                   disabled={selectedServices.length === 0}
                   icon={<Feather name="wifi" size={18} color={Colors.onBrand} />}
                   fullWidth
                 />
                 <PressBox style={styles.cancelBtn} onPress={handleClose}>
-                  <AppText style={styles.cancelBtnText}>Cancel</AppText>
+                  <AppText style={styles.cancelBtnText}>{t("actions.cancel")}</AppText>
                 </PressBox>
               </Box>
             </>

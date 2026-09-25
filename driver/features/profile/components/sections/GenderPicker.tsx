@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -23,9 +24,10 @@ export function GenderPicker({
   selected: string | null;
   onSelect: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <>
-      <AppText style={modalStyles.fieldLabel}>Gender</AppText>
+      <AppText style={modalStyles.fieldLabel}>{t("onboarding.sections.gender")}</AppText>
       <Box style={modalStyles.genderRow}>
         {options.map((g) => {
           const active = selected === g.id;

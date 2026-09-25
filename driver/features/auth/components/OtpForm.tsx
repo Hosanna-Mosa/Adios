@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import type { StyleProp, ViewStyle } from "react-native";
 import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
@@ -40,17 +41,18 @@ export function OtpForm({
   onBack,
   animatedStyle,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox style={[styles.formSection, animatedStyle]}>
       <Touchable style={styles.backButton} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
       </Touchable>
 
-      <AppText style={styles.formTitle}>Verify Phone</AppText>
+      <AppText style={styles.formTitle}>{t("auth.verifyPhone")}</AppText>
       <AppText style={styles.formSubtitle}>
-        Enter the 6-digit code sent to{'\n'}+91 {phone}
+        {t("auth.enterThe6DigitCodeSentTo", { value: phone, defaultValue: "Enter the 6-digit code sent to\n+91 {{value}}" })}
       </AppText>
-      <AppText style={styles.demoHint}>Demo OTP: {mockOtp}</AppText>
+      <AppText style={styles.demoHint}>{t("auth.demoOtp", { value: mockOtp, defaultValue: "Demo OTP: {{value}}" })}</AppText>
 
       <Box style={styles.otpContainer}>
         {otp.map((digit, idx) => (
@@ -69,7 +71,7 @@ export function OtpForm({
       </Box>
 
       <Button
-        title={loading ? "Creating account..." : "Verify & Create Account"}
+        title={loading ? t("auth.creatingAccount") : t("auth.verifyAndCreateAccount")}
         onPress={onVerify}
         loading={loading}
         disabled={otp.join("").length < 6}
@@ -78,7 +80,7 @@ export function OtpForm({
       />
 
       <Touchable style={styles.resendButton} onPress={onResend}>
-        <AppText style={styles.resendText}>Resend OTP</AppText>
+        <AppText style={styles.resendText}>{t("auth.resendOtp")}</AppText>
       </Touchable>
     </AnimatedBox>
   );

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 interface Restaurant {
   _id: string;
@@ -16,6 +18,7 @@ interface Restaurant {
 type Props = { restaurant: Restaurant };
 
 export function MenuHeader({ restaurant }: Props) {
+  const { t } = useTranslation();
   return (
     <>
       {/* Mobile Top App Bar (Sticky) */}
@@ -33,7 +36,7 @@ export function MenuHeader({ restaurant }: Props) {
         <h1 className="font-bold text-primary truncate px-2">
           {restaurant.name}
         </h1>
-        <div className="w-10"></div> {/* Spacer for centering */}
+        <LanguageSwitcher />
       </motion.div>
 
       {/* Premium Hero Header */}
@@ -50,16 +53,19 @@ export function MenuHeader({ restaurant }: Props) {
         />
 
         <div className="max-w-[1280px] mx-auto relative z-10">
-          <Link
-            to="/"
-            className="hidden md:inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-semibold mb-8 group"
-          >
-            <Icon
-              name="arrow_back"
-              className="text-lg group-hover:-translate-x-1 transition-transform"
-            />
-            Back to Home
-          </Link>
+          <div className="hidden md:flex items-center justify-between mb-8">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-semibold group"
+            >
+              <Icon
+                name="arrow_back"
+                className="text-lg group-hover:-translate-x-1 transition-transform"
+              />
+              {t("menu.backToHome")}
+            </Link>
+            <LanguageSwitcher variant="light" />
+          </div>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <motion.div
@@ -71,17 +77,17 @@ export function MenuHeader({ restaurant }: Props) {
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                 <span className="bg-white/10 backdrop-blur-md text-white text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-white/10 flex items-center gap-1">
                   <Icon name="restaurant" className="text-xs md:text-sm" />{" "}
-                  Restaurant
+                  {t("menu.restaurant")}
                 </span>
                 {restaurant.isPureVeg ? (
                   <span className="bg-green-500/20 text-green-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-green-500/30 flex items-center gap-1">
                     <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-green-400 animate-pulse" />{" "}
-                    Pure Veg
+                    {t("menu.pureVeg")}
                   </span>
                 ) : (
                   <span className="bg-orange-500/20 text-orange-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-orange-500/30 flex items-center gap-1">
                     <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-orange-400" />{" "}
-                    Veg & Non-Veg
+                    {t("menu.vegAndNonVeg")}
                   </span>
                 )}
               </div>
@@ -129,7 +135,7 @@ export function MenuHeader({ restaurant }: Props) {
                   </span>
                 </div>
                 <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
-                  Rating
+                  {t("menu.rating")}
                 </span>
               </div>
               <div className="w-[1px] h-10 bg-white/20" />
@@ -138,7 +144,7 @@ export function MenuHeader({ restaurant }: Props) {
                   {restaurant.reviews || "100+"}
                 </div>
                 <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
-                  Reviews
+                  {t("menu.reviews")}
                 </span>
               </div>
             </motion.div>

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import { useFocusEffect } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { emptyEarnings, type EarningsResponse } from "../types";
@@ -10,6 +11,7 @@ import { emptyEarnings, type EarningsResponse } from "../types";
  * Lifted out of the earnings screen unchanged — same requests, same alerts,
  * same refresh-on-focus behaviour. The screen keeps only its markup. */
 export function useEarnings() {
+  const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const [earnings, setEarnings] = useState<EarningsResponse>(emptyEarnings);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,15 +33,15 @@ export function useEarnings() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to load earnings");
+      if (!response.ok) throw new Error(data.message || t("earnings.failedToLoadEarnings"));
       setEarnings(data);
     } catch (error: any) {
-      Alert.alert("Earnings unavailable", error.message || "Please try again.");
+      Alert.alert(t("earnings.earningsUnavailable"), error.message || t("earnings.pleaseTryAgain"));
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [token]);
+  }, [token, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,12 +56,12 @@ export function useEarnings() {
 
   const handleCashOut = async () => {
     if (!password.trim()) {
-      Alert.alert("Password required", "Enter your driver password to continue.");
+      Alert.alert(t("earnings.passwordRequired"), t("earnings.enterYourDriverPasswordToContinue"));
       return;
     }
 
     if (!apiUrl || !token) {
-      Alert.alert("Cash out unavailable", "Please sign in again.");
+      Alert.alert(t("earnings.cashOutUnavailable"), t("auth.pleaseSignInAgain"));
       return;
     }
 
@@ -74,17 +76,17 @@ export function useEarnings() {
         body: JSON.stringify({ password, amount: earnings.availableBalance }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Cash out failed");
+      if (!response.ok) throw new Error(data.message || t("earnings.cashOutFailed"));
 
       setCashOutVisible(false);
       setPassword("");
       Alert.alert(
-        "Cash out initiated",
-        `Rs.${data.payout.amount.toFixed(2)} is being sent to your bank.`,
+        t("earnings.cashOutInitiated"),
+        t("earnings.isBeingSentToYourBank", { value: data.payout.amount.toFixed(2), defaultValue: "Rs.{{value}} is being sent to your bank." }),
       );
       await loadEarnings();
     } catch (error: any) {
-      Alert.alert("Cash out failed", error.message || "Please try again.");
+      Alert.alert(t("earnings.cashOutFailed"), error.message || t("earnings.pleaseTryAgain"));
     } finally {
       setIsCashingOut(false);
     }

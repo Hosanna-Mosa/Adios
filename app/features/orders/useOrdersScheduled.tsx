@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Alert } from "react-native";
 import { router } from "expo-router";
+import i18n from "@/i18n";
 import { useCartStore } from "@/contexts/cartStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { isScheduledOrder, isTerminalOrder, readOrderLines, toCartItem } from "./useOrders.shared";
@@ -66,7 +67,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       }
 
       if (!cartVendorId || cartItems.length === 0) {
-        Alert.alert("Can't reorder", "We couldn't find the items from this order. Please add them from the menu.");
+        Alert.alert(i18n.t("app.orders.cantReorder"), i18n.t("app.orders.weCouldntFindTheItemsFrom"));
         return;
       }
 

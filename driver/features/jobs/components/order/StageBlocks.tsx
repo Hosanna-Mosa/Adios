@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -22,17 +23,21 @@ export function HighDemandZones({ title, zones }: { title: string; zones: string
   );
 }
 
-/** Segmented picker — door / gate / contactless. */
+/** Segmented picker — door / gate / contactless.
+ * `options` stay in English (the value sent to the backend); `renderLabel`
+ * lets callers show a translated version without touching that value. */
 export function OptionPicker<T extends string>({
   label,
   options,
   selected,
   onSelect,
+  renderLabel,
 }: {
   label: string;
   options: readonly T[];
   selected: T;
   onSelect: (value: T) => void;
+  renderLabel?: (option: T) => string;
 }) {
   return (
     <Box style={styles.optionsBlock}>
@@ -47,7 +52,7 @@ export function OptionPicker<T extends string>({
               onPress={() => onSelect(opt)}
             >
               <AppText style={[styles.optionBtnText, active ? styles.optionBtnTextSelected : null]}>
-                {opt.toUpperCase()}
+                {(renderLabel ? renderLabel(opt) : opt).toUpperCase()}
               </AppText>
             </Touchable>
           );
@@ -67,11 +72,12 @@ export function PickupActionRow({
   onConfirm: () => void;
   confirmLabel: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.pickupActionRow}>
       <Touchable style={styles.issueBtn} onPress={onReportIssue}>
         <Ionicons name="warning-outline" size={20} color={Colors.error} />
-        <AppText style={styles.issueBtnText}>Issue</AppText>
+        <AppText style={styles.issueBtnText}>{t("jobs.issue")}</AppText>
       </Touchable>
       <Touchable style={[styles.pickupConfirmBtn]} onPress={onConfirm}>
         <AppText style={styles.actionBtnText}>{confirmLabel}</AppText>

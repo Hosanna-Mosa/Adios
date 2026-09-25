@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -24,12 +25,15 @@ type RideTier = {
 // Cab tiers stay commented out until pricing/dispatch actually supports
 // them end to end — carried over from the previous version of this screen,
 // not a new decision made during the redesign.
-const RIDE_TIERS: RideTier[] = [
-  { id: "bike", name: "Bike", icon: "motorbike", description: "1 seat · fastest" },
-  { id: "auto", name: "Auto", icon: "rickshaw", description: "3 seats · metered" },
-  // { id: "cab-economy", name: "Cab Economy", icon: "car", description: "4 seats · AC" },
-  // { id: "cab-prime", name: "Cab Prime", icon: "car-side", description: "4 seats · extra boot" },
-];
+function useRideTiers(): RideTier[] {
+  const { t } = useTranslation();
+  return React.useMemo(() => [
+    { id: "bike", name: t("app.rideTierNames.bike"), icon: "motorbike", description: t("app.allServices.rideTierDesc.bike") },
+    { id: "auto", name: t("app.rideTierNames.auto"), icon: "rickshaw", description: t("app.allServices.rideTierDesc.auto") },
+    // { id: "cab-economy", name: t("app.rideTierNames.cab"), icon: "car", description: "4 seats · AC" },
+    // { id: "cab-prime", name: t("app.rideTierNames.cabPrime"), icon: "car-side", description: "4 seats · extra boot" },
+  ], [t]);
+}
 
 export default function AllServicesScreen() {
   const insets = useSafeAreaInsets();
@@ -39,6 +43,7 @@ export default function AllServicesScreen() {
   const accent = tokens.services.ride;
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme, accent, tokens]);
   const setServiceType = useDeliveryStore((state) => state.setServiceType);
+  const RIDE_TIERS = useRideTiers();
 
   const selectTier = (tier: RideTier) => {
     setServiceType(tier.id);

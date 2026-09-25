@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Text, View, Animated } from "react-native";
+import { useTranslation } from "react-i18next";
 import Colors from "@/constants/colors";
 import { OrderStatus } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -10,16 +11,10 @@ interface StatusStep {
   label: string;
 }
 
-const STEPS: StatusStep[] = [
-  { key: "confirmed", label: "Order Confirmed" },
-  { key: "driver_assigned", label: "Driver Assigned" },
-  { key: "en_route_pickup", label: "On the Way to Store" },
-  { key: "arrived_pickup", label: "Arrived at Store" },
-  { key: "picking_items", label: "Picking Items" },
-  { key: "en_route_delivery", label: "On the Way to You" },
-  { key: "arrived_delivery", label: "Arrived at Delivery" },
-  { key: "delivered", label: "Delivered" },
-];
+// STEPS and RIDE_STEPS moved inside OrderStatusTimeline() as useMemo values
+// so their labels can call t() — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11. `key` values are
+// status codes, untouched.
 
 const STATUS_ORDER: OrderStatus[] = [
   "confirmed",
@@ -30,16 +25,6 @@ const STATUS_ORDER: OrderStatus[] = [
   "en_route_delivery",
   "arrived_delivery",
   "delivered",
-];
-
-const RIDE_STEPS: StatusStep[] = [
-  { key: "confirmed", label: "Ride Booked" },
-  { key: "driver_assigned", label: "Captain Assigned" },
-  { key: "en_route_pickup", label: "Captain on the Way" },
-  { key: "arrived_pickup", label: "Captain Arrived" },
-  { key: "en_route_delivery", label: "Trip In Progress" },
-  { key: "arrived_delivery", label: "Arrived at Destination" },
-  { key: "delivered", label: "Trip Completed" },
 ];
 
 const RIDE_STATUS_ORDER: OrderStatus[] = [
@@ -58,6 +43,26 @@ interface Props {
 }
 
 export function OrderStatusTimeline({ currentStatus, serviceType }: Props) {
+  const { t } = useTranslation();
+  const STEPS: StatusStep[] = useMemo(() => [
+    { key: "confirmed", label: t("app.orderStatusTimeline.steps.orderConfirmed") },
+    { key: "driver_assigned", label: t("app.orderStatusTimeline.steps.driverAssigned") },
+    { key: "en_route_pickup", label: t("app.orderStatusTimeline.steps.onTheWayToStore") },
+    { key: "arrived_pickup", label: t("app.orderStatusTimeline.steps.arrivedAtStore") },
+    { key: "picking_items", label: t("app.orderStatusTimeline.steps.pickingItems") },
+    { key: "en_route_delivery", label: t("app.orderStatusTimeline.steps.onTheWayToYou") },
+    { key: "arrived_delivery", label: t("app.orderStatusTimeline.steps.arrivedAtDelivery") },
+    { key: "delivered", label: t("app.orderStatusTimeline.steps.delivered") },
+  ], [t]);
+  const RIDE_STEPS: StatusStep[] = useMemo(() => [
+    { key: "confirmed", label: t("app.orderStatusTimeline.rideSteps.rideBooked") },
+    { key: "driver_assigned", label: t("app.orderStatusTimeline.rideSteps.captainAssigned") },
+    { key: "en_route_pickup", label: t("app.orderStatusTimeline.rideSteps.captainOnTheWay") },
+    { key: "arrived_pickup", label: t("app.orderStatusTimeline.rideSteps.captainArrived") },
+    { key: "en_route_delivery", label: t("app.orderStatusTimeline.rideSteps.tripInProgress") },
+    { key: "arrived_delivery", label: t("app.orderStatusTimeline.rideSteps.arrivedAtDestination") },
+    { key: "delivered", label: t("app.orderStatusTimeline.rideSteps.tripCompleted") },
+  ], [t]);
   const isRide = ["bike", "auto", "cab", "cab_prime"].includes(serviceType?.toLowerCase() || "");
   const steps = isRide ? RIDE_STEPS : STEPS;
   const statusOrder = isRide ? RIDE_STATUS_ORDER : STATUS_ORDER;

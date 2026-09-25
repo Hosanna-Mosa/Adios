@@ -1,6 +1,7 @@
 import React from "react";
 import { staggerListItem, modalSlideUp } from "@/motion/presets";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";
@@ -45,13 +46,14 @@ export function TripChooserSheet({
   tierFares,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.sheet} entering={modalSlideUp}>
       <View style={styles.sheetHandle} />
       <View style={styles.sheetHeadRow}>
-        <Text style={styles.sheetTitle}>Choose a trip</Text>
+        <Text style={styles.sheetTitle}>{t("app.ride.chooseATrip")}</Text>
         <TouchableOpacity onPress={handleAddStopFromMap}>
-          <Text style={styles.addStopLink}>+ Add stop</Text>
+          <Text style={styles.addStopLink}>{t("app.ride.addStop")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -90,8 +92,8 @@ export function TripChooserSheet({
         <TouchableOpacity style={styles.scheduleRow} onPress={() => setShowDatePicker(true)} activeOpacity={0.85}>
           <View style={styles.scheduleIconCircle}><Ionicons name="time-outline" size={16} color={accent.accent} /></View>
           <View style={{ flex: 1, minWidth: 0 }}>
-            <Text style={styles.scheduleTitle}>Schedule a ride</Text>
-            <Text style={styles.scheduleSub}>Book up to 7 days ahead</Text>
+            <Text style={styles.scheduleTitle}>{t("app.ride.scheduleARide")}</Text>
+            <Text style={styles.scheduleSub}>{t("app.ride.bookUpTo7DaysAhead")}</Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color={tokens.muted} />
         </TouchableOpacity>
@@ -109,7 +111,7 @@ export function TripChooserSheet({
             <ActivityIndicator size="small" color={accent.on} />
           ) : (
             <>
-              <Text style={styles.bookBtnText}>Book {ENABLED_TIERS.find((t) => t.id === selectedTier)?.name}</Text>
+              <Text style={styles.bookBtnText}>{t("app.ride.book")} {ENABLED_TIERS.find((tier) => tier.id === selectedTier)?.name}</Text>
               {selectedFare && <Text style={styles.bookBtnPrice}>· ₹{Math.round(selectedFare.fareBreakdown.total)}</Text>}
             </>
           )}

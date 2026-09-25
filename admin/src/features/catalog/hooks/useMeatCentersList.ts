@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { MeatCenter } from "../meatCenterTypes";
 
@@ -14,6 +15,7 @@ import type { MeatCenter } from "../meatCenterTypes";
  * Vendors equivalent.
  */
 export function useMeatCentersList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [viewingCenter, setViewingCenter] = useState<MeatCenter | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -37,10 +39,10 @@ export function useMeatCentersList() {
     mutationFn: (id: string) => adminFetch(`/meat/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meat-centers"] });
-      toast.success("Meat Center deleted successfully");
+      toast.success(t("catalog.meatCenterDeletedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete meat center");
+      toast.error(err.message || t("catalog.failedToDeleteMeatCenter"));
     },
   });
 
@@ -48,15 +50,15 @@ export function useMeatCentersList() {
     mutationFn: ({ id, data }: { id: string; data: Partial<MeatCenter> }) => adminFetch(`/meat/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meat-centers"] });
-      toast.success("Meat Center updated successfully");
+      toast.success(t("catalog.meatCenterUpdatedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update meat center");
+      toast.error(err.message || t("catalog.failedToUpdateMeatCenter"));
     },
   });
 
   const handleDeleteClick = (center: MeatCenter) => {
-    if (confirm(`Are you sure you want to delete ${center.name}?`)) {
+    if (confirm(t("catalog.confirmDeleteVendor", { name: center.name, defaultValue: "Are you sure you want to delete {{name}}?" }))) {
       deleteCenterMutation.mutate(center._id);
     }
   };

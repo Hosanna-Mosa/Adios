@@ -1,5 +1,6 @@
 import { Alert } from "react-native";
 
+import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { trackEvent } from "@/utils/analytics";
 import { decodeJwtPayload } from "../decodeJwt";
@@ -76,12 +77,12 @@ export const createOnlineSlice = (
         const res = await patchDriver(token, "home-mode", { homeMode: nextMode });
         if (!res.ok) {
           const data = await res.json();
-          Alert.alert("Home Mode Error", data.message || "Failed to update home mode.");
+          Alert.alert(i18n.t("jobs.homeModeError"), data.message || i18n.t("jobs.failedToUpdateHomeMode"));
           return;
         }
       } catch (e: any) {
         console.error("Failed to update home mode on backend:", e);
-        Alert.alert("Home Mode Error", "Connection failed. Please try again.");
+        Alert.alert(i18n.t("jobs.homeModeError"), i18n.t("jobs.connectionFailedPleaseTryAgain"));
         return;
       }
     }

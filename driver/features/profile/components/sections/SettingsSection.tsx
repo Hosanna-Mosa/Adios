@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -45,13 +46,14 @@ export function SettingsSection({
   onCancel: () => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box>
       <SectionFieldRows fields={fields} />
       {addresses.map((address, index) => (
         <FieldRow
           key={`${address.label}-${index}`}
-          label={`Address ${index + 1}`}
+          label={t("profile.addressN", { value: index + 1, defaultValue: "Address {{value}}" })}
           value={`${address.label}: ${address.addressLine}`}
         />
       ))}
@@ -59,41 +61,41 @@ export function SettingsSection({
       {showPasswordForm ? (
         <Box style={modalStyles.passwordForm}>
           <EditField
-            label="Current Password"
+            label={t("profile.currentPassword")}
             value={currentPassword}
             onChangeText={onCurrentPasswordChange}
             icon="lock"
-            placeholder="Enter current password"
+            placeholder={t("profile.enterCurrentPassword")}
             secureTextEntry
           />
           <EditField
-            label="New Password"
+            label={t("profile.newPassword")}
             value={newPassword}
             onChangeText={onNewPasswordChange}
             icon="lock"
-            placeholder="At least 6 characters"
+            placeholder={t("profile.atLeast6Characters")}
             secureTextEntry
           />
           <EditField
-            label="Confirm New Password"
+            label={t("profile.confirmNewPassword")}
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             icon="check-square"
-            placeholder="Re-enter new password"
+            placeholder={t("profile.reEnterNewPassword")}
             secureTextEntry
           />
           <ModalFormActions
             onCancel={onCancel}
             onConfirm={onSubmit}
-            confirmLabel="Update Password"
-            busyLabel="Updating..."
+            confirmLabel={t("profile.updatePassword")}
+            busyLabel={t("profile.updating")}
             busy={isSaving}
           />
         </Box>
       ) : (
         <ModalActionButton
           icon={<Feather name="lock" size={15} color={Colors.primary} />}
-          label="Change Password"
+          label={t("profile.changePassword")}
           onPress={onOpenForm}
         />
       )}

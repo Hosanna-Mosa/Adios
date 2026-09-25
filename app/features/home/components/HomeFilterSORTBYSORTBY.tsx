@@ -1,4 +1,5 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
@@ -38,6 +39,7 @@ interface Props {
 
 export function HomeFilterSORTBYSORTBY(props: Props) {
   const { accent, activeFilterTab, filter99Store, filterFastDelivery, filterOffers, filterOpenNow, selectedSort, setFilter99Store, setFilterFastDelivery, setFilterOffers, setFilterOpenNow, setSelectedSort, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <ScrollView style={styles.filterModalRightPane} contentContainerStyle={{ padding: 16 }}>
       {activeFilterTab === "Sort" && (
@@ -63,7 +65,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
           <Text style={styles.filterSectionTitle}>149 STORE PARTNERS</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilter99Store(!filter99Store)}>
             <Ionicons name={filter99Store ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filter99Store ? accent.accent : tokens.muted} />
-            <Text style={[styles.filterOptionLabel, filter99Store && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Show 149 Store partners</Text>
+            <Text style={[styles.filterOptionLabel, filter99Store && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.show149StorePartners")}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -72,7 +74,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
           <Text style={styles.filterSectionTitle}>DELIVERY TIME</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterFastDelivery(!filterFastDelivery)}>
             <Ionicons name={filterFastDelivery ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterFastDelivery ? accent.accent : tokens.muted} />
-            <Text style={[styles.filterOptionLabel, filterFastDelivery && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Fast delivery (under 30 mins)</Text>
+            <Text style={[styles.filterOptionLabel, filterFastDelivery && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.fastDeliveryUnder30Mins")}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -81,7 +83,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
           <Text style={styles.filterSectionTitle}>AVAILABILITY</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterOpenNow(!filterOpenNow)}>
             <Ionicons name={filterOpenNow ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterOpenNow ? accent.accent : tokens.muted} />
-            <Text style={[styles.filterOptionLabel, filterOpenNow && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Open now only</Text>
+            <Text style={[styles.filterOptionLabel, filterOpenNow && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.openNowOnly")}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -90,7 +92,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
           <Text style={styles.filterSectionTitle}>OFFERS</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterOffers(!filterOffers)}>
             <Ionicons name={filterOffers ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterOffers ? accent.accent : tokens.muted} />
-            <Text style={[styles.filterOptionLabel, filterOffers && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>Free delivery / special offers</Text>
+            <Text style={[styles.filterOptionLabel, filterOffers && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.freeDeliverySpecialOffers")}</Text>
           </TouchableOpacity>
         </View>
       )}

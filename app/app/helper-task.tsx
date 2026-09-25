@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { TaskComposeForm } from "@/features/delivery/components/TaskComposeForm";
 import { TaskBiddingPanel } from "@/features/delivery/components/TaskBiddingPanel";
 import { TaskAssignedPanel } from "@/features/delivery/components/TaskAssignedPanel";
@@ -21,12 +23,20 @@ export default function HelperTaskScreen() {
   handleSearch, selectResult, handleIncreasePrice, handleCancel, goToBidding, createTask,
   isProceedDisabled, activeDriver
   } = useHelperTask();
+  const { t } = useTranslation();
+
+  const TASK_TYPES = useMemo(() => [
+    t("app.taskTypes.shifting"),
+    t("app.taskTypes.cleaning"),
+    t("app.taskTypes.queueErrands"),
+    t("app.taskTypes.loading"),
+  ], [t]);
 
   return (
     <ScreenShell>
       <Stack.Screen options={{ headerShown: false }} />
       <Header
-        title={step === "compose" ? "Hire a helper" : step === "bidding" ? "Your offer" : step === "searching" ? "Finding a helper" : "Task assigned"}
+        title={step === "compose" ? t("app.helperTask.title.compose") : step === "bidding" ? t("app.helperTask.title.bidding") : step === "searching" ? t("app.helperTask.title.searching") : t("app.helperTask.title.assigned")}
         onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
@@ -130,4 +140,5 @@ export default function HelperTaskScreen() {
   );
 }
 
-const TASK_TYPES = ["Shifting", "Cleaning", "Queue & errands", "Loading"];
+// TASK_TYPES moved inside HelperTaskScreen() as a useMemo value — see
+// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.

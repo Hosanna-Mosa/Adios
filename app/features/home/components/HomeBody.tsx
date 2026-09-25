@@ -1,5 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { router } from "expo-router";
@@ -26,6 +27,7 @@ export function HomeBody(props: Props) {
   setFilterFastDelivery, setFilterMinRating, setFilterOffers, setFilterOpenNow,
   setFilterVegNonVeg, setIsDistanceSheetOpen, setIsFilterModalVisible, setIsSearchActive,
   setSelectedCuisines, store149Items, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <>
     <View>
@@ -66,11 +68,11 @@ export function HomeBody(props: Props) {
             <View style={styles.sectionBlock}>
               <View style={styles.sectionHeadRow}>
                 <View style={styles.sectionHeadLeft}>
-                  <Text style={styles.sectionTitle}>Meals at ₹149</Text>
-                  <Text style={styles.sectionMeta}>ends 11 PM</Text>
+                  <Text style={styles.sectionTitle}>{t("app.home.mealsAt149")}</Text>
+                  <Text style={styles.sectionMeta}>{t("app.home.ends11Pm")}</Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push("/149-store")}>
-                  <Text style={styles.sectionSeeAll}>See all</Text>
+                  <Text style={styles.sectionSeeAll}>{t("app.home.seeAll")}</Text>
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mealsScrollContent}>
@@ -83,7 +85,7 @@ export function HomeBody(props: Props) {
             <View style={styles.vegOnlyRow}>
               <View style={styles.vegOnlyLeft}>
                 <View style={styles.vegOnlyIcon}><View style={styles.vegOnlyDot} /></View>
-                <Text style={styles.vegOnlyLabel}>Veg only</Text>
+                <Text style={styles.vegOnlyLabel}>{t("app.home.vegOnly")}</Text>
               </View>
               <TouchableOpacity
                 style={[styles.vegSwitchTrack, filterVegNonVeg === "veg" && { backgroundColor: tokens.veg }]}
@@ -131,7 +133,7 @@ export function HomeBody(props: Props) {
 
           {filteredAndSortedItems.length > 0 && (
             <View style={styles.listHeadingBlock}>
-              <Text style={styles.listHeading}>{activeService === "Meat" ? "Meat centers" : "All restaurants"}</Text>
+              <Text style={styles.listHeading}>{activeService === "Meat" ? t("app.home.meatCenters") : t("app.home.allRestaurants")}</Text>
               <Text style={styles.listHeadingMeta}>
                 {appliedDistanceKm
                   ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/shared/Icon";
 
 interface FooterProps {
@@ -12,6 +13,7 @@ export function Footer({ variant }: FooterProps) {
 }
 
 function MarketingFooter() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-on-surface text-white pt-20 pb-10 border-t border-white/10">
       <div className="max-w-[1440px] mx-auto px-10 md:px-20">
@@ -21,8 +23,7 @@ function MarketingFooter() {
               Flavor
             </h2>
             <p className="text-neutral-400 text-sm leading-relaxed mb-6 font-body">
-              High-end culinary and mobility logistics for the modern
-              professional.
+              {t("footer.tagline")}
             </p>
             <div className="flex gap-4">
               <a
@@ -42,7 +43,7 @@ function MarketingFooter() {
 
           <div className="text-left">
             <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              Solutions
+              {t("footer.solutions")}
             </h4>
             <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
               <li>
@@ -50,7 +51,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#food"
                 >
-                  Executive Food
+                  {t("footer.executiveFood")}
                 </a>
               </li>
               <li>
@@ -58,7 +59,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#rides"
                 >
-                  Executive Motion
+                  {t("footer.executiveMotion")}
                 </a>
               </li>
               <li>
@@ -66,7 +67,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#corporate"
                 >
-                  Corporate Accounts
+                  {t("footer.corporateAccounts")}
                 </a>
               </li>
               <li>
@@ -74,7 +75,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   to="/partner"
                 >
-                  Partner with Us
+                  {t("footer.partnerWithUs")}
                 </Link>
               </li>
             </ul>
@@ -82,7 +83,7 @@ function MarketingFooter() {
 
           <div className="text-left">
             <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              Support
+              {t("footer.support")}
             </h4>
             <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
               <li>
@@ -90,7 +91,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#help"
                 >
-                  Help Center
+                  {t("footer.helpCenter")}
                 </a>
               </li>
               <li>
@@ -98,7 +99,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#safety"
                 >
-                  Safety Protocols
+                  {t("footer.safetyProtocols")}
                 </a>
               </li>
               <li>
@@ -106,7 +107,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#privacy"
                 >
-                  Privacy Policy
+                  {t("footer.privacyPolicy")}
                 </a>
               </li>
               <li>
@@ -114,7 +115,7 @@ function MarketingFooter() {
                   className="hover:text-brand-kinetic transition-colors"
                   href="#terms"
                 >
-                  Terms of Service
+                  {t("footer.termsOfService")}
                 </a>
               </li>
             </ul>
@@ -122,7 +123,7 @@ function MarketingFooter() {
 
           <div className="text-left">
             <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              Download
+              {t("footer.download")}
             </h4>
             <div className="flex flex-col gap-3">
               <a
@@ -132,10 +133,10 @@ function MarketingFooter() {
                 <Icon name="grid_view" className="text-lg" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] uppercase tracking-wider text-neutral-400">
-                    Download on the
+                    {t("footer.downloadOnThe")}
                   </span>
                   <span className="text-[13px] font-bold mt-0.5">
-                    App Store
+                    {t("footer.appStore")}
                   </span>
                 </div>
               </a>
@@ -146,10 +147,10 @@ function MarketingFooter() {
                 <Icon name="play_arrow" className="text-lg" />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] uppercase tracking-wider text-neutral-400">
-                    Get it on
+                    {t("footer.getItOn")}
                   </span>
                   <span className="text-[13px] font-bold mt-0.5">
-                    Google Play
+                    {t("footer.googlePlay")}
                   </span>
                 </div>
               </a>
@@ -159,17 +160,17 @@ function MarketingFooter() {
 
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-white/40 text-xs font-body">
-            © 2026 Flavor Technologies Inc. All rights reserved.
+            {t("footer.copyright")}
           </p>
           <div className="flex gap-8 text-xs font-bold text-white/40 uppercase tracking-widest font-display">
             <a className="hover:text-white" href="#privacy">
-              Privacy
+              {t("footer.privacy")}
             </a>
             <a className="hover:text-white" href="#terms">
-              Terms
+              {t("footer.terms")}
             </a>
             <a className="hover:text-white" href="#security">
-              Security
+              {t("footer.security")}
             </a>
           </div>
         </div>
@@ -179,6 +180,7 @@ function MarketingFooter() {
 }
 
 function MinimalFooter() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-on-surface text-white pt-16 pb-10">
       <div className="container max-w-[1280px] mx-auto px-6">
@@ -191,19 +193,19 @@ function MinimalFooter() {
           </Link>
           <div className="flex gap-6 text-sm text-white/60">
             <a href="#" className="hover:text-white transition-colors">
-              Privacy Policy
+              {t("footer.privacyPolicy")}
             </a>
             <a href="#" className="hover:text-white transition-colors">
-              Terms of Service
+              {t("footer.termsOfService")}
             </a>
             <a href="#" className="hover:text-white transition-colors">
-              Contact Support
+              {t("footer.contactSupport")}
             </a>
           </div>
         </div>
         <div className="pt-6 border-t border-white/10 text-center">
           <p className="text-white/40 text-xs">
-            © 2024 Hybrid Technologies Inc. All rights reserved.
+            {t("footer.minimalCopyright")}
           </p>
         </div>
       </div>

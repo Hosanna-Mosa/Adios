@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useDriverStore } from "@/store/driverStore";
 import { styles } from "../home.styles";
@@ -14,11 +15,12 @@ export function ScheduledRidesSection({
   rides: any[];
   blockedByCurrentOrder: boolean;
 }) {
+  const { t } = useTranslation();
   if (rides.length === 0) return null;
 
   return (
     <Box style={styles.sectionSpacing}>
-      <SectionHeading title={`Scheduled Rides (${rides.length})`} />
+      <SectionHeading title={t("jobs.scheduledRidesN", { value: rides.length, defaultValue: "Scheduled Rides ({{value}})" })} />
       <Box style={{ gap: 12, marginTop: 8 }}>
         {rides.map((ride, idx) => (
           <ScheduledRideCard

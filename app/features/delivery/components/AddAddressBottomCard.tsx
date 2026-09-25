@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { modalSlideUp } from "@/motion/presets";
@@ -35,6 +36,7 @@ export function AddAddressBottomCard({
   shortAddress,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={[styles.bottomCard, { paddingBottom: insets.bottom + 16 }]} entering={modalSlideUp}>
       <View style={styles.sheetHandle} />
@@ -51,11 +53,11 @@ export function AddAddressBottomCard({
           styles={styles}
         />
         <TouchableOpacity onPress={() => searchInputRef.current?.focus()}>
-          <Text style={styles.changeLink}>Change</Text>
+          <Text style={styles.changeLink}>{t("app.delivery.change")}</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={[styles.nextBtn, isResolvingAddress && { opacity: 0.6 }]} onPress={() => setStep(2)} disabled={isResolvingAddress}>
-        <Text style={styles.nextBtnText}>Add more address details</Text>
+        <Text style={styles.nextBtnText}>{t("app.delivery.addMoreAddressDetails")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );

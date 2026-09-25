@@ -1,4 +1,5 @@
 import { AlertCircle, MessageSquare } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { Ticket } from "../types";
@@ -12,11 +13,12 @@ interface SupportChatSidebarProps {
 
 /** The "Active Chats" sidebar list on SupportChat -- its own card design, distinct from Support.tsx's TicketList and SupportIssues' TicketCardGrid. */
 export function SupportChatSidebar({ tickets, isLoading, selectedTicketId, onSelect }: SupportChatSidebarProps) {
+  const { t } = useTranslation();
   return (
     <div className="section-card flex flex-col h-full lg:col-span-1">
       <div className="p-4 border-b border-border bg-muted/10 flex items-center justify-between shrink-0">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-          <MessageSquare className="h-4.5 w-4.5 text-primary" /> Active Chats ({tickets.length})
+          <MessageSquare className="h-4.5 w-4.5 text-primary" /> {t("support.activeChatsCount", { count: tickets.length, defaultValue: "Active Chats ({{count}})" })}
         </h3>
       </div>
 
@@ -24,13 +26,13 @@ export function SupportChatSidebar({ tickets, isLoading, selectedTicketId, onSel
         {isLoading ? (
           <div className="py-10 text-center text-muted-foreground font-medium flex flex-col items-center justify-center gap-2">
             <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            Loading chats...
+            {t("support.loadingChats")}
           </div>
         ) : tickets.length === 0 ? (
           <div className="py-10 text-center text-muted-foreground">
             <AlertCircle className="h-8 w-8 text-muted-foreground/60 mx-auto mb-2" />
-            <p className="font-semibold text-foreground">No active chats</p>
-            <p className="text-[11px] mt-0.5">All tickets are resolved or pending resolve.</p>
+            <p className="font-semibold text-foreground">{t("support.noActiveChats")}</p>
+            <p className="text-[11px] mt-0.5">{t("support.allTicketsResolvedOrPendingDesc")}</p>
           </div>
         ) : (
           tickets.map((ticket) => {
@@ -55,7 +57,7 @@ export function SupportChatSidebar({ tickets, isLoading, selectedTicketId, onSel
                       ticket.status === "PENDING_RESOLVE" ? "bg-amber-100 text-amber-700 animate-pulse" : "bg-red-100 text-red-700"
                     }`}
                   >
-                    {ticket.status === "PENDING_RESOLVE" ? "PENDING" : "OPEN"}
+                    {ticket.status === "PENDING_RESOLVE" ? t("support.pendingShort") : t("support.statusOpen")}
                   </span>
                 </div>
 
@@ -63,9 +65,9 @@ export function SupportChatSidebar({ tickets, isLoading, selectedTicketId, onSel
 
                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/40">
                   <span className="text-[10px] text-muted-foreground truncate font-medium">
-                    {ticket.user} ({ticket.userRole || "USER"})
+                    {ticket.user} ({ticket.userRole || t("support.userShort")})
                   </span>
-                  <span className="text-[9px] text-muted-foreground shrink-0 font-medium">{ticket.time || "Recently"}</span>
+                  <span className="text-[9px] text-muted-foreground shrink-0 font-medium">{ticket.time || t("support.recently")}</span>
                 </div>
               </StaggerItem>
             );

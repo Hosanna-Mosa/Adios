@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -43,13 +44,14 @@ export function BankSection({
   onCancel: () => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box>
       <SectionFieldRows fields={fields} />
 
       {accounts.length > 0 && (
         <Box style={modalStyles.bankList}>
-          <AppText style={modalStyles.bankListTitle}>Your Bank Accounts</AppText>
+          <AppText style={modalStyles.bankListTitle}>{t("profile.yourBankAccounts")}</AppText>
           {accounts.map((ba, idx) => (
             <Box key={idx} style={modalStyles.bankItem}>
               <Box style={modalStyles.bankItemDot}>
@@ -61,11 +63,11 @@ export function BankSection({
               </Box>
               <Box style={modalStyles.bankItemCopy}>
                 <AppText style={modalStyles.bankItemNumber}>{ba.accountNumber}</AppText>
-                <AppText style={modalStyles.bankItemIfsc}>IFSC: {ba.ifsc}</AppText>
+                <AppText style={modalStyles.bankItemIfsc}>{t("profile.ifscPrefix")}: {ba.ifsc}</AppText>
               </Box>
               {ba.isDefault && (
                 <Box style={modalStyles.defaultBadge}>
-                  <AppText style={modalStyles.defaultBadgeText}>Default</AppText>
+                  <AppText style={modalStyles.defaultBadgeText}>{t("profile.default")}</AppText>
                 </Box>
               )}
             </Box>
@@ -75,17 +77,17 @@ export function BankSection({
 
       {showForm ? (
         <Box style={modalStyles.bankFormWrap}>
-          <AppText style={modalStyles.bankFormTitle}>Add Bank Account</AppText>
+          <AppText style={modalStyles.bankFormTitle}>{t("profile.addBankAccount")}</AppText>
           <EditField
-            label="Account Number"
+            label={t("profile.accountNumber")}
             value={accountNumber}
             onChangeText={onAccountNumberChange}
             icon="credit-card"
-            placeholder="Enter account number"
+            placeholder={t("profile.enterAccountNumber")}
             keyboardType="number-pad"
           />
           <EditField
-            label="IFSC Code"
+            label={t("profile.ifscCode")}
             value={ifsc}
             onChangeText={onIfscChange}
             icon="map-pin"
@@ -95,15 +97,15 @@ export function BankSection({
           <ModalFormActions
             onCancel={onCancel}
             onConfirm={onSubmit}
-            confirmLabel="Add Account"
-            busyLabel="Adding..."
+            confirmLabel={t("profile.addAccount")}
+            busyLabel={t("profile.adding")}
             busy={isSaving}
           />
         </Box>
       ) : (
         <ModalActionButton
           icon={<Feather name="plus-circle" size={15} color={Colors.primary} />}
-          label={accounts.length >= 3 ? "Maximum 3 accounts reached" : "Add Bank Account"}
+          label={accounts.length >= 3 ? t("profile.maxAccountsReached") : t("profile.addBankAccount")}
           onPress={onOpenForm}
         />
       )}

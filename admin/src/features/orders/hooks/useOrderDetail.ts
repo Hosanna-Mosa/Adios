@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
 import { useJsApiLoader } from "@react-google-maps/api";
@@ -8,6 +9,7 @@ import type { Order, MapMarker, TimelineStep } from "../orderDetailTypes";
 
 /** All state/query/derived-data logic for OrderDetail.tsx (work queue item #18). */
 export function useOrderDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [zoom, setZoom] = useState(13);
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
@@ -33,30 +35,30 @@ export function useOrderDetail() {
     timelineSteps = [
       {
         time: new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        title: "Order confirmed",
-        desc: "System validated and processed for routing.",
+        title: t("orders.orderConfirmed"),
+        desc: t("orders.systemValidatedRoutingDesc"),
         status: "completed"
       },
       {
         time: order.driver ? new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
-        title: "Driver assigned",
-        desc: order.driver ? `${order.driver.user?.name || "Marcus Rodriguez"} accepted the route.` : "Waiting for driver acceptance...",
+        title: t("orders.driverAssignedTitle"),
+        desc: order.driver ? t("orders.acceptedTheRoute", { name: order.driver.user?.name || "Marcus Rodriguez", defaultValue: "{{name}} accepted the route." }) : t("orders.waitingForDriverAcceptance"),
         status: order.driver ? "completed" : "pending",
-        label: order.driver ? undefined : "AWAITING DRIVER"
+        label: order.driver ? undefined : t("orders.awaitingDriverLabel")
       },
       {
         time: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
-        title: "Picked Up",
-        desc: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? "Items collected from the store / vendor." : "Driver heading to merchant...",
+        title: t("orders.pickedUp"),
+        desc: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? t("orders.itemsCollectedDesc") : t("orders.driverHeadingToMerchant"),
         status: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? "completed" : order.status === "DRIVER_ASSIGNED" ? "in_progress" : "pending",
-        label: order.status === "DRIVER_ASSIGNED" ? "EN ROUTE TO MERCHANT" : undefined
+        label: order.status === "DRIVER_ASSIGNED" ? t("orders.enRouteToMerchantLabel") : undefined
       },
       {
         time: ["DELIVERED", "COMPLETED"].includes(order.status) ? new Date(order.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
-        title: "Delivered",
-        desc: ["DELIVERED", "COMPLETED"].includes(order.status) ? "Final signature and delivery confirmation." : "In transit to destination...",
+        title: t("orderStatus.delivered"),
+        desc: ["DELIVERED", "COMPLETED"].includes(order.status) ? t("orders.finalSignatureDeliveryDesc") : t("orders.inTransitToDestination"),
         status: ["DELIVERED", "COMPLETED"].includes(order.status) ? "completed" : order.status === "PICKED_UP" ? "in_progress" : "pending",
-        label: order.status === "PICKED_UP" ? "IN TRANSIT" : undefined
+        label: order.status === "PICKED_UP" ? t("orders.inTransitCapsLabel") : undefined
       }
     ];
 
@@ -67,7 +69,7 @@ export function useOrderDetail() {
         lat: Number(lat),
         lng: Number(lng),
         label: String(idx + 1),
-        address: stop.address || "Stop",
+        address: stop.address || t("orders.stop"),
         type: stop.type
       };
     }).filter((m) => !isNaN(m.lat) && !isNaN(m.lng)) || [];
@@ -78,9 +80,9 @@ export function useOrderDetail() {
 
   const handleContactDriver = () => {
     if (order?.driver) {
-      toast.success(`VoIP call initiated to ${order.driver.user?.name || "Driver"}`);
+      toast.success(t("orders.voipCallInitiatedTo", { name: order.driver.user?.name || t("orders.driver"), defaultValue: "VoIP call initiated to {{name}}" }));
     } else {
-      toast.error("No driver assigned to this order yet.");
+      toast.error(t("orders.noDriverAssignedYet"));
     }
   };
 

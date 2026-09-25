@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { useLocalSearchParams, router } from "expo-router";
@@ -18,6 +19,7 @@ const DEFAULT_LAT = 16.9891;
 const DEFAULT_LNG = 81.7836;
 
 export default function ZoneMapScreen() {
+  const { t } = useTranslation();
   const { zoneId } = useLocalSearchParams<{ zoneId: string }>();
   const [loading, setLoading] = useState(true);
   const [zone, setZone] = useState<any>(null);
@@ -26,7 +28,7 @@ export default function ZoneMapScreen() {
   useEffect(() => {
     (async () => {
       if (!zoneId) {
-        setError("Invalid Zone ID provided");
+        setError(t("jobs.invalidZoneIdProvided"));
         setLoading(false);
         return;
       }
@@ -37,28 +39,28 @@ export default function ZoneMapScreen() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          throw new Error("Failed to retrieve zone details");
+          throw new Error(t("jobs.failedToRetrieveZoneDetails"));
         }
         const result = await res.json();
         setZone(result.data);
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "Failed to load zone map");
+        setError(err.message || t("jobs.failedToLoadZoneMap"));
       } finally {
         setLoading(false);
       }
     })();
-  }, [zoneId]);
+  }, [zoneId, t]);
 
   if (loading) {
-    return <ZoneMapLoading message="Loading operational geofence map..." />;
+    return <ZoneMapLoading message={t("jobs.loadingOperationalGeofenceMap")} />;
   }
 
   if (error || !zone) {
     return (
       <ZoneMapError
-        message={error || "Zone data could not be fetched"}
-        actionLabel="Back to Onboarding"
+        message={error || t("jobs.zoneDataCouldNotBeFetched")}
+        actionLabel={t("jobs.backToOnboarding")}
         onAction={() => router.back()}
       />
     );

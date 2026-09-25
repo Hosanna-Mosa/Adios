@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function VendorMeatMenuItemCard({
   cancelEditing,
   savePrice,
 }: VendorMeatMenuItemCardProps) {
+  const { t } = useTranslation();
   return (
     <StaggerItem
       className={`bg-card border ${
@@ -65,7 +67,7 @@ export function VendorMeatMenuItemCard({
                 : "bg-destructive/10 text-destructive"
             }`}
           >
-            {item.isAvailable ? "In Stock" : "Out of Stock"}
+            {item.isAvailable ? t("vendorMenu.inStock") : t("vendorMenu.outOfStock")}
           </span>
           <Switch
             checked={item.isAvailable}
@@ -79,7 +81,7 @@ export function VendorMeatMenuItemCard({
       <div className="mt-5 pt-4 border-t border-border">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Selling Price
+            {t("vendorMeatMenu.sellingPrice")}
           </span>
 
           {editingId === item._id ? (

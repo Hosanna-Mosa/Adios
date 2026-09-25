@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 
 /** The edit-profile form: opening it from the current values, and saving. */
 export function useProfileEditing(profile: any, onSaved: () => void) {
+  const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -30,7 +32,7 @@ export function useProfileEditing(profile: any, onSaved: () => void) {
   const handleSaveProfile = async () => {
     if (!token) return;
     if (!editName.trim()) {
-      Alert.alert("Validation", "Name is required");
+      Alert.alert(t("profile.validation"), t("profile.nameIsRequired"));
       return;
     }
 
@@ -52,13 +54,13 @@ export function useProfileEditing(profile: any, onSaved: () => void) {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to update profile");
+      if (!response.ok) throw new Error(data.message || t("profile.failedToUpdateProfile"));
 
       onSaved();
       setIsEditing(false);
-      Alert.alert("Saved", "Profile updated successfully.");
+      Alert.alert(t("profile.saved"), t("profile.profileUpdatedSuccessfully"));
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to save changes");
+      Alert.alert(t("auth.errorTitle"), error.message || t("profile.failedToSaveChanges"));
     } finally {
       setIsSaving(false);
     }

@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { getDistanceFromLatLonInKm } from "./useHelperTask.shared";
 import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
 
@@ -6,6 +7,7 @@ import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
 // order, so React still sees the same hook sequence.
 
 export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPickupLocation: any, setDropoffLocation: any, setPickupCoords: any, setDropoffCoords: any, activeField: any, setActiveField: any, setSearchResults: any, setIsPickupValid: any, setIsDropoffValid: any) {
+  const { t } = useTranslation();
   const handleSearch = async (text: string, type: "pickup" | "dropoff") => {
     if (type === "pickup") { setPickupLocation(text); setIsPickupValid(false); }
     else { setDropoffLocation(text); setIsDropoffValid(false); }
@@ -33,7 +35,7 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
       if (currentCoords && radius && lat !== null && lng !== null) {
         const distance = getDistanceFromLatLonInKm(currentCoords.lat, currentCoords.lng, lat, lng);
         if (distance > parseFloat(radius)) {
-          Alert.alert("Out of range", `This location is outside your selected ${radius}km radius.`);
+          Alert.alert(t("app.delivery.outOfRange"), t("app.delivery.thisLocationIsOutsideYourSelected", { value: radius }));
           setSearchResults([]);
           setActiveField(null);
           return;

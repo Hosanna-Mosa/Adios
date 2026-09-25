@@ -1,6 +1,7 @@
 import { Menu } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
 import { LazyImage } from "@/components/shared/LazyImage";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 interface TopBarProps {
   searchPlaceholder?: string;
@@ -25,6 +26,7 @@ export function TopBar({
       </div>
 
       <div className="flex items-center gap-6">
+        <LanguageSwitcher />
         <NotificationBell />
 
         {/* Profile */}

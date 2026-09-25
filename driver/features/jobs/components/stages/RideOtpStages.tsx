@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { GpsVerifiedBox, OrderStage, OtpEntry, StageActionButton } from "../order";
@@ -6,18 +7,19 @@ import { GpsVerifiedBox, OrderStage, OtpEntry, StageActionButton } from "../orde
 const OTP_SPACING = { marginTop: 16, marginBottom: 20 };
 
 export function RideArrivedPickupStage() {
+  const { t } = useTranslation();
   const { verification, handleStatusTransition } = useActiveOrderCtx();
 
   return (
-    <OrderStage title="Arrived at Pickup">
+    <OrderStage title={t("jobs.arrivedAtPickup")}>
       <GpsVerifiedBox
-        title="GPS Check: Arrived"
-        description="You have reached the rider's pickup location."
+        title={t("jobs.gpsCheckArrived")}
+        description={t("jobs.reachedRidersPickupLocation")}
       />
 
       <OtpEntry
-        label="ENTER START RIDE OTP"
-        placeholder="Enter 4-digit Ride OTP"
+        label={t("jobs.enterStartRideOtp")}
+        placeholder={t("jobs.enter4DigitRideOtp")}
         maxLength={8}
         value={verification.restaurantOTP}
         onChangeText={(val) => {
@@ -25,28 +27,29 @@ export function RideArrivedPickupStage() {
           verification.setRestaurantOTPError(false);
         }}
         hasError={verification.restaurantOTPError}
-        errorText="Invalid OTP code. Please ask the rider for their start ride OTP."
+        errorText={t("jobs.invalidOtpAskRiderForStartRideOtp")}
         style={OTP_SPACING}
       />
 
-      <StageActionButton label="Start Trip" onPress={handleStatusTransition} />
+      <StageActionButton label={t("jobs.startTrip")} onPress={handleStatusTransition} />
     </OrderStage>
   );
 }
 
 export function RideArrivedDeliveryStage() {
+  const { t } = useTranslation();
   const { verification, handleStatusTransition } = useActiveOrderCtx();
 
   return (
-    <OrderStage title="Confirm Ride Completion">
+    <OrderStage title={t("jobs.confirmRideCompletion")}>
       <GpsVerifiedBox
-        title="GPS Check: Arrived"
-        description="You have reached the rider's destination."
+        title={t("jobs.gpsCheckArrived")}
+        description={t("jobs.reachedRidersDestination")}
       />
 
       <OtpEntry
-        label="ENTER END RIDE OTP"
-        placeholder="Enter 4-Digit OTP"
+        label={t("jobs.enterEndRideOtp")}
+        placeholder={t("jobs.enter4DigitOtp")}
         maxLength={4}
         value={verification.customerOTP}
         onChangeText={(val) => {
@@ -54,11 +57,11 @@ export function RideArrivedDeliveryStage() {
           verification.setCustomerOTPError(false);
         }}
         hasError={verification.customerOTPError}
-        errorText="Invalid OTP code. Please ask the rider for their end ride OTP."
+        errorText={t("jobs.invalidOtpAskRiderForEndRideOtp")}
         style={OTP_SPACING}
       />
 
-      <StageActionButton label="End Trip & Complete Ride" onPress={handleStatusTransition} />
+      <StageActionButton label={t("jobs.endTripAndCompleteRide")} onPress={handleStatusTransition} />
     </OrderStage>
   );
 }

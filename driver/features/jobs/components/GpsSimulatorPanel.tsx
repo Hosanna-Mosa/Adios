@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -29,19 +30,20 @@ export function GpsSimulatorPanel({
   idleDistance?: string;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.simPanel}>
       <Box style={styles.simStatsRow}>
         <Box style={styles.simStatItem}>
-          <AppText style={styles.simStatLabel}>Speed</AppText>
+          <AppText style={styles.simStatLabel}>{t("jobs.speed")}</AppText>
           <AppText style={styles.simStatValue}>{isSimulating ? `${speed} km/h` : "0 km/h"}</AppText>
         </Box>
         <Box style={styles.simStatItem}>
-          <AppText style={styles.simStatLabel}>ETA</AppText>
+          <AppText style={styles.simStatLabel}>{t("jobs.eta")}</AppText>
           <AppText style={styles.simStatValue}>{isSimulating ? `${eta} min` : idleEta}</AppText>
         </Box>
         <Box style={styles.simStatItem}>
-          <AppText style={styles.simStatLabel}>Distance</AppText>
+          <AppText style={styles.simStatLabel}>{t("jobs.distance")}</AppText>
           <AppText style={styles.simStatValue}>
             {isSimulating ? `${remainingDistance} km` : idleDistance}
           </AppText>
@@ -53,7 +55,7 @@ export function GpsSimulatorPanel({
       >
         <Ionicons name={isSimulating ? "pause" : "navigate"} size={16} color={Colors.white} />
         <AppText style={styles.simToggleText}>
-          {isSimulating ? "Stop GPS Simulator" : "Simulate Travel Coordinates"}
+          {isSimulating ? t("jobs.stopGpsSimulator") : t("jobs.simulateTravelCoordinates")}
         </AppText>
       </Touchable>
     </Box>

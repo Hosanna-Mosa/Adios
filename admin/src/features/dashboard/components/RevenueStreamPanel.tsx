@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 
 const WEEKS = ["W1", "W2", "W3", "W4"];
@@ -9,9 +10,10 @@ interface RevenueStreamPanelProps {
 
 /** The "Revenue Stream" panel: a week selector and a static growth figure -- no actual chart here. */
 export function RevenueStreamPanel({ selectedWeek, onSelectWeek }: RevenueStreamPanelProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn delay={0.05} className="section-card p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-6">Revenue Stream</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-6">{t("analytics.revenueStream")}</h3>
       <div className="flex items-center justify-center gap-4 mb-6">
         {WEEKS.map((w) => (
           <button
@@ -24,7 +26,7 @@ export function RevenueStreamPanel({ selectedWeek, onSelectWeek }: RevenueStream
         ))}
       </div>
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <span className="text-sm text-muted-foreground">Monthly Growth</span>
+        <span className="text-sm text-muted-foreground">{t("analytics.monthlyGrowth")}</span>
         <span className="text-sm font-semibold text-success">+12.4%</span>
       </div>
     </FadeIn>

@@ -1,7 +1,9 @@
 import { AlertCircle, CreditCard, Box, Package, MessageSquare, Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { Ticket } from "../types";
+import { ticketStatusLabel } from "../ticketLabels";
 
 interface TicketCardGridProps {
   tickets: Ticket[];
@@ -11,11 +13,12 @@ interface TicketCardGridProps {
 
 /** The grid of ticket cards on SupportIssues -- a 2-column card grid, distinct from Support.tsx's single-column list. */
 export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGridProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return (
       <div className="py-20 text-center text-muted-foreground font-medium flex flex-col items-center justify-center gap-2">
         <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        Loading support cases...
+        {t("support.loadingSupportCases")}
       </div>
     );
   }
@@ -24,8 +27,8 @@ export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGri
     return (
       <div className="py-20 text-center text-muted-foreground">
         <AlertCircle className="h-10 w-10 text-muted-foreground/60 mx-auto mb-2" />
-        <p className="font-semibold text-foreground">No cases found</p>
-        <p className="text-xs mt-1">Try modifying your filters or search query.</p>
+        <p className="font-semibold text-foreground">{t("support.noCasesFound")}</p>
+        <p className="text-xs mt-1">{t("support.tryModifyingFiltersDesc")}</p>
       </div>
     );
   }
@@ -45,10 +48,10 @@ export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGri
                       ticket.status === "OPEN" ? "bg-red-100 text-red-700" : ticket.status === "PENDING_RESOLVE" ? "bg-amber-100 text-amber-700 animate-pulse" : "bg-green-100 text-green-700"
                     }`}
                   >
-                    {ticket.status === "PENDING_RESOLVE" ? "PENDING RESOLVE" : ticket.status}
+                    {ticketStatusLabel(ticket.status, t)}
                   </span>
                 </div>
-                <span className="text-[10px] text-muted-foreground font-medium">{ticket.time || "Recently"}</span>
+                <span className="text-[10px] text-muted-foreground font-medium">{ticket.time || t("support.recently")}</span>
               </div>
 
               <h4 className="text-sm font-bold text-foreground mt-2 line-clamp-1">{ticket.title}</h4>
@@ -65,7 +68,7 @@ export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGri
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{ticket.category}</span>
               </div>
 
-              <p className="text-xs text-muted-foreground mt-3 line-clamp-2 italic">{ticket.message ? ticket.message.replace(/^"|"$/g, "") : "No description provided."}</p>
+              <p className="text-xs text-muted-foreground mt-3 line-clamp-2 italic">{ticket.message ? ticket.message.replace(/^"|"$/g, "") : t("support.noDescriptionProvided")}</p>
             </div>
 
             <div className="flex items-center justify-between border-t border-border mt-4 pt-4">
@@ -92,11 +95,11 @@ export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGri
               >
                 {isActive ? (
                   <>
-                    <MessageSquare className="h-3.5 w-3.5" /> Open Chat
+                    <MessageSquare className="h-3.5 w-3.5" /> {t("support.openChat")}
                   </>
                 ) : (
                   <>
-                    <Eye className="h-3.5 w-3.5" /> View Chat
+                    <Eye className="h-3.5 w-3.5" /> {t("support.viewChat")}
                   </>
                 )}
               </button>

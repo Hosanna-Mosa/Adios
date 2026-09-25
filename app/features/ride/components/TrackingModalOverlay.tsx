@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type TrackingStyles } from "@/features/ride/tracking.styles";
@@ -30,12 +31,13 @@ export function TrackingModalOverlay({
   tokens,
   totalPrice,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.modalOverlay}>
       <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setTripModalVisible(false)} />
       <View style={styles.modalContent}>
         <View style={styles.sheetHandle} />
-        <Text style={styles.modalTitle}>Order details</Text>
+        <Text style={styles.modalTitle}>{t("app.ride.orderDetails")}</Text>
         <View style={{ flexDirection: "row", gap: 12, marginTop: 16, marginBottom: 20 }}>
           <View style={styles.addrRail}>
             <View style={[styles.addrDot, { borderColor: accent.accent }]} />

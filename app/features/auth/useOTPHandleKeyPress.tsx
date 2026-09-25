@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { RESEND_SECONDS } from "./useOTP.shared";
 
@@ -6,6 +7,7 @@ import { RESEND_SECONDS } from "./useOTP.shared";
 // order, so React still sees the same hook sequence.
 
 export function useOTPHandleKeyPress(phone: any, name: any, email: any, password: any, otp: any, setOtp: any, secondsLeft: any, setSecondsLeft: any, setResending: any, inputs: any, verifyOTP: any, requestOTP: any) {
+  const { t } = useTranslation();
   const handleKeyPress = (key: string, index: number) => {
     if (key === "Backspace" && !otp[index] && index > 0) {
       inputs.current[index - 1]?.focus();
@@ -34,7 +36,7 @@ export function useOTPHandleKeyPress(phone: any, name: any, email: any, password
         router.replace("/(tabs)");
       }
     } catch (error: any) {
-      Alert.alert("Verification failed", error.message || "That code didn't work. Please try again.");
+      Alert.alert(t("app.auth.verificationFailed"), error.message || t("app.auth.thatCodeDidntWork"));
     }
   };
 
@@ -47,14 +49,14 @@ export function useOTPHandleKeyPress(phone: any, name: any, email: any, password
       setOtp(["", "", "", "", "", ""]);
       inputs.current[0]?.focus();
     } catch (error: any) {
-      Alert.alert("Couldn't resend", error.message || "Please try again in a moment.");
+      Alert.alert(t("app.auth.couldntResend"), error.message || t("app.auth.pleaseTryAgainInAMoment"));
     } finally {
       setResending(false);
     }
   };
 
   const handleCallInstead = () => {
-    Alert.alert("Call requested", "We'll ring you with your code shortly.");
+    Alert.alert(t("app.auth.callRequested"), t("app.auth.wellRingYouWithYourCode"));
   };
 
   const isFilled = otp.every((d: any) => d.length === 1);

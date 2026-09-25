@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -10,6 +11,7 @@ import { AppText } from "@/components/ui/AppText";
 
 /** Shown when the driver has no job in progress. */
 export function NoActiveTasksCard({ isOnline }: { isOnline: boolean }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.emptyTasksCard}>
       <AppImage
@@ -18,11 +20,11 @@ export function NoActiveTasksCard({ isOnline }: { isOnline: boolean }) {
         resizeMode="contain"
       />
       <Box style={styles.emptyTasksCopy}>
-        <AppText style={styles.emptyTasksTitle}>No Active Tasks</AppText>
+        <AppText style={styles.emptyTasksTitle}>{t("jobs.noActiveTasks")}</AppText>
         <AppText style={styles.emptyTasksDesc}>
           {isOnline
-            ? "You are online and ready\nto receive bookings.\nKeep the app open."
-            : "Go online to receive\nand accept bookings."}
+            ? t("jobs.onlineReadyToReceiveBookings")
+            : t("jobs.goOnlineToReceiveBookings")}
         </AppText>
       </Box>
       <Touchable style={styles.calendarBtn}>

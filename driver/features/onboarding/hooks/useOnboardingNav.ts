@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions, ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
 import {
   interpolate,
   useAnimatedStyle,
@@ -10,8 +11,8 @@ import {
 
 import { SPRING } from "@/motion/presets";
 import {
-  STEP1_SECTIONS,
-  STEP2_SECTIONS,
+  getStep1Sections,
+  getStep2Sections,
   type OnboardingSection,
 } from "../onboardingSections";
 
@@ -21,6 +22,7 @@ export type OnboardingNav = ReturnType<typeof useOnboardingNav>;
 
 /** Step / section cursor plus the slide animation that runs between them. */
 export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean) {
+  const { i18n: i18nInstance } = useTranslation();
   const params = useLocalSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [sectionIdx, setSectionIdx] = useState(0);
@@ -48,12 +50,16 @@ export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean)
   }, [params.verify]);
 
   // Once one ID is verified the other section drops out of the flow.
+  // Re-reads section labels whenever the language changes (i18nInstance.language
+  // in the dependency array), since getStep1Sections()/getStep2Sections() read
+  // the current language at call time and would otherwise stay stale.
   const currentSections: OnboardingSection[] = useMemo(() => {
-    if (step === 1) return STEP1_SECTIONS;
-    if (aadhaarVerified) return STEP2_SECTIONS.filter((s) => s.key !== "pan");
-    if (panVerified) return STEP2_SECTIONS.filter((s) => s.key !== "aadhaar");
-    return STEP2_SECTIONS;
-  }, [step, aadhaarVerified, panVerified]);
+    if (step === 1) return getStep1Sections();
+    const step2 = getStep2Sections();
+    if (aadhaarVerified) return step2.filter((s) => s.key !== "pan");
+    if (panVerified) return step2.filter((s) => s.key !== "aadhaar");
+    return step2;
+  }, [step, aadhaarVerified, panVerified, i18nInstance.language]);
 
   const totalSections = currentSections.length;
 
@@ -91,7 +97,7 @@ export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean)
   const goToPrevStep = useCallback(() => {
     if (step > 1) {
       setStep((p) => (p - 1) as 1 | 2);
-      setSectionIdx(STEP1_SECTIONS.length - 1);
+      setSectionIdx(getStep1Sections().length - 1);
       animateTransition(-1);
     }
   }, [step, animateTransition]);

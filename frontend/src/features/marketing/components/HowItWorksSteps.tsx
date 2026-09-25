@@ -1,30 +1,31 @@
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "../../../components/motion/StaggerList";
 import { StaggerItem } from "../../../components/motion/StaggerItem";
 
-const steps = [
-  {
-    step: "01",
-    title: "Register Your Business",
-    desc: "Fill out a quick form with your business details, location, and service type.",
-  },
-  {
-    step: "02",
-    title: "Verify & Setup",
-    desc: "Our team verifies your documents and helps you set up your menu or service listings.",
-  },
-  {
-    step: "03",
-    title: "Go Live",
-    desc: "Start receiving orders and ride requests within 48 hours. Track everything in real time.",
-  },
-  {
-    step: "04",
-    title: "Grow & Earn",
-    desc: "Access analytics, promotional tools, and dedicated support to scale your business.",
-  },
-];
-
 export function HowItWorksSteps() {
+  const { t } = useTranslation();
+  const steps = [
+    {
+      step: "01",
+      title: t("howItWorks.registerTitle"),
+      desc: t("howItWorks.registerDesc"),
+    },
+    {
+      step: "02",
+      title: t("howItWorks.verifyTitle"),
+      desc: t("howItWorks.verifyDesc"),
+    },
+    {
+      step: "03",
+      title: t("howItWorks.goLiveTitle"),
+      desc: t("howItWorks.goLiveDesc"),
+    },
+    {
+      step: "04",
+      title: t("howItWorks.growTitle"),
+      desc: t("howItWorks.growDesc"),
+    },
+  ];
   return (
     <section
       id="how-it-works"
@@ -33,10 +34,10 @@ export function HowItWorksSteps() {
       <div className="container max-w-[900px] mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-            How It Works
+            {t("howItWorks.title")}
           </h2>
           <p className="text-secondary-app max-w-lg mx-auto">
-            Get your business on Hybrid in four simple steps.
+            {t("howItWorks.subtitle")}
           </p>
         </div>
         <StaggerList inView className="space-y-8">

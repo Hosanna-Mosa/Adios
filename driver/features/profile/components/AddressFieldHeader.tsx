@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -18,6 +19,7 @@ export function AddressFieldHeader({
   fetching: boolean;
   onUseCurrentLocation: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.fieldHeaderRow}>
       <AppText style={styles.inputLabel}>{label}</AppText>
@@ -32,7 +34,7 @@ export function AddressFieldHeader({
           <Feather name="target" size={16} color={Colors.primary} />
         )}
         <AppText style={styles.locateText}>
-          {fetching ? "Locating..." : "Use Current Location"}
+          {fetching ? t("profile.locating") : t("profile.useCurrentLocation")}
         </AppText>
       </Touchable>
     </Box>

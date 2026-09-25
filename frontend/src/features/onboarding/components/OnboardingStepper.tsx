@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function OnboardingStepper({ form }: Props) {
+  const { t } = useTranslation();
   const { onboardingSteps, step, setStep, copy } = form;
   return (
     <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-white border-r border-gray-200 fixed top-0 left-0 h-screen z-40">
@@ -60,10 +62,10 @@ export function OnboardingStepper({ form }: Props) {
                   className={`text-[11px] mt-0.5 ${isActive ? "text-brand-kinetic/60" : "text-gray-400"}`}
                 >
                   {isCompleted
-                    ? "Completed"
+                    ? t("onboarding.completed")
                     : isActive
-                      ? "In progress"
-                      : "Pending"}
+                      ? t("onboarding.inProgress")
+                      : t("onboarding.pending")}
                 </p>
               </div>
             </button>
@@ -75,7 +77,7 @@ export function OnboardingStepper({ form }: Props) {
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-secondary-app">
-            Overall Progress
+            {t("onboarding.overallProgress")}
           </span>
           <span className="text-xs font-bold text-brand-kinetic">
             {Math.round((step / 4) * 100)}%

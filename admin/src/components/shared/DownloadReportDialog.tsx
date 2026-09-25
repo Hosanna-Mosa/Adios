@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface DownloadReportDialogProps {
   open: boolean;
@@ -21,9 +22,10 @@ export function DownloadReportDialog({
   title,
   data,
 }: DownloadReportDialogProps) {
+  const { t } = useTranslation();
   const handleExportExcel = () => {
     if (!data || data.length === 0) {
-      toast.error("No data available to export");
+      toast.error(t("downloadReport.noDataAvailableToExport"));
       return;
     }
 
@@ -50,29 +52,32 @@ export function DownloadReportDialog({
       link.click();
       document.body.removeChild(link);
 
-      toast.success("Excel/CSV spreadsheet downloaded successfully!");
+      toast.success(t("downloadReport.spreadsheetDownloadedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
-      toast.error("Failed to generate spreadsheet");
+      toast.error(t("downloadReport.failedToGenerateSpreadsheet"));
     }
   };
 
   const handleExportPdf = () => {
     if (!data || data.length === 0) {
-      toast.error("No data available to export");
+      toast.error(t("downloadReport.noDataAvailableToExport"));
       return;
     }
 
     try {
       const printWindow = window.open("", "_blank");
       if (!printWindow) {
-        toast.error("Popup blocked! Please allow popups to export PDF.");
+        toast.error(t("downloadReport.popupBlocked"));
         return;
       }
 
       const htmlHeaders = Object.keys(data[0]);
       const titleHtml = `<h1 style="font-family: Arial, sans-serif; color: #0f172a; margin-bottom: 4px;">${title}</h1>`;
-      const subtitleHtml = `<p style="font-family: Arial, sans-serif; color: #64748b; margin-top: 0; font-size: 14px;">Precision Nav Logistics Report — Generated on ${new Date().toLocaleString()}</p>`;
+      const subtitleHtml = `<p style="font-family: Arial, sans-serif; color: #64748b; margin-top: 0; font-size: 14px;">${t("downloadReport.reportGeneratedOn", {
+        date: new Date().toLocaleString(),
+        defaultValue: "Precision Nav Logistics Report — Generated on {{date}}",
+      })}</p>`;
 
       let tableHtml = `<table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; margin-top: 24px; font-size: 13px;">`;
       // Headers
@@ -118,10 +123,10 @@ export function DownloadReportDialog({
       `);
       printWindow.document.close();
 
-      toast.success("PDF Report generated successfully!");
+      toast.success(t("downloadReport.pdfReportGeneratedSuccessfully"));
       onOpenChange(false);
     } catch (error) {
-      toast.error("Failed to generate PDF");
+      toast.error(t("downloadReport.failedToGeneratePdf"));
     }
   };
 
@@ -130,11 +135,11 @@ export function DownloadReportDialog({
       <DialogContent className="sm:max-w-[400px] rounded-3xl p-6">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold text-center">
-            Export Report
+            {t("downloadReport.exportReport")}
           </DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground text-center mb-4">
-          Select your preferred file format for: <br />
+          {t("downloadReport.selectPreferredFileFormatFor")} <br />
           <span className="font-semibold text-foreground">{title}</span>
         </p>
 
@@ -144,8 +149,8 @@ export function DownloadReportDialog({
             className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all group"
           >
             <FileSpreadsheet className="h-10 w-10 text-muted-foreground group-hover:text-primary mb-3 transition-colors" />
-            <span className="text-sm font-semibold">Spreadsheet</span>
-            <span className="text-[10px] text-muted-foreground mt-1">Excel / CSV</span>
+            <span className="text-sm font-semibold">{t("downloadReport.spreadsheet")}</span>
+            <span className="text-[10px] text-muted-foreground mt-1">{t("downloadReport.excelCsv")}</span>
           </button>
 
           <button
@@ -153,8 +158,8 @@ export function DownloadReportDialog({
             className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all group"
           >
             <FileText className="h-10 w-10 text-muted-foreground group-hover:text-primary mb-3 transition-colors" />
-            <span className="text-sm font-semibold">PDF Document</span>
-            <span className="text-[10px] text-muted-foreground mt-1">Save / Print PDF</span>
+            <span className="text-sm font-semibold">{t("downloadReport.pdfDocument")}</span>
+            <span className="text-[10px] text-muted-foreground mt-1">{t("downloadReport.savePrintPdf")}</span>
           </button>
         </div>
       </DialogContent>

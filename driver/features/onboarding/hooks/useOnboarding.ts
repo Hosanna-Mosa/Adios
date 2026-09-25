@@ -1,9 +1,9 @@
 import { useState } from "react";
 
 import {
-  FORMALITY_SUBTITLES,
-  SECTION_SUBTITLES,
-  SECTION_TITLES,
+  getFormalitySubtitles,
+  getSectionSubtitles,
+  getSectionTitles,
 } from "../onboardingSections";
 import { useDocumentFields } from "./useDocumentFields";
 import { useIdentityFields } from "./useIdentityFields";
@@ -43,12 +43,12 @@ export function useOnboarding() {
     setSaving,
   );
 
-  const sectionTitle = nav.currentKey ? SECTION_TITLES[nav.currentKey] : "";
+  const sectionTitle = nav.currentKey ? getSectionTitles()[nav.currentKey] : "";
   const formality =
     (nav.currentKey === "aadhaar" && identity.panVerified) ||
     (nav.currentKey === "pan" && identity.aadhaarVerified);
   const sectionSubtitle = nav.currentKey
-    ? (formality && FORMALITY_SUBTITLES[nav.currentKey]) || SECTION_SUBTITLES[nav.currentKey]
+    ? (formality && getFormalitySubtitles()[nav.currentKey]) || getSectionSubtitles()[nav.currentKey]
     : undefined;
 
   return {

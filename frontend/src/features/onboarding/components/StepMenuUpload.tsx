@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { FileUploader } from "../../../components/shared/FileUploader";
 import { ItemForm } from "./ItemForm";
@@ -8,6 +9,7 @@ import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 type Props = { form: ReturnType<typeof useOnboardingForm> };
 
 export function StepMenuUpload({ form }: Props) {
+  const { t } = useTranslation();
   const {
     isMeatPartner,
     copy,
@@ -42,8 +44,9 @@ export function StepMenuUpload({ form }: Props) {
         {/* Setup Mode Toggle */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <label className="block text-sm font-semibold mb-3">
-            How would you like to set up your{" "}
-            {isMeatPartner ? "product list" : "menu"}?
+            {isMeatPartner
+              ? t("onboarding.howToSetUpProductList")
+              : t("onboarding.howToSetUpMenu")}
           </label>
           <div className="flex gap-3">
             <button
@@ -56,7 +59,7 @@ export function StepMenuUpload({ form }: Props) {
               }`}
             >
               <Icon name="edit_note" className="text-lg" />
-              Add Items Manually
+              {t("onboarding.addItemsManually")}
             </button>
             <button
               type="button"
@@ -68,7 +71,9 @@ export function StepMenuUpload({ form }: Props) {
               }`}
             >
               <Icon name="upload_file" className="text-lg" />
-              Upload {isMeatPartner ? "Product" : "Menu"} Reference
+              {isMeatPartner
+                ? t("onboarding.uploadProductReference")
+                : t("onboarding.uploadMenuReference")}
             </button>
           </div>
           {menuSetupMode === "upload" && (
@@ -79,11 +84,10 @@ export function StepMenuUpload({ form }: Props) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-on-surface">
-                    Spreadsheet example
+                    {t("onboarding.spreadsheetExample")}
                   </p>
                   <p className="mt-1 text-xs text-secondary-app">
-                    Use this template and keep the same columns. Item photos are
-                    uploaded below after the sheet is read.
+                    {t("onboarding.spreadsheetExampleDesc")}
                   </p>
                 </div>
               </div>
@@ -93,7 +97,7 @@ export function StepMenuUpload({ form }: Props) {
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-brand-kinetic/30 bg-white px-4 py-2 text-xs font-semibold text-brand-kinetic transition-all hover:bg-brand-kinetic/10"
               >
                 <Icon name="download" className="text-base" />
-                Download template
+                {t("onboarding.downloadTemplate")}
               </a>
             </div>
           )}
@@ -104,15 +108,24 @@ export function StepMenuUpload({ form }: Props) {
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <FileUploader
               label={
-                isMeatPartner ? "Upload Your Product Sheet" : "Upload Your Menu"
+                isMeatPartner
+                  ? t("onboarding.uploadYourProductSheet")
+                  : t("onboarding.uploadYourMenu")
               }
-              desc={`Upload your completed CSV or XLSX ${isMeatPartner ? "product" : "menu"} spreadsheet`}
+              desc={
+                isMeatPartner
+                  ? t("onboarding.uploadCompletedProductSpreadsheet")
+                  : t("onboarding.uploadCompletedMenuSpreadsheet")
+              }
               file={menuReferenceFile}
               onChange={validateMenuReferenceFile}
               accept=".csv,.xlsx"
             />
             <p className="mt-3 text-xs text-secondary-app">
-              Required columns: {MENU_UPLOAD_COLUMNS.join(", ")}
+              {t("onboarding.requiredColumns", {
+                columns: MENU_UPLOAD_COLUMNS.join(", "),
+                defaultValue: "Required columns: {{columns}}",
+              })}
             </p>
             {menuUploadError && (
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
@@ -123,7 +136,7 @@ export function StepMenuUpload({ form }: Props) {
             {menuUploadValid && menuReferenceFile && (
               <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-700">
                 <Icon name="check_circle" className="text-base" />
-                Sheet accepted. Add item images below to continue.
+                {t("onboarding.sheetAcceptedAddImages")}
               </div>
             )}
             <MenuPreviewTable form={form} />
@@ -132,12 +145,10 @@ export function StepMenuUpload({ form }: Props) {
                 <Icon name="info" className="text-lg text-blue-500 mt-0.5" />
                 <div>
                   <p className="text-sm font-semibold text-blue-800">
-                    Our team will handle the rest
+                    {t("onboarding.ourTeamWillHandleRest")}
                   </p>
                   <p className="text-xs text-blue-600 mt-1">
-                    Once you submit your application, our onboarding specialist
-                    will review your sheet and item images, verify pricing, and
-                    set everything up for you within 24 hours.
+                    {t("onboarding.ourTeamWillHandleRestDesc")}
                   </p>
                 </div>
               </div>
@@ -153,8 +164,8 @@ export function StepMenuUpload({ form }: Props) {
                 <div>
                   <label className="text-sm font-semibold">
                     {isMeatPartner
-                      ? "Product Categories & Items"
-                      : "Menu Categories & Items"}
+                      ? t("onboarding.productCategoriesAndItems")
+                      : t("onboarding.menuCategoriesAndItems")}
                   </label>
                   <p className="text-xs text-secondary-app mt-1">
                     {copy.manualCategoryHelp}
@@ -162,14 +173,13 @@ export function StepMenuUpload({ form }: Props) {
                 </div>
                 {menuCategories.length > 0 && (
                   <span className="text-xs font-semibold text-secondary-app bg-gray-100 px-3 py-1 rounded-full">
-                    {menuCategories.reduce((sum, c) => sum + c.items.length, 0)}{" "}
-                    item
-                    {menuCategories.reduce(
-                      (sum, c) => sum + c.items.length,
-                      0,
-                    ) !== 1
-                      ? "s"
-                      : ""}
+                    {t("menu.itemCount", {
+                      count: menuCategories.reduce(
+                        (sum, c) => sum + c.items.length,
+                        0,
+                      ),
+                      defaultValue: "{{count}} items",
+                    })}
                   </span>
                 )}
               </div>
@@ -210,8 +220,10 @@ export function StepMenuUpload({ form }: Props) {
                               {category.name}
                             </p>
                             <p className="text-xs text-secondary-app">
-                              {category.items.length} item
-                              {category.items.length !== 1 ? "s" : ""}
+                              {t("menu.itemCount", {
+                                count: category.items.length,
+                                defaultValue: "{{count}} items",
+                              })}
                             </p>
                           </div>
                         </div>
@@ -224,7 +236,7 @@ export function StepMenuUpload({ form }: Props) {
                             className="flex items-center gap-1 text-xs font-semibold text-brand-kinetic hover:text-brand-kinetic/80 transition-colors px-2 py-1 rounded-lg hover:bg-brand-kinetic/5"
                           >
                             <Icon name="add" className="text-base" />
-                            Add Item
+                            {t("onboarding.addItem")}
                           </button>
                           <button
                             type="button"
@@ -272,7 +284,7 @@ export function StepMenuUpload({ form }: Props) {
                                   </p>
                                   {item.isBestseller && (
                                     <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">
-                                      Bestseller
+                                      {t("onboarding.bestseller")}
                                     </span>
                                   )}
                                 </div>
@@ -305,8 +317,7 @@ export function StepMenuUpload({ form }: Props) {
                       ) : (
                         <div className="px-4 py-5 text-center">
                           <p className="text-xs text-secondary-app">
-                            No items in this category yet. Click "Add Item" to
-                            add one.
+                            {t("onboarding.noItemsInCategoryYet")}
                           </p>
                         </div>
                       )}
@@ -322,7 +333,7 @@ export function StepMenuUpload({ form }: Props) {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-secondary-app hover:border-brand-kinetic/30 hover:text-brand-kinetic transition-all"
               >
                 <Icon name="add" className="text-lg" />
-                Add Category
+                {t("onboarding.addCategory")}
               </button>
             </div>
 
@@ -331,7 +342,7 @@ export function StepMenuUpload({ form }: Props) {
                 <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
                   <div className="mb-5 flex items-center justify-between">
                     <h3 className="font-display text-lg font-bold">
-                      Add Category
+                      {t("onboarding.addCategory")}
                     </h3>
                     <button
                       type="button"
@@ -345,7 +356,7 @@ export function StepMenuUpload({ form }: Props) {
                     </button>
                   </div>
                   <label className="block text-sm font-semibold mb-2">
-                    Category Name <span className="text-brand-kinetic">*</span>
+                    {t("onboarding.categoryName")} <span className="text-brand-kinetic">*</span>
                   </label>
                   <input
                     type="text"
@@ -354,7 +365,7 @@ export function StepMenuUpload({ form }: Props) {
                     onKeyDown={(event) => {
                       if (event.key === "Enter") addCategory();
                     }}
-                    placeholder="e.g. Starters"
+                    placeholder={t("onboarding.categoryNamePlaceholder")}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                     autoFocus
                   />
@@ -367,7 +378,7 @@ export function StepMenuUpload({ form }: Props) {
                       }}
                       className="px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
                     >
-                      Cancel
+                      {t("onboarding.cancel")}
                     </button>
                     <button
                       type="button"
@@ -375,7 +386,7 @@ export function StepMenuUpload({ form }: Props) {
                       disabled={!newCategoryName.trim()}
                       className="px-5 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Add Category
+                      {t("onboarding.addCategory")}
                     </button>
                   </div>
                 </div>
@@ -388,7 +399,9 @@ export function StepMenuUpload({ form }: Props) {
                 <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto bg-white rounded-2xl border border-gray-200 p-6 shadow-2xl">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-base font-bold">
-                      {editingItem.item ? "Edit Item" : "Add New Item"}
+                      {editingItem.item
+                        ? t("onboarding.editItem")
+                        : t("onboarding.addNewItem")}
                     </h3>
                     <button
                       type="button"

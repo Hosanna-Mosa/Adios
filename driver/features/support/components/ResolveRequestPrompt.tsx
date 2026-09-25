@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@/constants/colors";
 import { styles } from "../support-chat.styles";
 import { Touchable } from "@/components/ui/Touchable";
@@ -17,6 +18,7 @@ export function ResolveRequestPrompt({
   onApprove: () => void;
   onDecline: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box
       style={[
@@ -25,22 +27,22 @@ export function ResolveRequestPrompt({
       ]}
     >
       <Ionicons name="help-circle-outline" size={24} color={Colors.primary} />
-      <AppText style={[styles.resolveRequestTitle, { color: Colors.text }]}>Resolve this ticket?</AppText>
+      <AppText style={[styles.resolveRequestTitle, { color: Colors.text }]}>{t("support.resolveThisTicket")}</AppText>
       <AppText style={[styles.resolveRequestDesc, { color: Colors.textSecondary }]}>
-        Support has requested to mark this case as resolved. Is your issue fully solved?
+        {t("support.supportHasRequestedToMarkResolved")}
       </AppText>
       <Box style={styles.resolveRequestButtons}>
         <Touchable
           style={[styles.resolveBtnConfirm, { backgroundColor: Colors.brandPressed }]}
           onPress={onApprove}
         >
-          <AppText style={styles.resolveBtnTextConfirm}>Yes, Resolve Case</AppText>
+          <AppText style={styles.resolveBtnTextConfirm}>{t("support.yesResolveCase")}</AppText>
         </Touchable>
         <Touchable
           style={[styles.resolveBtnDecline, { borderColor: Colors.primary }]}
           onPress={onDecline}
         >
-          <AppText style={[styles.resolveBtnTextDecline, { color: Colors.primary }]}>No, Keep Open</AppText>
+          <AppText style={[styles.resolveBtnTextDecline, { color: Colors.primary }]}>{t("support.noKeepOpen")}</AppText>
         </Touchable>
       </Box>
     </Box>

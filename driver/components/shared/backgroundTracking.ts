@@ -1,6 +1,7 @@
 import * as Location from "expo-location";
 import * as TaskManager from "expo-task-manager";
 import { Colors } from "@/constants/colors";
+import i18n from "@/i18n";
 import { BACKGROUND_LOCATION_TASK } from "./backgroundLocationTask";
 
 /** Turn background location on when the driver goes online, off when they
@@ -35,8 +36,8 @@ export async function syncBackgroundTracking(isOnline: boolean) {
         distanceInterval: 10, // 10 meters
         showsBackgroundLocationIndicator: true,
         foregroundService: {
-          notificationTitle: "Flavour Driver Active",
-          notificationBody: "Tracking location for order dispatches in background...",
+          notificationTitle: i18n.t("jobs.flavourDriverActive"),
+          notificationBody: i18n.t("jobs.trackingLocationForOrderDispatches"),
           notificationColor: Colors.successBright,
         },
       });
