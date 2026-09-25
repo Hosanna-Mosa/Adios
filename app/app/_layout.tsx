@@ -31,6 +31,8 @@ import "@/constants/applyFontPatch";
 import "@/contexts/cart.ownerSync";
 import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
 import { usePushNotifications } from "@/utils/usePushNotifications";
+import { useAnalytics } from "@/utils/useAnalytics";
+import { configureAnalytics } from "@/utils/analytics";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { useVersionGate } from "@/utils/useVersionGate";
 import UpdateModal from "@/components/UpdateModal";
@@ -57,6 +59,12 @@ if (apiUrl) {
 setAuthTokenGetter(() => {
   return useAuthStore.getState().token;
 });
+
+// Live copy of analytics events for the admin Live Activity page (Firebase
+// keeps getting them too). Signed-out events are sent without a token.
+if (apiUrl) {
+  configureAnalytics({ apiUrl, app: "customer", getToken: () => useAuthStore.getState().token });
+}
 
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized clears the session and returns true only for the first of
@@ -140,6 +148,7 @@ export default function RootLayout() {
     }
   }, [isInitialized, token, fontsLoaded, fontError, segments]);
   usePushNotifications(token);
+  useAnalytics();
 
 
   if (!fontsLoaded && !fontError) return null;

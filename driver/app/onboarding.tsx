@@ -5,6 +5,7 @@ import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useDriverStore } from "@/store/driverStore";
+import { trackEvent } from "@/utils/analytics";
 import { OnboardingProvider } from "@/features/onboarding/OnboardingContext";
 import { useOnboarding } from "@/features/onboarding/hooks/useOnboarding";
 import { styles } from "@/features/onboarding/onboarding.styles";
@@ -31,6 +32,7 @@ export default function OnboardingScreen() {
   } = onboarding;
 
   const handleSkip = () => {
+    trackEvent("onboarding_skipped", { step });
     setOnboardingCompleted();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     router.replace("/(tabs)");

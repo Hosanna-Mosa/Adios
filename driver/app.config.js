@@ -66,6 +66,7 @@ export default {
       ],
       'expo-font',
       'expo-web-browser',
+      './plugins/withFirebaseAndroidOnly',
       [
         'expo-notifications',
         {

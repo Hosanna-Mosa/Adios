@@ -35,6 +35,7 @@ import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
 import cartRoutes from "./modules/cart/cart.routes";
 import couponsRoutes from "./modules/coupons/coupons.routes";
+import analyticsRoutes from "./modules/analytics/analytics.routes";
 
 const app = express();
 const server = http.createServer(app);
@@ -127,6 +128,7 @@ connectDB().then(async () => {
   app.use("/api/v1/banners", bannersRoutes);
   app.use("/api/v1/cart", cartRoutes);
   app.use("/api/v1/coupons", couponsRoutes);
+  app.use("/api/v1/analytics", analyticsRoutes);
 
   // Global Error Handler Middleware
   app.use(globalErrorHandler);

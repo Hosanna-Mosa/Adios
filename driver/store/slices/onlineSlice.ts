@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { trackEvent } from "@/utils/analytics";
 import { decodeJwtPayload } from "../decodeJwt";
 import { registerOrderSocketHandlers } from "../socketHandlers";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
@@ -18,6 +19,7 @@ export const createOnlineSlice = (
 ): Pick<DriverState, "goOnline" | "goOffline" | "toggleHomeMode"> => ({
   goOnline: async (services) => {
     set({ isOnline: true, activeServices: services });
+    trackEvent("go_online", { services: services.join(",") });
     const { token, driverUserId } = get();
     if (token) {
       try {
@@ -47,6 +49,7 @@ export const createOnlineSlice = (
 
   goOffline: async () => {
     set({ isOnline: false, homeMode: false });
+    trackEvent("go_offline");
     const { token } = get();
     if (token) {
       try {

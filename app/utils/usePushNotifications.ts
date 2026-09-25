@@ -1,12 +1,17 @@
 import { useEffect } from "react";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
-import { customFetch } from "@/utils/api/custom-fetch";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
 
 // Push registration plus the token and tap listeners. Split out of
 // app/_layout.tsx unchanged — same [token] dependency, same cleanup, and the
 // cold-start tap is still replayed via getLastNotificationResponseAsync.
+
+// On Android, every device-token fetch (including the one inside
+// getExpoPushTokenAsync) also fires addPushTokenListener with that same token.
+// So only a token different from the last one seen is a real refresh —
+// re-registering on every event loops forever.
+let lastDeviceToken: string | null = null;
 
 export function usePushNotifications(token: string | null) {
 
@@ -15,7 +20,6 @@ export function usePushNotifications(token: string | null) {
     if (!token || Platform.OS === "web") return;
 
     const { registerForPushNotificationsAsync } = require("@/utils/notificationRegister");
-    const { customFetch } = require("@/utils/api/custom-fetch");
 
     // 1. Initial Registration
     registerForPushNotificationsAsync().catch((err: any) => {
@@ -23,17 +27,16 @@ export function usePushNotifications(token: string | null) {
     });
 
     // 2. Token Refresh Listener (Priority 3)
-    const tokenSubscription = Notifications.addPushTokenListener(async (tokenData) => {
-      console.log("[PushNotifications] Token refreshed:", tokenData.data);
-      try {
-        await customFetch("/users/push-token", {
-          method: "POST",
-          body: JSON.stringify({ expoPushToken: tokenData.data }),
-        });
-        console.log("[PushNotifications] Refreshed token updated on backend successfully!");
-      } catch (err) {
+    // This listener hands back the raw FCM/APNs device token, not an Expo push
+    // token — posting it would overwrite the good Expo token on the backend. So
+    // treat a changed token purely as a signal and re-fetch the Expo token.
+    const tokenSubscription = Notifications.addPushTokenListener((tokenData) => {
+      const isRefresh = lastDeviceToken !== null && tokenData.data !== lastDeviceToken;
+      lastDeviceToken = tokenData.data;
+      if (!isRefresh) return;
+      registerForPushNotificationsAsync().catch((err: any) => {
         console.error("[PushNotifications] Failed to sync refreshed token on backend:", err);
-      }
+      });
     });
 
     // 3. Notification Tap / Response Listener — app was already running (foreground/background)

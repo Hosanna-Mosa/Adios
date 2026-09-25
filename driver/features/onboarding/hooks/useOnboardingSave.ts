@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useCallback } from "react";
 
 import { useDriverStore } from "@/store/driverStore";
+import { trackEvent } from "@/utils/analytics";
 import {
   bailIfUnauthorized,
   patchOnboarding,
@@ -107,6 +108,7 @@ export function useOnboardingSave(
       }
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      trackEvent("onboarding_completed");
       setOnboardingCompleted();
       router.replace("/(tabs)");
     } catch (err: any) {

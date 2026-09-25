@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { adminFetch } from "@/lib/api-client";
+import { trackEvent } from "@/lib/analytics";
 
 export type ForgotStep = "email" | "otp" | "reset" | "done";
 
@@ -82,6 +83,8 @@ export function useVendorLogin() {
           }
         }
       }
+
+      trackEvent("login", { method: "password", panel_role: loginType });
 
       if (loginType === "admin") {
         localStorage.setItem("admin_token", data.token);

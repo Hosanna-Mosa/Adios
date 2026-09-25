@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RequireAuth, RequireVendor } from "@/components/RequireAuth";
 import { RouteLoadingFallback } from "./RouteLoadingFallback";
+import { usePageViews } from "@/lib/analytics";
 
 // Always needed immediately on cold load — not worth lazy-loading.
 import VendorLogin from "@/pages/VendorLogin";
@@ -13,6 +14,7 @@ const ScheduledOrders = lazy(() => import("@/pages/ScheduledOrders"));
 const Drivers = lazy(() => import("@/pages/Drivers"));
 const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
+const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
 const Payments = lazy(() => import("@/pages/Payments"));
 const Support = lazy(() => import("@/pages/Support"));
 const SupportIssues = lazy(() => import("@/pages/SupportIssues"));
@@ -49,6 +51,7 @@ const RootRedirect = () => {
 
 export function AnimatedRoutes() {
   const location = useLocation();
+  usePageViews();
 
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
@@ -66,6 +69,7 @@ export function AnimatedRoutes() {
         <Route path="/drivers" element={<RequireAuth><Drivers /></RequireAuth>} />
         <Route path="/dev-drivers" element={<RequireAuth><DevDrivers /></RequireAuth>} />
         <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+        <Route path="/live-activity" element={<RequireAuth><LiveActivity /></RequireAuth>} />
         <Route path="/payments" element={<RequireAuth><Payments /></RequireAuth>} />
         <Route path="/support" element={<RequireAuth><Support /></RequireAuth>} />
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />

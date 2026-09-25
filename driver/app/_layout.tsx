@@ -18,12 +18,21 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useAppFonts } from "@/hooks/useAppFonts";
 import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { useAuthGate } from "@/hooks/useAuthGate";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { configureAnalytics } from "@/utils/analytics";
+import { API_URL } from "@/utils/apiUrl";
+import { useDriverStore } from "@/store/driverStore";
 
 SplashScreen.preventAutoHideAsync();
+
+// Live copy of analytics events for the admin Live Activity page (Firebase
+// keeps getting them too). Signed-out events are sent without a token.
+configureAnalytics({ apiUrl: API_URL, app: "driver", getToken: () => useDriverStore.getState().token });
 
 function RootLayoutNav() {
   const { hydrated, token } = useAuthGate();
   usePushNotifications(token);
+  useAnalytics();
 
   if (!hydrated) {
     return null; // Or a custom Loading/Splash view

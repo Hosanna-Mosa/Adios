@@ -73,6 +73,8 @@
     "@expo-google-fonts/familjen-grotesk": "^0.4.2",
     "@expo-google-fonts/figtree": "^0.4.1",
     "@react-native-community/datetimepicker": "8.4.4",
+    "@react-native-firebase/analytics": "^26.4.0",
+    "@react-native-firebase/app": "^26.4.0",
     "@shopify/flash-list": "^2.3.2",
     "expo": "~54.0.35",
     "expo-device": "~8.0.10",

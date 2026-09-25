@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { trackEvent } from "@/utils/analytics";
 import { mapApiOrder } from "../orderMapper";
 import type { DriverState, GetDriverState, Order, SetDriverState } from "../types";
 
@@ -49,6 +50,15 @@ export const createOrderLifecycleSlice = (
       });
     }
 
+    if (accepted) {
+      trackEvent("order_accepted", {
+        service_type: incomingOrder.serviceType,
+        value: incomingOrder.earnings,
+        currency: "INR",
+        reserved: !!incomingOrder.isReserved,
+      });
+    }
+
     if (incomingOrder.isReserved) {
       Alert.alert(
         "Ride Reserved Successfully",
@@ -82,6 +92,9 @@ export const createOrderLifecycleSlice = (
       } catch (e) {
         console.error("Failed to decline order", e);
       }
+    }
+    if (incomingOrder) {
+      trackEvent("order_declined", { service_type: incomingOrder.serviceType, reason });
     }
     set({ incomingOrder: null });
   },

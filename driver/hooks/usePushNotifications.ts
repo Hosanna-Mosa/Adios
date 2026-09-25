@@ -3,7 +3,12 @@ import Constants, { ExecutionEnvironment } from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { registerForPushNotificationsAsync } from "@/utils/notificationRegister";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
-import { API_URL } from "@/utils/apiUrl";
+
+// On Android, every device-token fetch (including the one inside
+// getExpoPushTokenAsync) also fires addPushTokenListener with that same token.
+// So only a token different from the last one seen is a real refresh —
+// re-registering on every event loops forever.
+let lastDeviceToken: string | null = null;
 
 /** Registers for push, keeps the token in sync, and routes notification taps —
  * including the cold-start case where the app was opened by tapping one.
@@ -31,25 +36,16 @@ export function usePushNotifications(token: string | null) {
       });
 
       // 2. Token Refresh Listener (Priority 3)
-      const tokenSubscription = Notifications.addPushTokenListener(async (tokenData: any) => {
-        console.log("[PushNotifications] Token refreshed (Driver):", tokenData.data);
-        try {
-          const response = await fetch(`${API_URL}/users/push-token`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-            body: JSON.stringify({ expoPushToken: tokenData.data }),
-          });
-          if (response.ok) {
-            console.log("[PushNotifications] Refreshed token updated on backend successfully (Driver)!");
-          } else {
-            console.error("[PushNotifications] Failed to sync refreshed token on backend (Driver):", await response.text());
-          }
-        } catch (err) {
+      // This listener hands back the raw FCM/APNs device token, not an Expo push
+      // token — posting it would overwrite the good Expo token on the backend. So
+      // treat a changed token purely as a signal and re-fetch the Expo token.
+      const tokenSubscription = Notifications.addPushTokenListener((tokenData: any) => {
+        const isRefresh = lastDeviceToken !== null && tokenData.data !== lastDeviceToken;
+        lastDeviceToken = tokenData.data;
+        if (!isRefresh) return;
+        registerForPushNotificationsAsync(token).catch((err: any) => {
           console.error("[PushNotifications] Failed to sync refreshed token on backend (Driver):", err);
-        }
+        });
       });
 
       // 3. Notification Tap / Response Listener — app was already running (foreground/background)
