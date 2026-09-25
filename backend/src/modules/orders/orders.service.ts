@@ -11,12 +11,15 @@ import { SocketManager } from "../../sockets/socket.manager";
 import { QueueManager } from "../../services/queue.service";
 import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
-import { ValidationError } from "../../utils/errors";
+import { ConflictError, NotFoundError, ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
 import { CouponsService } from "../coupons/coupons.service";
 import { CartService } from "../cart/cart.service";
 import { InvoiceService } from "../../services/invoice.service";
 import ChatMessage from "../../database/models/ChatMessage";
+import { RefundService } from "../payments/refund.service";
+
+const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
 export class OrdersService {
   private routingService = new RoutingService();
@@ -24,14 +27,14 @@ export class OrdersService {
   private zonesService = new ZonesService();
   private couponsService = new CouponsService();
   private cartService = new CartService();
+  private refundService = new RefundService();
 
-  async createOrder(userId: string, stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, radius?: number, duration?: number, isReserved?: boolean, reservedAt?: Date | string, metadata?: any) {
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      throw new Error("Invalid User ID format");
-    }
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
-
+  /**
+   * The price of an order, exactly as createOrder records it. Shared with the online checkout
+   * (payments module), so the amount charged through Razorpay is the amount the order gets.
+   * Pure calculation: nothing is saved.
+   */
+  async priceOrder(stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, metadata?: any) {
     const startPos = { 
       latitude: stopsData[0].latitude || stopsData[0].lat, 
       longitude: stopsData[0].longitude || stopsData[0].lng 
@@ -65,27 +68,6 @@ export class OrdersService {
         surgeMultiplier = zone.pricingMultiplier;
       }
     }
-
-    // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
-    // the pre-existing transport (payments/verify already forwards it) and is honoured too.
-    const scheduledForInput =
-      metadata?.scheduledFor ??
-      (metadata?.scheduledDelivery?.type === "later" ? metadata.scheduledDelivery.requestedAt : undefined);
-    let scheduledForDate: Date | undefined;
-    if (scheduledForInput) {
-      const parsedSchedule = new Date(scheduledForInput);
-      if (!Number.isNaN(parsedSchedule.getTime()) && parsedSchedule.getTime() > Date.now()) {
-        scheduledForDate = parsedSchedule;
-      } else if (metadata?.scheduledFor) {
-        // POST /orders — nothing has been charged yet, so reject outright.
-        throw new ValidationError("scheduledFor must be a future date and time");
-      } else {
-        // Arrived through the already-paid /payments/verify transport and the slot has lapsed.
-        // Place the order for now rather than throwing away an order that was just paid for.
-        console.warn(`[orders.service] Ignoring lapsed scheduled slot ${scheduledForInput} — placing the order immediately.`);
-      }
-    }
-    const isScheduledOrder = !!scheduledForDate;
 
     // A client-supplied discount is only a preview — the coupon is always re-resolved here.
     const requestedCouponCode = metadata?.couponCode ?? totals?.couponCode;
@@ -156,6 +138,45 @@ export class OrdersService {
         total: totalPrice,
       };
     }
+
+    return {
+      startPos, optimizationResult, effectiveType, isRide, surgeMultiplier,
+      couponDiscount, appliedCouponCode, appliedCouponId, totalPrice: totalPrice!, priceBreakdown,
+    };
+  }
+
+  async createOrder(userId: string, stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, radius?: number, duration?: number, isReserved?: boolean, reservedAt?: Date | string, metadata?: any) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new Error("Invalid User ID format");
+    }
+    const user = await User.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    const {
+      startPos, optimizationResult, effectiveType, isRide, surgeMultiplier,
+      couponDiscount, appliedCouponCode, appliedCouponId, totalPrice, priceBreakdown,
+    } = await this.priceOrder(stopsData, serviceType, vendorId, totals, metadata);
+
+    // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
+    // the pre-existing transport (payments/verify already forwards it) and is honoured too.
+    const scheduledForInput =
+      metadata?.scheduledFor ??
+      (metadata?.scheduledDelivery?.type === "later" ? metadata.scheduledDelivery.requestedAt : undefined);
+    let scheduledForDate: Date | undefined;
+    if (scheduledForInput) {
+      const parsedSchedule = new Date(scheduledForInput);
+      if (!Number.isNaN(parsedSchedule.getTime()) && parsedSchedule.getTime() > Date.now()) {
+        scheduledForDate = parsedSchedule;
+      } else if (metadata?.scheduledFor) {
+        // POST /orders — nothing has been charged yet, so reject outright.
+        throw new ValidationError("scheduledFor must be a future date and time");
+      } else {
+        // Arrived through the already-paid /payments/verify transport and the slot has lapsed.
+        // Place the order for now rather than throwing away an order that was just paid for.
+        console.warn(`[orders.service] Ignoring lapsed scheduled slot ${scheduledForInput} — placing the order immediately.`);
+      }
+    }
+    const isScheduledOrder = !!scheduledForDate;
 
     const effectiveTotals = appliedCouponCode && totals
       ? { ...totals, couponCode: appliedCouponCode, discount: couponDiscount, total: totalPrice }
@@ -239,6 +260,11 @@ export class OrdersService {
       deliveryOtp,
       restaurantPickupCode,
       polyline: optimizationResult.polyline,
+      // Only the payments module passes "online"/"paid", after Razorpay confirmed the money.
+      // POST /orders never forwards these, so an app can't mark its own order paid.
+      paymentMethod: metadata?.paymentMethod === "online" ? "online" : "cash",
+      paymentStatus: metadata?.paymentStatus === "paid" ? "paid" : "pending",
+      payment: metadata?.paymentId,
     });
 
     const savedOrder = await order.save();
@@ -410,6 +436,8 @@ export class OrdersService {
         radius: radius,
         earnings: Math.round(savedOrder.totalPrice * 0.8),
         customerPrice: savedOrder.customerPrice,
+        // What the driver must know before accepting: prepaid online, or cash to collect.
+        ...this.driverPaymentInfo(savedOrder),
         bookingFor: savedOrder.bookingFor,
         scheduledDelivery: savedOrder.scheduledDelivery,
         customerName: user.name || "Customer",
@@ -737,7 +765,173 @@ export class OrdersService {
     }
 
     await order.save();
+    if (!accepted) await this.refundIfPaidOnline(order._id.toString(), "scheduled_order_rejected");
     return order;
+  }
+
+  /**
+   * Who may see or change an order. Everyone else gets "not found" (never "forbidden"), so
+   * order ids can't be probed. Roles come from the verified token only.
+   *   admin / support : every order
+   *   customer        : their own orders
+   *   driver          : orders assigned to them
+   *   vendor          : orders placed with their outlet (token id = Vendor / MeatCenter id)
+   */
+  async getOrderForActor(orderId: string, actor: { userId?: string; role?: string } | undefined) {
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    if (!order || !actor?.userId) throw new NotFoundError("Order not found");
+    const relation = await this.orderRelation(order, actor);
+    if (!relation) throw new NotFoundError("Order not found");
+    return { order, relation };
+  }
+
+  async orderRelation(order: any, actor: { userId?: string; role?: string }) {
+    const role = String(actor.role || "");
+    if (role === "ADMIN" || role === "SUPPORT") return "staff" as const;
+    if (order.user?.toString() === actor.userId) return "customer" as const;
+    if (VENDOR_ROLES.includes(role) && order.vendor?.toString() === actor.userId) return "vendor" as const;
+    if (role === "DRIVER" && order.driver) {
+      const driver = await Driver.findOne({ user: actor.userId }).select("_id").lean();
+      if (driver && order.driver.toString() === driver._id.toString()) return "driver" as const;
+    }
+    return null;
+  }
+
+  /** Staff, or the vendor whose own id this is. */
+  canActForVendor(vendorId: string, actor: { userId?: string; role?: string } | undefined) {
+    const role = String(actor?.role || "");
+    if (role === "ADMIN" || role === "SUPPORT") return true;
+    return VENDOR_ROLES.includes(role) && !!actor?.userId && actor.userId === String(vendorId);
+  }
+
+  /**
+   * Payment facts every driver-facing payload carries. Read from the stored order only —
+   * never from anything a driver sends. Anything that is not a confirmed online payment is
+   * reported as cash, so a driver is never told "paid online" for money that wasn't received.
+   */
+  driverPaymentInfo(order: any) {
+    const paidOnline = order?.paymentMethod === "online" && order?.paymentStatus === "paid";
+    return {
+      paymentMethod: paidOnline ? "online" : "cash",
+      paymentStatus: order?.paymentStatus || "pending",
+      payableAmount: Math.round(Number(order?.totalPrice) || 0),
+      cashCollected: !!order?.cashCollected,
+    };
+  }
+
+  /**
+   * The assigned driver confirms they received the cash for a cash order. The expected amount
+   * is the order's own total; the driver only confirms it. Idempotent: a repeat returns the
+   * already-recorded collection and never records a second one.
+   */
+  async confirmCashCollected(orderId: string, driverUserId: string, amount: number) {
+    const driver = await Driver.findOne({ user: driverUserId }).select("_id");
+    if (!driver) throw new NotFoundError("Driver profile not found");
+
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    // Not this driver's order: answer "not found" so order ids can't be probed.
+    if (!order || !order.driver || order.driver.toString() !== driver._id.toString()) {
+      throw new NotFoundError("Order not found");
+    }
+    if (order.paymentMethod !== "cash") {
+      throw new ConflictError("This order was paid online. There is no cash to collect.");
+    }
+
+    const expected = Math.round(Number(order.totalPrice) || 0);
+    if (order.cashCollected) {
+      if (Math.round(amount) === order.cashCollectedAmount) return order; // duplicate tap / retry
+      throw new ConflictError(`Cash was already recorded as ₹${order.cashCollectedAmount} for this order.`);
+    }
+
+    const notCollectable = [
+      OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED, OrderStatus.CANCELLED,
+      OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.COMPLETED,
+    ];
+    if (notCollectable.includes(order.status)) {
+      throw new ConflictError("Cash can't be recorded for this order in its current state.");
+    }
+    if (Math.round(amount) !== expected) {
+      throw new ValidationError(`The amount to collect for this order is ₹${expected}. Please collect the full amount.`);
+    }
+
+    const updated = await Order.findOneAndUpdate(
+      {
+        _id: order._id,
+        driver: driver._id,
+        paymentMethod: "cash",
+        cashCollected: { $ne: true },
+        status: { $nin: notCollectable },
+      },
+      {
+        $set: {
+          cashCollected: true,
+          cashCollectedAt: new Date(),
+          cashCollectedAmount: expected,
+          cashCollectedBy: driver._id,
+          paymentStatus: "cash_collected",
+        },
+      },
+      { new: true },
+    );
+    if (!updated) {
+      const current = await Order.findOne(this.getOrderQuery(orderId));
+      if (current?.cashCollected && current.cashCollectedAmount === Math.round(amount)) return current;
+      throw new ConflictError("This order changed while recording the cash. Please refresh and try again.");
+    }
+
+    const socketManager = SocketManager.getInstance();
+    socketManager?.emitToOrderRoom(updated._id.toString(), "order_payment_update", {
+      orderId: updated._id.toString(),
+      paymentMethod: "cash",
+      paymentStatus: "cash_collected",
+      cashCollectedAmount: expected,
+    });
+
+    // The customer hears about every cash collection, so a false claim can be disputed.
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: updated.user.toString(),
+        title: "Cash payment received",
+        body: `Your driver recorded ₹${expected} cash for order ${updated._id}. If this is wrong, please contact support.`,
+        type: "transactional",
+        category: "order_status",
+        data: { orderId: updated._id, deepLink: { screen: "/(tabs)/orders" } },
+      })
+      .catch((err) => console.error("[orders.service] Failed to send cash-collected notification:", err));
+
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+  }
+
+  /**
+   * Starts a real Razorpay refund for a cancelled order that was paid online. Cash and unpaid
+   * orders are skipped inside RefundService. Never throws: a refund problem must not undo the
+   * cancellation — it is recorded on the order (refundStatus / refundFailureReason) instead.
+   */
+  private async refundIfPaidOnline(orderId: string, reason: string) {
+    try {
+      return await this.refundService.refundCancelledOrder(orderId, reason);
+    } catch (error) {
+      console.error(`[orders.service] ALERT refund attempt for order ${orderId} threw:`, error);
+      return null;
+    }
+  }
+
+  /** The refund sentence for a cancellation notice, based on what Razorpay actually answered. */
+  private async refundNotice(orderId: string | undefined) {
+    if (!orderId) return "";
+    const order = await Order.findOne(this.getOrderQuery(orderId)).select("paymentMethod refundStatus refundAmount").lean();
+    if (!order || order.paymentMethod !== "online") return "";
+    const amount = order.refundAmount ? `₹${order.refundAmount} ` : "";
+    switch (order.refundStatus) {
+      case "processed":
+        return ` Your refund of ${amount}has been processed to your original payment method.`;
+      case "pending":
+        return ` A refund of ${amount}has been initiated to your original payment method. We'll notify you once it's processed.`;
+      case "failed":
+        return " We couldn't start your refund automatically. Our support team will process it and contact you.";
+      default:
+        return "";
+    }
   }
 
   private async notifyScheduleDecision(
@@ -754,7 +948,7 @@ export class OrdersService {
         title: accepted ? "Scheduled order confirmed ✅" : "Scheduled order rejected ❌",
         body: accepted
           ? `Your order is confirmed for ${slot}.`
-          : `The restaurant could not take your order for ${slot}.${reason ? ` Reason: ${reason}.` : ""} Any payment will be refunded.`,
+          : `The restaurant could not take your order for ${slot}.${reason ? ` Reason: ${reason}.` : ""}${await this.refundNotice(orderId)}`,
         type: "transactional",
         category: "order_status",
         data: {
@@ -926,6 +1120,7 @@ export class OrdersService {
           radius: 5000,
           earnings: Math.round(newPrice * 0.8),
           customerPrice: newPrice,
+          ...this.driverPaymentInfo(order),
           bookingFor: order.bookingFor,
           scheduledDelivery: order.scheduledDelivery,
           customerName: user?.name || "Customer",
@@ -1034,6 +1229,11 @@ export class OrdersService {
       session.endSession();
     }
 
+    // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
+    if (status === OrderStatus.CANCELLED) {
+      await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
+    }
+
     const savedOrder = await Order.findOne(this.getOrderQuery(orderId));
 
     // Broadcast status change via Socket
@@ -1091,7 +1291,7 @@ export class OrdersService {
             break;
           case OrderStatus.CANCELLED:
             title = "Order Cancelled ❌";
-            body = `Your ${serviceName} has been cancelled. If any payment was deducted, it will be refunded.`;
+            body = `Your ${serviceName} has been cancelled.${await this.refundNotice(populated._id.toString())}`;
             break;
         }
 

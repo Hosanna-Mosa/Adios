@@ -1,6 +1,8 @@
 import { Alert } from "react-native";
 import { socketService } from "@/utils/socketService";
 import { createOrder } from "@/services/orders.service";
+import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -8,8 +10,10 @@ import { createOrder } from "@/services/orders.service";
 export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver: any, setServiceType: any, setStep: any, pickupLocation: any, dropoffLocation: any, pickupCoords: any, dropoffCoords: any, isPickupValid: any, isDropoffValid: any, description: any, offer: any, setIsCreating: any, setLocalOrderId: any, setCurrentTaskPrice: any, assignedDriver: any, setAssignedDriver: any, totalHours: any, calculatedFare: any) {
   const createTask = async () => {
     const finalOffer = offer ?? calculatedFare;
+    const isOnline = getPaymentMethod("helper") === "online";
     setIsCreating(true);
-    setStep("searching");
+    // Online: Razorpay opens first, so the search screen only appears once the task is paid.
+    if (!isOnline) setStep("searching");
     setCurrentTaskPrice(finalOffer);
     try {
       const stops: any[] = [
@@ -18,7 +22,11 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver:
       if (isDropoffValid && dropoffCoords?.lat) {
         stops.push({ sequence: 2, type: "drop", address: dropoffLocation, lat: dropoffCoords?.lat, lng: dropoffCoords?.lng });
       }
-      const order = await createOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>({ serviceType: "helper", stops, duration: totalHours, totals: { total: finalOffer } });
+      const orderBody = { serviceType: "helper", stops, duration: totalHours, totals: { total: finalOffer } };
+      const order = isOnline
+        ? await payOnlineAndPlaceOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>(finalOffer, orderBody)
+        : await createOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>({ ...orderBody, paymentMethod: "cash" });
+      if (isOnline) setStep("searching");
       if (!order?._id) throw new Error("Invalid response from server. No order ID returned.");
       setOrderId(order._id);
       setLocalOrderId(order._id);
@@ -39,7 +47,8 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver:
       socketService.on("order_accepted", handleOrderAccepted);
       socketService.on("order_status_update", handleOrderStatus);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create task");
+      const described = describePaymentError(error);
+      Alert.alert(described?.title ?? "Error", described?.message ?? (error.message || "Failed to create task"));
       setStep("bidding");
     } finally {
       setIsCreating(false);

@@ -58,6 +58,7 @@ export default function EarningsScreen() {
             <BalanceCard
               weekBalance={earnings.weekBalance}
               availableBalance={earnings.availableBalance}
+              cashCommissionDue={earnings.cashCommissionDue}
               trendPercent={earnings.trendPercent}
               trendLabel={trendLabel}
               bankLast4={earnings.bank.last4}

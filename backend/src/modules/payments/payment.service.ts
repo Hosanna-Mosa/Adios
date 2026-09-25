@@ -1,6 +1,7 @@
 import Razorpay from "razorpay";
 import * as dotenv from "dotenv";
 import crypto from "crypto";
+import { createRazorpayXPayout, getRazorpayXConfig } from "./razorpayx.client";
 
 dotenv.config();
 
@@ -12,6 +13,9 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
+/** Customer-payments client. Payouts will move to their own RazorpayX client (plan §5.4 C5). */
+export const razorpayClient = razorpay;
 
 export class PaymentService {
   async createRazorpayOrder(amount: number, currency: string = "INR") {
@@ -31,140 +35,55 @@ export class PaymentService {
   }
 
   async verifyPayment(paymentId: string, orderId: string, signature: string) {
-    // Development Bypass: If testing with our mock frontend simulation.
-    // Gated to non-production so this can never ship as a live payment-verification skip.
-    if (process.env.NODE_ENV !== "production" && signature.startsWith("sig_")) {
-      return true;
-    }
-
-    const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!);
-    hmac.update(orderId + "|" + paymentId);
-    const generated_signature = hmac.digest("hex");
-
-    return generated_signature === signature;
+    // No test bypass: a mock signature is never accepted (plan §2 principle 13).
+    const expected = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+      .update(orderId + "|" + paymentId)
+      .digest("hex");
+    const a = Buffer.from(expected);
+    const b = Buffer.from(signature);
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
   }
 
-  async createDriverPayout(input: {
-    name: string;
-    phone: string;
-    email?: string;
-    accountNumber: string;
-    ifsc: string;
-    amount: number;
-    notes?: Record<string, string>;
-  }) {
-    const accountNumber = process.env.RAZORPAYX_ACCOUNT_NUMBER;
-    const isMock = !accountNumber || accountNumber.includes("placeholder") || accountNumber.includes("your_");
-
-    if (isMock) {
-      return {
-        contact: { id: `cont_${Math.random().toString(36).substring(7)}` },
-        fundAccount: { id: `fa_${Math.random().toString(36).substring(7)}` },
-        payout: {
-          id: `pout_${Math.random().toString(36).substring(7)}`,
-          status: "processed"
-        }
-      };
-    }
-
-    try {
-      const contact = await (razorpay as any).contacts.create({
-        name: input.name,
-        contact: input.phone,
-        email: input.email,
-        type: "employee",
-        reference_id: `driver_${Date.now()}`,
-      });
-
-      const fundAccount = await (razorpay as any).fundAccount.create({
-        contact_id: contact.id,
-        account_type: "bank_account",
-        bank_account: {
-          name: input.name,
-          ifsc: input.ifsc,
-          account_number: input.accountNumber,
-        },
-      });
-
-      const payout = await (razorpay as any).payouts.create({
-        account_number: accountNumber,
-        fund_account_id: fundAccount.id,
-        amount: Math.round(input.amount * 100),
-        currency: "INR",
-        mode: "IMPS",
-        purpose: "payout",
-        queue_if_low_balance: true,
-        reference_id: `driver_payout_${Date.now()}`,
-        narration: "Driver cash out",
-        notes: input.notes,
-      });
-
-      return { contact, fundAccount, payout };
-    } catch (error) {
-      console.error("Razorpay Driver Payout Error:", error);
-      throw new Error("Failed to create driver payout");
-    }
+  /**
+   * Sends a driver payout through RazorpayX. Returns null when RazorpayX is not configured —
+   * the caller then keeps the payout as a request. There is no mock: nothing here ever
+   * reports a payout as done unless RazorpayX itself does.
+   */
+  async createDriverPayout(input: PayoutInput) {
+    return this.submitPayout("employee", "Driver cash out", input);
   }
 
-  async createVendorPayout(input: {
-    name: string;
-    phone: string;
-    email?: string;
-    accountNumber: string;
-    ifsc: string;
-    amount: number;
-    notes?: Record<string, string>;
-  }) {
-    const accountNumber = process.env.RAZORPAYX_ACCOUNT_NUMBER;
-    const isMock = !accountNumber || accountNumber.includes("placeholder") || accountNumber.includes("your_");
+  async createVendorPayout(input: PayoutInput) {
+    return this.submitPayout("vendor", "Vendor cash out", input);
+  }
 
-    if (isMock) {
-      return {
-        contact: { id: `cont_v_${Math.random().toString(36).substring(7)}` },
-        fundAccount: { id: `fa_v_${Math.random().toString(36).substring(7)}` },
-        payout: {
-          id: `pout_v_${Math.random().toString(36).substring(7)}`,
-          status: "processed"
-        }
-      };
-    }
-
-    try {
-      const contact = await (razorpay as any).contacts.create({
-        name: input.name,
-        contact: input.phone,
-        email: input.email,
-        type: "vendor",
-        reference_id: `vendor_${Date.now()}`,
-      });
-
-      const fundAccount = await (razorpay as any).fundAccount.create({
-        contact_id: contact.id,
-        account_type: "bank_account",
-        bank_account: {
-          name: input.name,
-          ifsc: input.ifsc,
-          account_number: input.accountNumber,
-        },
-      });
-
-      const payout = await (razorpay as any).payouts.create({
-        account_number: accountNumber,
-        fund_account_id: fundAccount.id,
-        amount: Math.round(input.amount * 100),
-        currency: "INR",
-        mode: "IMPS",
-        purpose: "payout",
-        queue_if_low_balance: true,
-        reference_id: `vendor_payout_${Date.now()}`,
-        narration: "Vendor cash out",
-        notes: input.notes,
-      });
-
-      return { contact, fundAccount, payout };
-    } catch (error) {
-      console.error("Razorpay Vendor Payout Error:", error);
-      throw new Error("Failed to create vendor payout");
-    }
+  private async submitPayout(contactType: "employee" | "vendor", narration: string, input: PayoutInput) {
+    const config = getRazorpayXConfig();
+    if (!config) return null;
+    return createRazorpayXPayout(config, {
+      referenceId: input.referenceId,
+      contactType,
+      name: input.name,
+      phone: input.phone,
+      email: input.email,
+      accountNumber: input.accountNumber,
+      ifsc: input.ifsc,
+      amountPaise: Math.round(input.amount * 100),
+      narration,
+      notes: input.notes,
+    });
   }
 }
+
+type PayoutInput = {
+  /** Our payout record id: RazorpayX reference_id and idempotency key. */
+  referenceId: string;
+  name: string;
+  phone: string;
+  email?: string;
+  accountNumber: string;
+  ifsc: string;
+  amount: number; // rupees
+  notes?: Record<string, string>;
+};

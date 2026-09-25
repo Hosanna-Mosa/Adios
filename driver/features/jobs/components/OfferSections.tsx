@@ -90,14 +90,18 @@ export function OfferItems({
   );
 }
 
-/** How the job is paid for. */
-export function OfferPaymentMode({ label }: { label: string }) {
+/** How the job is paid for: already paid online, or cash the driver must collect. */
+export function OfferPaymentMode({ label, isCash }: { label: string; isCash?: boolean }) {
   const { t } = useTranslation();
   return (
     <Box style={styles.infoSection}>
       <AppText style={styles.sectionTitle}>{t("jobs.paymentMethod")}</AppText>
       <Box style={styles.paymentRow}>
-        <Ionicons name="card-outline" size={18} color={Colors.success} />
+        <Ionicons
+          name={isCash ? "cash-outline" : "card-outline"}
+          size={18}
+          color={isCash ? Colors.warning : Colors.success}
+        />
         <AppText style={styles.paymentText}>{label}</AppText>
       </Box>
     </Box>

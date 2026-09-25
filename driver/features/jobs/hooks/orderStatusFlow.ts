@@ -6,7 +6,8 @@ export type UpdateStatus = (status: any, otp?: string) => Promise<any>;
 /** Restaurant/rider pickup codes fall back to the last 4 of the order id. */
 export function otpMatches(entered: string, expected: string | undefined, fallback: string) {
   const target = (expected || fallback).toLowerCase();
-  return entered.toLowerCase() === target || entered === "9999";
+  // No master code: only the order's own code passes (the backend checks it too).
+  return entered.toLowerCase() === target;
 }
 
 /** `who` is an already-translated display label (e.g. "Customer"/"Rider"). */

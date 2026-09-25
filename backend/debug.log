@@ -1,0 +1,63 @@
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [-122.084, 37.4219983]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.4523583, 17.4914188]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 13541320.5m, d_p = 13541451.5m, p_d = 8211.6m, drop_h = 8223.3m
+  -> Detour overhead: 16565.9m, Max allowed detour: 4062396.1m. Result: true
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [-122.084, 37.4219983]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.4534295, 17.4923029]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 13541320.5m, d_p = 13541321.4m, p_d = 8218.8m, drop_h = 8223.3m
+  -> Detour overhead: 16443.1m, Max allowed detour: 4062396.1m. Result: true
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [-122.084, 37.4219983]
+  Home: [78.4533899, 17.492325]
+  Pickup: [77.3849489, 28.5560481]
+  Dropoff: [77.3849489, 28.5560481]
+  Distances: d_h = 13541320.5m, d_p = 12403028.2m, p_d = 0.0m, drop_h = 1235056.1m
+  -> Detour overhead: 96763.9m, Max allowed detour: 4062396.1m. Result: true
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4533073, 17.4922758]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.36076250979305, 17.50216047701397]
+  Dropoff: [78.35676250979304, 17.49816047701397]
+  Distances: d_h = 10.3m, d_p = 9875.7m, p_d = 614.6m, drop_h = 10268.0m
+  -> MATCHED: Driver is already within 3km of home.
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4533551, 17.4922855]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.4534254, 17.492285]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 5.7m, d_p = 7.5m, p_d = 8217.5m, drop_h = 8223.3m
+  -> MATCHED: Driver is already within 3km of home.
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4534401, 17.4922617]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.453467, 17.4923077]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 8.8m, d_p = 5.9m, p_d = 8216.8m, drop_h = 8223.3m
+  -> MATCHED: Driver is already within 3km of home.
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4534401, 17.4922617]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.453406, 17.4923002]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 8.8m, d_p = 5.6m, p_d = 8220.1m, drop_h = 8223.3m
+  -> MATCHED: Driver is already within 3km of home.
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4533866, 17.4922984]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.453402, 17.4922823]
+  Dropoff: [78.5006827, 17.4337246]
+  Distances: d_h = 3.0m, d_p = 2.4m, p_d = 8218.8m, drop_h = 8223.3m
+  -> MATCHED: Driver is already within 3km of home.
+[DETOUR CHECK] Driver: 6a42577448525b572677670d
+  Driver: [78.4533866, 17.4922984]
+  Home: [78.4533899, 17.492325]
+  Pickup: [78.36076250979305, 17.50216047701397]
+  Dropoff: [78.35676250979304, 17.49816047701397]
+  Distances: d_h = 3.0m, d_p = 9883.8m, p_d = 614.6m, drop_h = 10268.0m
+  -> MATCHED: Driver is already within 3km of home.

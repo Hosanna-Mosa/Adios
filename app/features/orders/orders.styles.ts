@@ -40,6 +40,8 @@ export const createStyles = (tokens: ThemeTokens) =>
     cancelledBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.error },
     schedulePill: { marginLeft: "auto", backgroundColor: tokens.warningSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
     schedulePillText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.warning },
+    refundRow: { flexDirection: "row", alignItems: "flex-start", gap: 6, marginTop: 8 },
+    refundText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small },
     rejectionReason: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.error, marginTop: 6 },
 
     actionRow: { flexDirection: "row", gap: 8, marginTop: 12 },

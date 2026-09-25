@@ -50,7 +50,8 @@ export default function DeliveryCheckoutScreen() {
 
         <PaymentMethodCard
           styles={styles}
-          tokens={tokens}
+          accent={accent}
+          disabled={isProcessing}
         />
       </ScrollView>
 

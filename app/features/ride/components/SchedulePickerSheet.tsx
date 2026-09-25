@@ -7,6 +7,7 @@ import { typography } from "@/constants/typography";
 import { type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
+import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -116,6 +117,7 @@ export function SchedulePickerSheet({
             </View>
           </View>
 
+          <PaymentMethodSelector flow="ride" accent={accent} disabled={booking} style={{ marginBottom: 12 }} />
           <TouchableOpacity
             style={[styles.confirmScheduleBtn, booking && { opacity: 0.7 }]}
             disabled={booking}

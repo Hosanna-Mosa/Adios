@@ -37,6 +37,8 @@ export interface IDriver extends Document {
   bankAccountNumber?: string;
   bankIfsc?: string;
   bankVerified?: boolean;
+  // Short lock so two cash-out taps can't both pass the balance check.
+  payoutLockUntil?: Date | null;
   bankAccounts?: {
     accountNumber: string;
     ifsc: string;
@@ -92,6 +94,7 @@ const DriverSchema: Schema = new Schema(
     bankAccountNumber: { type: String },
     bankIfsc: { type: String },
     bankVerified: { type: Boolean, default: false },
+    payoutLockUntil: { type: Date, default: null },
     bankAccounts: [{
       accountNumber: { type: String },
       ifsc: { type: String },

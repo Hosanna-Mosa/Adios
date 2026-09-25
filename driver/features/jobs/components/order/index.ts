@@ -14,3 +14,4 @@ export { StageActionButton } from "./StageActionButton";
 export { TimersGrid } from "./TimersGrid";
 export { QuickUpdateChips, TaskProgressBar, TaskTimerDisplay } from "./HelperTaskPanel";
 export { StopInfoItem } from "./StopInfoItem";
+export { CashCollectionPanel } from "./CashCollectionPanel";

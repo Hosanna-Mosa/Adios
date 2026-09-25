@@ -1,14 +1,44 @@
+import * as Linking from "expo-linking";
+import i18n from "@/i18n";
 import { customFetch } from "@/utils/api/custom-fetch";
 
-// Razorpay order creation/verification and coupon lookup. Paths, methods and
-// bodies are unchanged from the call sites these replaced.
+// Razorpay checkout and coupon lookup.
 
-export const createPaymentOrder = <T = any>(amount: number) =>
-  customFetch<T>("/payments/create-order", { method: "POST", body: JSON.stringify({ amount }) });
+export type CreatePaymentOrderResponse = {
+  id: string; // Razorpay order id
+  amount: number; // paise
+  currency: string;
+  key: string;
+  name: string;
+  checkoutUrl: string;
+  returnUrl: string;
+};
 
-/** `body` is the Razorpay signature payload, echoed back for server-side check. */
+/**
+ * Starts a checkout. `orderData` is what is being bought: the server stores it and places the
+ * order itself once Razorpay confirms the money, even if the app is closed meanwhile.
+ */
+export const createPaymentOrder = <T = CreatePaymentOrderResponse>(amount: number, orderData?: unknown) =>
+  customFetch<T>("/payments/create-order", {
+    method: "POST",
+    body: JSON.stringify({
+      amount,
+      orderData,
+      // Where the browser checkout sends the customer back (flavour://payment-result in builds).
+      returnUrl: Linking.createURL("payment-result"),
+      language: i18n.language,
+    }),
+  });
+
+/** `body` is what RazorpayIntegration.open resolved with; the server re-checks it with Razorpay. */
 export const verifyPayment = <T = any>(body: unknown) =>
   customFetch<T>("/payments/verify", { method: "POST", body: JSON.stringify(body) });
+
+/** Whether money arrived for a checkout whose browser was closed without a redirect. */
+export const getCheckoutStatus = (razorpayOrderId: string) =>
+  customFetch<{ state: "paid" | "confirming" | "unpaid"; orderId?: string }>(
+    `/payments/checkout-status/${encodeURIComponent(razorpayOrderId)}`,
+  );
 
 export const validateCoupon = <T = { code: string; discountAmount: number }>(body: {
   code: string;

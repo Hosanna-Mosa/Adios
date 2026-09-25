@@ -95,6 +95,7 @@ export default function HelperTaskScreen() {
           </ScrollView>
 
           <TaskBiddingPanel
+            accent={accent}
             calculatedFare={calculatedFare}
             createTask={createTask}
             insets={insets}
