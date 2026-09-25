@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StaggerList } from "@/components/motion/StaggerList";
@@ -10,6 +11,7 @@ import { ZoneMapPreview } from "@/features/zones/components/ZoneMapPreview";
 import { ZoneCreateDialog } from "@/features/zones/components/ZoneCreateDialog";
 
 export default function Zones() {
+  const { t } = useTranslation();
   const {
     isLoaded,
     zones,
@@ -76,25 +78,25 @@ export default function Zones() {
   } = useZoneForm({ onCreated: handleSelectZone });
 
   return (
-    <DashboardLayout searchPlaceholder="Search zones...">
+    <DashboardLayout searchPlaceholder={t("zones.searchZones")}>
       <div className="space-y-6">
         {/* Statistics Cards */}
         <StaggerList className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <StaggerItem>
-            <StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label="Total Zones" value={zones.length.toString()} badge="Configured" badgeColor="success" />
+            <StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label={t("zones.totalZones")} value={zones.length.toString()} badge={t("zones.configured")} badgeColor="success" />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label="Active Zones" value={activeZonesCount.toString()} badge="Live Geofences" badgeColor="success" />
+            <StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label={t("zones.activeZones")} value={activeZonesCount.toString()} badge={t("zones.liveGeofences")} badgeColor="success" />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label="Surge Multipliers" value={`${maxMultiplier}x Max`} badge="Dynamic Pricing" badgeColor="warning" />
+            <StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label={t("zones.surgeMultipliers")} value={t("zones.xMax", { value: maxMultiplier, defaultValue: "{{value}}x Max" })} badge={t("zones.dynamicPricing")} badgeColor="warning" />
           </StaggerItem>
           <StaggerItem className="stat-card bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 flex flex-col justify-between p-5 rounded-xl border">
             <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider">Dynamic Control</p>
-              <h4 className="text-2xl font-bold text-foreground mt-1.5">Map Engine</h4>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">{t("zones.dynamicControl")}</p>
+              <h4 className="text-2xl font-bold text-foreground mt-1.5">{t("zones.mapEngine")}</h4>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">Visualizing operational boundaries using Google Cloud.</p>
+            <p className="text-xs text-muted-foreground mt-2">{t("zones.visualizingOperationalBoundariesDesc")}</p>
           </StaggerItem>
         </StaggerList>
 

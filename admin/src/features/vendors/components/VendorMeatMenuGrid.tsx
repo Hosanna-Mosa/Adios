@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { VendorMeatMenuItemCard } from "./VendorMeatMenuItemCard";
 import type { MeatItem } from "../hooks/useVendorMeatMenu";
@@ -30,12 +31,13 @@ export function VendorMeatMenuGrid({
   cancelEditing,
   savePrice,
 }: VendorMeatMenuGridProps) {
+  const { t } = useTranslation();
   return (
     <StaggerList className="grid grid-cols-1 gap-6 md:grid-cols-2">
       {isLoading ? (
-        <p className="text-muted-foreground col-span-full text-center py-12">Loading your items...</p>
+        <p className="text-muted-foreground col-span-full text-center py-12">{t("vendorMeatMenu.loadingYourItems")}</p>
       ) : !menu || menu.length === 0 ? (
-        <p className="text-muted-foreground col-span-full text-center py-12">No meat items found for your center.</p>
+        <p className="text-muted-foreground col-span-full text-center py-12">{t("vendorMeatMenu.noMeatItemsFound")}</p>
       ) : (
         menu.map((item) => (
           <VendorMeatMenuItemCard

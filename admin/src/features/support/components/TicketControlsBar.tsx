@@ -1,4 +1,5 @@
 import { Filter, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TicketControlsBarProps {
   activeTab: "ACTIVE" | "RESOLVED";
@@ -18,6 +19,7 @@ interface TicketControlsBarProps {
  * or category filter to reuse in the first place.
  */
 export function TicketControlsBar({ activeTab, onTabChange, activeCount, resolvedCount, searchTerm, onSearchChange, categoryFilter, onCategoryChange }: TicketControlsBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="p-4 border-b border-border flex flex-col md:flex-row items-center justify-between gap-4 bg-muted/20">
       <div className="flex bg-muted p-1 rounded-xl w-full md:w-auto">
@@ -25,13 +27,13 @@ export function TicketControlsBar({ activeTab, onTabChange, activeCount, resolve
           onClick={() => onTabChange("ACTIVE")}
           className={`flex-1 md:flex-none px-5 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === "ACTIVE" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
         >
-          Active Complaints ({activeCount})
+          {t("support.activeComplaintsCount", { count: activeCount, defaultValue: "Active Complaints ({{count}})" })}
         </button>
         <button
           onClick={() => onTabChange("RESOLVED")}
           className={`flex-1 md:flex-none px-5 py-2 text-xs font-bold rounded-lg transition-all ${activeTab === "RESOLVED" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
         >
-          Resolved ({resolvedCount})
+          {t("support.resolvedCount", { count: resolvedCount, defaultValue: "Resolved ({{count}})" })}
         </button>
       </div>
 
@@ -42,18 +44,18 @@ export function TicketControlsBar({ activeTab, onTabChange, activeCount, resolve
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search title, ID, or user..."
+            placeholder={t("support.searchTitleIdUser")}
             className="w-full pl-9 pr-4 py-2 border border-border bg-card rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground"
           />
         </div>
         <div className="flex items-center gap-1.5 border border-border bg-card rounded-xl px-3 py-2 shrink-0">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
           <select value={categoryFilter} onChange={(e) => onCategoryChange(e.target.value)} className="bg-transparent text-xs font-medium text-foreground focus:outline-none border-none p-0 cursor-pointer">
-            <option value="ALL">All Categories</option>
-            <option value="OPERATIONAL ISSUE">Operational Issue</option>
-            <option value="DELAYED DELIVERY">Delayed Delivery</option>
-            <option value="MULTI-STOP ADJUSTMENT">Multi-Stop Adjustment</option>
-            <option value="QUALITY CONTROL">Quality Control</option>
+            <option value="ALL">{t("support.allCategories")}</option>
+            <option value="OPERATIONAL ISSUE">{t("support.categoryOperationalIssue")}</option>
+            <option value="DELAYED DELIVERY">{t("support.categoryDelayedDelivery")}</option>
+            <option value="MULTI-STOP ADJUSTMENT">{t("support.categoryMultiStopAdjustment")}</option>
+            <option value="QUALITY CONTROL">{t("support.categoryQualityControl")}</option>
           </select>
         </div>
       </div>

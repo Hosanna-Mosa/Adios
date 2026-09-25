@@ -1,6 +1,12 @@
 import { Map as MapIconMini, Plus, RefreshCw, ToggleLeft, ToggleRight, Eye, Pencil, Trash2, Clock, ShieldCheck, Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import type { AdminZone } from "../types";
+
+const TYPE_LABEL_KEY: Record<string, string> = {
+  circle: "zones.circularRadius",
+  polygon: "zones.polygonCustomShape",
+};
 
 interface ZoneListProps {
   zones: AdminZone[];
@@ -26,10 +32,11 @@ export function ZoneList({
   onDelete,
   onCreateClick,
 }: ZoneListProps) {
+  const { t } = useTranslation();
   const columns: DataTableColumn<AdminZone>[] = [
     {
       key: "details",
-      header: "Zone Details",
+      header: t("zones.zoneDetails"),
       cell: (z) => {
         const isSelected = selectedZone?._id === z._id;
         return (
@@ -43,7 +50,7 @@ export function ZoneList({
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">{z.name}</p>
-              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{z.description || "No description"}</p>
+              <p className="text-xs text-muted-foreground truncate max-w-[180px]">{z.description || t("zones.noDescription")}</p>
             </div>
           </div>
         );
@@ -51,7 +58,7 @@ export function ZoneList({
     },
     {
       key: "type",
-      header: "Type",
+      header: t("catalog.type"),
       cell: (z) => (
         <span
           className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
@@ -60,44 +67,44 @@ export function ZoneList({
               : "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300"
           }`}
         >
-          {z.type}
+          {t(TYPE_LABEL_KEY[z.type] || TYPE_LABEL_KEY.polygon)}
         </span>
       ),
     },
     {
       key: "pricing",
-      header: "Pricing (Base)",
+      header: t("zones.pricingBase"),
       cell: (z) => <span className="text-sm font-bold text-foreground">{z.pricingMultiplier}x</span>,
     },
     {
       key: "surge",
-      header: "Live Surge",
+      header: t("zones.liveSurge"),
       cell: (z) =>
         z.autoSurgeEnabled ? (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500 text-white text-xs font-bold animate-pulse shadow">
             <Flame className="h-3 w-3" /> {z.currentSurge || z.pricingMultiplier}x
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Static</span>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">{t("zones.static")}</span>
         ),
     },
     {
       key: "supplyDemand",
-      header: "Supply / Demand",
+      header: t("zones.supplyDemand"),
       cell: (z) => (
         <div className="flex flex-col text-xs text-foreground gap-0.5">
           <span>
-            Drivers: <span className="font-semibold text-success">{z.supplyCount || 0}</span>
+            {t("zones.driversColon")} <span className="font-semibold text-success">{z.supplyCount || 0}</span>
           </span>
           <span>
-            Orders: <span className="font-semibold text-primary">{z.demandCount || 0}</span>
+            {t("zones.ordersColon")} <span className="font-semibold text-primary">{z.demandCount || 0}</span>
           </span>
         </div>
       ),
     },
     {
       key: "restrictions",
-      header: "Restrictions",
+      header: t("zones.restrictions"),
       cell: (z) => {
         const hasTimeLimits = z.activeHours?.start && z.activeHours?.end;
         const hasServiceLimits = z.allowedServices && z.allowedServices.length > 0;
@@ -113,7 +120,7 @@ export function ZoneList({
                 <ShieldCheck className="h-3 w-3 text-indigo-500" /> {z.allowedServices!.join(", ")}
               </span>
             ) : (
-              <span className="text-[10px] bg-muted/60 px-1.5 py-0.5 rounded w-max text-muted-foreground">All Services</span>
+              <span className="text-[10px] bg-muted/60 px-1.5 py-0.5 rounded w-max text-muted-foreground">{t("zones.allServices")}</span>
             )}
           </div>
         );
@@ -121,18 +128,18 @@ export function ZoneList({
     },
     {
       key: "status",
-      header: "Status",
+      header: t("users.status"),
       cell: (z) => (
         <button onClick={(e) => onToggleActive(z, e)} className="flex items-center gap-1.5 focus:outline-none">
           {z.isActive ? (
             <>
               <ToggleRight className="h-6 w-6 text-success" />
-              <span className="text-xs font-semibold text-success">Live</span>
+              <span className="text-xs font-semibold text-success">{t("zones.live")}</span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-6 w-6 text-muted-foreground" />
-              <span className="text-xs font-semibold text-muted-foreground">Disabled</span>
+              <span className="text-xs font-semibold text-muted-foreground">{t("zones.disabled")}</span>
             </>
           )}
         </button>
@@ -140,18 +147,18 @@ export function ZoneList({
     },
     {
       key: "autoSurge",
-      header: "Auto-Surge",
+      header: t("zones.autoSurge"),
       cell: (z) => (
-        <button onClick={(e) => onToggleAutoSurge(z, e)} className="flex items-center gap-1.5 focus:outline-none" title="Toggle Auto-Surge Pricing">
+        <button onClick={(e) => onToggleAutoSurge(z, e)} className="flex items-center gap-1.5 focus:outline-none" title={t("zones.toggleAutoSurgePricing")}>
           {z.autoSurgeEnabled ? (
             <>
               <ToggleRight className="h-6 w-6 text-amber-500" />
-              <span className="text-xs font-semibold text-amber-500">Auto</span>
+              <span className="text-xs font-semibold text-amber-500">{t("zones.auto")}</span>
             </>
           ) : (
             <>
               <ToggleLeft className="h-6 w-6 text-muted-foreground" />
-              <span className="text-xs font-semibold text-muted-foreground">Static</span>
+              <span className="text-xs font-semibold text-muted-foreground">{t("zones.static")}</span>
             </>
           )}
         </button>
@@ -159,7 +166,7 @@ export function ZoneList({
     },
     {
       key: "actions",
-      header: "Actions",
+      header: t("orders.action"),
       cell: (z) => (
         <div className="flex items-center gap-2">
           <button
@@ -168,14 +175,14 @@ export function ZoneList({
               onSelectZone(z);
             }}
             className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors"
-            title="View on Map"
+            title={t("zones.viewOnMap")}
           >
             <Eye className="h-4 w-4" />
           </button>
-          <button onClick={(e) => onRename(z, e)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors" title="Rename Zone">
+          <button onClick={(e) => onRename(z, e)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors" title={t("zones.renameZone")}>
             <Pencil className="h-4 w-4" />
           </button>
-          <button onClick={(e) => onDelete(z._id, e)} className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors" title="Delete Zone">
+          <button onClick={(e) => onDelete(z._id, e)} className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors" title={t("zones.deleteZone")}>
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -188,12 +195,12 @@ export function ZoneList({
       <div>
         <div className="flex items-center justify-between p-6 pb-4">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Operational Zones</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">Define coordinates and dynamic pricing settings.</p>
+            <h3 className="text-lg font-semibold text-foreground">{t("zones.operationalZones")}</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">{t("zones.defineCoordinatesPricingDesc")}</p>
           </div>
           <div className="flex gap-2">
             <button onClick={onCreateClick} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-              <Plus className="h-4 w-4" /> Create Zone
+              <Plus className="h-4 w-4" /> {t("zones.createZone")}
             </button>
           </div>
         </div>
@@ -207,10 +214,10 @@ export function ZoneList({
             loadingLabel={
               <>
                 <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
-                Loading zones...
+                {t("zones.loadingZones")}
               </>
             }
-            emptyLabel={'No operational zones found. Click "Create Zone" to define one.'}
+            emptyLabel={t("zones.noOperationalZonesFoundDesc")}
             onRowClick={onSelectZone}
             rowClassName={(z) =>
               `border-t border-border hover:bg-muted/30 transition-colors cursor-pointer ${

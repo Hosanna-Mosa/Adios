@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { DetailZoneOption, DriverDetailResponse, OrderChatMessage } from "../driverDetailTypes";
 
 /** All state/query/mutation logic for DriverDetail.tsx (work queue item #6). */
 export function useDriverDetail(id: string | undefined) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -44,27 +46,27 @@ export function useDriverDetail(id: string | undefined) {
   const updateDriverMutation = useMutation({
     mutationFn: (updateData: Record<string, unknown>) => adminFetch(`/admin/drivers/${id}`, { method: "PUT", body: JSON.stringify(updateData) }),
     onSuccess: () => {
-      toast.success("Driver dossier updated successfully");
+      toast.success(t("drivers.driverDossierUpdatedSuccessfully"));
       queryClient.invalidateQueries({ queryKey: ["admin-driver-detail", id] });
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update driver");
+      toast.error(err.message || t("drivers.failedToUpdateDriver"));
     },
   });
 
   const deleteDriverMutation = useMutation({
     mutationFn: () => adminFetch(`/admin/drivers/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      toast.success("Driver registration deleted successfully");
+      toast.success(t("drivers.driverRegistrationDeletedSuccessfully"));
       navigate("/drivers");
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete driver");
+      toast.error(err.message || t("drivers.failedToDeleteDriver"));
     },
   });
 
   const handleDeleteClick = () => {
-    if (confirm("Are you sure you want to permanently remove this driver registration?")) {
+    if (confirm(t("drivers.confirmPermanentlyRemoveDriver"))) {
       deleteDriverMutation.mutate();
     }
   };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
 import type { Banner, BannerFormData } from "../bannerTypes";
 
@@ -19,6 +20,7 @@ const EMPTY_FORM: BannerFormData = {
 
 /** All state/query/mutation logic for Banners.tsx (work queue item #13). */
 export function useBanners() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -49,12 +51,12 @@ export function useBanners() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["banners"] });
-      toast.success(editingBanner ? "Banner updated" : "Banner created");
+      toast.success(editingBanner ? t("catalog.bannerUpdated") : t("catalog.bannerCreated"));
       setIsDialogOpen(false);
       resetForm();
     },
     onError: () => {
-      toast.error("An error occurred while saving the banner");
+      toast.error(t("catalog.errorSavingBanner"));
     },
   });
 
@@ -66,7 +68,7 @@ export function useBanners() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["banners"] });
-      toast.success("Banner deleted");
+      toast.success(t("catalog.bannerDeleted"));
     },
   });
 
@@ -109,13 +111,13 @@ export function useBanners() {
       const data = await response.json();
       if (response.ok && data.imageUrls && data.imageUrls.length > 0) {
         setFormData((prev) => ({ ...prev, imageUrl: data.imageUrls[0] }));
-        toast.success("Image uploaded successfully");
+        toast.success(t("catalog.imageUploadedSuccessfully"));
       } else {
-        toast.error(data.message || "Failed to upload image");
+        toast.error(data.message || t("catalog.failedToUploadImage"));
       }
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("An error occurred during upload");
+      toast.error(t("catalog.errorDuringUpload"));
     } finally {
       setUploading(false);
     }
@@ -144,7 +146,7 @@ export function useBanners() {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this banner?")) {
+    if (window.confirm(t("catalog.confirmDeleteBanner"))) {
       deleteMutation.mutate(id);
     }
   };

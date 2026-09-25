@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Pagination } from "@/components/shared/Pagination";
 import { DownloadReportDialog } from "@/components/shared/DownloadReportDialog";
@@ -16,6 +17,7 @@ import { DriverZoneAssignDialog } from "@/features/drivers/components/DriverZone
 import { DriverOrderChatDialog } from "@/features/drivers/components/DriverOrderChatDialog";
 
 export default function Drivers() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"fleet" | "zones">("fleet");
 
   const {
@@ -88,7 +90,7 @@ export default function Drivers() {
   } = useDriverChat();
 
   return (
-    <DashboardLayout searchPlaceholder="Search drivers, vehicle IDs, or regions...">
+    <DashboardLayout searchPlaceholder={t("drivers.searchDriversVehicleIdsRegions")}>
       <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
         <DriverStatsRow totalRegistered={drivers.length} onlineDrivers={onlineDrivers} totalEarningsToday={totalEarningsToday} />
 
@@ -100,7 +102,7 @@ export default function Drivers() {
               activeTab === "fleet" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            Fleet Directory & Map
+            {t("drivers.fleetDirectoryAndMap")}
           </button>
           <button
             onClick={() => setActiveTab("zones")}
@@ -108,7 +110,7 @@ export default function Drivers() {
               activeTab === "zones" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            Zone Assignments
+            {t("drivers.zoneAssignments")}
           </button>
         </div>
 
@@ -116,8 +118,8 @@ export default function Drivers() {
           <div className="bg-card rounded-2xl border border-border flex flex-col shadow-sm w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 pb-4 gap-4">
               <div>
-                <h3 className="text-lg font-bold text-foreground">Fleet Overview</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">Real-time monitoring and administrative control of all registered drivers.</p>
+                <h3 className="text-lg font-bold text-foreground">{t("drivers.fleetOverview")}</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">{t("drivers.realTimeMonitoringDesc")}</p>
               </div>
               <DriverFilters
                 searchQuery={searchQuery}
@@ -148,7 +150,7 @@ export default function Drivers() {
               currentPage={currentPage}
               totalPages={totalPages}
               onPageChange={setCurrentPage}
-              itemLabel="drivers"
+              itemLabel={t("sidebar.drivers")}
               shownCount={paginatedDrivers.length}
               totalCount={filteredDrivers.length}
             />
@@ -205,15 +207,15 @@ export default function Drivers() {
       <DownloadReportDialog
         open={isDownloadOpen}
         onOpenChange={setIsDownloadOpen}
-        title="Fleet Drivers Report"
+        title={t("drivers.fleetDriversReport")}
         data={drivers.map((d) => ({
-          "Driver Name": d.user?.name || "N/A",
-          Email: d.user?.email || "N/A",
-          Phone: d.user?.phone || "N/A",
-          "Vehicle Type": d.vehicleType || "N/A",
-          "Vehicle Number": d.vehicleNumber || "N/A",
-          "Duty Status": d.status || "N/A",
-          "Onboarding Status": d.onboardingStatus || "N/A",
+          [t("drivers.driverName")]: d.user?.name || t("vendorDashboard.notAvailable"),
+          [t("vendorAuth.emailAddress")]: d.user?.email || t("vendorDashboard.notAvailable"),
+          [t("drivers.phone")]: d.user?.phone || t("vendorDashboard.notAvailable"),
+          [t("drivers.vehicleType")]: d.vehicleType || t("vendorDashboard.notAvailable"),
+          [t("drivers.vehicleNumber")]: d.vehicleNumber || t("vendorDashboard.notAvailable"),
+          [t("drivers.dutyStatus")]: d.status || t("vendorDashboard.notAvailable"),
+          [t("drivers.onboardingStatus")]: d.onboardingStatus || t("vendorDashboard.notAvailable"),
         }))}
       />
 
@@ -253,7 +255,7 @@ export default function Drivers() {
           onAssignClick={openAssignDialog}
           onEditClick={openEditDialog}
           onRemoveZone={(driverId, driverName) => {
-            if (confirm(`Remove zone assignment for driver ${driverName}?`)) {
+            if (confirm(t("drivers.confirmRemoveZoneAssignment", { name: driverName, defaultValue: "Remove zone assignment for driver {{name}}?" }))) {
               handleAssignZone(driverId, null);
             }
           }}

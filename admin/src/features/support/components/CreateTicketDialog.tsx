@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,40 +15,41 @@ interface CreateTicketDialogProps {
 
 /** The "Create New Support Case" dialog. */
 export function CreateTicketDialog({ isOpen, onOpenChange, newTicket, onChange, onSubmit }: CreateTicketDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[450px] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Create New Support Case</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("support.createNewSupportCase")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Issue Summary / Title</label>
+            <label className="text-sm font-medium">{t("support.issueSummaryTitle")}</label>
             <Input value={newTicket.title} onChange={(e) => onChange({ ...newTicket, title: e.target.value })} placeholder="e.g. Order #QX-9903 Damage" required />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Affected User Name</label>
+            <label className="text-sm font-medium">{t("support.affectedUserName")}</label>
             <Input value={newTicket.user} onChange={(e) => onChange({ ...newTicket, user: e.target.value })} placeholder="e.g. Alex Rivera" />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Support Category</label>
+            <label className="text-sm font-medium">{t("support.supportCategory")}</label>
             <select
               value={newTicket.category}
               onChange={(e) => onChange({ ...newTicket, category: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             >
-              <option value="OPERATIONAL ISSUE">OPERATIONAL ISSUE</option>
-              <option value="DELAYED DELIVERY">DELAYED DELIVERY</option>
-              <option value="MULTI-STOP ADJUSTMENT">MULTI-STOP ADJUSTMENT</option>
-              <option value="QUALITY CONTROL">QUALITY CONTROL</option>
+              <option value="OPERATIONAL ISSUE">{t("support.categoryOperationalIssue")}</option>
+              <option value="DELAYED DELIVERY">{t("support.categoryDelayedDelivery")}</option>
+              <option value="MULTI-STOP ADJUSTMENT">{t("support.categoryMultiStopAdjustment")}</option>
+              <option value="QUALITY CONTROL">{t("support.categoryQualityControl")}</option>
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Detailed Issue Message</label>
-            <Textarea value={newTicket.message} onChange={(e) => onChange({ ...newTicket, message: e.target.value })} placeholder="Describe the complaint or logistics issue in detail..." required />
+            <label className="text-sm font-medium">{t("support.detailedIssueMessage")}</label>
+            <Textarea value={newTicket.message} onChange={(e) => onChange({ ...newTicket, message: e.target.value })} placeholder={t("support.describeComplaintPlaceholder")} required />
           </div>
           <Button type="submit" className="w-full mt-4 bg-primary text-primary-foreground">
-            Submit Ticket Case
+            {t("support.submitTicketCase")}
           </Button>
         </form>
       </DialogContent>

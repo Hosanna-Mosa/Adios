@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { NewVendorForm, PlaceDetails, PlaceSuggestion } from "../types";
 
@@ -22,6 +23,7 @@ const EMPTY_FORM: NewVendorForm = {
  * independent of the list/View-dialog concerns there.
  */
 export function useVendorAddForm() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newVendor, setNewVendor] = useState<NewVendorForm>(EMPTY_FORM);
@@ -35,12 +37,12 @@ export function useVendorAddForm() {
     mutationFn: (data: Record<string, unknown>) => adminFetch("/vendors", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendors"] });
-      toast.success("Vendor added successfully");
+      toast.success(t("catalog.vendorAddedSuccessfully"));
       setIsAddOpen(false);
       resetForm();
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to add vendor");
+      toast.error(error.message || t("catalog.failedToAddVendor"));
     },
   });
 
@@ -76,13 +78,13 @@ export function useVendorAddForm() {
     setSuggestions([]);
 
     try {
-      toast.loading("Fetching place details...");
+      toast.loading(t("catalog.fetchingPlaceDetails"));
       const details = await adminFetch<PlaceDetails>(`/vendors/place-details/${suggestion.place_id}`);
       setSelectedPlace(details);
       setNewVendor((prev) => ({ ...prev, name: details.name }));
       toast.dismiss();
     } catch {
-      toast.error("Failed to fetch restaurant details");
+      toast.error(t("catalog.failedToFetchRestaurantDetails"));
     }
   };
 
@@ -96,12 +98,12 @@ export function useVendorAddForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedPlace) {
-      toast.error("Please search and select a restaurant");
+      toast.error(t("catalog.pleaseSearchAndSelectRestaurant"));
       return;
     }
 
     if (!newVendor.password) {
-      toast.error("Please set a password for the vendor");
+      toast.error(t("catalog.pleaseSetPasswordForVendor"));
       return;
     }
 

@@ -2,15 +2,16 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useJsApiLoader } from "@react-google-maps/api";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { useListQuery } from "@/hooks/useListQuery";
 import type { AdminDriver, AdminOrderSummary, NewDriverForm } from "../types";
 
-const STATUS_FILTER_OPTIONS = [
-  { value: "ALL", label: "All Statuses" },
-  { value: "ONLINE", label: "Online" },
-  { value: "OFFLINE", label: "Offline" },
-  { value: "BLOCKED", label: "Blocked Only" },
+const getStatusFilterOptions = (t: (key: string) => string) => [
+  { value: "ALL", label: t("dashboard.allStatuses") },
+  { value: "ONLINE", label: t("drivers.online") },
+  { value: "OFFLINE", label: t("drivers.offline") },
+  { value: "BLOCKED", label: t("users.blockedOnly") },
 ];
 
 const EMPTY_NEW_DRIVER: NewDriverForm = {
@@ -99,6 +100,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
  * one giant unmaintainable hook" rule.
  */
 export function useDriversList() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilterState] = useState("ALL");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -157,12 +159,12 @@ export function useDriversList() {
       adminFetch("/admin/users", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver onboarded successfully");
+      toast.success(t("drivers.driverOnboardedSuccessfully"));
       setIsAddOpen(false);
       setNewDriver(EMPTY_NEW_DRIVER);
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to onboard driver");
+      toast.error(err.message || t("drivers.failedToOnboardDriver"));
     },
   });
 
@@ -171,10 +173,10 @@ export function useDriversList() {
       adminFetch(`/admin/drivers/${id}`, { method: "PUT", body: JSON.stringify({ status }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver status updated successfully");
+      toast.success(t("drivers.driverStatusUpdatedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update driver status");
+      toast.error(err.message || t("drivers.failedToUpdateDriverStatus"));
     },
   });
 
@@ -183,10 +185,10 @@ export function useDriversList() {
       adminFetch(`/admin/drivers/${id}`, { method: "PUT", body: JSON.stringify({ isBlocked }) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver block status updated");
+      toast.success(t("drivers.driverBlockStatusUpdated"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update block status");
+      toast.error(err.message || t("users.failedToUpdateBlockStatus"));
     },
   });
 
@@ -195,10 +197,10 @@ export function useDriversList() {
       adminFetch(`/admin/drivers/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver dossier updated successfully");
+      toast.success(t("drivers.driverDossierUpdatedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to update driver dossier");
+      toast.error(err.message || t("drivers.failedToUpdateDriverDossier"));
     },
   });
 
@@ -206,17 +208,17 @@ export function useDriversList() {
     mutationFn: (id: string) => adminFetch(`/admin/drivers/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success("Driver registration deleted successfully");
+      toast.success(t("drivers.driverRegistrationDeletedSuccessfully"));
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Failed to delete driver");
+      toast.error(err.message || t("drivers.failedToDeleteDriver"));
     },
   });
 
   const handleOnboardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDriver.name || !newDriver.phone) {
-      toast.error("Name and phone are required");
+      toast.error(t("users.nameAndPhoneRequired"));
       return;
     }
     createDriverMutation.mutate(newDriver);
@@ -232,7 +234,7 @@ export function useDriversList() {
   };
 
   const handleDeleteClick = (driver: AdminDriver) => {
-    if (confirm(`Are you sure you want to remove driver ${driver.user?.name}?`)) {
+    if (confirm(t("drivers.confirmRemoveDriver", { name: driver.user?.name, defaultValue: "Are you sure you want to remove driver {{name}}?" }))) {
       deleteDriverMutation.mutate(driver._id);
     }
   };
@@ -247,9 +249,9 @@ export function useDriversList() {
     const lat = driver.currentLocation?.coordinates?.[1];
     if (lat && lng) {
       setMapCenter({ lat, lng });
-      toast.success(`Centered map on ${driver.user?.name}`);
+      toast.success(t("drivers.centeredMapOn", { name: driver.user?.name, defaultValue: "Centered map on {{name}}" }));
     } else {
-      toast.error("No active coordinates for this driver");
+      toast.error(t("drivers.noActiveCoordinatesForDriver"));
     }
   };
 
@@ -280,9 +282,9 @@ export function useDriversList() {
 
     const coords = driver.currentLocation?.coordinates;
     if (coords && coords[1] && coords[0]) {
-      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: "Active Coordinates" };
+      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: t("drivers.activeCoordinates") };
     }
-    return { main: "Unknown", sub: "Offline Location" };
+    return { main: t("drivers.unknown"), sub: t("drivers.offlineLocation") };
   };
 
   const getVehicleString = (driver: AdminDriver) => {
@@ -353,7 +355,7 @@ export function useDriversList() {
     setSearchQuery,
     statusFilter,
     setStatusFilter,
-    statusFilterOptions: STATUS_FILTER_OPTIONS,
+    statusFilterOptions: getStatusFilterOptions(t),
     currentPage: safePage,
     setCurrentPage,
     totalPages,

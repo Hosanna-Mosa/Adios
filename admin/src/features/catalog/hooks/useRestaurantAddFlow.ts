@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { BASE_URL } from "@/lib/api-client";
 import { authHeader } from "./useRestaurantMenuList";
 import { uploadMenuItemImage } from "./uploadMenuItemImage";
@@ -14,6 +15,7 @@ const EMPTY_FORM: RestaurantForm = { name: "", email: "", phone: "", address: ""
  * useRestaurantMenuList per "do not create one giant unmaintainable hook".
  */
 export function useRestaurantAddFlow() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -37,7 +39,7 @@ export function useRestaurantAddFlow() {
   const handleAddRestaurantNext = (e: React.FormEvent) => {
     e.preventDefault();
     if (!restaurantForm.name || !restaurantForm.phone || !restaurantForm.address) {
-      toast.error("Please fill in name, phone, and address");
+      toast.error(t("catalog.pleaseFillNamePhoneAddress"));
       return;
     }
     setStep(2);
@@ -51,7 +53,7 @@ export function useRestaurantAddFlow() {
 
   const handleExtractMenu = async () => {
     if (menuImages.length === 0) {
-      toast.error("Please upload at least one menu image");
+      toast.error(t("catalog.pleaseUploadAtLeastOneMenuImage"));
       return;
     }
 
@@ -73,15 +75,15 @@ export function useRestaurantAddFlow() {
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.message || "Failed to extract menu");
+        throw new Error(err.message || t("catalog.failedToExtractMenu"));
       }
 
       const data = await response.json();
       setExtractedMenu(data.items || []);
-      toast.success("Menu items extracted successfully!");
+      toast.success(t("catalog.menuItemsExtractedSuccessfully"));
       setStep(3);
     } catch (err) {
-      toast.error((err as Error).message || "OCR Extraction failed");
+      toast.error((err as Error).message || t("catalog.ocrExtractionFailed"));
     } finally {
       setIsExtracting(false);
     }
@@ -94,10 +96,10 @@ export function useRestaurantAddFlow() {
         const updated = [...extractedMenu];
         updated[index].images = [url];
         setExtractedMenu(updated);
-        toast.success("Photo uploaded successfully");
+        toast.success(t("catalog.photoUploadedSuccessfully"));
       }
     } catch (err) {
-      toast.error((err as Error).message || "Upload failed");
+      toast.error((err as Error).message || t("catalog.uploadFailed"));
     }
   };
 
@@ -108,17 +110,17 @@ export function useRestaurantAddFlow() {
         headers: { "Content-Type": "application/json", Authorization: authHeader() },
         body: JSON.stringify(body),
       });
-      if (!response.ok) throw new Error("Failed to save restaurant");
+      if (!response.ok) throw new Error(t("catalog.failedToSaveRestaurant"));
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["restaurants-menu"] });
-      toast.success("Restaurant and menu created successfully!");
+      toast.success(t("catalog.restaurantAndMenuCreatedSuccessfully"));
       setIsAddOpen(false);
       resetAddFlow();
     },
     onError: (err: Error) => {
-      toast.error(err.message || "Save failed");
+      toast.error(err.message || t("catalog.saveFailed"));
     },
   });
 

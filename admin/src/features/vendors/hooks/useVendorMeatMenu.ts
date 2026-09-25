@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export interface MeatItem {
   _id: string;
@@ -24,6 +25,7 @@ const blankItem = {
 
 /** All state/query/mutation logic for VendorMeatMenu.tsx (work queue item #18). */
 export function useVendorMeatMenu() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -46,9 +48,9 @@ export function useVendorMeatMenu() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meat-menu-vendor"] });
-      toast.success("Availability updated");
+      toast.success(t("vendorMeatMenu.availabilityUpdated"));
     },
-    onError: () => toast.error("Failed to update availability"),
+    onError: () => toast.error(t("vendorMenu.failedToUpdateAvailability")),
   });
 
   const priceMutation = useMutation({
@@ -59,10 +61,10 @@ export function useVendorMeatMenu() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["meat-menu-vendor"] });
-      toast.success("Price updated successfully");
+      toast.success(t("vendorMeatMenu.priceUpdatedSuccessfully"));
       setEditingId(null);
     },
-    onError: () => toast.error("Failed to update price"),
+    onError: () => toast.error(t("vendorMeatMenu.failedToUpdatePrice")),
   });
 
   const startEditing = (item: MeatItem) => {
@@ -78,7 +80,7 @@ export function useVendorMeatMenu() {
   const savePrice = (itemId: string) => {
     const parsed = parseFloat(editPrice);
     if (isNaN(parsed) || parsed <= 0) {
-      toast.error("Please enter a valid price");
+      toast.error(t("vendorMeatMenu.pleaseEnterValidPrice"));
       return;
     }
     priceMutation.mutate({ itemId, price: parsed });

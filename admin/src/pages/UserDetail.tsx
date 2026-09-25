@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -11,6 +12,7 @@ import { UserEditForm } from "@/features/users/components/UserEditForm";
 import { UserOrderHistory } from "@/features/users/components/UserOrderHistory";
 
 export default function UserDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -46,10 +48,10 @@ export default function UserDetail() {
     return (
       <DashboardLayout>
         <div className="max-w-md mx-auto text-center py-12 space-y-4">
-          <h2 className="text-xl font-bold text-destructive">Error Loading User Details</h2>
-          <p className="text-muted-foreground">The requested user could not be found or there was an issue retrieving the profile.</p>
+          <h2 className="text-xl font-bold text-destructive">{t("users.errorLoadingUserDetails")}</h2>
+          <p className="text-muted-foreground">{t("users.requestedUserNotFoundDesc")}</p>
           <Button onClick={() => navigate("/users")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Users Directory
+            <ArrowLeft className="h-4 w-4" /> {t("users.backToUsersDirectory")}
           </Button>
         </div>
       </DashboardLayout>

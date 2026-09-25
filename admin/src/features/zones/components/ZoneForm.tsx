@@ -1,5 +1,6 @@
 import { Compass, SlidersHorizontal, Undo, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
-import { AVAILABLE_SERVICES } from "../constants";
+import { useTranslation } from "react-i18next";
+import { getAvailableServices } from "../constants";
 import { ZonePricingPanel } from "./ZonePricingPanel";
 
 interface ZoneFormProps {
@@ -74,15 +75,17 @@ export function ZoneForm({
   onCancel,
   isSubmitting,
 }: ZoneFormProps) {
+  const { t } = useTranslation();
+  const availableServices = getAvailableServices(t);
   return (
     <form onSubmit={onSubmit} className="p-6 space-y-4 border-r border-border overflow-y-auto max-h-[75vh]">
       <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Zone Name</label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{t("zones.zoneName")}</label>
         <input
           type="text"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="e.g. Airport High Demand Area"
+          placeholder={t("zones.egAirportHighDemandArea")}
           className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           required
         />
@@ -90,14 +93,14 @@ export function ZoneForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Geofence Type</label>
+          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{t("zones.geofenceType")}</label>
           <select
             value={type}
             onChange={(e) => onTypeChange(e.target.value as "polygon" | "circle")}
             className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
           >
-            <option value="polygon">Polygon (Custom shape)</option>
-            <option value="circle">Circular Radius</option>
+            <option value="polygon">{t("zones.polygonCustomShape")}</option>
+            <option value="circle">{t("zones.circularRadius")}</option>
           </select>
         </div>
         <ZonePricingPanel multiplier={multiplier} onMultiplierChange={onMultiplierChange} />
@@ -112,7 +115,7 @@ export function ZoneForm({
           className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
         />
         <label htmlFor="autoSurge" className="text-xs font-semibold text-foreground cursor-pointer select-none">
-          Enable Automatic Pricing Surge (Dynamic Supply vs. Demand scaling)
+          {t("zones.enableAutomaticPricingSurgeDesc")}
         </label>
       </div>
 
@@ -120,15 +123,15 @@ export function ZoneForm({
         <div className="bg-muted/30 p-4 border border-border rounded-xl space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-foreground flex items-center gap-1">
-              <Compass className="h-3.5 w-3.5 text-primary" /> Circle Center (Click map or enter below)
+              <Compass className="h-3.5 w-3.5 text-primary" /> {t("zones.circleCenterClickMapDesc")}
             </p>
             <button type="button" onClick={onClearCoordinates} className="text-[10px] text-destructive hover:underline font-semibold">
-              Clear coords
+              {t("zones.clearCoords")}
             </button>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Latitude</label>
+              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("zones.latitude")}</label>
               <input
                 type="number"
                 step="0.000001"
@@ -140,7 +143,7 @@ export function ZoneForm({
               />
             </div>
             <div>
-              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Longitude</label>
+              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("zones.longitude")}</label>
               <input
                 type="number"
                 step="0.000001"
@@ -153,7 +156,7 @@ export function ZoneForm({
             </div>
           </div>
           <div>
-            <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Radius (in Meters)</label>
+            <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("zones.radiusInMeters")}</label>
             <input
               type="number"
               value={radius}
@@ -168,14 +171,14 @@ export function ZoneForm({
         <div className="bg-muted/30 p-4 border border-border rounded-xl space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-foreground flex items-center gap-1">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Polygon coordinates (Click map to draw)
+              <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> {t("zones.polygonCoordinatesClickMapDesc")}
             </p>
             <div className="flex gap-2">
-              <button type="button" onClick={onUndoCoordinate} className="text-[10px] text-primary hover:underline font-semibold flex items-center gap-0.5" title="Remove Last Point">
-                <Undo className="h-3 w-3" /> Undo Point
+              <button type="button" onClick={onUndoCoordinate} className="text-[10px] text-primary hover:underline font-semibold flex items-center gap-0.5" title={t("zones.removeLastPoint")}>
+                <Undo className="h-3 w-3" /> {t("zones.undoPoint")}
               </button>
               <button type="button" onClick={onClearCoordinates} className="text-[10px] text-destructive hover:underline font-semibold">
-                Clear all
+                {t("zones.clearAll")}
               </button>
             </div>
           </div>
@@ -191,8 +194,7 @@ export function ZoneForm({
             <div className="flex items-start gap-1.5 mt-2 bg-yellow-500/10 border border-yellow-500/20 p-2.5 rounded-lg">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
               <p className="text-[10px] text-amber-600 dark:text-amber-400 leading-normal">
-                Coordinate format expects an array of <strong>[longitude, latitude]</strong> points. You can click points directly on the preview map to
-                construct the shape, or drag existing nodes to refine them!
+                {t("zones.coordinateFormatDesc")}
               </p>
             </div>
           </div>
@@ -206,7 +208,7 @@ export function ZoneForm({
           className="w-full px-4 py-3 bg-muted/40 hover:bg-muted/70 flex items-center justify-between transition-colors border-b border-border"
         >
           <span className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Advanced Configurations
+            <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> {t("zones.advancedConfigurations")}
           </span>
           {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </button>
@@ -214,20 +216,20 @@ export function ZoneForm({
         {showAdvanced && (
           <div className="p-4 space-y-4 bg-background">
             <div>
-              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Zone Notes / Description</label>
+              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">{t("zones.zoneNotesDescription")}</label>
               <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => onDescriptionChange(e.target.value)}
-                placeholder="e.g. Surge applied during peak hours or heavy traffic seasons"
+                placeholder={t("zones.egSurgeAppliedDuringPeakHours")}
                 className="w-full px-3 py-2 border border-input rounded-lg bg-background text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Restricted Service Types (None = All Allowed)</label>
+              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t("zones.restrictedServiceTypesDesc")}</label>
               <div className="flex flex-wrap gap-1.5">
-                {AVAILABLE_SERVICES.map((s) => {
+                {availableServices.map((s) => {
                   const isSelected = selectedServices.includes(s.id);
                   return (
                     <button
@@ -246,10 +248,10 @@ export function ZoneForm({
             </div>
 
             <div>
-              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Active Time Slot Restrictions</label>
+              <label className="block text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{t("zones.activeTimeSlotRestrictions")}</label>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[9px] text-muted-foreground mb-1 uppercase">Start Time</label>
+                  <label className="block text-[9px] text-muted-foreground mb-1 uppercase">{t("zones.startTime")}</label>
                   <input
                     type="time"
                     value={startTime}
@@ -258,7 +260,7 @@ export function ZoneForm({
                   />
                 </div>
                 <div>
-                  <label className="block text-[9px] text-muted-foreground mb-1 uppercase">End Time</label>
+                  <label className="block text-[9px] text-muted-foreground mb-1 uppercase">{t("zones.endTime")}</label>
                   <input
                     type="time"
                     value={endTime}
@@ -267,7 +269,7 @@ export function ZoneForm({
                   />
                 </div>
               </div>
-              <p className="text-[9px] text-muted-foreground mt-1.5">If configured, dynamic pricing will only be applied to orders placed within this time interval.</p>
+              <p className="text-[9px] text-muted-foreground mt-1.5">{t("zones.dynamicPricingTimeIntervalDesc")}</p>
             </div>
           </div>
         )}
@@ -276,16 +278,16 @@ export function ZoneForm({
       <div className="flex items-center gap-2 py-1">
         <input type="checkbox" id="isActive" checked={isActive} onChange={(e) => onIsActiveChange(e.target.checked)} className="h-4 w-4 border-input rounded text-primary focus:ring-primary" />
         <label htmlFor="isActive" className="text-sm font-semibold text-foreground">
-          Activate immediately
+          {t("zones.activateImmediately")}
         </label>
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
         <button type="button" onClick={onCancel} className="px-4 py-2 border border-border text-foreground hover:bg-muted text-sm font-semibold rounded-lg">
-          Cancel
+          {t("zones.cancel")}
         </button>
         <button type="submit" disabled={isSubmitting} className="px-5 py-2 bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 rounded-lg flex items-center gap-1">
-          {isSubmitting ? "Creating..." : "Save Zone"}
+          {isSubmitting ? t("zones.creatingEllipsis") : t("zones.saveZone")}
         </button>
       </div>
     </form>

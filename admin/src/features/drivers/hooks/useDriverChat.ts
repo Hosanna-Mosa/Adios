@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { AdminDriver, AdminOrderSummary, OrderChatMessage } from "../types";
 
@@ -9,6 +10,7 @@ import type { AdminDriver, AdminOrderSummary, OrderChatMessage } from "../types"
  * plan's "organize related state logically" rule.
  */
 export function useDriverChat() {
+  const { t } = useTranslation();
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [chatDriver, setChatDriver] = useState<AdminDriver | null>(null);
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<AdminOrderSummary | null>(null);
@@ -28,7 +30,7 @@ export function useDriverChat() {
       const msgs = await adminFetch<OrderChatMessage[]>(`/admin/orders/${orderId}/chat`);
       setChatMessages(msgs || []);
     } catch (err) {
-      toast.error((err as Error)?.message || "Failed to load chat messages");
+      toast.error((err as Error)?.message || t("drivers.failedToLoadChatMessages"));
     } finally {
       setLoadingChatMessages(false);
     }

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Play, ShieldAlert } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface DevDriversHeaderProps {
   isSeeding: boolean;
@@ -10,12 +11,13 @@ interface DevDriversHeaderProps {
 
 /** The title + seed/delete action buttons on DevDrivers.tsx. */
 export function DevDriversHeader({ isSeeding, isDeleting, onSeed, onDelete }: DevDriversHeaderProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h3 className="text-lg font-bold text-foreground">Dev Drivers Control Center</h3>
+        <h3 className="text-lg font-bold text-foreground">{t("drivers.devDriversControlCenter")}</h3>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Seed, reset, and position check drivers in Yanam/Kakinada to test user booking map updates.
+          {t("drivers.devDriversControlCenterDesc")}
         </p>
       </div>
       <div className="flex items-center gap-3">
@@ -30,7 +32,7 @@ export function DevDriversHeader({ isSeeding, isDeleting, onSeed, onDelete }: De
           ) : (
             <ShieldAlert className="h-4 w-4" />
           )}
-          Delete Dev Drivers
+          {t("drivers.deleteDevDrivers")}
         </Button>
         <Button
           onClick={onSeed}
@@ -42,7 +44,7 @@ export function DevDriversHeader({ isSeeding, isDeleting, onSeed, onDelete }: De
           ) : (
             <Play className="h-4 w-4" />
           )}
-          Seed/Reset 10 Dev Drivers
+          {t("drivers.seedReset10DevDrivers")}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import type { ActivityLogItem } from "../types";
 
@@ -14,9 +15,10 @@ interface LiveActivityLogProps {
  * just orders -- named for what it is.
  */
 export function LiveActivityLog({ activityLog, getActivityIcon }: LiveActivityLogProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn delay={0.05} className="section-card p-6 flex flex-col">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Live Activity Log</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-4">{t("dashboard.liveActivityLog")}</h3>
       <div className="flex-1 space-y-4">
         {activityLog.map((item, i) => (
           <div key={i} className="flex items-start gap-3">
@@ -29,10 +31,10 @@ export function LiveActivityLog({ activityLog, getActivityIcon }: LiveActivityLo
         ))}
       </div>
       <button
-        onClick={() => toast.info("Audit log is fully up to date. No older activities to display.")}
+        onClick={() => toast.info(t("dashboard.auditLogUpToDate"))}
         className="mt-4 w-full py-2.5 border border-border rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
       >
-        View All Activity
+        {t("dashboard.viewAllActivity")}
       </button>
     </FadeIn>
   );

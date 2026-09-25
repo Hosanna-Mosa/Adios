@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ export function DriverOrderChatDialog({
   loadingChatMessages,
   hasSelectedOrder,
 }: DriverOrderChatDialogProps) {
+  const { t } = useTranslation();
   const driverOrders = orders.filter(
     (o) => (typeof o.driver === "object" ? o.driver?._id : o.driver) === chatDriver?._id
   );
@@ -35,12 +37,12 @@ export function DriverOrderChatDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-2xl border-border flex flex-col max-h-[85vh]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-foreground">Chats for Driver: {chatDriver?.user?.name}</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-foreground">{t("drivers.chatsForDriverColon", { name: chatDriver?.user?.name, defaultValue: "Chats for Driver: {{name}}" })}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4 flex-1 flex flex-col min-h-0">
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-muted-foreground uppercase">Select Order</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase">{t("drivers.selectOrder")}</label>
             <Select
               value={selectedOrderId || "none"}
               onValueChange={(val) => {
@@ -49,10 +51,10 @@ export function DriverOrderChatDialog({
               }}
             >
               <SelectTrigger className="w-full rounded-xl">
-                <SelectValue placeholder="Select an order to view chat..." />
+                <SelectValue placeholder={t("drivers.selectOrderToViewChat")} />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="none">Select order...</SelectItem>
+                <SelectItem value="none">{t("drivers.selectOrderEllipsis")}</SelectItem>
                 {driverOrders.map((o) => (
                   <SelectItem key={o._id} value={o._id}>
                     {o._id.startsWith("ORD-") ? o._id : `#${o._id.substring(o._id.length - 6).toUpperCase()}`} ({o.status})
@@ -66,11 +68,11 @@ export function DriverOrderChatDialog({
             {hasSelectedOrder ? (
               loadingChatMessages ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">Loading chat messages...</p>
+                  <p className="text-sm text-muted-foreground">{t("orderChat.loadingChatMessages")}</p>
                 </div>
               ) : chatMessages.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground text-center">No chat messages found for this order.</p>
+                  <p className="text-sm text-muted-foreground text-center">{t("drivers.noChatMessagesFoundForOrder")}</p>
                 </div>
               ) : (
                 chatMessages.map((msg) => {
@@ -79,7 +81,7 @@ export function DriverOrderChatDialog({
                   return (
                     <div key={msg._id} className={`flex flex-col max-w-[80%] ${isDriver ? "self-end items-end" : "self-start items-start"}`}>
                       <span className="text-[10px] text-muted-foreground font-semibold mb-0.5">
-                        {(typeof msg.senderId === "object" ? msg.senderId?.name : undefined) || "System"}
+                        {(typeof msg.senderId === "object" ? msg.senderId?.name : undefined) || t("drivers.systemSender")}
                       </span>
                       <div
                         className={`p-3 rounded-2xl text-sm ${
@@ -98,7 +100,7 @@ export function DriverOrderChatDialog({
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <p className="text-sm text-muted-foreground text-center">
-                  Please select an order from the dropdown to view the conversation history between the user and driver.
+                  {t("drivers.selectOrderToViewConversationDesc")}
                 </p>
               </div>
             )}
@@ -106,7 +108,7 @@ export function DriverOrderChatDialog({
 
           <div className="flex justify-end gap-3 pt-2">
             <Button onClick={() => onOpenChange(false)} className="rounded-xl">
-              Close Chats
+              {t("drivers.closeChats")}
             </Button>
           </div>
         </div>

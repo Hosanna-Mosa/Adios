@@ -1,10 +1,12 @@
 import { Store, KeyRound, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useVendorLogin } from "@/features/vendors/hooks/useVendorLogin";
 import { AuthShell } from "@/features/vendors/components/AuthShell";
 import { VendorLoginForm } from "@/features/vendors/components/VendorLoginForm";
 import { VendorForgotPasswordCard } from "@/features/vendors/components/VendorForgotPasswordCard";
 
 export default function VendorLogin() {
+  const { t } = useTranslation();
   const {
     isLoading,
     identifier,
@@ -35,13 +37,13 @@ export default function VendorLogin() {
     return (
       <AuthShell
         icon={forgotStep === "done" ? <CheckCircle className="h-8 w-8 text-success" /> : <KeyRound className="h-8 w-8 text-primary" />}
-        title={forgotStep === "done" ? "Password Reset" : "Reset Password"}
+        title={forgotStep === "done" ? t("vendorAuth.passwordReset") : t("vendorAuth.resetPassword")}
         subtitle={
           <>
-            {forgotStep === "email" && "Enter your registered email to receive an OTP."}
-            {forgotStep === "otp" && `We sent a 6-digit code to ${forgotEmail}`}
-            {forgotStep === "reset" && "Enter the OTP and your new password."}
-            {forgotStep === "done" && "Your password has been reset successfully."}
+            {forgotStep === "email" && t("vendorAuth.enterRegisteredEmailToReceiveOtp")}
+            {forgotStep === "otp" && t("vendorAuth.weSentA6DigitCodeTo", { email: forgotEmail, defaultValue: "We sent a 6-digit code to {{email}}" })}
+            {forgotStep === "reset" && t("vendorAuth.enterOtpAndNewPassword")}
+            {forgotStep === "done" && t("vendorAuth.passwordResetSuccessfully")}
           </>
         }
       >
@@ -68,7 +70,7 @@ export default function VendorLogin() {
   }
 
   return (
-    <AuthShell icon={<Store className="h-8 w-8 text-primary" />} title="Vendor Portal" subtitle="Sign in to manage your restaurant menu and orders." headerClassName="text-center mb-10">
+    <AuthShell icon={<Store className="h-8 w-8 text-primary" />} title={t("vendorAuth.vendorPortal")} subtitle={t("vendorAuth.signInToManageMenuAndOrders")} headerClassName="text-center mb-10">
       <VendorLoginForm
         identifier={identifier}
         onIdentifierChange={setIdentifier}

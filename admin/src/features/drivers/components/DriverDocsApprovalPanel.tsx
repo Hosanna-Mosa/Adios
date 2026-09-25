@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import type { DriverProfile } from "../driverDetailTypes";
 
@@ -20,47 +21,48 @@ interface DriverDocsApprovalPanelProps {
  * this stays its own component instead.
  */
 export function DriverDocsApprovalPanel({ driver, onToggleAadhaarVerified, onToggleBankVerified, onApprove, onReject }: DriverDocsApprovalPanelProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
-      <h3 className="text-lg font-bold text-foreground">Documents & Approvals</h3>
-      <p className="text-xs text-muted-foreground">Verify driver identities and toggle onboarding status to control route assignments.</p>
+      <h3 className="text-lg font-bold text-foreground">{t("drivers.documentsAndApprovals")}</h3>
+      <p className="text-xs text-muted-foreground">{t("drivers.verifyDriverIdentitiesDesc")}</p>
 
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between p-3 bg-muted rounded-xl border border-border">
           <div>
-            <span className="font-semibold text-xs text-foreground block">Aadhaar Document</span>
-            <span className="text-[10px] text-muted-foreground">{driver.aadhaarNumber || "Not Provided"}</span>
+            <span className="font-semibold text-xs text-foreground block">{t("drivers.aadhaarDocument")}</span>
+            <span className="text-[10px] text-muted-foreground">{driver.aadhaarNumber || t("drivers.notProvided")}</span>
           </div>
           <Button size="sm" variant={driver.aadhaarVerified ? "outline" : "default"} onClick={onToggleAadhaarVerified}>
-            {driver.aadhaarVerified ? "Verified" : "Verify"}
+            {driver.aadhaarVerified ? t("drivers.verified") : t("drivers.verify")}
           </Button>
         </div>
 
         <div className="flex items-center justify-between p-3 bg-muted rounded-xl border border-border">
           <div>
-            <span className="font-semibold text-xs text-foreground block">Bank Settlement Accounts</span>
-            <span className="text-[10px] text-muted-foreground">{driver.bankAccountNumber ? `${driver.bankAccountNumber} (${driver.bankIfsc})` : "Not Provided"}</span>
+            <span className="font-semibold text-xs text-foreground block">{t("drivers.bankSettlementAccounts")}</span>
+            <span className="text-[10px] text-muted-foreground">{driver.bankAccountNumber ? `${driver.bankAccountNumber} (${driver.bankIfsc})` : t("drivers.notProvided")}</span>
           </div>
           <Button size="sm" variant={driver.bankVerified ? "outline" : "default"} onClick={onToggleBankVerified}>
-            {driver.bankVerified ? "Verified" : "Verify"}
+            {driver.bankVerified ? t("drivers.verified") : t("drivers.verify")}
           </Button>
         </div>
 
         {driver.dlNumber && (
           <div className="p-3 bg-muted rounded-xl border border-border space-y-1 text-xs">
-            <span className="font-semibold text-foreground block">Driving License (DL)</span>
-            <span className="text-muted-foreground block">DL Number: {driver.dlNumber}</span>
-            {driver.dlExpiry && <span className="text-muted-foreground block">DL Expiry: {new Date(driver.dlExpiry).toLocaleDateString()}</span>}
+            <span className="font-semibold text-foreground block">{t("drivers.drivingLicenseDl")}</span>
+            <span className="text-muted-foreground block">{t("drivers.dlNumberColon", { number: driver.dlNumber, defaultValue: "DL Number: {{number}}" })}</span>
+            {driver.dlExpiry && <span className="text-muted-foreground block">{t("drivers.dlExpiryColon", { date: new Date(driver.dlExpiry).toLocaleDateString(), defaultValue: "DL Expiry: {{date}}" })}</span>}
           </div>
         )}
       </div>
 
       <div className="flex gap-2 pt-2">
         <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white rounded-lg" onClick={onApprove}>
-          Approve Driver
+          {t("drivers.approveDriver")}
         </Button>
         <Button variant="destructive" className="flex-1 rounded-lg" onClick={onReject}>
-          Reject Driver
+          {t("drivers.rejectDriver")}
         </Button>
       </div>
     </div>

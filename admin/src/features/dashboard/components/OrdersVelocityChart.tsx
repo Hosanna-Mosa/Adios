@@ -1,4 +1,5 @@
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import type { VelocityDatum } from "../analyticsTypes";
 
@@ -9,17 +10,18 @@ interface OrdersVelocityChartProps {
 
 /** The "Orders Velocity" area chart panel. */
 export function OrdersVelocityChart({ isLoading, velocityData }: OrdersVelocityChartProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn className="col-span-2 section-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-foreground">Orders Velocity</h3>
+        <h3 className="text-lg font-semibold text-foreground">{t("analytics.ordersVelocity")}</h3>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-success" />
-          <span className="text-xs text-muted-foreground">Last 7 Days</span>
+          <span className="text-xs text-muted-foreground">{t("analytics.last7Days")}</span>
         </div>
       </div>
       {isLoading ? (
-        <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">Loading velocity...</div>
+        <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">{t("analytics.loadingVelocity")}</div>
       ) : (
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={velocityData}>
@@ -31,7 +33,7 @@ export function OrdersVelocityChart({ isLoading, velocityData }: OrdersVelocityC
             </defs>
             <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(215,15%,50%)" }} />
             <YAxis hide />
-            <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(214,20%,90%)", fontSize: 12 }} formatter={(value: number) => [`${value.toLocaleString()} Orders`, ""]} />
+            <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(214,20%,90%)", fontSize: 12 }} formatter={(value: number) => [t("analytics.nOrders", { count: value.toLocaleString(), defaultValue: "{{count}} Orders" }), ""]} />
             <Area type="monotone" dataKey="orders" stroke="hsl(185, 80%, 28%)" strokeWidth={2.5} fill="url(#colorOrders)" dot={{ r: 4, fill: "hsl(185, 80%, 28%)", strokeWidth: 2, stroke: "#fff" }} />
           </AreaChart>
         </ResponsiveContainer>

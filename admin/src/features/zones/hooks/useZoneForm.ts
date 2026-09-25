@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import type { AdminZone, LatLng, NewZonePayload } from "../types";
 import { DEFAULT_CENTER } from "./useZonesList";
@@ -28,6 +29,7 @@ interface UseZoneFormOptions {
  * useZonesList is the list/selection/preview-map flow.
  */
 export function useZoneForm({ onCreated }: UseZoneFormOptions) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -97,7 +99,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
     mutationFn: (newZone: NewZonePayload) => adminFetch<{ data: AdminZone }>("/zones", { method: "POST", body: JSON.stringify(newZone) }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["admin", "zones"] });
-      toast.success("Zone created successfully");
+      toast.success(t("zones.zoneCreatedSuccessfully"));
       setIsAddOpen(false);
 
       if (res && res.data) {
@@ -106,7 +108,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
       resetForm();
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to create zone");
+      toast.error(error.message || t("zones.failedToCreateZone"));
     },
   });
 
@@ -139,7 +141,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
 
   const handleCreateZone = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return toast.error("Zone name is required");
+    if (!name.trim()) return toast.error(t("zones.zoneNameRequired"));
 
     const payload: NewZonePayload = {
       name,
@@ -164,10 +166,10 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
       const rad = parseFloat(radius);
 
       if (isNaN(lat) || isNaN(lng)) {
-        return toast.error("Center coordinates must be valid numbers");
+        return toast.error(t("zones.centerCoordinatesMustBeValidNumbers"));
       }
       if (isNaN(rad) || rad <= 0) {
-        return toast.error("Radius must be a positive number");
+        return toast.error(t("zones.radiusMustBePositiveNumber"));
       }
 
       payload.center = { coordinates: [lng, lat] };
@@ -176,7 +178,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
       try {
         const coords = JSON.parse(polyCoords);
         if (!Array.isArray(coords) || coords.length < 3) {
-          return toast.error("Polygon must contain at least 3 coordinates");
+          return toast.error(t("zones.polygonMustContainAtLeast3Coords"));
         }
 
         const first = coords[0];
@@ -186,7 +188,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
 
         payload.boundary = { coordinates: [normalizedCoords] };
       } catch (err) {
-        return toast.error(`Invalid coordinates format: ${(err as Error).message}`);
+        return toast.error(t("zones.invalidCoordinatesFormat", { message: (err as Error).message, defaultValue: "Invalid coordinates format: {{message}}" }));
       }
     }
 
@@ -202,7 +204,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
     if (type === "circle") {
       setCenterLat(lat.toFixed(6));
       setCenterLng(lng.toFixed(6));
-      toast.info(`Set circle center to: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+      toast.info(t("zones.setCircleCenterTo", { lat: lat.toFixed(4), lng: lng.toFixed(4), defaultValue: "Set circle center to: {{lat}}, {{lng}}" }));
     } else {
       try {
         let current: [number, number][] = [];
@@ -224,7 +226,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
           if (current.length === 3) {
             current.push(current[0]);
           }
-          toast.info(`Added node ${current.length >= 3 ? current.length - 1 : current.length}: [${lng.toFixed(4)}, ${lat.toFixed(4)}]`);
+          toast.info(t("zones.addedNode", { n: current.length >= 3 ? current.length - 1 : current.length, lng: lng.toFixed(4), lat: lat.toFixed(4), defaultValue: "Added node {{n}}: [{{lng}}, {{lat}}]" }));
         } else {
           // 2. We have 3 or more points. Find the segment where this point fits best to prevent crossovers
           const first = current[0];
@@ -263,7 +265,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
 
           // Re-close the polygon loop
           current.push(current[0]);
-          toast.info(`Inserted node at segment position ${bestIndex}: [${lng.toFixed(4)}, ${lat.toFixed(4)}]`);
+          toast.info(t("zones.insertedNodeAtSegment", { pos: bestIndex, lng: lng.toFixed(4), lat: lat.toFixed(4), defaultValue: "Inserted node at segment position {{pos}}: [{{lng}}, {{lat}}]" }));
         }
 
         setPolyCoords(JSON.stringify(current));
@@ -290,7 +292,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
         }
 
         setPolyCoords(JSON.stringify(current));
-        toast.success(`Moved node ${index + 1} to: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        toast.success(t("zones.movedNodeTo", { n: index + 1, lat: lat.toFixed(4), lng: lng.toFixed(4), defaultValue: "Moved node {{n}} to: {{lat}}, {{lng}}" }));
       }
     } catch (err) {
       console.error("Failed updating marker position:", err);
@@ -301,7 +303,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
     try {
       const current = JSON.parse(polyCoords);
       if (!Array.isArray(current) || current.length === 0) {
-        toast.info("No coordinates to undo");
+        toast.info(t("zones.noCoordinatesToUndo"));
         return;
       }
 
@@ -324,10 +326,10 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
 
       setPolyCoords(JSON.stringify(current));
       if (popped) {
-        toast.success(`Removed point: [${popped[0].toFixed(4)}, ${popped[1].toFixed(4)}]`);
+        toast.success(t("zones.removedPoint", { lng: popped[0].toFixed(4), lat: popped[1].toFixed(4), defaultValue: "Removed point: [{{lng}}, {{lat}}]" }));
       }
     } catch {
-      toast.error("Failed to undo coordinate");
+      toast.error(t("zones.failedToUndoCoordinate"));
     }
   };
 
@@ -338,7 +340,7 @@ export function useZoneForm({ onCreated }: UseZoneFormOptions) {
     } else {
       setPolyCoords("[]");
     }
-    toast.success("Coordinates cleared");
+    toast.success(t("zones.coordinatesCleared"));
   };
 
   const toggleServiceSelection = (serviceId: string) => {

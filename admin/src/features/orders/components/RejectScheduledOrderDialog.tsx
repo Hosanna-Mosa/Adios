@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,35 +15,36 @@ interface RejectScheduledOrderDialogProps {
 
 /** The "Reject Scheduled Order" modal on ScheduledOrders.tsx — the reason is optional and rides along to the customer's notification. */
 export function RejectScheduledOrderDialog({ rejectingOrder, onOpenChange, rejectReason, setRejectReason, onSubmit, isSubmitting }: RejectScheduledOrderDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={!!rejectingOrder} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] rounded-3xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">Reject Scheduled Order</DialogTitle>
+          <DialogTitle className="text-xl">{t("orders.rejectScheduledOrder")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           {rejectingOrder && (
             <div className="rounded-2xl bg-muted/50 p-4 space-y-1 text-sm">
               <p className="font-semibold text-foreground">{orderLabel(rejectingOrder._id)}</p>
               <p className="text-muted-foreground">
-                {rejectingOrder.user?.name || "Customer"} · {rejectingOrder.vendor?.name || "Restaurant"}
+                {rejectingOrder.user?.name || t("orders.customer")} · {rejectingOrder.vendor?.name || t("orders.restaurant")}
               </p>
               <p className="text-muted-foreground">{formatSlot(rejectingOrder.scheduledFor)}</p>
             </div>
           )}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Reason (optional)</label>
+            <label className="text-sm font-medium">{t("orders.reasonOptional")}</label>
             <Textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="e.g. The kitchen is fully booked for that slot"
+              placeholder={t("orders.rejectReasonPlaceholder")}
             />
             <p className="text-xs text-muted-foreground">
-              The customer is notified of the rejection either way; a reason is shown with it.
+              {t("orders.customerNotifiedEitherWayDesc")}
             </p>
           </div>
           <Button type="submit" variant="destructive" className="w-full h-11 rounded-xl" disabled={isSubmitting}>
-            {isSubmitting ? "Rejecting..." : "Reject Order"}
+            {isSubmitting ? t("orders.rejectingEllipsis") : t("orders.rejectOrder")}
           </Button>
         </form>
       </DialogContent>

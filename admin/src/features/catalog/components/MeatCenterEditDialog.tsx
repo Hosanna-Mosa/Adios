@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -31,23 +32,24 @@ export function MeatCenterEditDialog({
   onSubmit,
   isSaving,
 }: MeatCenterEditDialogProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px] rounded-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Edit Meat Center</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("catalog.editMeatCenter")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Name</label>
+            <label className="text-sm font-medium">{t("catalog.name")}</label>
             <Input value={editForm.name} onChange={(e) => onChange({ ...editForm, name: e.target.value })} required />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Phone</label>
+            <label className="text-sm font-medium">{t("catalog.phone")}</label>
             <Input value={editForm.phone} onChange={(e) => onChange({ ...editForm, phone: e.target.value })} required />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Address</label>
+            <label className="text-sm font-medium">{t("catalog.address")}</label>
             <Input value={editForm.address} onChange={(e) => onChange({ ...editForm, address: e.target.value })} required />
           </div>
 
@@ -61,7 +63,7 @@ export function MeatCenterEditDialog({
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
               />
               <label htmlFor="editCenterManuallyClosed" className="text-sm font-medium cursor-pointer select-none">
-                Temporarily closed (stop taking orders)
+                {t("catalog.temporarilyClosedDesc")}
               </label>
             </div>
 
@@ -74,19 +76,19 @@ export function MeatCenterEditDialog({
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
               />
               <label htmlFor="editCenterHoursEnabled" className="text-sm font-medium cursor-pointer select-none">
-                Set weekly opening hours
+                {t("catalog.setWeeklyOpeningHours")}
               </label>
             </div>
 
             {editHoursEnabled ? (
               <OpeningHoursEditor draft={editHours} onChange={onHoursChange} />
             ) : (
-              <p className="text-xs text-muted-foreground">Without a schedule this centre is treated as open around the clock.</p>
+              <p className="text-xs text-muted-foreground">{t("catalog.withoutScheduleCentreOpenDesc")}</p>
             )}
           </div>
 
           <Button type="submit" className="w-full mt-4" disabled={isSaving}>
-            {isSaving ? "Updating..." : "Save Changes"}
+            {isSaving ? t("catalog.updatingEllipsis") : t("vendorMenu.saveChanges")}
           </Button>
         </form>
       </DialogContent>

@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 import { BASE_URL } from "@/lib/api-client";
 import { authHeader } from "./useRestaurantMenuList";
 
@@ -19,7 +20,7 @@ export async function uploadMenuItemImage(file: File): Promise<string | null> {
     body: formData,
   });
 
-  if (!response.ok) throw new Error("Failed to upload image");
+  if (!response.ok) throw new Error(i18n.t("catalog.failedToUploadImage"));
 
   const data = await response.json();
   return data.imageUrls && data.imageUrls.length > 0 ? data.imageUrls[0] : null;

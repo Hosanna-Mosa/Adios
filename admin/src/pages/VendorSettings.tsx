@@ -1,17 +1,22 @@
+import { useTranslation } from "react-i18next";
 import { VendorLayout } from "@/components/layout/VendorLayout";
 import { useVendorPasswordChange } from "@/features/vendors/hooks/useVendorPasswordChange";
 import { VendorChangePasswordForm } from "@/features/vendors/components/VendorChangePasswordForm";
 
 export default function VendorSettings() {
+  const { t } = useTranslation();
   const { isMeatVendor, ...formProps } = useVendorPasswordChange();
 
   return (
     <VendorLayout>
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("vendorSettings.settings")}</h1>
           <p className="text-muted-foreground">
-            Manage your {isMeatVendor ? "meat center" : "vendor"} account settings.
+            {t("vendorSettings.manageAccountSettings", {
+              role: isMeatVendor ? t("vendorDashboard.meatCenterLower") : t("vendorDashboard.vendorLower"),
+              defaultValue: "Manage your {{role}} account settings.",
+            })}
           </p>
         </div>
 
@@ -19,7 +24,7 @@ export default function VendorSettings() {
 
         <div className="bg-muted/30 p-6 rounded-2xl">
           <p className="text-sm text-muted-foreground">
-            <strong>Note:</strong> After changing your password, you'll be signed out and redirected to the login page to sign in with your new credentials.
+            <strong>{t("vendorSettings.noteColon")}</strong> {t("vendorSettings.passwordChangeSignsYouOut")}
           </p>
         </div>
       </div>

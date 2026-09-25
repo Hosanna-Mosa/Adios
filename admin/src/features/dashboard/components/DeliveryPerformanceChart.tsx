@@ -1,4 +1,5 @@
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import type { BarDatum } from "../types";
 
@@ -11,25 +12,26 @@ interface DeliveryPerformanceChartProps {
 
 /** The "Delivery Performance" bar chart panel with a Daily/Weekly toggle. */
 export function DeliveryPerformanceChart({ timeScale, onTimeScaleChange, barData, weeklyBarData }: DeliveryPerformanceChartProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn className="col-span-2 section-card p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-foreground">Delivery Performance</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{timeScale === "DAILY" ? "Last 24 hours vs Target" : "Last 4 weeks vs Target"}</p>
+          <h3 className="text-lg font-semibold text-foreground">{t("dashboard.deliveryPerformance")}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{timeScale === "DAILY" ? t("dashboard.last24HoursVsTarget") : t("dashboard.last4WeeksVsTarget")}</p>
         </div>
         <div className="flex gap-1 bg-muted rounded-lg p-0.5">
           <button
             onClick={() => onTimeScaleChange("WEEKLY")}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeScale === "WEEKLY" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted-foreground/10"}`}
           >
-            WEEKLY
+            {t("dashboard.weekly")}
           </button>
           <button
             onClick={() => onTimeScaleChange("DAILY")}
             className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeScale === "DAILY" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted-foreground/10"}`}
           >
-            DAILY
+            {t("dashboard.daily")}
           </button>
         </div>
       </div>

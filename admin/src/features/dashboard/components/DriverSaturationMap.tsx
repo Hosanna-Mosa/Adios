@@ -1,4 +1,5 @@
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 
 interface DriverSaturationMapProps {
@@ -10,6 +11,7 @@ const INDUSTRIAL_EAST = { lat: 17.0205, lng: 81.824 };
 
 /** The "Driver Saturation" map panel with a density legend overlay. */
 export function DriverSaturationMap({ isLoaded }: DriverSaturationMapProps) {
+  const { t } = useTranslation();
   return (
     <FadeIn delay={0.05} className="col-span-2 section-card overflow-hidden h-[300px] relative">
       {isLoaded ? (
@@ -28,23 +30,23 @@ export function DriverSaturationMap({ isLoaded }: DriverSaturationMapProps) {
           <Marker position={INDUSTRIAL_EAST} title="Industrial East - Optimal" />
         </GoogleMap>
       ) : (
-        <div className="bg-gradient-to-br from-primary/10 to-primary/20 absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">Loading Saturation Map...</div>
+        <div className="bg-gradient-to-br from-primary/10 to-primary/20 absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">{t("analytics.loadingSaturationMap")}</div>
       )}
 
       <div className="absolute top-6 left-6 bg-card/95 backdrop-blur p-4 rounded-xl shadow-sm max-w-[240px] z-10">
-        <h4 className="font-semibold text-foreground text-sm">Driver Saturation</h4>
-        <p className="text-xs text-muted-foreground mt-1">Live heatmap of metropolitan logistics flow.</p>
+        <h4 className="font-semibold text-foreground text-sm">{t("analytics.driverSaturation")}</h4>
+        <p className="text-xs text-muted-foreground mt-1">{t("analytics.liveHeatmapDesc")}</p>
         <div className="mt-3 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase text-foreground">Downtown</span>
-            <span className="text-[11px] font-semibold text-destructive">High Density</span>
+            <span className="text-[11px] font-semibold text-destructive">{t("analytics.highDensity")}</span>
           </div>
           <div className="h-1.5 bg-muted rounded-full">
             <div className="h-full w-[85%] bg-primary rounded-full" />
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase text-foreground">Industrial East</span>
-            <span className="text-[11px] font-semibold text-success">Optimal</span>
+            <span className="text-[11px] font-semibold text-success">{t("analytics.optimalStatus")}</span>
           </div>
           <div className="h-1.5 bg-muted rounded-full">
             <div className="h-full w-[45%] bg-primary rounded-full" />
@@ -58,7 +60,7 @@ export function DriverSaturationMap({ isLoaded }: DriverSaturationMapProps) {
           <div className="h-6 w-6 rounded-full bg-primary/30 border-2 border-card" />
           <div className="h-6 w-6 rounded-full bg-primary/40 border-2 border-card" />
         </div>
-        <span className="text-xs font-medium text-foreground">+12 Active Now</span>
+        <span className="text-xs font-medium text-foreground">{t("analytics.activeNow", { count: 12, defaultValue: "+{{count}} Active Now" })}</span>
       </div>
     </FadeIn>
   );

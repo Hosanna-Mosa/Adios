@@ -1,11 +1,14 @@
 import { FadeIn } from "@/components/motion/FadeIn";
-import { revenueBreakdown } from "../paymentsTypes";
+import { useTranslation } from "react-i18next";
+import { getRevenueBreakdown } from "../paymentsTypes";
 
 /** The "Revenue Breakdown" progress-bar panel on Payments. */
 export function RevenueBreakdownPanel() {
+  const { t } = useTranslation();
+  const revenueBreakdown = getRevenueBreakdown(t);
   return (
     <FadeIn className="section-card p-6">
-      <h3 className="text-lg font-semibold text-foreground mb-6">Revenue Breakdown</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-6">{t("orders.revenueBreakdown")}</h3>
       <div className="space-y-5">
         {revenueBreakdown.map((r) => (
           <div key={r.label}>
