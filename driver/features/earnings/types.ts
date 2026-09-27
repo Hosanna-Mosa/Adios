@@ -15,6 +15,10 @@ export interface ActivityItem {
 
 export interface EarningsResponse {
   availableBalance: number;
+  /** Cash the driver confirmed collecting on cash orders (already in their hands). */
+  cashCollectedTotal?: number;
+  /** Platform commission on cash orders not yet covered by online earnings. */
+  cashCommissionDue?: number;
   weekBalance: number;
   trendPercent: number;
   weeklyBreakdown: WeeklyPoint[];

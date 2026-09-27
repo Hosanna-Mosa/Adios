@@ -37,6 +37,11 @@ export interface DriverOrderItem {
   status: string;
   createdAt: string;
   stops: { address?: string }[];
+  paymentMethod?: "cash" | "online";
+  paymentStatus?: "pending" | "paid" | "cash_collected";
+  cashCollected?: boolean;
+  cashCollectedAmount?: number | null;
+  refundStatus?: "not_requested" | "pending" | "processed" | "failed";
 }
 
 export interface DriverDetailResponse {

@@ -5,6 +5,8 @@ import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPa
 import User from "../../database/models/User";
 import Zone from "../../database/models/Zone";
 import { PaymentService } from "../payments/payment.service";
+import { RazorpayXError } from "../payments/razorpayx.client";
+import { applyRazorpayXPayout, syncOpenPayouts } from "../payments/payout.status";
 import { SocketManager } from "../../sockets/socket.manager";
 import { ZonesService } from "../zones/zones.service";
 import { NotificationService } from "../../services/notification.service";
@@ -561,6 +563,11 @@ export class DriverService {
     const previousWeekStart = new Date(weekStart);
     previousWeekStart.setDate(previousWeekStart.getDate() - 7);
 
+    // Pick up payouts whose webhook was missed, so the balance and history reflect RazorpayX.
+    await syncOpenPayouts("driver", { driver: driver._id }).catch((err) =>
+      console.warn("[drivers.service] Payout refresh failed:", err?.message),
+    );
+
     const [weekOrders, previousWeekOrders, allCompletedOrders, payouts] = await Promise.all([
       this.getCompletedOrdersForDriver(driver._id, weekStart, now),
       this.getCompletedOrdersForDriver(driver._id, previousWeekStart, weekStart),
@@ -575,8 +582,13 @@ export class DriverService {
     const weekGross = this.sumDriverEarnings(weekOrders);
     const previousWeekGross = this.sumDriverEarnings(previousWeekOrders);
     const paidOut = await this.getPaidOutTotal(driver._id);
-    const lifetimeGross = await this.getLifetimeGross(driver._id);
-    const availableBalance = Math.max(0, lifetimeGross - paidOut);
+    const { lifetimeGross, cashCollectedTotal } = await this.getLifetimeGross(driver._id);
+    // Withdrawable = earned share − cash the driver already holds − payouts reserved/sent.
+    // A cash order puts the whole fare in the driver's hand, so it adds (share − cash), i.e.
+    // it reduces the balance by the platform's commission the driver now owes.
+    const netBalance = lifetimeGross - cashCollectedTotal - paidOut;
+    const availableBalance = Math.max(0, netBalance);
+    const cashCommissionDue = Math.max(0, -netBalance);
     const trendPercent = previousWeekGross > 0
       ? Math.round(((weekGross - previousWeekGross) / previousWeekGross) * 100)
       : weekGross > 0 ? 100 : 0;
@@ -588,6 +600,8 @@ export class DriverService {
         icon: order.serviceType === "delivery" || order.serviceType === "helper" ? "package" : "car",
         label: `${this.formatServiceLabel(order.serviceType)} - ${this.getOrderDestination(order)}`,
         amount: Math.round((order.totalPrice || 0) * 0.8),
+        paymentMethod: order.paymentMethod,
+        cashCollectedAmount: order.cashCollected ? order.cashCollectedAmount : undefined,
         createdAt: order.updatedAt || order.createdAt,
       })),
       ...payouts.map((payout: any) => ({
@@ -604,6 +618,8 @@ export class DriverService {
 
     return {
       availableBalance,
+      cashCollectedTotal,
+      cashCommissionDue,
       weekBalance: weekGross,
       trendPercent,
       weeklyBreakdown,
@@ -633,89 +649,115 @@ export class DriverService {
       throw new Error("Verified bank account is required before cash out");
     }
 
-    const earnings = await this.getEarnings(userId);
-    const payoutAmount = amount && amount > 0 ? amount : earnings.availableBalance;
-
-    if (payoutAmount < 100) {
-      throw new Error("Minimum cash out amount is Rs.100");
-    }
-    if (payoutAmount > earnings.availableBalance) {
-      throw new Error("Cash out amount exceeds available balance");
-    }
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    // Only one cash-out at a time per driver, so two taps can't both pass the balance check.
+    const now = new Date();
+    const locked = await Driver.findOneAndUpdate(
+      { _id: driver._id, $or: [{ payoutLockUntil: null }, { payoutLockUntil: { $exists: false } }, { payoutLockUntil: { $lt: now } }] },
+      { $set: { payoutLockUntil: new Date(now.getTime() + 60_000) } },
+    );
+    if (!locked) throw new Error("A cash out is already being processed. Please wait a moment.");
 
     let payoutRecord;
     try {
-      payoutRecord = new DriverPayout({
+      const earnings = await this.getEarnings(userId);
+      const payoutAmount = amount && amount > 0 ? amount : earnings.availableBalance;
+
+      if (payoutAmount < 100) {
+        throw new Error("Minimum cash out amount is Rs.100");
+      }
+      if (payoutAmount > earnings.availableBalance) {
+        throw new Error("Cash out amount exceeds available balance");
+      }
+
+      // "pending" = requested. It already counts against the balance (getPaidOutTotal), so the
+      // amount stays reserved until RazorpayX processes it or it fails.
+      payoutRecord = await DriverPayout.create({
         driver: driver._id,
         user: user._id,
         amount: payoutAmount,
         status: DriverPayoutStatus.PENDING,
       });
-      await payoutRecord.save({ session });
+    } finally {
+      await Driver.updateOne({ _id: driver._id }, { $set: { payoutLockUntil: null } });
+    }
 
-      const result = await this.paymentService.createDriverPayout({
+    const recordId = payoutRecord._id.toString();
+    let result: Awaited<ReturnType<PaymentService["createDriverPayout"]>> = null;
+    try {
+      result = await this.paymentService.createDriverPayout({
+        referenceId: recordId,
         name: user.name,
         phone: user.phone,
         email: user.email,
         accountNumber: driver.bankAccountNumber,
         ifsc: driver.bankIfsc,
-        amount: payoutAmount,
-        notes: {
-          driverId: driver._id.toString(),
-          payoutRecordId: payoutRecord._id.toString(),
-        },
+        amount: payoutRecord.amount,
+        notes: { driverId: driver._id.toString(), payoutRecordId: recordId },
       });
+    } catch (error: any) {
+      const outcomeUnknown = error instanceof RazorpayXError && error.stage === "payout" && !error.definitive;
+      if (outcomeUnknown) {
+        // RazorpayX may have created it. Keep the amount reserved; the webhook (matched by
+        // reference_id) settles it. Never report this as paid or as failed.
+        await DriverPayout.updateOne(
+          { _id: recordId, status: DriverPayoutStatus.PENDING },
+          { $set: { status: DriverPayoutStatus.PROCESSING, failureReason: "Awaiting confirmation from RazorpayX" } },
+        );
+        console.error(`[drivers.service] ALERT payout ${recordId} outcome unknown:`, error.message);
+      } else {
+        // No payout exists at RazorpayX: release the amount back to the balance.
+        await DriverPayout.updateOne(
+          { _id: recordId, status: DriverPayoutStatus.PENDING },
+          { $set: { status: DriverPayoutStatus.FAILED, failureReason: error.message } },
+        );
+        throw error;
+      }
+    }
 
-      payoutRecord.status = this.normalizePayoutStatus(result.payout.status);
-      payoutRecord.razorpayContactId = result.contact.id;
-      payoutRecord.razorpayFundAccountId = result.fundAccount.id;
-      payoutRecord.razorpayPayoutId = result.payout.id;
-      await payoutRecord.save({ session });
+    if (result) {
+      await DriverPayout.updateOne(
+        { _id: recordId },
+        { $set: { razorpayContactId: result.contact.id, razorpayFundAccountId: result.fundAccount.id } },
+      );
+      await applyRazorpayXPayout("driver", recordId, result.payout);
+    }
 
-      await session.commitTransaction();
+    const saved = await DriverPayout.findById(recordId);
+    const status = saved?.status ?? DriverPayoutStatus.PENDING;
+    if (status === DriverPayoutStatus.FAILED) {
+      throw new Error(saved?.failureReason || "Payout failed");
+    }
 
-      // Confirm the payout to the driver (fire-and-forget).
+    // Tell the truth about where the money is. "processed" is only ever set from RazorpayX's
+    // answer, and applyRazorpayXPayout already notified the driver in that case.
+    if (status !== DriverPayoutStatus.PROCESSED) {
       NotificationService.getInstance()
         .sendNotification({
           userId: user._id.toString(),
-          title: "Payout processed 💰",
-          body: `₹${payoutAmount} is on its way to your bank account.`,
+          title: "Payout requested",
+          body:
+            status === DriverPayoutStatus.PROCESSING
+              ? `Your ₹${payoutRecord.amount} payout has been sent to the bank for processing. We'll notify you once it's credited.`
+              : `Your ₹${payoutRecord.amount} payout request is recorded. We'll notify you once it's processed.`,
           type: "transactional",
           category: "system",
           data: { deepLink: { screen: "/(tabs)/earnings" } },
         })
         .catch((err) => console.error("[drivers.service] Failed to send payout notification:", err));
-
-      return {
-        message: "Cash out initiated",
-        payout: {
-          id: payoutRecord._id,
-          razorpayPayoutId: payoutRecord.razorpayPayoutId,
-          amount: payoutRecord.amount,
-          status: payoutRecord.status,
-        },
-      };
-    } catch (error: any) {
-      await session.abortTransaction();
-      
-      // If we failed after creating payoutRecord, write failure status to DB outside of transaction
-      if (payoutRecord) {
-        try {
-          await DriverPayout.findByIdAndUpdate(payoutRecord._id, {
-            status: DriverPayoutStatus.FAILED,
-            failureReason: error.message
-          });
-        } catch (dbErr) {
-          console.error("Failed to write payout failure status:", dbErr);
-        }
-      }
-      throw error;
-    } finally {
-      session.endSession();
     }
+
+    return {
+      message:
+        status === DriverPayoutStatus.PROCESSED ? "Payout processed"
+        : status === DriverPayoutStatus.PROCESSING ? "Payout is being processed"
+        : "Payout requested",
+      payout: {
+        id: recordId,
+        razorpayPayoutId: saved?.razorpayPayoutId,
+        amount: payoutRecord.amount,
+        status,
+      },
+    };
   }
 
   private completedStatuses() {
@@ -730,13 +772,27 @@ export class DriverService {
     });
   }
 
+  /**
+   * The driver's share of completed orders (unchanged 80% rule), plus the cash the driver
+   * confirmed collecting for cash orders. Only cash confirmed through POST
+   * /orders/:id/cash-collected counts; older orders without that record are unchanged.
+   */
   private async getLifetimeGross(driverId: any) {
-    const result = await Order.aggregate<{ total: number }>([
+    const result = await Order.aggregate<{ total: number; cash: number }>([
       { $match: { driver: driverId, status: { $in: this.completedStatuses() } } },
-      { $group: { _id: null, total: { $sum: { $multiply: ["$totalPrice", 0.8] } } } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $multiply: ["$totalPrice", 0.8] } },
+          cash: { $sum: { $cond: [{ $eq: ["$cashCollected", true] }, { $ifNull: ["$cashCollectedAmount", 0] }, 0] } },
+        },
+      },
     ]);
 
-    return Math.round(result[0]?.total || 0);
+    return {
+      lifetimeGross: Math.round(result[0]?.total || 0),
+      cashCollectedTotal: Math.round(result[0]?.cash || 0),
+    };
   }
 
   private async getPaidOutTotal(driverId: any) {
@@ -801,13 +857,6 @@ export class DriverService {
     }, 0);
 
     return Math.round((minutes / 60) * 10) / 10;
-  }
-
-  private normalizePayoutStatus(status: string): DriverPayoutStatus {
-    if (status === "processed") return DriverPayoutStatus.PROCESSED;
-    if (status === "failed" || status === "reversed" || status === "cancelled") return DriverPayoutStatus.FAILED;
-    if (status === "processing" || status === "queued") return DriverPayoutStatus.PROCESSING;
-    return DriverPayoutStatus.PENDING;
   }
 
   private maskValue(value?: string, visible: number = 4) {

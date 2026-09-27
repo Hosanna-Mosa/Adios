@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
-import { OptionPicker, OrderStage, OtpEntry, StageActionButton } from "../order";
+import { CashCollectionPanel, OptionPicker, OrderStage, OtpEntry, StageActionButton } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 
 const DELIVERY_OPTIONS = ["door", "gate", "contactless"] as const;
@@ -25,6 +25,8 @@ export function DeliveryArrivedStage() {
         onSelect={verification.setDeliveryOption}
         renderLabel={deliveryOptionLabel}
       />
+
+      <CashCollectionPanel />
 
       <OtpEntry
         label={t("jobs.customerConfirmationOtp")}

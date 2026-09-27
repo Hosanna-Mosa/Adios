@@ -49,6 +49,13 @@ export interface Order {
   vendorPhone?: string;
   isReserved?: boolean;
   reservedAt?: Date | string;
+  /** From the backend only. "online" = already paid through Razorpay; "cash" = collect it. */
+  paymentMethod?: "cash" | "online";
+  paymentStatus?: "pending" | "paid" | "cash_collected";
+  /** Rupees the customer owes for a cash order (the order total). */
+  payableAmount?: number;
+  cashCollected?: boolean;
+  cashCollectedAmount?: number | null;
 }
 
 export interface CompletedOrder {
@@ -102,6 +109,8 @@ export interface DriverState {
   rejectOrder: (reason?: string) => void;
   updateStep: (step: number) => void;
   updateOrderStatus: (status: OrderStatus, otp?: string) => Promise<void>;
+  /** Records the cash the driver received; the backend checks it against the order total. */
+  confirmCashCollected: (amount: number) => Promise<void>;
   completeOrder: () => void;
   setIncomingOrder: (order: Order | null) => void;
   updateDriverLocation: (lat: number, lng: number) => void;

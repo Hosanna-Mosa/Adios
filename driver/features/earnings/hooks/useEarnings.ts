@@ -80,9 +80,16 @@ export function useEarnings() {
 
       setCashOutVisible(false);
       setPassword("");
+      // Say only what the backend confirmed: requested, with the bank, or processed.
+      const value = Number(data.payout.amount).toFixed(2);
+      const status = data.payout.status;
       Alert.alert(
-        t("earnings.cashOutInitiated"),
-        t("earnings.isBeingSentToYourBank", { value: data.payout.amount.toFixed(2), defaultValue: "Rs.{{value}} is being sent to your bank." }),
+        status === "processed" ? t("earnings.payoutProcessed") : t("earnings.cashOutInitiated"),
+        status === "processed"
+          ? t("earnings.payoutProcessedBody", { value })
+          : status === "processing"
+            ? t("earnings.isBeingSentToYourBank", { value, defaultValue: "Rs.{{value}} is being sent to your bank." })
+            : t("earnings.payoutRequestedBody", { value }),
       );
       await loadEarnings();
     } catch (error: any) {

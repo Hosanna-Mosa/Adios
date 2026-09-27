@@ -13,6 +13,24 @@ interface DriverTripsTableProps {
   onViewChat: (orderId: string) => void;
 }
 
+const REFUND_LABELS: Record<string, string> = {
+  pending: "refund pending",
+  processed: "refunded",
+  failed: "refund failed",
+};
+
+/** What the backend recorded about the money: online payment/refund, or cash collection. */
+function paymentLabel(order: DriverOrderItem) {
+  if (order.paymentMethod === "online") {
+    const refund = order.refundStatus ? REFUND_LABELS[order.refundStatus] : undefined;
+    return refund ? `Online · ${refund}` : order.paymentStatus === "paid" ? "Online · paid" : "Online";
+  }
+  if (order.paymentMethod === "cash") {
+    return order.cashCollected ? `Cash · collected ₹${order.cashCollectedAmount ?? ""}` : "Cash · not collected";
+  }
+  return "—";
+}
+
 /** The "Executed Trips & Deliveries" table on DriverDetail. */
 export function DriverTripsTable({ orders, onViewChat }: DriverTripsTableProps) {
   const { t } = useTranslation();
@@ -41,6 +59,13 @@ export function DriverTripsTable({ orders, onViewChat }: DriverTripsTableProps) 
       headerClassName: HEADER_CLASS,
       cellClassName: `${CELL_CLASS} font-semibold`,
       cell: (order) => `₹${Math.round(order.totalPrice * 0.8)}`,
+    },
+    {
+      key: "payment",
+      header: "Payment",
+      headerClassName: HEADER_CLASS,
+      cellClassName: `${CELL_CLASS} text-xs`,
+      cell: (order) => paymentLabel(order),
     },
     {
       key: "status",

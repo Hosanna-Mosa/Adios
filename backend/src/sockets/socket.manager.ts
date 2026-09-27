@@ -118,6 +118,29 @@ export class SocketManager {
     });
   }
 
+  /**
+   * How the socket's verified user relates to an order: staff, its customer, its assigned
+   * driver, its vendor — or null. Every client-sent event that reaches an order room goes
+   * through this, so a stranger can't join, spoof or read another order's live events.
+   */
+  private async orderRelation(orderId: string, authUser: any): Promise<"staff" | "customer" | "driver" | "vendor" | null> {
+    if (!authUser?.userId || !orderId || typeof orderId !== "string") return null;
+    const role = String(authUser.role || "");
+    const query = mongoose.Types.ObjectId.isValid(orderId)
+      ? { $or: [{ _id: orderId }, { _id: new mongoose.Types.ObjectId(orderId) }] }
+      : { _id: orderId };
+    const order: any = await Order.findOne(query as any).select("user driver vendor").lean();
+    if (!order) return null;
+    if (role === "ADMIN" || role === "SUPPORT") return "staff";
+    if (order.user?.toString() === authUser.userId) return "customer";
+    if ((role === "restaurant_vendor" || role === "meat_vendor") && order.vendor?.toString() === authUser.userId) return "vendor";
+    if (role === "DRIVER" && order.driver) {
+      const driver = await Driver.findById(order.driver).select("user").lean();
+      if (driver?.user?.toString() === authUser.userId) return "driver";
+    }
+    return null;
+  }
+
   private getRoomSize(roomId: string) {
     return this.io.sockets.adapter.rooms.get(roomId)?.size || 0;
   }
@@ -356,9 +379,15 @@ export class SocketManager {
       });
 
       // DRIVER ORDER ACCEPTANCE: Forward driver info to the customer
-      socket.on("driver_accepted_order", (data: { orderId: string; driverInfo: any }) => {
+      socket.on("driver_accepted_order", async (data: { orderId: string; driverInfo: any }) => {
         if (!authUser || authUser.role !== "DRIVER") return;
-        
+        // Only the driver the server actually assigned (via POST /orders/:id/accept) may join
+        // the room and announce acceptance to the customer.
+        if ((await this.orderRelation(data?.orderId, authUser)) !== "driver") {
+          console.warn(`[SOCKET SECURITY] driver_accepted_order rejected: user ${authUser.userId} is not the assigned driver of ${data?.orderId}`);
+          return;
+        }
+
         console.log(`[SOCKET][ORDER_ACCEPTED] driverUser=${authUser.userId} order=${data.orderId}`, data.driverInfo);
         if (data.orderId) {
           socket.join(data.orderId);
@@ -375,7 +404,13 @@ export class SocketManager {
       });
 
       // ORDER STATUS UPDATE: Broadcast to all in the order room
-      socket.on("order_status_update", (data: { orderId: string; status: string }) => {
+      socket.on("order_status_update", async (data: { orderId: string; status: string }) => {
+        // Relayed only from someone who is part of this order (the real change goes through
+        // PATCH /orders/:id/status, which has its own checks).
+        if (!(await this.orderRelation(data?.orderId, authUser))) {
+          console.warn(`[SOCKET SECURITY] order_status_update rejected from ${authUser?.userId} for ${data?.orderId}`);
+          return;
+        }
         if (data.orderId) {
           this.io.to(data.orderId).emit("order_status_update", data);
           console.log(
@@ -386,7 +421,15 @@ export class SocketManager {
       });
 
       socket.on("scheduled_delivery_response", async (data: { requestId: string; customerId: string; vendorId: string; accepted: boolean; scheduledFor?: string }) => {
-        if (!data.customerId || !data.requestId || !data.vendorId) return;
+        if (!data.customerId || !data.requestId) return;
+        // A vendor answers only for its own outlet: the vendor id is the verified token's, never
+        // the one in the message.
+        const vendorRole = authUser?.role === "restaurant_vendor" || authUser?.role === "meat_vendor";
+        if (!vendorRole || !authUser?.userId) {
+          console.warn(`[SOCKET SECURITY] scheduled_delivery_response rejected from ${authUser?.userId} (${authUser?.role})`);
+          return;
+        }
+        data = { ...data, vendorId: authUser.userId };
         try {
           const { OrdersService } = await import("../modules/orders/orders.service");
           const ordersService = new OrdersService();
@@ -401,18 +444,18 @@ export class SocketManager {
       });
 
       // HELPER TASK EVENTS
-      socket.on("assign_task_confirmed", (data: { orderId: string }) => {
-        if (!data.orderId) return;
+      socket.on("assign_task_confirmed", async (data: { orderId: string }) => {
+        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("assign_task_confirmed", data);
       });
 
-      socket.on("task_started", (data: { orderId: string }) => {
-        if (!data.orderId) return;
+      socket.on("task_started", async (data: { orderId: string }) => {
+        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("task_started", data);
       });
 
-      socket.on("helper_status_update", (data: { orderId: string, text: string }) => {
-        if (!data.orderId) return;
+      socket.on("helper_status_update", async (data: { orderId: string, text: string }) => {
+        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("helper_status_update", data);
       });
 
@@ -436,6 +479,12 @@ export class SocketManager {
 
         if (!data.orderId) {
           console.warn(`[CHAT][DROP] Missing orderId for message id=${payload.id}`);
+          return;
+        }
+
+        // Only the order's customer, assigned driver, vendor or staff may post in its chat.
+        if (!(await this.orderRelation(data.orderId, authUser))) {
+          console.warn(`[SOCKET SECURITY] send_message rejected from ${authUser.userId} for order ${data.orderId}`);
           return;
         }
 

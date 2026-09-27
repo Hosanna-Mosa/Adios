@@ -92,6 +92,31 @@ export interface IOrder extends Omit<Document, "_id"> {
   reservedAt?: Date;
   deliveryOtp?: string;
   restaurantPickupCode?: string;
+  // How the customer pays. "cash": collected by the driver, the order stays "pending".
+  // "online": paid through Razorpay before the order existed, so it is created "paid".
+  paymentMethod?: "cash" | "online";
+  // pending: nothing received yet (cash not collected). paid: captured online by Razorpay.
+  // cash_collected: the assigned driver confirmed receiving the cash (POST /orders/:id/cash-collected).
+  paymentStatus?: "pending" | "paid" | "cash_collected";
+  payment?: mongoose.Types.ObjectId;
+  cashCollected?: boolean;
+  cashCollectedAt?: Date | null;
+  cashCollectedAmount?: number | null;
+  cashCollectedBy?: mongoose.Types.ObjectId | null;
+  // Online refunds only. "processed"/"failed" are set from Razorpay's own answer (API or
+  // webhook), never from a local update alone.
+  refundStatus?: "not_requested" | "pending" | "processed" | "failed";
+  razorpayRefundId?: string;
+  refundAmount?: number; // rupees
+  refundRequestedAt?: Date;
+  refundCompletedAt?: Date;
+  refundFailureReason?: string;
+  // "razorpay": refunded through Razorpay. "manual": an admin sent the money themselves and
+  // recorded the bank/UPI reference (only possible when no Razorpay refund exists).
+  refundMethod?: "razorpay" | "manual";
+  refundReference?: string;
+  refundedBy?: mongoose.Types.ObjectId;
+  refundNote?: string;
   polyline?: string;
   notified15Min?: boolean;
   isReviewed?: boolean;
@@ -191,6 +216,27 @@ const OrderSchema: Schema = new Schema(
     reservedAt: { type: Date },
     deliveryOtp: { type: String },
     restaurantPickupCode: { type: String },
+    paymentMethod: { type: String, enum: ["cash", "online"], default: "cash" },
+    paymentStatus: { type: String, enum: ["pending", "paid", "cash_collected"], default: "pending" },
+    payment: { type: Schema.Types.ObjectId, ref: "Payment", index: { sparse: true } },
+    cashCollected: { type: Boolean, default: false },
+    cashCollectedAt: { type: Date, default: null },
+    cashCollectedAmount: { type: Number, default: null },
+    cashCollectedBy: { type: Schema.Types.ObjectId, ref: "Driver", default: null },
+    refundStatus: {
+      type: String,
+      enum: ["not_requested", "pending", "processed", "failed"],
+      default: "not_requested",
+    },
+    razorpayRefundId: { type: String, index: { sparse: true } },
+    refundAmount: { type: Number },
+    refundRequestedAt: { type: Date },
+    refundCompletedAt: { type: Date },
+    refundFailureReason: { type: String },
+    refundMethod: { type: String, enum: ["razorpay", "manual"] },
+    refundReference: { type: String },
+    refundedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    refundNote: { type: String },
     polyline: { type: String },
     notified15Min: { type: Boolean, default: false },
     isReviewed: { type: Boolean, default: false },

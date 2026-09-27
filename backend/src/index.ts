@@ -25,6 +25,8 @@ import adminRoutes from "./modules/admin/admin.routes";
 import placesRoutes from "./modules/places/places.routes";
 import routingRoutes from "./modules/routing/routing.routes";
 import paymentRoutes from "./modules/payments/payment.routes";
+import payoutWebhookRoutes from "./modules/payments/payout.webhook";
+import adminMoneyRoutes from "./modules/payments/admin.money.routes";
 import vendorRoutes from "./modules/vendors/vendors.routes";
 import foodRoutes from "./modules/food/food.routes";
 import meatRoutes from "./modules/meat/meat.routes";
@@ -50,6 +52,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim
 app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
 app.use(helmet());
 app.use(morgan("dev"));
+// Razorpay signs the exact raw bytes of a webhook, so that route must see the body before
+// the JSON parser does (express.json skips a body that is already parsed).
+app.use("/api/v1/payments/webhook", express.raw({ type: "application/json", limit: "1mb" }));
+app.use("/api/v1/payouts/webhook", express.raw({ type: "application/json", limit: "1mb" }));
 app.use(express.json());
 
 // Socket Initialization
@@ -115,9 +121,11 @@ connectDB().then(async () => {
   app.use("/api/v1/drivers", driverRoutes);
   app.use("/api/v1/orders", orderRoutes);
   app.use("/api/v1/admin", adminRoutes);
+  app.use("/api/v1/admin", adminMoneyRoutes); // Refunds & Payouts pages
   app.use("/api/v1/places", placesRoutes);
   app.use("/api/v1/routing", routingRoutes);
   app.use("/api/v1/payments", paymentRoutes);
+  app.use("/api/v1/payouts", payoutWebhookRoutes);
   app.use("/api/v1/vendors", vendorRoutes);
   app.use("/api/v1/food", foodRoutes);
   app.use("/api/v1/meat", meatRoutes);

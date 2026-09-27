@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
-import { GpsVerifiedBox, OrderStage, OtpEntry, StageActionButton } from "../order";
+import { CashCollectionPanel, GpsVerifiedBox, OrderStage, OtpEntry, StageActionButton } from "../order";
 
 const OTP_SPACING = { marginTop: 16, marginBottom: 20 };
 
@@ -46,6 +46,8 @@ export function RideArrivedDeliveryStage() {
         title={t("jobs.gpsCheckArrived")}
         description={t("jobs.reachedRidersDestination")}
       />
+
+      <CashCollectionPanel />
 
       <OtpEntry
         label={t("jobs.enterEndRideOtp")}

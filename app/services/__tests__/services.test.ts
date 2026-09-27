@@ -8,6 +8,9 @@ jest.mock("@/utils/api/custom-fetch", () => ({
   customFetch: (...args: any[]) => mockCustomFetch(...(args as [])),
 }));
 
+jest.mock("expo-linking", () => ({ createURL: (path: string) => `flavour://${path}` }));
+jest.mock("@/i18n", () => ({ __esModule: true, default: { language: "te" } }));
+
 import * as catalog from "../catalog.service";
 import * as cart from "../cart.service";
 import * as notifications from "../notifications.service";
@@ -79,10 +82,21 @@ describe("places", () => {
 });
 
 describe("payments", () => {
-  it("sends only the amount when creating a Razorpay order", () => {
-    payments.createPaymentOrder(325);
+  it("sends the amount, what is being bought, the return link and the language", () => {
+    payments.createPaymentOrder(325, { vendorId: "v1" });
 
-    expect(JSON.parse(lastCall()[1].body)).toEqual({ amount: 325 });
+    expect(JSON.parse(lastCall()[1].body)).toEqual({
+      amount: 325,
+      orderData: { vendorId: "v1" },
+      returnUrl: "flavour://payment-result",
+      language: "te",
+    });
+  });
+
+  it("asks the checkout status by Razorpay order id", () => {
+    payments.getCheckoutStatus("order_ABC");
+
+    expect(lastCall()[0]).toBe("/payments/checkout-status/order_ABC");
   });
 });
 

@@ -10,6 +10,8 @@ import {
   Users,
   GitBranch,
   CreditCard,
+  Undo2,
+  Banknote,
   BarChart3,
   Headphones,
   Settings,

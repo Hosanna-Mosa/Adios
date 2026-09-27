@@ -3,6 +3,8 @@ import { router } from "expo-router";
 import { getEnabledTiers } from "./useRideConfirmation.shared";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
+import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -16,7 +18,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
         ...stops.map((s: any) => ({ address: s.name, latitude: s.lat, longitude: s.lng, type: "stop" })),
         { address: params.dropName, latitude: dropCoords.latitude, longitude: dropCoords.longitude, type: "drop" },
       ];
-      const res = await createOrder({
+      const orderBody = {
           stops: orderStops,
           serviceType: selectedTier,
           isReserved,
@@ -25,7 +27,18 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
             type: params.bookingForType === "someone_else" ? "someone_else" : "myself",
             contactNumber: params.bookingForType === "someone_else" ? params.riderContact : undefined,
           },
-        });
+        };
+      // Online: pay the shown fare through Razorpay; the server books the ride once the money
+      // is confirmed. Cash: book directly and pay the driver, as before.
+      const fare = tierFares[selectedTier]?.fareBreakdown?.total;
+      const isOnline = getPaymentMethod("ride") === "online";
+      if (isOnline && !fare) {
+        Alert.alert(i18n.t("app.ride.bookingFailed"), i18n.t("app.ride.estimatingFare"));
+        return;
+      }
+      const res: any = isOnline
+          ? await payOnlineAndPlaceOrder(Math.round(fare), orderBody)
+          : await createOrder({ ...orderBody, paymentMethod: "cash" });
 
       if (isReserved) {
         setShowDatePicker(false);
@@ -41,7 +54,8 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
         router.push({ pathname: "/finding-driver", params: { orderId: res._id } });
       }
     } catch (e: any) {
-      Alert.alert(i18n.t("app.ride.bookingFailed"), e.message);
+      const described = describePaymentError(e);
+      Alert.alert(described?.title ?? i18n.t("app.ride.bookingFailed"), described?.message ?? e.message);
     } finally {
       setBooking(false);
     }

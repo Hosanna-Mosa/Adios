@@ -1,8 +1,9 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { RazorpayIntegration } from "@/utils/razorpay";
+import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import i18n from "@/i18n";
-import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
+import { createOrder } from "@/services/orders.service";
+import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -100,28 +101,13 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         ],
       };
 
-      let finalOrderId: string;
-
-      const rzpOrderResponse = await createPaymentOrder(total);
-
-      const rzpResult = await RazorpayIntegration.open({
-        order_id: rzpOrderResponse.id,
-        key: rzpOrderResponse.key,
-        amount: rzpOrderResponse.amount,
-        currency: rzpOrderResponse.currency,
-        name: rzpOrderResponse.name,
-        prefill: rzpOrderResponse.prefill,
-        theme: rzpOrderResponse.theme,
-      });
-
-      const verifyResponse = await verifyPayment({
-          razorpay_payment_id: rzpResult.razorpay_payment_id,
-          razorpay_order_id: rzpResult.razorpay_order_id,
-          razorpay_signature: rzpResult.razorpay_signature,
-          orderData: orderDataPayload,
-        });
-
-      finalOrderId = verifyResponse.order._id || verifyResponse.order.id;
+      // Online: Razorpay first, and the server places the order once the money is confirmed.
+      // Cash: the order is placed straight away and the driver collects on delivery.
+      const placedOrder: any =
+        getPaymentMethod("food") === "online"
+          ? await payOnlineAndPlaceOrder(total, orderDataPayload)
+          : await createOrder({ ...orderDataPayload, paymentMethod: "cash" });
+      const finalOrderId: string = placedOrder._id || placedOrder.id;
 
       setOrderId(finalOrderId);
       setServiceType("delivery");
@@ -137,7 +123,8 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       router.replace({ pathname: "/finding-driver", params: { orderId: finalOrderId } });
     } catch (error: any) {
       console.error("Place order failed", error);
-      Alert.alert(i18n.t("app.food.orderFailed"), error?.message || i18n.t("app.food.unableToPlaceYourOrder"));
+      const described = describePaymentError(error);
+      Alert.alert(described?.title ?? i18n.t("app.food.orderFailed"), described?.message ?? (error?.message || i18n.t("app.food.unableToPlaceYourOrder")));
     } finally {
       setIsPlacingOrder(false);
     }

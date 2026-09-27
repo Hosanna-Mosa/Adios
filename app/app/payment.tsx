@@ -1,4 +1,4 @@
-import { ScrollView, Text } from "react-native";
+import { ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { router } from "expo-router";
@@ -6,7 +6,7 @@ import { Header } from "@/components/ui/Header";
 import { fadeInUp } from "@/motion/presets";
 import { PaymentFooter } from "@/features/food/components/PaymentFooter";
 import { PaymentTrustNote } from "@/features/food/components/PaymentTrustNote";
-import { PaymentMethodRow } from "@/features/food/components/PaymentMethodRow";
+import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
 import { PaymentAddressCard } from "@/features/food/components/PaymentAddressCard";
 import { PaymentBillCard } from "@/features/food/components/PaymentBillCard";
 import { PaymentAmountHeader } from "@/features/food/components/PaymentAmountHeader";
@@ -59,11 +59,7 @@ export default function PaymentScreen() {
         </Animated.View>
 
         <Animated.View entering={fadeInUp(180)} style={styles.section}>
-          <Text style={styles.sectionLabel}>Payment</Text>
-          <PaymentMethodRow
-            styles={styles}
-            tokens={tokens}
-          />
+          <PaymentMethodSelector flow="food" accent={accent} disabled={processing} />
         </Animated.View>
 
         <Animated.View entering={fadeInUp(240)} style={styles.section}>

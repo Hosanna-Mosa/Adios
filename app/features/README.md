@@ -1,14 +1,14 @@
 # features/
 
 One folder per domain. A **feature** is a group of screens that do the same
-job — it is not the same thing as a screen. This app has 34 screens and 9
+job — it is not the same thing as a screen. This app has 35 screens and 9
 features:
 
 | Feature    | Screens |
 |------------|---------|
 | `auth`     | login, otp, signup, personal-details |
 | `home`     | (tabs)/index, all-services, index |
-| `food`     | restaurant-details, restaurant-menu, 149-store, favorites, cart, checkout, payment |
+| `food`     | restaurant-details, restaurant-menu, 149-store, favorites, cart, checkout, payment, payment-result |
 | `ride`     | ride-searching, ride-confirmation, finding-driver, pickup-confirmation, drop-location, tracking |
 | `delivery` | delivery/*, helper-task, map-picker |
 | `support`  | support, support-chat, chat |
