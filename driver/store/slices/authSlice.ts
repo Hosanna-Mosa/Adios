@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { trackEvent } from "@/utils/analytics";
 import { useLanguageStore } from "@/store/languageStore";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
 
@@ -17,14 +18,16 @@ type Actions = Pick<
 >;
 
 export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actions => ({
-  setAuthenticated: (name: string, phone: string, token: string, userId: string) =>
+  setAuthenticated: (name: string, phone: string, token: string, userId: string) => {
     set({
       isAuthenticated: true,
       driverName: name,
       driverPhone: phone,
       token,
       driverUserId: userId,
-    }),
+    });
+    trackEvent("login", { method: "otp" });
+  },
 
   setOnboardingCompleted: () => set({ hasCompletedOnboarding: true }),
   setIdentityVerified: (verified) => set({ identityVerified: verified }),
@@ -115,6 +118,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
       driverUserId: data.user.id || data.user._id,
       token: data.token,
     });
+    trackEvent("login", { method: "password" });
 
     await get().refreshSession();
   },

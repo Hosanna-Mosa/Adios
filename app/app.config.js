@@ -84,6 +84,7 @@ export default {
       'expo-font',
       'expo-web-browser',
       '@react-native-community/datetimepicker',
+      './plugins/withFirebaseAndroidOnly',
       [
         'expo-notifications',
         {

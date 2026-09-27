@@ -53,6 +53,25 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
   next();
 };
 
+// For endpoints that work signed in or out (analytics ingest): attaches the
+// caller when a valid token is present and never rejects. Deliberately skips
+// the tokenVersion lookup — it runs on every analytics batch, and a revoked
+// session only means a few events get attributed before the app signs out.
+export const optionalAuth = (req: AuthRequest, _res: Response, next: NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return next();
+
+  try {
+    const payload: any = jwt.verify(token, getJwtSecret());
+    if (payload && payload.id && !payload.userId) payload.userId = payload.id;
+    req.user = payload;
+  } catch {
+    // An expired or bad token just means the events are recorded as anonymous.
+  }
+  next();
+};
+
 export const authorizeRole = (roles: UserRole[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {

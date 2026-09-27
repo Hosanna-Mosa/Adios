@@ -38,6 +38,7 @@ import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
 import cartRoutes from "./modules/cart/cart.routes";
 import couponsRoutes from "./modules/coupons/coupons.routes";
+import analyticsRoutes from "./modules/analytics/analytics.routes";
 import digilockerRoutes from "./modules/digilocker/digilocker.routes";
 
 const app = express();
@@ -137,6 +138,7 @@ connectDB().then(async () => {
   app.use("/api/v1/banners", bannersRoutes);
   app.use("/api/v1/cart", cartRoutes);
   app.use("/api/v1/coupons", couponsRoutes);
+  app.use("/api/v1/analytics", analyticsRoutes);
   app.use("/api/v1/digilocker", digilockerRoutes);
 
   // Global Error Handler Middleware

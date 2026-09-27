@@ -75,7 +75,9 @@ Routes are versioned under `/api/v1/*` and mounted in `backend/src/index.ts`. Ea
 <name>.service.ts       # business logic, DB access
 <name>.validation.ts    # Zod schemas
 ```
-Modules: `auth, users, drivers, orders, admin, places, routing, payments, vendors, food, meat, onboarding, zones, notifications, support, reviews, banners, delivery, pricing`.
+Modules: `auth, users, drivers, orders, admin, places, routing, payments, vendors, food, meat, onboarding, zones, notifications, support, reviews, banners, delivery, pricing, analytics`.
+
+`analytics` is our own live copy of the app/driver behaviour events (they also go to Firebase Analytics, which uploads up to an hour late): the apps batch events to `POST /api/v1/analytics/events` every 10 s (`utils/analytics.ts` in each app, configured in `app/_layout.tsx`), they land in the `AnalyticsEvent` collection (90-day TTL), and admin reads them on the Live Activity page (`/live-activity`). New event names must be added to `ALLOWED_EVENTS` in `analytics.service.ts` or the server drops them.
 
 Cross-cutting pieces:
 - `backend/src/database/models/` — Mongoose models (User, Driver, Order, Vendor, FoodItem, MeatItem/MeatCenter, Zone, Coupon, Review, SupportTicket, Notification, etc.)

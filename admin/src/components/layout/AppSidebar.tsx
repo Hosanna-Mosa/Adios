@@ -13,6 +13,7 @@ import {
   Undo2,
   Banknote,
   BarChart3,
+  Activity,
   Headphones,
   Settings,
   Store,

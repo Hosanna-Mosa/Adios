@@ -1,5 +1,6 @@
 import { customFetch } from "@/utils/api/custom-fetch";
 import type { Order } from "@/types/models";
+import { trackEvent } from "@/utils/analytics";
 
 // Every /orders call the app makes. Paths, methods and bodies are unchanged
 // from the call sites these replaced.
@@ -16,16 +17,28 @@ export const getOrder = (id: string) => customFetch<any>(`/orders/${id}`);
 export const getOrderJson = (id: string) =>
   customFetch<any>(`/orders/${id}`, { responseType: "json" });
 
-export const createOrder = <T = { _id: string }>(body: unknown) =>
-  customFetch<T>("/orders", { method: "POST", body: JSON.stringify(body) });
+export const createOrder = async <T = { _id: string }>(body: unknown) => {
+  const order = await customFetch<T>("/orders", { method: "POST", body: JSON.stringify(body) });
+  const b = body as { serviceType?: string; totals?: { total?: number }; isReserved?: boolean };
+  trackEvent("order_placed", {
+    service_type: b?.serviceType,
+    value: b?.totals?.total,
+    currency: "INR",
+    scheduled: !!b?.isReserved,
+  });
+  return order;
+};
 
 /** `query` is already-encoded search params — a string or URLSearchParams. */
 export const estimateFare = <T>(query: string | URLSearchParams) =>
   customFetch<T>(`/orders/estimate-fare?${query}`, { responseType: "json" });
 
 /** The only status the app ever sets is CANCELLED. */
-export const cancelOrder = (id: string) =>
-  customFetch(`/orders/${id}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+export const cancelOrder = async (id: string) => {
+  const res = await customFetch(`/orders/${id}/status`, { method: "PATCH", body: JSON.stringify({ status: "CANCELLED" }) });
+  trackEvent("order_cancelled");
+  return res;
+};
 
 export const setOrderStatus = (id: string, status: string) =>
   customFetch(`/orders/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });

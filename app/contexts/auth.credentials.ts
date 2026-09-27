@@ -2,6 +2,7 @@ import Constants from "expo-constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
+import { trackEvent } from "@/utils/analytics";
 
 // The three credential exchanges: request an OTP, verify one, and sign in with
 // a password. Split out of contexts/authStore.ts unchanged — same endpoints,
@@ -53,6 +54,9 @@ export const createCredentialActions = (set: Set) => ({
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
       ]);
+      // The signup screen hands its name through to this same call, so a name
+      // here means the account was just created rather than signed back into.
+      trackEvent(name ? "sign_up" : "login", { method: "otp" });
       return { success: true, isNewUser: false };
     } catch (err: any) {
       set({ loading: false, error: err.message });
@@ -79,6 +83,7 @@ export const createCredentialActions = (set: Set) => ({
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
       ]);
+      trackEvent("login", { method: "password" });
       return { success: true };
     } catch (err: any) {
       set({ loading: false, error: err.message });

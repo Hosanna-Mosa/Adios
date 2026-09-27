@@ -1,6 +1,7 @@
 import * as Linking from "expo-linking";
 import i18n from "@/i18n";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { trackEvent } from "@/utils/analytics";
 
 // Razorpay checkout and coupon lookup.
 
