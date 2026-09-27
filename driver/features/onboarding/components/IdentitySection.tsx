@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { DigiLockerDivider, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
 import { AlternateIdLink } from "./AlternateIdLink";
 import { ConsentCheckbox } from "./ConsentCheckbox";
 import { FieldColumn } from "./FieldColumn";
@@ -22,6 +23,13 @@ export function IdentitySection(props: any) {
     if (currentKey === "aadhaar") {
       return (
         <FieldColumn gap={16}>
+          {!aadhaarVerified && !panVerified && (
+            <>
+              <DigiLockerPrompt returnTo="/identity-verify" />
+              <DigiLockerDivider />
+            </>
+          )}
+
           <FormInput
             label={t("onboarding.aadhaarNumber")}
             value={aadhaarNumber}

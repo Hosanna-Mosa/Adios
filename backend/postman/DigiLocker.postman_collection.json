@@ -1,0 +1,1204 @@
+{
+  "info": {
+    "_postman_id": "a7f3c1d2-8b44-4e90-9c21-digilocker0001",
+    "name": "Flavour — DigiLocker (sandbox)",
+    "description": "End-to-end DigiLocker driver-KYC flow against the backend sandbox.\n\nRun the requests top to bottom — each one saves what the next needs (token, state, code, document URI), so you never copy/paste values by hand.\n\nBEFORE YOU START\n1. Backend running: `cd backend && npm run dev`\n2. Turn OFF redirect following: Settings (⚙) → General → 'Automatically follow redirects' = OFF.\n   Step 3.3 needs to read the `code` out of a 302 Location header; if Postman follows it, the code is consumed before you can see it.\n3. If your backend is not on http://localhost:5000, edit the `baseUrl` collection variable.\n\nRATE LIMITS\nDigiLocker routes allow 30 requests/min per user. A full 'Run collection' is about\nthat many, so the last few requests may come back 429 DIGILOCKER_RATE_LIMITED.\nThat is the limiter working, not a bug. To run the whole thing in one go, set\n`DIGILOCKER_RATE_LIMIT_MAX=500` in backend/.env and restart the server.\n\nYou can also hit 'Run collection' to execute everything at once as a test suite.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "phone",
+      "value": "9876500011",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "test1234",
+      "type": "string"
+    },
+    {
+      "key": "persona",
+      "value": "complete",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "state",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "authUrl",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "aadhaarUri",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Get a driver token",
+      "item": [
+        {
+          "name": "1.1 Request OTP",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Give every run its own driver, so the 'before linking' checks in",
+                  "// section 2 always start from a clean, unlinked account.",
+                  "// Pin the `phone` collection variable and delete this script if you",
+                  "// would rather keep re-using one test driver.",
+                  "const phone = '9' + Math.floor(100000000 + Math.random() * 899999999);",
+                  "pm.collectionVariables.set('phone', phone);",
+                  "console.log('Test driver phone for this run:', phone);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('OTP requested', () => pm.response.to.have.status(200));",
+                  "// Auth runs in dummy mode locally — any 6-digit code is accepted in 1.2."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/request-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "request-otp"
+              ]
+            },
+            "description": "Dummy auth: this just logs the request. Any 6-digit code will be accepted next.\n\nA pre-request script generates a fresh phone number for each run, so every run starts with a brand-new unlinked driver. Pin the `phone` collection variable (and remove that script) if you want to keep re-using one driver."
+          }
+        },
+        {
+          "name": "1.2 Verify OTP → saves {{token}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Logged in', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Returned a JWT', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+                  "pm.test('Role is DRIVER', () => pm.expect(body.user.role).to.eql('DRIVER'));",
+                  "pm.collectionVariables.set('token', body.token);",
+                  "console.log('Saved token for', body.user.name);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"123456\",\n  \"role\": \"DRIVER\",\n  \"name\": \"Postman Test Driver\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "verify-otp"
+              ]
+            },
+            "description": "Creates the driver on first run and returns a JWT. Re-running with the same phone just logs the same driver back in."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Before linking — the guards",
+      "item": [
+        {
+          "name": "2.1 Health (which mode is active)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Running in sandbox mode', () => pm.expect(body.mode).to.eql('sandbox'));",
+                  "pm.test('Mode is advertised in a header', () => pm.expect(pm.response.headers.get('X-DigiLocker-Mode')).to.eql('sandbox'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "health"
+              ]
+            },
+            "description": "Every DigiLocker response carries an X-DigiLocker-Mode header so a client can badge simulated data as test data."
+          }
+        },
+        {
+          "name": "2.2 Status — not linked yet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Reports not linked', () => pm.expect(pm.response.json().linked).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 Data route is blocked → 428",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('428 Precondition Required', () => pm.response.to.have.status(428));",
+                  "const body = pm.response.json();",
+                  "pm.test('code = DIGILOCKER_NOT_LINKED', () => pm.expect(body.code).to.eql('DIGILOCKER_NOT_LINKED'));",
+                  "pm.test('Tells the client what to do', () => pm.expect(body.action).to.eql('START_DIGILOCKER_CONSENT'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents"
+              ]
+            },
+            "description": "This is verifyDigilockerSession doing its job. 428 always means 'consent first' — deliberately distinct from the 401 that means your JWT is bad."
+          }
+        },
+        {
+          "name": "2.4 No JWT at all → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. The consent flow",
+      "item": [
+        {
+          "name": "3.1 Start consent → saves {{state}} + {{authUrl}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('state', body.state);",
+                  "pm.collectionVariables.set('authUrl', body.authUrl);",
+                  "pm.test('Returned a consent URL', () => pm.expect(body.authUrl).to.include('/sandbox/authorize'));",
+                  "pm.test('Uses PKCE S256', () => pm.expect(body.authUrl).to.include('code_challenge_method=S256'));",
+                  "pm.test('Flagged as sandbox', () => pm.expect(body.sandbox).to.eql(true));",
+                  "console.log('Open this in a browser to see the real consent screen:');",
+                  "console.log(body.authUrl);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"purpose\": \"kyc\",\n  \"persona\": \"{{persona}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "session"
+              ]
+            },
+            "description": "Mints a PKCE pair, stores a pending session, and returns the URL the driver opens.\n\n`persona` is sandbox-only and just preselects a test identity on the consent screen. Try `no-pan` or `no-eaadhaar` to exercise the failure paths.\n\nCheck the Postman Console (View → Show Postman Console) — the authUrl is logged there so you can open it in a browser."
+          }
+        },
+        {
+          "name": "3.2 See the consent screen (HTML)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const html = pm.response.text();",
+                  "pm.test('Is the consent page', () => pm.expect(html).to.include('Share documents with Flavour'));",
+                  "pm.test('Labelled as sandbox', () => pm.expect(html).to.include('Sandbox mode'));",
+                  "pm.test('Offers the test personas', () => pm.expect(html).to.include('Ravi Teja Nandigam'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{authUrl}}",
+              "host": [
+                "{{authUrl}}"
+              ]
+            },
+            "description": "The page a driver actually sees. Postman shows the raw HTML — switch the response pane to 'Preview' to render it, or open {{authUrl}} in a real browser.\n\nNo JWT here on purpose: DigiLocker's consent screen is reached by a browser redirect that carries no headers."
+          }
+        },
+        {
+          "name": "3.3 Approve → saves {{code}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const location = pm.response.headers.get('Location') || '';",
+                  "",
+                  "if (pm.response.code === 302 && location) {",
+                  "    const match = location.match(/[?&]code=([^&]+)/);",
+                  "    const code = match ? decodeURIComponent(match[1]) : '';",
+                  "    pm.collectionVariables.set('code', code);",
+                  "    pm.test('Redirected back with an authorization code', () => pm.expect(code).to.not.be.empty);",
+                  "    pm.test('State is echoed back', () => pm.expect(location).to.include(pm.collectionVariables.get('state')));",
+                  "} else {",
+                  "    pm.test('Redirect following must be OFF', () => {",
+                  "        throw new Error(",
+                  "            'Postman followed the 302, so GET /callback consumed the code and your account is ALREADY LINKED. ' +",
+                  "            'Either skip step 3.4 and continue at section 4, or turn off ' +",
+                  "            'Settings > General > Automatically follow redirects and re-run from 3.1.'",
+                  "        );",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "state",
+                  "value": "{{state}}",
+                  "type": "text"
+                },
+                {
+                  "key": "persona",
+                  "value": "{{persona}}",
+                  "type": "text"
+                },
+                {
+                  "key": "decision",
+                  "value": "approve",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/sandbox/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "sandbox",
+                "authorize"
+              ]
+            },
+            "description": "This is exactly what pressing 'Allow access' on the consent screen does.\n\nReturns 302 to your redirect_uri with `?code=...&state=...`, same as the real DigiLocker.\n\nSet `decision=deny` instead to test the refusal path.\n\nREQUIRES: Settings → General → 'Automatically follow redirects' = OFF."
+          }
+        },
+        {
+          "name": "3.4 Exchange code → account linked",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Session is linked', () => pm.expect(body.status).to.eql('linked'));",
+                  "pm.test('Returned the DigiLocker account', () => pm.expect(body.account.name).to.be.a('string').and.not.empty);",
+                  "pm.test('Consent has an expiry', () => pm.expect(body.consentValidTill).to.be.a('string'));",
+                  "console.log('Linked to DigiLocker account:', body.account.name);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code}}\",\n  \"state\": \"{{state}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "callback"
+              ]
+            },
+            "description": "The app-driven exchange: the mobile app intercepts the redirect in its WebView and posts code + state with its own JWT.\n\nThe alternative is letting the browser land on GET /callback, which does the same thing and renders a success page."
+          }
+        },
+        {
+          "name": "3.5 Replaying the same code → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('code = DIGILOCKER_INVALID_STATE', () => pm.expect(pm.response.json().code).to.eql('DIGILOCKER_INVALID_STATE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{code}}\",\n  \"state\": \"{{state}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "callback"
+              ]
+            },
+            "description": "Identical to 3.4. A consent session is single-use, so replaying it is rejected — this is the replay/CSRF defence."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Read the verified identity",
+      "item": [
+        {
+          "name": "4.1 Status — now linked",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Reports linked', () => pm.expect(body.linked).to.eql(true));",
+                  "pm.test('Never exposes token material', () => pm.expect(pm.response.text()).to.not.include('TokenEnc'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.2 List issued documents → saves {{aadhaarUri}}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const docs = pm.response.json().documents;",
+                  "pm.test('Returned documents', () => pm.expect(docs).to.be.an('array').that.is.not.empty);",
+                  "const aadhaar = docs.find(d => d.doctype === 'ADHAR');",
+                  "if (aadhaar) { pm.collectionVariables.set('aadhaarUri', aadhaar.uri); }",
+                  "pm.test('Aadhaar is listed', () => pm.expect(aadhaar).to.not.be.undefined);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.3 Aadhaar KYC",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const kyc = pm.response.json().data;",
+                  "pm.test('Has a name', () => pm.expect(kyc.name).to.be.a('string').and.not.empty);",
+                  "pm.test('DOB normalised to DD-MM-YYYY', () => pm.expect(kyc.dob).to.match(/^\\d{2}-\\d{2}-\\d{4}$/));",
+                  "pm.test('Aadhaar number is MASKED', () => pm.expect(kyc.maskedAadhaarNumber).to.match(/^X{8}\\d{4}$/));",
+                  "pm.test('Never cached by proxies', () => pm.expect(pm.response.headers.get('Cache-Control')).to.include('no-store'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/aadhaar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "aadhaar"
+              ]
+            },
+            "description": "Parsed out of DigiLocker's eAadhaar XML. Only the masked number is ever returned or stored — the full 12 digits never touch our database."
+          }
+        },
+        {
+          "name": "4.4 PAN details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const kyc = pm.response.json().data;",
+                  "pm.test('PAN has the statutory format', () => pm.expect(kyc.panNumber).to.match(/^[A-Z]{5}\\d{4}[A-Z]$/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/pan",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "pan"
+              ]
+            },
+            "description": "If you linked with the `no-pan` persona this returns 404 `document_not_issued` — which is the correct behaviour for a driver who has no PAN in DigiLocker."
+          }
+        },
+        {
+          "name": "4.5 Download Aadhaar as XML",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns XML', () => pm.expect(pm.response.text()).to.include('<Certificate'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents/{{aadhaarUri}}?format=xml",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents",
+                "{{aadhaarUri}}"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "xml"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.6 Download Aadhaar as PDF",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Is a real PDF', () => pm.expect(pm.response.text().slice(0, 5)).to.eql('%PDF-'));",
+                  "pm.test('Sent as an attachment', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents/{{aadhaarUri}}?format=pdf&download=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents",
+                "{{aadhaarUri}}"
+              ],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "pdf"
+                },
+                {
+                  "key": "download",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "In sandbox this is a small generated placeholder PDF — enough to prove the download path works. Use 'Send and Download' in Postman to save it."
+          }
+        },
+        {
+          "name": "4.7 Malformed document URI → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+                  "// Document URIs are regex-restricted so they cannot be bent into a path traversal."
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents/in.gov.uidai$ADHAR",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents",
+                "in.gov.uidai$ADHAR"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Apply it to the driver",
+      "item": [
+        {
+          "name": "5.1 Sync onto the Driver record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Something was synced', () => pm.expect(body.synced).to.eql(true));",
+                  "pm.test('Aadhaar marked verified', () => pm.expect(body.driver.aadhaarVerified).to.eql(true));",
+                  "pm.test('Driver stores MASKED aadhaar only', () => pm.expect(body.driver.aadhaarNumber).to.match(/^X{8}\\d{4}$/));",
+                  "console.log('Updated fields:', body.updatedFields.join(', '));",
+                  "if (body.skipped.length) { console.log('Skipped (not issued):', body.skipped.join(', ')); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "sync"
+              ]
+            },
+            "description": "The payoff: writes the government-sourced identity onto the Driver record and sets kycSource='digilocker'.\n\nPartial success by design — a driver with Aadhaar but no PAN still gets aadhaarVerified, and `skipped` lists what was missing."
+          }
+        },
+        {
+          "name": "5.2 Onboarding now shows verified KYC",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const kyc = pm.response.json().data;",
+                  "pm.test('Aadhaar shows as verified', () => pm.expect(kyc.aadhaarVerified).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "onboarding"
+              ]
+            },
+            "description": "Proof the DigiLocker result reached the existing driver-onboarding flow."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Token lifecycle",
+      "item": [
+        {
+          "name": "6.1 Force a token refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('New expiry is in the future', () => pm.expect(new Date(body.accessTokenExpiresAt).getTime()).to.be.greaterThan(Date.now()));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "refresh"
+              ]
+            },
+            "description": "You rarely need this — the middleware refreshes an expiring token automatically before any data route runs."
+          }
+        },
+        {
+          "name": "6.2 Consent attempt history",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Never leaks token columns', () => pm.expect(pm.response.text()).to.not.include('accessTokenEnc'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/sessions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "sessions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.3 Revoke / unlink",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Reports revoked', () => pm.expect(pm.response.json().revoked).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/session",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "session"
+              ]
+            },
+            "description": "Revokes at DigiLocker (best effort) and purges our stored tokens."
+          }
+        },
+        {
+          "name": "6.4 Blocked again after revoke → 428",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('428 Precondition Required', () => pm.response.to.have.status(428));",
+                  "pm.test('code = DIGILOCKER_NOT_LINKED', () => pm.expect(pm.response.json().code).to.eql('DIGILOCKER_NOT_LINKED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/documents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "documents"
+              ]
+            },
+            "description": "Back to square one — the driver would have to consent again. Re-run section 3 to relink."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Extras",
+      "item": [
+        {
+          "name": "7.1 List sandbox personas",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/sandbox/personas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "sandbox",
+                "personas"
+              ]
+            },
+            "description": "The three test identities and what each one is for:\n\n• complete     — Aadhaar + PAN + driving licence (happy path)\n• no-pan       — Aadhaar only; PAN fetch must 404 and sync must still partially succeed\n• no-eaadhaar  — PAN only; Aadhaar fetch must fail cleanly\n\nSet the `persona` collection variable to one of these ids before running section 3."
+          }
+        },
+        {
+          "name": "7.2 Deny consent instead",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Deny needs a fresh, unconsumed consent session of its own.",
+                  "pm.sendRequest({",
+                  "    url: pm.variables.replaceIn('{{baseUrl}}/api/v1/digilocker/session'),",
+                  "    method: 'POST',",
+                  "    header: {",
+                  "        'Content-Type': 'application/json',",
+                  "        'Authorization': 'Bearer ' + pm.collectionVariables.get('token')",
+                  "    },",
+                  "    body: { mode: 'raw', raw: JSON.stringify({ purpose: 'kyc' }) }",
+                  "}, (err, res) => {",
+                  "    if (!err && res.code === 201) {",
+                  "        pm.collectionVariables.set('state', res.json().state);",
+                  "    }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const location = pm.response.headers.get('Location') || '';",
+                  "if (pm.response.code === 302) {",
+                  "    pm.test('Redirects with error=access_denied', () => pm.expect(location).to.include('error=access_denied'));",
+                  "} else {",
+                  "    pm.test('Renders a cancelled page', () => pm.expect(pm.response.text()).to.include('cancelled'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "state",
+                  "value": "{{state}}",
+                  "type": "text"
+                },
+                {
+                  "key": "decision",
+                  "value": "deny",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/sandbox/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "sandbox",
+                "authorize"
+              ]
+            },
+            "description": "Run 3.1 first to get a fresh {{state}}, then send this instead of 3.3.\n\nThe driver is redirected back with error=access_denied and the callback renders a 'verification cancelled' page rather than a JSON error."
+          }
+        },
+        {
+          "name": "7.3 Unknown state → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('code = DIGILOCKER_INVALID_STATE', () => pm.expect(pm.response.json().code).to.eql('DIGILOCKER_INVALID_STATE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"made-up-code\",\n  \"state\": \"made-up-state\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/digilocker/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "digilocker",
+                "callback"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

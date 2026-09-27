@@ -11,6 +11,14 @@ import { FormInput } from "../FormInput";
 import { InfoBanner } from "../InfoBanner";
 import { ExpiryDateField, LicenseFormatError } from "../LicenseFields";
 import { Box } from "@/components/ui/Box";
+import { DigiLockerField, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
+
+/** Display a licence expiry consistently, whichever shape it arrived in. */
+function formatExpiry(value: string): string {
+  if (!value) return "";
+  const iso = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return iso ? `${iso[3]}-${iso[2]}-${iso[1]}` : value;
+}
 
 export function LicenseSection() {
   const { t } = useTranslation();
@@ -21,6 +29,24 @@ export function LicenseSection() {
       {"\n"}{t("onboarding.egDlFormat", "E.g. HR-06-2020-1234567")}
     </>
   );
+
+  // Read straight from the transport department — nothing to type, and
+  // no manual format check (state formats vary more than our regex).
+  if (docs.dlVerified) {
+    return (
+      <FieldColumn gap={16}>
+        <DigiLockerPrompt verified />
+        <DigiLockerField label={t("onboarding.drivingLicenseNumber")} value={docs.dlNumber} />
+        <DigiLockerField label={t("onboarding.expiryDate")} value={formatExpiry(docs.dlExpiry)} />
+        {!!docs.dlVehicleClass && (
+          <DigiLockerField
+            label={t("onboarding.vehicleClass", "Vehicle Class")}
+            value={docs.dlVehicleClass}
+          />
+        )}
+      </FieldColumn>
+    );
+  }
 
   return (
     <FieldColumn gap={16}>

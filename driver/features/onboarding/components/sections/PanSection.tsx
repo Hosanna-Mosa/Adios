@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { DigiLockerField, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { validatePANFormat } from "../../validators";
 import { AlternateIdLink } from "../AlternateIdLink";
@@ -65,6 +66,18 @@ function VerifyForm() {
 export function PanSection() {
   const { t } = useTranslation();
   const { identity } = useOnboardingCtx();
+
+  if (identity.digilockerVerified) {
+    return (
+      <FieldColumn gap={16}>
+        <DigiLockerPrompt verified />
+        <DigiLockerField label={t("onboarding.panNumber")} value={identity.panNumber} />
+        {!!identity.aadhaarNumber && (
+          <DigiLockerField label={t("onboarding.aadhaarNumber")} value={identity.aadhaarNumber} />
+        )}
+      </FieldColumn>
+    );
+  }
 
   return (
     <FieldColumn gap={16}>
