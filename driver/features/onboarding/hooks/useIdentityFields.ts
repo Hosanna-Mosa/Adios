@@ -10,6 +10,12 @@ export function useIdentityFields() {
   const [panName, setPanName] = useState("");
   const [panVerified, setPanVerified] = useState(false);
   const [consentPAN, setConsentPAN] = useState(false);
+  /**
+   * True when the identity above was read from DigiLocker rather than typed.
+   * Those values are government-sourced and partly masked, so they must not be
+   * edited or run through the manual format checks.
+   */
+  const [digilockerVerified, setDigilockerVerified] = useState(false);
 
   return {
     aadhaarNumber, setAadhaarNumber,
@@ -19,5 +25,6 @@ export function useIdentityFields() {
     panName, setPanName,
     panVerified, setPanVerified,
     consentPAN, setConsentPAN,
+    digilockerVerified, setDigilockerVerified,
   };
 }

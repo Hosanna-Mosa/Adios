@@ -16,6 +16,8 @@ const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
 const Payments = lazy(() => import("@/pages/Payments"));
+const Refunds = lazy(() => import("@/pages/Refunds"));
+const Payouts = lazy(() => import("@/pages/Payouts"));
 const Support = lazy(() => import("@/pages/Support"));
 const SupportIssues = lazy(() => import("@/pages/SupportIssues"));
 const SupportChat = lazy(() => import("@/pages/SupportChat"));
@@ -71,6 +73,8 @@ export function AnimatedRoutes() {
         <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
         <Route path="/live-activity" element={<RequireAuth><LiveActivity /></RequireAuth>} />
         <Route path="/payments" element={<RequireAuth><Payments /></RequireAuth>} />
+        <Route path="/refunds" element={<RequireAuth><Refunds /></RequireAuth>} />
+        <Route path="/payouts" element={<RequireAuth><Payouts /></RequireAuth>} />
         <Route path="/support" element={<RequireAuth><Support /></RequireAuth>} />
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
         <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />

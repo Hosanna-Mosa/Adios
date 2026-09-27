@@ -7,6 +7,9 @@ export type DocumentFields = ReturnType<typeof useDocumentFields>;
 export function useDocumentFields() {
   const [dlNumber, setDlNumber] = useState("");
   const [dlExpiry, setDlExpiry] = useState("");
+  // Set when the licence was read from the transport department via DigiLocker.
+  const [dlVerified, setDlVerified] = useState(false);
+  const [dlVehicleClass, setDlVehicleClass] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dlExpiryDate, setDlExpiryDate] = useState(new Date());
   const [bankAccount, setBankAccount] = useState("");
@@ -32,6 +35,8 @@ export function useDocumentFields() {
   return {
     dlNumber, setDlNumber,
     dlExpiry, setDlExpiry,
+    dlVerified, setDlVerified,
+    dlVehicleClass, setDlVehicleClass,
     showDatePicker, setShowDatePicker,
     dlExpiryDate, setDlExpiryDate,
     handleDateChange,

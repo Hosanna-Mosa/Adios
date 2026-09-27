@@ -16,6 +16,7 @@ type Actions = Pick<
   DriverState,
   | "updateStep"
   | "updateOrderStatus"
+  | "confirmCashCollected"
   | "completeOrder"
   | "setIncomingOrder"
   | "updateDriverLocation"
@@ -65,6 +66,22 @@ export const createOrderStatusSlice = (
         ? mapApiOrder(orderFromApi, currentOrder)
         : ({ ...currentOrder, status } as Order),
     });
+  },
+
+  confirmCashCollected: async (amount: number) => {
+    const { currentOrder, token } = get();
+    if (!currentOrder || !token) throw new Error(i18n.t("auth.pleaseSignInAgain"));
+
+    const res = await fetch(`${apiUrl}/orders/${currentOrder.id}/cash-collected`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ amount }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || i18n.t("jobs.cashCollectionFailed"));
+
+    // Only the backend's answer marks the cash as collected.
+    set({ currentOrder: mapApiOrder(data, get().currentOrder ?? currentOrder) });
   },
 
   completeOrder: () => {

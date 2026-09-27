@@ -14,12 +14,14 @@ import { AnimatedBox } from "@/components/ui/AnimatedBox";
 export function BalanceCard({
   weekBalance,
   availableBalance,
+  cashCommissionDue,
   trendPercent,
   trendLabel,
   bankLast4,
 }: {
   weekBalance: number;
   availableBalance: number;
+  cashCommissionDue?: number;
   trendPercent: number;
   trendLabel: string;
   bankLast4?: string | null;
@@ -43,6 +45,11 @@ export function BalanceCard({
         {t("earnings.available")} {formatCurrency(availableBalance)}
         {bankLast4 ? ` ${t("earnings.toBankEnding", { value: bankLast4, defaultValue: "to bank ending {{value}}" })}` : ""}
       </AppText>
+      {!!cashCommissionDue && cashCommissionDue > 0 && (
+        <AppText style={styles.availableText}>
+          {t("earnings.cashCommissionDue", { amount: formatCurrency(cashCommissionDue) })}
+        </AppText>
+      )}
     </AnimatedBox>
   );
 }

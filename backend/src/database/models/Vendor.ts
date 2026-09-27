@@ -11,6 +11,8 @@ export interface IVendor extends Document {
   googlePlaceId?: string;
   onboardingStatus?: "draft" | "submitted" | "approved" | "rejected";
   commissionRate?: number;
+  // Short lock so two payout requests can't both pass the balance check.
+  payoutLockUntil?: Date | null;
   partnerType?: "food" | "meat";
   owner?: {
     name?: string;
@@ -126,6 +128,7 @@ const VendorSchema: Schema = new Schema(
       enum: ["draft", "submitted", "approved", "rejected"],
       default: "draft",
     },
+    payoutLockUntil: { type: Date, default: null },
     commissionRate: {
       type: Number,
       default: 10,

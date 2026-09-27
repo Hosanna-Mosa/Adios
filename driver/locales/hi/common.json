@@ -98,6 +98,10 @@
     "pleaseSignInAgainToContinueAsDriver": "ड्राइवर के रूप में जारी रखने के लिए कृपया फिर से साइन इन करें।"
   },
   "earnings": {
+    "payoutProcessed": "पेआउट प्रोसेस हो गया",
+    "payoutProcessedBody": "Rs.{{value}} आपके बैंक में भेज दिए गए हैं।",
+    "payoutRequestedBody": "आपका Rs.{{value}} पेआउट अनुरोध दर्ज हो गया है। बैंक ट्रांसफ़र पूरा होते ही हम आपको बताएँगे।",
+    "cashCommissionDue": "नकद ऑर्डर पर {{amount}} कमीशन आपकी आने वाली कमाई से समायोजित किया जाएगा।",
     "thisWeeksBalance": "इस सप्ताह का बैलेंस",
     "available": "उपलब्ध:",
     "toBankEnding": "{{value}} पर समाप्त होने वाले बैंक में",
@@ -230,6 +234,22 @@
     "authenticationOrApiConfigMissing": "प्रमाणीकरण या API कॉन्फ़िगरेशन गुम है"
   },
   "jobs": {
+    "paidOnline": "ऑनलाइन भुगतान हो चुका है",
+    "cashToCollect": "नकद लेना है ₹{{amount}}",
+    "noCashToCollect": "ग्राहक पहले ही भुगतान कर चुका है। कोई नकद न लें।",
+    "cashCollectedAmount": "नकद लिया गया ₹{{amount}}",
+    "cashRecordedYouCanComplete": "दर्ज हो गया। आप ऑर्डर पूरा कर सकते हैं।",
+    "collectCashBeforeCompleting": "पूरा करने से पहले ग्राहक से यह राशि लें।",
+    "amountCollected": "ली गई राशि (₹)",
+    "enterCashAmount": "आपने जितना नकद लिया है, वह राशि दर्ज करें।",
+    "cashAmountMustMatch": "इस ऑर्डर के लिए ₹{{amount}} चाहिए। कृपया पूरी राशि लें।",
+    "confirmCashCollected": "नकद मिलने की पुष्टि करें",
+    "confirmCashCollectedQuestion": "क्या आपको ग्राहक से ₹{{amount}} नकद मिला?",
+    "yesCollected": "हाँ, मिल गया",
+    "recordingCash": "दर्ज किया जा रहा है…",
+    "cashCollectionFailed": "नकद दर्ज नहीं हो सका। कृपया फिर से कोशिश करें।",
+    "collectCashFirstTitle": "पहले नकद लें",
+    "collectCashFirst": "यह नकद ऑर्डर है। पूरा करने से पहले ₹{{amount}} लें और \"नकद मिलने की पुष्टि करें\" दबाएँ।",
     "statusOffline": "स्थिति: ऑफ़लाइन",
     "yourAppIsMinimizedSoYouAreNowOffline": "आपका ऐप मिनिमाइज़ है, इसलिए आप अभी ऑफ़लाइन हैं और नए ऑर्डर प्राप्त नहीं करेंगे।",
     "orderPrepared": "ऑर्डर तैयार है",

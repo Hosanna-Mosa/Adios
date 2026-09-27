@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useDriverStore } from "@/store/driverStore";
+import { paymentFields } from "@/store/orderMapper";
 import { Button } from "@/components/ui/Button";
 import { styles } from "./IncomingOrderModal.styles";
 import { DeclineReasonList } from "./DeclineReasonList";
@@ -47,6 +48,7 @@ export default function IncomingOrderModal() {
   const foodItems = getFoodItems(incomingOrder);
   const modalTitle = offerTitle({ isReserved: incomingOrder.isReserved, isRide, isHelper });
   const formattedDate = formatReservedAt(incomingOrder.reservedAt);
+  const offerPayment = paymentFields(incomingOrder);
 
   return (
     <ModalBox visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
@@ -100,7 +102,14 @@ export default function IncomingOrderModal() {
               <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} />
             )}
 
-            <OfferPaymentMode label={t("jobs.prepaidOnlinePayment")} />
+            <OfferPaymentMode
+              isCash={offerPayment.paymentMethod !== "online"}
+              label={
+                offerPayment.paymentMethod === "online"
+                  ? t("jobs.paidOnline")
+                  : t("jobs.cashToCollect", { amount: offerPayment.payableAmount })
+              }
+            />
           </ScrollBox>
 
           <Box style={styles.actionButtons}>

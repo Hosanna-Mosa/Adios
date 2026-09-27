@@ -9,6 +9,7 @@ import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { formatClock } from "../../orderStops";
 import {
+  CashCollectionPanel,
   OtpEntry,
   QuickUpdateChips,
   StageActionButton,
@@ -76,6 +77,8 @@ export function HelperTaskStage() {
         <Ionicons name="navigate" size={18} color={Colors.white} style={{ marginRight: 8 }} />
         <AppText style={styles.actionBtnText}>{t("jobs.googleDirections")}</AppText>
       </StageActionButton>
+
+      <CashCollectionPanel />
 
       <OtpEntry
         label={t("jobs.enterCustomerCompletionOtp")}

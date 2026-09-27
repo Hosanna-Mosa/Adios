@@ -98,6 +98,10 @@
     "pleaseSignInAgainToContinueAsDriver": "Please sign in again to continue as a driver."
   },
   "earnings": {
+    "payoutProcessed": "Payout processed",
+    "payoutProcessedBody": "Rs.{{value}} has been sent to your bank.",
+    "payoutRequestedBody": "Your Rs.{{value}} payout is requested. We'll notify you once the bank transfer is processed.",
+    "cashCommissionDue": "{{amount}} commission on cash orders will be adjusted from your upcoming earnings.",
     "thisWeeksBalance": "This Week's Balance",
     "available": "Available:",
     "toBankEnding": "to bank ending {{value}}",
@@ -230,6 +234,22 @@
     "authenticationOrApiConfigMissing": "Authentication or API configuration is missing"
   },
   "jobs": {
+    "paidOnline": "Paid online",
+    "cashToCollect": "Cash to collect ₹{{amount}}",
+    "noCashToCollect": "The customer has already paid. Don't collect any cash.",
+    "cashCollectedAmount": "Cash collected ₹{{amount}}",
+    "cashRecordedYouCanComplete": "Recorded. You can complete the order.",
+    "collectCashBeforeCompleting": "Collect this amount from the customer before completing.",
+    "amountCollected": "Amount collected (₹)",
+    "enterCashAmount": "Enter the cash amount you collected.",
+    "cashAmountMustMatch": "This order needs ₹{{amount}}. Please collect the full amount.",
+    "confirmCashCollected": "Confirm cash collected",
+    "confirmCashCollectedQuestion": "Did you receive ₹{{amount}} in cash from the customer?",
+    "yesCollected": "Yes, collected",
+    "recordingCash": "Recording…",
+    "cashCollectionFailed": "Couldn't record the cash. Please try again.",
+    "collectCashFirstTitle": "Collect cash first",
+    "collectCashFirst": "This is a cash order. Collect ₹{{amount}} and tap \"Confirm cash collected\" before completing.",
     "statusOffline": "Status: Offline",
     "yourAppIsMinimizedSoYouAreNowOffline": "Your app is minimized, so you are now offline and won't receive new orders.",
     "orderPrepared": "Order Prepared",

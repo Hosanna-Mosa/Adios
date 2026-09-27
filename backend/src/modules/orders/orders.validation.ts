@@ -61,6 +61,8 @@ export const createOrderSchema = z.object({
       requestedAt: z.string().datetime({ message: "Invalid date-time format for requestedAt" }).optional().or(z.string().optional()),
     }).optional(),
     scheduledFor: z.string().datetime({ message: "scheduledFor must be a valid ISO date-time" }).optional().or(z.string().optional()),
+    // Orders placed here are always cash. Online orders are created by /payments after payment.
+    paymentMethod: z.literal("cash", { message: "Online payments go through /payments/create-order" }).optional(),
   }),
 });
 
@@ -89,5 +91,13 @@ export const respondScheduledDeliverySchema = z.object({
     vendorId: z.string().min(1, "Vendor ID is required"),
     accepted: z.boolean(),
     reason: z.string().optional(),
+  }),
+});
+
+// The assigned driver confirms the cash they received. The server compares it with the order total.
+export const cashCollectedSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    amount: z.number({ message: "Enter the cash amount you collected" }).positive().max(1_000_000),
   }),
 });

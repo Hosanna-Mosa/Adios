@@ -15,19 +15,23 @@ export function useOnboardingGates(
 ) {
   // In formality mode the other ID is already verified, so we only need a
   // well-formed number for the records.
+  // DigiLocker already proved the identity; the stored Aadhaar is masked and
+  // would fail validateAadhaarFormat, which would strand the driver here.
   const canProceedAadhaar = useCallback(
     () =>
-      identity.panVerified
+      identity.digilockerVerified ||
+      (identity.panVerified
         ? validateAadhaarFormat(identity.aadhaarNumber.replace(/\s/g, ""))
-        : identity.aadhaarVerified,
+        : identity.aadhaarVerified),
     [identity],
   );
 
   const canProceedPAN = useCallback(
     () =>
-      identity.aadhaarVerified
+      identity.digilockerVerified ||
+      (identity.aadhaarVerified
         ? validatePANFormat(identity.panNumber) && identity.panName.length >= 3
-        : identity.panVerified,
+        : identity.panVerified),
     [identity],
   );
 
@@ -40,7 +44,8 @@ export function useOnboardingGates(
         return !!step1.homeAddressLine && step1.homeLat !== null && step1.homeLng !== null;
       case "aadhaar": return canProceedAadhaar();
       case "pan": return canProceedPAN();
-      case "license": return validateDLFormat(docs.dlNumber) && !!docs.dlExpiry;
+      case "license":
+        return docs.dlVerified || (validateDLFormat(docs.dlNumber) && !!docs.dlExpiry);
       case "bank": return docs.bankVerified;
       case "selfie": return docs.selfieCaptured;
       default: return false;

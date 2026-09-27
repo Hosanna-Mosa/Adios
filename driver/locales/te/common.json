@@ -98,6 +98,10 @@
     "pleaseSignInAgainToContinueAsDriver": "డ్రైవర్‌గా కొనసాగించడానికి దయచేసి మళ్లీ సైన్ ఇన్ చేయండి."
   },
   "earnings": {
+    "payoutProcessed": "పేఅవుట్ ప్రాసెస్ అయింది",
+    "payoutProcessedBody": "Rs.{{value}} మీ బ్యాంక్‌కు పంపబడింది.",
+    "payoutRequestedBody": "మీ Rs.{{value}} పేఅవుట్ అభ్యర్థన నమోదైంది. బ్యాంక్ బదిలీ పూర్తయిన వెంటనే మీకు తెలియజేస్తాం.",
+    "cashCommissionDue": "నగదు ఆర్డర్లపై {{amount}} కమీషన్ మీ రాబోయే ఆదాయం నుండి సర్దుబాటు చేయబడుతుంది.",
     "thisWeeksBalance": "ఈ వారం బ్యాలెన్స్",
     "available": "అందుబాటులో ఉంది:",
     "toBankEnding": "{{value}}తో ముగిసే బ్యాంక్‌కు",
@@ -230,6 +234,22 @@
     "authenticationOrApiConfigMissing": "ప్రామాణీకరణ లేదా API కాన్ఫిగరేషన్ లేదు"
   },
   "jobs": {
+    "paidOnline": "ఆన్‌లైన్‌లో చెల్లించారు",
+    "cashToCollect": "వసూలు చేయాల్సిన నగదు ₹{{amount}}",
+    "noCashToCollect": "కస్టమర్ ఇప్పటికే చెల్లించారు. నగదు తీసుకోకండి.",
+    "cashCollectedAmount": "వసూలు చేసిన నగదు ₹{{amount}}",
+    "cashRecordedYouCanComplete": "నమోదైంది. మీరు ఆర్డర్‌ను పూర్తి చేయవచ్చు.",
+    "collectCashBeforeCompleting": "పూర్తి చేసే ముందు కస్టమర్ నుండి ఈ మొత్తాన్ని వసూలు చేయండి.",
+    "amountCollected": "వసూలు చేసిన మొత్తం (₹)",
+    "enterCashAmount": "మీరు వసూలు చేసిన నగదు మొత్తాన్ని నమోదు చేయండి.",
+    "cashAmountMustMatch": "ఈ ఆర్డర్‌కు ₹{{amount}} కావాలి. దయచేసి పూర్తి మొత్తాన్ని వసూలు చేయండి.",
+    "confirmCashCollected": "నగదు వసూలైందని నిర్ధారించండి",
+    "confirmCashCollectedQuestion": "మీరు కస్టమర్ నుండి ₹{{amount}} నగదు తీసుకున్నారా?",
+    "yesCollected": "అవును, తీసుకున్నాను",
+    "recordingCash": "నమోదు చేస్తోంది…",
+    "cashCollectionFailed": "నగదును నమోదు చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "collectCashFirstTitle": "ముందు నగదు వసూలు చేయండి",
+    "collectCashFirst": "ఇది నగదు ఆర్డర్. పూర్తి చేసే ముందు ₹{{amount}} వసూలు చేసి \"నగదు వసూలైందని నిర్ధారించండి\" నొక్కండి.",
     "statusOffline": "స్థితి: ఆఫ్‌లైన్",
     "yourAppIsMinimizedSoYouAreNowOffline": "మీ యాప్ కనిష్టీకరించబడింది, కాబట్టి మీరు ఇప్పుడు ఆఫ్‌లైన్‌లో ఉన్నారు మరియు కొత్త ఆర్డర్‌లను స్వీకరించరు.",
     "orderPrepared": "ఆర్డర్ సిద్ధమైంది",

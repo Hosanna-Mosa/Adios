@@ -4,7 +4,7 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import Order, { OrderStatus, ServiceType } from "../../database/models/Order";
 import Driver from "../../database/models/Driver";
 import { CouponsService } from "../coupons/coupons.service";
-import { ValidationError, NotFoundError, UnauthorizedError, ConflictError } from "../../utils/errors";
+import { ValidationError, NotFoundError, UnauthorizedError, ConflictError, ForbiddenError } from "../../utils/errors";
 import { InvoiceService } from "../../services/invoice.service";
 
 const ordersService = new OrdersService();
@@ -84,11 +84,8 @@ export class OrdersController {
   async getOrder(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const order = await ordersService.getOrderById(id as string);
-
-      if (!order) {
-        throw new NotFoundError("Order not found");
-      }
+      // Only the order's customer, assigned driver, vendor, or staff (otherwise "not found").
+      const { order } = await ordersService.getOrderForActor(id as string, req.user);
 
       // Same flattened `items` the list endpoint returns, so reorder works from the detail
       // screen too without the client having to dig through stops[].items.lines.
@@ -111,14 +108,11 @@ export class OrdersController {
     }
   }
 
-  async getInvoice(req: Request, res: Response, next: NextFunction) {
+  async getInvoice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const order = await ordersService.getOrderById(id as string);
-
-      if (!order) {
-        throw new NotFoundError("Order not found");
-      }
+      // Same access rule as the order itself.
+      await ordersService.getOrderForActor(id as string, req.user);
 
       const populatedOrder = await Order.findById(id)
         .populate("user")
@@ -205,9 +199,10 @@ export class OrdersController {
     }
   }
 
-  async getVendorScheduledDeliveries(req: Request, res: Response, next: NextFunction) {
+  async getVendorScheduledDeliveries(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { vendorId } = req.params;
+      if (!ordersService.canActForVendor(String(vendorId), req.user)) throw new NotFoundError("Vendor not found");
       const requests = await ordersService.getVendorScheduledDeliveryRequests(vendorId as string);
       return res.json(requests);
     } catch (error: any) {
@@ -232,11 +227,19 @@ export class OrdersController {
     }
   }
 
-  async respondScheduledDelivery(req: Request, res: Response, next: NextFunction) {
+  async respondScheduledDelivery(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { requestId } = req.params;
-      const { vendorId, accepted, reason } = req.body;
-      
+      const { accepted, reason } = req.body;
+      // A vendor answers only for its own outlet: the id comes from the token, never the body.
+      // Staff may answer on a vendor's behalf with the vendorId they send.
+      const role = String(req.user?.role || "");
+      const isStaff = role === "ADMIN" || role === "SUPPORT";
+      const vendorId = isStaff ? req.body.vendorId : req.user?.userId;
+      if (!vendorId || !ordersService.canActForVendor(String(vendorId), req.user)) {
+        throw new NotFoundError("Scheduled delivery request not found");
+      }
+
       const result = await ordersService.respondToScheduledDelivery(requestId as string, vendorId, accepted, reason);
       return res.json(result);
     } catch (error: any) {
@@ -277,6 +280,16 @@ export class OrdersController {
         throw new ValidationError("Invalid status value");
       }
 
+      // Who may move this order, and where to. Strangers get "not found".
+      const { relation } = await ordersService.getOrderForActor(id as string, req.user);
+      const isCancel = String(status).toUpperCase() === OrderStatus.CANCELLED;
+      if (relation === "customer" && !isCancel) {
+        throw new ForbiddenError("You can only cancel your own order.");
+      }
+      if (relation === "vendor" && !isCancel && String(status).toLowerCase() !== OrderStatus.PICKING_ITEMS_LC) {
+        throw new ForbiddenError("A restaurant can only mark an order ready or cancel it.");
+      }
+
       // If updating to DELIVERED status, verify the customer delivery OTP
       const isDeliveredStatus = 
         status === OrderStatus.DELIVERED || 
@@ -286,6 +299,13 @@ export class OrdersController {
 
       if (isDeliveredStatus) {
         const orderObj = await ordersService.getOrderById(id as string);
+        // A cash order can only be completed after the driver confirmed collecting the cash.
+        // ($isDefault: orders created before paymentMethod existed only get "cash" as a schema
+        // default when loaded; they are not held back.)
+        const storedCash = orderObj && orderObj.paymentMethod === "cash" && !orderObj.$isDefault("paymentMethod");
+        if (storedCash && !orderObj.cashCollected) {
+          throw new ConflictError("Confirm the cash you collected before completing this order.");
+        }
         if (orderObj && orderObj.deliveryOtp) {
           if (otp !== orderObj.deliveryOtp) {
             throw new ValidationError("Invalid delivery verification OTP. Please ask the customer for the correct code.");
@@ -303,7 +323,8 @@ export class OrdersController {
       if (isPickupCompletedStatus) {
         const orderObj = await ordersService.getOrderById(id as string);
         if (orderObj && (orderObj as any).restaurantPickupCode) {
-          if (otp !== (orderObj as any).restaurantPickupCode && otp !== "9999") {
+          // Only the order's own code — no master code (RAZORPAY_INTEGRATION.md §5.4 A2/C1).
+          if (otp !== (orderObj as any).restaurantPickupCode) {
             throw new ValidationError("Invalid restaurant pickup code. Please ask the restaurant for the correct code.");
           }
         }
@@ -315,6 +336,17 @@ export class OrdersController {
       if (error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
+      next(error);
+    }
+  }
+
+  async cashCollected(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const order = await ordersService.confirmCashCollected(String(req.params.id), userId, Number(req.body.amount));
+      return res.json(order);
+    } catch (error) {
       next(error);
     }
   }
@@ -402,9 +434,11 @@ export class OrdersController {
     }
   }
 
-  async getVendorOrders(req: Request, res: Response, next: NextFunction) {
+  async getVendorOrders(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { vendorId } = req.params;
+      // Only that vendor, or staff.
+      if (!ordersService.canActForVendor(String(vendorId), req.user)) throw new NotFoundError("Vendor not found");
       const orders = await ordersService.getVendorOrders(vendorId as string);
       return res.json(orders);
     } catch (error) {

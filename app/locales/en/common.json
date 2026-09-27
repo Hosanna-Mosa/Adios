@@ -533,6 +533,10 @@
       "thisRemovesEveryItemFromVar": "This removes every item from {{value}}."
     },
     "orders": {
+      "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
+      "refundedManual": "Refunded ₹{{amount}} to your account (ref {{reference}}) · {{date}}",
+      "refundInProgress": "Refund of ₹{{amount}} in progress · usually 5–7 working days",
+      "refundBeingArranged": "Your refund of ₹{{amount}} is being arranged. Our team will contact you if needed.",
       "preparingYourOrder": "Preparing your order",
       "helperOnTheWay": "Helper on the way",
       "matchingAHelper": "Matching a helper",
@@ -1014,7 +1018,22 @@
       "verifyContinue": "Verify & continue"
     },
     "payment": {
-      "payment": "Payment"
+      "pricesChangedTitle": "Your cart has changed",
+      "pricesChanged": "Some prices or items changed since you opened your cart. Please go back to your cart to review, then pay again. You haven't been charged.",
+      "payment": "Payment",
+      "cancelled": "Payment cancelled",
+      "cancelledHint": "No money was taken. You can pay again whenever you're ready.",
+      "failedHint": "The payment didn't go through. Please try again or use another method.",
+      "confirming": "Confirming your payment",
+      "confirmingHint": "We're waiting for your bank to confirm. Your order will appear in My orders once it does.",
+      "invalid": "This payment couldn't be accepted. If money was deducted, it will be refunded.",
+      "couldNotStart": "Couldn't start the payment. Please try again.",
+      "returning": "Finishing your payment…",
+      "method": "Pay with",
+      "cash": "Cash",
+      "cashHint": "Pay the driver",
+      "online": "Online",
+      "onlineHint": "UPI, cards, netbanking"
     },
     "personaldetails": {
       "couldntSave": "Couldn't save"

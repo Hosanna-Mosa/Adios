@@ -29,14 +29,28 @@ export interface IDriver extends Document {
   aadhaarNumber?: string;
   aadhaarVerified?: boolean;
   panNumber?: string;
+  panVerified?: boolean;
   panImage?: string;
+  // Where the identity above came from. "self" is a driver-typed number that
+  // nothing has checked; "digilocker" means it was read out of a government
+  // issuer via the driver's own DigiLocker consent, which is the only source
+  // strong enough to treat aadhaarVerified/panVerified as authoritative.
+  kycSource?: "self" | "surepass" | "digilocker";
+  digilockerVerified?: boolean;
+  digilockerVerifiedAt?: Date;
+  digilockerId?: string;
   dlNumber?: string;
   dlExpiry?: Date;
+  dlVerified?: boolean;
+  /** Vehicle classes on the licence, e.g. "LMV, MCWG". */
+  dlVehicleClass?: string;
   dlFrontImage?: string;
   dlBackImage?: string;
   bankAccountNumber?: string;
   bankIfsc?: string;
   bankVerified?: boolean;
+  // Short lock so two cash-out taps can't both pass the balance check.
+  payoutLockUntil?: Date | null;
   bankAccounts?: {
     accountNumber: string;
     ifsc: string;
@@ -84,14 +98,22 @@ const DriverSchema: Schema = new Schema(
     aadhaarNumber: { type: String },
     aadhaarVerified: { type: Boolean, default: false },
     panNumber: { type: String },
+    panVerified: { type: Boolean, default: false },
     panImage: { type: String },
+    kycSource: { type: String, enum: ["self", "surepass", "digilocker"] },
+    digilockerVerified: { type: Boolean, default: false },
+    digilockerVerifiedAt: { type: Date },
+    digilockerId: { type: String },
     dlNumber: { type: String },
     dlExpiry: { type: Date },
+    dlVerified: { type: Boolean, default: false },
+    dlVehicleClass: { type: String },
     dlFrontImage: { type: String },
     dlBackImage: { type: String },
     bankAccountNumber: { type: String },
     bankIfsc: { type: String },
     bankVerified: { type: Boolean, default: false },
+    payoutLockUntil: { type: Date, default: null },
     bankAccounts: [{
       accountNumber: { type: String },
       ifsc: { type: String },

@@ -5,6 +5,7 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { type ThemeTokens, type ServiceKey } from "@/constants/colors";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
+import { RefundNote } from "./RefundNote";
 
 // Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -53,6 +54,7 @@ export function PastOrdersList({
             </View>
             <Text style={styles.cardTitle} numberOfLines={1}>{typeof order.vendor === "object" ? order.vendor?.name : order.stops?.map((s: any) => s.address).join(" → ") || "Order"}</Text>
             <Text style={styles.cardMeta}>₹{Math.round(order.totalPrice || 0)}{order.__serviceKey === "delivery" ? " delivery" : ""}</Text>
+            <RefundNote order={order} styles={styles} tokens={tokens} />
             {isRejected && (
               <Text style={styles.rejectionReason}>
                 {order.scheduleRejectionReason || "The restaurant could not take this order for the requested slot."}

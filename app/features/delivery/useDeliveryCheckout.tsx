@@ -9,8 +9,9 @@ import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
-import { RazorpayIntegration } from "@/utils/razorpay";
-import { createPaymentOrder, verifyPayment } from "@/services/payments.service";
+import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
+import { createOrder } from "@/services/orders.service";
+import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 
 // State, data loading and handlers for app/delivery/checkout.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -108,36 +109,27 @@ export function useDeliveryCheckout() {
 
     setIsProcessing(true);
     try {
-      const rzpOrder = await createPaymentOrder(({ amount: price.total }).amount);
+      // Online: the server stores this with the payment and places the order once Razorpay
+      // confirms the money. Cash: it goes to /orders directly and the driver collects.
+      const orderData = {
+        stops: stops.map((s) => ({ ...s, items: s.items || [] })),
+        totalDistance: route?.totalDistance,
+        totalPrice: price.total,
+        ...(vendorId ? { vendorId } : {}),
+      };
+      const finalOrder: any =
+        getPaymentMethod("delivery") === "online"
+          ? await payOnlineAndPlaceOrder(price.total, orderData)
+          : await createOrder({ ...orderData, paymentMethod: "cash" });
 
-      const paymentResult = await RazorpayIntegration.open({
-        key: rzpOrder.key,
-        amount: rzpOrder.amount,
-        currency: rzpOrder.currency,
-        name: rzpOrder.name,
-        order_id: rzpOrder.id,
-        prefill: { email: user?.email || rzpOrder.prefill?.email, contact: user?.phone || "" },
-        theme: rzpOrder.theme,
-      });
-
-      const verifyResponse = await verifyPayment({
-          ...paymentResult,
-          orderData: {
-            stops: stops.map((s) => ({ ...s, items: s.items || [] })),
-            totalDistance: route?.totalDistance,
-            totalPrice: price.total,
-            vendorId,
-          },
-        });
-
-      const finalOrder = verifyResponse.order;
       setOrderId(finalOrder._id || finalOrder.id);
       setServiceType("delivery");
       setStatus("confirmed");
       router.push("/tracking");
     } catch (error: any) {
       console.error("Delivery checkout failed:", error);
-      Alert.alert(t("app.delivery.orderFailed"), error?.message || t("app.delivery.unableToProcessYourOrder"));
+      const described = describePaymentError(error);
+      Alert.alert(described?.title ?? t("app.delivery.orderFailed"), described?.message ?? (error?.message || t("app.delivery.unableToProcessYourOrder")));
     } finally {
       setIsProcessing(false);
     }

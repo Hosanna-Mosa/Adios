@@ -7,6 +7,9 @@ import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { PaymentService } from "../payments/payment.service";
 import VendorPayout, { VendorPayoutStatus } from "../../database/models/VendorPayout";
+import Order, { OrderStatus } from "../../database/models/Order";
+import { RazorpayXError } from "../payments/razorpayx.client";
+import { applyRazorpayXPayout } from "../payments/payout.status";
 import FoodItem from "../../database/models/FoodItem";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
 
@@ -820,6 +823,33 @@ export const deleteVendor = async (req: Request, res: Response) => {
 
 const paymentService = new PaymentService();
 
+/**
+ * What a vendor can withdraw: their share (items subtotal minus the platform commission,
+ * Vendor.commissionRate %) of delivered orders whose money was actually received — paid online
+ * or cash collected by the driver — and not refunded, minus payouts already requested,
+ * in progress or sent. Orders without a recorded payment are not counted.
+ */
+export async function getVendorPayoutBalance(vendorId: any, commissionRate?: number) {
+  const rate = Math.min(100, Math.max(0, Number(commissionRate ?? 10)));
+  const [earned] = await Order.aggregate<{ gross: number }>([
+    {
+      $match: {
+        vendor: vendorId,
+        status: { $in: [OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.COMPLETED] },
+        paymentStatus: { $in: ["paid", "cash_collected"] },
+        refundStatus: { $nin: ["pending", "processed"] },
+      },
+    },
+    { $group: { _id: null, gross: { $sum: { $ifNull: ["$priceBreakdown.baseFare", 0] } } } },
+  ]);
+  const [paid] = await VendorPayout.aggregate<{ total: number }>([
+    { $match: { vendor: vendorId, status: { $in: [VendorPayoutStatus.PENDING, VendorPayoutStatus.PROCESSING, VendorPayoutStatus.PROCESSED] } } },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
+  ]);
+  const earnedShare = Math.floor((earned?.gross || 0) * (1 - rate / 100));
+  return { earnedShare, paidOut: paid?.total || 0, availableBalance: Math.max(0, earnedShare - (paid?.total || 0)) };
+}
+
 export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
   try {
     const { amount } = req.body;
@@ -838,17 +868,42 @@ export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: "Minimum payout amount is Rs.100" });
     }
 
-    // Create payout record
-    const payoutRecord = new VendorPayout({
-      vendor: vendor._id,
-      amount: payoutAmount,
-      status: VendorPayoutStatus.PENDING,
-    });
-    await payoutRecord.save();
+    // One payout request at a time per vendor, so two requests can't both pass the balance check.
+    const now = new Date();
+    const locked = await Vendor.findOneAndUpdate(
+      { _id: vendor._id, $or: [{ payoutLockUntil: null }, { payoutLockUntil: { $exists: false } }, { payoutLockUntil: { $lt: now } }] },
+      { $set: { payoutLockUntil: new Date(now.getTime() + 60_000) } },
+    );
+    if (!locked) {
+      return res.status(409).json({ message: "A payout request is already being processed. Please wait a moment." });
+    }
 
+    let payoutRecord;
     try {
-      // Trigger Razorpay payout
+      // Never pay out more than the vendor has actually earned and not yet been paid.
+      const balance = await getVendorPayoutBalance(vendor._id, vendor.commissionRate);
+      if (payoutAmount > balance.availableBalance) {
+        return res.status(400).json({
+          message: `Payout amount exceeds your available balance of Rs.${balance.availableBalance}`,
+          availableBalance: balance.availableBalance,
+        });
+      }
+
+      // "pending" = requested; it already counts against the balance.
+      payoutRecord = await VendorPayout.create({
+        vendor: vendor._id,
+        amount: payoutAmount,
+        status: VendorPayoutStatus.PENDING,
+      });
+    } finally {
+      await Vendor.updateOne({ _id: vendor._id }, { $set: { payoutLockUntil: null } });
+    }
+
+    const recordId = payoutRecord._id.toString();
+    try {
+      // Send it through RazorpayX. null = payouts not configured: the request stays "pending".
       const result = await paymentService.createVendorPayout({
+        referenceId: recordId,
         name: vendor.name || vendor.owner?.name || "Vendor Partner",
         phone: vendor.phone || vendor.owner?.phone || "0000000000",
         email: vendor.email || vendor.owner?.email,
@@ -857,37 +912,53 @@ export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
         amount: payoutAmount,
         notes: {
           vendorId: vendor._id.toString(),
-          payoutRecordId: payoutRecord._id.toString(),
+          payoutRecordId: recordId,
         },
       });
 
-      // Update payout record status based on result
-      payoutRecord.status = result.payout.status === "processed" ? VendorPayoutStatus.PROCESSED : VendorPayoutStatus.PROCESSING;
-      payoutRecord.razorpayContactId = result.contact.id;
-      payoutRecord.razorpayFundAccountId = result.fundAccount.id;
-      payoutRecord.razorpayPayoutId = result.payout.id;
-      await payoutRecord.save();
-
-      return res.json({
-        message: "Payout request processed successfully",
-        payout: {
-          id: payoutRecord._id,
-          razorpayPayoutId: payoutRecord.razorpayPayoutId,
-          amount: payoutRecord.amount,
-          status: payoutRecord.status,
-        },
-      });
+      if (result) {
+        await VendorPayout.updateOne(
+          { _id: recordId },
+          { $set: { razorpayContactId: result.contact.id, razorpayFundAccountId: result.fundAccount.id } },
+        );
+        // Status comes only from RazorpayX's answer (processed only if RazorpayX says so).
+        await applyRazorpayXPayout("vendor", recordId, result.payout);
+      }
     } catch (apiError: any) {
-      // Mark payout record as FAILED
-      payoutRecord.status = VendorPayoutStatus.FAILED;
-      payoutRecord.failureReason = apiError.message || "Razorpay API error";
-      await payoutRecord.save();
-
-      return res.status(500).json({
-        message: "Failed to initiate Razorpay payout transfer",
-        error: apiError.message,
-      });
+      const outcomeUnknown = apiError instanceof RazorpayXError && apiError.stage === "payout" && !apiError.definitive;
+      await VendorPayout.updateOne(
+        { _id: recordId, status: VendorPayoutStatus.PENDING },
+        {
+          $set: outcomeUnknown
+            ? { status: VendorPayoutStatus.PROCESSING, failureReason: "Awaiting confirmation from RazorpayX" }
+            : { status: VendorPayoutStatus.FAILED, failureReason: apiError.message || "RazorpayX error" },
+        },
+      );
+      if (!outcomeUnknown) {
+        return res.status(500).json({
+          message: "Failed to initiate payout transfer",
+          error: apiError.message,
+        });
+      }
+      console.error(`[vendors] ALERT payout ${recordId} outcome unknown:`, apiError.message);
     }
+
+    const saved = await VendorPayout.findById(recordId);
+    if (saved?.status === VendorPayoutStatus.FAILED) {
+      return res.status(500).json({ message: "Payout failed", error: saved.failureReason });
+    }
+    return res.json({
+      message:
+        saved?.status === VendorPayoutStatus.PROCESSED ? "Payout processed"
+        : saved?.status === VendorPayoutStatus.PROCESSING ? "Payout is being processed"
+        : "Payout requested",
+      payout: {
+        id: recordId,
+        razorpayPayoutId: saved?.razorpayPayoutId,
+        amount: payoutAmount,
+        status: saved?.status,
+      },
+    });
   } catch (error: any) {
     console.error("Vendor payout request error:", error);
     res.status(500).json({ message: "Internal server error" });

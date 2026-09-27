@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect } from "react";
 
 import { useDriverStore } from "@/store/driverStore";
 import {
@@ -35,6 +36,10 @@ export function useOnboardingHydrate(
               identity.setAadhaarNumber(d.aadhaarNumber.replace(/(\d{4})(?=\d)/g, "$1 "));
             if (d.aadhaarVerified) identity.setAadhaarVerified(d.aadhaarVerified);
             if (d.panNumber) identity.setPanNumber(d.panNumber);
+            if (d.panVerified) identity.setPanVerified(true);
+            if (d.digilockerVerified) identity.setDigilockerVerified(true);
+            if (d.dlVerified) docs.setDlVerified(true);
+            if (d.dlVehicleClass) docs.setDlVehicleClass(d.dlVehicleClass);
             if (d.dlNumber) docs.setDlNumber(d.dlNumber);
             if (d.dlExpiry) docs.setDlExpiry(d.dlExpiry);
             if (d.bankAccountNumber) docs.setBankAccount(d.bankAccountNumber);
@@ -75,4 +80,49 @@ export function useOnboardingHydrate(
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Re-read just the identity flags whenever this screen regains focus.
+  // DigiLocker verification happens on another screen and updates the driver
+  // record server-side, so without this the Aadhaar step would still look
+  // unverified after coming back. Deliberately narrow: it must not clobber
+  // fields the driver is part-way through typing.
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+
+      (async () => {
+        const token = useDriverStore.getState().token;
+        if (!token) return;
+
+        try {
+          const res = await getOnboarding(token);
+          if (!res.ok) return;
+
+          const d = (await res.json()).data;
+          if (!d || cancelled) return;
+
+          if (d.aadhaarVerified) {
+            identity.setAadhaarVerified(true);
+            if (d.aadhaarNumber) {
+              identity.setAadhaarNumber(d.aadhaarNumber.replace(/(\d{4})(?=\d)/g, "$1 "));
+            }
+          }
+          if (d.panVerified) identity.setPanVerified(true);
+          if (d.panNumber) identity.setPanNumber(d.panNumber);
+          if (d.digilockerVerified) identity.setDigilockerVerified(true);
+          if (d.dlVerified) docs.setDlVerified(true);
+          if (d.dlNumber) docs.setDlNumber(d.dlNumber);
+          if (d.dlExpiry) docs.setDlExpiry(d.dlExpiry);
+          if (d.dlVehicleClass) docs.setDlVehicleClass(d.dlVehicleClass);
+        } catch {
+          // Non-fatal — the driver can still verify manually.
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 }

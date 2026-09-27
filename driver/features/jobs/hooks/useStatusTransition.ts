@@ -10,6 +10,7 @@ import {
   type UpdateStatus,
 } from "./orderStatusFlow";
 import type { OrderVerification } from "./useOrderVerification";
+import { paymentFields } from "@/store/orderMapper";
 
 type Args = {
   currentOrder: any;
@@ -35,7 +36,19 @@ export function useStatusTransition(args: Args) {
     router.push("/(tabs)");
   }, [completeOrder]);
 
+  /** Cash orders can't be completed until the backend has recorded the cash (it checks too). */
+  const cashStillToCollect = useCallback(() => {
+    const payment = paymentFields(currentOrder);
+    if (payment.paymentMethod !== "cash" || payment.cashCollected) return false;
+    Alert.alert(
+      t("jobs.collectCashFirstTitle"),
+      t("jobs.collectCashFirst", { amount: payment.payableAmount }),
+    );
+    return true;
+  }, [currentOrder, t]);
+
   const confirmDelivery = useCallback(async (who: string) => {
+    if (cashStillToCollect()) return;
     try {
       await updateOrderStatus("delivered", verification.customerOTP);
       verification.setCustomerOTPError(false);
@@ -43,7 +56,7 @@ export function useStatusTransition(args: Args) {
       verification.setCustomerOTPError(true);
       warnVerificationFailed(err, who);
     }
-  }, [updateOrderStatus, verification]);
+  }, [updateOrderStatus, verification, cashStillToCollect]);
 
   const runHelper = useCallback(async (status: string) => {
     if (status === "delivered" || status === "completed") {
@@ -57,13 +70,14 @@ export function useStatusTransition(args: Args) {
       return;
     }
     verification.setCustomerOTPError(false);
+    if (cashStillToCollect()) return;
     try {
       await updateOrderStatus("delivered", verification.customerOTP);
     } catch (err: any) {
       verification.setCustomerOTPError(true);
       warnVerificationFailed(err, t("jobs.customer"));
     }
-  }, [currentOrder, verification, updateOrderStatus, finish, t]);
+  }, [currentOrder, verification, updateOrderStatus, finish, t, cashStillToCollect]);
 
   /** Food delivery has an extra "picking_items" checklist gate. */
   const runPickingItems = useCallback(async () => {
