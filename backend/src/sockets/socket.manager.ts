@@ -42,33 +42,47 @@ export class SocketManager {
     const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
 
     // Primary redisClient for location tracking
-    this.redisClient = createClient({
+    const client = createClient({
       url: redisUrl,
       socket: {
-        reconnectStrategy: (retries) => Math.min(retries * 50, 1000)
+        reconnectStrategy: (retries) => {
+          if (retries > 2) {
+            return new Error("Redis connection failed");
+          }
+          return Math.min(retries * 50, 1000);
+        }
       }
     });
 
-    this.redisClient.on("error", (err: any) => {
-      if (this.redisClient) {
-        console.log("Redis Client Error:", err.message);
-      }
+    client.on("error", (_err: any) => {
+      // Suppress unhandled error events when Redis is offline or disconnecting
     });
-    
+
     try {
-      await this.redisClient.connect();
+      await client.connect();
+      this.redisClient = client;
       console.log("Redis connected for socket tracking");
 
       // Setup Redis Pub/Sub Adapter for Socket.io Horizontal Clustering
-      const pubClient = createClient({ url: redisUrl });
+      const pubClient = createClient({
+        url: redisUrl,
+        socket: {
+          reconnectStrategy: (retries) => (retries > 2 ? new Error("Redis pub connection failed") : 500)
+        }
+      });
+      pubClient.on("error", () => {});
       const subClient = pubClient.duplicate();
-      
+      subClient.on("error", () => {});
+
       await Promise.all([pubClient.connect(), subClient.connect()]);
       this.io.adapter(createAdapter(pubClient, subClient));
       console.log("Redis Socket Adapter initialized successfully");
     } catch (err: any) {
       console.warn("⚠️  Redis server not found or connection failed. Socket tracking (location updates) and clustering will be disabled.");
-      this.redisClient = null; 
+      try {
+        await client.disconnect();
+      } catch (_) {}
+      this.redisClient = null;
     }
   }
 

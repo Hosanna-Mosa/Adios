@@ -1,5 +1,5 @@
-import { AppState, Platform } from "react-native";
-import Constants from "expo-constants";
+import { AppState, Platform, TurboModuleRegistry } from "react-native";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 
 // Every event goes two places:
 //
@@ -21,16 +21,29 @@ type CleanParams = Record<string, string | number | boolean>;
 
 let analyticsModule: any = null;
 let analyticsInstance: any = null;
+// Expo Go can't contain Firebase's native code, so Firebase is simply off there.
+// Every EAS / `expo run:android` build has it, and Firebase turns on by itself.
+const IS_EXPO_GO = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+let firebaseUnavailable = IS_EXPO_GO;
 
 function getFirebase() {
-  if (Platform.OS !== "android") return null;
+  if (Platform.OS !== "android" || firebaseUnavailable) return null;
   if (!analyticsInstance) {
+    // A dev build made before Firebase was added also lacks the native module.
+    // Check first: Metro reports a throwing lazy require() as a fatal error
+    // even inside try/catch.
+    if (!TurboModuleRegistry.get("NativeRNFBTurboApp")) {
+      firebaseUnavailable = true;
+      console.warn("[Analytics] Firebase native module not in this build; skipping.");
+      return null;
+    }
     try {
       // Required lazily so web/iOS bundles never touch the missing native module.
       analyticsModule = require("@react-native-firebase/analytics");
       analyticsInstance = analyticsModule.getAnalytics();
     } catch (err) {
       console.warn("[Analytics] Firebase unavailable:", err);
+      firebaseUnavailable = true;
       return null;
     }
   }
