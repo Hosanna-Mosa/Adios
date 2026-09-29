@@ -144,6 +144,8 @@
       "submitTicket": "टिकट सबमिट करें",
       "tellUsWhatHappenedAndWhen": "हमें बताएं क्या हुआ और कब…",
       "thisCaseHasBeenMarkedResolved": "इस केस को हल किया गया चिह्नित किया गया है.",
+      "newReplies_one": "सपोर्ट से नया जवाब",
+      "newReplies_other": "सपोर्ट से {{count}} नए जवाब",
       "reopenCase": "केस फिर से खोलें",
       "startNewChat": "नई चैट शुरू करें",
       "replyToSupport": "सपोर्ट को जवाब दें…",

@@ -144,6 +144,8 @@
       "submitTicket": "Submit ticket",
       "tellUsWhatHappenedAndWhen": "Tell us what happened and when…",
       "thisCaseHasBeenMarkedResolved": "This case has been marked resolved.",
+      "newReplies_one": "New reply from support",
+      "newReplies_other": "{{count}} new replies from support",
       "reopenCase": "Reopen case",
       "startNewChat": "Start new chat",
       "replyToSupport": "Reply to support…",

@@ -35,7 +35,9 @@ export default function SupportChat() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[720px]">
+        {/* Fills what's left of the window below the top bar, page padding and title
+            (~14rem), so the composer and Send button are always on screen. */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-14rem)] min-h-[480px]">
           <SupportChatSidebar tickets={activeTickets} isLoading={isLoading} selectedTicketId={selectedTicket?._id} onSelect={navigateToChat} />
 
           <SupportChatWindow

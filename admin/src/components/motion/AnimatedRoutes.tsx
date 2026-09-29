@@ -1,8 +1,9 @@
 import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { RequireAuth, RequireVendor } from "@/components/RequireAuth";
+import { RequireAdmin, RequireAuth, RequireVendor } from "@/components/RequireAuth";
 import { RouteLoadingFallback } from "./RouteLoadingFallback";
 import { usePageViews } from "@/lib/analytics";
+import { SUPPORT_HOME } from "@/lib/session";
 
 // Always needed immediately on cold load — not worth lazy-loading.
 import VendorLogin from "@/pages/VendorLogin";
@@ -46,7 +47,7 @@ const RootRedirect = () => {
   const supportToken = localStorage.getItem("support_token");
 
   if (adminToken) return <Navigate to="/dashboard" replace />;
-  if (supportToken) return <Navigate to="/support-cases" replace />;
+  if (supportToken) return <Navigate to={SUPPORT_HOME} replace />;
   if (vendorToken) return <Navigate to="/vendor/dashboard" replace />;
   return <Navigate to="/vendor-login" replace />;
 };
@@ -64,38 +65,38 @@ export function AnimatedRoutes() {
         <Route path="/" element={<RootRedirect />} />
         <Route path="/vendor-login" element={<VendorLogin />} />
 
-        <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
-        <Route path="/live-orders" element={<RequireAuth><LiveOrders /></RequireAuth>} />
-        <Route path="/live-orders/:id" element={<RequireAuth><OrderDetail /></RequireAuth>} />
-        <Route path="/scheduled-orders" element={<RequireAuth><ScheduledOrders /></RequireAuth>} />
-        <Route path="/drivers" element={<RequireAuth><Drivers /></RequireAuth>} />
-        <Route path="/dev-drivers" element={<RequireAuth><DevDrivers /></RequireAuth>} />
-        <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
-        <Route path="/live-activity" element={<RequireAuth><LiveActivity /></RequireAuth>} />
-        <Route path="/payments" element={<RequireAuth><Payments /></RequireAuth>} />
-        <Route path="/refunds" element={<RequireAuth><Refunds /></RequireAuth>} />
-        <Route path="/payouts" element={<RequireAuth><Payouts /></RequireAuth>} />
+        <Route path="/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+        <Route path="/live-orders" element={<RequireAdmin><LiveOrders /></RequireAdmin>} />
+        <Route path="/live-orders/:id" element={<RequireAdmin><OrderDetail /></RequireAdmin>} />
+        <Route path="/scheduled-orders" element={<RequireAdmin><ScheduledOrders /></RequireAdmin>} />
+        <Route path="/drivers" element={<RequireAdmin><Drivers /></RequireAdmin>} />
+        <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />
+        <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
+        <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />
+        <Route path="/payments" element={<RequireAdmin><Payments /></RequireAdmin>} />
+        <Route path="/refunds" element={<RequireAdmin><Refunds /></RequireAdmin>} />
+        <Route path="/payouts" element={<RequireAdmin><Payouts /></RequireAdmin>} />
         <Route path="/support" element={<RequireAuth><Support /></RequireAuth>} />
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
         <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />
         <Route path="/support/chats/:id" element={<RequireAuth><SupportChat /></RequireAuth>} />
-        <Route path="/users" element={<RequireAuth><Users /></RequireAuth>} />
-        <Route path="/vendors" element={<RequireAuth><Vendors /></RequireAuth>} />
-        <Route path="/restaurant-menu" element={<RequireAuth><RestaurantMenu /></RequireAuth>} />
-        <Route path="/meat-centers" element={<RequireAuth><MeatCenters /></RequireAuth>} />
-        <Route path="/meat-pricing" element={<RequireAuth><MeatPricing /></RequireAuth>} />
-        <Route path="/zones" element={<RequireAuth><Zones /></RequireAuth>} />
-        <Route path="/banners" element={<RequireAuth><Banners /></RequireAuth>} />
+        <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
+        <Route path="/vendors" element={<RequireAdmin><Vendors /></RequireAdmin>} />
+        <Route path="/restaurant-menu" element={<RequireAdmin><RestaurantMenu /></RequireAdmin>} />
+        <Route path="/meat-centers" element={<RequireAdmin><MeatCenters /></RequireAdmin>} />
+        <Route path="/meat-pricing" element={<RequireAdmin><MeatPricing /></RequireAdmin>} />
+        <Route path="/zones" element={<RequireAdmin><Zones /></RequireAdmin>} />
+        <Route path="/banners" element={<RequireAdmin><Banners /></RequireAdmin>} />
 
         <Route path="/vendor/dashboard" element={<RequireVendor><VendorDashboard /></RequireVendor>} />
         <Route path="/vendor/scheduled-orders" element={<RequireVendor><VendorScheduledOrders /></RequireVendor>} />
         <Route path="/vendor/menu" element={<RequireVendor><VendorMenu /></RequireVendor>} />
         <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
         <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
-        <Route path="/coupons" element={<RequireAuth><Coupons /></RequireAuth>} />
-        <Route path="/users/:id" element={<RequireAuth><UserDetail /></RequireAuth>} />
-        <Route path="/drivers/:id" element={<RequireAuth><DriverDetail /></RequireAuth>} />
-        <Route path="/app-updates" element={<RequireAuth><AppVersions /></RequireAuth>} />
+        <Route path="/coupons" element={<RequireAdmin><Coupons /></RequireAdmin>} />
+        <Route path="/users/:id" element={<RequireAdmin><UserDetail /></RequireAdmin>} />
+        <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
+        <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -14,16 +14,17 @@ interface SupportChatComposerProps {
 export function SupportChatComposer({ value, onChange, onKeyDown, onSend, placeholderName }: SupportChatComposerProps) {
   const { t } = useTranslation();
   return (
-    <div className="p-4 border-t border-border shrink-0 bg-muted/10">
-      <div className="bg-card rounded-xl p-3 border border-border shadow-sm flex flex-col">
+    <div className="p-3 border-t border-border shrink-0 bg-muted/10">
+      <div className="bg-card rounded-xl px-3 py-2 border border-border shadow-sm flex flex-col focus-within:border-primary/50 transition-colors">
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={t("support.typeYourResponseTo", { name: placeholderName, defaultValue: "Type your response to {{name}}..." })}
-          className="w-full bg-transparent text-sm placeholder:text-muted-foreground resize-none focus:outline-none min-h-[60px]"
+          rows={2}
+          className="w-full bg-transparent text-sm placeholder:text-muted-foreground resize-none focus:outline-none max-h-32"
         />
-        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/40">
+        <div className="flex items-center justify-between mt-1 pt-2 border-t border-border/40">
           <div className="flex gap-2">
             <button onClick={() => toast.info(t("support.attachmentsDialogClicked"))} className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-transparent hover:border-border" title={t("support.attachFiles")}>
               <Paperclip className="h-4 w-4 text-muted-foreground" />

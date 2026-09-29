@@ -15,7 +15,7 @@ interface SupportChatSidebarProps {
 export function SupportChatSidebar({ tickets, isLoading, selectedTicketId, onSelect }: SupportChatSidebarProps) {
   const { t } = useTranslation();
   return (
-    <div className="section-card flex flex-col h-full lg:col-span-1">
+    <div className="section-card flex flex-col h-full min-h-0 overflow-hidden lg:col-span-1">
       <div className="p-4 border-b border-border bg-muted/10 flex items-center justify-between shrink-0">
         <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
           <MessageSquare className="h-4.5 w-4.5 text-primary" /> {t("support.activeChatsCount", { count: tickets.length, defaultValue: "Active Chats ({{count}})" })}

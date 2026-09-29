@@ -22,7 +22,7 @@ interface SupportChatWindowProps {
 export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onTypedMessageChange, onKeyDown, onSend, onResolve, onReopen }: SupportChatWindowProps) {
   const { t } = useTranslation();
   return (
-    <div className="section-card flex flex-col h-full lg:col-span-2">
+    <div className="section-card flex flex-col h-full min-h-0 overflow-hidden lg:col-span-2">
       {ticket ? (
         <FadeIn key={ticket._id} className="flex flex-col flex-1 min-h-0">
           <SupportChatHeader ticket={ticket} onResolve={onResolve} onReopen={onReopen} />

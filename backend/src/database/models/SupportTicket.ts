@@ -17,6 +17,10 @@ export interface ISupportTicket extends Document {
   userId?: mongoose.Types.ObjectId | string;
   time: string;
   messages: IChatMessage[];
+  // The SUPPORT member who owns this case (see services/supportAssignment.service.ts).
+  // Unset while there are no support members; admins see every case regardless.
+  assignedTo?: mongoose.Types.ObjectId | null;
+  assignedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,9 +42,13 @@ const SupportTicketSchema: Schema = new Schema(
         time: { type: String, required: true },
         text: { type: String, default: "" }
       }
-    ]
+    ],
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    assignedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
+
+SupportTicketSchema.index({ assignedTo: 1, status: 1 });
 
 export default mongoose.model<ISupportTicket>("SupportTicket", SupportTicketSchema);

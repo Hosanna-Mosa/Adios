@@ -144,6 +144,8 @@
       "submitTicket": "టికెట్‌ను సమర్పించండి",
       "tellUsWhatHappenedAndWhen": "ఏమి జరిగిందో, ఎప్పుడు జరిగిందో మాకు తెలియజేయండి…",
       "thisCaseHasBeenMarkedResolved": "ఈ కేసు పరిష్కరించబడినట్లు గుర్తించబడింది.",
+      "newReplies_one": "సపోర్ట్ నుండి కొత్త రిప్లై",
+      "newReplies_other": "సపోర్ట్ నుండి {{count}} కొత్త రిప్లైలు",
       "reopenCase": "కేసును తిరిగి తెరవండి",
       "startNewChat": "కొత్త చాట్‌ను ప్రారంభించండి",
       "replyToSupport": "సపోర్ట్‌కు ప్రత్యుత్తరం ఇవ్వండి…",

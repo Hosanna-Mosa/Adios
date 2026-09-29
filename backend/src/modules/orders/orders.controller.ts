@@ -3,6 +3,7 @@ import { OrdersService } from "./orders.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import Order, { OrderStatus, ServiceType } from "../../database/models/Order";
 import Driver from "../../database/models/Driver";
+import { UserRole } from "../../database/models/User";
 import { CouponsService } from "../coupons/coupons.service";
 import { ValidationError, NotFoundError, UnauthorizedError, ConflictError, ForbiddenError } from "../../utils/errors";
 import { InvoiceService } from "../../services/invoice.service";
@@ -232,9 +233,13 @@ export class OrdersController {
       const { requestId } = req.params;
       const { accepted, reason } = req.body;
       // A vendor answers only for its own outlet: the id comes from the token, never the body.
-      // Staff may answer on a vendor's behalf with the vendorId they send.
+      // Admins may answer on a vendor's behalf with the vendorId they send. Support
+      // is view-only: canActForVendor lets them read a vendor's requests, not answer them.
       const role = String(req.user?.role || "");
-      const isStaff = role === "ADMIN" || role === "SUPPORT";
+      if (role === UserRole.SUPPORT) {
+        throw new ForbiddenError("Support can view scheduled deliveries but not respond to them.");
+      }
+      const isStaff = role === UserRole.ADMIN;
       const vendorId = isStaff ? req.body.vendorId : req.user?.userId;
       if (!vendorId || !ordersService.canActForVendor(String(vendorId), req.user)) {
         throw new NotFoundError("Scheduled delivery request not found");
@@ -282,6 +287,10 @@ export class OrdersController {
 
       // Who may move this order, and where to. Strangers get "not found".
       const { relation } = await ordersService.getOrderForActor(id as string, req.user);
+      // Support staff can look orders up to help customers, but only admins change them.
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
+        throw new ForbiddenError("Support can view orders but not change them.");
+      }
       const isCancel = String(status).toUpperCase() === OrderStatus.CANCELLED;
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");

@@ -12,6 +12,8 @@ import {
   updateOrderSchema,
   createSupportTicketSchema,
   updateSupportTicketSchema,
+  createSupportMemberSchema,
+  resetSupportMemberPasswordSchema,
   createOrderSchema,
   updateSystemConfigSchema,
   createCouponSchema,
@@ -44,6 +46,12 @@ router.get("/multistop", authenticateToken, authorizeRole([UserRole.ADMIN]), adm
 router.get("/tickets", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), adminController.getSupportTickets.bind(adminController));
 router.post("/tickets", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), validateRequest(createSupportTicketSchema), adminController.createSupportTicket.bind(adminController));
 router.put("/tickets/:id", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), validateRequest(updateSupportTicketSchema), adminController.updateSupportTicket.bind(adminController));
+
+// Support team accounts — admin only; support staff cannot manage each other.
+router.get("/support-members", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getSupportMembers.bind(adminController));
+router.post("/support-members", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createSupportMemberSchema), adminController.createSupportMember.bind(adminController));
+router.put("/support-members/:id/password", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(resetSupportMemberPasswordSchema), adminController.resetSupportMemberPassword.bind(adminController));
+router.delete("/support-members/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.deleteSupportMember.bind(adminController));
 
 // Settings and Coupons routes
 router.get("/config", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getSystemConfig.bind(adminController));
