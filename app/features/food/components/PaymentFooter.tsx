@@ -1,4 +1,5 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type PaymentStyles } from "@/features/food/usePayment.shared";
@@ -23,6 +24,7 @@ export function PaymentFooter({
   styles,
   total,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       <TouchableOpacity style={styles.payBtn} activeOpacity={0.9} onPress={handlePayment} disabled={processing}>
@@ -30,7 +32,7 @@ export function PaymentFooter({
           <ActivityIndicator size="small" color={accent.on} />
         ) : (
           <>
-            <Text style={styles.payBtnText}>Pay securely</Text>
+            <Text style={styles.payBtnText}>{t("app.payment.paySecurely")}</Text>
             <Text style={styles.payBtnPrice}>· ₹{total}</Text>
           </>
         )}

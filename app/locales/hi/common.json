@@ -1035,7 +1035,8 @@
       "cash": "नकद",
       "cashHint": "ड्राइवर को भुगतान करें",
       "online": "ऑनलाइन",
-      "onlineHint": "UPI, कार्ड, नेटबैंकिंग"
+      "onlineHint": "UPI, कार्ड, नेटबैंकिंग",
+      "paySecurely": "सुरक्षित रूप से भुगतान करें"
     },
     "personaldetails": {
       "couldntSave": "सेव नहीं हो सका"

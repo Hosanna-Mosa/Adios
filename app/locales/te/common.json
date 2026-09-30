@@ -1035,7 +1035,8 @@
       "cash": "నగదు",
       "cashHint": "డ్రైవర్‌కు చెల్లించండి",
       "online": "ఆన్‌లైన్",
-      "onlineHint": "UPI, కార్డులు, నెట్‌బ్యాంకింగ్"
+      "onlineHint": "UPI, కార్డులు, నెట్‌బ్యాంకింగ్",
+      "paySecurely": "సురక్షితంగా చెల్లించండి"
     },
     "personaldetails": {
       "couldntSave": "సేవ్ చేయలేకపోయాము"
