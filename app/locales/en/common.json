@@ -1033,7 +1033,8 @@
       "cash": "Cash",
       "cashHint": "Pay the driver",
       "online": "Online",
-      "onlineHint": "UPI, cards, netbanking"
+      "onlineHint": "UPI, cards, netbanking",
+      "paySecurely": "Pay securely"
     },
     "personaldetails": {
       "couldntSave": "Couldn't save"
