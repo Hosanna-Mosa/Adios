@@ -11,15 +11,35 @@ const connection = {
   port: parsedUrl.port ? Number(parsedUrl.port) : 6379,
   username: parsedUrl.username || undefined,
   password: parsedUrl.password || undefined,
+  maxRetriesPerRequest: null,
+  enableOfflineQueue: false,
+  retryStrategy: (times: number) => {
+    if (times > 2) {
+      return null; // Stop retrying when Redis is unreachable
+    }
+    return Math.min(times * 100, 1000);
+  }
 };
 
 export class QueueManager {
   private static instance: QueueManager;
-  private queue: Queue;
+  private queue: Queue | null = null;
   private worker: Worker | null = null;
+  private isAvailable: boolean = true;
 
   private constructor() {
-    this.queue = new Queue("reserved-rides", { connection });
+    try {
+      this.queue = new Queue("reserved-rides", { connection });
+      this.queue.on("error", (_err: any) => {
+        if (this.isAvailable) {
+          console.warn("⚠️  BullMQ Queue Redis connection failed. Reservation background queue is disabled.");
+          this.isAvailable = false;
+        }
+      });
+    } catch (err: any) {
+      console.warn("⚠️  Failed to instantiate BullMQ Queue:", err.message);
+      this.isAvailable = false;
+    }
   }
 
   public static getInstance(): QueueManager {
@@ -30,115 +50,144 @@ export class QueueManager {
   }
 
   public startWorker() {
-    if (this.worker) return;
+    if (this.worker || !this.isAvailable) return;
 
-    this.worker = new Worker("reserved-rides", async (job: Job) => {
-      console.log(`[QUEUE WORKER] Processing reservation job ${job.id} for order: ${job.data.orderId}`);
-      
-      const { orderId } = job.data;
-      const order = await Order.findById(orderId)
-        .populate("user")
-        .populate({
-          path: "driver",
-          populate: { path: "user" }
-        });
+    try {
+      this.worker = new Worker(
+        "reserved-rides",
+        async (job: Job) => {
+          console.log(`[QUEUE WORKER] Processing reservation job ${job.id} for order: ${job.data.orderId}`);
 
-      if (!order) {
-        console.warn(`[QUEUE WORKER] Order ${orderId} not found. Skipping.`);
-        return;
-      }
-
-      // Check if order is still a valid reserved order that has been assigned a driver but not notified
-      if (order.isReserved && order.status === OrderStatus.DRIVER_ASSIGNED && !order.notified15Min) {
-        order.notified15Min = true;
-        await order.save();
-
-        const orderUser = order.user as any;
-        const driverObj = order.driver as any;
-        const driverUser = driverObj?.user as any;
-
-        const payload = {
-          orderId: order._id,
-          isReserved: true,
-          reservedAt: order.reservedAt,
-          serviceType: order.serviceType,
-          customerName: orderUser?.name || "Customer",
-          customerPhone: orderUser?.phone || "",
-          driverName: driverUser?.name || "Driver",
-          driverPhone: driverUser?.phone || "",
-        };
-
-        const socketManager = SocketManager.getInstance();
-        if (socketManager) {
-          console.log(`[QUEUE WORKER] Dispatching socket notification for reservation order ${order._id}`);
-          if (orderUser?._id) {
-            socketManager.emitToUser(orderUser._id.toString(), "upcoming_reserved_ride", payload);
-          }
-          if (driverUser?._id) {
-            socketManager.emitToUser(driverUser._id.toString(), "upcoming_reserved_ride", payload);
-          }
-        }
-
-        // Send Push & In-app Notifications to both customer and driver
-        const notificationService = NotificationService.getInstance();
-        if (orderUser?._id) {
-          try {
-            await notificationService.sendNotification({
-              userId: orderUser._id.toString(),
-              title: "Upcoming Scheduled Ride ⏰",
-              body: `Your scheduled ${order.serviceType} ride is starting in 15 minutes.`,
-              type: "transactional",
-              category: "order_status",
-              data: { orderId: order._id, deepLink: { screen: "/tracking", params: { orderId: order._id.toString() } } }
+          const { orderId } = job.data;
+          const order = await Order.findById(orderId)
+            .populate("user")
+            .populate({
+              path: "driver",
+              populate: { path: "user" }
             });
-          } catch (err) {
-            console.error("[queue.service] Error sending customer reservation notification:", err);
+
+          if (!order) {
+            console.warn(`[QUEUE WORKER] Order ${orderId} not found. Skipping.`);
+            return;
           }
-        }
-        if (driverUser?._id) {
-          try {
-            await notificationService.sendNotification({
-              userId: driverUser._id.toString(),
-              title: "Upcoming Reserved Job ⏰",
-              body: `Your assigned job starts in 15 minutes. Please head to the customer.`,
-              type: "transactional",
-              category: "order_status",
-              data: { orderId: order._id, deepLink: { screen: "/active-order", params: { orderId: order._id.toString() } } }
-            });
-          } catch (err) {
-            console.error("[queue.service] Error sending driver reservation notification:", err);
+
+          // Check if order is still a valid reserved order that has been assigned a driver but not notified
+          if (order.isReserved && order.status === OrderStatus.DRIVER_ASSIGNED && !order.notified15Min) {
+            order.notified15Min = true;
+            await order.save();
+
+            const orderUser = order.user as any;
+            const driverObj = order.driver as any;
+            const driverUser = driverObj?.user as any;
+
+            const payload = {
+              orderId: order._id,
+              isReserved: true,
+              reservedAt: order.reservedAt,
+              serviceType: order.serviceType,
+              customerName: orderUser?.name || "Customer",
+              customerPhone: orderUser?.phone || "",
+              driverName: driverUser?.name || "Driver",
+              driverPhone: driverUser?.phone || "",
+            };
+
+            const socketManager = SocketManager.getInstance();
+            if (socketManager) {
+              console.log(`[QUEUE WORKER] Dispatching socket notification for reservation order ${order._id}`);
+              if (orderUser?._id) {
+                socketManager.emitToUser(orderUser._id.toString(), "upcoming_reserved_ride", payload);
+              }
+              if (driverUser?._id) {
+                socketManager.emitToUser(driverUser._id.toString(), "upcoming_reserved_ride", payload);
+              }
+            }
+
+            // Send Push & In-app Notifications to both customer and driver
+            const notificationService = NotificationService.getInstance();
+            if (orderUser?._id) {
+              try {
+                await notificationService.sendNotification({
+                  userId: orderUser._id.toString(),
+                  title: "Upcoming Scheduled Ride ⏰",
+                  body: `Your scheduled ${order.serviceType} ride is starting in 15 minutes.`,
+                  type: "transactional",
+                  category: "order_status",
+                  data: { orderId: order._id, deepLink: { screen: "/tracking", params: { orderId: order._id.toString() } } }
+                });
+              } catch (err) {
+                console.error("[queue.service] Error sending customer reservation notification:", err);
+              }
+            }
+            if (driverUser?._id) {
+              try {
+                await notificationService.sendNotification({
+                  userId: driverUser._id.toString(),
+                  title: "Upcoming Reserved Job ⏰",
+                  body: `Your assigned job starts in 15 minutes. Please head to the customer.`,
+                  type: "transactional",
+                  category: "order_status",
+                  data: { orderId: order._id, deepLink: { screen: "/active-order", params: { orderId: order._id.toString() } } }
+                });
+              } catch (err) {
+                console.error("[queue.service] Error sending driver reservation notification:", err);
+              }
+            }
+          } else {
+            console.log(`[QUEUE WORKER] Order ${orderId} status is ${order.status} (Notified: ${order.notified15Min}). No notification needed.`);
           }
+        },
+        { connection }
+      );
+
+      this.worker.on("error", (_err: any) => {
+        if (this.isAvailable) {
+          console.warn("⚠️  BullMQ Worker Redis connection failed. Reservation queue worker will be disabled.");
+          this.isAvailable = false;
         }
-      } else {
-        console.log(`[QUEUE WORKER] Order ${orderId} status is ${order.status} (Notified: ${order.notified15Min}). No notification needed.`);
-      }
-    }, { connection });
+      });
 
-    this.worker.on("completed", (job) => {
-      console.log(`[QUEUE WORKER] Job ${job.id} completed successfully.`);
-    });
+      this.worker.on("completed", (job) => {
+        console.log(`[QUEUE WORKER] Job ${job.id} completed successfully.`);
+      });
 
-    this.worker.on("failed", (job, err) => {
-      console.error(`[QUEUE WORKER] Job ${job?.id} failed:`, err.message);
-    });
+      this.worker.on("failed", (job, err) => {
+        console.error(`[QUEUE WORKER] Job ${job?.id} failed:`, err.message);
+      });
 
-    console.log("🚀 BullMQ worker started for 'reserved-rides' queue.");
+      console.log("🚀 BullMQ worker started for 'reserved-rides' queue.");
+    } catch (err: any) {
+      console.warn("⚠️  Failed to start BullMQ worker:", err.message);
+      this.isAvailable = false;
+    }
   }
 
   public async scheduleReservedRideNotification(orderId: string, delayMs: number) {
-    // Prevent scheduling if delay is negative or very small (fire immediately in 1 sec)
-    const delay = Math.max(1000, delayMs);
-    
-    // Add job with a unique job ID to prevent duplicate job dispatching for the same order
-    const jobId = `notify-15m-${orderId}`;
-    
-    await this.queue.add("notify-15-min", { orderId }, {
-      delay,
-      jobId,
-      removeOnComplete: true,
-      removeOnFail: true,
-    });
+    if (!this.isAvailable || !this.queue) {
+      console.warn(`[QUEUE] Redis is unavailable. Skipping 15m notification schedule for order ${orderId}`);
+      return;
+    }
 
-    console.log(`[QUEUE] Scheduled 15m notification for order ${orderId} with delay ${Math.round(delay / 1000)}s`);
+    try {
+      // Prevent scheduling if delay is negative or very small (fire immediately in 1 sec)
+      const delay = Math.max(1000, delayMs);
+
+      // Add job with a unique job ID to prevent duplicate job dispatching for the same order
+      const jobId = `notify-15m-${orderId}`;
+
+      await this.queue.add(
+        "notify-15-min",
+        { orderId },
+        {
+          delay,
+          jobId,
+          removeOnComplete: true,
+          removeOnFail: true,
+        }
+      );
+
+      console.log(`[QUEUE] Scheduled 15m notification for order ${orderId} with delay ${Math.round(delay / 1000)}s`);
+    } catch (err: any) {
+      console.warn(`[QUEUE] Could not schedule notification for order ${orderId}:`, err.message);
+    }
   }
 }
