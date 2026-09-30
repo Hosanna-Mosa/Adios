@@ -141,6 +141,16 @@ export class SocketManager {
     return null;
   }
 
+  /**
+   * orderRelation, minus support staff: they may watch an order live but not post
+   * into its chat or push status/task events to the customer, driver or vendor.
+   */
+  private async canActOnOrder(orderId: string, authUser: any) {
+    const relation = await this.orderRelation(orderId, authUser);
+    if (relation === "staff" && authUser?.role === "SUPPORT") return null;
+    return relation;
+  }
+
   private getRoomSize(roomId: string) {
     return this.io.sockets.adapter.rooms.get(roomId)?.size || 0;
   }
@@ -217,6 +227,8 @@ export class SocketManager {
           `role=${role} personalRoomSize=${this.getRoomSize(authUser.userId)}`
         );
         
+        // Admins-only room that receives every ticket update. Support members get
+        // just their own cases through their personal room (see emitTicketUpdate).
         if (role === "ADMIN") {
           socket.join("support_tickets");
           console.log(`[SOCKET][ADMIN][JOIN] socket=${socket.id} joined support_tickets room`);
@@ -407,7 +419,7 @@ export class SocketManager {
       socket.on("order_status_update", async (data: { orderId: string; status: string }) => {
         // Relayed only from someone who is part of this order (the real change goes through
         // PATCH /orders/:id/status, which has its own checks).
-        if (!(await this.orderRelation(data?.orderId, authUser))) {
+        if (!(await this.canActOnOrder(data?.orderId, authUser))) {
           console.warn(`[SOCKET SECURITY] order_status_update rejected from ${authUser?.userId} for ${data?.orderId}`);
           return;
         }
@@ -445,17 +457,17 @@ export class SocketManager {
 
       // HELPER TASK EVENTS
       socket.on("assign_task_confirmed", async (data: { orderId: string }) => {
-        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
+        if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("assign_task_confirmed", data);
       });
 
       socket.on("task_started", async (data: { orderId: string }) => {
-        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
+        if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("task_started", data);
       });
 
       socket.on("helper_status_update", async (data: { orderId: string, text: string }) => {
-        if (!data?.orderId || !(await this.orderRelation(data.orderId, authUser))) return;
+        if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;
         socket.to(data.orderId).emit("helper_status_update", data);
       });
 
@@ -482,8 +494,8 @@ export class SocketManager {
           return;
         }
 
-        // Only the order's customer, assigned driver, vendor or staff may post in its chat.
-        if (!(await this.orderRelation(data.orderId, authUser))) {
+        // Only the order's customer, assigned driver, vendor or an admin may post in its chat.
+        if (!(await this.canActOnOrder(data.orderId, authUser))) {
           console.warn(`[SOCKET SECURITY] send_message rejected from ${authUser.userId} for order ${data.orderId}`);
           return;
         }

@@ -4,19 +4,34 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { trackEvent } from "@/lib/analytics";
+import { socketService } from "@/lib/socketService";
+import { startSession, SUPPORT_HOME, type PanelRole } from "@/lib/session";
 
 export type ForgotStep = "email" | "otp" | "reset" | "done";
 
-// Covers the union of fields read across the vendor/meat/admin/support login
-// responses below -- each endpoint returns a differently-shaped payload
-// (vendor/meat put the token+profile fields directly on the response, admin/
-// support nest the profile under `user`), so this is intentionally loose
-// rather than a precise per-branch type.
-interface LoginResponse {
+// Vendor/meat logins put the token and profile fields directly on the response;
+// admin/support (/auth/login-password) nest the profile under `user`.
+interface VendorLoginResponse {
   token: string;
   name?: string;
   role?: string;
-  user?: { name: string };
+}
+
+interface StaffLoginResponse {
+  token: string;
+  user: { _id: string; name: string; email?: string; role: string };
+}
+
+const LOGIN_ROLE_KEY = "panel_login_role";
+
+function getRememberedLoginRole(): PanelRole {
+  try {
+    const stored = localStorage.getItem(LOGIN_ROLE_KEY);
+    if (stored === "admin" || stored === "support" || stored === "vendor") return stored;
+  } catch {
+    // Storage unavailable — fall through to the default.
+  }
+  return "vendor";
 }
 
 /** All auth/forgot-password state and logic for VendorLogin.tsx (work queue item #9). */
@@ -35,6 +50,17 @@ export function useVendorLogin() {
   const [forgotNewPassword, setForgotNewPassword] = useState("");
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState("");
 
+  const [loginRole, setLoginRoleState] = useState<PanelRole>(getRememberedLoginRole);
+
+  const setLoginRole = (role: PanelRole) => {
+    setLoginRoleState(role);
+    try {
+      localStorage.setItem(LOGIN_ROLE_KEY, role);
+    } catch {
+      // Only a convenience — the dropdown just starts on "vendor" next time.
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) {
@@ -47,63 +73,48 @@ export function useVendorLogin() {
       const isEmail = identifier.includes("@");
       const payload = isEmail ? { email: identifier, password } : { phone: identifier, password };
 
-      let data: LoginResponse;
-      let loginType: "vendor" | "admin" | "support" = "vendor";
+      // The chosen role decides the one endpoint we try. The server checks the
+      // account's role too, so picking "Admin" with support credentials fails.
+      if (loginRole === "admin" || loginRole === "support") {
+        const data = await adminFetch<StaffLoginResponse>("/auth/login-password", {
+          method: "POST",
+          body: JSON.stringify({ ...payload, role: loginRole === "admin" ? "ADMIN" : "SUPPORT" }),
+        });
 
+        trackEvent("login", { method: "password", panel_role: loginRole });
+        startSession(loginRole, data.token, data.user);
+        socketService.disconnect();
+
+        if (loginRole === "admin") {
+          toast.success(t("vendorAuth.welcomeBackAdmin", { name: data.user.name, defaultValue: "Welcome back, Admin {{name}}" }));
+          navigate("/");
+        } else {
+          toast.success(t("vendorAuth.welcomeBackSupport", { name: data.user.name, defaultValue: "Welcome back, Support {{name}}" }));
+          navigate(SUPPORT_HOME);
+        }
+        return;
+      }
+
+      let data: VendorLoginResponse;
       // 1. Try Restaurant Vendor login
       try {
-        data = await adminFetch<LoginResponse>("/vendors/login", {
+        data = await adminFetch<VendorLoginResponse>("/vendors/login", {
           method: "POST",
           body: JSON.stringify(payload),
         });
       } catch {
         // 2. If restaurant fails, try Meat Center login
-        try {
-          data = await adminFetch<LoginResponse>("/meat/login", {
-            method: "POST",
-            body: JSON.stringify(payload),
-          });
-        } catch {
-          // 3. If meat center fails, try Admin login
-          try {
-            data = await adminFetch<LoginResponse>("/auth/login-password", {
-              method: "POST",
-              body: JSON.stringify({ ...payload, role: "ADMIN" }),
-            });
-            loginType = "admin";
-          } catch {
-            // 4. If admin fails, try Support login
-            try {
-              data = await adminFetch<LoginResponse>("/auth/login-password", {
-                method: "POST",
-                body: JSON.stringify({ ...payload, role: "SUPPORT" }),
-              });
-              loginType = "support";
-            } catch {
-              throw new Error(t("vendorAuth.invalidCredentialsForAnyRole"));
-            }
-          }
-        }
+        data = await adminFetch<VendorLoginResponse>("/meat/login", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
       }
 
-      trackEvent("login", { method: "password", panel_role: loginType });
-
-      if (loginType === "admin") {
-        localStorage.setItem("admin_token", data.token);
-        localStorage.setItem("admin_data", JSON.stringify(data.user));
-        toast.success(t("vendorAuth.welcomeBackAdmin", { name: data.user.name, defaultValue: "Welcome back, Admin {{name}}" }));
-        navigate("/");
-      } else if (loginType === "support") {
-        localStorage.setItem("support_token", data.token);
-        localStorage.setItem("support_data", JSON.stringify(data.user));
-        toast.success(t("vendorAuth.welcomeBackSupport", { name: data.user.name, defaultValue: "Welcome back, Support {{name}}" }));
-        navigate("/support-cases");
-      } else {
-        localStorage.setItem("vendor_token", data.token);
-        localStorage.setItem("vendor_data", JSON.stringify(data));
-        toast.success(t("vendorAuth.welcomeBack", { name: data.name, defaultValue: "Welcome back, {{name}}" }));
-        navigate(data.role === "meat_vendor" ? "/vendor/meat-menu" : "/vendor/dashboard");
-      }
+      trackEvent("login", { method: "password", panel_role: "vendor" });
+      startSession("vendor", data.token, data);
+      socketService.disconnect();
+      toast.success(t("vendorAuth.welcomeBack", { name: data.name, defaultValue: "Welcome back, {{name}}" }));
+      navigate(data.role === "meat_vendor" ? "/vendor/meat-menu" : "/vendor/dashboard");
     } catch (error) {
       toast.error((error as Error).message || t("vendorAuth.invalidCredentials"));
     } finally {
@@ -215,6 +226,8 @@ export function useVendorLogin() {
   };
 
   return {
+    loginRole,
+    setLoginRole,
     isLoading,
     identifier,
     setIdentifier,

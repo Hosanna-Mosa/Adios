@@ -22,6 +22,8 @@ export interface Ticket {
   time: string;
   createdAt: string;
   messages: TicketMessage[];
+  /** The support member who owns the case (populated with their name by GET /admin/tickets). */
+  assignedTo?: { _id: string; name: string } | null;
 }
 
 export interface NewTicketForm {
@@ -29,4 +31,24 @@ export interface NewTicketForm {
   category: string;
   message: string;
   user: string;
+}
+
+/** A SUPPORT-role account the admin created (GET /admin/support-members). */
+export interface SupportMember {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  createdAt: string;
+  /** OPEN cases — these count toward caseLimit. */
+  openCount: number;
+  /** Cases waiting on the customer to confirm resolution — not counted toward the limit. */
+  pendingCount: number;
+  caseLimit: number;
+}
+
+export interface NewSupportMemberForm {
+  name: string;
+  email: string;
+  password: string;
 }

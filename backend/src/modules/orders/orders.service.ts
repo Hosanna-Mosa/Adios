@@ -18,6 +18,7 @@ import { CartService } from "../cart/cart.service";
 import { InvoiceService } from "../../services/invoice.service";
 import ChatMessage from "../../database/models/ChatMessage";
 import { RefundService } from "../payments/refund.service";
+import { assignAndSaveTicket, emitTicketUpdate } from "../../services/supportAssignment.service";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -1617,7 +1618,8 @@ export class OrdersService {
         }
       ]
     });
-    await supportTicket.save();
+    await assignAndSaveTicket(supportTicket);
+    emitTicketUpdate(supportTicket);
 
     // 2. Query all Admin users
     const admins = await User.find({ role: "ADMIN" });

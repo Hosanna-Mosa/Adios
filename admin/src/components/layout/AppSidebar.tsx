@@ -2,6 +2,8 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
+import { clearSession, getStaffRole } from "@/lib/session";
+import { socketService } from "@/lib/socketService";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -29,6 +31,9 @@ import {
   MessageSquare,
   Image,
 } from "lucide-react";
+
+// The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
+const SUPPORT_NAV_URLS = new Set(["/support", "/support-cases", "/support/chats"]);
 
 function getNavItems(t: (key: string) => string) {
   return [
@@ -60,13 +65,14 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const navItems = getNavItems(t);
 
+  const isSupport = getStaffRole() === "support";
+  const visibleNavItems = isSupport ? navItems.filter((item) => SUPPORT_NAV_URLS.has(item.url)) : navItems;
+
   const handleLogout = () => {
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_data");
-    localStorage.removeItem("vendor_token");
-    localStorage.removeItem("vendor_data");
-    localStorage.removeItem("support_token");
-    localStorage.removeItem("support_data");
+    clearSession();
+    // The socket authenticated with this session's token; drop it so the next
+    // sign-in (possibly a different role) connects with its own.
+    socketService.disconnect();
     navigate("/vendor-login");
   };
   return (
@@ -77,6 +83,12 @@ export function AppSidebar() {
           <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground font-bold mt-0.5">
             {t("sidebar.foodAndServices")}
           </p>
+          {isSupport && (
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-teal-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-teal">
+              <Headphones className="h-3 w-3" />
+              {t("panelAuth.supportDesk", "Support desk")}
+            </span>
+          )}
         </div>
 
         <motion.nav
@@ -85,13 +97,7 @@ export function AppSidebar() {
           animate="visible"
           variants={staggerContainer}
         >
-          {(() => {
-            const isSupport = !!localStorage.getItem("support_token");
-            const filteredNavItems = isSupport
-              ? navItems.filter(item => item.url === "/support-cases" || item.url === "/support/chats")
-              : navItems;
-
-            return filteredNavItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = location.pathname.startsWith(item.url);
             return (
               <motion.div key={item.url} variants={fadeInUp}>
@@ -115,30 +121,31 @@ export function AppSidebar() {
                 </Link>
               </motion.div>
             );
-          })
-        })()}
+          })}
         </motion.nav>
       </div>
 
       <div className="space-y-4 pb-4">
-        {/* Need Help? Box */}
-        <div className="mx-4 p-4 rounded-2xl bg-[#f8fafc] border border-border flex flex-col gap-3">
-          <div className="flex gap-3">
-            <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-muted-foreground shrink-0 border border-border shadow-sm">
-              <Headphones className="h-4.5 w-4.5" />
+        {/* Need Help? Box — support staff are the help, so it's admin-only */}
+        {!isSupport && (
+          <div className="mx-4 p-4 rounded-2xl bg-[#f8fafc] border border-border flex flex-col gap-3">
+            <div className="flex gap-3">
+              <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-muted-foreground shrink-0 border border-border shadow-sm">
+                <Headphones className="h-4.5 w-4.5" />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs font-bold text-foreground">{t("sidebar.needHelp")}</p>
+                <p className="text-[10px] text-muted-foreground leading-tight">{t("sidebar.contactSupportForAssistance")}</p>
+              </div>
             </div>
-            <div className="space-y-0.5">
-              <p className="text-xs font-bold text-foreground">{t("sidebar.needHelp")}</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">{t("sidebar.contactSupportForAssistance")}</p>
-            </div>
+            <button
+              onClick={() => navigate("/support")}
+              className="w-full py-2 border border-border bg-white text-xs font-semibold rounded-xl text-foreground hover:bg-muted/50 transition-colors shadow-sm"
+            >
+              {t("sidebar.contactSupport")}
+            </button>
           </div>
-          <button
-            onClick={() => navigate("/support")}
-            className="w-full py-2 border border-border bg-white text-xs font-semibold rounded-xl text-foreground hover:bg-muted/50 transition-colors shadow-sm"
-          >
-            {t("sidebar.contactSupport")}
-          </button>
-        </div>
+        )}
 
         {/* Logout Button */}
         <div className="px-6 pt-3 border-t border-border">

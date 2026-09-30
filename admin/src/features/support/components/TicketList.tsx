@@ -4,6 +4,7 @@ import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { Ticket } from "../types";
 import { ticketStatusLabel } from "../ticketLabels";
+import { AssigneeBadge } from "./AssigneeBadge";
 
 interface TicketListProps {
   tickets: Ticket[];
@@ -56,6 +57,9 @@ export function TicketList({ tickets, isLoading, selectedTicketId, onSelect }: T
                     )}
                   </div>
                   <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mt-0.5">{ticket.category}</p>
+                  <div className="mt-1.5">
+                    <AssigneeBadge assignedTo={ticket.assignedTo} />
+                  </div>
                 </div>
               </div>
             </div>

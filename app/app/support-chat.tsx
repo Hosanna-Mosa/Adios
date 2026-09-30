@@ -10,6 +10,7 @@ import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicket
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
 import { getSupportCategories, useSupportChat } from "@/features/support/useSupportChat";
+import { useSupportUnreadReplies } from "@/features/support/useSupportUnreadReplies";
 
 export default function SupportChatScreen() {
   const {
@@ -19,6 +20,7 @@ export default function SupportChatScreen() {
   handleResolve, handleReopen
   } = useSupportChat();
   const { t } = useTranslation();
+  const { unreadCount } = useSupportUnreadReplies(allTickets, ticket, viewMode === "chat");
 
   const STATUS_LABEL: Record<string, string> = useMemo(() => ({
     OPEN: t("app.supportChat.statusLabel.open"),
@@ -127,6 +129,7 @@ export default function SupportChatScreen() {
         styles={styles}
         ticket={ticket}
         tokens={tokens}
+        unreadCount={unreadCount}
       />
     </ScreenShell>
   );

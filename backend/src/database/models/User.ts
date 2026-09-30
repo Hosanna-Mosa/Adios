@@ -120,7 +120,17 @@ const UserSchema: Schema = new Schema(
     favorites: [{ type: Schema.Types.ObjectId, ref: "Vendor", default: [] }],
     favoriteItems: [{ type: Schema.Types.ObjectId, default: [] }],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Never send the bcrypt hash to a client: login responses and admin user
+    // lists all serialize User documents through res.json.
+    toJSON: {
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret.password;
+        return ret;
+      },
+    },
+  }
 );
 
 // Hash password before saving

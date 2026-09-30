@@ -2,7 +2,7 @@ import { Response } from "express";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import SupportTicket from "../../database/models/SupportTicket";
 import User from "../../database/models/User";
-import { SocketManager } from "../../sockets/socket.manager";
+import { assignAndSaveTicket, emitTicketUpdate } from "../../services/supportAssignment.service";
 
 export class SupportController {
   async getTickets(req: AuthRequest, res: Response) {
@@ -50,20 +50,8 @@ export class SupportController {
         ]
       });
 
-      await ticket.save();
-      
-      // Emit socket event to admin support room and user personal room
-      try {
-        const io = SocketManager.getInstance().getIo();
-        if (io) {
-          io.to("support_tickets").emit("ticket_updated", ticket);
-          if (ticket.userId) {
-            io.to(ticket.userId.toString()).emit("ticket_updated", ticket);
-          }
-        }
-      } catch (err) {
-        console.error("Socket emit support update error:", err);
-      }
+      await assignAndSaveTicket(ticket);
+      emitTicketUpdate(ticket);
 
       return res.status(201).json(ticket);
     } catch (error) {
@@ -105,18 +93,7 @@ export class SupportController {
 
       await ticket.save();
 
-      // Emit socket event to admin support room and user personal room
-      try {
-        const io = SocketManager.getInstance().getIo();
-        if (io) {
-          io.to("support_tickets").emit("ticket_updated", ticket);
-          if (ticket.userId) {
-            io.to(ticket.userId.toString()).emit("ticket_updated", ticket);
-          }
-        }
-      } catch (err) {
-        console.error("Socket emit support update error:", err);
-      }
+      emitTicketUpdate(ticket);
 
       return res.json(ticket);
     } catch (error) {
@@ -160,18 +137,7 @@ export class SupportController {
 
       await ticket.save();
 
-      // Emit socket event to admin support room and user personal room
-      try {
-        const io = SocketManager.getInstance().getIo();
-        if (io) {
-          io.to("support_tickets").emit("ticket_updated", ticket);
-          if (ticket.userId) {
-            io.to(ticket.userId.toString()).emit("ticket_updated", ticket);
-          }
-        }
-      } catch (err) {
-        console.error("Socket emit support update error:", err);
-      }
+      emitTicketUpdate(ticket);
 
       return res.json(ticket);
     } catch (error) {

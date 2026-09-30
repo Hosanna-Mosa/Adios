@@ -13,12 +13,15 @@ async function seedAdmin() {
     console.log("Connected to MongoDB Database:", mongoose.connection.name);
 
     const adminPhone = "9999999999";
+    // Stored lowercase: login lowercases the identifier before matching on email.
+    const adminEmail = "admin@adios.com";
     const existingAdmin = await User.findOne({ phone: adminPhone });
 
     if (existingAdmin) {
       console.log("Admin already exists in this database with phone:", adminPhone);
-      // Ensure role is ADMIN and password is correct even if it exists
+      // Ensure role, email and password are correct even if it exists
       existingAdmin.role = UserRole.ADMIN;
+      existingAdmin.email = adminEmail;
       existingAdmin.password = "admin123";
       await existingAdmin.save();
       console.log("Existing admin credentials verified and updated.");
@@ -28,7 +31,7 @@ async function seedAdmin() {
     const admin = new User({
       name: "System Admin",
       phone: adminPhone,
-      email: "admin@precisionnav.com",
+      email: adminEmail,
       role: UserRole.ADMIN,
       password: "admin123"
     });

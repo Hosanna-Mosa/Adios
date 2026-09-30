@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
-import User from "../../database/models/User";
+import { Types } from "mongoose";
+import User, { UserRole } from "../../database/models/User";
 import SupportTicket from "../../database/models/SupportTicket";
 import Coupon from "../../database/models/Coupon";
 import SystemConfig from "../../database/models/SystemConfig";
@@ -9,8 +10,33 @@ import ChatMessage from "../../database/models/ChatMessage";
 import AppVersion from "../../database/models/AppVersion";
 import Zone from "../../database/models/Zone";
 import Banner from "../../database/models/Banner";
-import { SocketManager } from "../../sockets/socket.manager";
+import { AuthRequest } from "../../middleware/auth.middleware";
+import {
+  SUPPORT_CASE_LIMIT,
+  assignAndSaveTicket,
+  assignUnownedTickets,
+  emitTicketUpdate,
+  getSupportWorkloads,
+} from "../../services/supportAssignment.service";
 import { NotificationService } from "../../services/notification.service";
+
+const SUPPORT_PHONE_PREFIX = "support-";
+
+function findSupportMember(id: string) {
+  if (!Types.ObjectId.isValid(id)) return null;
+  // Scoped to SUPPORT so these endpoints can never touch an admin, driver or customer.
+  return User.findOne({ _id: id, role: UserRole.SUPPORT });
+}
+
+function toSupportMemberResponse(member: { _id: unknown; name: string; email?: string; phone?: string; createdAt?: Date }) {
+  return {
+    _id: String(member._id),
+    name: member.name,
+    email: member.email ?? "",
+    phone: member.phone && !member.phone.startsWith(SUPPORT_PHONE_PREFIX) ? member.phone : null,
+    createdAt: member.createdAt,
+  };
+}
 
 export class AdminController {
   async getAllOrders(req: Request, res: Response) {
@@ -487,16 +513,18 @@ export class AdminController {
     }
   }
 
-  async getSupportTickets(req: Request, res: Response) {
+  async getSupportTickets(req: AuthRequest, res: Response) {
     try {
-      const tickets = await SupportTicket.find().sort({ createdAt: -1 });
+      // Support members only ever see the cases assigned to them; admins see all.
+      const filter = req.user?.role === UserRole.SUPPORT ? { assignedTo: req.user.userId } : {};
+      const tickets = await SupportTicket.find(filter).populate("assignedTo", "name").sort({ createdAt: -1 });
       return res.json(tickets);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }
   }
 
-  async createSupportTicket(req: Request, res: Response) {
+  async createSupportTicket(req: AuthRequest, res: Response) {
     try {
       const { title, category, message, user } = req.body;
       const ticketId = `QX-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -513,19 +541,29 @@ export class AdminController {
           { sender: "user", time: "Just now", text: message }
         ]
       });
-      await ticket.save();
+      // A support member keeps the case they opened; an admin's case is auto-assigned.
+      if (req.user?.role === UserRole.SUPPORT) {
+        ticket.assignedTo = new Types.ObjectId(req.user.userId);
+        ticket.assignedAt = new Date();
+        await ticket.save();
+      } else {
+        await assignAndSaveTicket(ticket);
+      }
+      emitTicketUpdate(ticket);
       return res.status(201).json(ticket);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }
   }
 
-  async updateSupportTicket(req: Request, res: Response) {
+  async updateSupportTicket(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status, replyText, sender } = req.body;
+      const { status, replyText } = req.body;
       const ticket = await SupportTicket.findById(id);
-      if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+      // Another member's case answers exactly like a missing one.
+      const isForeignCase = req.user?.role === UserRole.SUPPORT && ticket?.assignedTo?.toString() !== req.user.userId;
+      if (!ticket || isForeignCase) return res.status(404).json({ message: "Ticket not found" });
 
       if (status !== undefined) {
         if (status === "RESOLVED") {
@@ -543,30 +581,20 @@ export class AdminController {
 
       if (replyText) {
         const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        // Only staff reach this endpoint, so every reply is a staff reply. The
+        // body's `sender` is ignored so support can't post as the customer or system.
         ticket.messages.push({
-          sender: sender || "admin",
+          sender: "admin",
           time: now,
           text: replyText
         });
       }
 
       await ticket.save();
-
-      // Emit socket event to admin support room and user personal room
-      try {
-        const io = SocketManager.getInstance().getIo();
-        if (io) {
-          io.to("support_tickets").emit("ticket_updated", ticket);
-          if (ticket.userId) {
-            io.to(ticket.userId.toString()).emit("ticket_updated", ticket);
-          }
-        }
-      } catch (err) {
-        console.error("Socket emit admin support update error:", err);
-      }
+      emitTicketUpdate(ticket);
 
       // Push-notify the customer/driver when staff sends a reply (fire-and-forget).
-      if (replyText && sender !== "user" && ticket.userId) {
+      if (replyText && ticket.userId) {
         try {
           await NotificationService.getInstance().sendNotification({
             userId: ticket.userId.toString(),
@@ -585,6 +613,92 @@ export class AdminController {
       }
 
       return res.json(ticket);
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  // Support team accounts: SUPPORT-role Users that sign in to the admin panel
+  // with an email + password the admin sets here. Passwords are bcrypt-hashed by
+  // the User model, so they can be reset but never read back.
+  async getSupportMembers(req: Request, res: Response) {
+    try {
+      const [members, workloads] = await Promise.all([
+        User.find({ role: UserRole.SUPPORT }).select("name email phone createdAt updatedAt").sort({ createdAt: -1 }).lean(),
+        getSupportWorkloads(),
+      ]);
+      return res.json(
+        members.map((member) => {
+          const workload = workloads.find((w) => w.memberId.equals(member._id));
+          return {
+            ...toSupportMemberResponse(member),
+            openCount: workload?.openCount ?? 0,
+            pendingCount: workload?.pendingCount ?? 0,
+            caseLimit: SUPPORT_CASE_LIMIT,
+          };
+        }),
+      );
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async createSupportMember(req: Request, res: Response) {
+    try {
+      const { name, email, password } = req.body;
+
+      const existing = await User.findOne({ email }).select("_id").lean();
+      if (existing) {
+        return res.status(409).json({ message: "An account with this email already exists" });
+      }
+
+      // Every User needs a unique phone, but support staff sign in by email. The
+      // placeholder can never match a real phone login: it contains letters.
+      const member = new User({
+        name,
+        email,
+        password,
+        phone: `${SUPPORT_PHONE_PREFIX}${new Types.ObjectId().toHexString()}`,
+        role: UserRole.SUPPORT,
+      });
+      await member.save();
+      // Cases that arrived while nobody was on the team go to the new member(s) now.
+      await assignUnownedTickets();
+
+      return res.status(201).json(toSupportMemberResponse(member.toObject()));
+    } catch (error) {
+      console.error("Error creating support member:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async resetSupportMemberPassword(req: Request, res: Response) {
+    try {
+      const member = await findSupportMember(String(req.params.id));
+      if (!member) return res.status(404).json({ message: "Support member not found" });
+
+      member.password = req.body.password;
+      // Signs the member out everywhere: tokens minted with the old version stop working.
+      member.tokenVersion = (member.tokenVersion ?? 0) + 1;
+      await member.save();
+
+      return res.json({ message: "Password updated" });
+    } catch (error) {
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async deleteSupportMember(req: Request, res: Response) {
+    try {
+      const member = await findSupportMember(String(req.params.id));
+      if (!member) return res.status(404).json({ message: "Support member not found" });
+
+      // Their open sessions die with the document: authenticateToken 401s a token
+      // whose User no longer exists.
+      await member.deleteOne();
+      // Their unresolved cases go back through the assignment rule.
+      await assignUnownedTickets();
+      return res.json({ message: "Support member removed" });
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }

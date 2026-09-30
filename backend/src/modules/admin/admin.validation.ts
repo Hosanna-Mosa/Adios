@@ -80,9 +80,33 @@ export const updateSupportTicketSchema = z.object({
     id: z.string().min(1, "Ticket ID is required"),
   }),
   body: z.object({
-    status: z.string().optional(),
+    status: z.enum(["OPEN", "RESOLVED", "PENDING_RESOLVE"]).optional(),
     replyText: z.string().optional(),
     sender: z.string().optional(),
+  }),
+});
+
+// bcrypt ignores everything past 72 bytes, so a longer password would give a false sense of strength.
+const supportPasswordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .max(72, "Password must be at most 72 characters");
+
+export const createSupportMemberSchema = z.object({
+  body: z.object({
+    name: z.string().trim().min(1, "Name is required").max(80),
+    // Login lowercases the identifier before matching on email, so store it lowercase too.
+    email: z.string().trim().toLowerCase().email("Invalid email"),
+    password: supportPasswordSchema,
+  }),
+});
+
+export const resetSupportMemberPasswordSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Member ID is required"),
+  }),
+  body: z.object({
+    password: supportPasswordSchema,
   }),
 });
 

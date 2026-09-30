@@ -32,39 +32,51 @@ interface Props {
   styles: SupportChatStyles;
   ticket: any;
   tokens: ThemeTokens;
+  /** Support replies the customer hasn't opened yet (see useSupportUnreadReplies). */
+  unreadCount: (ticket: any) => number;
 }
 
 export function SupportTicketList(props: Props) {
-  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens } = props;
+  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens, unreadCount } = props;
   const { t } = useTranslation();
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
       {allTickets.length > 0 && (
         <View style={{ paddingHorizontal: 16, paddingTop: 16, gap: 12 }}>
-          {allTickets.map((t, idx) => {
-            const isResolved = t.status === "RESOLVED";
-            const isPending = t.status === "PENDING_RESOLVE";
+          {allTickets.map((item, idx) => {
+            const isResolved = item.status === "RESOLVED";
+            const isPending = item.status === "PENDING_RESOLVE";
             const stripeColor = isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning;
+            const newReplies = unreadCount(item);
             return (
-              <Animated.View key={t._id} entering={staggerListItem(idx)}>
+              <Animated.View key={item._id} entering={staggerListItem(idx)}>
                 <TouchableOpacity
                   activeOpacity={isResolved ? 1 : 0.85}
-                  onPress={() => { if (!isResolved) { setTicket(t); setViewMode("chat"); } }}
+                  onPress={() => { if (!isResolved) { setTicket(item); setViewMode("chat"); } }}
                   style={[styles.caseCard, { borderLeftColor: stripeColor }]}
                 >
                   <View style={styles.caseTopRow}>
-                    <Text style={[styles.caseEyebrow, { color: stripeColor }]} numberOfLines={1}>{t.category} · #{t.ticketId}</Text>
+                    <Text style={[styles.caseEyebrow, { color: stripeColor }]} numberOfLines={1}>{item.category} · #{item.ticketId}</Text>
                     <View style={[styles.caseStatusPill, { backgroundColor: isResolved ? tokens.successSkin : isPending ? tokens.services.task.skin : tokens.warningSkin }]}>
-                      <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]}>{STATUS_LABEL[t.status]}</Text>
+                      <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]}>{STATUS_LABEL[item.status]}</Text>
                     </View>
                   </View>
-                  <Text style={styles.caseTitle} numberOfLines={1}>{t.title}</Text>
+                  <Text style={styles.caseTitle} numberOfLines={1}>{item.title}</Text>
+                  {newReplies > 0 && (
+                    <View
+                      style={[styles.newReplyBadge, { backgroundColor: accent.skin, borderColor: accent.accent }]}
+                      accessibilityLabel={t("app.support.newReplies", { count: newReplies })}
+                    >
+                      <View style={[styles.newReplyDot, { backgroundColor: accent.accent }]} />
+                      <Text style={[styles.newReplyText, { color: accent.accent }]}>{t("app.support.newReplies", { count: newReplies })}</Text>
+                    </View>
+                  )}
                   <Text style={styles.caseMeta}>
-                    {isResolved ? `Closed ${formatDate(t.updatedAt)}` : `${t.messages.length} message${t.messages.length === 1 ? "" : "s"} · updated ${formatDate(t.updatedAt)}`}
+                    {isResolved ? `Closed ${formatDate(item.updatedAt)}` : `${item.messages.length} message${item.messages.length === 1 ? "" : "s"} · updated ${formatDate(item.updatedAt)}`}
                   </Text>
                   {isResolved && (
                     <View style={styles.caseActionRow}>
-                      <TouchableOpacity style={styles.caseActionOutline} onPress={() => handleReopen(t)}>
+                      <TouchableOpacity style={styles.caseActionOutline} onPress={() => handleReopen(item)}>
                         <Text style={styles.caseActionOutlineText}>{t("app.support.reopenCase")}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity

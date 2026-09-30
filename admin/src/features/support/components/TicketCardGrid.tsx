@@ -4,6 +4,7 @@ import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 import type { Ticket } from "../types";
 import { ticketStatusLabel } from "../ticketLabels";
+import { AssigneeBadge } from "./AssigneeBadge";
 
 interface TicketCardGridProps {
   tickets: Ticket[];
@@ -66,6 +67,9 @@ export function TicketCardGrid({ tickets, isLoading, onOpenChat }: TicketCardGri
                   )}
                 </span>
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{ticket.category}</span>
+              </div>
+              <div className="mt-2">
+                <AssigneeBadge assignedTo={ticket.assignedTo} />
               </div>
 
               <p className="text-xs text-muted-foreground mt-3 line-clamp-2 italic">{ticket.message ? ticket.message.replace(/^"|"$/g, "") : t("support.noDescriptionProvided")}</p>
