@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export function ReferenceDialog({
   open, onOpenChange, title, description, summary, fieldLabel, fieldPlaceholder, withNote,
   submitLabel, destructive, isSubmitting, onSubmit,
 }: ReferenceDialogProps) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
   const [note, setNote] = useState("");
 
@@ -63,8 +65,8 @@ export function ReferenceDialog({
           </div>
           {withNote && (
             <div className="space-y-2">
-              <label htmlFor="money-note" className="text-sm font-medium">Note (optional)</label>
-              <Textarea id="money-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Paid by NEFT from the HDFC current account" />
+              <label htmlFor="money-note" className="text-sm font-medium">{t("money.fieldNoteOptional")}</label>
+              <Textarea id="money-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder={t("money.fieldNotePlaceholder")} />
             </div>
           )}
           <Button
@@ -73,7 +75,7 @@ export function ReferenceDialog({
             className="w-full h-11 rounded-xl"
             disabled={isSubmitting || trimmed.length < 3}
           >
-            {isSubmitting ? "Saving..." : submitLabel}
+            {isSubmitting ? t("common.savingEllipsis") : submitLabel}
           </Button>
         </form>
       </DialogContent>

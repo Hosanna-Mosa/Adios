@@ -1,4 +1,5 @@
 import { Hourglass, CheckCircle2, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StaggerList } from "@/components/motion/StaggerList";
@@ -9,46 +10,47 @@ import { FilterTabs } from "@/features/money/components/MoneyBits";
 import { ReferenceDialog } from "@/features/money/components/ReferenceDialog";
 import { rupees } from "@/features/money/moneyTypes";
 
-const EMPTY: Record<PayoutFilter, string> = {
-  pending: "No payout requests waiting. Driver and vendor cash-outs appear here.",
-  processed: "No payouts marked paid yet.",
-  failed: "No rejected payouts.",
-  ALL: "No payout requests yet.",
-};
-
 export default function Payouts() {
+  const { t } = useTranslation();
   const {
     payouts, filtered, isLoading, filter, setFilter, paying, setPaying, rejecting, setRejecting,
     markPaid, reject, toPayCount, toPayTotal, paidCount, rejectedCount,
   } = usePayouts();
 
+  const EMPTY: Record<PayoutFilter, string> = {
+    pending: t("money.emptyPayoutsPending"),
+    processed: t("money.emptyPayoutsProcessed"),
+    failed: t("money.emptyPayoutsFailed"),
+    ALL: t("money.emptyPayoutsAll"),
+  };
+
   const summary = (row: typeof paying) =>
     row && (
       <>
-        <p className="font-semibold text-foreground">{rupees(row.amount)} to {row.name} ({row.kind})</p>
-        <p className="text-muted-foreground">A/c {row.bank.accountNumber || "missing"} · IFSC {row.bank.ifsc || "missing"}</p>
+        <p className="font-semibold text-foreground">{t("money.payoutToPayee", { amount: rupees(row.amount), name: row.name, kind: row.kind })}</p>
+        <p className="text-muted-foreground">{t("money.bankLine", { accountNumber: row.bank.accountNumber || t("money.missing"), ifsc: row.bank.ifsc || t("money.missing") })}</p>
       </>
     );
 
   return (
-    <DashboardLayout searchPlaceholder="Search payouts...">
+    <DashboardLayout searchPlaceholder={t("money.searchPayoutsPlaceholder")}>
       <div className="space-y-6">
         <div>
-          <h1 className="page-header">Payouts</h1>
+          <h1 className="page-header">{t("money.pagePayoutsTitle")}</h1>
           <p className="page-subtitle">
-            Drivers and vendors request a cash-out; transfer the amount from the bank, then record the UTR here. They're notified automatically.
+            {t("money.pagePayoutsSubtitle")}
           </p>
         </div>
 
         <StaggerList className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StaggerItem>
-            <StatCard icon={<Hourglass className="h-5 w-5" />} label="To pay" value={rupees(toPayTotal)} badge={`${toPayCount} request${toPayCount === 1 ? "" : "s"}`} badgeColor={toPayCount ? "destructive" : "muted"} />
+            <StatCard icon={<Hourglass className="h-5 w-5" />} label={t("money.statToPayLabel")} value={rupees(toPayTotal)} badge={t("money.statRequestCount", { count: toPayCount })} badgeColor={toPayCount ? "destructive" : "muted"} />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<CheckCircle2 className="h-5 w-5" />} label="Paid" value={paidCount.toString()} />
+            <StatCard icon={<CheckCircle2 className="h-5 w-5" />} label={t("money.statPaid")} value={paidCount.toString()} />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<XCircle className="h-5 w-5" />} label="Rejected / failed" value={rejectedCount.toString()} badge="Amount returned to balance" badgeColor="muted" />
+            <StatCard icon={<XCircle className="h-5 w-5" />} label={t("money.statRejectedFailed")} value={rejectedCount.toString()} badge={t("money.statAmountReturnedToBalance")} badgeColor="muted" />
           </StaggerItem>
         </StaggerList>
 
@@ -56,10 +58,10 @@ export default function Payouts() {
           value={filter}
           onChange={setFilter}
           options={[
-            { value: "pending", label: "To pay", count: toPayCount },
-            { value: "processed", label: "Paid", count: paidCount },
-            { value: "failed", label: "Rejected", count: rejectedCount },
-            { value: "ALL", label: "All", count: payouts.length },
+            { value: "pending", label: t("money.statToPayLabel"), count: toPayCount },
+            { value: "processed", label: t("money.statPaid"), count: paidCount },
+            { value: "failed", label: t("money.filterRejected"), count: rejectedCount },
+            { value: "ALL", label: t("money.filterAll"), count: payouts.length },
           ]}
         />
 
@@ -69,13 +71,13 @@ export default function Payouts() {
       <ReferenceDialog
         open={!!paying}
         onOpenChange={(open) => !open && setPaying(null)}
-        title="Mark payout as paid"
-        description="Only do this after the money has left the bank. The payee is notified with this reference."
+        title={t("money.dialogMarkPayoutPaidTitle")}
+        description={t("money.dialogMarkPayoutPaidDesc")}
         summary={summary(paying)}
-        fieldLabel="Bank / UPI reference (UTR)"
-        fieldPlaceholder="e.g. HDFCN52026092512345"
+        fieldLabel={t("money.fieldBankUpiReferenceUtr")}
+        fieldPlaceholder={t("money.fieldBankUpiReferenceUtrPlaceholder")}
         withNote
-        submitLabel="Mark paid"
+        submitLabel={t("money.submitMarkPaid")}
         isSubmitting={markPaid.isPending}
         onSubmit={(reference, note) => paying && markPaid.mutate({ row: paying, reference, note })}
       />
@@ -83,12 +85,12 @@ export default function Payouts() {
       <ReferenceDialog
         open={!!rejecting}
         onOpenChange={(open) => !open && setRejecting(null)}
-        title="Reject payout request"
-        description="The amount goes back to their balance and they're told the reason."
+        title={t("money.dialogRejectPayoutTitle")}
+        description={t("money.dialogRejectPayoutDesc")}
         summary={summary(rejecting)}
-        fieldLabel="Reason"
-        fieldPlaceholder="e.g. Account holder name doesn't match the driver's name"
-        submitLabel="Reject request"
+        fieldLabel={t("money.fieldReason")}
+        fieldPlaceholder={t("money.fieldReasonPlaceholder")}
+        submitLabel={t("money.submitRejectRequest")}
         destructive
         isSubmitting={reject.isPending}
         onSubmit={(reason) => rejecting && reject.mutate({ row: rejecting, reason })}

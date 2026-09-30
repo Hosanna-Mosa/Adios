@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { StatCard } from "@/components/shared/StatCard";
 import { StaggerList } from "@/components/motion/StaggerList";
@@ -9,38 +10,39 @@ import { FilterTabs } from "@/features/money/components/MoneyBits";
 import { ReferenceDialog } from "@/features/money/components/ReferenceDialog";
 import { orderLabel, rupees } from "@/features/money/moneyTypes";
 
-const EMPTY: Record<RefundFilter, string> = {
-  attention: "Nothing needs attention. Refunds for cancelled online orders are going through Razorpay automatically.",
-  pending: "No refunds in progress.",
-  processed: "No completed refunds yet.",
-  ALL: "No refunds yet.",
-};
-
 export default function Refunds() {
+  const { t } = useTranslation();
   const {
     refunds, filtered, isLoading, filter, setFilter, markingManual, setMarkingManual, markRefunded,
     retry, checkStatus, busyOrderId, attentionCount, pendingCount, refundedCount,
   } = useRefunds();
 
+  const EMPTY: Record<RefundFilter, string> = {
+    attention: t("money.emptyRefundsAttention"),
+    pending: t("money.emptyRefundsPending"),
+    processed: t("money.emptyRefundsProcessed"),
+    ALL: t("money.emptyRefundsAll"),
+  };
+
   return (
-    <DashboardLayout searchPlaceholder="Search refunds...">
+    <DashboardLayout searchPlaceholder={t("money.searchRefundsPlaceholder")}>
       <div className="space-y-6">
         <div>
-          <h1 className="page-header">Refunds</h1>
+          <h1 className="page-header">{t("money.pageRefundsTitle")}</h1>
           <p className="page-subtitle">
-            Cancelled online orders are refunded through Razorpay automatically. Refunds that failed, or never started, need you here.
+            {t("money.pageRefundsSubtitle")}
           </p>
         </div>
 
         <StaggerList className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StaggerItem>
-            <StatCard icon={<AlertTriangle className="h-5 w-5" />} label="Needs attention" value={attentionCount.toString()} badge="Failed or not started" badgeColor={attentionCount ? "destructive" : "muted"} />
+            <StatCard icon={<AlertTriangle className="h-5 w-5" />} label={t("money.statNeedsAttention")} value={attentionCount.toString()} badge={t("money.statFailedOrNotStarted")} badgeColor={attentionCount ? "destructive" : "muted"} />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<Loader2 className="h-5 w-5" />} label="With Razorpay" value={pendingCount.toString()} badge="Updates automatically" badgeColor="muted" />
+            <StatCard icon={<Loader2 className="h-5 w-5" />} label={t("money.statWithRazorpay")} value={pendingCount.toString()} badge={t("money.statUpdatesAutomatically")} badgeColor="muted" />
           </StaggerItem>
           <StaggerItem>
-            <StatCard icon={<CheckCircle2 className="h-5 w-5" />} label="Refunded" value={refundedCount.toString()} />
+            <StatCard icon={<CheckCircle2 className="h-5 w-5" />} label={t("money.statRefunded")} value={refundedCount.toString()} />
           </StaggerItem>
         </StaggerList>
 
@@ -48,10 +50,10 @@ export default function Refunds() {
           value={filter}
           onChange={setFilter}
           options={[
-            { value: "attention", label: "Needs attention", count: attentionCount },
-            { value: "pending", label: "With Razorpay", count: pendingCount },
-            { value: "processed", label: "Refunded", count: refundedCount },
-            { value: "ALL", label: "All", count: refunds.length },
+            { value: "attention", label: t("money.statNeedsAttention"), count: attentionCount },
+            { value: "pending", label: t("money.statWithRazorpay"), count: pendingCount },
+            { value: "processed", label: t("money.statRefunded"), count: refundedCount },
+            { value: "ALL", label: t("money.filterAll"), count: refunds.length },
           ]}
         />
 
@@ -69,20 +71,20 @@ export default function Refunds() {
       <ReferenceDialog
         open={!!markingManual}
         onOpenChange={(open) => !open && setMarkingManual(null)}
-        title="Record a manual refund"
-        description="Use this only if you sent the money yourself (bank transfer or UPI). The customer is notified with this reference."
+        title={t("money.dialogRecordManualRefundTitle")}
+        description={t("money.dialogRecordManualRefundDesc")}
         summary={
           markingManual && (
             <>
-              <p className="font-semibold text-foreground">{rupees(markingManual.amount)} to {markingManual.customerName}</p>
-              <p className="text-muted-foreground">Order {orderLabel(markingManual.orderId)} · {markingManual.customerPhone || "no phone"}</p>
+              <p className="font-semibold text-foreground">{t("money.orderToCustomer", { amount: rupees(markingManual.amount), customerName: markingManual.customerName })}</p>
+              <p className="text-muted-foreground">{t("money.orderLine", { orderId: orderLabel(markingManual.orderId), phone: markingManual.customerPhone || t("money.noPhone") })}</p>
             </>
           )
         }
-        fieldLabel="Bank / UPI reference"
-        fieldPlaceholder="e.g. UPI ref 426512345678"
+        fieldLabel={t("money.fieldBankUpiReference")}
+        fieldPlaceholder={t("money.fieldBankUpiReferencePlaceholder")}
         withNote
-        submitLabel="Record refund"
+        submitLabel={t("money.submitRecordRefund")}
         isSubmitting={markRefunded.isPending}
         onSubmit={(reference, note) => markingManual && markRefunded.mutate({ row: markingManual, reference, note })}
       />

@@ -42,20 +42,22 @@ export interface PayoutRow {
   processedAt?: string;
 }
 
-type StatusStyle = { label: string; className: string; icon: typeof Hourglass };
+type StatusStyle = { labelKey: string; className: string; icon: typeof Hourglass };
 
+// labelKey is resolved with t() inside the components that render <StatusPill>,
+// since these are plain objects and cannot call useTranslation() themselves.
 export const refundStatusStyles: Record<RefundStatus, StatusStyle> = {
-  due: { label: "Refund due", className: "bg-amber-500/10 text-amber-700 border-amber-200", icon: AlertTriangle },
-  failed: { label: "Failed", className: "bg-rose-500/10 text-rose-700 border-rose-200", icon: XCircle },
-  pending: { label: "With Razorpay", className: "bg-sky-500/10 text-sky-700 border-sky-200", icon: Loader2 },
-  processed: { label: "Refunded", className: "bg-emerald-500/10 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
+  due: { labelKey: "money.statusRefundDue", className: "bg-amber-500/10 text-amber-700 border-amber-200", icon: AlertTriangle },
+  failed: { labelKey: "money.statusFailed", className: "bg-rose-500/10 text-rose-700 border-rose-200", icon: XCircle },
+  pending: { labelKey: "money.statWithRazorpay", className: "bg-sky-500/10 text-sky-700 border-sky-200", icon: Loader2 },
+  processed: { labelKey: "money.statRefunded", className: "bg-emerald-500/10 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
 };
 
 export const payoutStatusStyles: Record<PayoutStatus, StatusStyle> = {
-  pending: { label: "To pay", className: "bg-amber-500/10 text-amber-700 border-amber-200", icon: Hourglass },
-  processing: { label: "With RazorpayX", className: "bg-sky-500/10 text-sky-700 border-sky-200", icon: Loader2 },
-  processed: { label: "Paid", className: "bg-emerald-500/10 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
-  failed: { label: "Rejected / failed", className: "bg-rose-500/10 text-rose-700 border-rose-200", icon: XCircle },
+  pending: { labelKey: "money.statToPayLabel", className: "bg-amber-500/10 text-amber-700 border-amber-200", icon: Hourglass },
+  processing: { labelKey: "money.statusWithRazorpayX", className: "bg-sky-500/10 text-sky-700 border-sky-200", icon: Loader2 },
+  processed: { labelKey: "money.statPaid", className: "bg-emerald-500/10 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
+  failed: { labelKey: "money.statRejectedFailed", className: "bg-rose-500/10 text-rose-700 border-rose-200", icon: XCircle },
 };
 
 export const rupees = (value: number | undefined) =>
