@@ -16,6 +16,8 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 import Colors from "@/constants/colors";
 import { useDriverStore } from "@/store/driverStore";
@@ -56,6 +58,7 @@ type Phase =
   | "error";
 
 export default function DigiLockerVerifyScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ returnTo?: string }>();
   const setIdentityVerified = useDriverStore((s) => s.setIdentityVerified);
@@ -115,7 +118,7 @@ export default function DigiLockerVerifyScreen() {
         const reason = aadhaarResult.reason;
         if (reason instanceof DigiLockerError && reason.needsConsent) {
           setPhase("intro");
-          setErrorMessage("Your DigiLocker session expired. Please verify again.");
+          setErrorMessage(t("digilocker.sessionExpiredVerifyAgain"));
           return;
         }
         throw reason;
@@ -146,20 +149,18 @@ export default function DigiLockerVerifyScreen() {
 
     if (error instanceof DigiLockerError) {
       if (error.code === "DIGILOCKER_DISABLED") {
-        setErrorMessage(
-          "DigiLocker verification is not available right now. Please use manual verification instead."
-        );
+        setErrorMessage(t("digilocker.notAvailableUseManual"));
       } else if (error.needsConsent) {
-        setErrorMessage("Your DigiLocker session has ended. Please verify again.");
+        setErrorMessage(t("digilocker.sessionEndedVerifyAgain"));
         setPhase("intro");
         return;
       } else if (error.code === "DIGILOCKER_RATE_LIMITED") {
-        setErrorMessage("Too many attempts. Please wait a minute and try again.");
+        setErrorMessage(t("digilocker.tooManyAttempts"));
       } else {
         setErrorMessage(error.message);
       }
     } else {
-      setErrorMessage("Something went wrong. Please try again.");
+      setErrorMessage(t("digilocker.somethingWentWrongTryAgain"));
     }
 
     setPhase("error");
@@ -169,7 +170,7 @@ export default function DigiLockerVerifyScreen() {
   const refreshStatus = useCallback(async () => {
     const authToken = token();
     if (!authToken) {
-      setErrorMessage("Please sign in again.");
+      setErrorMessage(t("digilocker.pleaseSignInAgain"));
       setPhase("error");
       return;
     }
@@ -258,7 +259,7 @@ export default function DigiLockerVerifyScreen() {
         // The callback page appends ?status=success|failed.
         if (result.url.includes("status=failed")) {
           setPhase("intro");
-          setErrorMessage("Verification was not completed. You can try again.");
+          setErrorMessage(t("digilocker.verificationNotCompleted"));
           return;
         }
         await loadAndSync();
@@ -275,7 +276,7 @@ export default function DigiLockerVerifyScreen() {
         await loadAndSync();
       } else {
         setPhase("intro");
-        setErrorMessage("Verification was cancelled. You can try again whenever you're ready.");
+        setErrorMessage(t("digilocker.verificationCancelled"));
       }
     } catch (error) {
       if (!mounted.current) return;
@@ -286,12 +287,12 @@ export default function DigiLockerVerifyScreen() {
   // ── Unlink ────────────────────────────────────────────────────────────────
   const confirmUnlink = () => {
     Alert.alert(
-      "Remove DigiLocker?",
-      "Your verified details will stay on your profile, but you'll need to verify again to refresh them.",
+      t("digilocker.removeDigilockerTitle"),
+      t("digilocker.removeDigilockerMessage"),
       [
-        { text: "Cancel", style: "cancel" },
+        { text: t("actions.cancel"), style: "cancel" },
         {
-          text: "Remove",
+          text: t("digilocker.remove"),
           style: "destructive",
           onPress: async () => {
             const authToken = token();
@@ -337,7 +338,7 @@ export default function DigiLockerVerifyScreen() {
         >
           <Feather name="arrow-left" size={22} color={Colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Identity Verification</Text>
+        <Text style={styles.headerTitle}>{t("digilocker.header")}</Text>
         <View style={styles.backBtn} />
       </View>
 
@@ -345,7 +346,7 @@ export default function DigiLockerVerifyScreen() {
         <View style={styles.sandboxBanner}>
           <Feather name="alert-triangle" size={14} color="#b06000" />
           <Text style={styles.sandboxText}>
-            Test mode — documents shown here are simulated, not real.
+            {t("digilocker.sandboxNotice")}
           </Text>
         </View>
       )}
@@ -362,8 +363,8 @@ export default function DigiLockerVerifyScreen() {
               errorMessage={errorMessage}
             />
           )}
-          {phase === "authorizing" && <BusyState label="Waiting for DigiLocker…" />}
-          {phase === "finalising" && <BusyState label="Fetching your documents…" />}
+          {phase === "authorizing" && <BusyState label={t("digilocker.waitingForDigilocker")} />}
+          {phase === "finalising" && <BusyState label={t("digilocker.fetchingDocuments")} />}
           {phase === "done" && (
             <DoneState
               aadhaar={aadhaar}
@@ -384,13 +385,13 @@ export default function DigiLockerVerifyScreen() {
         <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
           {phase === "intro" ? (
             <>
-              <PrimaryButton title="Verify with DigiLocker" icon="shield" onPress={beginVerification} />
+              <PrimaryButton title={t("digilocker.verifyWithDigilocker")} icon="shield" onPress={beginVerification} />
               <TouchableOpacity onPress={finish} style={styles.secondaryLink}>
-                <Text style={styles.secondaryLinkText}>Enter details manually instead</Text>
+                <Text style={styles.secondaryLinkText}>{t("digilocker.enterDetailsManually")}</Text>
               </TouchableOpacity>
             </>
           ) : (
-            <PrimaryButton title="Continue" icon="arrow-right" onPress={finish} />
+            <PrimaryButton title={t("actions.continue")} icon="arrow-right" onPress={finish} />
           )}
         </View>
       )}
@@ -403,15 +404,17 @@ export default function DigiLockerVerifyScreen() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function CheckingState() {
+  const { t } = useTranslation();
   return (
     <View style={styles.centered}>
       <ActivityIndicator size="large" color={Colors.primary} />
-      <Text style={styles.centeredText}>Checking your verification status…</Text>
+      <Text style={styles.centeredText}>{t("digilocker.checkingStatus")}</Text>
     </View>
   );
 }
 
 function BusyState({ label }: { label: string }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.centered}>
       <View style={styles.busyIcon}>
@@ -419,7 +422,7 @@ function BusyState({ label }: { label: string }) {
       </View>
       <ActivityIndicator size="small" color={Colors.primary} style={{ marginTop: 20 }} />
       <Text style={styles.centeredText}>{label}</Text>
-      <Text style={styles.centeredHint}>This usually takes a few seconds.</Text>
+      <Text style={styles.centeredHint}>{t("digilocker.usuallyTakesAFewSeconds")}</Text>
     </View>
   );
 }
@@ -431,6 +434,7 @@ function IntroState({
   onStart: () => void;
   errorMessage?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={{ gap: 20 }}>
       {!!errorMessage && (
@@ -444,35 +448,33 @@ function IntroState({
         <View style={styles.heroIcon}>
           <Feather name="shield" size={34} color={Colors.primary} />
         </View>
-        <Text style={styles.heroTitle}>Verify instantly with DigiLocker</Text>
+        <Text style={styles.heroTitle}>{t("digilocker.heroTitleIntro")}</Text>
         <Text style={styles.heroSubtitle}>
-          Confirm your identity and driving licence straight from your government records.
-          No photos, no typing, no waiting for approval.
+          {t("digilocker.heroSubtitleIntro")}
         </Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>What we'll read</Text>
-        <ReadItem icon="credit-card" title="Aadhaar" detail="Your name, date of birth and address" />
-        <ReadItem icon="file-text" title="PAN" detail="Your PAN number and name" />
+        <Text style={styles.cardTitle}>{t("digilocker.whatWellRead")}</Text>
+        <ReadItem icon="credit-card" title={t("onboarding.sections.aadhaar")} detail={t("digilocker.aadhaarReadDetail")} />
+        <ReadItem icon="file-text" title={t("onboarding.sections.pan")} detail={t("digilocker.panReadDetail")} />
         <ReadItem
           icon="award"
-          title="Driving licence"
-          detail="Licence number, validity and vehicle class"
+          title={t("digilocker.drivingLicenceLabel")}
+          detail={t("digilocker.drivingLicenceReadDetail")}
           last
         />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>How your data is handled</Text>
-        <Assurance icon="eye-off" text="We store only the last 4 digits of your Aadhaar — never the full number." />
-        <Assurance icon="lock" text="You sign in on DigiLocker's own screen. We never see your DigiLocker password." />
-        <Assurance icon="x-circle" text="You can remove this access at any time from your profile." last />
+        <Text style={styles.cardTitle}>{t("digilocker.howDataHandled")}</Text>
+        <Assurance icon="eye-off" text={t("digilocker.assuranceLast4")} />
+        <Assurance icon="lock" text={t("digilocker.assuranceOwnScreen")} />
+        <Assurance icon="x-circle" text={t("digilocker.assuranceRemoveAnytime")} last />
       </View>
 
       <Text style={styles.consentNote}>
-        By continuing, you allow Flavour to read the documents listed above from your DigiLocker
-        account for driver verification.
+        {t("digilocker.consentNote")}
       </Text>
     </View>
   );
@@ -493,63 +495,64 @@ function DoneState({
   holderName?: string;
   onUnlink: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={{ gap: 20 }}>
       <View style={styles.successHero}>
         <View style={styles.successIcon}>
           <Feather name="check" size={32} color={Colors.white} />
         </View>
-        <Text style={styles.heroTitle}>Identity verified</Text>
+        <Text style={styles.heroTitle}>{t("digilocker.identityVerified")}</Text>
         <Text style={styles.heroSubtitle}>
           {holderName
-            ? `Verified against government records for ${holderName}.`
-            : "Your details were confirmed against government records."}
+            ? t("digilocker.verifiedForName", { name: holderName })
+            : t("digilocker.verifiedGeneric")}
         </Text>
       </View>
 
       {aadhaar && (
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>Aadhaar</Text>
+            <Text style={styles.cardTitle}>{t("onboarding.sections.aadhaar")}</Text>
             <View style={styles.verifiedChip}>
               <Feather name="check-circle" size={12} color={Colors.success} />
-              <Text style={styles.verifiedChipText}>Verified</Text>
+              <Text style={styles.verifiedChipText}>{t("digilocker.verifiedChip")}</Text>
             </View>
           </View>
-          <Field label="Name" value={aadhaar.name} />
-          <Field label="Date of birth" value={aadhaar.dob} />
-          <Field label="Aadhaar number" value={aadhaar.maskedAadhaarNumber} />
-          {!!aadhaar.address?.full && <Field label="Address" value={aadhaar.address.full} last />}
+          <Field label={t("digilocker.fieldName")} value={aadhaar.name} />
+          <Field label={t("digilocker.fieldDob")} value={aadhaar.dob} />
+          <Field label={t("digilocker.fieldAadhaarNumber")} value={aadhaar.maskedAadhaarNumber} />
+          {!!aadhaar.address?.full && <Field label={t("digilocker.fieldAddress")} value={aadhaar.address.full} last />}
         </View>
       )}
 
       {pan && (
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>PAN</Text>
+            <Text style={styles.cardTitle}>{t("onboarding.sections.pan")}</Text>
             <View style={styles.verifiedChip}>
               <Feather name="check-circle" size={12} color={Colors.success} />
-              <Text style={styles.verifiedChipText}>Verified</Text>
+              <Text style={styles.verifiedChipText}>{t("digilocker.verifiedChip")}</Text>
             </View>
           </View>
-          <Field label="PAN number" value={pan.panNumber} />
-          <Field label="Name" value={pan.name} last />
+          <Field label={t("digilocker.fieldPanNumber")} value={pan.panNumber} />
+          <Field label={t("digilocker.fieldName")} value={pan.name} last />
         </View>
       )}
 
       {licence && (
         <View style={styles.card}>
           <View style={styles.cardHeaderRow}>
-            <Text style={styles.cardTitle}>Driving Licence</Text>
+            <Text style={styles.cardTitle}>{t("digilocker.drivingLicenceLabel")}</Text>
             <View style={styles.verifiedChip}>
               <Feather name="check-circle" size={12} color={Colors.success} />
-              <Text style={styles.verifiedChipText}>Verified</Text>
+              <Text style={styles.verifiedChipText}>{t("digilocker.verifiedChip")}</Text>
             </View>
           </View>
-          <Field label="Licence number" value={licence.licenceNumber} />
-          <Field label="Valid till" value={licence.validTill} />
-          <Field label="Vehicle class" value={licence.vehicleClass} />
-          <Field label="Issued by" value={licence.issuedBy} last />
+          <Field label={t("digilocker.fieldLicenceNumber")} value={licence.licenceNumber} />
+          <Field label={t("digilocker.fieldValidTill")} value={licence.validTill} />
+          <Field label={t("digilocker.fieldVehicleClass")} value={licence.vehicleClass} />
+          <Field label={t("digilocker.fieldIssuedBy")} value={licence.issuedBy} last />
         </View>
       )}
 
@@ -557,56 +560,57 @@ function DoneState({
         <View style={styles.inlineNotice}>
           <Feather name="info" size={16} color={Colors.primaryDark} />
           <Text style={styles.inlineNoticeText}>
-            {describeSkipped(skipped)}
+            {describeSkipped(skipped, t)}
           </Text>
         </View>
       )}
 
       <Pressable onPress={onUnlink} style={styles.unlinkBtn}>
         <Feather name="x-circle" size={16} color={Colors.textMuted} />
-        <Text style={styles.unlinkText}>Remove DigiLocker access</Text>
+        <Text style={styles.unlinkText}>{t("digilocker.removeAccess")}</Text>
       </Pressable>
     </View>
   );
 }
 
 /** Turn the sync response's `skipped` list into one plain sentence. */
-function describeSkipped(skipped: string[]): string {
+function describeSkipped(skipped: string[], t: TFunction): string {
   const labels: Record<string, string> = {
-    aadhaar: "Aadhaar",
-    pan: "PAN card",
-    drivingLicence: "driving licence",
+    aadhaar: t("digilocker.labelAadhaar"),
+    pan: t("digilocker.labelPanCard"),
+    drivingLicence: t("digilocker.labelDrivingLicence"),
   };
 
   const names = skipped.map((key) => labels[key] || key);
-  if (names.length === 0) return "Some documents weren't available in your DigiLocker account.";
+  if (names.length === 0) return t("digilocker.someDocumentsUnavailable");
 
   const list =
     names.length === 1
       ? names[0]
       : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
 
-  return `No ${list} is issued to your DigiLocker account. You can add it in the DigiLocker app, or enter it manually later.`;
+  return t("digilocker.skippedDocumentNotice", { list });
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const { t } = useTranslation();
   return (
     <View style={{ gap: 20 }}>
       <View style={styles.hero}>
         <View style={[styles.heroIcon, { backgroundColor: Colors.errorLight }]}>
           <Feather name="alert-circle" size={32} color={Colors.error} />
         </View>
-        <Text style={styles.heroTitle}>Couldn't verify</Text>
+        <Text style={styles.heroTitle}>{t("digilocker.couldntVerify")}</Text>
         <Text style={styles.heroSubtitle}>{message}</Text>
       </View>
 
-      <PrimaryButton title="Try again" icon="refresh-cw" onPress={onRetry} />
+      <PrimaryButton title={t("digilocker.tryAgain")} icon="refresh-cw" onPress={onRetry} />
 
       <TouchableOpacity
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
         style={styles.secondaryLink}
       >
-        <Text style={styles.secondaryLinkText}>Enter details manually instead</Text>
+        <Text style={styles.secondaryLinkText}>{t("digilocker.enterDetailsManually")}</Text>
       </TouchableOpacity>
     </View>
   );

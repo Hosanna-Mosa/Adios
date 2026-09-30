@@ -3,6 +3,7 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import Colors from "@/constants/colors";
 
@@ -24,6 +25,8 @@ export function DigiLockerPrompt({
   returnTo?: string;
   subtitle?: string;
 }) {
+  const { t } = useTranslation();
+
   if (verified) {
     return (
       <View style={styles.verifiedBox}>
@@ -31,9 +34,9 @@ export function DigiLockerPrompt({
           <Feather name="check" size={14} color={Colors.white} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.verifiedTitle}>Verified through DigiLocker</Text>
+          <Text style={styles.verifiedTitle}>{t("digilocker.verifiedThroughDigilocker")}</Text>
           <Text style={styles.verifiedSubtitle}>
-            Confirmed against government records.
+            {t("digilocker.verifiedGeneric")}
           </Text>
         </View>
       </View>
@@ -56,13 +59,13 @@ export function DigiLockerPrompt({
 
       <View style={{ flex: 1 }}>
         <View style={styles.titleRow}>
-          <Text style={styles.title}>Verify with DigiLocker</Text>
+          <Text style={styles.title}>{t("digilocker.verifyWithDigilocker")}</Text>
           <View style={styles.fastChip}>
-            <Text style={styles.fastChipText}>FASTEST</Text>
+            <Text style={styles.fastChipText}>{t("digilocker.fastest")}</Text>
           </View>
         </View>
         <Text style={styles.subtitle}>
-          {subtitle || "Pull your Aadhaar and PAN straight from government records — no typing."}
+          {subtitle || t("digilocker.promptSubtitleDefault")}
         </Text>
       </View>
 
@@ -94,11 +97,12 @@ export function DigiLockerField({ label, value }: { label: string; value?: strin
 }
 
 /** Divider for "or enter details manually below". */
-export function DigiLockerDivider({ label = "or enter manually" }: { label?: string }) {
+export function DigiLockerDivider({ label }: { label?: string }) {
+  const { t } = useTranslation();
   return (
     <View style={styles.dividerRow}>
       <View style={styles.dividerLine} />
-      <Text style={styles.dividerText}>{label}</Text>
+      <Text style={styles.dividerText}>{label ?? t("digilocker.orEnterManually")}</Text>
       <View style={styles.dividerLine} />
     </View>
   );
