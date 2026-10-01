@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { LazyImage } from "@/components/shared/LazyImage";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
-import type { AdminDriver, AdminZone } from "../types";
+import type { AdminDriver, AdminOrderSummary, AdminZone } from "../types";
+import { DriverZoneMetrics } from "./DriverZoneMetrics";
 
 interface DriverWithZoneRow extends AdminDriver {
   __zoneObj?: AdminZone;
@@ -14,6 +15,9 @@ const CELL_CLASS = "px-6 py-4";
 
 interface DriverZoneTabProps {
   drivers: AdminDriver[];
+  /** The whole fleet, for the per-zone metrics (drivers above is search-filtered). */
+  allDrivers: AdminDriver[];
+  orders: AdminOrderSummary[];
   zonesList: AdminZone[];
   searchQuery: string;
   onSearchChange: (value: string) => void;
@@ -21,13 +25,14 @@ interface DriverZoneTabProps {
   getVehicleString: (driver: AdminDriver) => string;
   onAssignClick: () => void;
   onEditClick: (driverId: string, currentZoneId: string) => void;
-  onRemoveZone: (driverId: string, driverName?: string) => void;
   onOpenChatModal: (driver: AdminDriver) => void;
 }
 
 /** The "Zone Assignments" tab: its own search/table, separate from the Fleet Directory tab. */
 export function DriverZoneTab({
   drivers,
+  allDrivers,
+  orders,
   zonesList,
   searchQuery,
   onSearchChange,
@@ -35,7 +40,6 @@ export function DriverZoneTab({
   getVehicleString,
   onAssignClick,
   onEditClick,
-  onRemoveZone,
   onOpenChatModal,
 }: DriverZoneTabProps) {
   const { t } = useTranslation();
@@ -117,14 +121,6 @@ export function DriverZoneTab({
             >
               {t("drivers.edit")}
             </button>
-            {d.__zoneObj && (
-              <button
-                onClick={() => onRemoveZone(d._id, d.user?.name)}
-                className="px-3 py-1.5 border border-transparent bg-rose-50 text-xs font-semibold rounded-lg text-rose-600 hover:bg-rose-100 transition-colors"
-              >
-                {t("drivers.delete")}
-              </button>
-            )}
             <button
               onClick={() => onOpenChatModal(d)}
               className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -164,6 +160,8 @@ export function DriverZoneTab({
           </button>
         </div>
       </div>
+
+      <DriverZoneMetrics zones={zonesList} drivers={allDrivers} orders={orders} />
 
       <div className="overflow-x-auto">
         <DataTable

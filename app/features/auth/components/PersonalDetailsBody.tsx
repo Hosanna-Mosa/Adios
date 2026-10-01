@@ -13,8 +13,10 @@ import { type EdgeInsets } from "react-native-safe-area-context";
 
 interface Props {
   accent: ServiceTokens;
+  blurField: (field: string, value: string) => () => void;
   editField: any;
   email: string;
+  errors: Partial<Record<"name" | "username" | "email", string>>;
   handleSave: () => void;
   insets: EdgeInsets;
   name: string;
@@ -30,8 +32,10 @@ interface Props {
 
 export function PersonalDetailsBody({
   accent,
+  blurField,
   editField,
   email,
+  errors,
   handleSave,
   insets,
   name,
@@ -51,15 +55,42 @@ export function PersonalDetailsBody({
       <View style={{ gap: 12 }}>
         <Animated.View entering={staggerListItem(0)}>
           <Text style={styles.label}>{t("app.auth.fullName")}</Text>
-          <TextInput style={styles.field} value={name} onChangeText={editField("name", setName)} placeholder={t("app.auth.yourName")} placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.name && styles.fieldInvalid]}
+            value={name}
+            onChangeText={editField("name", setName)}
+            onBlur={blurField("name", name)}
+            placeholder={t("app.auth.yourName")}
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.name && <Text style={styles.fieldError}>{errors.name}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(1)}>
           <Text style={styles.label}>{t("app.auth.username")}</Text>
-          <TextInput style={styles.field} value={username} onChangeText={editField("username", setUsername)} placeholder={t("app.auth.handle")} autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.username && styles.fieldInvalid]}
+            value={username}
+            onChangeText={editField("username", setUsername)}
+            onBlur={blurField("username", username)}
+            placeholder={t("app.auth.handle")}
+            autoCapitalize="none"
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.username && <Text style={styles.fieldError}>{errors.username}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(2)}>
           <Text style={styles.label}>{t("app.auth.email")}</Text>
-          <TextInput style={[styles.field, { borderColor: accent.accent, borderWidth: 2 }]} value={email} onChangeText={editField("email", setEmail)} placeholder={t("app.auth.youremailcom")} keyboardType="email-address" autoCapitalize="none" placeholderTextColor={tokens.muted} />
+          <TextInput
+            style={[styles.field, errors.email ? styles.fieldInvalid : { borderColor: accent.accent, borderWidth: 2 }]}
+            value={email}
+            onChangeText={editField("email", setEmail)}
+            onBlur={blurField("email", email)}
+            placeholder={t("app.auth.youremailcom")}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor={tokens.muted}
+          />
+          {!!errors.email && <Text style={styles.fieldError}>{errors.email}</Text>}
         </Animated.View>
         <Animated.View entering={staggerListItem(3)}>
           <Text style={styles.label}>{t("app.auth.phone")}</Text>

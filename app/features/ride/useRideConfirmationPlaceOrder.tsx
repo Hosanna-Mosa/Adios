@@ -1,15 +1,18 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { getEnabledTiers } from "./useRideConfirmation.shared";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
 export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, tierFares: any, setBooking: any, setShowDatePicker: any, setConfirmedReservation: any, pickupCoords: any, dropCoords: any, stops: any) {
+  const { setOrderId, setServiceType, setStatus } = useDeliveryStore();
+
   const placeOrder = async (isReserved: boolean, reservedAt?: Date) => {
     setBooking(true);
     try {
@@ -33,7 +36,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
       const fare = tierFares[selectedTier]?.fareBreakdown?.total;
       const isOnline = getPaymentMethod("ride") === "online";
       if (isOnline && !fare) {
-        Alert.alert(i18n.t("app.ride.bookingFailed"), i18n.t("app.ride.estimatingFare"));
+        showAlert(i18n.t("app.ride.bookingFailed"), i18n.t("app.ride.estimatingFare"));
         return;
       }
       const res: any = isOnline
@@ -51,11 +54,18 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
           dropName: params.dropName,
         });
       } else {
+        // Tracked globally the instant it's created, the same way food/delivery/
+        // helper bookings already are — otherwise backing out of "Finding your
+        // captain" left the app with no record the ride ever existed, and no way
+        // back into it (see the active-order stripe above the tab bar).
+        setOrderId(res._id);
+        setServiceType(selectedTier);
+        setStatus("confirmed");
         router.push({ pathname: "/finding-driver", params: { orderId: res._id } });
       }
     } catch (e: any) {
       const described = describePaymentError(e);
-      Alert.alert(described?.title ?? i18n.t("app.ride.bookingFailed"), described?.message ?? e.message);
+      showAlert(described?.title ?? i18n.t("app.ride.bookingFailed"), described?.message ?? e.message);
     } finally {
       setBooking(false);
     }

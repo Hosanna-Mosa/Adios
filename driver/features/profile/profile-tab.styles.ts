@@ -311,6 +311,9 @@ export const styles = StyleSheet.create({
   modalScroll: {
     paddingHorizontal: 16,
   },
+  modalScrollContent: {
+    paddingBottom: 24,
+  },
 });
 
 export const modalStyles = StyleSheet.create({

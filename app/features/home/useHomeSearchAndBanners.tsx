@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHomeStore } from "@/contexts/homeStore";
-import { TAG_SEARCH_MAP } from "./useHome.shared";
+import { STARTUP_AD_LAST_SHOWN_KEY, TAG_SEARCH_MAP, startupAdDayKey } from "./useHome.shared";
 import { getBanners, searchDishes } from "@/services/catalog.service";
 
 // Split out of useHome so each file stays small. Kept in the original call
@@ -58,9 +58,16 @@ export function useHomeSearchAndBanners(searchQuery: any, banners: any, setBanne
           if (response && response.data) {
             setBanners(response.data);
             const startupAds = response.data.filter((b: any) => b.itemType === "ad" && b.position === "startup");
-            if (startupAds.length > 0 && !hasShownStartupAd) {
-              setActiveStartupAd(startupAds[0]);
-              setHasShownStartupAd(true);
+            // Once a day, not once a visit: the check is against a stored date
+            // rather than the in-memory flag, which resets with the screen.
+            if (startupAds.length > 0) {
+              const today = startupAdDayKey();
+              const lastShown = await AsyncStorage.getItem(STARTUP_AD_LAST_SHOWN_KEY);
+              if (lastShown !== today) {
+                await AsyncStorage.setItem(STARTUP_AD_LAST_SHOWN_KEY, today);
+                setActiveStartupAd(startupAds[0]);
+                setHasShownStartupAd(true);
+              }
             }
           }
         } catch (e) {

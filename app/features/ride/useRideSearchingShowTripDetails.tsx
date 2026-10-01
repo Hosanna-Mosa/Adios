@@ -1,8 +1,8 @@
 import React from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import i18n from "@/i18n";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useRideSearching so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -18,7 +18,7 @@ export function useRideSearchingShowTripDetails(currentOrderId: any, setGlobalDr
           setGlobalDriver(data.driver);
           setGlobalStatus("driver_assigned");
           
-          Alert.alert(i18n.t("app.orderStatusTimeline.steps.driverAssigned"), i18n.t("app.ride.varIsOnTheWay", { value: data.driver.name }), [
+          showAlert(i18n.t("app.orderStatusTimeline.steps.driverAssigned"), i18n.t("app.ride.varIsOnTheWay", { value: data.driver.name }), [
             {
               text: i18n.t("app.ride.ok"),
               onPress: () => {

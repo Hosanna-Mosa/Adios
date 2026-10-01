@@ -87,6 +87,11 @@ const filterVendorsBySearch = async (vendors: any[], term: string) => {
 // and search are derived server-side, so Mongo cannot page them.
 const MAX_IN_MEMORY_SCAN = 300;
 
+// Same response whether or not the email is registered, and the OTP work only
+// happens for a real account, so response timing does not leak it either. A
+// 404 here would let anyone enumerate which emails have a vendor account.
+const FORGOT_PASSWORD_RESPONSE = { message: "If an account exists for this email, an OTP has been sent." };
+
 export const forgotVendorPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
@@ -95,28 +100,26 @@ export const forgotVendorPassword = async (req: Request, res: Response) => {
     }
 
     const vendor = await Vendor.findOne({ email });
-    if (!vendor) {
-      return res.status(404).json({ message: "No account found with this email" });
+    if (vendor) {
+      // Generate OTP and save
+      const otp = generateOTP();
+      await OTP.create({
+        phone: vendor.phone,
+        email,
+        code: otp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+      });
+
+      // Send email
+      await sendEmail({
+        to: email,
+        subject: "Password Reset OTP — Precision Nav",
+        html: getOTPEmailHtml(otp),
+        text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
+      });
     }
 
-    // Generate OTP and save
-    const otp = generateOTP();
-    await OTP.create({
-      phone: vendor.phone,
-      email,
-      code: otp,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
-    });
-
-    // Send email
-    await sendEmail({
-      to: email,
-      subject: "Password Reset OTP — Precision Nav",
-      html: getOTPEmailHtml(otp),
-      text: `Your OTP for password reset is: ${otp}. It expires in 10 minutes.`,
-    });
-
-    res.json({ message: "OTP sent to your email" });
+    res.json(FORGOT_PASSWORD_RESPONSE);
   } catch (error) {
     console.error("Error in forgot password:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -274,9 +277,11 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
         distance: distanceInKm < 1
           ? `${Math.round(vendor.distance)} metres`
           : `${distanceInKm.toFixed(1)} km`,
+        // Every price in this app is rupees — this line used to read "USD 0
+        // delivery fee over USD 12", which is what the customer saw on the card.
         offer: vendor.deliveryFee === 0
-          ? "FREE delivery fee"
-          : `USD 0 delivery fee over USD 12`,
+          ? "FREE delivery"
+          : `₹${vendor.deliveryFee} delivery fee`,
       };
     });
 
@@ -568,8 +573,36 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
       },
     };
 
+    const matchQuery = ownerEmail
+      ? { $or: [{ phone: ownerPhone }, { email: ownerEmail }] }
+      : { phone: ownerPhone };
+
+    // This route is deliberately public — the partner website posts to it before
+    // the applicant has any account — so the upsert below must never be able to
+    // take over a vendor that already exists. A vendor's phone and email are both
+    // served by the unauthenticated GET /vendors/nearby, so without these two
+    // guards, knowing either one was enough to $set over a live vendor's record
+    // (name, address, bank account) and, by sending portalPassword, reset their
+    // portal password and sign in as them.
+    const existing = await Vendor.findOne(matchQuery)
+      .select("onboardingStatus password")
+      .lean();
+
+    if (existing && existing.onboardingStatus && existing.onboardingStatus !== "draft") {
+      return res.status(409).json({
+        message:
+          "An account already exists for this phone number or email. Please sign in to the partner portal, or contact support to update your details.",
+      });
+    }
+
+    // Credentials are set once, on a record that does not have them yet. An
+    // applicant resuming a draft keeps the password they already chose.
+    if (existing?.password) {
+      delete (vendorData as { password?: string }).password;
+    }
+
     const vendor = await Vendor.findOneAndUpdate(
-      ownerEmail ? { $or: [{ phone: ownerPhone }, { email: ownerEmail }] } : { phone: ownerPhone },
+      matchQuery,
       { $set: vendorData },
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
     );

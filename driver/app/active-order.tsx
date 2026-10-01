@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import React from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -13,6 +13,7 @@ import {
   OrderDetailSheet,
 } from "@/features/jobs/components";
 import { ActiveOrderStage } from "@/features/jobs/components/stages";
+import { KeyboardView } from "@/components/ui/KeyboardView";
 
 const { height } = Dimensions.get("window");
 
@@ -39,6 +40,14 @@ export default function ActiveOrderScreen() {
   return (
     <ActiveOrderProvider value={order}>
       <SafeAreaView style={styles.container} edges={["top"]}>
+        {/* The OTP field (and the bottom sheet in general) had no keyboard-avoidance
+            at all, so it sat right at the screen edge and the keyboard simply
+            covered it as soon as it opened — typing looked broken because the
+            input the driver was typing into wasn't visible. */}
+        <KeyboardView
+          style={styles.keyboardAvoider}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
         <ActiveOrderHeader
           title={title}
           onBack={() => router.push("/(tabs)")}
@@ -61,6 +70,7 @@ export default function ActiveOrderScreen() {
         >
           <ActiveOrderStage />
         </OrderDetailSheet>
+        </KeyboardView>
       </SafeAreaView>
     </ActiveOrderProvider>
   );

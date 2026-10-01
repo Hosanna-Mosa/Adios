@@ -15,10 +15,10 @@ import { useProfile } from "@/features/profile/useProfile";
 
 export default function ProfileScreen() {
   const {
-  insets, tabBarHeight, user, theme, toggleTheme, tokens, accent, styles, loading, ordersCount,
-  totalSpent, securityVisible, setSecurityVisible, currentPassword, setCurrentPassword,
+  insets, tabBarHeight, user, theme, toggleTheme, tokens, accent, styles, loading,
+  securityVisible, setSecurityVisible, currentPassword, setCurrentPassword,
   newPassword, setNewPassword, confirmPassword, setConfirmPassword, changingPassword,
-  signingOutAll, handlePickImage, handleChangePassword, handleSignOutAllDevices, handleLogout,
+  signingOutAll, handleAvatarPress, handleChangePassword, handleSignOutAllDevices, handleLogout,
   memberSinceYear, MENU_ITEMS
   } = useProfile();
 
@@ -32,16 +32,15 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
         <ProfileCard
-          handlePickImage={handlePickImage}
+          handleAvatarPress={handleAvatarPress}
           styles={styles}
+          tokens={tokens}
           user={user}
         />
 
         <ProfileStatsRow
           memberSinceYear={memberSinceYear}
-          ordersCount={ordersCount}
           styles={styles}
-          totalSpent={totalSpent}
         />
 
         <ProfileMenuCard

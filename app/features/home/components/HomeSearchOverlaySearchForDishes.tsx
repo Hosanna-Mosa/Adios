@@ -1,3 +1,4 @@
+import { type RefObject } from "react";
 import { ActivityIndicator, Dimensions, FlatList, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
@@ -18,6 +19,7 @@ interface Props {
   activeService: string;
   accent: ServiceTokens;
   addRecentSearch: any;
+  inputRef: RefObject<TextInput | null>;
   clearRecentSearches: () => void;
   insets: EdgeInsets;
   isSearching: boolean;
@@ -32,7 +34,7 @@ interface Props {
 }
 
 export function HomeSearchOverlaySearchForDishes(props: Props) {
-  const { addRecentSearch, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
+  const { addRecentSearch, inputRef, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
   const { t } = useTranslation();
   return (
     <Animated.View
@@ -53,6 +55,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
         <View style={styles.searchSheetInputWrap}>
           <Ionicons name="search" size={moderateScale(18)} color={tokens.muted} />
           <TextInput
+            ref={inputRef}
             style={styles.searchSheetInput}
             placeholder={t("app.home.tryBawarchi")}
             placeholderTextColor={tokens.muted}

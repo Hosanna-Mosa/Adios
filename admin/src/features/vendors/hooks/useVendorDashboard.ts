@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
-import { playChime } from "../playChime";
+import { playNewOrderChime } from "@/lib/notificationSound";
 import type { ScheduledDeliveryRequest, StatusDisplay, VendorData, VendorOrder } from "../vendorDashboardTypes";
 
 /** All state/query/socket logic for VendorDashboard.tsx (work queue item #7). */
@@ -56,29 +56,12 @@ export function useVendorDashboard() {
   useEffect(() => {
     if (!vendorData._id) return;
 
-    // Connect and Join
+    // Connect and Join — VendorLayout (mounted for every /vendor/* page, this
+    // one included) already does this and owns the new_order_vendor sound/toast
+    // globally, so this page only needs its own status-update and
+    // scheduled-delivery handling.
     socketService.connect();
     socketService.join(vendorData._id, "VENDOR");
-
-    // Listen for new orders
-    const handleNewOrder = (data: { id: string }) => {
-      console.log("[SOCKET] New order received:", data);
-      playChime();
-      toast.success(
-        t("vendorDashboard.newOrderReceived", {
-          id: data.id.startsWith("ORD-") ? data.id : `#${data.id.slice(-6).toUpperCase()}`,
-          defaultValue: "New order received! Order {{id}}",
-        }),
-        {
-          duration: 8000,
-          action: {
-            label: t("vendorDashboard.refresh"),
-            onClick: () => queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] }),
-          },
-        },
-      );
-      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-    };
 
     // Listen for order status updates
     const handleStatusUpdate = (data: { orderId: string; status: string }) => {
@@ -92,7 +75,7 @@ export function useVendorDashboard() {
     };
 
     const handleScheduledDeliveryRequest = (data: ScheduledDeliveryRequest) => {
-      playChime();
+      playNewOrderChime();
       setScheduledRequest(data);
       setIsScheduleModalOpen(true);
       queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
@@ -105,12 +88,10 @@ export function useVendorDashboard() {
       );
     };
 
-    socketService.on("new_order_vendor", handleNewOrder);
     socketService.on("order_status_update_vendor", handleStatusUpdate);
     socketService.on("scheduled_delivery_request", handleScheduledDeliveryRequest);
 
     return () => {
-      socketService.off("new_order_vendor", handleNewOrder);
       socketService.off("order_status_update_vendor", handleStatusUpdate);
       socketService.off("scheduled_delivery_request", handleScheduledDeliveryRequest);
     };

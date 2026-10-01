@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { PerformanceCard } from "@/features/earnings/components/PerformanceCard";
+import { PerformanceCard, PerformanceRange } from "@/features/earnings/components/PerformanceCard";
 import type { Hotspot } from "@/features/jobs/components/HighDemandAreas";
 import { DriverTabBar, useDriverTabBarHeight } from "@/components/shared/DriverTabBar";
 import { useDriverStore } from "@/store/driverStore";
@@ -20,7 +20,6 @@ import {
   ServiceToggle,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/home.styles";
-import { getFallbackHotspots } from "@/features/jobs/fallbackHotspots";
 import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
 import { useOnlineActions } from "@/features/jobs/hooks/useOnlineActions";
 import { useScooterAnimation } from "@/features/jobs/hooks/useScooterAnimation";
@@ -34,7 +33,8 @@ export default function HomeScreen() {
   const tabBarHeight = useDriverTabBarHeight();
   const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
-  const [hotspots, setHotspots] = useState<Hotspot[]>(getFallbackHotspots);
+  const [performanceRange, setPerformanceRange] = useState<PerformanceRange>("week");
+  const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [isLoadingHotspots, setIsLoadingHotspots] = useState(false);
   const isOnline = useDriverStore((s) => s.isOnline);
   const homeMode = useDriverStore((s) => s.homeMode);
@@ -90,13 +90,26 @@ export default function HomeScreen() {
           {/* Service Toggle */}
           <ServiceToggle active={mode} onToggle={setMode} />
 
-          {/* Today's Performance */}
+          {/* Today's Performance — the "This Week" pill used to be a dead control
+              (no onPress at all), so it always showed the same fixed set of
+              numbers no matter what a driver tapped. It now actually switches
+              which range's trips/earnings are the headline stats. */}
           <PerformanceCard
-            stats={[
-              { kind: "trips", label: t("earnings.trips"), value: String(earnings.totalDeliveries) },
-              { kind: "balance", label: t("earnings.balance"), value: formatCurrency(earnings.today, { decimals: false }), accent: true },
-              { kind: "thisWeek", label: t("earnings.thisWeek"), value: formatCurrency(earnings.week, { decimals: false }) },
-            ]}
+            range={performanceRange}
+            onRangeChange={setPerformanceRange}
+            stats={
+              performanceRange === "today"
+                ? [
+                    { kind: "trips", label: t("earnings.trips"), value: String(earnings.todayTrips) },
+                    { kind: "balance", label: t("earnings.balance"), value: formatCurrency(earnings.today, { decimals: false }), accent: true },
+                    { kind: "thisWeek", label: t("earnings.thisWeek"), value: formatCurrency(earnings.week, { decimals: false }) },
+                  ]
+                : [
+                    { kind: "trips", label: t("earnings.trips"), value: String(earnings.totalDeliveries) },
+                    { kind: "balance", label: t("earnings.balance"), value: formatCurrency(earnings.week, { decimals: false }), accent: true },
+                    { kind: "thisWeek", label: t("earnings.today"), value: formatCurrency(earnings.today, { decimals: false }) },
+                  ]
+            }
           />
 
           <ActiveTasksSection currentOrder={currentOrder} isOnline={isOnline} />

@@ -35,6 +35,8 @@ export interface AdminZone {
   _id: string;
   name: string;
   type: string;
+  isActive?: boolean;
+  pricingMultiplier?: number;
 }
 
 export interface AdminOrderSummary {
@@ -51,13 +53,4 @@ export interface OrderChatMessage {
   senderId?: string | { _id?: string; name?: string };
   text?: string;
   createdAt?: string;
-}
-
-export interface NewDriverForm {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  vehicleType: string;
-  role: string;
 }

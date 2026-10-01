@@ -1,6 +1,18 @@
 // Decodes Google's encoded-polyline format into coordinates.
 // Moved out of components/MapBackground.tsx unchanged.
 
+const VEHICLE_BIKE_3D = require("@/assets/images/services/scooter_blue_top_view_2.png");
+const VEHICLE_AUTO_3D = require("@/assets/images/services/auto_top_view.png");
+const VEHICLE_CAB_3D = require("@/assets/images/services/cab.png");
+
+/** Picks the top-down vehicle art for a vehicle/service name, e.g. "auto", "cab_prime". */
+export const vehicleMarkerImage = (vehicleType?: string | null) => {
+  const type = (vehicleType || "bike").toLowerCase();
+  if (type.includes("auto") || type.includes("rickshaw")) return VEHICLE_AUTO_3D;
+  if (type.includes("cab") || type.includes("car") || type.includes("prime")) return VEHICLE_CAB_3D;
+  return VEHICLE_BIKE_3D;
+};
+
 // Utility to decode Google Polyline
 export function decodePolyline(encoded: string) {
   const poly = [];

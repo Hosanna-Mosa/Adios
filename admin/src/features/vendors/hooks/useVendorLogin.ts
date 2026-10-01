@@ -130,20 +130,29 @@ export function useVendorLogin() {
 
     setIsLoading(true);
     try {
-      // Try meat vendor first, then restaurant vendor
-      try {
-        await adminFetch("/meat/forgot-password", {
+      // Both endpoints now answer the same generic "if an account exists"
+      // message whether or not this email matches one of their accounts — they
+      // no longer 404 on a miss — so trying meat first and falling through to
+      // vendor on failure would never reach the vendor call. Fire both; each
+      // sends its own email if (and only if) the address belongs to that kind
+      // of account, so a restaurant vendor and a meat-centre vendor sharing an
+      // email would simply get two.
+      const [meatResult, vendorResult] = await Promise.allSettled([
+        adminFetch("/meat/forgot-password", {
           method: "POST",
           body: JSON.stringify({ email: forgotEmail }),
-        });
-      } catch {
-        await adminFetch("/vendors/forgot-password", {
+        }),
+        adminFetch("/vendors/forgot-password", {
           method: "POST",
           body: JSON.stringify({ email: forgotEmail }),
-        });
+        }),
+      ]);
+
+      if (meatResult.status === "rejected" && vendorResult.status === "rejected") {
+        throw (vendorResult as PromiseRejectedResult).reason;
       }
 
-      toast.success(t("vendorAuth.otpSentToEmail"));
+      toast.success(t("vendorAuth.otpSentIfAccountExists"));
       setForgotStep("otp");
     } catch (error) {
       toast.error((error as Error).message || t("vendorAuth.failedToSendOtp"));

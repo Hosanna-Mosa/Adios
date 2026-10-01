@@ -73,6 +73,19 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
           hasCompletedOnboarding: result.driver?.onboardingStatus === "completed",
           identityVerified: result.verification?.identity ?? false,
         });
+
+        // The server owns shift status. Reconciling here is what keeps the
+        // toggle honest after a reload, and stops a completed ride from
+        // leaving the app looking offline while dispatch still has them on.
+        const serverOnline = String(result.driver?.status || "").toUpperCase() === "ONLINE";
+        const { isOnline, activeServices } = get();
+        if (serverOnline && !isOnline) {
+          // goOnline, not a bare flag: it also re-establishes the socket the
+          // driver needs to actually receive dispatches.
+          await get().goOnline(activeServices.length ? activeServices : ["food", "ride"]);
+        } else if (!serverOnline && isOnline) {
+          set({ isOnline: false });
+        }
       }
 
       return true;
@@ -83,6 +96,18 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
   },
 
   logout: () => {
+    const { token } = get();
+    // Best-effort, fire-and-forget: every caller of logout() treats it as
+    // synchronous, so this cannot block sign-out on the network. Local
+    // sign-out below happens either way — the device must never get stuck
+    // signed in because this request failed or the app is offline.
+    if (token) {
+      fetch(`${apiUrl}/auth/logout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+
     AsyncStorage.removeItem("driver-store"); // Clear persistence on logout
     // Keep the persisted language choice; only the in-memory "gate passed"
     // flag resets, so Select Language reappears (pre-selected) before the

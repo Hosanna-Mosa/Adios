@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Driver, { DriverStatus } from "../../database/models/Driver";
 import Order, { OrderStatus, StopType } from "../../database/models/Order";
+import { getDriverRating } from "../reviews/driver-rating";
+import { getDispatchStagesForVehicle, mapServiceTypeToDriverVehicleType, driverAcceptsServiceType } from "../../config/dispatch.config";
 import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPayout";
 import User from "../../database/models/User";
 import Zone from "../../database/models/Zone";
@@ -50,6 +52,24 @@ export class DriverService {
     return 15 * 60 * 1000;
   }
 
+  // Public wrapper so other call sites that build their own ad-hoc "online driver"
+  // queries (see OrdersService.createOrder / increasePrice fallbacks) can apply the
+  // exact same staleness rule getNearbyDrivers uses, instead of drifting out of sync
+  // with it. Those fallbacks exist specifically to reach a driver when the normal
+  // zone/proximity search comes up empty — if they then hand a phantom "ONLINE" driver
+  // (app closed, GPS fix minutes/hours old) to the dispatcher, the offer silently times
+  // out after the full per-driver wait, which is exactly what "ride never reaches a
+  // driver" looks like from the customer's side.
+  public filterDriversWithLiveLocation(drivers: any[], source = "fallback"): any[] {
+    const maxAgeMs = this.getLocationMaxAgeMs();
+    const live = drivers.filter((d) => this.hasLiveLocation(d, maxAgeMs));
+    const dropped = drivers.length - live.length;
+    if (dropped > 0) {
+      console.log(`🕒 [STALE LOCATION - ${source}] Skipped ${dropped} driver(s) with no recent GPS fix.`);
+    }
+    return live;
+  }
+
   // A driver whose GPS fix is missing or stale is not reachable, so it must not be
   // reported as an available captain even when the DB still says ONLINE.
   private hasLiveLocation(driver: any, maxAgeMs: number): boolean {
@@ -72,7 +92,6 @@ export class DriverService {
   async getNearbyDrivers(lat: number, lng: number, radiusInMeters?: number, vehicleType?: string, requireOnline: boolean = false) {
     const socketManager = SocketManager.getInstance();
     const redisClient = socketManager ? (socketManager as any).redisClient : null;
-    const { getDispatchStagesForVehicle } = require("../../config/dispatch.config");
 
     // Fetch all zones into a quick name-lookup map
     let zoneMap = new Map<string, string>();
@@ -113,6 +132,22 @@ export class DriverService {
     // Retrieve vehicle-specific 3-stage expansion configuration
     const stages = getDispatchStagesForVehicle(vehicleType);
 
+    // The caller passes the raw ServiceType enum value ("BIKE", "AUTO", ...),
+    // uppercase, while Driver.vehicleType is stored lowercase ("bike", "auto").
+    // Every vehicleType check below used to compare the raw value directly, so
+    // ["bike","auto",...].includes("BIKE") was always false and the whole
+    // vehicle filter silently never applied — a bike ride and an auto ride
+    // matched exactly the same (unfiltered) candidate pool, so either could be
+    // offered to a driver with the wrong vehicle. Normalized once here; every
+    // vehicleType reference below uses this instead of the raw parameter.
+    const normalizedVehicleType = vehicleType?.toLowerCase();
+    // The actual value to filter Driver.vehicleType by — NOT the same as
+    // normalizedVehicleType. See mapServiceTypeToDriverVehicleType: "cab" and
+    // "cab_prime" don't exist on Driver.vehicleType (only "bike"|"auto"|"car"
+    // do), so filtering on the raw ride tier matched zero drivers, always.
+    // undefined here means "don't filter by vehicle" (helper/delivery orders).
+    const driverVehicleTypeFilter = mapServiceTypeToDriverVehicleType(normalizedVehicleType);
+
     // Every lookup below must honour requireOnline, otherwise off-shift drivers come back
     // as available captains.
     const onlineFilter: any = requireOnline ? { status: DriverStatus.ONLINE, isAvailable: true } : {};
@@ -124,7 +159,17 @@ export class DriverService {
       if (dropped > 0) {
         console.log(`🕒 [STALE LOCATION - ${source}] Skipped ${dropped} driver(s) with no recent GPS fix.`);
       }
-      return live;
+      // A driver who hasn't toggled this order's category on (see GoOnlineModal)
+      // would just have the offer silently dropped by their own app — no modal,
+      // no decline call — so the dispatcher would burn the full per-driver offer
+      // timeout waiting on someone who could never respond. Exclude them here so
+      // the cascade reaches someone who actually can.
+      const reachable = live.filter((d) => driverAcceptsServiceType(d.activeServices, vehicleType));
+      const excludedByService = live.length - reachable.length;
+      if (excludedByService > 0) {
+        console.log(`🙅 [SERVICE TOGGLE OFF - ${source}] Skipped ${excludedByService} driver(s) not opted into this order's category.`);
+      }
+      return reachable;
     };
 
     let results: any[] = [];
@@ -151,10 +196,8 @@ export class DriverService {
               preferredZone: activeZone._id,
               ...onlineFilter,
             };
-            if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime", "helper"].includes(vehicleType)) {
-              if (vehicleType !== "helper" && vehicleType !== "delivery") {
-                query.vehicleType = vehicleType;
-              }
+            if (driverVehicleTypeFilter) {
+              query.vehicleType = driverVehicleTypeFilter;
             }
             const drivers = await Driver.find(query).populate("user");
             const driverMap = new Map(drivers.map((d: any) => [d._id.toString(), d]));
@@ -183,11 +226,9 @@ export class DriverService {
           },
         };
 
-        if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime", "helper"].includes(vehicleType)) {
+        if (driverVehicleTypeFilter) {
           // If it's a ride order, we MUST filter by vehicle type
-          if (vehicleType !== "helper" && vehicleType !== "delivery") {
-            query.vehicleType = vehicleType;
-          }
+          query.vehicleType = driverVehicleTypeFilter;
         }
 
         try {
@@ -205,14 +246,11 @@ export class DriverService {
           user: { $in: devUserIds },
           ...onlineFilter,
         };
-        if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime", "helper"].includes(vehicleType)) {
-          if (vehicleType !== "helper" && vehicleType !== "delivery") {
-            devDriversQuery.vehicleType = vehicleType;
-          } else if (vehicleType === "helper") {
-            // Dev drivers CAN receive helper tasks during local testing
-            // We intentionally do not filter by vehicleType for helper
-          }
+        if (driverVehicleTypeFilter) {
+          devDriversQuery.vehicleType = driverVehicleTypeFilter;
         }
+        // Dev drivers CAN receive helper/delivery tasks during local testing —
+        // driverVehicleTypeFilter is undefined for those, so no filter is applied.
         const devDrivers = await Driver.find(devDriversQuery).populate("user");
         for (const dd of devDrivers) {
           if (!stageDrivers.some(d => d._id.toString() === dd._id.toString())) {
@@ -248,8 +286,8 @@ export class DriverService {
           zoneDriversQuery.status = DriverStatus.ONLINE;
           zoneDriversQuery.isAvailable = true;
         }
-        if (vehicleType && ["bike", "auto", "car", "cab", "cab_prime"].includes(vehicleType)) {
-          zoneDriversQuery.vehicleType = vehicleType;
+        if (driverVehicleTypeFilter) {
+          zoneDriversQuery.vehicleType = driverVehicleTypeFilter;
         }
         const zoneDrivers = filterAvailable(await Driver.find(zoneDriversQuery).populate("user"), "Zone DB Fallback");
         if (zoneDrivers.length > 0) {
@@ -315,13 +353,21 @@ export class DriverService {
     return savedDriver;
   }
 
-  async updateStatus(driverId: string, status: DriverStatus) {
+  async updateStatus(driverId: string, status: DriverStatus, activeServices?: ("ride" | "food")[]) {
     const driver = await Driver.findById(driverId);
     if (!driver) throw new Error("Driver not found");
 
     driver.status = status;
     if (status === DriverStatus.ONLINE) {
       driver.isAvailable = true;
+      // Only overwrite when the caller actually sent a selection (going ONLINE
+      // from the app does). Going OFFLINE has no reason to send one, and an
+      // empty/undefined value here must not erase what the driver last chose —
+      // see driverAcceptsServiceType's "no filter" fallback for what an empty
+      // list would otherwise do to every future dispatch for this driver.
+      if (activeServices && activeServices.length > 0) {
+        driver.activeServices = activeServices;
+      }
     }
     return driver.save();
   }
@@ -364,30 +410,44 @@ export class DriverService {
     const p_d = this.haversineDistance(pickupLat, pickupLng, dropoffLat, dropoffLng);
     const drop_h = this.haversineDistance(dropoffLat, dropoffLng, homeLat, homeLng);
 
-    const fs = require("fs");
-    const path = require("path");
-    const logPath = path.join(__dirname, "../../../debug.log");
-    fs.appendFileSync(logPath, `[DETOUR CHECK] Driver: ${driverId}\n` +
-      `  Driver: [${driverLng}, ${driverLat}]\n` +
-      `  Home: [${homeLng}, ${homeLat}]\n` +
-      `  Pickup: [${pickupLng}, ${pickupLat}]\n` +
-      `  Dropoff: [${dropoffLng}, ${dropoffLat}]\n` +
-      `  Distances: d_h = ${d_h.toFixed(1)}m, d_p = ${d_p.toFixed(1)}m, p_d = ${p_d.toFixed(1)}m, drop_h = ${drop_h.toFixed(1)}m\n`);
+    // Diagnostics go to the app log. This used to fs.appendFileSync a debug.log on
+    // every candidate of every dispatch — a synchronous disk write in the hot path
+    // that throws outright on a read-only filesystem, and the caller does not guard
+    // the call, so one failed write could take down a whole booking.
+    const trace = (outcome: string) =>
+      console.log(
+        `[DETOUR CHECK] driver=${driverId} d_h=${d_h.toFixed(0)}m d_p=${d_p.toFixed(0)}m ` +
+        `p_d=${p_d.toFixed(0)}m drop_h=${drop_h.toFixed(0)}m -> ${outcome}`
+      );
 
     if (d_h < 3000) {
-      fs.appendFileSync(logPath, `  -> MATCHED: Driver is already within 3km of home.\n`);
+      trace("MATCHED (driver already within 3km of home)");
       return true;
     }
 
+    // A task with no distinct destination — a helper job booked without a drop-off
+    // is the only order shape that produces this — has nothing to detour *towards*.
+    // stops[0] and stops[last] are then the same stop, so "dropoff" is really just
+    // the pickup, and the drop_h >= d_h test below reads a job near the customer as
+    // a drive away from home and rejects it. Judge those on the trip out only.
+    const hasDistinctDropoff = p_d > 1;
+    if (!hasDistinctDropoff) {
+      const detourOut = d_p - d_h;
+      const allowedOut = Math.max(10000, 0.3 * d_h);
+      const okOut = detourOut <= allowedOut;
+      trace(`single-location task, out-leg detour ${detourOut.toFixed(0)}m vs ${allowedOut.toFixed(0)}m -> ${okOut}`);
+      return okOut;
+    }
+
     if (drop_h >= d_h) {
-      fs.appendFileSync(logPath, `  -> FILTERED OUT: Dropoff is further from home than driver starting point (drop_h: ${drop_h.toFixed(1)}m >= d_h: ${d_h.toFixed(1)}m)\n`);
+      trace(`FILTERED OUT (dropoff further from home than driver: ${drop_h.toFixed(0)}m >= ${d_h.toFixed(0)}m)`);
       return false;
     }
 
     const detourOverhead = (d_p + p_d + drop_h) - d_h;
     const maxAllowedDetour = Math.max(10000, 0.3 * d_h);
     const result = detourOverhead <= maxAllowedDetour;
-    fs.appendFileSync(logPath, `  -> Detour overhead: ${detourOverhead.toFixed(1)}m, Max allowed detour: ${maxAllowedDetour.toFixed(1)}m. Result: ${result}\n`);
+    trace(`detour ${detourOverhead.toFixed(0)}m vs max ${maxAllowedDetour.toFixed(0)}m -> ${result}`);
     return result;
   }
 
@@ -483,6 +543,13 @@ export class DriverService {
         })
       : 0;
 
+    // Reuses the same aggregation the customer-facing tracking screen already
+    // relies on for a driver's rating, rather than reimplementing it here — this
+    // used to be a flat 4.9 for every driver regardless of actual feedback.
+    const { rating, ratingCount } = driver
+      ? await getDriverRating(driver._id)
+      : { rating: null, ratingCount: 0 };
+
     return {
       account: {
         id: user._id.toString(),
@@ -548,7 +615,8 @@ export class DriverService {
       },
       stats: {
         completedTrips,
-        rating: 4.9,
+        rating,
+        ratingCount,
         acceptanceRate: 98,
       },
     };
@@ -562,15 +630,18 @@ export class DriverService {
     const weekStart = this.getWeekStart(now);
     const previousWeekStart = new Date(weekStart);
     previousWeekStart.setDate(previousWeekStart.getDate() - 7);
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
 
     // Pick up payouts whose webhook was missed, so the balance and history reflect RazorpayX.
     await syncOpenPayouts("driver", { driver: driver._id }).catch((err) =>
       console.warn("[drivers.service] Payout refresh failed:", err?.message),
     );
 
-    const [weekOrders, previousWeekOrders, allCompletedOrders, payouts] = await Promise.all([
+    const [weekOrders, previousWeekOrders, todayOrders, allCompletedOrders, payouts] = await Promise.all([
       this.getCompletedOrdersForDriver(driver._id, weekStart, now),
       this.getCompletedOrdersForDriver(driver._id, previousWeekStart, weekStart),
+      this.getCompletedOrdersForDriver(driver._id, todayStart, now),
       Order.find({
         driver: driver._id,
         status: { $in: this.completedStatuses() },
@@ -581,6 +652,7 @@ export class DriverService {
     const weeklyBreakdown = this.buildWeeklyBreakdown(weekOrders, weekStart);
     const weekGross = this.sumDriverEarnings(weekOrders);
     const previousWeekGross = this.sumDriverEarnings(previousWeekOrders);
+    const todayGross = this.sumDriverEarnings(todayOrders);
     const paidOut = await this.getPaidOutTotal(driver._id);
     const { lifetimeGross, cashCollectedTotal } = await this.getLifetimeGross(driver._id);
     // Withdrawable = earned share − cash the driver already holds − payouts reserved/sent.
@@ -621,6 +693,11 @@ export class DriverService {
       cashCollectedTotal,
       cashCommissionDue,
       weekBalance: weekGross,
+      // "Today" was previously missing entirely — the home screen's "Today's
+      // Performance" card had to substitute the lifetime available balance and a
+      // weekly trip count in its place, which is why they never matched the
+      // selected time range.
+      todayBalance: todayGross,
       trendPercent,
       weeklyBreakdown,
       recentActivity,
@@ -628,6 +705,7 @@ export class DriverService {
         onlineHours: this.estimateActiveHours(weekOrders),
         totalDistance: Math.round(weekOrders.reduce((sum: number, order: any) => sum + (order.totalDistance || 0), 0)),
         completedTrips: weekOrders.length,
+        completedTripsToday: todayOrders.length,
       },
       bank: {
         verified: Boolean(driver.bankVerified),

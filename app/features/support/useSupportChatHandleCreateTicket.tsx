@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { Alert } from "react-native";
 import { socketService } from "@/utils/socketService";
 import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
 import { createSupportTicket } from "@/services/support.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -32,7 +32,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
 
   const handleCreateTicket = async () => {
     if (!newTitle.trim() || !newMessage.trim()) {
-      Alert.alert(i18n.t("app.delivery.missingDetails"), i18n.t("app.support.addATitleAndAShort"));
+      showAlert(i18n.t("app.delivery.missingDetails"), i18n.t("app.support.addATitleAndAShort"));
       return;
     }
     setCreatingTicket(true);
@@ -44,7 +44,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
       setNewMessage("");
       setViewMode("chat");
     } catch (error: any) {
-      Alert.alert(i18n.t("app.ride.couldntSubmit"), error.message || i18n.t("app.ride.pleaseTryAgain"));
+      showAlert(i18n.t("app.ride.couldntSubmit"), error.message || i18n.t("app.ride.pleaseTryAgain"));
     } finally {
       setCreatingTicket(false);
     }

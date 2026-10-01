@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import { AppState, AppStateStatus } from "react-native";
 import * as Notifications from "expo-notifications";
+import * as TaskManager from "expo-task-manager";
 import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { useLocationTracking } from "./useLocationTracking";
+import { BACKGROUND_LOCATION_TASK } from "./backgroundLocationTask";
 
 export const LocationHandler = () => {
   const { t } = useTranslation();
@@ -30,27 +32,38 @@ export const LocationHandler = () => {
         console.log("[LocationHandler] App resumed from background to foreground.");
       }
 
-      // If going to background, force offline to sync state
-      if (
-        appState.current === "active" &&
-        nextAppState.match(/inactive|background/)
-      ) {
-        // Skip if going to background due to a permission check popup
+      // Only a real background counts. "inactive" is a transient state — a
+      // permission dialog, the notification shade, the app switcher, any native
+      // picker — and treating it as backgrounding is what kept knocking drivers
+      // off shift just for opening another screen.
+      if (appState.current === "active" && nextAppState === "background") {
         if (isCheckingPermissions.current) {
-          console.log("[LocationHandler] App went to background/inactive due to permission check. Skipping auto-offline.");
+          console.log("[LocationHandler] Background caused by a permission check. Staying online.");
           appState.current = nextAppState;
           return;
         }
 
-        console.log("[LocationHandler] App went to background. Forcing offline.");
         const store = useDriverStore.getState();
-        if (store.isOnline) {
+        if (!store.isOnline) {
+          appState.current = nextAppState;
+          return;
+        }
+
+        // Background location updates keep the driver dispatchable while
+        // minimised, so there is no reason to end their shift. Without them the
+        // dispatcher would be sending orders nobody can see, so that case does
+        // still go offline.
+        const trackingInBackground = await TaskManager.isTaskRegisteredAsync(BACKGROUND_LOCATION_TASK).catch(() => false);
+        if (trackingInBackground) {
+          console.log("[LocationHandler] App minimised; background tracking is running, staying online.");
+        } else {
+          console.log("[LocationHandler] App minimised with no background tracking. Going offline.");
           store.goOffline();
-          
+
           Notifications.scheduleNotificationAsync({
             content: {
               title: t("jobs.statusOffline"),
-              body: t("jobs.yourAppIsMinimizedSoYouAreNowOffline"),
+              body: t("jobs.backgroundLocationOffNowOffline"),
               sound: true,
             },
             trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 1 },

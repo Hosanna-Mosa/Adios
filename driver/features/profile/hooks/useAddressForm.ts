@@ -45,20 +45,28 @@ export function useAddressForm() {
       };
       if (phone.trim()) body.phone = phone.trim();
       if (receiverName.trim()) body.receiverName = receiverName.trim();
-      if (isEditMode && params.editId) {
-        body.editId = String(params.editId);
-      }
       if (addressLat !== null && addressLng !== null) {
         body.coordinates = { lat: addressLat, lng: addressLng };
       } else if (params.lat && params.lng) {
         body.coordinates = { lat: Number(params.lat), lng: Number(params.lng) };
       }
 
-      const res = await fetch(`${apiUrl}/users/addresses`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body),
-      });
+      // `editId` was being stuffed into the POST /addresses body, but that endpoint
+      // only ever appends (or replaces an incidental content-duplicate) — it never
+      // looked at editId, so editing an address always created a second entry
+      // instead of updating the one being edited. The API already has a proper
+      // update route for this; use it when we're actually editing.
+      const res = isEditMode && params.editId
+        ? await fetch(`${apiUrl}/users/addresses/${encodeURIComponent(String(params.editId))}`, {
+            method: "PATCH",
+            headers,
+            body: JSON.stringify(body),
+          })
+        : await fetch(`${apiUrl}/users/addresses`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body),
+          });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

@@ -7,10 +7,8 @@ import { useDriversList } from "@/features/drivers/hooks/useDriversList";
 import { useZoneAssignment } from "@/features/drivers/hooks/useZoneAssignment";
 import { useDriverChat } from "@/features/drivers/hooks/useDriverChat";
 import { DriverStatsRow } from "@/features/drivers/components/DriverStatsRow";
-import { DriverMetricsRow } from "@/features/drivers/components/DriverMetricsRow";
 import { DriverFilters } from "@/features/drivers/components/DriverFilters";
 import { DriverTable } from "@/features/drivers/components/DriverTable";
-import { DriverOnboardDialog } from "@/features/drivers/components/DriverOnboardDialog";
 import { DriverDocsDialog } from "@/features/drivers/components/DriverDocsDialog";
 import { DriverZoneTab } from "@/features/drivers/components/DriverZoneTab";
 import { DriverZoneAssignDialog } from "@/features/drivers/components/DriverZoneAssignDialog";
@@ -35,17 +33,13 @@ export default function Drivers() {
     searchedDrivers,
     orders,
     onlineDrivers,
-    totalOrdersCount,
-    completedCount,
-    cancelledCount,
+    averageRating,
+    ratedDriversCount,
+    fleetHealth,
+    getDriverMtdEarnings,
+    getDriverMtdTrips,
     totalEarningsToday,
     ordersToday,
-    isAddOpen,
-    setIsAddOpen,
-    newDriver,
-    setNewDriver,
-    handleOnboardSubmit,
-    isCreating,
     isViewOpen,
     setIsViewOpen,
     viewingDriver,
@@ -74,7 +68,6 @@ export default function Drivers() {
     isEditingAssignment,
     openAssignDialog,
     openEditDialog,
-    handleAssignZone,
     handleConfirmAssign,
   } = useZoneAssignment();
 
@@ -92,7 +85,18 @@ export default function Drivers() {
   return (
     <DashboardLayout searchPlaceholder={t("drivers.searchDriversVehicleIdsRegions")}>
       <div className="space-y-6 max-w-[1600px] mx-auto pb-10">
-        <DriverStatsRow totalRegistered={drivers.length} onlineDrivers={onlineDrivers} totalEarningsToday={totalEarningsToday} />
+        {/* Fleet stat cards belong to the Fleet Directory tab only. */}
+        {activeTab === "fleet" && (
+          <DriverStatsRow
+            totalRegistered={drivers.length}
+            onlineDrivers={onlineDrivers}
+            totalEarningsToday={totalEarningsToday}
+            averageRating={averageRating}
+            ratedDriversCount={ratedDriversCount}
+            ordersTodayCount={ordersToday.length}
+            fleetHealth={fleetHealth}
+          />
+        )}
 
         {/* Tab Selection */}
         <div className="flex border-b border-border mb-4 gap-2">
@@ -126,7 +130,6 @@ export default function Drivers() {
                 onSearchChange={setSearchQuery}
                 statusFilterOptions={statusFilterOptions}
                 onStatusFilterChange={setStatusFilter}
-                onAddClick={() => setIsAddOpen(true)}
               />
             </div>
 
@@ -137,6 +140,8 @@ export default function Drivers() {
                 getAvatarUrl={getAvatarUrl}
                 getLocationDetails={getLocationDetails}
                 getVehicleString={getVehicleString}
+                getDriverMtdEarnings={getDriverMtdEarnings}
+                getDriverMtdTrips={getDriverMtdTrips}
                 onViewClick={handleViewClick}
                 onFocusOnMap={handleFocusOnMap}
                 onOpenChatModal={handleOpenChatModal}
@@ -156,24 +161,7 @@ export default function Drivers() {
             />
           </div>
         )}
-
-        <DriverMetricsRow
-          totalOrdersCount={totalOrdersCount}
-          completedCount={completedCount}
-          cancelledCount={cancelledCount}
-          ordersTodayCount={ordersToday.length}
-          totalEarningsToday={totalEarningsToday}
-        />
       </div>
-
-      <DriverOnboardDialog
-        open={isAddOpen}
-        onOpenChange={setIsAddOpen}
-        newDriver={newDriver}
-        onChange={setNewDriver}
-        onSubmit={handleOnboardSubmit}
-        isSubmitting={isCreating}
-      />
 
       <DriverDocsDialog
         open={isViewOpen}
@@ -247,6 +235,8 @@ export default function Drivers() {
       {activeTab === "zones" && (
         <DriverZoneTab
           drivers={searchedDrivers}
+          allDrivers={drivers}
+          orders={orders}
           zonesList={zonesList}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -254,11 +244,6 @@ export default function Drivers() {
           getVehicleString={getVehicleString}
           onAssignClick={openAssignDialog}
           onEditClick={openEditDialog}
-          onRemoveZone={(driverId, driverName) => {
-            if (confirm(t("drivers.confirmRemoveZoneAssignment", { name: driverName, defaultValue: "Remove zone assignment for driver {{name}}?" }))) {
-              handleAssignZone(driverId, null);
-            }
-          }}
           onOpenChatModal={handleOpenChatModal}
         />
       )}

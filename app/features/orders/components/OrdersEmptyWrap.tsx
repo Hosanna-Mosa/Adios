@@ -15,16 +15,29 @@ import type { Order } from "@/types/models";
 
 interface Props {
   orders: Order[];
+  /** True when the account does have orders, just none matching the current filter. */
+  filtered?: boolean;
   styles: OrdersStyles;
   tokens: ThemeTokens;
 }
 
 export function OrdersEmptyWrap({
   orders,
+  filtered = false,
   styles,
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  if (filtered) {
+    return (
+      <Animated.View style={styles.emptyWrap} entering={fadeInUp(0)}>
+        <View style={styles.emptyIconCircle}><Ionicons name="funnel-outline" size={moderateScale(28)} color={tokens.brand} /></View>
+        <Text style={styles.emptyTitle}>{t("app.orders.noOrdersInThisFilter")}</Text>
+        <Text style={styles.emptySubtitle}>{t("app.orders.ordersInTotalPickAll", { count: orders.length })}</Text>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View style={styles.emptyWrap} entering={fadeInUp(0)}>
       <View style={styles.emptyIconCircle}><Ionicons name="receipt-outline" size={moderateScale(28)} color={tokens.brand} /></View>

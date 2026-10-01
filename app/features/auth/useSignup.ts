@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BackHandler, Platform, Alert } from "react-native";
+import { BackHandler, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -7,6 +7,7 @@ import { createStyles } from "./signup.styles";
 import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/signup.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -72,14 +73,13 @@ export function useSignup() {
       leaveSignup();
       return;
     }
-    Alert.alert(
+    showAlert(
       t("app.auth.discardSignUp"),
       t("app.auth.yourDetailsWontBeSaved"),
       [
         { text: t("app.auth.keepEditing"), style: "cancel" },
         { text: t("app.auth.discard"), style: "destructive", onPress: leaveSignup },
-      ],
-      { cancelable: true }
+      ]
     );
   }, [hasEnteredDetails, leaveSignup]);
 
@@ -98,24 +98,24 @@ export function useSignup() {
 
   const handleRegister = async () => {
     if (name.trim().length < 3) {
-      Alert.alert(t("app.auth.invalidName"), t("app.auth.pleaseEnterYourFullNameMinimum"));
+      showAlert(t("app.auth.invalidName"), t("app.auth.pleaseEnterYourFullNameMinimum"));
       return;
     }
     if (!phoneNumber || phoneNumber.trim().length < 10) {
-      Alert.alert(t("app.auth.invalidPhone"), t("app.auth.pleaseEnterAValidPhoneNumber"));
+      showAlert(t("app.auth.invalidPhone"), t("app.auth.pleaseEnterAValidPhoneNumber"));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      Alert.alert(t("app.auth.invalidEmail"), t("app.auth.pleaseEnterAValidEmailAddress"));
+      showAlert(t("app.auth.invalidEmail"), t("app.auth.pleaseEnterAValidEmailAddress"));
       return;
     }
     if (password.length < 8) {
-      Alert.alert(t("app.auth.invalidPassword"), t("app.auth.passwordMustBeAtLeast8"));
+      showAlert(t("app.auth.invalidPassword"), t("app.auth.passwordMustBeAtLeast8"));
       return;
     }
     if (!agreedToTerms) {
-      Alert.alert(t("app.auth.termsPrivacyPolicy"), t("app.auth.pleaseAgreeToTheTermsAnd"));
+      showAlert(t("app.auth.termsPrivacyPolicy"), t("app.auth.pleaseAgreeToTheTermsAnd"));
       return;
     }
 
@@ -130,7 +130,7 @@ export function useSignup() {
         params: { phone: trimmedPhone, name: name.trim(), email: email.trim(), password },
       });
     } catch (error: any) {
-      Alert.alert(t("app.auth.couldntSendCode"), error.message || t("app.auth.somethingWentWrongTryAgain"));
+      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.auth.somethingWentWrongTryAgain"));
     }
   };
 

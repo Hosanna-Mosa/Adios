@@ -1,5 +1,4 @@
-import { Eye, Phone, MessageSquare, MapPin, MoreVertical, Star } from "lucide-react";
-import { toast } from "sonner";
+import { Eye, MessageSquare, MapPin, MoreVertical, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LazyImage } from "@/components/shared/LazyImage";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
@@ -20,6 +19,8 @@ interface DriverTableProps {
   getAvatarUrl: (name: string) => string;
   getLocationDetails: (driver: AdminDriver) => { main: string; sub: string };
   getVehicleString: (driver: AdminDriver) => string;
+  getDriverMtdEarnings: (driverId: string) => number;
+  getDriverMtdTrips: (driverId: string) => number;
   onViewClick: (driver: AdminDriver) => void;
   onFocusOnMap: (driver: AdminDriver) => void;
   onOpenChatModal: (driver: AdminDriver) => void;
@@ -35,6 +36,8 @@ export function DriverTable({
   getAvatarUrl,
   getLocationDetails,
   getVehicleString,
+  getDriverMtdEarnings,
+  getDriverMtdTrips,
   onViewClick,
   onFocusOnMap,
   onOpenChatModal,
@@ -142,10 +145,12 @@ export function DriverTable({
       header: t("drivers.earningsMtd"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
-      cell: () => (
+      cell: (d) => (
         <div>
-          <p className="text-sm font-bold text-foreground">₹0.00</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">{t("drivers.targetColonZero")}</p>
+          <p className="text-sm font-bold text-foreground">₹{getDriverMtdEarnings(d._id).toFixed(2)}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            {t("drivers.nTripsThisMonth", { count: getDriverMtdTrips(d._id), defaultValue: "{{count}} trips this month" })}
+          </p>
         </div>
       ),
     },
@@ -154,12 +159,17 @@ export function DriverTable({
       header: t("drivers.rating"),
       headerClassName: HEADER_CLASS,
       cellClassName: CELL_CLASS,
-      cell: (d) => (
-        <div className="flex items-center gap-1">
-          <span className="text-sm font-bold text-foreground">{d.rating || "4.8"}</span>
-          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-        </div>
-      ),
+      // Same "no data yet" convention as the Average Rating card: this used to
+      // read `d.rating || "4.8"`, so every driver with no reviews showed 4.8 stars.
+      cell: (d) =>
+        typeof d.rating === "number" && d.rating > 0 ? (
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-bold text-foreground">{d.rating.toFixed(1)}</span>
+            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">{t("drivers.noRatingsYet")}</span>
+        ),
     },
     {
       key: "actions",
@@ -170,9 +180,6 @@ export function DriverTable({
         <div className="flex items-center gap-2">
           <button onClick={() => onViewClick(d)} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title={t("drivers.viewDossier")}>
             <Eye className="h-4 w-4" />
-          </button>
-          <button onClick={() => toast.success(t("drivers.callingName", { name: d.user?.name, defaultValue: "Calling {{name}}..." }))} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title={t("drivers.call")}>
-            <Phone className="h-4 w-4" />
           </button>
           <button onClick={() => onOpenChatModal(d)} className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title={t("drivers.viewOrderChats")}>
             <MessageSquare className="h-4 w-4" />

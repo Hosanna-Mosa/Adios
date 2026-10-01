@@ -2,14 +2,63 @@ import { Request, Response, NextFunction } from "express";
 import { OrdersService } from "./orders.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import Order, { OrderStatus, ServiceType } from "../../database/models/Order";
-import Driver from "../../database/models/Driver";
 import { UserRole } from "../../database/models/User";
+import Driver from "../../database/models/Driver";
 import { CouponsService } from "../coupons/coupons.service";
 import { ValidationError, NotFoundError, UnauthorizedError, ConflictError, ForbiddenError } from "../../utils/errors";
 import { InvoiceService } from "../../services/invoice.service";
+import { getDriverRating } from "../reviews/driver-rating";
 
 const ordersService = new OrdersService();
 const couponsService = new CouponsService();
+
+// Delivery and pickup codes are 4-digit strings minted per order in
+// OrdersService.createOrder. Compared as trimmed strings so a client that sends
+// the code as a JSON number still matches, and so a missing or blank submission
+// is a mismatch rather than an accidental pass. There is deliberately no master
+// code: one would unlock every order on the platform, and since the generator's
+// range is 1000-9999 any master value is also a code a real order can be given.
+const verificationCodeMatches = (supplied: unknown, expected: string): boolean => {
+  if (typeof expected !== "string" || expected.trim().length === 0) return false;
+  if (typeof supplied !== "string" && typeof supplied !== "number") return false;
+  return String(supplied).trim() === expected.trim();
+};
+
+// Accepts a populated document, a raw ObjectId or a string, since whether a ref
+// arrives populated depends on which query loaded the order.
+const refId = (value: any): string | undefined => {
+  if (!value) return undefined;
+  if (typeof value === "string") return value;
+  if (value._id) return value._id.toString();
+  return value.toString();
+};
+
+// An order carries the customer's name and phone, the pickup and drop addresses,
+// and the delivery OTP that completes it. Reading one is therefore limited to the
+// people actually party to it — the customer, the assigned driver, the vendor
+// fulfilling it — plus platform staff. Vendor and meat-centre tokens carry the
+// Vendor/MeatCenter _id as userId with a role outside UserRole, which is why the
+// vendor arm compares against order.vendor rather than a user id.
+const canReadOrder = (order: any, user?: { userId: string; role: string }): boolean => {
+  if (!user?.userId) return false;
+  if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
+
+  return (
+    user.userId === refId(order.user) ||
+    user.userId === refId(order.driver?.user) ||
+    user.userId === refId(order.vendor)
+  );
+};
+
+// A vendor's order list carries every customer's populated User document, so it
+// is readable only by that vendor and by platform staff. A vendor or meat-centre
+// token carries the Vendor/MeatCenter _id as its subject, which is the same id
+// these routes take in the path — so the two compare directly.
+const canAccessVendorData = (vendorId: string, user?: { userId: string; role: string }): boolean => {
+  if (!user?.userId || !vendorId) return false;
+  if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
+  return user.userId === vendorId;
+};
 
 export class OrdersController {
   async validateCoupon(req: Request, res: Response, next: NextFunction) {
@@ -87,10 +136,23 @@ export class OrdersController {
       const { id } = req.params;
       // Only the order's customer, assigned driver, vendor, or staff (otherwise "not found").
       const { order } = await ordersService.getOrderForActor(id as string, req.user);
+      // The tracking screen reads the assigned driver's name, phone and vehicle off
+      // this payload, so the driver (and its user) has to be populated here.
+      await order.populate({ path: "driver", populate: { path: "user", select: "name phone" } });
 
-      // Same flattened `items` the list endpoint returns, so reorder works from the detail
-      // screen too without the client having to dig through stops[].items.lines.
-      return res.json({ ...order.toJSON(), items: ordersService.extractOrderItems(order) });
+      // Answers 404 rather than 403 so that order ids cannot be probed for
+      // existence by a caller who is not party to them.
+      if (!canReadOrder(order, req.user)) {
+        throw new NotFoundError("Order not found");
+      }
+
+      // The driver's star rating lives in the Review collection, not on the Driver
+      // document, so it has to be attached here for the tracking screen to show it.
+      const json: any = { ...order.toJSON(), items: ordersService.extractOrderItems(order) };
+      if (json.driver?._id) {
+        json.driver = { ...json.driver, ...(await getDriverRating(json.driver._id)) };
+      }
+      return res.json(json);
     } catch (error) {
       next(error);
     }
@@ -124,6 +186,12 @@ export class OrdersController {
         .populate("vendor");
 
       if (!populatedOrder) {
+        throw new NotFoundError("Order not found");
+      }
+
+      // The invoice renders the customer's name, phone and both addresses, so it
+      // is gated to the same parties as the order itself.
+      if (!canReadOrder(populatedOrder, req.user)) {
         throw new NotFoundError("Order not found");
       }
 
@@ -204,6 +272,11 @@ export class OrdersController {
     try {
       const { vendorId } = req.params;
       if (!ordersService.canActForVendor(String(vendorId), req.user)) throw new NotFoundError("Vendor not found");
+
+      if (!canAccessVendorData(vendorId as string, req.user)) {
+        throw new ForbiddenError("You do not have access to this vendor's orders");
+      }
+
       const requests = await ordersService.getVendorScheduledDeliveryRequests(vendorId as string);
       return res.json(requests);
     } catch (error: any) {
@@ -316,7 +389,7 @@ export class OrdersController {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
         if (orderObj && orderObj.deliveryOtp) {
-          if (otp !== orderObj.deliveryOtp) {
+          if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError("Invalid delivery verification OTP. Please ask the customer for the correct code.");
           }
         }
@@ -333,7 +406,7 @@ export class OrdersController {
         const orderObj = await ordersService.getOrderById(id as string);
         if (orderObj && (orderObj as any).restaurantPickupCode) {
           // Only the order's own code — no master code (RAZORPAY_INTEGRATION.md §5.4 A2/C1).
-          if (otp !== (orderObj as any).restaurantPickupCode) {
+          if (!verificationCodeMatches(otp, (orderObj as any).restaurantPickupCode)) {
             throw new ValidationError("Invalid restaurant pickup code. Please ask the restaurant for the correct code.");
           }
         }
@@ -448,6 +521,13 @@ export class OrdersController {
       const { vendorId } = req.params;
       // Only that vendor, or staff.
       if (!ordersService.canActForVendor(String(vendorId), req.user)) throw new NotFoundError("Vendor not found");
+
+      // 403 rather than 404: vendor ids are public (GET /vendors/nearby lists
+      // them), so there is no existence to conceal here — only the order data.
+      if (!canAccessVendorData(vendorId as string, req.user)) {
+        throw new ForbiddenError("You do not have access to this vendor's orders");
+      }
+
       const orders = await ordersService.getVendorOrders(vendorId as string);
       return res.json(orders);
     } catch (error) {

@@ -185,4 +185,13 @@ export const selfieSectionStyles = StyleSheet.create({
     lineHeight: typography.lineHeights.medium,
     paddingHorizontal: 20,
   },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  retakeText: {
+    fontSize: typography.sizes.medium,
+    fontWeight: "600",
+    color: Colors.primary,
+  },
 });

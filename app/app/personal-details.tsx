@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -15,6 +15,14 @@ import { fadeInDown } from "@/motion/presets";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { PersonalDetailsBody } from "@/features/auth/components/PersonalDetailsBody";
 import { getProfile, updateProfile } from "@/services/users.service";
+import {
+  validateEmail,
+  validateName,
+  validatePersonalDetails,
+  validateUsername,
+  type PersonalDetailsErrors,
+} from "@/features/auth/personal-details.validation";
+import { showAlert } from "@/components/ui/AppAlert";
 
 export default function PersonalDetailsScreen() {
   const { t } = useTranslation();
@@ -29,6 +37,7 @@ export default function PersonalDetailsScreen() {
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [errors, setErrors] = useState<PersonalDetailsErrors>({});
   const [saving, setSaving] = useState(false);
 
   // The three fields above only seed from whatever the store happened to hold
@@ -56,18 +65,36 @@ export default function PersonalDetailsScreen() {
   const editField = (field: string, setter: (v: string) => void) => (value: string) => {
     editedFields.current.add(field);
     setter(value);
+    // Clear a field's error as soon as it's fixed, but don't start complaining
+    // about a field the user hasn't finished typing yet.
+    setErrors((current) => (current[field as keyof PersonalDetailsErrors] ? { ...current, [field]: undefined } : current));
+  };
+
+  const VALIDATORS: Record<string, (value: string) => string> = {
+    name: validateName,
+    username: validateUsername,
+    email: validateEmail,
+  };
+
+  const blurField = (field: string, value: string) => () => {
+    const message = VALIDATORS[field](value);
+    setErrors((current) => ({ ...current, [field]: message || undefined }));
   };
 
   const handleSave = async () => {
+    const found = validatePersonalDetails({ name, username, email });
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+
     try {
       setSaving(true);
-      const data = await updateProfile({ name, username, email });
+      const data = await updateProfile({ name: name.trim(), username: username.trim(), email: email.trim() });
       if (data) {
         setUser(data);
         router.back();
       }
     } catch (err: any) {
-      Alert.alert(t("app.personaldetails.couldntSave"), err.message || t("app.ride.pleaseTryAgain"));
+      showAlert(t("app.personaldetails.couldntSave"), err.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setSaving(false);
     }
@@ -84,8 +111,10 @@ export default function PersonalDetailsScreen() {
 
       <PersonalDetailsBody
         accent={accent}
+        blurField={blurField}
         editField={editField}
         email={email}
+        errors={errors}
         handleSave={handleSave}
         insets={insets}
         name={name}
@@ -107,6 +136,8 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
 
     label: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 6 },
     field: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, minHeight: 52, paddingHorizontal: 14, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text, backgroundColor: tokens.surface },
+    fieldInvalid: { borderColor: tokens.error, borderWidth: 2 },
+    fieldError: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.error, marginTop: 6 },
 
     phoneField: { flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderColor: tokens.border, backgroundColor: tokens.sunken, borderRadius: 12, minHeight: 52, paddingHorizontal: 14 },
     phoneText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },

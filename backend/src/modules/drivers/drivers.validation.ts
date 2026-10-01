@@ -4,6 +4,11 @@ import { DriverStatus } from "../../database/models/Driver";
 export const updateStatusSchema = z.object({
   body: z.object({
     status: z.nativeEnum(DriverStatus),
+    // Which order categories this shift covers — see Driver.activeServices and
+    // dispatch.config.ts's driverAcceptsServiceType. Optional so a request from
+    // an older app build (or the OFFLINE toggle, which has no reason to send it)
+    // still validates.
+    activeServices: z.array(z.enum(["ride", "food"])).optional(),
   }),
 });
 

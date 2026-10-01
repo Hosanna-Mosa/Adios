@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskComposeForm } from "@/features/delivery/components/TaskComposeForm";
 import { TaskBiddingPanel } from "@/features/delivery/components/TaskBiddingPanel";
@@ -15,28 +14,22 @@ import { useHelperTask } from "@/features/delivery/useHelperTask";
 
 export default function HelperTaskScreen() {
   const {
-  insets, tokens, accent, styles, step, setStep, taskType, setTaskType, pickupLocation,
+  insets, tokens, accent, styles, step, setStep, pickupLocation,
   dropoffLocation, activeField, setActiveField, searchResults, durationMode, setDurationMode,
   customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription,
   offer, setOffer, isCreating, isIncreasingPrice, currentTaskPrice, rejectedCount, totalContacted,
-  startOtp, totalHours, calculatedFare, suggestedLow, suggestedHigh, handleUseCurrentLocation,
+  startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, suggestedLow,
+  suggestedHigh, handleUseCurrentLocation,
   handleSearch, selectResult, handleIncreasePrice, handleCancel, goToBidding, createTask,
   isProceedDisabled, activeDriver
   } = useHelperTask();
   const { t } = useTranslation();
 
-  const TASK_TYPES = useMemo(() => [
-    t("app.taskTypes.shifting"),
-    t("app.taskTypes.cleaning"),
-    t("app.taskTypes.queueErrands"),
-    t("app.taskTypes.loading"),
-  ], [t]);
-
   return (
     <ScreenShell>
       <Stack.Screen options={{ headerShown: false }} />
       <Header
-        title={step === "compose" ? t("app.helperTask.title.compose") : step === "bidding" ? t("app.helperTask.title.bidding") : step === "searching" ? t("app.helperTask.title.searching") : t("app.helperTask.title.assigned")}
+        title={step === "compose" ? t("app.helperTask.title.compose") : step === "bidding" ? t("app.helperTask.title.bidding") : step === "searching" ? (searchExhausted ? t("app.helperTask.title.noHelpersYet") : t("app.helperTask.title.searching")) : t("app.helperTask.title.assigned")}
         onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
@@ -44,7 +37,6 @@ export default function HelperTaskScreen() {
 
       {step === "compose" && (
         <TaskComposeForm
-          TASK_TYPES={TASK_TYPES}
           accent={accent}
           activeField={activeField}
           calculatedFare={calculatedFare}
@@ -67,11 +59,9 @@ export default function HelperTaskScreen() {
           setCustomMinutes={setCustomMinutes}
           setDescription={setDescription}
           setDurationMode={setDurationMode}
-          setTaskType={setTaskType}
           styles={styles}
           suggestedHigh={suggestedHigh}
           suggestedLow={suggestedLow}
-          taskType={taskType}
           tokens={tokens}
         />
       )}
@@ -117,7 +107,10 @@ export default function HelperTaskScreen() {
           isIncreasingPrice={isIncreasingPrice}
           offer={offer}
           rejectedCount={rejectedCount}
+          searchExhausted={searchExhausted}
+          searchStartedAt={searchStartedAt}
           styles={styles}
+          tokens={tokens}
           totalContacted={totalContacted}
         />
       )}
@@ -141,5 +134,3 @@ export default function HelperTaskScreen() {
   );
 }
 
-// TASK_TYPES moved inside HelperTaskScreen() as a useMemo value — see
-// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.

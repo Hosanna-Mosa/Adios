@@ -15,7 +15,7 @@ interface ZoneListProps {
   onSelectZone: (zone: AdminZone) => void;
   onToggleActive: (zone: AdminZone, e: React.MouseEvent) => void;
   onToggleAutoSurge: (zone: AdminZone, e: React.MouseEvent) => void;
-  onRename: (zone: AdminZone, e: React.MouseEvent) => void;
+  onEdit: (zone: AdminZone) => void;
   onDelete: (id: string, e: React.MouseEvent) => void;
   onCreateClick: () => void;
 }
@@ -28,7 +28,7 @@ export function ZoneList({
   onSelectZone,
   onToggleActive,
   onToggleAutoSurge,
-  onRename,
+  onEdit,
   onDelete,
   onCreateClick,
 }: ZoneListProps) {
@@ -179,7 +179,14 @@ export function ZoneList({
           >
             <Eye className="h-4 w-4" />
           </button>
-          <button onClick={(e) => onRename(z, e)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors" title={t("zones.renameZone")}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(z);
+            }}
+            className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-colors"
+            title={t("zones.editZone")}
+          >
             <Pencil className="h-4 w-4" />
           </button>
           <button onClick={(e) => onDelete(z._id, e)} className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors" title={t("zones.deleteZone")}>

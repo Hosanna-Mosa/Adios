@@ -34,16 +34,24 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     stopDiamond: { width: 10, height: 10, backgroundColor: tokens.text, transform: [{ rotate: "45deg" }] },
     dashLine: { width: 2, flex: 1, minHeight: 24, backgroundColor: tokens.borderStrong, marginVertical: 4 },
 
-    inputsContainer: { flex: 1, minWidth: 0, gap: 2 },
-    fieldSlot: { minHeight: 44, justifyContent: "center" },
-    dropFieldSlot: { borderWidth: 2, borderColor: accent.accent, borderRadius: 12, paddingHorizontal: 10, marginHorizontal: -2 },
+    // Every field is the same slot: a filled, rounded box that takes the accent
+    // border while it has focus. Previously only Drop was boxed (permanently), and
+    // the two fields were separated by a hairline instead of reading as inputs.
+    inputsContainer: { flex: 1, minWidth: 0, gap: 8 },
+    fieldSlot: {
+      minHeight: moderateScale(56), justifyContent: "center", paddingHorizontal: 12, paddingVertical: 6,
+      borderRadius: 12, borderWidth: 1.5, borderColor: tokens.border, backgroundColor: tokens.sunken,
+    },
+    fieldSlotActive: { borderColor: accent.accent, backgroundColor: tokens.surface },
     fieldLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
     divider: { height: 1, backgroundColor: tokens.border, marginVertical: 4 },
     locationInput: {
-      flex: 1, width: "100%", height: moderateScale(28), fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium,
+      flex: 1, width: "100%", height: moderateScale(26), fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium,
       color: tokens.text, backgroundColor: "transparent", paddingHorizontal: 0, marginTop: 2,
     },
-    currentLocBtn: { justifyContent: "center", paddingLeft: 8 },
+    fieldActions: { flexDirection: "row", alignItems: "center" },
+    clearFieldBtn: { justifyContent: "center", paddingHorizontal: 6 },
+    currentLocBtn: { justifyContent: "center", paddingLeft: 6 },
 
     actionRow: { flexDirection: "row", paddingHorizontal: 16, marginTop: 12, gap: 8 },
     actionBtn: {
@@ -53,7 +61,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     actionBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
 
-    stopInputRow: { flexDirection: "row", alignItems: "center" },
+    stopInputRow: { flexDirection: "row", alignItems: "center", marginTop: 2 },
     stopActions: { flexDirection: "row", alignItems: "center", gap: 4 },
     dragBtn: { padding: 4 },
     removeBtn: { padding: 4 },

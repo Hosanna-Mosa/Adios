@@ -24,7 +24,12 @@ export const createOnlineSlice = (
     const { token, driverUserId } = get();
     if (token) {
       try {
-        await patchDriver(token, "status", { status: "ONLINE" });
+        // activeServices was previously kept purely client-side (see the
+        // "new_order" handler in socketHandlers) — the backend had no idea it
+        // existed, so dispatch could offer a food order to a ride-only driver
+        // whose app would then silently drop it. Sending it here lets the
+        // backend skip that driver as a candidate instead of wasting the offer.
+        await patchDriver(token, "status", { status: "ONLINE", activeServices: services });
       } catch (e) {
         console.error("Failed to set online status:", e);
       }

@@ -266,6 +266,10 @@ export const searchFoodItems = async (req: Request, res: Response) => {
           },
         },
         { $limit: MAX_SEARCH_VENDORS },
+        // This public, unauthenticated endpoint attaches the full vendor document
+        // to every dish hit as `vendorId` (see collect() below) — without this,
+        // that included the vendor's bcrypt password hash and login email.
+        { $unset: "password" },
       ]);
 
       if (nearbyVendors.length === 0) {
@@ -298,6 +302,7 @@ export const searchFoodItems = async (req: Request, res: Response) => {
           { "operations.menuUploadRows.category": { $in: patterns } },
         ],
       })
+        .select("-password")
         .limit(MAX_SEARCH_VENDORS)
         .lean();
 
@@ -310,7 +315,7 @@ export const searchFoodItems = async (req: Request, res: Response) => {
         .map((item: any) => String(item.vendorId))
         .filter((id: string) => !vendorMap.has(id));
       if (missingVendorIds.length > 0) {
-        const owners = await Vendor.find({ _id: { $in: missingVendorIds } }).lean();
+        const owners = await Vendor.find({ _id: { $in: missingVendorIds } }).select("-password").lean();
         for (const vendor of owners) {
           vendorMap.set(String(vendor._id), vendor);
         }

@@ -61,7 +61,6 @@ export function OrdersSheets({
   return (
     <>
     <OrdersFilterSheet
-      SERVICE_META={SERVICE_META}
       applyFilters={applyFilters}
       orders={orders}
       pendingCount={pendingCount}

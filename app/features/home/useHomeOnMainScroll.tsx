@@ -18,8 +18,17 @@ export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, l
 
   const listData = useMemo(() => {
     if (showHomeSkeleton) return HOME_SKELETON_ITEMS.map((item) => ({ ...item, isSkeleton: true }));
-    if (!loadingDrivers && nearbyDriversCount === 0) return [];
-    if (!searchText) return filteredAndSortedItems.map((item: any) => ({ ...item, isRestaurant: true }));
+
+    // The "no riders nearby" empty state only makes sense for the default browse
+    // recommendations — it must not also swallow an active search. nearbyDriversCount
+    // comes from a tight 5km driver-proximity check, while restaurant/dish search looks
+    // as far as 15km; a customer with no driver within 5km but a real, matching
+    // restaurant at 10km would otherwise see an empty list for a search that actually
+    // found something, which reads as "the restaurant isn't there" when it is.
+    if (!searchText) {
+      if (!loadingDrivers && nearbyDriversCount === 0) return [];
+      return filteredAndSortedItems.map((item: any) => ({ ...item, isRestaurant: true }));
+    }
 
     const items: any[] = [];
     if (filteredAndSortedItems.length > 0) {

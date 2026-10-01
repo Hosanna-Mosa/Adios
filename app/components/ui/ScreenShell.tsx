@@ -1,13 +1,19 @@
 import React from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
   type ScrollViewProps,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+// react-native-keyboard-controller's version, not React Native's. RN's
+// KeyboardAvoidingView has no working Android behaviour: "height" shrinks the
+// container by the keyboard height while Android's own adjustResize is already
+// resizing the window, so the two stack — the composer sat under the navigation
+// bar before the keyboard opened, and a dead grey band was left behind after it
+// closed. The library (already installed, with KeyboardProvider mounted at the
+// root of app/_layout.tsx) measures the real keyboard frame on both platforms.
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 
@@ -44,8 +50,11 @@ export function ScreenShell({
   const body = scroll ? <ScrollView {...scrollProps}>{children}</ScrollView> : children;
 
   if (keyboardAvoiding) {
+    // "padding" on both platforms: the library implements it natively for Android
+    // too, so the frame is padded by the keyboard's actual height and returns to
+    // exactly zero when it closes.
     return (
-      <KeyboardAvoidingView style={frame} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <KeyboardAvoidingView style={frame} behavior="padding">
         {body}
       </KeyboardAvoidingView>
     );

@@ -61,7 +61,8 @@ export interface ProfileResponse {
   };
   stats: {
     completedTrips: number;
-    rating: number;
+    rating: number | null;
+    ratingCount: number;
     acceptanceRate: number;
   };
 }

@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   available,
   field,
-  formatCoordinates,
   formatDate,
   formatMonthYear,
   yesNo,
@@ -94,17 +93,6 @@ export function useProfileSections(profile: any) {
         title: t("language.language"),
         subtitle: t("profile.changeAppLanguage"),
         fields: [],
-      },
-      {
-        key: "settings",
-        icon: "settings" as const,
-        title: t("profile.settings"),
-        subtitle: t("profile.accountPreferences"),
-        fields: [
-          field(t("profile.defaultLocation"), formatCoordinates(profile.account.defaultLocation?.coordinates)),
-          field(t("profile.savedAddresses"), String(profile.account.addresses.length)),
-          field(t("profile.memberSince"), formatDate(profile.account.createdAt)),
-        ],
       },
       {
         key: "support",

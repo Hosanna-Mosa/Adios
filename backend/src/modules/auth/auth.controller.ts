@@ -103,6 +103,13 @@ export class AuthController {
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
+      // Deliberately not gated by authenticateToken: that would 401 on a
+      // token that is already expired, garbage, or belongs to a now-blocked
+      // account — all cases where logging out should still just succeed,
+      // since there is nothing left to protect by refusing the request.
+      // Decode by hand instead, and treat anything wrong with the token as
+      // "already logged out" rather than an error.
+      await authService.revokePresentedToken(req.headers["authorization"]);
       return res.json({ message: "Logged out successfully" });
     } catch (error) {
       next(error);

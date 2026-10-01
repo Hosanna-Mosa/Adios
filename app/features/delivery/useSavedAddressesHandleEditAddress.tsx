@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { deleteAddress } from "@/services/users.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useSavedAddresses so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -19,7 +19,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const handleDeleteAddress = (id: string) => {
     if (selectingId || deletingId) return;
-    Alert.alert(t("app.delivery.deleteAddress"), t("app.delivery.areYouSureRemoveAddress"), [
+    showAlert(t("app.delivery.deleteAddress"), t("app.delivery.areYouSureRemoveAddress"), [
       { text: t("actions.cancel"), style: "cancel" },
       {
         text: t("app.delivery.deleteWord"),
@@ -34,7 +34,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
             if (String(selectedAddress?._id || "") === String(id)) setSelectedAddress(null);
           } catch (err: any) {
             console.error("Delete error:", err);
-            Alert.alert(t("actions.error"), err.message || t("app.delivery.failedToDeleteAddress"));
+            showAlert(t("actions.error"), err.message || t("app.delivery.failedToDeleteAddress"));
           } finally {
             setDeletingId(null);
           }
@@ -44,7 +44,7 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
   };
 
   const handleMoreOptions = (addr: any) => {
-    Alert.alert(addr.label || t("app.ride.addressFallback"), undefined, [
+    showAlert(addr.label || t("app.ride.addressFallback"), undefined, [
       { text: t("app.delivery.editWord"), onPress: () => handleEditAddress(addr) },
       { text: t("app.delivery.deleteWord"), style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
       { text: t("actions.cancel"), style: "cancel" },

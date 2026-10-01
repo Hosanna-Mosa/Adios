@@ -1,26 +1,20 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { translateFoodTag } from "@/i18n/foodTagLabels";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { cuisineImageUrl } from "./CuisineStrip.images";
 
-// Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to
-// read from the screen's scope is now passed in as props. CUISINE_EMOJI came
-// with it because nothing else referenced it.
+// Moved out of app/(tabs)/index.tsx. The circles now show a real photo of the
+// cuisine instead of an emoji — see CuisineStrip.images.ts for the mapping.
 //
-// CUISINE_EMOJI's keys are never translated: they're a lookup table matched
-// against live cuisine tags that can come from the backend (real vendor
-// data), so the keys have to stay in English for the lookup to keep working.
-// Only the visible chip text (below) is translated, via the shared
-// translateFoodTag() helper, which falls back to the raw string for any
-// cuisine word outside its known vocabulary — see
-// ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
-const CUISINE_EMOJI: { [key: string]: string } = {
-  Biryani: "🍛", Tiffins: "🫓", Chinese: "🍜", Pizza: "🍕", Sweets: "🍮",
-  "South Indian": "🥞", "North Indian": "🍛", Mughlai: "🍢", Kebabs: "🍢",
-  "Fast Food": "🍔", Burgers: "🍔", Rolls: "🌯", Desserts: "🍮",
-  Chicken: "🐔", Mutton: "🐐", Seafood: "🦐", Eggs: "🥚",
-};
+// The cuisine strings passed to cuisineImageUrl() are never translated: they're
+// matched against live cuisine tags that can come from the backend (real vendor
+// data), so the lookup keys have to stay in English. Only the visible chip text
+// (below) is translated, via the shared translateFoodTag() helper, which falls
+// back to the raw string for any cuisine word outside its known vocabulary —
+// see ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
 interface Props {
   styles: HomeStyles;
@@ -54,7 +48,12 @@ export function CuisineStrip({
               onPress={() => setSelectedCuisines(isSelected ? selectedCuisines.filter((c) => c !== cuisine) : [...selectedCuisines, cuisine])}
             >
               <View style={[styles.cuisineCircle, isSelected && { borderColor: accent.accent, borderWidth: 2 }]}>
-                <Text style={styles.cuisineEmoji}>{CUISINE_EMOJI[cuisine] || "🍽️"}</Text>
+                <Image
+                  source={{ uri: cuisineImageUrl(cuisine) }}
+                  style={styles.cuisineImage}
+                  contentFit="cover"
+                  transition={200}
+                />
               </View>
               <Text style={[styles.cuisineName, isSelected && { color: accent.accent }]}>{translateFoodTag(cuisine, t)}</Text>
             </TouchableOpacity>

@@ -39,8 +39,6 @@ interface Props {
   totalPrice: number | null;
   handleSOS: () => void;
   handleShareTrip: () => void;
-  pulse1Style: any;
-  pulse2Style: any;
   deliveryStop: any;
   timeline: any;
   pickupLabel: string;
@@ -69,8 +67,6 @@ export function TrackingBottomSheet({
   totalPrice,
   handleSOS,
   handleShareTrip,
-  pulse1Style,
-  pulse2Style,
   deliveryStop,
   timeline,
   pickupLabel,
@@ -94,8 +90,6 @@ export function TrackingBottomSheet({
               isRide={isRide}
               orderCreatedAt={orderCreatedAt}
               pickupLabel={pickupLabel}
-              pulse1Style={pulse1Style}
-              pulse2Style={pulse2Style}
               setTripModalVisible={setTripModalVisible}
               startOtp={startOtp}
               status={status}

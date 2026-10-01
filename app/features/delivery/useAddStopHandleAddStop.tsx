@@ -1,7 +1,7 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { DeliveryItem } from "@/contexts/deliveryStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useAddStop so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -10,11 +10,11 @@ export function useAddStopHandleAddStop(address: any, storeName: any, items: any
   const { t } = useTranslation();
   const handleAddStop = () => {
     if (!address.trim()) {
-      Alert.alert(t("app.delivery.required"), t("app.delivery.pleaseProvideAnAddressForThe"));
+      showAlert(t("app.delivery.required"), t("app.delivery.pleaseProvideAnAddressForThe"));
       return;
     }
     if (items.length === 0) {
-      Alert.alert(t("app.delivery.itemsNeeded"), t("app.delivery.pleaseAddAtLeastOneItem"));
+      showAlert(t("app.delivery.itemsNeeded"), t("app.delivery.pleaseAddAtLeastOneItem"));
       return;
     }
     addStop(address, storeName || undefined, items, coords?.lat, coords?.lng);

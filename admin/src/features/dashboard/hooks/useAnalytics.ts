@@ -1,24 +1,22 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useJsApiLoader } from "@react-google-maps/api";
-import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
-import type { AnalyticsData } from "../analyticsTypes";
+import type { AnalyticsData, AnalyticsSummary } from "../analyticsTypes";
 
-const TIME_RANGES = ["Last 7 Days", "Last 30 Days", "Last 90 Days", "Year to Date"];
+/** The selectable date ranges, in days, and their label keys. */
+export const RANGE_OPTIONS: { days: number; labelKey: string }[] = [
+  { days: 7, labelKey: "analytics.last7Days" },
+  { days: 30, labelKey: "analytics.last30Days" },
+  { days: 90, labelKey: "analytics.last90Days" },
+  { days: 365, labelKey: "analytics.last12Months" },
+];
 
-const TIME_RANGE_LABEL_KEY: Record<string, string> = {
-  "Last 7 Days": "analytics.last7Days",
-  "Last 30 Days": "analytics.last30Days",
-  "Last 90 Days": "analytics.last90Days",
-  "Year to Date": "analytics.yearToDate",
+/** Translated display label for a range in days. */
+export const rangeDaysLabel = (days: number, t: (key: string) => string): string => {
+  const option = RANGE_OPTIONS.find((o) => o.days === days) ?? RANGE_OPTIONS[RANGE_OPTIONS.length - 1];
+  return t(option.labelKey);
 };
-
-/** Translated display label for a time-range value — the value itself
- * (used for state and cycling via TIME_RANGES.indexOf) is never translated. */
-export const timeRangeLabel = (range: string, t: (key: string) => string): string =>
-  TIME_RANGE_LABEL_KEY[range] ? t(TIME_RANGE_LABEL_KEY[range]) : range;
 
 const DEFAULT_VELOCITY_DATA = [
   { day: "MON", orders: 1800 },
@@ -30,57 +28,36 @@ const DEFAULT_VELOCITY_DATA = [
   { day: "SUN", orders: 2800 },
 ];
 
-const DEFAULT_ANOMALIES = [
-  { id: "#PN-9284-A", status: "Optimal", statusVariant: "optimal" as const, driver: "Marcus Chen", value: "₹4,281.00", activity: "Arrived at Hub B" },
-  { id: "#PN-9285-C", status: "Minor Delay", statusVariant: "delay" as const, driver: "Sarah Jenkins", value: "₹12,940.50", activity: "Heavy Traffic (Exit 4)" },
-  { id: "#PN-9286-K", status: "In-Transit", statusVariant: "transit" as const, driver: "David Miller", value: "₹842.12", activity: "Loading Dock 4" },
-];
-
 /** All state/query logic for Analytics.tsx (work queue item #17). */
 export function useAnalytics() {
   const { t } = useTranslation();
-  const [selectedWeek, setSelectedWeek] = useState("W3");
-  const [timeRange, setTimeRange] = useState("Last 30 Days");
+  const [rangeDays, setRangeDays] = useState(30);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
-
   const { data: analyticsData, isLoading } = useQuery({
-    queryKey: ["admin", "analytics"],
-    queryFn: () => adminFetch<AnalyticsData>("/admin/analytics"),
+    // rangeDays is part of the key, so changing the range actually refetches.
+    queryKey: ["admin", "analytics", rangeDays],
+    queryFn: () => adminFetch<AnalyticsData>(`/admin/analytics?days=${rangeDays}`),
   });
 
-  const handleRangeChange = () => {
-    const nextIndex = (TIME_RANGES.indexOf(timeRange) + 1) % TIME_RANGES.length;
-    const nextRange = TIME_RANGES[nextIndex];
-    setTimeRange(nextRange);
-    toast.success(t("analytics.dashboardUpdatedFor", { range: timeRangeLabel(nextRange, t), defaultValue: "Analytics dashboard updated for: {{range}}" }));
-  };
-
-  const handleSelectWeek = (w: string) => {
-    setSelectedWeek(w);
-    toast.success(t("analytics.revenueStreamUpdatedForWeek", { week: w, defaultValue: "Revenue stream updated for week: {{week}}" }));
-  };
+  const rangeLabel = rangeDaysLabel(rangeDays, t);
+  const summary: AnalyticsSummary = analyticsData?.summary || {};
 
   const velocityData = analyticsData?.velocityData || DEFAULT_VELOCITY_DATA;
 
-  const heatmapData =
-    analyticsData?.heatmapData ||
-    Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      intensity: Math.random(),
-    }));
-
-  const anomalies = analyticsData?.anomalies || DEFAULT_ANOMALIES;
+  // Real stuck orders only — this used to fall back to three invented shipments,
+  // so a healthy system still displayed a feed of anomalies.
+  const anomalies = analyticsData?.anomalies || [];
 
   const downloadData = [
-    { [t("dashboard.reportMetric")]: t("analytics.totalOrders"), [t("dashboard.reportValue")]: "12,842" },
-    { [t("dashboard.reportMetric")]: t("analytics.netRevenue"), [t("dashboard.reportValue")]: "INR 482.5k" },
-    { [t("dashboard.reportMetric")]: t("analytics.avgDeliveryTime"), [t("dashboard.reportValue")]: "34.2m" },
-    { [t("dashboard.reportMetric")]: t("dashboard.activeDrivers"), [t("dashboard.reportValue")]: "842" },
+    { [t("dashboard.reportMetric")]: t("analytics.range"), [t("dashboard.reportValue")]: rangeLabel },
+    { [t("dashboard.reportMetric")]: t("analytics.totalOrders"), [t("dashboard.reportValue")]: String(summary.totalOrders ?? 0) },
+    { [t("dashboard.reportMetric")]: t("analytics.netRevenue"), [t("dashboard.reportValue")]: `INR ${(summary.netRevenue ?? 0).toLocaleString()}` },
+    {
+      [t("dashboard.reportMetric")]: t("analytics.avgDeliveryTime"),
+      [t("dashboard.reportValue")]: summary.avgDeliveryMinutes ? `${summary.avgDeliveryMinutes}m` : t("analytics.notAvailable"),
+    },
+    { [t("dashboard.reportMetric")]: t("dashboard.activeDrivers"), [t("dashboard.reportValue")]: String(summary.activeDrivers ?? 0) },
     ...anomalies.map((a) => ({
       [t("dashboard.reportMetric")]: t("analytics.anomalyMetric", { id: a.id, driver: a.driver, defaultValue: "Anomaly: {{id}} ({{driver}})" }),
       [t("dashboard.reportValue")]: `${a.status} - ${a.activity}`,
@@ -88,16 +65,14 @@ export function useAnalytics() {
   ];
 
   return {
-    selectedWeek,
-    handleSelectWeek,
-    timeRange,
-    handleRangeChange,
+    rangeDays,
+    setRangeDays,
+    rangeLabel,
+    summary,
     isDownloadOpen,
     setIsDownloadOpen,
-    isLoaded,
     isLoading,
     velocityData,
-    heatmapData,
     anomalies,
     downloadData,
   };

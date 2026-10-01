@@ -74,6 +74,12 @@ export default {
           color: '#ffffff',
         },
       ],
+      [
+        'expo-image-picker',
+        {
+          cameraPermission: 'Allow Driver App to use your camera to take your onboarding profile photo.',
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,

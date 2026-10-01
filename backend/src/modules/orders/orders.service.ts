@@ -19,6 +19,8 @@ import { InvoiceService } from "../../services/invoice.service";
 import ChatMessage from "../../database/models/ChatMessage";
 import { RefundService } from "../payments/refund.service";
 import { assignAndSaveTicket, emitTicketUpdate } from "../../services/supportAssignment.service";
+import { getDriverRating } from "../reviews/driver-rating";
+import { mapServiceTypeToDriverVehicleType, driverAcceptsServiceType } from "../../config/dispatch.config";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -225,14 +227,17 @@ export class OrdersService {
       const year = String(date.getFullYear()).slice(-2);
       const random6Digits = Math.floor(100000 + Math.random() * 900000).toString();
       
-      let prefix = "F"; // Food Delivery ID
+      let typeLetter = "F"; // Food Delivery ID
       if (serviceType === ServiceType.HELPER) {
-        prefix = "T"; // Task ID
+        typeLetter = "T"; // Task ID
       } else if ([ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(serviceType)) {
-        prefix = "R"; // Ride ID
+        typeLetter = "R"; // Ride ID
       }
-      
-      return `${prefix}${day}${month}${year}${random6Digits}`;
+
+      // "ADS" (the company/app initials) leads every order ID, with the existing
+      // service-type letter kept right after it so support staff can still tell
+      // food/task/ride orders apart at a glance.
+      return `ADS${typeLetter}${day}${month}${year}${random6Digits}`;
     };
 
     const order = new Order({
@@ -380,17 +385,50 @@ export class OrdersService {
       }
 
       let driversToNotify = [...nearbyDrivers];
-      // Fallback: If no drivers within immediate radius, check online drivers in the same zone
+      // Fallback, in two steps: drivers registered to the pickup zone first, then —
+      // rather than giving up — any driver who is simply online and free.
+      //
+      // The zone is a serviceability check for the *customer*; it is not a reason to
+      // hide a job from a driver who is on shift nearby. preferredZone is only ever
+      // set once (see DriverService.updateLocation), so gating the last fallback on it
+      // left orders undispatched while drivers sat idle — the symptom being that a
+      // helper task only reached anyone after a price raise, which took a different
+      // path and broadcast to every driver.
       if (driversToNotify.length === 0) {
+        const onlineQuery: any = { status: "ONLINE", isAvailable: true };
+        // Rides must still go to a driver with the right vehicle — this is the last
+        // resort before giving up on the booking, not a license to hand a cab ride to
+        // a bike driver. Food/meat/helper orders have no vehicle constraint, matching
+        // getNearbyDrivers' own rule, so they're left unfiltered. Mapped through
+        // mapServiceTypeToDriverVehicleType, NOT the raw tier string — Driver.vehicleType
+        // has no "cab"/"cab_prime" value (only bike/auto/car), so filtering on the raw
+        // tier here would silently match zero drivers for every cab ride.
+        const fallbackVehicleType = mapServiceTypeToDriverVehicleType(effectiveType);
+        if (fallbackVehicleType) {
+          onlineQuery.vehicleType = fallbackVehicleType;
+        }
         try {
-          const Driver = require("../../database/models/Driver").default;
-          const zoneQuery: any = { status: "ONLINE", isAvailable: true };
           if (pickupZone) {
-            zoneQuery.preferredZone = pickupZone._id;
+            driversToNotify = await Driver.find({ ...onlineQuery, preferredZone: pickupZone._id }).populate("user");
           }
-
-          const onlineZoneDrivers = await Driver.find(zoneQuery).populate("user");
-          driversToNotify = onlineZoneDrivers;
+          if (driversToNotify.length === 0) {
+            driversToNotify = await Driver.find(onlineQuery).populate("user");
+            console.log(`[DISPATCH FALLBACK] No zone-matched drivers; offering to ${driversToNotify.length} online driver(s).`);
+          }
+          // Same GPS-freshness rule as getNearbyDrivers: a driver whose app was
+          // killed without going offline still reads ONLINE/isAvailable here, and
+          // offering to one just burns the dispatcher's full per-driver timeout
+          // instead of reaching someone who can actually answer.
+          driversToNotify = driversService.filterDriversWithLiveLocation(driversToNotify, "createOrder fallback");
+          // Same for a driver who is online but has this order's category toggled
+          // off (see driverAcceptsServiceType) — their app would silently drop the
+          // offer, so offering it to them here would just be another guaranteed
+          // timeout instead of reaching a driver who can actually act on it.
+          const beforeServiceFilter = driversToNotify.length;
+          driversToNotify = driversToNotify.filter((d: any) => driverAcceptsServiceType(d.activeServices, effectiveType));
+          if (driversToNotify.length < beforeServiceFilter) {
+            console.log(`[DISPATCH FALLBACK] Skipped ${beforeServiceFilter - driversToNotify.length} driver(s) not opted into this order's category.`);
+          }
         } catch (err) {
           console.error("Error fetching fallback online drivers:", err);
         }
@@ -404,11 +442,20 @@ export class OrdersService {
       if (pickupCoords && dropoffCoords) {
         for (const d of driversToNotify) {
           if (d.homeMode === true) {
-            const onTheWay = await driversService.isOrderOnTheWayToHome(
-              (d._id as any).toString(),
-              pickupCoords,
-              dropoffCoords
-            );
+            // Guarded per driver: this check reads other documents and used to write
+            // to disk, and it was unguarded — so one driver's failure threw out of
+            // createOrder and failed the customer's booking outright. A driver whose
+            // check errors is kept as a candidate rather than silently dropped.
+            let onTheWay = true;
+            try {
+              onTheWay = await driversService.isOrderOnTheWayToHome(
+                (d._id as any).toString(),
+                pickupCoords,
+                dropoffCoords
+              );
+            } catch (err) {
+              console.error(`[DISPATCH] Home-mode check failed for driver ${d._id}; keeping as candidate:`, err);
+            }
             if (onTheWay) {
               filteredDrivers.push(d);
             }
@@ -417,6 +464,11 @@ export class OrdersService {
           }
         }
         driversToNotify = filteredDrivers;
+
+        const droppedByHomeMode = driversToNotify.length;
+        console.log(
+          `[DISPATCH] ${effectiveType} order ${savedOrder._id}: ${droppedByHomeMode} candidate(s) after home-mode filter.`
+        );
       }
 
       console.log(`\n📢 [NOTIFIED DRIVERS]: ${driversToNotify.length} drivers selected`);
@@ -1143,7 +1195,54 @@ export class OrdersService {
             items: s.items,
           }))
         };
-        socketManager.broadcastToDrivers("new_order", payload, "orders.increasePrice");
+        // Restart the sequential cascade at the new price rather than broadcasting
+        // to every driver. A blanket broadcast bypassed the dispatch session, so two
+        // drivers could be looking at the same task, and the cascade carried on
+        // offering the OLD price behind it. Starting a fresh session also gives
+        // drivers who passed at the lower price another look, which is the point of
+        // raising it.
+        (async () => {
+          try {
+            const { DriverService } = require("../drivers/drivers.service");
+            const driversService = new DriverService();
+            const [lng, lat] = order.stops[0].location.coordinates;
+
+            let candidates = await driversService.getNearbyDrivers(lat, lng, undefined, order.serviceType, true);
+            if (candidates.length === 0) {
+              const fallbackQuery: any = { status: "ONLINE", isAvailable: true };
+              // Mapped, not raw — see mapServiceTypeToDriverVehicleType's comment:
+              // Driver.vehicleType has no "cab"/"cab_prime" value.
+              const fallbackVehicleType = mapServiceTypeToDriverVehicleType(order.serviceType);
+              if (fallbackVehicleType) {
+                fallbackQuery.vehicleType = fallbackVehicleType;
+              }
+              candidates = await Driver.find(fallbackQuery).populate("user");
+              // Same staleness rule as everywhere else this pattern appears — see
+              // filterDriversWithLiveLocation's comment in drivers.service.ts.
+              candidates = driversService.filterDriversWithLiveLocation(candidates, "increasePrice fallback");
+              // Same for the service-toggle check — see driverAcceptsServiceType's comment.
+              candidates = candidates.filter((d: any) => driverAcceptsServiceType(d.activeServices, order.serviceType));
+            }
+
+            const sorted = candidates
+              .filter((d: any) => d?.user?._id)
+              .map((d: any) => ({
+                driverId: d._id.toString(),
+                driverUserId: d.user._id.toString(),
+                distanceMeters: 0,
+                driverName: d.user?.name,
+                driverPhone: d.user?.phone,
+              }));
+
+            const { dispatchManager } = require("../../services/dispatch.manager");
+            await dispatchManager.startDispatch(order._id.toString(), sorted, {
+              ...payload,
+              customerUserId: (user?._id || order.user)?.toString(),
+            });
+          } catch (err) {
+            console.error("[orders.increasePrice] Failed to re-dispatch at the new price:", err);
+          }
+        })();
       }
 
       // Send push notifications to notify them of the price bump
@@ -1244,6 +1343,22 @@ export class OrdersService {
         orderId: orderId.toString(),
         status: status,
       });
+
+      // ALSO emit to the customer's own room, under a distinct event — not
+      // "order_status_update" again, which the tracking screen's global handler
+      // applies unconditionally to whatever order it's currently displaying with
+      // no orderId check, so replaying it into every customer's room would leak
+      // one order's status onto another order's screen. The My Orders *list*
+      // otherwise had no way to learn an order finished except by refetching on
+      // screen focus, so a ride that completed while the customer was already
+      // sitting on that tab kept showing "Track order" until they navigated away
+      // and back.
+      if (order.user) {
+        socketManager.emitToUser(order.user.toString(), "customer_order_list_update", {
+          orderId: orderId.toString(),
+          status: status,
+        });
+      }
 
       // ALSO: if the order has a vendor, emit to the vendor room!
       if (order.vendor) {
@@ -1518,11 +1633,15 @@ export class OrdersService {
     if (socketManager) {
       // Driver details to send to customer
       const driverUser = await User.findById(driver.user);
+      // Same shape the customer app gets from GET /orders/:id, rating included, so
+      // the tracking sheet shows the same partner card whether it arrived over the
+      // socket or from a refetch.
       const driverInfo = {
         id: driver._id,
         name: driverUser?.name || "Driver",
         phone: driverUser?.phone || "",
         vehicle: driver.vehicleType || "unknown",
+        ...(await getDriverRating(driver._id)),
       };
       
       const payload = {

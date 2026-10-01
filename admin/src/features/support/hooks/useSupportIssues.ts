@@ -53,9 +53,26 @@ export function useSupportIssues() {
   useEffect(() => {
     socketService.connect();
 
-    const adminData = JSON.parse(localStorage.getItem("admin_data") || "{}");
-    if (adminData._id) {
+    // This only ever read admin_data, but a support sign-in stores support_data —
+    // so for the very role this page exists for, join() never ran and no live
+    // ticket update ever arrived. Read whichever identity is actually present,
+    // and join under that role. The parse is guarded because a malformed value in
+    // localStorage would otherwise throw during render and blank the page.
+    const readIdentity = (key: string): { _id?: string } => {
+      try {
+        return JSON.parse(localStorage.getItem(key) || "{}");
+      } catch {
+        return {};
+      }
+    };
+
+    const adminData = readIdentity("admin_data");
+    const supportData = readIdentity("support_data");
+
+    if (adminData?._id) {
       socketService.join(adminData._id, "ADMIN");
+    } else if (supportData?._id) {
+      socketService.join(supportData._id, "SUPPORT");
     }
 
     const handleTicketUpdate = (data: unknown) => {

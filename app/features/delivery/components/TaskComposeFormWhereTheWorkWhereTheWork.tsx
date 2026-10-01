@@ -52,7 +52,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
             <View style={styles.inputRow}>
               <TextInput
                 style={styles.input}
-                placeholder={t("app.delivery.pickupLocation")}
+                placeholder=""
                 placeholderTextColor={tokens.muted}
                 value={pickupLocation}
                 onChangeText={(t) => handleSearch(t, "pickup")}

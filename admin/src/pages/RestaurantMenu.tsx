@@ -15,9 +15,16 @@ import { RestaurantQrDialog } from "@/features/catalog/components/RestaurantQrDi
 export default function RestaurantMenu() {
   const { t } = useTranslation();
   const {
+    restaurants,
     isLoading,
     searchQuery,
     setSearchQuery,
+    filterDiet,
+    setFilterDiet,
+    filterRating,
+    setFilterRating,
+    hasActiveFilters,
+    clearFilters,
     currentPage,
     setCurrentPage,
     itemsPerPage,
@@ -102,7 +109,18 @@ export default function RestaurantMenu() {
           />
         </div>
 
-        <RestaurantSearchBox value={searchQuery} onChange={setSearchQuery} />
+        <RestaurantSearchBox
+          value={searchQuery}
+          onChange={setSearchQuery}
+          filterDiet={filterDiet}
+          onDietChange={setFilterDiet}
+          filterRating={filterRating}
+          onRatingChange={setFilterRating}
+          hasActiveFilters={hasActiveFilters}
+          onClear={clearFilters}
+          shownCount={filteredRestaurants.length}
+          totalCount={restaurants.length}
+        />
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -113,7 +131,7 @@ export default function RestaurantMenu() {
           <div className="text-center py-20 border border-dashed rounded-3xl space-y-3 bg-white">
             <Store className="h-12 w-12 text-muted-foreground mx-auto" />
             <p className="text-lg font-bold text-foreground">{t("catalog.noRestaurantsFound")}</p>
-            <p className="text-muted-foreground text-sm">{t("catalog.addFirstRestaurantToGetStarted")}</p>
+            <p className="text-muted-foreground text-sm">{hasActiveFilters ? t("catalog.noRestaurantsMatchFilters") : t("catalog.addFirstRestaurantToGetStarted")}</p>
           </div>
         ) : (
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.02)]">

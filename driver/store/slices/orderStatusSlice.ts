@@ -114,6 +114,7 @@ export const createOrderStatusSlice = (
         today: earnings.today + currentOrder.earnings,
         week: earnings.week + currentOrder.earnings,
         totalDeliveries: earnings.totalDeliveries + 1,
+        todayTrips: earnings.todayTrips + 1,
       },
     });
   },

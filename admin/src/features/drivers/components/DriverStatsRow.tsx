@@ -5,7 +5,7 @@ import { StaggerItem } from "@/components/motion/StaggerItem";
 
 // Sparkline SVGs for Stat Cards
 const GreenSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
@@ -18,7 +18,7 @@ const GreenSparkline = () => (
 );
 
 const OrangeSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
@@ -31,7 +31,7 @@ const OrangeSparkline = () => (
 );
 
 const BlueSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
@@ -49,7 +49,7 @@ const BlueSparkline = () => (
 // rather than deleted, since removing unused pre-existing code would be a
 // functional change, not a move.
 const PurpleSparkline = () => (
-  <svg className="h-8 w-24 overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
     <defs>
       <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#a855f7" stopOpacity="0.2" />
@@ -101,10 +101,14 @@ interface DriverStatsRowProps {
   totalRegistered: number;
   onlineDrivers: number;
   totalEarningsToday: string;
+  averageRating: string | null;
+  ratedDriversCount: number;
+  ordersTodayCount: number;
+  fleetHealth: number;
 }
 
 /** The Fleet Directory tab's top 5 stat cards. Pure presentation, driven by props. */
-export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsToday }: DriverStatsRowProps) {
+export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsToday, averageRating, ratedDriversCount, ordersTodayCount, fleetHealth }: DriverStatsRowProps) {
   const { t } = useTranslation();
   return (
     <StaggerList className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -119,7 +123,7 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">{totalRegistered}</p>
-            <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.plus2ThisWeek")}</p>
+            <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.onDutyNow", { count: onlineDrivers, defaultValue: "{{count}} on duty now" })}</p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -158,8 +162,12 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("vendorDashboard.averageRating")}</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-foreground">4.8</p>
-            <p className="text-[11px] font-semibold text-amber-500 mt-1">{t("drivers.plus02ThisWeek")}</p>
+            <p className="text-3xl font-bold text-foreground">{averageRating ?? "—"}</p>
+            <p className="text-[11px] font-semibold text-amber-500 mt-1">
+              {ratedDriversCount > 0
+                ? t("drivers.acrossNRatedDrivers", { count: ratedDriversCount, defaultValue: "across {{count}} rated drivers" })
+                : t("drivers.noRatingsYet")}
+            </p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -178,7 +186,7 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
           </div>
           <div>
             <p className="text-3xl font-bold text-foreground">{totalEarningsToday}</p>
-            <p className="text-[11px] font-semibold text-muted-foreground mt-1">{t("drivers.targetColonZero", { defaultValue: "Target: ₹0" })}</p>
+            <p className="text-[11px] font-semibold text-muted-foreground mt-1">{t("drivers.nOrdersToday", { count: ordersTodayCount, defaultValue: "{{count}} orders today" })}</p>
           </div>
         </div>
         <div className="self-end pb-1">
@@ -196,12 +204,14 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("drivers.fleetHealth")}</p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-foreground">98%</p>
-            <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.healthy")}</p>
+            <p className="text-3xl font-bold text-foreground">{fleetHealth}%</p>
+            <p className="text-[11px] font-semibold text-emerald-500 mt-1">
+              {t("drivers.xOfYOnDuty", { online: onlineDrivers, total: totalRegistered, defaultValue: "{{online}} of {{total}} on duty" })}
+            </p>
           </div>
         </div>
         <div className="self-center">
-          <FleetHealthCircularProgress percentage={98} />
+          <FleetHealthCircularProgress percentage={fleetHealth} />
         </div>
       </StaggerItem>
     </StaggerList>

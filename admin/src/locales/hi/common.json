@@ -51,7 +51,8 @@
     "passwordMustBeAtLeast6Characters": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
     "passwordResetSuccessBang": "पासवर्ड सफलतापूर्वक रीसेट हो गया!",
     "failedToResetPassword": "पासवर्ड रीसेट करने में विफल",
-    "pleaseEnterValid6DigitOtp": "कृपया एक मान्य 6-अंकों का OTP दर्ज करें"
+    "pleaseEnterValid6DigitOtp": "कृपया एक मान्य 6-अंकों का OTP दर्ज करें",
+    "otpSentIfAccountExists": "यदि इस ईमेल के लिए कोई खाता मौजूद है, तो OTP भेज दिया गया है।"
   },
   "vendorDashboard": {
     "welcomeName": "स्वागत है, {{name}}",
@@ -256,7 +257,8 @@
     "hoursAgo": "{{count}} घंटे पहले",
     "notifications": "सूचनाएं",
     "markAllRead": "सभी को पढ़ा हुआ चिह्नित करें",
-    "nothingHereYet": "अभी यहां कुछ नहीं है।"
+    "nothingHereYet": "अभी यहां कुछ नहीं है।",
+    "daysAgo": "{{count}} दिन पहले"
   },
   "pagination": {
     "showingXOfY": "{{total}} में से {{shown}} {{item}} दिखा रहे हैं",
@@ -365,7 +367,17 @@
     "last4WeeksVsTarget": "पिछले 4 सप्ताह बनाम लक्ष्य",
     "weekly": "साप्ताहिक",
     "daily": "दैनिक",
-    "exportReport": "रिपोर्ट निर्यात करें"
+    "exportReport": "रिपोर्ट निर्यात करें",
+    "loadingActivity": "गतिविधि लोड हो रही है…",
+    "noActivityYet": "अभी तक कोई गतिविधि दर्ज नहीं हुई।",
+    "filterByPriorityColon": "प्राथमिकता के अनुसार फ़िल्टर करें:",
+    "allPriorities": "सभी प्राथमिकताएँ",
+    "expressOnly": "केवल एक्सप्रेस",
+    "awaitingAssignment": "असाइनमेंट की प्रतीक्षा",
+    "noActiveManifests": "अभी कोई सक्रिय मैनिफेस्ट नहीं है।",
+    "noManifestsMatchFilter": "इस फ़िल्टर से कोई मैनिफेस्ट मेल नहीं खाता।",
+    "orderCancelledId": "ऑर्डर {{id}} रद्द किया गया।",
+    "couldNotCancelOrder": "यह ऑर्डर रद्द नहीं किया जा सका।"
   },
   "analytics": {
     "searchLogisticsMetrics": "लॉजिस्टिक्स मेट्रिक्स खोजें...",
@@ -404,7 +416,15 @@
     "activity": "गतिविधि",
     "noOlderAnomalies": "कोई पुरानी लॉजिस्टिकल विसंगति या अलर्ट नहीं मिला।",
     "viewAllInsights": "सभी इनसाइट्स देखें",
-    "capacityPercent": "98% क्षमता"
+    "capacityPercent": "98% क्षमता",
+    "last12Months": "पिछले 12 महीने",
+    "dateRange": "दिनांक सीमा",
+    "range": "सीमा",
+    "nCompleted": "{{count}} पूर्ण",
+    "onlineNow": "अभी ऑनलाइन",
+    "notAvailable": "उपलब्ध नहीं",
+    "stalledOrdersDesc": "सक्रिय ऑर्डर जो 40 मिनट से अधिक समय से आगे नहीं बढ़े हैं।",
+    "noStalledOrders": "अभी कोई रुका हुआ ऑर्डर नहीं है।"
   },
   "users": {
     "searchByNameEmailOrId": "नाम, ईमेल या ID से उपयोगकर्ता खोजें...",
@@ -497,7 +517,12 @@
     "userHasBeenStatus": "उपयोगकर्ता को {{status}} कर दिया गया है",
     "failedToUpdateBlockStatus": "ब्लॉक स्थिति अपडेट करने में विफल",
     "userAccountDeletedSuccessfully": "उपयोगकर्ता खाता सफलतापूर्वक हटाया गया",
-    "confirmPermanentlyDeleteUser": "चेतावनी: यह इस उपयोगकर्ता और उनके संबंधित रिकॉर्ड को स्थायी रूप से हटा देगा। क्या आप निश्चित हैं?"
+    "confirmPermanentlyDeleteUser": "चेतावनी: यह इस उपयोगकर्ता और उनके संबंधित रिकॉर्ड को स्थायी रूप से हटा देगा। क्या आप निश्चित हैं?",
+    "totalSpent": "कुल खर्च",
+    "avgOrder": "औसत ऑर्डर",
+    "completedStat": "पूर्ण",
+    "cancelledStat": "रद्द",
+    "lastOrder": "अंतिम ऑर्डर"
   },
   "drivers": {
     "searchDriversVehicleIdsRegions": "ड्राइवर, वाहन ID या क्षेत्र खोजें...",
@@ -677,7 +702,34 @@
     "driverConfigurationUpdatedSuccessfully": "ड्राइवर कॉन्फ़िगरेशन सफलतापूर्वक अपडेट हुआ!",
     "failedToUpdateDriverSettings": "ड्राइवर सेटिंग्स अपडेट करने में विफल",
     "pleaseEnterValidLatLng": "कृपया मान्य अक्षांश और देशांतर संख्याएं दर्ज करें।",
-    "noTripLogsRecorded": "इस ड्राइवर खाते के लिए कोई ट्रिप लॉग दर्ज नहीं किया गया।"
+    "noTripLogsRecorded": "इस ड्राइवर खाते के लिए कोई ट्रिप लॉग दर्ज नहीं किया गया।",
+    "onDutyNow": "{{count}} अभी ड्यूटी पर",
+    "acrossNRatedDrivers": "{{count}} रेटेड ड्राइवरों में",
+    "noRatingsYet": "अभी कोई रेटिंग नहीं",
+    "nOrdersToday": "आज {{count}} ऑर्डर",
+    "xOfYOnDuty": "{{total}} में से {{online}} ड्यूटी पर",
+    "lastReportedPosition": "अंतिम रिपोर्ट की गई स्थिति",
+    "noLocationReported": "कोई स्थान रिपोर्ट नहीं हुआ",
+    "noLocationReportedForDriver": "इस ड्राइवर का अभी तक कोई स्थान रिपोर्ट नहीं हुआ है",
+    "noVehicleNumber": "कोई वाहन नंबर नहीं",
+    "nTripsThisMonth": "इस महीने {{count}} ट्रिप",
+    "driverApprovedBanner": "इस ड्राइवर को स्वीकृत कर दिया गया है।",
+    "driverRejectedBanner": "इस ड्राइवर का आवेदन अस्वीकार कर दिया गया।",
+    "zoneMetrics": "ज़ोन मेट्रिक्स",
+    "zoneMetricsDesc": "प्रत्येक परिचालन ज़ोन के लिए कवरेज और मांग।",
+    "noZonesConfiguredYet": "अभी तक कोई ज़ोन कॉन्फ़िगर नहीं किया गया।",
+    "zoneCol": "ज़ोन",
+    "typeCol": "प्रकार",
+    "statusCol": "स्थिति",
+    "surgeCol": "सर्ज",
+    "driversCol": "ड्राइवर",
+    "onDutyCol": "ड्यूटी पर",
+    "ordersCol": "ऑर्डर",
+    "completedCol": "पूर्ण",
+    "cancelledCol": "रद्द",
+    "revenueCol": "राजस्व",
+    "zoneActive": "सक्रिय",
+    "zoneInactive": "निष्क्रिय"
   },
   "orders": {
     "accept": "स्वीकार करें",
@@ -1099,7 +1151,14 @@
     "weightColon": "वज़न: {{value}}",
     "withoutScheduleCentreOpenDesc": "शेड्यूल के बिना इस केंद्र को चौबीसों घंटे खुला माना जाता है।",
     "withoutScheduleOpenAroundClockDesc": "शेड्यूल के बिना इस रेस्तरां को चौबीसों घंटे खुला माना जाता है।",
-    "yes": "हाँ"
+    "yes": "हाँ",
+    "status": "स्थिति",
+    "noVendorsFound": "कोई विक्रेता नहीं मिला।",
+    "anyRating": "कोई भी रेटिंग",
+    "ratingAndAbove": "{{rating}} और ऊपर",
+    "clear": "साफ़ करें",
+    "showingXOfYRestaurants": "{{total}} में से {{shown}} रेस्टोरेंट दिखाए जा रहे हैं",
+    "noRestaurantsMatchFilters": "इन फ़िल्टर से कोई रेस्टोरेंट मेल नहीं खाता।"
   },
   "zones": {
     "activateImmediately": "तुरंत सक्रिय करें",
@@ -1206,7 +1265,24 @@
     "zoneName": "ज़ोन का नाम",
     "zoneNameRequired": "ज़ोन का नाम आवश्यक है",
     "zoneNotesDescription": "ज़ोन नोट्स / विवरण",
-    "zoneUpdatedSuccessfully": "ज़ोन सफलतापूर्वक अपडेट किया गया"
+    "zoneUpdatedSuccessfully": "ज़ोन सफलतापूर्वक अपडेट किया गया",
+    "editZone": "ज़ोन संपादित करें",
+    "typeZone": "{{type}} ज़ोन",
+    "description": "विवरण",
+    "surgeMultiplier": "सर्ज मल्टीप्लायर",
+    "radiusMetres": "त्रिज्या (मीटर)",
+    "zoneIsActive": "ज़ोन सक्रिय है",
+    "boundaryNotEditableDesc": "इस ज़ोन की सीमा मानचित्र पर बनाई गई है और यहाँ से संपादित नहीं की जा सकती।",
+    "saveChanges": "परिवर्तन सहेजें",
+    "active": "सक्रिय",
+    "inactive": "निष्क्रिय",
+    "typeLabel": "प्रकार",
+    "surge": "सर्ज",
+    "radius": "त्रिज्या",
+    "centre": "केंद्र",
+    "boundary": "सीमा",
+    "nPoints": "{{count}} बिंदु",
+    "editThisZone": "इस ज़ोन को संपादित करें"
   },
   "support": {
     "activeChats": "सक्रिय चैट",
@@ -1281,7 +1357,10 @@
     "typeYourResponseTo": "{{name}} को अपना उत्तर टाइप करें...",
     "userColon": "उपयोगकर्ता: {{name}}",
     "userShort": "उपयोगकर्ता",
-    "viewChat": "चैट देखें"
+    "viewChat": "चैट देखें",
+    "replyToName": "{{name}} को जवाब दें",
+    "send": "भेजें",
+    "typeResponsePressEnter": "अपना जवाब लिखें, फिर भेजने के लिए Enter दबाएँ..."
   },
   "system": {
     "appStoreUrl": "ऐप स्टोर URL",

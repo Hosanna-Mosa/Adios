@@ -12,8 +12,8 @@ const ITEMS_PER_PAGE = 8;
  * (work queue item #4), plus the View Details dialog -- kept here rather
  * than its own hook because it shares this hook's `updateVendorMutation`
  * and the vendor-list re-sync effect below, not because "do not create one
- * giant hook" was abandoned: the Add and Edit flows, which don't share
- * either of those, are their own hooks (useVendorAddForm, useVendorEditForm).
+ * giant hook" was abandoned: the Edit flow, which doesn't share either of
+ * those, is its own hook (useVendorEditForm).
  */
 export function useVendorsList() {
   const { t } = useTranslation();

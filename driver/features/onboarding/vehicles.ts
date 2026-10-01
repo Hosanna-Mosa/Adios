@@ -16,11 +16,5 @@ export function getVehicles() {
       icon: "box" as const,
       desc: i18n.t("onboarding.vehicles.auto.desc", "Spacious for larger orders"),
     },
-    {
-      id: "car",
-      label: i18n.t("onboarding.vehicles.car.label", "Car"),
-      icon: "chevrons-up" as const,
-      desc: i18n.t("onboarding.vehicles.car.desc", "Premium deliveries & longer distances"),
-    },
   ];
 }

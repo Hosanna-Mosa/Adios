@@ -8,6 +8,7 @@ import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, 
 import { Feather } from '@expo/vector-icons';
 import { DeliveryStop } from '@/contexts/deliveryStore';
 import { typography } from "@/constants/typography";
+import Colors from "@/constants/colors";
 import { styles } from "@/components/MapBackground.styles";
 import { decodePolyline } from "@/components/mapBackground.utils";
 
@@ -27,6 +28,9 @@ interface Props {
   onMarkerPress?: (marker: any) => void;
   radiusCenter?: { lat: number; lng: number } | null;
   radiusMeters?: number;
+  /** The assigned driver's vehicle, so their live marker matches what was booked.
+   * Falls back to the selected service; it used to always draw a scooter. */
+  driverVehicleType?: string | null;
 }
 
 export interface MapBackgroundRef {
@@ -51,6 +55,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
   onLocationUpdate,
   onMarkerPress,
   radiusCenter,
+  driverVehicleType,
   radiusMeters
 }, ref) => {
   const {
@@ -106,7 +111,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
               tracksViewChanges={false}
             >
               <View style={{
-                backgroundColor: '#4F46E5',
+                backgroundColor: Colors.light.primary,
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 borderRadius: 12,
@@ -140,7 +145,13 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
 
         <MapDriverMarkers driverMarkers={driverMarkers} selectedService={selectedService} />
 
-        <MapLocationMarkers stops={stops} userLocation={userLocation} driverLocation={driverLocation} />
+        <MapLocationMarkers
+          stops={stops}
+          userLocation={userLocation}
+          driverLocation={driverLocation}
+          driverVehicleType={driverVehicleType}
+          selectedService={selectedService}
+        />
 
         {(polyline || autoRoutePolyline) ? (
           <Polyline

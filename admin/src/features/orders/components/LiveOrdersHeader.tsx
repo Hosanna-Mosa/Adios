@@ -1,4 +1,4 @@
-import { SlidersHorizontal, Plus } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -10,7 +10,6 @@ import {
 interface LiveOrdersHeaderProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
-  onManualOrderClick: () => void;
 }
 
 const STATUS_FILTER_LABEL_KEY: Record<string, string> = {
@@ -22,8 +21,8 @@ const STATUS_FILTER_LABEL_KEY: Record<string, string> = {
   CANCELLED: "orders.cancelled",
 };
 
-/** The title + status filter + "Manual Order" button on LiveOrders.tsx. */
-export function LiveOrdersHeader({ statusFilter, setStatusFilter, onManualOrderClick }: LiveOrdersHeaderProps) {
+/** The title + status filter on LiveOrders.tsx. */
+export function LiveOrdersHeader({ statusFilter, setStatusFilter }: LiveOrdersHeaderProps) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between">
@@ -47,12 +46,6 @@ export function LiveOrdersHeader({ statusFilter, setStatusFilter, onManualOrderC
             <DropdownMenuItem onClick={() => setStatusFilter("CANCELLED")} className="cursor-pointer">{t("orders.cancelled")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <button
-          onClick={onManualOrderClick}
-          className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-        >
-          <Plus className="h-4 w-4" /> {t("orders.manualOrder")}
-        </button>
       </div>
     </div>
   );

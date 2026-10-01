@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -11,27 +11,27 @@ import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vendorId: any, items: any, clearCart: any, user: any, token: any, setOrderId: any, setStatus: any, setServiceType: any, selectedAddress: any, setIsPlacingOrder: any, appliedPromo: any, vendorName: any, scheduledFor: any, setShowScheduleSheet: any, subtotal: any, deliveryFee: any, activeTip: any, discount: any, total: any, receiverName: any, receiverPhone: any, addressIssue: any) =>
   async () => {
     if (getItemCount() === 0) {
-      Alert.alert(i18n.t("app.food.cartIsEmpty"), i18n.t("app.food.pleaseAddAtLeastOneItem"));
+      showAlert(i18n.t("app.food.cartIsEmpty"), i18n.t("app.food.pleaseAddAtLeastOneItem"));
       return;
     }
     if (!user || !token) {
-      Alert.alert(i18n.t("app.food.loginRequired"), i18n.t("app.food.pleaseLogInBeforePlacingYour"));
+      showAlert(i18n.t("app.food.loginRequired"), i18n.t("app.food.pleaseLogInBeforePlacingYour"));
       router.push("/login");
       return;
     }
     if (addressIssue || !selectedAddress) {
-      Alert.alert(i18n.t("app.food.deliveryDetailsNeeded"), addressIssue || i18n.t("app.food.selectADeliveryAddress"));
+      showAlert(i18n.t("app.food.deliveryDetailsNeeded"), addressIssue || i18n.t("app.food.selectADeliveryAddress"));
       router.push("/delivery/saved-addresses");
       return;
     }
     if (!vendorId) {
-      Alert.alert(i18n.t("app.food.restaurantMissing"), i18n.t("app.food.pleaseChooseARestaurantAgain"));
+      showAlert(i18n.t("app.food.restaurantMissing"), i18n.t("app.food.pleaseChooseARestaurantAgain"));
       return;
     }
     // The slot can lapse between picking it and paying; the server rejects a
     // past scheduledFor, so catch it before anything is charged.
     if (scheduledFor && scheduledFor.getTime() <= Date.now()) {
-      Alert.alert(i18n.t("app.food.invalidTime"), i18n.t("app.food.pleaseChooseAFutureDeliveryTime"));
+      showAlert(i18n.t("app.food.invalidTime"), i18n.t("app.food.pleaseChooseAFutureDeliveryTime"));
       setShowScheduleSheet(true);
       return;
     }
@@ -124,7 +124,7 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
     } catch (error: any) {
       console.error("Place order failed", error);
       const described = describePaymentError(error);
-      Alert.alert(described?.title ?? i18n.t("app.food.orderFailed"), described?.message ?? (error?.message || i18n.t("app.food.unableToPlaceYourOrder")));
+      showAlert(described?.title ?? i18n.t("app.food.orderFailed"), described?.message ?? (error?.message || i18n.t("app.food.unableToPlaceYourOrder")));
     } finally {
       setIsPlacingOrder(false);
     }

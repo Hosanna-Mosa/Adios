@@ -43,6 +43,12 @@ export function HighDemandAreas({ hotspots, isLoading = false, onAreaPress }: Hi
             <Loader size="small" color={Colors.primary} />
           </Box>
         )}
+        {!isLoading && hotspots.length === 0 && (
+          <Box style={styles.loadingItem}>
+            <MaterialCommunityIcons name="map-marker-off-outline" size={20} color={Colors.textMuted} />
+            <AppText style={styles.emptyText}>{t("jobs.noHighDemandAreas")}</AppText>
+          </Box>
+        )}
         {hotspots.map((spot) => (
           <PressBox
             key={spot.id}
