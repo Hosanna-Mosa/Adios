@@ -24,6 +24,7 @@ export const createOrder = async <T = { _id: string }>(body: unknown) => {
     service_type: b?.serviceType,
     value: b?.totals?.total,
     currency: "INR",
+    payment: "cash",
     scheduled: !!b?.isReserved,
   });
   return order;

@@ -15,6 +15,13 @@ export const liveActivitySchema = z.object({
   }),
 });
 
+export const topItemsSchema = z.object({
+  query: z.object({
+    days: z.coerce.number().int().min(1).max(365).optional(),
+    limit: z.coerce.number().int().min(1).max(50).optional(),
+  }),
+});
+
 export const activitySummarySchema = z.object({
   query: z.object({
     days: z.coerce.number().int().min(1).max(30).optional(),

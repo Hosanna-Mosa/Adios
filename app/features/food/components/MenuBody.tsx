@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
@@ -8,6 +9,7 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { MenuVegOnly } from "./MenuVegOnly";
+import { trackEvent } from "@/utils/analytics";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -15,7 +17,7 @@ import { MenuVegOnly } from "./MenuVegOnly";
 import type { Props } from "./MenuBody.props";
 
 export function MenuBody(props: Props) {
-  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
+  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, id, isMeat, items, loading, loadingItems, name, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   const { t } = useTranslation();
   return (
     <ScrollView
@@ -61,7 +63,20 @@ export function MenuBody(props: Props) {
                 <Animated.View key={item._id} entering={staggerListItem(idx)}>
                 <TouchableOpacity
                   activeOpacity={0.85}
-                  onPress={() => setSelectedDishDetail(item)}
+                  onPress={() => {
+                    trackEvent("select_item", {
+                      item_id: item._id,
+                      item_name: item.name,
+                      item_category: item.category,
+                      price: item.price,
+                      is_veg: item.isVeg,
+                      vendor_id: id,
+                      vendor_name: name,
+                      is_meat: isMeat === "true" || isMeat === true,
+                      source: "menu",
+                    });
+                    setSelectedDishDetail(item);
+                  }}
                   style={[
                     styles.menuRow,
                     idx < groupedMenu[category].length - 1 && styles.menuRowDivider,

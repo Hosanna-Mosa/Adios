@@ -3,6 +3,7 @@ import * as Linking from "expo-linking";
 import i18n from "@/i18n";
 import { ApiError } from "@/utils/api/custom-fetch";
 import { createPaymentOrder, getCheckoutStatus, verifyPayment } from "@/services/payments.service";
+import { trackEvent } from "@/utils/analytics";
 
 // Razorpay checkout in the phone's browser (Chrome Custom Tab on Android, an in-app Safari
 // sheet on iOS). The backend hosts the page; Razorpay posts the result to the backend, which
@@ -69,6 +70,34 @@ export const RazorpayIntegration = {
  * the payment was confirmed. Throws PaymentFlowError / ApiError — see describePaymentError.
  */
 export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown): Promise<T> {
+  const body = orderData as { serviceType?: string; isReserved?: boolean; scheduledFor?: unknown } | null;
+  const params = {
+    service_type: body?.serviceType,
+    value: amount,
+    currency: "INR",
+    payment: "online",
+    scheduled: !!(body?.isReserved || body?.scheduledFor),
+  };
+  try {
+    const order = await payAndPlace<T>(amount, orderData);
+    // Same order_placed the cash path sends (services/orders.service.ts), plus
+    // purchase for the money actually taken.
+    trackEvent("order_placed", params);
+    trackEvent("purchase", params);
+    return order;
+  } catch (error) {
+    const reason =
+      error instanceof PaymentFlowError
+        ? error.code.toLowerCase()
+        : error instanceof ApiError
+          ? String((error.data as { code?: string } | null)?.code ?? "api_error").toLowerCase()
+          : "error";
+    trackEvent("payment_failed", { ...params, reason });
+    throw error;
+  }
+}
+
+async function payAndPlace<T>(amount: number, orderData: unknown): Promise<T> {
   const checkout = await createPaymentOrder(amount, orderData);
   const result = await RazorpayIntegration.open({
     checkoutUrl: checkout.checkoutUrl,

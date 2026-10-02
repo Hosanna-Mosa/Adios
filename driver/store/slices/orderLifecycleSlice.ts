@@ -81,7 +81,7 @@ export const createOrderLifecycleSlice = (
     });
   },
 
-  rejectOrder: async (reason?: string) => {
+  rejectOrder: async (reason?: string, options?: { timedOut?: boolean }) => {
     const { incomingOrder, token } = get();
     if (incomingOrder && token) {
       // The backend requires a non-empty reason (see orders.controller.ts)
@@ -102,7 +102,12 @@ export const createOrderLifecycleSlice = (
       }
     }
     if (incomingOrder) {
-      trackEvent("order_declined", { service_type: incomingOrder.serviceType, reason });
+      // A countdown running out isn't a decline the driver chose, so it is
+      // reported as "timeout" and can be filtered out of decline counts.
+      trackEvent("order_declined", {
+        service_type: incomingOrder.serviceType,
+        reason: reason || (options?.timedOut ? "timeout" : "dismissed"),
+      });
     }
     set({ incomingOrder: null });
   },

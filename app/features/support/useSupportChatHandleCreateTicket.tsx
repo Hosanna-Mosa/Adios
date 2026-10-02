@@ -4,6 +4,7 @@ import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
 import { createSupportTicket } from "@/services/support.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import { trackEvent } from "@/utils/analytics";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -38,6 +39,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
     setCreatingTicket(true);
     try {
       const created = await createSupportTicket<SupportTicket>({ title: newTitle.trim(), category: newCategory, message: newMessage.trim() });
+      trackEvent("support_opened", { action: "ticket_created", category: newCategory });
       setAllTickets((prev: any) => [created, ...prev]);
       setTicket(created);
       setNewTitle("");

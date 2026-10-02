@@ -63,3 +63,29 @@ export interface ActivitySummary {
   days: number;
   daily: DailyRow[];
 }
+
+/** GET /analytics/top-items — food/meat items ranked by menu taps and by units ordered. */
+export interface TopClickedItem {
+  itemId: string;
+  name?: string;
+  vendorId?: string;
+  vendorName?: string;
+  clicks: number;
+  uniqueUsers: number;
+}
+
+export interface TopOrderedItem {
+  itemId: string;
+  name?: string;
+  vendorId?: string;
+  vendorName?: string;
+  quantity: number;
+  orders: number;
+  revenue: number;
+}
+
+export interface TopItems {
+  days: number;
+  clicked: TopClickedItem[];
+  ordered: TopOrderedItem[];
+}

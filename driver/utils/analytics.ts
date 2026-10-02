@@ -167,18 +167,38 @@ AppState.addEventListener("change", (state) => {
 // Public surface
 // ---------------------------------------------------------------------------
 
+/**
+ * Firebase only builds its item reports (most viewed / added / purchased
+ * items) from an `items` array, so an event that names a single item also
+ * carries it in that form. Our backend keeps the flat params.
+ */
+function withFirebaseItems(props?: CleanParams): Record<string, unknown> | undefined {
+  if (!props || props.item_id === undefined) return props;
+  const item: Record<string, string | number> = { item_id: String(props.item_id) };
+  if (props.item_name !== undefined) item.item_name = String(props.item_name);
+  if (props.item_category !== undefined) item.item_category = String(props.item_category);
+  if (props.vendor_name !== undefined) item.item_brand = String(props.vendor_name);
+  if (typeof props.price === "number") item.price = props.price;
+  if (typeof props.quantity === "number") item.quantity = props.quantity;
+  return { ...props, items: [item] };
+}
+
 export function trackEvent(name: string, params?: Params) {
   try {
     const props = clean(params);
     const analytics = getFirebase();
-    if (analytics) Promise.resolve(analyticsModule.logEvent(analytics, name, props)).catch(() => {});
+    if (analytics) Promise.resolve(analyticsModule.logEvent(analytics, name, withFirebaseItems(props))).catch(() => {});
     enqueue(name, props);
   } catch {
     // Analytics must never surface an error to the caller.
   }
 }
 
+/** The route last reported by trackScreen, so a tap can say where it happened. */
+let currentScreen = "index";
+
 export function trackScreen(screenName: string) {
+  currentScreen = screenName;
   try {
     const analytics = getFirebase();
     if (analytics) {
@@ -190,6 +210,17 @@ export function trackScreen(screenName: string) {
   } catch {
     /* ignore */
   }
+}
+
+/**
+ * A button press. `button` is the visible label (see components/ui/
+ * TrackedTouchable), so numbers are masked and the text is capped: a label
+ * like "Book Bike · ₹69" becomes "Book Bike · ₹#" and groups across fares.
+ */
+export function trackTap(button: string, params?: Params) {
+  const label = button.replace(/\s+/g, " ").trim();
+  const safe = label.includes("@") ? "(hidden)" : label.replace(/\d+([.,]\d+)*/g, "#").slice(0, 60);
+  trackEvent("button_tap", { button: safe || "(unlabelled)", screen: currentScreen, ...params });
 }
 
 export function setAnalyticsUserId(userId: string | null) {

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Pressable } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";

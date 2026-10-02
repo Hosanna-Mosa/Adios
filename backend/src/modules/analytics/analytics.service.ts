@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import AnalyticsEvent, { ANALYTICS_APPS, AnalyticsApp } from "../../database/models/AnalyticsEvent";
 import { UserRole } from "../../database/models/User";
+import Order, { OrderStatus } from "../../database/models/Order";
+import Vendor from "../../database/models/Vendor";
 
 // Names the apps may send. Must stay in step with the trackEvent calls in
 // app/ and driver/ — anything not listed is dropped rather than stored, so a
@@ -12,7 +14,15 @@ export const ALLOWED_EVENTS = new Set([
   // customer app
   "order_placed",
   "purchase",
+  "payment_failed",
   "order_cancelled",
+  "button_tap",
+  "select_vendor",
+  "select_item",
+  "add_to_cart",
+  "remove_from_cart",
+  "search",
+  "support_opened",
   // driver app
   "go_online",
   "go_offline",
@@ -190,6 +200,95 @@ export class AnalyticsService {
       topScreens,
       recent,
     };
+  }
+
+  /**
+   * Food/meat items ranked two ways for the admin page:
+   *  - clicked: taps on an item in a restaurant menu (select_item events)
+   *  - ordered: units actually ordered, read from real orders rather than
+   *    events, so it is exact and covers online and cash orders alike.
+   */
+  async getTopItems(days = 30, limit = 10) {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const [clicked, ordered] = await Promise.all([
+      AnalyticsEvent.aggregate([
+        { $match: { at: { $gte: since }, name: "select_item", "props.item_id": { $exists: true } } },
+        {
+          $group: {
+            _id: "$props.item_id",
+            name: { $last: "$props.item_name" },
+            vendorId: { $last: "$props.vendor_id" },
+            vendorName: { $last: "$props.vendor_name" },
+            clicks: { $sum: 1 },
+            visitors: { $addToSet: visitorKey },
+          },
+        },
+        { $sort: { clicks: -1 } },
+        { $limit: limit },
+        {
+          $project: {
+            _id: 0, itemId: "$_id", name: 1, vendorId: 1, vendorName: 1, clicks: 1,
+            uniqueUsers: { $size: "$visitors" },
+          },
+        },
+      ]),
+      Order.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: since },
+            vendor: { $ne: null },
+            status: { $nin: [OrderStatus.CANCELLED, "cancelled"] },
+          },
+        },
+        { $unwind: "$stops" },
+        // Stop items are stored as { lines: [...] } (older orders: a bare array).
+        {
+          $project: {
+            vendor: 1,
+            lines: {
+              $cond: [
+                { $isArray: "$stops.items" },
+                "$stops.items",
+                { $ifNull: ["$stops.items.lines", []] },
+              ],
+            },
+          },
+        },
+        { $unwind: "$lines" },
+        {
+          $project: {
+            vendor: 1,
+            key: { $toString: { $ifNull: ["$lines.id", { $ifNull: ["$lines._id", { $ifNull: ["$lines.itemId", "$lines.name"] }] }] } },
+            name: "$lines.name",
+            quantity: { $max: [1, { $ifNull: [{ $toDouble: "$lines.quantity" }, 1] }] },
+            price: { $ifNull: [{ $toDouble: "$lines.price" }, 0] },
+          },
+        },
+        { $match: { key: { $nin: [null, ""] } } },
+        {
+          $group: {
+            _id: { key: "$key", vendor: "$vendor" },
+            name: { $last: "$name" },
+            quantity: { $sum: "$quantity" },
+            orders: { $sum: 1 },
+            revenue: { $sum: { $multiply: ["$quantity", "$price"] } },
+          },
+        },
+        { $sort: { quantity: -1 } },
+        { $limit: limit },
+        { $lookup: { from: Vendor.collection.name, localField: "_id.vendor", foreignField: "_id", as: "v" } },
+        {
+          $project: {
+            _id: 0, itemId: "$_id.key", name: 1, quantity: 1, orders: 1, revenue: { $round: ["$revenue", 2] },
+            vendorId: { $toString: "$_id.vendor" },
+            vendorName: { $arrayElemAt: ["$v.name", 0] },
+          },
+        },
+      ]),
+    ]);
+
+    return { days, clicked, ordered };
   }
 
   /** Daily active users and event counts per app, for the trend chart. */

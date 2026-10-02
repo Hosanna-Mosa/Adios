@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";

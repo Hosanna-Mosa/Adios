@@ -110,7 +110,8 @@ export interface DriverState {
   goOffline: () => Promise<void>;
   toggleHomeMode: () => void;
   acceptOrder: () => void;
-  rejectOrder: (reason?: string) => void;
+  /** `timedOut`: the offer countdown ran out (logged separately from a real decline). */
+  rejectOrder: (reason?: string, options?: { timedOut?: boolean }) => void;
   updateStep: (step: number) => void;
   updateOrderStatus: (status: OrderStatus, otp?: string) => Promise<void>;
   /** Records the cash the driver received; the backend checks it against the order total. */

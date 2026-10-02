@@ -32,6 +32,16 @@ export class AnalyticsController {
     }
   }
 
+  async getTopItems(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const days = req.query.days ? Number(req.query.days) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      return res.json(await analyticsService.getTopItems(days, limit));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getSummary(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const days = req.query.days ? Number(req.query.days) : undefined;

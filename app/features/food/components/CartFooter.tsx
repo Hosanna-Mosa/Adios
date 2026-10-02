@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CartStyles } from "@/features/food/cart.styles";

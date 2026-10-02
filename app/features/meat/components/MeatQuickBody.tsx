@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { type MeatStyles } from "@/features/meat/meat-centers.styles";
 
 // Moved out of app/meat-centers.tsx. The JSX is unchanged; what it read from the screen's

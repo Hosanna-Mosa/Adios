@@ -4,7 +4,7 @@ import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware
 import { validateRequest } from "../../middleware/validation.middleware";
 import { analyticsRateLimiter } from "../../middleware/rateLimit.middleware";
 import { UserRole } from "../../database/models/User";
-import { activitySummarySchema, ingestEventsSchema, liveActivitySchema } from "./analytics.validation";
+import { activitySummarySchema, ingestEventsSchema, liveActivitySchema, topItemsSchema } from "./analytics.validation";
 
 const router = Router();
 const analyticsController = new AnalyticsController();
@@ -15,5 +15,6 @@ router.post("/events", optionalAuth, analyticsRateLimiter, validateRequest(inges
 
 router.get("/live", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(liveActivitySchema), analyticsController.getLiveActivity.bind(analyticsController));
 router.get("/summary", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(activitySummarySchema), analyticsController.getSummary.bind(analyticsController));
+router.get("/top-items", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(topItemsSchema), analyticsController.getTopItems.bind(analyticsController));
 
 export default router;

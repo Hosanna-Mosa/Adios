@@ -1,5 +1,6 @@
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "@/components/maps";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";

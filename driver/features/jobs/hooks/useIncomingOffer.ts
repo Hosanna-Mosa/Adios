@@ -55,7 +55,7 @@ export function useIncomingOffer() {
           if (prev <= 1) {
             clearInterval(timer);
             setShowDeclineReasons(false);
-            rejectOrder();
+            rejectOrder(undefined, { timedOut: true });
             return 0;
           }
           return prev - 1;
