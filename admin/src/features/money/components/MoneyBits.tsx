@@ -1,5 +1,6 @@
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 /** Status chip used by both tables. */
 export function StatusPill({ label, className, icon: Icon }: { label: string; className: string; icon: React.ComponentType<{ className?: string }> }) {
@@ -13,20 +14,21 @@ export function StatusPill({ label, className, icon: Icon }: { label: string; cl
 
 /** A value the admin pastes into their bank/UPI app, with a copy button. */
 export function CopyValue({ label, value }: { label: string; value: string }) {
-  if (!value) return <p className="text-xs text-rose-600">{label}: missing</p>;
+  const { t } = useTranslation();
+  if (!value) return <p className="text-xs text-rose-600">{t("money.missingWithLabel", { label })}</p>;
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(`${label} copied`);
+      toast.success(t("money.copiedSuffix", { label }));
     } catch {
-      toast.error("Couldn't copy. Select the text instead.");
+      toast.error(t("money.copyFailedToast"));
     }
   };
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className="text-xs font-mono font-medium text-foreground select-all">{value}</span>
-      <button type="button" onClick={copy} className="p-1 rounded hover:bg-muted" aria-label={`Copy ${label}`}>
+      <button type="button" onClick={copy} className="p-1 rounded hover:bg-muted" aria-label={t("money.copyAriaLabel", { label })}>
         <Copy className="h-3 w-3 text-muted-foreground" />
       </button>
     </div>
