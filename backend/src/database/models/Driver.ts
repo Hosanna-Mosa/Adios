@@ -26,6 +26,10 @@ export interface IDriver extends Document {
     type: string;
     coordinates: number[];
   };
+  // When the driver's app last reported a location (socket or REST). A
+  // minimised app keeps posting over REST with no live socket, so dispatch uses
+  // this to tell "backgrounded but alive" apart from "app killed".
+  lastLocationAt?: Date;
   // Onboarding fields
   onboardingStatus: OnboardingStatus;
   gender?: "male" | "female";
@@ -96,6 +100,7 @@ const DriverSchema: Schema = new Schema(
         default: [0, 0],
       },
     },
+    lastLocationAt: { type: Date },
     // Onboarding fields
     onboardingStatus: {
       type: String,

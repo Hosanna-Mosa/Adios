@@ -1331,6 +1331,11 @@ export class OrdersService {
 
     // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
     if (status === OrderStatus.CANCELLED) {
+      // Stop any running driver search and withdraw the offer on screen now,
+      // rather than leaving it up until the offer timer runs out.
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      dispatchManager.handleCustomerCancel(order._id.toString());
+
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
     }
 

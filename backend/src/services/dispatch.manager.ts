@@ -25,6 +25,9 @@ export class DispatchManagerService {
   private static instance: DispatchManagerService;
   private activeDispatches: Map<string, ActiveDispatchSession> = new Map();
   private OFFER_TIMEOUT_MS = 16000; // 16 seconds (15s UI timer + 1s grace period)
+  // A driver without a socket still counts as reachable if their app reported a
+  // location this recently (background tracking posts over REST).
+  private LIVE_LOCATION_WINDOW_MS = 10 * 60 * 1000;
 
   private constructor() {}
 
@@ -109,6 +112,7 @@ export class DispatchManagerService {
       }
 
       // Check if driver is still online and available in DB
+      let lastLocationAt: Date | undefined;
       try {
         const driverDoc = await Driver.findOne({ user: candidate.driverUserId });
         if (!driverDoc || driverDoc.status !== DriverStatus.ONLINE || driverDoc.isAvailable === false) {
@@ -116,6 +120,7 @@ export class DispatchManagerService {
           session.currentIndex++;
           continue;
         }
+        lastLocationAt = driverDoc.lastLocationAt;
       } catch (dErr) {
         session.currentIndex++;
         continue;
@@ -131,8 +136,14 @@ export class DispatchManagerService {
       // driver" when it happens to the first candidate or two. Skip immediately
       // instead, and self-heal the DB so later searches (this ride's remaining
       // candidates, and every future ride) stop tripping over the same stale entry.
-      if (!socketManager.isUserConnected(candidate.driverUserId)) {
-        console.log(`[DISPATCH MANAGER] Skipping candidate driverUser ${candidate.driverUserId} — no live socket connection (app likely closed/backgrounded).`);
+      //
+      // A minimised app usually has no socket but keeps posting its location over
+      // REST, and still gets the offer by push — so a recent location ping counts
+      // as alive. The socket check covers every server instance, not just this one.
+      const pingedRecently =
+        lastLocationAt !== undefined && Date.now() - new Date(lastLocationAt).getTime() < this.LIVE_LOCATION_WINDOW_MS;
+      if (!pingedRecently && !(await socketManager.isUserConnectedAnywhere(candidate.driverUserId))) {
+        console.log(`[DISPATCH MANAGER] Skipping candidate driverUser ${candidate.driverUserId} — no live socket and no recent location (app likely closed).`);
         Driver.updateOne({ user: candidate.driverUserId }, { isAvailable: false }).catch((err: any) =>
           console.warn(`[DISPATCH MANAGER] Failed to mark disconnected driver ${candidate.driverUserId} unavailable:`, err.message)
         );

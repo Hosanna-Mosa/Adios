@@ -340,6 +340,7 @@ export class SocketManager {
               type: "Point",
               coordinates: [Number(data.lng), Number(data.lat)]
             };
+            resolvedDriver.lastLocationAt = new Date();
             resolvedDriver.status = DriverStatus.ONLINE;
             resolvedDriver.isAvailable = true; // Set available on active tracking update
             try {
@@ -665,6 +666,20 @@ export class SocketManager {
   // driver explicitly going offline (see the disconnect handler above).
   public isUserConnected(userId: string): boolean {
     return this.getUserSocketStatus(userId).online;
+  }
+
+  /**
+   * Like isUserConnected, but also counts sockets held by other server
+   * instances: with the Redis adapter a user's socket may live on another node,
+   * where this process's connectedUsers map can't see it.
+   */
+  public async isUserConnectedAnywhere(userId: string): Promise<boolean> {
+    if (this.isUserConnected(userId)) return true;
+    try {
+      return (await this.io.in(userId).fetchSockets()).length > 0;
+    } catch {
+      return false;
+    }
   }
 
   public emitToDriver(driverId: string, event: string, data: any, source = "service") {

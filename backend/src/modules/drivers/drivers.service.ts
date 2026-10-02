@@ -316,6 +316,7 @@ export class DriverService {
       type: "Point",
       coordinates: [lng, lat],
     };
+    driver.lastLocationAt = new Date();
 
     if (driver.status === DriverStatus.ONLINE) {
       driver.isAvailable = true;

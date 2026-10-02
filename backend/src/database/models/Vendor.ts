@@ -10,6 +10,10 @@ export interface IVendor extends Document {
   password?: string;
   googlePlaceId?: string;
   onboardingStatus?: "draft" | "submitted" | "approved" | "rejected";
+  // True only for records created by the public partner onboarding form. Admin-
+  // created vendors also sit at the default "draft" status, so status alone
+  // can't tell the public route which records it may resume.
+  selfOnboarding?: boolean;
   commissionRate?: number;
   // Short lock so two payout requests can't both pass the balance check.
   payoutLockUntil?: Date | null;
@@ -128,6 +132,7 @@ const VendorSchema: Schema = new Schema(
       enum: ["draft", "submitted", "approved", "rejected"],
       default: "draft",
     },
+    selfOnboarding: { type: Boolean, default: false },
     payoutLockUntil: { type: Date, default: null },
     commissionRate: {
       type: Number,

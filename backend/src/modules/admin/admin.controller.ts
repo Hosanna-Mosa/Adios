@@ -8,6 +8,7 @@ import Coupon from "../../database/models/Coupon";
 import SystemConfig from "../../database/models/SystemConfig";
 import ChatMessage from "../../database/models/ChatMessage";
 import AppVersion from "../../database/models/AppVersion";
+import { OrdersService } from "../orders/orders.service";
 import Zone from "../../database/models/Zone";
 import Banner from "../../database/models/Banner";
 import { AuthRequest } from "../../middleware/auth.middleware";
@@ -409,6 +410,24 @@ export class AdminController {
   async updateOrder(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { status, ...rest } = req.body || {};
+
+      // Cancelling goes through the same path as every other cancel: refund for
+      // online payments, stop the driver search, free the driver, and notify
+      // the customer, driver and vendor. A raw field update did none of that.
+      if (status === OrderStatus.CANCELLED) {
+        const current = await Order.findById(id).select("status").lean();
+        if (!current) return res.status(404).json({ message: "Order not found" });
+        const finished = [OrderStatus.CANCELLED, OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC];
+        if (finished.includes(current.status as OrderStatus)) {
+          return res.status(409).json({ message: `Order is already ${current.status} and can't be cancelled.` });
+        }
+
+        if (Object.keys(rest).length) await Order.findByIdAndUpdate(id, rest);
+        const order = await new OrdersService().updateOrderStatus(id as string, OrderStatus.CANCELLED);
+        return res.json({ message: "Order updated successfully", order });
+      }
+
       const order = await Order.findByIdAndUpdate(id, req.body, { new: true });
       if (!order) return res.status(404).json({ message: "Order not found" });
       return res.json({ message: "Order updated successfully", order });
