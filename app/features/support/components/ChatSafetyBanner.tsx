@@ -25,7 +25,7 @@ export function ChatSafetyBanner({ partnerLabel, isHelper, isRide, styles, token
       <Ionicons name="shield-checkmark-outline" size={16} color={tokens.warning} />
       <Text style={styles.safetyText}>
         {t("app.chat.safetyBanner", {
-          defaultValue: "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+          defaultValue: "Keep the conversation in Adios. Don't share your PIN with the {{partner}} before the {{context}} starts.",
           partner: partnerLabel.toLowerCase(),
           context: isHelper ? t("app.chat.contextTask", "task") : isRide ? t("app.chat.contextRide", "ride") : t("app.chat.contextOrder", "order"),
         })}

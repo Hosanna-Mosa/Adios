@@ -18,10 +18,10 @@ export function useAuth() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  // Arrival Animation States for "FLAVOUR"
+  // Arrival Animation States for "ADIOS"
   const [showSplash, setShowSplash] = useState(true);
   const splashOpacity = React.useRef(new Animated.Value(1)).current;
-  const letters = ["F", "L", "A", "V", "O", "U", "R"];
+  const letters = ["A", "D", "I", "O", "S"];
   const translateAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
   const opacityAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
 

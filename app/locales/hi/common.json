@@ -69,7 +69,7 @@
         "arrivedDelivery": "पहुँच गए",
         "delivered": "पूरा हुआ"
       },
-      "safetyBanner": "बातचीत Flavour में ही रखें. {{context}} शुरू होने से पहले अपना पिन {{partner}} के साथ साझा न करें.",
+      "safetyBanner": "बातचीत Adios में ही रखें. {{context}} शुरू होने से पहले अपना पिन {{partner}} के साथ साझा न करें.",
       "contextTask": "टास्क",
       "contextRide": "राइड",
       "contextOrder": "ऑर्डर"
@@ -123,7 +123,7 @@
         },
         "pinSafety": {
           "question": "क्या मेरा पिन शेयर करना सुरक्षित है?",
-          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका कैप्टन पहुँच चुका हो. Flavour से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
+          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका कैप्टन पहुँच चुका हो. Adios से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
         }
       },
       "categories": {
@@ -157,7 +157,7 @@
       "assignTask": "टास्क असाइन करें",
       "messagesWithVarWillShowUpHere": "आपके {{value}} के साथ संदेश यहाँ दिखेंगे।",
       "messageVar": "{{value}} को संदेश…",
-      "flavourSupport": "Flavour सपोर्ट",
+      "flavourSupport": "Adios सपोर्ट",
       "case": "केस #",
       "yourCases": "आपके केस",
       "loadingYourCases": "आपके केस लोड हो रहे हैं…",
@@ -335,7 +335,7 @@
       "freeDeliverySpecialOffers": "मुफ़्त डिलीवरी / विशेष ऑफ़र",
       "goingSomewhere": "कहीं जाना है?",
       "pickARideToSeeLive": "अपनी यात्रा के लिए लाइव किराया देखने हेतु राइड चुनें।",
-      "alsoOnFlavour": "Flavour पर और भी सेवाएँ",
+      "alsoOnFlavour": "Adios पर और भी सेवाएँ",
       "hireAHelper": "एक हेल्पर बुक करें",
       "from120Hour": "₹120 / घंटे से शुरू",
       "multistopCourierFrom39": "मल्टी-स्टॉप कूरियर · ₹39 से शुरू",
@@ -530,7 +530,7 @@
       "searchInVar": "{{value}} में खोजें",
       "paying": "भुगतान कर रहे हैं",
       "upiCardsWalletsAndNetBanking": "UPI, कार्ड, वॉलेट और नेट बैंकिंग — अगले चरण में चुनें",
-      "encryptedAndSecureTransactionFlavourNever": "एन्क्रिप्टेड और सुरक्षित लेन-देन। Flavour कभी भी आपका कार्ड, UPI पिन या बैंक विवरण न तो देखता है और न ही संग्रहीत करता है।",
+      "encryptedAndSecureTransactionFlavourNever": "एन्क्रिप्टेड और सुरक्षित लेन-देन। Adios कभी भी आपका कार्ड, UPI पिन या बैंक विवरण न तो देखता है और न ही संग्रहीत करता है।",
       "address": "पता",
       "navigateInGoogleMaps": "Google मैप्स में नेविगेट करें",
       "offers": "ऑफ़र",
@@ -575,7 +575,7 @@
       "submit": "सबमिट करें",
       "noOrdersYet": "अभी तक कोई ऑर्डर नहीं",
       "foodMeatRidesHelpersAndCourier": "आपका पहला ऑर्डर करते ही फ़ूड, मीट, राइड, हेल्पर और कूरियर रन सभी यहाँ दिखने लगेंगे।",
-      "exploreFlavour": "Flavour को एक्सप्लोर करें",
+      "exploreFlavour": "Adios को एक्सप्लोर करें",
       "activeNow": "अभी सक्रिय",
       "trackOrder": "ऑर्डर ट्रैक करें",
       "cantReorder": "फिर से ऑर्डर नहीं किया जा सका",
@@ -776,7 +776,7 @@
       "contactedHelpersHavePassedSoFar": "संपर्क किए गए हेल्पर अभी तक मना कर चुके हैं — अपना ऑफ़र बढ़ाने पर विचार करें.",
       "attractHelpersFaster": "हेल्पर को तेज़ी से आकर्षित करें",
       "noSavedPlaces": "कोई सेव किया गया स्थान नहीं",
-      "saveTheAddressesYouUseOften": "जिन पतों का आप अक्सर उपयोग करते हैं उन्हें सेव करें — घर, ऑफ़िस, आपके माता-पिता का घर — और Flavour में हर कदम एक टैप छोटा हो जाता है.",
+      "saveTheAddressesYouUseOften": "जिन पतों का आप अक्सर उपयोग करते हैं उन्हें सेव करें — घर, ऑफ़िस, आपके माता-पिता का घर — और Adios में हर कदम एक टैप छोटा हो जाता है.",
       "addYourFirstAddress": "अपना पहला पता जोड़ें",
       "whatDoYouNeed": "आपको क्या चाहिए?",
       "suggestedOffer": "सुझाया गया ऑफ़र",
@@ -1002,8 +1002,8 @@
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
       "updateRequired": "अपडेट ज़रूरी है",
       "newVersionAvailable": "नया वर्शन उपलब्ध है",
-      "thisUpdateChangesHowYourAccount": "यह अपडेट आपके अकाउंट की सुरक्षा का तरीका बदलता है. Flavour का उपयोग जारी रखने के लिए यह ज़रूरी है.",
-      "updateFlavourToGetTheLatest": "नवीनतम सुविधाओं और सुधारों के लिए Flavour को अपडेट करें.",
+      "thisUpdateChangesHowYourAccount": "यह अपडेट आपके अकाउंट की सुरक्षा का तरीका बदलता है. Adios का उपयोग जारी रखने के लिए यह ज़रूरी है.",
+      "updateFlavourToGetTheLatest": "नवीनतम सुविधाओं और सुधारों के लिए Adios को अपडेट करें.",
       "updateNow": "अभी अपडेट करें",
       "noDismissRequiredRelease": "बंद नहीं किया जा सकता — ज़रूरी अपडेट",
       "maybeLater": "शायद बाद में"
@@ -1129,8 +1129,8 @@
       "couldntShare": "शेयर नहीं हो सका",
       "shareSheetDidntOpen": "शेयर शीट नहीं खुली। कृपया फिर से कोशिश करें।",
       "thisDish": "यह डिश",
-      "checkOutItemAtVendor": "Flavour पर {{name}} की {{item}} देखें! {{url}}",
-      "checkOutVendor": "Flavour पर {{name}} देखें! {{url}}"
+      "checkOutItemAtVendor": "Adios पर {{name}} की {{item}} देखें! {{url}}",
+      "checkOutVendor": "Adios पर {{name}} देखें! {{url}}"
     }
   }
 }

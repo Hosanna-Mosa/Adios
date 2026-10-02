@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: 'Flavour Driver',
+    name: 'Adios Driver',
     slug: 'flavour-driver',
     version: '1.0.0',
     orientation: 'portrait',
