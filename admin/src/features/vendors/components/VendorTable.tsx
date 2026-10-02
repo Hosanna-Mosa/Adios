@@ -6,12 +6,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AvailabilityPill } from "@/components/shared/AvailabilityPill";
 import type { Vendor } from "../types";
 
-const STATUS_BADGE_CLASS: Record<string, string> = {
-  approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  submitted: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+// Vendor onboarding state as its own column. It used to be a 9px badge wedged
+// beside the restaurant name, which is easy to miss on a row that also carries
+// a rating and an availability pill. The four values are the ones the Vendor
+// model actually defines.
+const STATUS_PILL_CLASS: Record<string, string> = {
+  approved: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-900",
+  rejected: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-900",
+  submitted: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-900",
+  draft: "bg-muted text-muted-foreground border-border",
 };
-const DEFAULT_STATUS_BADGE_CLASS = "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400";
 const STATUS_LABEL_KEY: Record<string, string> = {
   approved: "catalog.approved",
   rejected: "catalog.rejected",
@@ -35,21 +39,27 @@ export function VendorTable({ vendors, isLoading, emptyLabel, onViewClick, onEdi
     {
       key: "restaurant",
       header: t("catalog.restaurant"),
+      cell: (vendor) => (
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Store className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground">{vendor.name}</p>
+            <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? t("catalog.pureVeg") : t("catalog.multiCuisine")}</p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      header: t("catalog.status"),
       cell: (vendor) => {
         const status = vendor.onboardingStatus || "draft";
         return (
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Store className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${STATUS_BADGE_CLASS[status] ?? DEFAULT_STATUS_BADGE_CLASS}`}>{STATUS_LABEL_KEY[status] ? t(STATUS_LABEL_KEY[status]) : status}</span>
-              </div>
-              <p className="text-[10px] text-muted-foreground uppercase">{vendor.isPureVeg ? t("catalog.pureVeg") : t("catalog.multiCuisine")}</p>
-            </div>
-          </div>
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-semibold capitalize ${STATUS_PILL_CLASS[status] ?? STATUS_PILL_CLASS.draft}`}>
+            {STATUS_LABEL_KEY[status] ? t(STATUS_LABEL_KEY[status]) : status}
+          </span>
         );
       },
     },

@@ -147,7 +147,8 @@
     "dayThu": "గురు",
     "dayFri": "శుక్ర",
     "daySat": "శని",
-    "daySun": "ఆది"
+    "daySun": "ఆది",
+    "today": "ఈరోజు"
   },
   "support": {
     "liveChat": "లైవ్ చాట్",
@@ -500,7 +501,13 @@
     "startTravel": "ప్రయాణం ప్రారంభించండి",
     "upcomingReservedRide": "రాబోయే రిజర్వ్డ్ రైడ్!",
     "flavourDriverActive": "Flavour డ్రైవర్ యాక్టివ్‌గా ఉంది",
-    "trackingLocationForOrderDispatches": "బ్యాక్‌గ్రౌండ్‌లో ఆర్డర్ డిస్పాచ్‌ల కోసం లొకేషన్‌ను ట్రాక్ చేస్తోంది..."
+    "trackingLocationForOrderDispatches": "బ్యాక్‌గ్రౌండ్‌లో ఆర్డర్ డిస్పాచ్‌ల కోసం లొకేషన్‌ను ట్రాక్ చేస్తోంది...",
+    "noHighDemandAreas": "ప్రస్తుతం అధిక డిమాండ్ ఉన్న ప్రాంతాలు లేవు",
+    "backgroundLocationOffNowOffline": "బ్యాక్‌గ్రౌండ్ లొకేషన్ ఆన్‌లో లేదు, కాబట్టి యాప్ మినిమైజ్ చేసినప్పుడు మీరు ఆఫ్‌లైన్‌లో ఉంటారు.",
+    "noPhoneNumber": "ఫోన్ నంబర్ లేదు",
+    "customerPhoneNotAvailable": "ఈ ఆర్డర్‌కు కస్టమర్ ఫోన్ నంబర్ అందుబాటులో లేదు.",
+    "chatEmptyState": "{{value}}తో సందేశాలు ఇక్కడ కనిపిస్తాయి.",
+    "theCustomer": "కస్టమర్"
   },
   "onboarding": {
     "sections": {
@@ -604,7 +611,12 @@
     "faceGuidelines": "మీ ముఖం స్పష్టంగా కనిపించేలా, బాగా వెలుతురు ఉండేలా మరియు హ్యాట్‌లు లేదా సన్‌గ్లాసెస్ లేకుండా చూసుకోండి.",
     "pleaseWait": "దయచేసి వేచి ఉండండి...",
     "locationVerifiedGeometrically": "స్థానం జియోమెట్రిక్‌గా ధృవీకరించబడింది",
-    "coords": "కోఆర్డినేట్‌లు"
+    "coords": "కోఆర్డినేట్‌లు",
+    "cameraPermissionNeeded": "కెమెరా అనుమతి అవసరం",
+    "allowCameraForSelfie": "మీ ప్రొఫైల్ సెల్ఫీ తీయడానికి దయచేసి కెమెరా యాక్సెస్‌ను అనుమతించండి.",
+    "uploadFailed": "అప్‌లోడ్ విఫలమైంది",
+    "couldNotUploadSelfie": "మీ సెల్ఫీని అప్‌లోడ్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "retakePhoto": "ఫోటో మళ్లీ తీయండి"
   },
   "profile": {
     "personalInfo": "వ్యక్తిగత సమాచారం",
@@ -754,7 +766,8 @@
     "saveAddress": "చిరునామాను సేవ్ చేయండి",
     "updateAddress": "చిరునామాను అప్‌డేట్ చేయండి",
     "vehicle": "వాహనం",
-    "vehicleInfo": "వాహన సమాచారం"
+    "vehicleInfo": "వాహన సమాచారం",
+    "newRating": "కొత్త"
   },
   "notFound": {
     "oops": "అయ్యో!",

@@ -40,6 +40,7 @@ import cartRoutes from "./modules/cart/cart.routes";
 import couponsRoutes from "./modules/coupons/coupons.routes";
 import analyticsRoutes from "./modules/analytics/analytics.routes";
 import digilockerRoutes from "./modules/digilocker/digilocker.routes";
+import { getRestaurantShareLanding } from "./modules/vendors/share-landing.controller";
 
 const app = express();
 const server = http.createServer(app);
@@ -114,6 +115,11 @@ connectDB().then(async () => {
       },
     ]);
   });
+
+  // Where a shared "check out this dish" link lands — the same path the app
+  // registers as an App/Universal Link, so it resolves whether or not the app is
+  // installed. See share-landing.controller.ts.
+  app.get("/restaurant-menu/:id", getRestaurantShareLanding);
 
   // API Routes
   // API Routes v1

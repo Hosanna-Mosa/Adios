@@ -27,7 +27,9 @@ export function OnboardingSection() {
       return (
         <SelfieCaptureSection
           captured={docs.selfieCaptured}
-          onCapture={() => docs.setSelfieCaptured(true)}
+          previewUri={docs.selfieUri}
+          uploading={docs.selfieUploading}
+          onCapture={docs.handleCaptureSelfie}
         />
       );
     default: return null;

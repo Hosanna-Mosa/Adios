@@ -2,11 +2,9 @@ import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Pagination } from "@/components/shared/Pagination";
 import { useVendorsList } from "@/features/vendors/hooks/useVendorsList";
-import { useVendorAddForm } from "@/features/vendors/hooks/useVendorAddForm";
 import { useVendorEditForm } from "@/features/vendors/hooks/useVendorEditForm";
 import { VendorFilters } from "@/features/vendors/components/VendorFilters";
 import { VendorTable } from "@/features/vendors/components/VendorTable";
-import { VendorAddDialog } from "@/features/vendors/components/VendorAddDialog";
 import { VendorEditDialog } from "@/features/vendors/components/VendorEditDialog";
 import { VendorViewDialog } from "@/features/vendors/components/VendorViewDialog";
 
@@ -41,21 +39,6 @@ export default function Vendors() {
   } = useVendorsList();
 
   const {
-    isAddOpen,
-    setIsAddOpen,
-    newVendor,
-    setNewVendor,
-    searchQuery,
-    selectedPlace,
-    suggestions,
-    isSearching,
-    handleSearch,
-    handleSelectSuggestion,
-    handleSubmit,
-    isSubmitting,
-  } = useVendorAddForm();
-
-  const {
     isEditOpen,
     setIsEditOpen,
     editForm,
@@ -69,7 +52,7 @@ export default function Vendors() {
     isSaving,
   } = useVendorEditForm(updateVendorMutation);
 
-  const emptyLabel = vendors?.length === 0 ? t("catalog.noVendorsFoundAddFirstDesc") : t("catalog.noVendorsMatchFiltersDesc");
+  const emptyLabel = vendors?.length === 0 ? t("catalog.noVendorsFound") : t("catalog.noVendorsMatchFiltersDesc");
 
   return (
     <DashboardLayout searchPlaceholder={t("catalog.searchVendors")}>
@@ -79,21 +62,8 @@ export default function Vendors() {
             <h1 className="page-header">{t("catalog.vendorManagement")}</h1>
             <p className="page-subtitle">{t("catalog.onboardManageRestaurantPartnersDesc")}</p>
           </div>
-
-          <VendorAddDialog
-            isOpen={isAddOpen}
-            onOpenChange={setIsAddOpen}
-            newVendor={newVendor}
-            onChange={setNewVendor}
-            searchQuery={searchQuery}
-            suggestions={suggestions}
-            isSearching={isSearching}
-            selectedPlace={selectedPlace}
-            onSearch={handleSearch}
-            onSelectSuggestion={handleSelectSuggestion}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
+          {/* No "Add Vendor" here: restaurants onboard themselves through the
+              partner website and are approved from the View dialog. */}
         </div>
 
         <VendorFilters filterSearch={filterSearch} onSearchChange={setFilterSearch} filterStatus={filterStatus} onStatusChange={setFilterStatus} filterVeg={filterVeg} onVegChange={setFilterVeg} />

@@ -13,6 +13,7 @@ import { ProfileHeaderCard } from "./ProfileHeaderCard";
 import { ProfileStatsCard } from "./ProfileStatsCard";
 import { RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
 import { AppText } from "@/components/ui/AppText";
+import { useDriverStore } from "@/store/driverStore";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** Everything on the profile tab above the section sheet. */
@@ -25,6 +26,7 @@ export function ProfileTabBody({
   onRetakeOnboarding,
 }: any) {
   const { t } = useTranslation();
+  const isOnline = useDriverStore((s) => s.isOnline);
   return (
     <>
             <ProfileHeaderCard
@@ -39,7 +41,12 @@ export function ProfileTabBody({
               stats={[
                 { value: String(profile.stats.completedTrips), label: t("earnings.trips") },
                 { value: `${profile.stats.acceptanceRate}%`, label: t("profile.acceptance") },
-                { value: profile.driver?.status === "online" ? t("profile.online") : t("profile.offline"), label: t("profile.status") },
+                // Was comparing profile.driver?.status (backend enum "ONLINE"/"OFFLINE")
+                // against the lowercase literal "online", which never matched — so this
+                // read OFFLINE even while the driver was online. Reading the live
+                // isOnline flag from the store also keeps this in sync immediately
+                // after toggling shift status, instead of only after a manual refresh.
+                { value: isOnline ? t("profile.online") : t("profile.offline"), label: t("profile.status") },
               ]}
             />
 

@@ -1,5 +1,5 @@
-import { Alert } from "react-native";
-import { socketService } from "@/utils/socketService";
+import i18n from "@/i18n";
+import { showAlert } from "@/components/ui/AppAlert";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
@@ -7,13 +7,17 @@ import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver: any, setServiceType: any, setStep: any, pickupLocation: any, dropoffLocation: any, pickupCoords: any, dropoffCoords: any, isPickupValid: any, isDropoffValid: any, description: any, offer: any, setIsCreating: any, setLocalOrderId: any, setCurrentTaskPrice: any, assignedDriver: any, setAssignedDriver: any, totalHours: any, calculatedFare: any) {
+export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver: any, setServiceType: any, setStatus: any, setStep: any, pickupLocation: any, dropoffLocation: any, pickupCoords: any, dropoffCoords: any, isPickupValid: any, isDropoffValid: any, description: any, offer: any, setIsCreating: any, setLocalOrderId: any, setCurrentTaskPrice: any, assignedDriver: any, setAssignedDriver: any, setSearchExhausted: any, setSearchStartedAt: any, totalHours: any, calculatedFare: any) {
   const createTask = async () => {
     const finalOffer = offer ?? calculatedFare;
     const isOnline = getPaymentMethod("helper") === "online";
     setIsCreating(true);
+    setSearchExhausted(false);
     // Online: Razorpay opens first, so the search screen only appears once the task is paid.
-    if (!isOnline) setStep("searching");
+    if (!isOnline) {
+      setSearchStartedAt(Date.now());
+      setStep("searching");
+    }
     setCurrentTaskPrice(finalOffer);
     try {
       const stops: any[] = [
@@ -26,29 +30,25 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver:
       const order = isOnline
         ? await payOnlineAndPlaceOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>(finalOffer, orderBody)
         : await createOrder<{ _id: string; customerPrice?: number; totalPrice?: number }>({ ...orderBody, paymentMethod: "cash" });
-      if (isOnline) setStep("searching");
+      if (isOnline) {
+        setSearchStartedAt(Date.now());
+        setStep("searching");
+      }
       if (!order?._id) throw new Error("Invalid response from server. No order ID returned.");
       setOrderId(order._id);
       setLocalOrderId(order._id);
+      setServiceType("helper");
+      // A stale "delivered"/"cancelled" left over from a previous trip would
+      // otherwise make this brand-new task invisible to the active-order stripe
+      // on the tab bar the moment it's created.
+      setStatus("pending");
       setCurrentTaskPrice(order.customerPrice || order.totalPrice || finalOffer);
-      socketService.trackOrder(order._id);
-
-      const handleOrderAccepted = (data: any) => {
-        if (data.driver) { setDriver(data.driver); setAssignedDriver(data.driver); }
-        setServiceType("helper");
-        if (data.orderId || order._id) { setOrderId(data.orderId || order._id); setLocalOrderId(data.orderId || order._id); }
-        socketService.off("order_accepted", handleOrderAccepted);
-        socketService.off("order_status_update", handleOrderStatus);
-        setStep("assigned");
-      };
-      const handleOrderStatus = (data: any) => {
-        if (["DRIVER_ASSIGNED", "driver_assigned", "accepted"].includes(data.status)) handleOrderAccepted(data);
-      };
-      socketService.on("order_accepted", handleOrderAccepted);
-      socketService.on("order_status_update", handleOrderStatus);
+      // The searching step owns the socket subscription and the status poll from
+      // here on (see useHelperTaskSuggestedLow), so they are torn down with the
+      // screen — the listeners attached here were never unsubscribed.
     } catch (error: any) {
       const described = describePaymentError(error);
-      Alert.alert(described?.title ?? "Error", described?.message ?? (error.message || "Failed to create task"));
+      showAlert(described?.title ?? i18n.t("actions.error"), described?.message ?? (error.message || i18n.t("app.delivery.failedToCreateTask")));
       setStep("bidding");
     } finally {
       setIsCreating(false);

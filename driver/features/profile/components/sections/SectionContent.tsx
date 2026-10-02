@@ -4,7 +4,7 @@ import { SectionFieldRows } from "../SectionFieldRows";
 import { BankSection } from "./BankSection";
 import { DocumentsSection } from "./DocumentsSection";
 import { PersonalSection } from "./PersonalSection";
-import { SettingsSection } from "./SettingsSection";
+import { ChangePasswordForm } from "./ChangePasswordForm";
 import { SupportSection } from "./SupportSection";
 import { VehicleSection } from "./VehicleSection";
 
@@ -50,6 +50,26 @@ export function SectionContent(props: any) {
             onStartEditing={handleStartEditing}
             onCancel={() => setIsEditing(false)}
             onSave={handleSaveProfile}
+            passwordForm={
+              <ChangePasswordForm
+                showPasswordForm={showPasswordForm}
+                currentPassword={currentPassword}
+                onCurrentPasswordChange={setCurrentPassword}
+                newPassword={newPassword}
+                onNewPasswordChange={setNewPassword}
+                confirmPassword={confirmPassword}
+                onConfirmPasswordChange={setConfirmPassword}
+                isSaving={isSavingPassword}
+                onOpenForm={() => setShowPasswordForm(true)}
+                onCancel={() => {
+                  setShowPasswordForm(false);
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                }}
+                onSubmit={handleChangePassword}
+              />
+            }
           />
         );
 
@@ -91,30 +111,6 @@ export function SectionContent(props: any) {
               setNewBankIfsc("");
             }}
             onSubmit={handleAddBankAccount}
-          />
-        );
-
-      case "settings":
-        return (
-          <SettingsSection
-            fields={fields}
-            addresses={profile?.account.addresses || []}
-            showPasswordForm={showPasswordForm}
-            currentPassword={currentPassword}
-            onCurrentPasswordChange={setCurrentPassword}
-            newPassword={newPassword}
-            onNewPasswordChange={setNewPassword}
-            confirmPassword={confirmPassword}
-            onConfirmPasswordChange={setConfirmPassword}
-            isSaving={isSavingPassword}
-            onOpenForm={() => setShowPasswordForm(true)}
-            onCancel={() => {
-              setShowPasswordForm(false);
-              setCurrentPassword("");
-              setNewPassword("");
-              setConfirmPassword("");
-            }}
-            onSubmit={handleChangePassword}
           />
         );
 

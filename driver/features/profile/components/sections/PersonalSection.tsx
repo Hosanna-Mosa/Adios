@@ -32,6 +32,7 @@ export function PersonalSection({
   onStartEditing,
   onCancel,
   onSave,
+  passwordForm,
 }: {
   fields: Field[];
   isEditing: boolean;
@@ -44,6 +45,8 @@ export function PersonalSection({
   onStartEditing: () => void;
   onCancel: () => void;
   onSave: () => void;
+  /** Change Password control, shown under Edit Profile while not editing. */
+  passwordForm?: React.ReactNode;
 }) {
   const { t } = useTranslation();
   if (isEditing) {
@@ -103,6 +106,7 @@ export function PersonalSection({
         label={t("profile.editProfile")}
         onPress={onStartEditing}
       />
+      {passwordForm}
     </Box>
   );
 }

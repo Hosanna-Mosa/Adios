@@ -14,8 +14,6 @@ export interface Props {
   isRide: any;
   orderCreatedAt: any;
   pickupLabel: any;
-  pulse1Style: any;
-  pulse2Style: any;
   setTripModalVisible: any;
   startOtp: any;
   status: any;

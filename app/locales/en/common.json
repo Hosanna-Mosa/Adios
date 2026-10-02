@@ -11,7 +11,8 @@
     "retry": "Retry",
     "loading": "Loading...",
     "error": "Error",
-    "continue": "Continue"
+    "continue": "Continue",
+    "ok": "OK"
   },
   "app": {
     "schedulePill": {
@@ -180,7 +181,8 @@
         "offerAccepted": "Offer accepted",
         "helperArrived": "Helper arrived",
         "taskInProgress": "Task in progress",
-        "taskCompleted": "Task completed"
+        "taskCompleted": "Task completed",
+        "helperAssigned": "Helper assigned"
       },
       "deliveryLabels": {
         "orderPlaced": "Order placed",
@@ -398,7 +400,12 @@
       "darkMode": "Dark mode",
       "signOutOfAllDevicesButton": "Sign out of all devices",
       "signOut": "Sign out",
-      "memberSince": "member since"
+      "memberSince": "member since",
+      "profilePhoto": "Profile photo",
+      "changePhoto": "Change photo",
+      "uploadPhoto": "Upload photo",
+      "removePhoto": "Remove photo",
+      "failedToRemovePhoto": "Failed to remove photo"
     },
     "food": {
       "orderFallback": {
@@ -532,7 +539,10 @@
       "closedToday": "Closed today",
       "clearCart": "Clear cart?",
       "clearCartAction": "Clear cart",
-      "thisRemovesEveryItemFromVar": "This removes every item from {{value}}."
+      "thisRemovesEveryItemFromVar": "This removes every item from {{value}}.",
+      "thisLinkIsntAvailable": "This link isn't available",
+      "theOutletItPointsToMayHaveClosed": "The outlet it points to may have closed or moved.",
+      "goToHome": "Go to home"
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -569,14 +579,19 @@
       "activeNow": "Active now",
       "trackOrder": "Track order",
       "cantReorder": "Can't reorder",
-      "weCouldntFindTheItemsFrom": "We couldn't find the items from this order. Please add them from the menu."
+      "weCouldntFindTheItemsFrom": "We couldn't find the items from this order. Please add them from the menu.",
+      "details": "Details",
+      "noOrdersInThisFilter": "No orders in this filter",
+      "ordersInTotalPickAll_one": "You have {{count}} order in total — pick “All” to see them.",
+      "ordersInTotalPickAll_other": "You have {{count}} orders in total — pick “All” to see them."
     },
     "helperTask": {
       "title": {
         "compose": "Hire a helper",
         "bidding": "Your offer",
         "searching": "Finding a helper",
-        "assigned": "Task assigned"
+        "assigned": "Task assigned",
+        "noHelpersYet": "No helpers yet"
       }
     },
     "LocationPickerSheet": {
@@ -814,7 +829,16 @@
       "failedToDeleteAddress": "Failed to delete address",
       "pleaseEnableLocationServicesToUse": "Please enable location services to use current location.",
       "currentLocationFallback": "Current location",
-      "failedToDetermineCurrentLocation": "Failed to determine current location."
+      "failedToDetermineCurrentLocation": "Failed to determine current location.",
+      "failedToCreateTask": "Failed to create task",
+      "offersGoOutOneAtATime": "Offers go out one at a time, about 15 seconds each.",
+      "noHelpersTookThisTask": "No helpers took this task",
+      "offeredToHelpers_one": "We offered it to {{count}} helper nearby. Raising your offer usually gets one within a few minutes.",
+      "offeredToHelpers_other": "We offered it to {{count}} helpers nearby. Raising your offer usually gets one within a few minutes.",
+      "offeredToHelpersSomePassed_one": "We offered it to {{count}} helper nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
+      "offeredToHelpersSomePassed_other": "We offered it to {{count}} helpers nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
+      "nobodyOnShiftNearYou": "Nobody is on shift near you right now. Raising your offer, or trying again shortly, usually helps.",
+      "raising": "Raising…"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -965,7 +989,14 @@
       "couldNotFetchCurrentLocation": "Could not fetch current location.",
       "bookingFailed": "Booking failed",
       "rideRequest": "Ride request",
-      "varIsOnTheWay": "{{value}} is on the way!"
+      "varIsOnTheWay": "{{value}} is on the way!",
+      "yourTrip": "Your trip",
+      "stopNumber": "Stop {{number}}",
+      "clearPickupAddress": "Clear pickup address",
+      "clearDropAddress": "Clear drop address",
+      "newDriverRating": "New",
+      "completionPin": "Completion PIN",
+      "giveThisToYourHelperOnceWorkIsFinished": "Give this to your helper only once the work is finished."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -1039,7 +1070,15 @@
       "paySecurely": "Pay securely"
     },
     "personaldetails": {
-      "couldntSave": "Couldn't save"
+      "couldntSave": "Couldn't save",
+      "fullNameRequired": "Full name is required.",
+      "useAtLeast3Characters": "Use at least 3 characters.",
+      "keepItUnder50Characters": "Keep it under 50 characters.",
+      "nameAllowedCharacters": "Letters, spaces, apostrophes and hyphens only.",
+      "keepItUnder20Characters": "Keep it under 20 characters.",
+      "usernameAllowedCharacters": "Start with a letter; letters, numbers, . and _ only.",
+      "emailRequired": "Email is required.",
+      "enterAValidEmailAddress": "Enter a valid email address, e.g. you@example.com."
     },
     "rideconfirmation": {
       "backToHome": "Back to home"
@@ -1068,6 +1107,30 @@
       "meatCentersNearYou": "Meat centers near you",
       "openNowCutFreshOnOrder": "open now · cut fresh on order",
       "searchCentersOrMeatType": "Search centers or meat type"
+    },
+    "activeOrderStripe": {
+      "rideInProgress": "Ride in progress",
+      "taskInProgress": "Task in progress",
+      "orderInProgress": "Order in progress",
+      "track": "Track",
+      "status": {
+        "findingAMatch": "Finding a match",
+        "confirmedOnTheWay": "Confirmed — on the way",
+        "headingToPickup": "Heading to pickup",
+        "arrivedAtPickup": "Arrived at pickup",
+        "preparingYourOrder": "Preparing your order",
+        "inProgress": "In progress",
+        "arrived": "Arrived"
+      }
+    },
+    "shareLink": {
+      "cantShareRightNow": "Can't share right now",
+      "sharingIsntConfigured": "Sharing isn't configured for this build yet.",
+      "couldntShare": "Couldn't share",
+      "shareSheetDidntOpen": "The share sheet didn't open. Please try again.",
+      "thisDish": "this dish",
+      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Flavour! {{url}}",
+      "checkOutVendor": "Check out {{name}} on Flavour! {{url}}"
     }
   }
 }

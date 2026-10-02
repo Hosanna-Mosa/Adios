@@ -43,7 +43,6 @@ export const styles = StyleSheet.create({
   },
   headerOverlay: {
     position: "absolute",
-    top: 48,
     left: 16,
     right: 16,
     backgroundColor: "rgba(255, 255, 255, 0.95)",

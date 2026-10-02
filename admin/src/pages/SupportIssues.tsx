@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -40,12 +39,9 @@ export default function SupportIssues() {
             <p className="page-subtitle">{t("support.trackFilterResolveDesc")}</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={() => toast.success(t("support.systemAuditLogsExported"))}
-              className="px-5 py-2.5 border border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted/50 transition-colors shadow-sm"
-            >
-              {t("support.exportLogs")}
-            </button>
+            {/* "Export Logs" claimed "System audit support logs exported as
+                CSV!" and exported nothing — no such export exists on the
+                backend, so the decorative button was removed. */}
             <button
               onClick={() => setIsCreateOpen(true)}
               className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 shadow-sm"

@@ -42,6 +42,7 @@ import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
+import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useThemeStore } from "@/contexts/themeStore";
 
@@ -201,6 +202,7 @@ export default function RootLayout() {
                   onDismiss={handleDismissUpdate}
                 />
                 <CartConflictDialog />
+                <AppAlert />
               </ToastProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>

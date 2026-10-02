@@ -177,4 +177,15 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     color: Colors.textSecondary,
   },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 40,
+  },
+  emptyStateText: {
+    fontSize: typography.sizes.small,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
 });

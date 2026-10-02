@@ -59,8 +59,14 @@ export function useGpsSimulator(args: Args) {
       setSimRemainingDist(initialDistance);
       setSimETA(initialDuration);
 
-      const startLat = driverLocation?.lat || 12.9716;
-      const startLng = driverLocation?.lng || 77.5946;
+      // No real GPS fix yet — very likely exactly when this "simulate" feature
+      // gets used — used to fall back to a hardcoded Bengaluru point (and `||`
+      // would trigger it again even for a genuine 0 coordinate). That made the
+      // simulated marker "teleport" in from across the country whenever the
+      // order itself was anywhere else. Anchor near the actual target instead,
+      // so the simulated route always stays local to this order.
+      const startLat = driverLocation?.lat ?? targetLat + 0.015;
+      const startLng = driverLocation?.lng ?? targetLng + 0.015;
       const calculatedBearing = calculateBearing(startLat, startLng, targetLat, targetLng);
       setDriverHeading(calculatedBearing);
 

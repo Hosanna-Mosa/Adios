@@ -51,7 +51,8 @@
     "passwordMustBeAtLeast6Characters": "పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండాలి",
     "passwordResetSuccessBang": "పాస్‌వర్డ్ విజయవంతంగా రీసెట్ చేయబడింది!",
     "failedToResetPassword": "పాస్‌వర్డ్‌ను రీసెట్ చేయడంలో విఫలమైంది",
-    "pleaseEnterValid6DigitOtp": "దయచేసి చెల్లుబాటు అయ్యే 6-అంకెల OTPని నమోదు చేయండి"
+    "pleaseEnterValid6DigitOtp": "దయచేసి చెల్లుబాటు అయ్యే 6-అంకెల OTPని నమోదు చేయండి",
+    "otpSentIfAccountExists": "ఈ ఇమెయిల్‌కు ఖాతా ఉంటే, OTP పంపబడింది."
   },
   "vendorDashboard": {
     "welcomeName": "స్వాగతం, {{name}}",
@@ -256,7 +257,8 @@
     "hoursAgo": "{{count}} గంటల క్రితం",
     "notifications": "నోటిఫికేషన్‌లు",
     "markAllRead": "అన్నీ చదివినట్లు గుర్తించండి",
-    "nothingHereYet": "ఇక్కడ ఇంకా ఏమీ లేదు."
+    "nothingHereYet": "ఇక్కడ ఇంకా ఏమీ లేదు.",
+    "daysAgo": "{{count}} రోజుల క్రితం"
   },
   "pagination": {
     "showingXOfY": "{{total}}లో {{shown}} {{item}} చూపిస్తోంది",
@@ -365,7 +367,17 @@
     "last4WeeksVsTarget": "గత 4 వారాలు vs లక్ష్యం",
     "weekly": "వారానికి",
     "daily": "రోజువారీ",
-    "exportReport": "నివేదికను ఎగుమతి చేయండి"
+    "exportReport": "నివేదికను ఎగుమతి చేయండి",
+    "loadingActivity": "కార్యాచరణ లోడ్ అవుతోంది…",
+    "noActivityYet": "ఇంకా ఏ కార్యాచరణ నమోదు కాలేదు.",
+    "filterByPriorityColon": "ప్రాధాన్యత ద్వారా ఫిల్టర్ చేయండి:",
+    "allPriorities": "అన్ని ప్రాధాన్యతలు",
+    "expressOnly": "ఎక్స్‌ప్రెస్ మాత్రమే",
+    "awaitingAssignment": "కేటాయింపు కోసం వేచి ఉంది",
+    "noActiveManifests": "ప్రస్తుతం సక్రియ మ్యానిఫెస్ట్‌లు లేవు.",
+    "noManifestsMatchFilter": "ఈ ఫిల్టర్‌కు సరిపోయే మ్యానిఫెస్ట్‌లు లేవు.",
+    "orderCancelledId": "ఆర్డర్ {{id}} రద్దు చేయబడింది.",
+    "couldNotCancelOrder": "ఈ ఆర్డర్‌ను రద్దు చేయలేకపోయాము."
   },
   "analytics": {
     "searchLogisticsMetrics": "లాజిస్టిక్స్ మెట్రిక్‌ల కోసం శోధించండి...",
@@ -404,7 +416,15 @@
     "activity": "కార్యకలాపం",
     "noOlderAnomalies": "పాత లాజిస్టికల్ అసాధారణతలు లేదా హెచ్చరికలు కనుగొనబడలేదు.",
     "viewAllInsights": "అన్ని అంతర్దృష్టులను చూడండి",
-    "capacityPercent": "98% సామర్థ్యం"
+    "capacityPercent": "98% సామర్థ్యం",
+    "last12Months": "గత 12 నెలలు",
+    "dateRange": "తేదీ పరిధి",
+    "range": "పరిధి",
+    "nCompleted": "{{count}} పూర్తయ్యాయి",
+    "onlineNow": "ఇప్పుడు ఆన్‌లైన్",
+    "notAvailable": "అందుబాటులో లేదు",
+    "stalledOrdersDesc": "40 నిమిషాలకు పైగా ముందుకు సాగని సక్రియ ఆర్డర్‌లు.",
+    "noStalledOrders": "ప్రస్తుతం నిలిచిపోయిన ఆర్డర్‌లు లేవు."
   },
   "users": {
     "searchByNameEmailOrId": "పేరు, ఇమెయిల్ లేదా ID ద్వారా వినియోగదారులను శోధించండి...",
@@ -497,7 +517,12 @@
     "userHasBeenStatus": "వినియోగదారు {{status}}",
     "failedToUpdateBlockStatus": "బ్లాక్ స్థితిని అప్‌డేట్ చేయడంలో విఫలమైంది",
     "userAccountDeletedSuccessfully": "వినియోగదారు ఖాతా విజయవంతంగా తొలగించబడింది",
-    "confirmPermanentlyDeleteUser": "హెచ్చరిక: ఇది ఈ వినియోగదారుని మరియు వారి అనుబంధిత రికార్డులను శాశ్వతంగా తొలగిస్తుంది. మీరు ఖచ్చితంగా ఉన్నారా?"
+    "confirmPermanentlyDeleteUser": "హెచ్చరిక: ఇది ఈ వినియోగదారుని మరియు వారి అనుబంధిత రికార్డులను శాశ్వతంగా తొలగిస్తుంది. మీరు ఖచ్చితంగా ఉన్నారా?",
+    "totalSpent": "మొత్తం ఖర్చు",
+    "avgOrder": "సగటు ఆర్డర్",
+    "completedStat": "పూర్తయినవి",
+    "cancelledStat": "రద్దయినవి",
+    "lastOrder": "చివరి ఆర్డర్"
   },
   "drivers": {
     "searchDriversVehicleIdsRegions": "డ్రైవర్‌లు, వాహన IDలు లేదా ప్రాంతాల కోసం శోధించండి...",
@@ -677,7 +702,34 @@
     "driverConfigurationUpdatedSuccessfully": "డ్రైవర్ కాన్ఫిగరేషన్ విజయవంతంగా అప్‌డేట్ చేయబడింది!",
     "failedToUpdateDriverSettings": "డ్రైవర్ సెట్టింగ్‌లను అప్‌డేట్ చేయడంలో విఫలమైంది",
     "pleaseEnterValidLatLng": "దయచేసి చెల్లుబాటు అయ్యే అక్షాంశం మరియు రేఖాంశం సంఖ్యలను నమోదు చేయండి.",
-    "noTripLogsRecorded": "ఈ డ్రైవర్ ఖాతా కోసం ట్రిప్ లాగ్‌లు రికార్డ్ చేయబడలేదు."
+    "noTripLogsRecorded": "ఈ డ్రైవర్ ఖాతా కోసం ట్రిప్ లాగ్‌లు రికార్డ్ చేయబడలేదు.",
+    "onDutyNow": "{{count}} ఇప్పుడు డ్యూటీలో",
+    "acrossNRatedDrivers": "{{count}} రేటింగ్ ఉన్న డ్రైవర్లలో",
+    "noRatingsYet": "ఇంకా రేటింగ్‌లు లేవు",
+    "nOrdersToday": "ఈరోజు {{count}} ఆర్డర్‌లు",
+    "xOfYOnDuty": "{{total}}లో {{online}} డ్యూటీలో",
+    "lastReportedPosition": "చివరిగా నివేదించిన స్థానం",
+    "noLocationReported": "స్థానం నివేదించబడలేదు",
+    "noLocationReportedForDriver": "ఈ డ్రైవర్ స్థానం ఇంకా నివేదించబడలేదు",
+    "noVehicleNumber": "వాహన నంబర్ లేదు",
+    "nTripsThisMonth": "ఈ నెల {{count}} ట్రిప్‌లు",
+    "driverApprovedBanner": "ఈ డ్రైవర్ ఆమోదించబడ్డారు.",
+    "driverRejectedBanner": "ఈ డ్రైవర్ దరఖాస్తు తిరస్కరించబడింది.",
+    "zoneMetrics": "జోన్ మెట్రిక్స్",
+    "zoneMetricsDesc": "ప్రతి ఆపరేషనల్ జోన్‌కు కవరేజ్ మరియు డిమాండ్.",
+    "noZonesConfiguredYet": "ఇంకా జోన్‌లు కాన్ఫిగర్ చేయలేదు.",
+    "zoneCol": "జోన్",
+    "typeCol": "రకం",
+    "statusCol": "స్థితి",
+    "surgeCol": "సర్జ్",
+    "driversCol": "డ్రైవర్లు",
+    "onDutyCol": "డ్యూటీలో",
+    "ordersCol": "ఆర్డర్‌లు",
+    "completedCol": "పూర్తయినవి",
+    "cancelledCol": "రద్దయినవి",
+    "revenueCol": "ఆదాయం",
+    "zoneActive": "సక్రియం",
+    "zoneInactive": "నిష్క్రియం"
   },
   "orders": {
     "accept": "ఆమోదించు",
@@ -1099,7 +1151,14 @@
     "weightColon": "బరువు: {{value}}",
     "withoutScheduleCentreOpenDesc": "షెడ్యూల్ లేకపోతే ఈ సెంటర్ రౌండ్-ది-క్లాక్ తెరిచి ఉన్నట్లు పరిగణించబడుతుంది.",
     "withoutScheduleOpenAroundClockDesc": "షెడ్యూల్ లేకపోతే ఈ రెస్టారెంట్ రౌండ్-ది-క్లాక్ తెరిచి ఉన్నట్లు పరిగణించబడుతుంది.",
-    "yes": "అవును"
+    "yes": "అవును",
+    "status": "స్థితి",
+    "noVendorsFound": "విక్రేతలు ఎవరూ కనబడలేదు.",
+    "anyRating": "ఏదైనా రేటింగ్",
+    "ratingAndAbove": "{{rating}} మరియు పైన",
+    "clear": "క్లియర్ చేయండి",
+    "showingXOfYRestaurants": "{{total}}లో {{shown}} రెస్టారెంట్‌లు చూపబడుతున్నాయి",
+    "noRestaurantsMatchFilters": "ఈ ఫిల్టర్‌లకు సరిపోయే రెస్టారెంట్‌లు లేవు."
   },
   "zones": {
     "activateImmediately": "వెంటనే సక్రియం చేయండి",
@@ -1206,7 +1265,24 @@
     "zoneName": "జోన్ పేరు",
     "zoneNameRequired": "జోన్ పేరు అవసరం",
     "zoneNotesDescription": "జోన్ గమనికలు / వివరణ",
-    "zoneUpdatedSuccessfully": "జోన్ విజయవంతంగా నవీకరించబడింది"
+    "zoneUpdatedSuccessfully": "జోన్ విజయవంతంగా నవీకరించబడింది",
+    "editZone": "జోన్‌ను సవరించండి",
+    "typeZone": "{{type}} జోన్",
+    "description": "వివరణ",
+    "surgeMultiplier": "సర్జ్ మల్టిప్లయర్",
+    "radiusMetres": "వ్యాసార్థం (మీటర్లు)",
+    "zoneIsActive": "జోన్ సక్రియంగా ఉంది",
+    "boundaryNotEditableDesc": "ఈ జోన్ సరిహద్దు మ్యాప్‌పై గీయబడింది, దీన్ని ఇక్కడి నుండి సవరించలేరు.",
+    "saveChanges": "మార్పులను సేవ్ చేయండి",
+    "active": "సక్రియం",
+    "inactive": "నిష్క్రియం",
+    "typeLabel": "రకం",
+    "surge": "సర్జ్",
+    "radius": "వ్యాసార్థం",
+    "centre": "కేంద్రం",
+    "boundary": "సరిహద్దు",
+    "nPoints": "{{count}} పాయింట్లు",
+    "editThisZone": "ఈ జోన్‌ను సవరించండి"
   },
   "support": {
     "activeChats": "క్రియాశీల చాట్‌లు",
@@ -1281,7 +1357,10 @@
     "typeYourResponseTo": "{{name}}కు మీ ప్రతిస్పందనను టైప్ చేయండి...",
     "userColon": "వినియోగదారు: {{name}}",
     "userShort": "వినియోగదారు",
-    "viewChat": "చాట్ చూడండి"
+    "viewChat": "చాట్ చూడండి",
+    "replyToName": "{{name}}కు జవాబు ఇవ్వండి",
+    "send": "పంపండి",
+    "typeResponsePressEnter": "మీ ప్రతిస్పందనను టైప్ చేసి, పంపడానికి Enter నొక్కండి..."
   },
   "system": {
     "appStoreUrl": "యాప్ స్టోర్ URL",

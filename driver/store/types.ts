@@ -77,7 +77,11 @@ export interface ChatMessage {
 export interface EarningsData {
   today: number;
   week: number;
+  /** Completed trips this week — kept under its original name so existing callers
+   * (Profile's "Trips" stat) don't need to change; use `todayTrips` for the
+   * home screen's "Today" performance view. */
   totalDeliveries: number;
+  todayTrips: number;
   weeklyBreakdown: { day: string; amount: number }[];
 }
 
@@ -120,6 +124,8 @@ export interface DriverState {
   resetOnboarding: () => void;
   logout: () => void;
   addChatMessage: (msg: ChatMessage) => void;
+  /** Replaces the thread wholesale — used when the stored history is loaded. */
+  setChatMessages: (msgs: ChatMessage[]) => void;
   clearChat: () => void;
   setUnreadCount: (count: number) => void;
   incrementUnreadCount: () => void;

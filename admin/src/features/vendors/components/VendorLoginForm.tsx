@@ -133,13 +133,6 @@ export function VendorLoginForm({
         </Button>
       </form>
 
-      {isVendor && (
-        <div className="mt-8 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">
-            {t("vendorAuth.notAPartnerYet")} <button className="text-primary font-semibold hover:underline">{t("vendorAuth.joinPrecisionNav")}</button>
-          </p>
-        </div>
-      )}
     </>
   );
 }

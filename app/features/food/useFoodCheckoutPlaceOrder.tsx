@@ -1,6 +1,5 @@
 import { Alert } from "react-native";
 import { router } from "expo-router";
-import { RazorpayIntegration } from "@/utils/razorpay";
 import { buildPlaceOrder } from "./useFoodCheckoutPlaceOrder.handlers";
 
 // Split out of useFoodCheckout so each file stays small. Kept in the original call

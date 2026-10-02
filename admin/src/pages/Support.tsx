@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { toast } from "sonner";
 import { Headphones, UserPlus, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -7,7 +6,6 @@ import { useSupportTickets } from "@/features/support/hooks/useSupportTickets";
 import { TicketStatusTabs } from "@/features/support/components/TicketStatusTabs";
 import { TicketList } from "@/features/support/components/TicketList";
 import { SupportChatPanel } from "@/features/support/components/SupportChatPanel";
-import { CreateTicketDialog } from "@/features/support/components/CreateTicketDialog";
 import { useSupportMembers } from "@/features/support/hooks/useSupportMembers";
 import { SupportMemberDialog } from "@/features/support/components/SupportMemberDialog";
 import { SupportTeamPanel } from "@/features/support/components/SupportTeamPanel";
@@ -22,14 +20,9 @@ export default function Support() {
     isLoading,
     selectedTicket,
     setActiveTicketId,
-    isCreateOpen,
-    setIsCreateOpen,
-    newTicket,
-    setNewTicket,
     typedMessage,
     setTypedMessage,
     handleSendMessage,
-    handleCreateTicketSubmit,
     handleResolve,
     handleReopen,
   } = useSupportTickets();
@@ -55,15 +48,6 @@ export default function Support() {
                 {t("supportTeam.addNewMember", "Add new member")}
               </button>
             )}
-            <button
-              onClick={() => toast.success(t("support.systemAuditLogsExported"))}
-              className="px-5 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors"
-            >
-              {t("support.exportLogs")}
-            </button>
-            <button onClick={() => setIsCreateOpen(true)} className="px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-              {t("support.createTicket")}
-            </button>
           </div>
         </div>
 
@@ -96,7 +80,7 @@ export default function Support() {
             onAddMember={() => setIsAddMemberOpen(true)}
           />
         ) : (
-          <div className="grid grid-cols-2 gap-6 min-h-[700px]">
+          <div className="grid grid-cols-2 gap-6 h-[calc(100vh-210px)] min-h-[480px]">
             <div className="section-card flex flex-col">
               <TicketStatusTabs
                 activeTab={activeTab}
@@ -113,8 +97,6 @@ export default function Support() {
           </div>
         )}
       </div>
-
-      <CreateTicketDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} newTicket={newTicket} onChange={setNewTicket} onSubmit={handleCreateTicketSubmit} />
 
       {isAdmin && (
         <SupportMemberDialog

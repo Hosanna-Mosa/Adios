@@ -1,4 +1,4 @@
-import { Search, SlidersHorizontal, UserPlus } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,16 +18,18 @@ interface DriverFiltersProps {
   onSearchChange: (value: string) => void;
   statusFilterOptions: StatusFilterOption[];
   onStatusFilterChange: (value: string) => void;
-  onAddClick: () => void;
 }
 
-/** Fleet Directory tab's header row: search input, status filter dropdown, and the Onboard button. */
+/**
+ * Fleet Directory tab's header row: search input and status filter dropdown.
+ * (No "Onboard New Driver" button: drivers sign up and complete KYC in the
+ * driver app, then get approved from the dossier.)
+ */
 export function DriverFilters({
   searchQuery,
   onSearchChange,
   statusFilterOptions,
   onStatusFilterChange,
-  onAddClick,
 }: DriverFiltersProps) {
   const { t } = useTranslation();
   return (
@@ -56,13 +58,6 @@ export function DriverFilters({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <button
-        onClick={onAddClick}
-        className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-      >
-        <UserPlus className="h-4 w-4" /> {t("drivers.onboardNewDriver")}
-      </button>
     </div>
   );
 }

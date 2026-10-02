@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { createAddress, updateAddress } from "@/services/users.service";
 import { getPlaceDetails } from "@/services/places.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useAddAddress so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -27,12 +27,12 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
 
   const handleSave = async () => {
     if (!addressLine.trim()) {
-      Alert.alert(t("app.delivery.missingInformation"), t("app.delivery.streetAddressIsRequired"));
+      showAlert(t("app.delivery.missingInformation"), t("app.delivery.streetAddressIsRequired"));
       return;
     }
     const receiverPhoneDigits = receiverPhone.replace(/\D/g, "");
     if (receiverPhone.trim() && receiverPhoneDigits.length !== 10) {
-      Alert.alert(t("app.delivery.invalidPhone"), t("app.delivery.enterAValid10digitReceiverPhone"));
+      showAlert(t("app.delivery.invalidPhone"), t("app.delivery.enterAValid10digitReceiverPhone"));
       return;
     }
     try {
@@ -95,7 +95,7 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       router.back();
     } catch (error: any) {
       console.error(error);
-      Alert.alert(t("actions.error"), error.message || t("app.delivery.failedToSaveAddress"));
+      showAlert(t("actions.error"), error.message || t("app.delivery.failedToSaveAddress"));
     } finally {
       setLoading(false);
     }

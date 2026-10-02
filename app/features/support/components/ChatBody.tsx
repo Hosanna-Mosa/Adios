@@ -1,6 +1,6 @@
-import { FlatList } from "react-native";
+import { ActivityIndicator, FlatList, View } from "react-native";
 import { ChatEmptyState } from "./ChatEmptyState";
-import { type ThemeTokens } from "@/constants/colors";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type ChatStyles } from "@/features/support/useChat.shared";
 
 // Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
@@ -8,7 +8,9 @@ import { type ChatStyles } from "@/features/support/useChat.shared";
 
 interface Props {
   activeChat: any;
+  accent: ServiceTokens;
   flatListRef: any;
+  loadingHistory: boolean;
   partnerLabel: string;
   renderItem: any;
   styles: ChatStyles;
@@ -17,7 +19,9 @@ interface Props {
 
 export function ChatBody({
   activeChat,
+  accent,
   flatListRef,
+  loadingHistory,
   partnerLabel,
   renderItem,
   styles,
@@ -34,12 +38,20 @@ export function ChatBody({
       contentContainerStyle={styles.messagesList}
       showsVerticalScrollIndicator={false}
       onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+      onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
       ListEmptyComponent={
-        <ChatEmptyState
-          partnerLabel={partnerLabel}
-          styles={styles}
-          tokens={tokens}
-        />
+        // "No messages yet" is only true once the stored thread has been read.
+        loadingHistory ? (
+          <View style={styles.emptyState}>
+            <ActivityIndicator color={accent.accent} />
+          </View>
+        ) : (
+          <ChatEmptyState
+            partnerLabel={partnerLabel}
+            styles={styles}
+            tokens={tokens}
+          />
+        )
       }
     />
     </>

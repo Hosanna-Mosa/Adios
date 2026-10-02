@@ -11,7 +11,8 @@
     "retry": "మళ్లీ ప్రయత్నించండి",
     "loading": "లోడ్ అవుతోంది...",
     "error": "పొరపాటు",
-    "continue": "కొనసాగించండి"
+    "continue": "కొనసాగించండి",
+    "ok": "సరే"
   },
   "app": {
     "schedulePill": {
@@ -180,7 +181,8 @@
         "offerAccepted": "ఆఫర్ అంగీకరించబడింది",
         "helperArrived": "హెల్పర్ చేరుకున్నారు",
         "taskInProgress": "పని జరుగుతోంది",
-        "taskCompleted": "పని పూర్తయింది"
+        "taskCompleted": "పని పూర్తయింది",
+        "helperAssigned": "హెల్పర్ కేటాయించబడ్డారు"
       },
       "deliveryLabels": {
         "orderPlaced": "ఆర్డర్ చేయబడింది",
@@ -398,7 +400,12 @@
       "darkMode": "డార్క్ మోడ్",
       "signOutOfAllDevicesButton": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయండి",
       "signOut": "సైన్ అవుట్ చేయండి",
-      "memberSince": "సభ్యుడిగా చేరిన సంవత్సరం"
+      "memberSince": "సభ్యుడిగా చేరిన సంవత్సరం",
+      "profilePhoto": "ప్రొఫైల్ ఫోటో",
+      "changePhoto": "ఫోటో మార్చండి",
+      "uploadPhoto": "ఫోటో అప్‌లోడ్ చేయండి",
+      "removePhoto": "ఫోటో తీసివేయండి",
+      "failedToRemovePhoto": "ఫోటో తీసివేయడం విఫలమైంది"
     },
     "food": {
       "orderFallback": {
@@ -532,7 +539,10 @@
       "closedToday": "ఈరోజు మూసివేయబడింది",
       "clearCart": "కార్ట్‌ను ఖాళీ చేయాలా?",
       "clearCartAction": "కార్ట్‌ను ఖాళీ చేయండి",
-      "thisRemovesEveryItemFromVar": "ఇది {{value}} నుండి ప్రతి వస్తువును తీసివేస్తుంది."
+      "thisRemovesEveryItemFromVar": "ఇది {{value}} నుండి ప్రతి వస్తువును తీసివేస్తుంది.",
+      "thisLinkIsntAvailable": "ఈ లింక్ అందుబాటులో లేదు",
+      "theOutletItPointsToMayHaveClosed": "ఇది సూచించే అవుట్‌లెట్ మూసివేయబడి ఉండవచ్చు లేదా మారి ఉండవచ్చు.",
+      "goToHome": "హోమ్‌కు వెళ్ళండి"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} మీ అసలు చెల్లింపు విధానానికి తిరిగి ఇవ్వబడింది · {{date}}",
@@ -569,14 +579,19 @@
       "activeNow": "ప్రస్తుతం యాక్టివ్‌గా ఉంది",
       "trackOrder": "ఆర్డర్‌ను ట్రాక్ చేయండి",
       "cantReorder": "మళ్లీ ఆర్డర్ చేయడం సాధ్యం కాలేదు",
-      "weCouldntFindTheItemsFrom": "ఈ ఆర్డర్ నుండి వస్తువులు కనుగొనబడలేదు. దయచేసి వాటిని మెనూ నుండి జోడించండి."
+      "weCouldntFindTheItemsFrom": "ఈ ఆర్డర్ నుండి వస్తువులు కనుగొనబడలేదు. దయచేసి వాటిని మెనూ నుండి జోడించండి.",
+      "details": "వివరాలు",
+      "noOrdersInThisFilter": "ఈ ఫిల్టర్‌లో ఆర్డర్‌లు లేవు",
+      "ordersInTotalPickAll_one": "మీకు మొత్తం {{count}} ఆర్డర్ ఉంది — చూడటానికి “అన్నీ” ఎంచుకోండి.",
+      "ordersInTotalPickAll_other": "మీకు మొత్తం {{count}} ఆర్డర్‌లు ఉన్నాయి — చూడటానికి “అన్నీ” ఎంచుకోండి."
     },
     "helperTask": {
       "title": {
         "compose": "హెల్పర్‌ను నియమించండి",
         "bidding": "మీ ఆఫర్",
         "searching": "హెల్పర్‌ను వెతుకుతోంది",
-        "assigned": "పని కేటాయించబడింది"
+        "assigned": "పని కేటాయించబడింది",
+        "noHelpersYet": "ఇంకా హెల్పర్లు లేరు"
       }
     },
     "LocationPickerSheet": {
@@ -814,7 +829,16 @@
       "failedToDeleteAddress": "చిరునామాను తొలగించడంలో విఫలమైంది",
       "pleaseEnableLocationServicesToUse": "ప్రస్తుత లొకేషన్‌ను ఉపయోగించడానికి దయచేసి లొకేషన్ సేవలను ప్రారంభించండి.",
       "currentLocationFallback": "ప్రస్తుత లొకేషన్",
-      "failedToDetermineCurrentLocation": "ప్రస్తుత లొకేషన్‌ను నిర్ధారించడంలో విఫలమైంది."
+      "failedToDetermineCurrentLocation": "ప్రస్తుత లొకేషన్‌ను నిర్ధారించడంలో విఫలమైంది.",
+      "failedToCreateTask": "పనిని సృష్టించలేకపోయాము",
+      "offersGoOutOneAtATime": "ఆఫర్‌లు ఒక్కొక్కటిగా పంపబడతాయి, ఒక్కోటి సుమారు 15 సెకన్లు.",
+      "noHelpersTookThisTask": "ఈ పనిని ఏ హెల్పర్ తీసుకోలేదు",
+      "offeredToHelpers_one": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌కు ఆఫర్ చేశాము. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
+      "offeredToHelpers_other": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌లకు ఆఫర్ చేశాము. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
+      "offeredToHelpersSomePassed_one": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌కు ఆఫర్ చేశాము, {{passed}} మంది తిరస్కరించారు. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
+      "offeredToHelpersSomePassed_other": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌లకు ఆఫర్ చేశాము, {{passed}} మంది తిరస్కరించారు. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
+      "nobodyOnShiftNearYou": "ప్రస్తుతం మీ దగ్గర ఎవరూ డ్యూటీలో లేరు. ఆఫర్ పెంచడం లేదా కాసేపట్లో మళ్లీ ప్రయత్నించడం సాధారణంగా సహాయపడుతుంది.",
+      "raising": "పెంచుతున్నాం…"
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",
@@ -965,7 +989,14 @@
       "couldNotFetchCurrentLocation": "ప్రస్తుత స్థానాన్ని పొందడం సాధ్యం కాలేదు.",
       "bookingFailed": "బుకింగ్ విఫలమైంది",
       "rideRequest": "రైడ్ అభ్యర్థన",
-      "varIsOnTheWay": "{{value}} దారిలో ఉన్నారు!"
+      "varIsOnTheWay": "{{value}} దారిలో ఉన్నారు!",
+      "yourTrip": "మీ ప్రయాణం",
+      "stopNumber": "స్టాప్ {{number}}",
+      "clearPickupAddress": "పికప్ చిరునామాను క్లియర్ చేయండి",
+      "clearDropAddress": "డ్రాప్ చిరునామాను క్లియర్ చేయండి",
+      "newDriverRating": "కొత్త",
+      "completionPin": "పూర్తి పిన్",
+      "giveThisToYourHelperOnceWorkIsFinished": "పని పూర్తయిన తర్వాత మాత్రమే దీన్ని మీ హెల్పర్‌కు ఇవ్వండి."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -1039,7 +1070,15 @@
       "paySecurely": "సురక్షితంగా చెల్లించండి"
     },
     "personaldetails": {
-      "couldntSave": "సేవ్ చేయలేకపోయాము"
+      "couldntSave": "సేవ్ చేయలేకపోయాము",
+      "fullNameRequired": "పూర్తి పేరు తప్పనిసరి.",
+      "useAtLeast3Characters": "కనీసం 3 అక్షరాలు ఉపయోగించండి.",
+      "keepItUnder50Characters": "50 అక్షరాల లోపు ఉంచండి.",
+      "nameAllowedCharacters": "అక్షరాలు, ఖాళీలు, అపాస్ట్రఫీలు మరియు హైఫన్‌లు మాత్రమే.",
+      "keepItUnder20Characters": "20 అక్షరాల లోపు ఉంచండి.",
+      "usernameAllowedCharacters": "అక్షరంతో ప్రారంభించండి; అక్షరాలు, అంకెలు, . మరియు _ మాత్రమే.",
+      "emailRequired": "ఈమెయిల్ తప్పనిసరి.",
+      "enterAValidEmailAddress": "సరైన ఈమెయిల్ చిరునామా నమోదు చేయండి, ఉదా. you@example.com."
     },
     "rideconfirmation": {
       "backToHome": "హోమ్‌కు తిరిగి వెళ్లండి"
@@ -1068,6 +1107,30 @@
       "meatCentersNearYou": "మీ సమీపంలోని మీట్ సెంటర్‌లు",
       "openNowCutFreshOnOrder": "ఇప్పుడు తెరిచి ఉంది · ఆర్డర్‌పై తాజాగా కోస్తారు",
       "searchCentersOrMeatType": "సెంటర్‌లు లేదా మీట్ రకం కోసం శోధించండి"
+    },
+    "activeOrderStripe": {
+      "rideInProgress": "రైడ్ కొనసాగుతోంది",
+      "taskInProgress": "పని జరుగుతోంది",
+      "orderInProgress": "ఆర్డర్ కొనసాగుతోంది",
+      "track": "ట్రాక్ చేయండి",
+      "status": {
+        "findingAMatch": "సరిపోలే వారిని వెతుకుతున్నాం",
+        "confirmedOnTheWay": "నిర్ధారించబడింది — దారిలో ఉన్నారు",
+        "headingToPickup": "పికప్ వైపు వెళ్తున్నారు",
+        "arrivedAtPickup": "పికప్ వద్దకు చేరుకున్నారు",
+        "preparingYourOrder": "మీ ఆర్డర్ సిద్ధమవుతోంది",
+        "inProgress": "కొనసాగుతోంది",
+        "arrived": "చేరుకున్నారు"
+      }
+    },
+    "shareLink": {
+      "cantShareRightNow": "ఇప్పుడు షేర్ చేయలేము",
+      "sharingIsntConfigured": "ఈ బిల్డ్‌కు షేరింగ్ ఇంకా సెటప్ చేయబడలేదు.",
+      "couldntShare": "షేర్ చేయలేకపోయాము",
+      "shareSheetDidntOpen": "షేర్ షీట్ తెరవలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+      "thisDish": "ఈ వంటకం",
+      "checkOutItemAtVendor": "Flavour లో {{name}} వద్ద {{item}} చూడండి! {{url}}",
+      "checkOutVendor": "Flavour లో {{name}} చూడండి! {{url}}"
     }
   }
 }

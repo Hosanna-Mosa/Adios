@@ -5,10 +5,7 @@ import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from "react-native-maps";
 import { Colors } from "@/constants/colors";
 import { styles } from "../active-order.styles";
 import { decodePolyline } from "../utils/polyline";
-import { AppImage } from "@/components/ui/AppImage";
 import { Box } from "@/components/ui/Box";
-
-const VEHICLE_BIKE_3D = require("@/assets/images/scooter_blue_top_view_2.png");
 
 interface Point {
   lat?: number | string | null;
@@ -67,6 +64,11 @@ export function ActiveOrderMap({
           </Marker>
         ) : null}
 
+        {/* Driver's own location — was rendered with the same top-view vehicle
+            image customers see on the driver, which reads as "there's a bike
+            here" rather than "this is you, facing this way". Google Maps'
+            own convention (a heading-oriented arrow) is what a driver expects
+            of their own live position, so this marker uses that instead. */}
         {hasCoords(driverLocation) ? (
           <Marker
             coordinate={{ latitude: Number(driverLocation!.lat), longitude: Number(driverLocation!.lng) }}
@@ -74,7 +76,9 @@ export function ActiveOrderMap({
             flat={true}
             rotation={driverHeading || 0}
           >
-            <AppImage source={VEHICLE_BIKE_3D} style={styles.driverMarkerImage} resizeMode="contain" />
+            <Box style={styles.navArrowMarker}>
+              <Ionicons name="navigate" size={20} color="#fff" />
+            </Box>
           </Marker>
         ) : null}
 

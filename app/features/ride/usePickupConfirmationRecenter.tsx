@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { formatGeocodeAddress } from "./usePickupConfirmation.shared";
 import i18n from "@/i18n";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of usePickupConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -45,7 +45,7 @@ export function usePickupConfirmationRecenter(mapRef: any, params: any, confirme
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(i18n.t("app.ride.permissionDenied"), i18n.t("app.delivery.locationPermissionIsRequired"));
+        showAlert(i18n.t("app.ride.permissionDenied"), i18n.t("app.delivery.locationPermissionIsRequired"));
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -78,7 +78,7 @@ export function usePickupConfirmationRecenter(mapRef: any, params: any, confirme
         500,
       );
     } catch {
-      Alert.alert(i18n.t("app.profile.errorTitle"), i18n.t("app.ride.couldNotFetchCurrentLocation"));
+      showAlert(i18n.t("app.profile.errorTitle"), i18n.t("app.ride.couldNotFetchCurrentLocation"));
     }
   };
 

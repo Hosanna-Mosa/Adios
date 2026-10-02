@@ -1,8 +1,8 @@
 import React from "react";
-import { Alert } from "react-native";
 import { normalizeServiceType, parseFare } from "./useRideSearching.shared";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useRideSearching so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -64,7 +64,7 @@ export function useRideSearchingFare(setCurrentOrderId: any, setGlobalServiceTyp
         }
       } catch (error: any) {
         console.error("Create ride order error:", error);
-        Alert.alert(i18n.t("app.ride.rideRequest"), error?.message || "Could not request this ride.");
+        showAlert(i18n.t("app.ride.rideRequest"), error?.message || "Could not request this ride.");
       }
     };
 

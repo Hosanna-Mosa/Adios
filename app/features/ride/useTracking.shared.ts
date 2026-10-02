@@ -32,6 +32,11 @@ export function normalizeStatus(backendStatus: string): OrderStatus {
       return "picking_items";
     case "en_route_delivery":
     case "in_transit":
+    // A helper task has no pickup/drop legs; IN_PROGRESS is its "work underway"
+    // status (see OrderStatus in the backend's Order model) and maps to the same
+    // slot. Unmapped, it hit the default below and knocked the timeline back to
+    // "confirmed" the moment the helper started.
+    case "in_progress":
       return "en_route_delivery";
     case "arrived_delivery":
       return "arrived_delivery";

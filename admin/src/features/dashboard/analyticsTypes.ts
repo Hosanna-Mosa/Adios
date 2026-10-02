@@ -3,11 +3,6 @@ export interface VelocityDatum {
   orders: number;
 }
 
-export interface HeatmapCell {
-  id: number;
-  intensity: number;
-}
-
 export interface Anomaly {
   id: string;
   status: string;
@@ -17,8 +12,17 @@ export interface Anomaly {
   activity: string;
 }
 
+export interface AnalyticsSummary {
+  totalOrders?: number;
+  completedOrders?: number;
+  netRevenue?: number;
+  avgDeliveryMinutes?: number | null;
+  activeDrivers?: number;
+}
+
 export interface AnalyticsData {
   velocityData?: VelocityDatum[];
-  heatmapData?: HeatmapCell[];
+  summary?: AnalyticsSummary;
   anomalies?: Anomaly[];
+  rangeDays?: number;
 }

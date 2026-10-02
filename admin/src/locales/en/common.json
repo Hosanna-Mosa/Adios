@@ -51,7 +51,8 @@
     "passwordMustBeAtLeast6Characters": "Password must be at least 6 characters",
     "passwordResetSuccessBang": "Password reset successfully!",
     "failedToResetPassword": "Failed to reset password",
-    "pleaseEnterValid6DigitOtp": "Please enter a valid 6-digit OTP"
+    "pleaseEnterValid6DigitOtp": "Please enter a valid 6-digit OTP",
+    "otpSentIfAccountExists": "If an account exists for this email, an OTP has been sent."
   },
   "vendorDashboard": {
     "welcomeName": "Welcome, {{name}}",
@@ -233,8 +234,8 @@
     "users": "Users",
     "vendors": "Vendors",
     "restaurantMenu": "Restaurant Menu",
-    "meatCenters": "Meal Centers",
-    "meatPricing": "Meal Pricing",
+    "meatCenters": "Meat Centers",
+    "meatPricing": "Meat Pricing",
     "zones": "Zones",
     "payments": "Payments",
     "analytics": "Analytics",
@@ -256,7 +257,8 @@
     "hoursAgo": "{{count}}h ago",
     "notifications": "Notifications",
     "markAllRead": "Mark all read",
-    "nothingHereYet": "Nothing here yet."
+    "nothingHereYet": "Nothing here yet.",
+    "daysAgo": "{{count}}d ago"
   },
   "pagination": {
     "showingXOfY": "Showing {{shown}} of {{total}} {{item}}",
@@ -365,7 +367,17 @@
     "last4WeeksVsTarget": "Last 4 weeks vs Target",
     "weekly": "WEEKLY",
     "daily": "DAILY",
-    "exportReport": "Export Report"
+    "exportReport": "Export Report",
+    "loadingActivity": "Loading activity…",
+    "noActivityYet": "No activity recorded yet.",
+    "filterByPriorityColon": "Filter by Priority:",
+    "allPriorities": "All Priorities",
+    "expressOnly": "Express Only",
+    "awaitingAssignment": "Awaiting assignment",
+    "noActiveManifests": "No active manifests right now.",
+    "noManifestsMatchFilter": "No manifests match this filter.",
+    "orderCancelledId": "Order {{id}} cancelled.",
+    "couldNotCancelOrder": "Could not cancel this order."
   },
   "analytics": {
     "searchLogisticsMetrics": "Search logistics metrics...",
@@ -404,7 +416,15 @@
     "activity": "Activity",
     "noOlderAnomalies": "No older logistical anomalies or alerts detected.",
     "viewAllInsights": "View All Insights",
-    "capacityPercent": "98% cap."
+    "capacityPercent": "98% cap.",
+    "last12Months": "Last 12 Months",
+    "dateRange": "Date range",
+    "range": "Range",
+    "nCompleted": "{{count}} completed",
+    "onlineNow": "Online now",
+    "notAvailable": "n/a",
+    "stalledOrdersDesc": "Active orders that have not progressed for over 40 minutes.",
+    "noStalledOrders": "No stalled orders right now."
   },
   "users": {
     "searchByNameEmailOrId": "Search users by name, email, or ID...",
@@ -497,7 +517,12 @@
     "userHasBeenStatus": "User has been {{status}}",
     "failedToUpdateBlockStatus": "Failed to update block status",
     "userAccountDeletedSuccessfully": "User account deleted successfully",
-    "confirmPermanentlyDeleteUser": "WARNING: This will permanently delete this user and their associated records. Are you sure?"
+    "confirmPermanentlyDeleteUser": "WARNING: This will permanently delete this user and their associated records. Are you sure?",
+    "totalSpent": "Total Spent",
+    "avgOrder": "Avg Order",
+    "completedStat": "Completed",
+    "cancelledStat": "Cancelled",
+    "lastOrder": "Last Order"
   },
   "drivers": {
     "searchDriversVehicleIdsRegions": "Search drivers, vehicle IDs, or regions...",
@@ -677,7 +702,34 @@
     "driverConfigurationUpdatedSuccessfully": "Driver configuration updated successfully!",
     "failedToUpdateDriverSettings": "Failed to update driver settings",
     "pleaseEnterValidLatLng": "Please enter valid latitude and longitude numbers.",
-    "noTripLogsRecorded": "No trip logs recorded for this driver account."
+    "noTripLogsRecorded": "No trip logs recorded for this driver account.",
+    "onDutyNow": "{{count}} on duty now",
+    "acrossNRatedDrivers": "across {{count}} rated drivers",
+    "noRatingsYet": "No ratings yet",
+    "nOrdersToday": "{{count}} orders today",
+    "xOfYOnDuty": "{{online}} of {{total}} on duty",
+    "lastReportedPosition": "Last reported position",
+    "noLocationReported": "No location reported",
+    "noLocationReportedForDriver": "No location has been reported for this driver yet",
+    "noVehicleNumber": "No vehicle number",
+    "nTripsThisMonth": "{{count}} trips this month",
+    "driverApprovedBanner": "This driver has been approved.",
+    "driverRejectedBanner": "This driver's application was rejected.",
+    "zoneMetrics": "Zone Metrics",
+    "zoneMetricsDesc": "Coverage and demand per operational zone.",
+    "noZonesConfiguredYet": "No zones configured yet.",
+    "zoneCol": "Zone",
+    "typeCol": "Type",
+    "statusCol": "Status",
+    "surgeCol": "Surge",
+    "driversCol": "Drivers",
+    "onDutyCol": "On Duty",
+    "ordersCol": "Orders",
+    "completedCol": "Completed",
+    "cancelledCol": "Cancelled",
+    "revenueCol": "Revenue",
+    "zoneActive": "Active",
+    "zoneInactive": "Inactive"
   },
   "orders": {
     "accept": "Accept",
@@ -1099,7 +1151,14 @@
     "weightColon": "Weight: {{value}}",
     "withoutScheduleCentreOpenDesc": "Without a schedule this centre is treated as open around the clock.",
     "withoutScheduleOpenAroundClockDesc": "Without a schedule this restaurant is treated as open around the clock.",
-    "yes": "Yes"
+    "yes": "Yes",
+    "status": "Status",
+    "noVendorsFound": "No vendors found.",
+    "anyRating": "Any Rating",
+    "ratingAndAbove": "{{rating}} & above",
+    "clear": "Clear",
+    "showingXOfYRestaurants": "Showing {{shown}} of {{total}} restaurants",
+    "noRestaurantsMatchFilters": "No restaurants match these filters."
   },
   "zones": {
     "activateImmediately": "Activate immediately",
@@ -1206,7 +1265,24 @@
     "zoneName": "Zone Name",
     "zoneNameRequired": "Zone name is required",
     "zoneNotesDescription": "Zone Notes / Description",
-    "zoneUpdatedSuccessfully": "Zone updated successfully"
+    "zoneUpdatedSuccessfully": "Zone updated successfully",
+    "editZone": "Edit Zone",
+    "typeZone": "{{type}} zone",
+    "description": "Description",
+    "surgeMultiplier": "Surge Multiplier",
+    "radiusMetres": "Radius (metres)",
+    "zoneIsActive": "Zone is active",
+    "boundaryNotEditableDesc": "The boundary of this zone is drawn on the map and is not editable from here.",
+    "saveChanges": "Save Changes",
+    "active": "Active",
+    "inactive": "Inactive",
+    "typeLabel": "Type",
+    "surge": "Surge",
+    "radius": "Radius",
+    "centre": "Centre",
+    "boundary": "Boundary",
+    "nPoints": "{{count}} points",
+    "editThisZone": "Edit this zone"
   },
   "support": {
     "activeChats": "Active Chats",
@@ -1281,7 +1357,10 @@
     "typeYourResponseTo": "Type your response to {{name}}...",
     "userColon": "User: {{name}}",
     "userShort": "USER",
-    "viewChat": "View Chat"
+    "viewChat": "View Chat",
+    "replyToName": "Reply to {{name}}",
+    "send": "Send",
+    "typeResponsePressEnter": "Type your response, then press Enter to send..."
   },
   "system": {
     "appStoreUrl": "App Store URL",

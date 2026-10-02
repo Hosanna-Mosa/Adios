@@ -1,5 +1,5 @@
 import React from "react";
-import { staggerListItem, modalSlideUp } from "@/motion/presets";
+import { modalSlideUp } from "@/motion/presets";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -41,18 +41,25 @@ export function TripChooserSheet({
   placeOrder,
   selectedFare,
   selectedTier,
-  setSelectedTier,
   setShowDatePicker,
   styles,
   tierFares,
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  // The vehicle (Bike / Auto) is already chosen on the "All services" screen
+  // before the customer ever gets here, via serviceId in the route params â€”
+  // see useRideConfirmationInsets. This used to re-present both tiers as a
+  // switchable list, making the customer choose a second time. Now it just
+  // shows what was already picked; there's nothing to tap here.
+  const tier = ENABLED_TIERS.find((option) => option.id === selectedTier);
+  const fare = tierFares[selectedTier];
+
   return (
     <Animated.View style={styles.sheet} entering={modalSlideUp}>
       <View style={styles.sheetHandle} />
       <View style={styles.sheetHeadRow}>
-        <Text style={styles.sheetTitle}>{t("app.ride.chooseATrip")}</Text>
+        <Text style={styles.sheetTitle}>{t("app.ride.yourTrip")}</Text>
         <TouchableOpacity onPress={handleAddStopFromMap}>
           <Text style={styles.addStopLink}>{t("app.ride.addStop")}</Text>
         </TouchableOpacity>
@@ -60,34 +67,22 @@ export function TripChooserSheet({
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20 }} showsVerticalScrollIndicator={false}>
         <View style={{ gap: 8 }}>
-          {ENABLED_TIERS.map((tier, i) => {
-            const isSelected = selectedTier === tier.id;
-            const fare = tierFares[tier.id];
-            return (
-              <Animated.View key={tier.id} entering={staggerListItem(i)}>
-                <TouchableOpacity
-                  style={[styles.tierRow, isSelected && styles.tierRowSelected]}
-                  onPress={() => setSelectedTier(tier.id)}
-                  activeOpacity={0.85}
-                >
-                  <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{tier.icon}</Text></View>
-                  <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text style={styles.tierName}>{tier.name}</Text>
-                    <Text style={styles.tierMeta}>
-                      {tier.capacity}{fare ? ` · ${fare.estimatedMinutes} min away` : ""}
-                    </Text>
-                  </View>
-                  <View style={{ alignItems: "flex-end" }}>
-                    {loadingFares && !fare ? (
-                      <ActivityIndicator size="small" color={accent.accent} />
-                    ) : (
-                      <Text style={styles.tierPrice}>{fare ? `₹${Math.round(fare.fareBreakdown.total)}` : "—"}</Text>
-                    )}
-                  </View>
-                </TouchableOpacity>
-              </Animated.View>
-            );
-          })}
+          <View style={[styles.tierRow, styles.tierRowSelected]}>
+            <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{tier?.icon}</Text></View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.tierName}>{tier?.name}</Text>
+              <Text style={styles.tierMeta}>
+                {tier?.capacity}{fare ? ` · ${fare.estimatedMinutes} min away` : ""}
+              </Text>
+            </View>
+            <View style={{ alignItems: "flex-end" }}>
+              {loadingFares && !fare ? (
+                <ActivityIndicator size="small" color={accent.accent} />
+              ) : (
+                <Text style={styles.tierPrice}>{fare ? `₹${Math.round(fare.fareBreakdown.total)}` : "—"}</Text>
+              )}
+            </View>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.scheduleRow} onPress={() => setShowDatePicker(true)} activeOpacity={0.85}>
@@ -113,7 +108,7 @@ export function TripChooserSheet({
             <ActivityIndicator size="small" color={accent.on} />
           ) : (
             <>
-              <Text style={styles.bookBtnText}>{t("app.ride.book")} {ENABLED_TIERS.find((tier) => tier.id === selectedTier)?.name}</Text>
+              <Text style={styles.bookBtnText}>{t("app.ride.book")} {tier?.name}</Text>
               {selectedFare && <Text style={styles.bookBtnPrice}>· ₹{Math.round(selectedFare.fareBreakdown.total)}</Text>}
             </>
           )}

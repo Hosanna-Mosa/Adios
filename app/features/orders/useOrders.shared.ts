@@ -1,10 +1,41 @@
 
 
+import { type ServiceKey } from "@/constants/colors";
+
 // Module-level values shared by the parts of useOrders.
 
 export const TERMINAL_STATUSES = ["DELIVERED", "COMPLETED", "CANCELLED", "REJECTED"];
 
 export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
+
+/**
+ * The service filters, as the chips row and the filter sheet both render them.
+ *
+ * One entry per *service the customer recognises*, not per stored serviceType —
+ * the four ride types are one "Ride" filter. Both surfaces used to iterate
+ * SERVICE_META and drop the ride keys outright, which left rides unfilterable
+ * and their orders uncounted.
+ *
+ * `label` is the English fallback; render `t(labelKey)` (the same
+ * app.serviceMeta.* keys SERVICE_META uses).
+ */
+export const SERVICE_CHIPS: { label: string; labelKey: string; accent: ServiceKey; keys: string[] }[] = [
+  { label: "Food", labelKey: "app.serviceMeta.food", accent: "food", keys: ["food"] },
+  { label: "Meat", labelKey: "app.serviceMeta.meat", accent: "meat", keys: ["meat"] },
+  { label: "Ride", labelKey: "app.serviceMeta.ride", accent: "ride", keys: RIDE_TYPES },
+  { label: "Task", labelKey: "app.serviceMeta.task", accent: "task", keys: ["helper"] },
+  { label: "Delivery", labelKey: "app.serviceMeta.delivery", accent: "delivery", keys: ["delivery"] },
+];
+
+/** A chip is on only when every service key behind it is selected. */
+export const isChipActive = (filters: Set<string>, keys: string[]) => keys.every((k) => filters.has(k));
+
+export const toggleChipKeys = (filters: Set<string>, keys: string[]) => {
+  const next = new Set(filters);
+  if (isChipActive(filters, keys)) keys.forEach((k) => next.delete(k));
+  else keys.forEach((k) => next.add(k));
+  return next;
+};
 
 export function isTerminalOrder(order: any): boolean {
   return TERMINAL_STATUSES.includes(String(order?.status || "").toUpperCase());

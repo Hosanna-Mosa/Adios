@@ -27,6 +27,7 @@ export function OrderDetailSheet({
         style={styles.cardScroll}
         contentContainerStyle={[styles.cardScrollContent, { paddingBottom }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {children}
       </ScrollBox>

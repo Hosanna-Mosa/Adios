@@ -1,4 +1,3 @@
-import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { fadeIn } from "@/components/motion/variants";
@@ -7,20 +6,23 @@ import type { Anomaly } from "../analyticsTypes";
 
 interface AnomalyTableProps {
   anomalies: Anomaly[];
+  isLoading?: boolean;
 }
 
 /**
- * The "Real-time Anomaly Detection" table. Hand-rolled rather than the
- * shared DataTable, same reasoning as Dashboard's ActiveManifestsTable
- * (item #15): the original never renders a loading or empty-results row,
- * and DataTable always would if `anomalies` were ever an empty array.
+ * The "Real-time Anomaly Detection" table: active orders that have stalled.
+ * Shows an explicit empty row once loaded with nothing stuck, since there are
+ * no longer invented fallback rows.
  */
-export function AnomalyTable({ anomalies }: AnomalyTableProps) {
+export function AnomalyTable({ anomalies, isLoading = false }: AnomalyTableProps) {
   const { t } = useTranslation();
   return (
     <div className="section-card">
       <div className="flex items-center justify-between p-6 pb-4">
-        <h3 className="text-lg font-semibold text-foreground">{t("analytics.realTimeAnomalyDetection")}</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">{t("analytics.realTimeAnomalyDetection")}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("analytics.stalledOrdersDesc")}</p>
+        </div>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-success animate-pulse-dot" />
           <span className="text-xs font-medium text-primary">{t("analytics.liveFeed")}</span>
@@ -38,6 +40,13 @@ export function AnomalyTable({ anomalies }: AnomalyTableProps) {
         </thead>
         <tbody>
           <AnimatePresence mode="popLayout" initial={false}>
+            {!isLoading && anomalies.length === 0 && (
+              <tr className="border-t border-border">
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-muted-foreground">
+                  {t("analytics.noStalledOrders")}
+                </td>
+              </tr>
+            )}
             {anomalies.map((a) => (
               <motion.tr key={a.id} layout variants={fadeIn} initial="hidden" animate="visible" exit={{ opacity: 0 }} className="border-t border-border hover:bg-muted/30 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-foreground">{a.id}</td>
@@ -57,11 +66,6 @@ export function AnomalyTable({ anomalies }: AnomalyTableProps) {
           </AnimatePresence>
         </tbody>
       </table>
-      <div className="p-4 text-center border-t border-border">
-        <button onClick={() => toast.info(t("analytics.noOlderAnomalies"))} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-          {t("analytics.viewAllInsights")}
-        </button>
-      </div>
     </div>
   );
 }

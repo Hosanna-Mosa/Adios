@@ -14,13 +14,13 @@ export { RIDE_TYPES } from "./useOrders.shared";
 // order is enumerable.
 
 export function useOrders() {
-  const { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered } = useOrdersInsets();
+  const { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered } = useOrdersInsets();
   const { scheduled, active, past, serviceCounts, handleOpenReviewModal, handleSubmitReview, reorderIntoCart } = useOrdersScheduled(orders, setOrders, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, setSubmittingReview, withKey, filtered);
   const { handleReorder } = useOrdersHandleReorder(reorderIntoCart);
   const { openFilterSheet, applyFilters, toggleServiceFilter, pendingCount, isEmpty } = useOrdersOpenFilterSheet(orders, loading, serviceFilters, setServiceFilters, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, withKey);
 
   return {
-  insets, tabBarHeight, tokens, styles, orders, loading, serviceFilters, setServiceFilters,
+  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters,
   showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters,
   reorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating,
   reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, scheduled, active,

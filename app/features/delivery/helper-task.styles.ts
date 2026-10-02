@@ -73,6 +73,16 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     raiseChip: { borderWidth: 1, borderColor: accent.accent, backgroundColor: accent.skin, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 },
     raiseChipText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
 
+    noHelpersWrap: { alignItems: "center", paddingHorizontal: 24, paddingTop: 32, gap: 8 },
+    noHelpersIcon: { width: moderateScale(60), height: moderateScale(60), borderRadius: moderateScale(30), alignItems: "center", justifyContent: "center", marginBottom: 6 },
+    noHelpersTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, color: tokens.text, textAlign: "center" },
+    noHelpersSubtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center" },
+    noHelpersPrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginTop: 14 },
+    noHelpersRaiseRow: { flexDirection: "row", gap: 10, marginTop: 10 },
+    noHelpersRaiseBtn: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 18, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
+    noHelpersRaiseText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
+    noHelpersCancel: { marginTop: 18, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
+    noHelpersCancelText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium },
     cancelBtn: { borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     cancelBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.error },
 

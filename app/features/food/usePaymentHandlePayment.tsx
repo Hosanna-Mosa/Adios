@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of usePayment so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -12,15 +12,15 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
   const { t } = useTranslation();
   const handlePayment = async () => {
     if (!user || !token) {
-      Alert.alert(t("app.food.loginRequired"), t("app.food.pleaseLogInBeforePlacingYour"));
+      showAlert(t("app.food.loginRequired"), t("app.food.pleaseLogInBeforePlacingYour"));
       return;
     }
     if (!vendorId || items.length === 0) {
-      Alert.alert(t("app.food.cartIsEmpty"), t("app.food.pleaseAddItemsBeforePaying"));
+      showAlert(t("app.food.cartIsEmpty"), t("app.food.pleaseAddItemsBeforePaying"));
       return;
     }
     if (!selectedAddress?.addressLine) {
-      Alert.alert(t("app.food.addressRequired"), t("app.food.pleaseSelectADeliveryAddress"));
+      showAlert(t("app.food.addressRequired"), t("app.food.pleaseSelectADeliveryAddress"));
       router.push("/delivery/saved-addresses");
       return;
     }
@@ -84,7 +84,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
     } catch (error: any) {
       console.error("Payment failed", error);
       const described = describePaymentError(error);
-      Alert.alert(described?.title ?? t("app.food.paymentFailed"), described?.message ?? (error?.message || t("app.ride.pleaseTryAgain")));
+      showAlert(described?.title ?? t("app.food.paymentFailed"), described?.message ?? (error?.message || t("app.ride.pleaseTryAgain")));
     } finally {
       setProcessing(false);
     }

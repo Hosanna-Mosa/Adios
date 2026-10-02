@@ -9,13 +9,32 @@ const FOOD_TYPES = ["delivery", "helper"];
 
 const sameId = (a: string, b: any) => a === b || a.toString() === b?.toString();
 
-/** Wires the live order feed once the driver goes online. */
+// Handlers currently attached, so a re-register can detach them first.
+let boundHandlers: Record<string, (data: any) => void> = {};
+
+/** Wires the live order feed once the driver goes online.
+ *
+ * goOnline calls this every time (it also re-joins the dispatch room), but the
+ * listeners must not stack: going offline and back on, or restoring a shift on
+ * launch, used to leave two handlers per event and pop the incoming-order modal
+ * twice for one order. So any handlers from a previous call are detached
+ * first. (A plain "bind once" flag isn't enough here — disconnect() discards
+ * the socket, and a fresh socket would then never get its listeners.) */
 export function registerOrderSocketHandlers(
   socketService: any,
   set: SetDriverState,
   get: GetDriverState,
 ) {
-  socketService.on("new_order", (data: any) => {
+  for (const [event, handler] of Object.entries(boundHandlers)) {
+    socketService.off(event, handler);
+  }
+  boundHandlers = {};
+  const on = (event: string, handler: (data: any) => void) => {
+    boundHandlers[event] = handler;
+    socketService.on(event, handler);
+  };
+
+  on("new_order", (data: any) => {
     console.log("New order received:", data);
     const serviceType = data.serviceType?.toLowerCase();
     const activeServices = get().activeServices || [];
@@ -40,7 +59,7 @@ export function registerOrderSocketHandlers(
     }
   });
 
-  socketService.on("order_offer_expired", (data: any) => {
+  on("order_offer_expired", (data: any) => {
     console.log("Order offer expired for current driver:", data);
     const orderId = data.orderId || data.id;
     const incoming = get().incomingOrder;
@@ -49,7 +68,7 @@ export function registerOrderSocketHandlers(
     }
   });
 
-  socketService.on("order_cancelled", (data: any) => {
+  on("order_cancelled", (data: any) => {
     console.log("Order cancelled received:", data);
     const orderId = data.orderId || data.id;
     if (!orderId) return;
@@ -68,7 +87,7 @@ export function registerOrderSocketHandlers(
     }
   });
 
-  socketService.on("upcoming_reserved_ride", (data: any) => {
+  on("upcoming_reserved_ride", (data: any) => {
     console.log("Upcoming reserved ride alert received:", data);
     Alert.alert(
       i18n.t("jobs.upcomingReservedRide"),

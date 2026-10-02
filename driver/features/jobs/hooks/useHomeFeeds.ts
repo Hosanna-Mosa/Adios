@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import type { Hotspot } from "../components/HighDemandAreas";
-import { getFallbackHotspots } from "../fallbackHotspots";
 
 /** The three background feeds behind the home screen: high-demand hotspots,
  * scheduled rides and driver ads. Each refreshes on its own interval.
@@ -74,8 +73,14 @@ export function useHomeFeeds({
   }, [token, fetchEarnings]);
 
   const loadHighDemandAreas = useCallback(async () => {
+    // Previously fell back to a hardcoded list of Bengaluru landmarks (KR Market,
+    // Kempegowda Airport, Orion Mall) whenever there was no token, the request
+    // failed, or the backend legitimately had no active demand — so drivers were
+    // shown fake "surge" areas indistinguishable from real ones. The backend
+    // endpoint below already computes this from real, recent order activity, so
+    // on any non-success case we now just show the (real) empty state instead.
     if (!apiUrl || !token) {
-      setHotspots(getFallbackHotspots());
+      setHotspots([]);
       return;
     }
 
@@ -90,14 +95,10 @@ export function useHomeFeeds({
       if (!response.ok) throw new Error("Failed to load high demand areas");
 
       const areas = await response.json();
-      if (Array.isArray(areas) && areas.length > 0) {
-        setHotspots(areas);
-      } else {
-        setHotspots(getFallbackHotspots());
-      }
+      setHotspots(Array.isArray(areas) ? areas : []);
     } catch (error) {
       console.warn("High demand area fetch failed:", error);
-      setHotspots(getFallbackHotspots());
+      setHotspots([]);
     } finally {
       setIsLoadingHotspots(false);
     }

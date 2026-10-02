@@ -10,7 +10,7 @@ import { OrdersSheets } from "@/features/orders/components/OrdersSheets";
 
 export default function OrdersScreen() {
   const {
-  insets, tabBarHeight, tokens, styles, orders, loading, serviceFilters, setServiceFilters,
+  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters,
   showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters,
   reorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating,
   reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, scheduled, active,
@@ -59,6 +59,8 @@ export default function OrdersScreen() {
         styles={styles}
         orders={orders}
         loading={loading}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
         serviceFilters={serviceFilters}
         setServiceFilters={setServiceFilters}
         reorderingId={reorderingId}

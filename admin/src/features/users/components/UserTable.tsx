@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Eye, Ban, Mail, Trash2, Phone } from "lucide-react";
+import { Eye, Ban, Mail, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import type { AdminUser } from "../types";
@@ -82,9 +82,6 @@ export function UserTable({ data, isLoading, onBan, onDelete }: UserTableProps) 
           <Link to={`/users/${u._id}`} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.viewDetails")}>
             <Eye className="h-4 w-4" />
           </Link>
-          <button onClick={() => toast.success(t("users.initiatingCallWith", { name: u.name, phone: u.phone, defaultValue: "Initiating call with user {{name}} at {{phone}}..." }))} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.callUser")}>
-            <Phone className="h-4 w-4" />
-          </button>
           <button onClick={() => toast.info(t("users.draftingEmailTo", { contact: u.email || u.phone, defaultValue: "Drafting email to {{contact}}..." }))} className="p-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors" title={t("users.messageUser")}>
             <Mail className="h-4 w-4" />
           </button>

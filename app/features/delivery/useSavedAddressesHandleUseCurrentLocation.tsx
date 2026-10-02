@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import * as Location from "expo-location";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useSavedAddresses so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -16,7 +16,7 @@ export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setS
       setCurrentLocLoading(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToUse"));
+        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToUse"));
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -26,7 +26,7 @@ export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setS
         : t("app.delivery.currentLocationFallback");
       router.push({ pathname: "/delivery/add-address", params: { step: "2", addressLine, lat: String(loc.coords.latitude), lng: String(loc.coords.longitude) } });
     } catch (err: any) {
-      Alert.alert(t("actions.error"), err.message || t("app.delivery.failedToDetermineCurrentLocation"));
+      showAlert(t("actions.error"), err.message || t("app.delivery.failedToDetermineCurrentLocation"));
     } finally {
       setCurrentLocLoading(false);
     }

@@ -42,19 +42,19 @@ export const gradients: {
   dark: Record<"brand" | "food" | "meat" | "ride" | "task" | "delivery", [string, string]>;
 } = {
   light: {
-    brand: ["#4F3CF2", "#7C63F5"],
+    brand: ["#E8720C", "#F3924A"],
     food: ["#E8720C", "#F3924A"],
     meat: ["#C13566", "#D65F8A"],
-    ride: ["#0A7EA8", "#3AA7CE"],
-    task: ["#6C4FE0", "#9078EE"],
+    ride: ["#E8720C", "#F3924A"],
+    task: ["#E8720C", "#F3924A"],
     delivery: ["#5B8A1E", "#82AE49"],
   },
   dark: {
-    brand: ["#8B7FFF", "#B0A6FF"],
+    brand: ["#FF9A4D", "#FFB878"],
     food: ["#FF9A4D", "#FFB878"],
     meat: ["#F589AC", "#FAAAC6"],
-    ride: ["#4FC7EC", "#82D9F3"],
-    task: ["#B7A6FF", "#D0C4FF"],
+    ride: ["#FF9A4D", "#FFB878"],
+    task: ["#FF9A4D", "#FFB878"],
     delivery: ["#A6D65C", "#C1E58A"],
   },
 };

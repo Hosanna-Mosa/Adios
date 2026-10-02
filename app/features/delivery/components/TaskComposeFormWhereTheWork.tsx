@@ -14,7 +14,6 @@ import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  TASK_TYPES: any[];
   accent: ServiceTokens;
   activeField: any;
   calculatedFare: number;
@@ -37,37 +36,19 @@ interface Props {
   setCustomMinutes: React.Dispatch<React.SetStateAction<number>>;
   setDescription: React.Dispatch<React.SetStateAction<any>>;
   setDurationMode: React.Dispatch<React.SetStateAction<any>>;
-  setTaskType: React.Dispatch<React.SetStateAction<any>>;
   styles: HelperTaskStyles;
   suggestedHigh: any;
   suggestedLow: any;
-  taskType: any;
   tokens: ThemeTokens;
 }
 
 export function TaskComposeFormWhereTheWork(props: Props) {
-  const { TASK_TYPES, accent, calculatedFare, goToBidding, insets, isProceedDisabled, offer, setTaskType, styles, suggestedHigh, suggestedLow, taskType } = props;
+  const { calculatedFare, goToBidding, insets, isProceedDisabled, styles, suggestedHigh, suggestedLow } = props;
   const { t } = useTranslation();
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }} keyboardShouldPersistTaps="handled">
       <Animated.Text style={styles.headline} entering={fadeInUp(0)}>{t("app.delivery.whatDoYouNeed")}</Animated.Text>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
-        {TASK_TYPES.map((type, i) => {
-          const isSelected = taskType === type;
-          return (
-            <Animated.View key={type} entering={staggerListItem(i, 30)}>
-              <TouchableOpacity
-                style={[styles.typeChip, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}
-                onPress={() => setTaskType(isSelected ? null : type)}
-              >
-                <Text style={[styles.typeChipText, isSelected && { color: accent.on }]}>{type}</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
-      </ScrollView>
 
       <TaskComposeFormWhereTheWorkWhereTheWork {...props} />
 

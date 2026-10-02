@@ -6,18 +6,23 @@ import type { VelocityDatum } from "../analyticsTypes";
 interface OrdersVelocityChartProps {
   isLoading: boolean;
   velocityData: VelocityDatum[];
+  rangeLabel: string;
 }
 
-/** The "Orders Velocity" area chart panel. */
-export function OrdersVelocityChart({ isLoading, velocityData }: OrdersVelocityChartProps) {
+/**
+ * The "Orders Velocity" area chart panel. Spans the full row: the Revenue
+ * Stream card that sat beside it was a fake W1-W4 toggle with a hardcoded
+ * growth figure, and was removed.
+ */
+export function OrdersVelocityChart({ isLoading, velocityData, rangeLabel }: OrdersVelocityChartProps) {
   const { t } = useTranslation();
   return (
-    <FadeIn className="col-span-2 section-card p-6">
+    <FadeIn className="col-span-3 section-card p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">{t("analytics.ordersVelocity")}</h3>
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-success" />
-          <span className="text-xs text-muted-foreground">{t("analytics.last7Days")}</span>
+          <span className="text-xs text-muted-foreground">{rangeLabel}</span>
         </div>
       </div>
       {isLoading ? (

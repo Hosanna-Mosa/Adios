@@ -1,9 +1,10 @@
 import { useRef, useState } from "react";
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { MapBackgroundRef } from "@/components/MapBackground";
 import { raiseSos } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
+import { useToast } from "@/components/ui/Toast";
 
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -22,20 +23,23 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
   const mapRef = useRef<MapBackgroundRef>(null);
 
   const cancellationAlerted = useRef(false);
+  const { show: showToast } = useToast();
 
   const handleOrderCancelledByDriver = () => {
     if (cancellationAlerted.current) return;
     cancellationAlerted.current = true;
     resetDelivery();
     router.replace("/(tabs)");
-    setTimeout(() => {
-      Alert.alert(t("app.ride.orderCancelled"), t("app.ride.wereSorryThisOrderCouldNot"), [{ text: t("app.ride.ok"), onPress: () => {} }], { cancelable: true });
-    }, 500);
+    // A toast, not a blocking dialog: landing on Home to a modal you have to tap
+    // "OK" on before doing anything else read as a lot of ceremony for a passive
+    // notice with nothing to confirm. This surfaces the same instant, over the
+    // home screen, and clears itself.
+    showToast(t("app.ride.wereSorryThisOrderCouldNot"), "error");
   };
 
   const handleSOS = () => {
     if (!currentOrderId) return;
-    Alert.alert(
+    showAlert(
       t("app.ride.emergencySos"),
       t("app.ride.thisWillInstantlyAlertOurSupport"),
       [
@@ -46,9 +50,9 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
           onPress: async () => {
             try {
               await raiseSos(currentOrderId);
-              Alert.alert(t("app.ride.sosDispatched"), t("app.ride.yourEmergencyAlertHasBeenSent"));
+              showAlert(t("app.ride.sosDispatched"), t("app.ride.yourEmergencyAlertHasBeenSent"));
             } catch (err: any) {
-              Alert.alert(t("actions.error"), err.message || t("app.ride.failedToTriggerSos"));
+              showAlert(t("actions.error"), err.message || t("app.ride.failedToTriggerSos"));
             }
           },
         },

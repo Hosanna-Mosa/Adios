@@ -7,8 +7,7 @@ import { OrderChatDialog } from "@/components/shared/OrderChatDialog";
 import { useUserDetail } from "@/features/users/hooks/useUserDetail";
 import { UserDetailHeader } from "@/features/users/components/UserDetailHeader";
 import { UserIdentityCard } from "@/features/users/components/UserIdentityCard";
-import { UserDetailStats } from "@/features/users/components/UserDetailStats";
-import { UserEditForm } from "@/features/users/components/UserEditForm";
+import { UserActivityStats, UserDetailStats } from "@/features/users/components/UserDetailStats";
 import { UserOrderHistory } from "@/features/users/components/UserOrderHistory";
 
 export default function UserDetail() {
@@ -20,10 +19,6 @@ export default function UserDetail() {
     data,
     isLoading,
     error,
-    form,
-    setForm,
-    handleProfileSubmit,
-    isSavingProfile,
     toggleBlock,
     isTogglingBlock,
     handleDeleteClick,
@@ -69,10 +64,15 @@ export default function UserDetail() {
 
         <UserDetailStats totalOrders={stats.totalOrders} deliveryOrders={stats.deliveryOrders} ridesOrders={stats.ridesOrders} helperOrders={stats.helperOrders} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <UserEditForm form={form} onChange={setForm} onSubmit={handleProfileSubmit} isSaving={isSavingProfile} />
-          <UserOrderHistory orders={orders} onViewChat={setSelectedOrderChat} />
-        </div>
+        <UserActivityStats
+          totalSpent={stats.totalSpent}
+          averageOrderValue={stats.averageOrderValue}
+          completedOrders={stats.completedOrders}
+          cancelledOrders={stats.cancelledOrders}
+          lastOrderAt={stats.lastOrderAt}
+        />
+
+        <UserOrderHistory orders={orders} onViewChat={setSelectedOrderChat} />
       </div>
 
       <OrderChatDialog orderId={selectedOrderChat} onOpenChange={(open) => !open && setSelectedOrderChat(null)} messages={chatMessages} isLoading={isChatLoading} />

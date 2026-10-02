@@ -36,6 +36,9 @@ export class PaymentService {
 
   async verifyPayment(paymentId: string, orderId: string, signature: string) {
     // No test bypass: a mock signature is never accepted (plan §2 principle 13).
+    if (typeof signature !== "string" || signature.length === 0) {
+      return false;
+    }
     const expected = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
       .update(orderId + "|" + paymentId)

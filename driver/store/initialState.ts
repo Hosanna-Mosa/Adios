@@ -39,6 +39,7 @@ export const initialState: DriverData = {
     today: 0,
     week: 0,
     totalDeliveries: 0,
+    todayTrips: 0,
     weeklyBreakdown: EMPTY_WEEK,
   },
   orderHistory: [],

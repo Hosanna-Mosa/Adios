@@ -37,7 +37,11 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
     ? availableCuisines.slice(0, 8)
     : activeService === "Meat" ? DEFAULT_MEAT_TYPES : DEFAULT_CUISINES;
 
-  const showCategories = !hasNoLocation && (showHomeSkeleton || loadingDrivers || visibleItems.length > 0 || (nearbyDriversCount ?? 0) > 0);
+  // "No riders nearby" replaces the restaurant list, not the whole screen: the
+  // address row, service tiles and cuisine strip stay put and the notice renders
+  // underneath them, so the customer can still switch service or area.
+  const noRidersNearby = !hasNoLocation && !showHomeSkeleton && !loadingDrivers && (nearbyDriversCount ?? 0) === 0;
+  const showCategories = !hasNoLocation;
 
   const heroBanners = useMemo(
     () => banners.filter((b: any) => (!b.itemType || b.itemType === "banner") && (!b.position || b.position === "hero" || b.position === "inline")),
@@ -68,5 +72,5 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
     opacity: interpolate(scrollY.value, [330, 350], [0, 1], "clamp"),
   }));
 
-  return { availableCuisines, cuisineChips, showCategories, greetingAds, promoCards, scrollY, isStickyVisibleShared, isStickyVisible, setIsStickyVisible, stickyHeaderAnimatedStyle };
+  return { availableCuisines, cuisineChips, showCategories, noRidersNearby, greetingAds, promoCards, scrollY, isStickyVisibleShared, isStickyVisible, setIsStickyVisible, stickyHeaderAnimatedStyle };
 }

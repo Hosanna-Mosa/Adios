@@ -1,4 +1,5 @@
-import { ScrollView } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { OrdersBody } from "@/features/orders/components/OrdersBody";
 import { AppTabBar } from "@/components/AppTabBar";
@@ -13,6 +14,7 @@ import { RIDE_TYPES } from "@/features/orders/useOrders";
 import { type ThemeTokens } from "@/constants/colors";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
 import type { Order } from "@/types/models";
+import { SERVICE_CHIPS, isChipActive } from "../useOrders.shared";
 
 // Markup moved out of (tabs)/orders.tsx to keep the screen under 150 lines.
 // The JSX is unchanged; each value it read is now a prop of the same name.
@@ -23,6 +25,8 @@ interface Props {
   styles: OrdersStyles;
   orders: Order[];
   loading: boolean;
+  refreshing: boolean;
+  onRefresh: () => void;
   serviceFilters: any;
   setServiceFilters: any;
   reorderingId: any;
@@ -44,6 +48,8 @@ export function OrdersScreenBody({
   styles,
   orders,
   loading,
+  refreshing,
+  onRefresh,
   serviceFilters,
   setServiceFilters,
   reorderingId,
@@ -58,6 +64,7 @@ export function OrdersScreenBody({
   SERVICE_META,
   activeStatusCaption,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     {loading ? (
@@ -71,26 +78,27 @@ export function OrdersScreenBody({
         tokens={tokens}
       />
     ) : (
-      <ScrollView contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tokens.brand} />}
+      >
         <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow} entering={fadeInUp(40)}>
           <OrdersAllChip
             serviceFilters={serviceFilters}
             setServiceFilters={setServiceFilters}
             styles={styles}
           />
-          {Object.entries(SERVICE_META).filter(([k]) => k !== "bike" && k !== "auto" && k !== "cab" && k !== "cab_prime").map(([key, meta]) => {
-            const isActive = serviceFilters.has(key);
-            return (
-              <OrdersServiceChip
-                isActive={isActive}
-                key={key}
-                serviceKey={key}
-                meta={meta}
-                setServiceFilters={setServiceFilters}
-                styles={styles}
-              />
-            );
-          })}
+          {SERVICE_CHIPS.map((chip) => (
+            <OrdersServiceChip
+              key={chip.label}
+              label={t(chip.labelKey, { defaultValue: chip.label })}
+              serviceKeys={chip.keys}
+              isActive={isChipActive(serviceFilters, chip.keys)}
+              setServiceFilters={setServiceFilters}
+              styles={styles}
+            />
+          ))}
         </Animated.ScrollView>
 
         {scheduled.length > 0 && (
@@ -109,6 +117,15 @@ export function OrdersScreenBody({
             SERVICE_META={SERVICE_META}
             activeStatusCaption={activeStatusCaption}
             active={active}
+            styles={styles}
+            tokens={tokens}
+          />
+        )}
+
+        {scheduled.length === 0 && active.length === 0 && past.length === 0 && (
+          <OrdersEmptyWrap
+            orders={orders}
+            filtered
             styles={styles}
             tokens={tokens}
           />

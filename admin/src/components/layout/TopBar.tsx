@@ -17,7 +17,7 @@ export function TopBar({
   onToggleSidebar,
   profileName,
   profileRole,
-  avatarUrl = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80",
+  avatarUrl,
 }: TopBarProps) {
   const { t } = useTranslation();
   const staffRole = getStaffRole();
@@ -40,17 +40,19 @@ export function TopBar({
 
         {/* Profile */}
         <div className="flex items-center gap-3">
-          {staffRole === "support" ? (
-            <div className="h-9 w-9 rounded-full bg-brand-teal-soft text-brand-teal flex items-center justify-center text-sm font-bold border border-border shrink-0">
-              {name.charAt(0).toUpperCase()}
-            </div>
-          ) : (
+          {/* No stock photo fallback: show the real avatar when one is passed,
+              otherwise the signed-in user's initial. */}
+          {avatarUrl ? (
             <LazyImage
               src={avatarUrl}
               alt={name}
               className="h-9 w-9 rounded-full object-cover border border-border shadow-sm"
               wrapperClassName="h-9 w-9 rounded-full shrink-0"
             />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-brand-teal-soft text-brand-teal flex items-center justify-center text-sm font-bold border border-border shrink-0">
+              {name.charAt(0).toUpperCase()}
+            </div>
           )}
           <div className="text-left">
             <p className="text-xs font-extrabold text-foreground leading-none">{name}</p>

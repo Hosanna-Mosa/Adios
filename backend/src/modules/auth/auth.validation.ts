@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { UserRole } from "../../database/models/User";
+import { OTP_ROLE_NOT_ALLOWED_MESSAGE } from "../../config/auth.config";
 
 export const requestOtpSchema = z.object({
   body: z.object({
@@ -11,7 +12,11 @@ export const verifyOtpSchema = z.object({
   body: z.object({
     phone: z.string().min(10, "Phone number must be at least 10 digits"),
     code: z.string().min(4, "OTP code must be at least 4 digits"),
-    role: z.nativeEnum(UserRole),
+    // Not the full UserRole enum. This endpoint is unauthenticated and the OTP
+    // check is a stub, so accepting ADMIN or SUPPORT here would let anyone
+    // register themselves a privileged account. Those two are provisioned by
+    // the seed scripts and sign in through /auth/login-password instead.
+    role: z.enum([UserRole.USER, UserRole.DRIVER], OTP_ROLE_NOT_ALLOWED_MESSAGE),
     name: z.string().optional(),
     email: z.string().trim().toLowerCase().email("Invalid email").optional(),
     password: z.string().min(8, "Password must be at least 8 characters").optional(),

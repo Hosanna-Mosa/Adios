@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import i18n from "@/i18n";
 import { useCartStore } from "@/contexts/cartStore";
@@ -7,6 +6,7 @@ import { useHomeStore } from "@/contexts/homeStore";
 import { isScheduledOrder, isTerminalOrder, readOrderLines, toCartItem } from "./useOrders.shared";
 import { submitReview } from "@/services/support.service";
 import { reorder } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useOrders so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -37,7 +37,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       setOrders((prev: any) => prev.map((o: any) => (o._id === selectedOrderForReview._id ? { ...o, isReviewed: true } : o)));
       setSelectedOrderForReview(null);
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to submit review. Please try again.");
+      showAlert("Error", err.message || "Failed to submit review. Please try again.");
     } finally {
       setSubmittingReview(false);
     }
@@ -67,7 +67,7 @@ export function useOrdersScheduled(orders: any, setOrders: any, setReorderingId:
       }
 
       if (!cartVendorId || cartItems.length === 0) {
-        Alert.alert(i18n.t("app.orders.cantReorder"), i18n.t("app.orders.weCouldntFindTheItemsFrom"));
+        showAlert(i18n.t("app.orders.cantReorder"), i18n.t("app.orders.weCouldntFindTheItemsFrom"));
         return;
       }
 

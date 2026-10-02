@@ -6,10 +6,3 @@ export interface LiveOrder {
   driver?: { user?: { name?: string } };
   stops?: unknown[];
 }
-
-export interface ManualOrderForm {
-  customer: string;
-  pickup: string;
-  dropoff: string;
-  deliveryFee: string;
-}
