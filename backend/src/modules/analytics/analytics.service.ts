@@ -3,6 +3,9 @@ import AnalyticsEvent, { ANALYTICS_APPS, AnalyticsApp } from "../../database/mod
 import { UserRole } from "../../database/models/User";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Vendor from "../../database/models/Vendor";
+import FoodItem from "../../database/models/FoodItem";
+import MeatItem from "../../database/models/MeatItem";
+import MeatCenter from "../../database/models/MeatCenter";
 
 // Names the apps may send. Must stay in step with the trackEvent calls in
 // app/ and driver/ — anything not listed is dropped rather than stored, so a
@@ -60,6 +63,69 @@ function sanitizeProps(raw: unknown): Record<string, string | number | boolean> 
   }
   if (Object.keys(out).length === 0) return undefined;
   return Buffer.byteLength(JSON.stringify(out)) > MAX_PROPS_BYTES ? { truncated: true } : out;
+}
+
+/**
+ * Order lines of food/meat orders since `since`, grouped per item and outlet:
+ * units, number of orders and revenue. Cancelled orders don't count.
+ */
+function orderedItemStages(since: Date, vendorId?: mongoose.Types.ObjectId): mongoose.PipelineStage[] {
+  return [
+    {
+      $match: {
+        createdAt: { $gte: since },
+        vendor: vendorId ?? { $ne: null },
+        status: { $nin: [OrderStatus.CANCELLED, "cancelled"] },
+      },
+    },
+    { $unwind: "$stops" },
+    // Stop items are stored as { lines: [...] } (older orders: a bare array).
+    {
+      $project: {
+        vendor: 1,
+        lines: {
+          $cond: [
+            { $isArray: "$stops.items" },
+            "$stops.items",
+            { $ifNull: ["$stops.items.lines", []] },
+          ],
+        },
+      },
+    },
+    { $unwind: "$lines" },
+    {
+      $project: {
+        vendor: 1,
+        key: { $toString: { $ifNull: ["$lines.id", { $ifNull: ["$lines._id", { $ifNull: ["$lines.itemId", "$lines.name"] }] }] } },
+        name: "$lines.name",
+        quantity: { $max: [1, { $ifNull: [{ $toDouble: "$lines.quantity" }, 1] }] },
+        price: { $ifNull: [{ $toDouble: "$lines.price" }, 0] },
+      },
+    },
+    { $match: { key: { $nin: [null, ""] } } },
+    {
+      $group: {
+        _id: { key: "$key", vendor: "$vendor" },
+        name: { $last: "$name" },
+        quantity: { $sum: "$quantity" },
+        orders: { $sum: 1 },
+        revenue: { $sum: { $multiply: ["$quantity", "$price"] } },
+      },
+    },
+  ];
+}
+
+export const ITEM_SORT_KEYS = ["clicks", "cartAdds", "cartRemoves", "quantity", "orders", "revenue", "conversion", "name"] as const;
+export type ItemSortKey = (typeof ITEM_SORT_KEYS)[number];
+
+export interface ItemStatsQuery {
+  days?: number;
+  vendorId?: string;
+  search?: string;
+  sort?: ItemSortKey;
+  order?: "asc" | "desc";
+  page?: number;
+  limit?: number;
 }
 
 /** Signed-in users are counted once across sessions; anonymous ones by session. */
@@ -234,61 +300,170 @@ export class AnalyticsService {
         },
       ]),
       Order.aggregate([
-        {
-          $match: {
-            createdAt: { $gte: since },
-            vendor: { $ne: null },
-            status: { $nin: [OrderStatus.CANCELLED, "cancelled"] },
-          },
-        },
-        { $unwind: "$stops" },
-        // Stop items are stored as { lines: [...] } (older orders: a bare array).
-        {
-          $project: {
-            vendor: 1,
-            lines: {
-              $cond: [
-                { $isArray: "$stops.items" },
-                "$stops.items",
-                { $ifNull: ["$stops.items.lines", []] },
-              ],
-            },
-          },
-        },
-        { $unwind: "$lines" },
-        {
-          $project: {
-            vendor: 1,
-            key: { $toString: { $ifNull: ["$lines.id", { $ifNull: ["$lines._id", { $ifNull: ["$lines.itemId", "$lines.name"] }] }] } },
-            name: "$lines.name",
-            quantity: { $max: [1, { $ifNull: [{ $toDouble: "$lines.quantity" }, 1] }] },
-            price: { $ifNull: [{ $toDouble: "$lines.price" }, 0] },
-          },
-        },
-        { $match: { key: { $nin: [null, ""] } } },
-        {
-          $group: {
-            _id: { key: "$key", vendor: "$vendor" },
-            name: { $last: "$name" },
-            quantity: { $sum: "$quantity" },
-            orders: { $sum: 1 },
-            revenue: { $sum: { $multiply: ["$quantity", "$price"] } },
-          },
-        },
+        ...orderedItemStages(since),
         { $sort: { quantity: -1 } },
         { $limit: limit },
         { $lookup: { from: Vendor.collection.name, localField: "_id.vendor", foreignField: "_id", as: "v" } },
+        // Meat orders point at a meat centre rather than a restaurant.
+        { $lookup: { from: MeatCenter.collection.name, localField: "_id.vendor", foreignField: "_id", as: "m" } },
         {
           $project: {
             _id: 0, itemId: "$_id.key", name: 1, quantity: 1, orders: 1, revenue: { $round: ["$revenue", 2] },
             vendorId: { $toString: "$_id.vendor" },
-            vendorName: { $arrayElemAt: ["$v.name", 0] },
+            vendorName: { $ifNull: [{ $arrayElemAt: ["$v.name", 0] }, { $arrayElemAt: ["$m.name", 0] }] },
           },
         },
       ]),
     ]);
 
     return { days, clicked, ordered };
+  }
+
+  /**
+   * Every food and meat item with its numbers for the period: menu taps,
+   * units added to / removed from carts, units ordered, orders and revenue,
+   * and tap → order conversion. Items nobody touched are listed with zeros;
+   * items no longer on a menu still appear if they had activity.
+   */
+  async getItemStats(query: ItemStatsQuery = {}) {
+    const days = query.days ?? 30;
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const vendorOid = query.vendorId && mongoose.Types.ObjectId.isValid(query.vendorId)
+      ? new mongoose.Types.ObjectId(query.vendorId)
+      : undefined;
+
+    const [eventRows, orderRows, foodItems, meatItems, vendors, meatCenters] = await Promise.all([
+      AnalyticsEvent.aggregate([
+        {
+          $match: {
+            at: { $gte: since },
+            name: { $in: ["select_item", "add_to_cart", "remove_from_cart"] },
+            "props.item_id": { $exists: true },
+            ...(query.vendorId ? { "props.vendor_id": query.vendorId } : {}),
+          },
+        },
+        {
+          $group: {
+            _id: { $toString: "$props.item_id" },
+            name: { $last: "$props.item_name" },
+            vendorId: { $last: "$props.vendor_id" },
+            vendorName: { $last: "$props.vendor_name" },
+            clicks: { $sum: { $cond: [{ $eq: ["$name", "select_item"] }, 1, 0] } },
+            cartAdds: {
+              $sum: { $cond: [{ $eq: ["$name", "add_to_cart"] }, { $ifNull: [{ $toDouble: "$props.quantity" }, 1] }, 0] },
+            },
+            cartRemoves: {
+              $sum: { $cond: [{ $eq: ["$name", "remove_from_cart"] }, { $ifNull: [{ $toDouble: "$props.quantity" }, 1] }, 0] },
+            },
+          },
+        },
+      ]),
+      Order.aggregate(orderedItemStages(since, vendorOid)),
+      FoodItem.find(vendorOid ? { vendorId: vendorOid } : {}).select("name price category isVeg vendorId").lean(),
+      MeatItem.find(vendorOid ? { meatCenterId: vendorOid } : {}).select("name price category meatCenterId").lean(),
+      Vendor.find().select("name").lean(),
+      MeatCenter.find().select("name").lean(),
+    ]);
+
+    const outletName = new Map<string, string>();
+    for (const v of vendors) outletName.set(String(v._id), v.name);
+    for (const m of meatCenters) outletName.set(String(m._id), m.name);
+
+    type Row = {
+      itemId: string; name: string; vendorId?: string; vendorName?: string; category?: string;
+      price?: number; isVeg?: boolean; type: "food" | "meat"; onMenu: boolean;
+      clicks: number; cartAdds: number; cartRemoves: number; quantity: number; orders: number; revenue: number;
+    };
+    const rows = new Map<string, Row>();
+    const blank = { clicks: 0, cartAdds: 0, cartRemoves: 0, quantity: 0, orders: 0, revenue: 0 };
+
+    for (const f of foodItems) {
+      const vendorId = String(f.vendorId);
+      rows.set(String(f._id), {
+        itemId: String(f._id), name: f.name, vendorId, vendorName: outletName.get(vendorId),
+        category: f.category, price: f.price, isVeg: f.isVeg, type: "food", onMenu: true, ...blank,
+      });
+    }
+    for (const m of meatItems) {
+      const vendorId = String(m.meatCenterId);
+      rows.set(String(m._id), {
+        itemId: String(m._id), name: m.name, vendorId, vendorName: outletName.get(vendorId),
+        category: m.category, price: m.price, type: "meat", onMenu: true, ...blank,
+      });
+    }
+
+    const rowFor = (itemId: string, fallback: { name?: string; vendorId?: string; vendorName?: string }) => {
+      let row = rows.get(itemId);
+      if (!row) {
+        row = {
+          itemId, name: fallback.name || "(unnamed item)", vendorId: fallback.vendorId,
+          vendorName: fallback.vendorName ?? (fallback.vendorId ? outletName.get(fallback.vendorId) : undefined),
+          type: "food", onMenu: false, ...blank,
+        };
+        rows.set(itemId, row);
+      }
+      return row;
+    };
+
+    for (const e of eventRows) {
+      const row = rowFor(e._id, { name: e.name, vendorId: e.vendorId ? String(e.vendorId) : undefined, vendorName: e.vendorName });
+      row.clicks += e.clicks;
+      row.cartAdds += e.cartAdds;
+      row.cartRemoves += e.cartRemoves;
+    }
+    for (const o of orderRows) {
+      const vendorId = o._id.vendor ? String(o._id.vendor) : undefined;
+      const row = rowFor(o._id.key, { name: o.name, vendorId });
+      row.quantity += o.quantity;
+      row.orders += o.orders;
+      row.revenue += o.revenue;
+    }
+
+    const search = query.search?.trim().toLowerCase();
+    let list = [...rows.values()]
+      .filter((r) => !query.vendorId || r.vendorId === query.vendorId)
+      .filter((r) => !search || r.name.toLowerCase().includes(search) || (r.vendorName ?? "").toLowerCase().includes(search))
+      .map((r) => ({
+        ...r,
+        revenue: Math.round(r.revenue * 100) / 100,
+        // Orders per 100 menu taps. Not a strict funnel (an item can be
+        // reordered without being tapped), so it can exceed 100%.
+        conversion: r.clicks > 0 ? Math.round((r.orders / r.clicks) * 1000) / 10 : null,
+      }));
+
+    const totals = list.reduce(
+      (t, r) => ({
+        items: t.items + 1,
+        clicks: t.clicks + r.clicks,
+        cartAdds: t.cartAdds + r.cartAdds,
+        quantity: t.quantity + r.quantity,
+        orders: t.orders + r.orders,
+        revenue: Math.round((t.revenue + r.revenue) * 100) / 100,
+      }),
+      { items: 0, clicks: 0, cartAdds: 0, quantity: 0, orders: 0, revenue: 0 },
+    );
+
+    const sort = query.sort ?? "quantity";
+    const dir = query.order === "asc" ? 1 : -1;
+    list.sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name) * dir;
+      const av = (a[sort] ?? -1) as number;
+      const bv = (b[sort] ?? -1) as number;
+      return (av - bv) * dir || b.clicks - a.clicks || a.name.localeCompare(b.name);
+    });
+
+    const limit = query.limit ?? 50;
+    const page = Math.max(1, query.page ?? 1);
+    const total = list.length;
+    list = list.slice((page - 1) * limit, page * limit);
+
+    // Every restaurant and meat centre, so the filter keeps its full list
+    // while one of them is selected.
+    const outlets = [...outletName.entries()]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    return { days, sort, order: dir === 1 ? "asc" : "desc", page, limit, total, totals, outlets, items: list };
   }
 
   /** Daily active users and event counts per app, for the trend chart. */

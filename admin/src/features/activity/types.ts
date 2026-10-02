@@ -89,3 +89,39 @@ export interface TopItems {
   clicked: TopClickedItem[];
   ordered: TopOrderedItem[];
 }
+
+/** GET /analytics/items — every food/meat item with its numbers for the period. */
+export type ItemSortKey = "clicks" | "cartAdds" | "cartRemoves" | "quantity" | "orders" | "revenue" | "conversion" | "name";
+
+export interface ItemStatRow {
+  itemId: string;
+  name: string;
+  vendorId?: string;
+  vendorName?: string;
+  category?: string;
+  price?: number;
+  isVeg?: boolean;
+  type: "food" | "meat";
+  /** False when the item has activity but is no longer on any menu. */
+  onMenu: boolean;
+  clicks: number;
+  cartAdds: number;
+  cartRemoves: number;
+  quantity: number;
+  orders: number;
+  revenue: number;
+  /** Orders per 100 menu taps; null when the item had no taps. */
+  conversion: number | null;
+}
+
+export interface ItemStats {
+  days: number;
+  sort: ItemSortKey;
+  order: "asc" | "desc";
+  page: number;
+  limit: number;
+  total: number;
+  totals: { items: number; clicks: number; cartAdds: number; quantity: number; orders: number; revenue: number };
+  outlets: { id: string; name: string }[];
+  items: ItemStatRow[];
+}

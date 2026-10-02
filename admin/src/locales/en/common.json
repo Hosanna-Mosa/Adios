@@ -239,6 +239,8 @@
     "zones": "Zones",
     "payments": "Payments",
     "analytics": "Analytics",
+    "liveActivity": "Live Activity",
+    "itemInsights": "Item Insights",
     "support": "Support",
     "supportCases": "Support Cases",
     "activeChats": "Active Chats",
