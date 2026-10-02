@@ -21,9 +21,13 @@ export class DigiLockerController {
 
       // Sandbox only. In live mode the redirect URI must match DigiLocker's
       // registration exactly, and the Host header is caller-controlled, so it
-      // must never influence it.
+      // must never influence it. Behind a TLS-terminating proxy req.protocol is
+      // "http"; an http callback after the https consent page breaks the form's
+      // `form-action 'self'`, so prefer PUBLIC_API_URL / X-Forwarded-Proto.
       const requestOrigin = digilockerConfig.isSandbox
-        ? `${req.protocol}://${req.get("host")}`
+        ? (process.env.PUBLIC_API_URL ||
+            `${(req.headers["x-forwarded-proto"] as string)?.split(",")[0] || req.protocol}://${req.get("host")}`
+          ).replace(/\/+$/, "")
         : undefined;
 
       const result = await digilockerModuleService.startSession(userId, {
