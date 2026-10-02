@@ -19,13 +19,17 @@ export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
-  const accentTokens: ServiceTokens = accent
-    ? tokens.services[accent as keyof typeof tokens.services]
-    : { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   // The cart row shows what is in the cart, so it takes the shopping service's
   // colour — the same one app/cart.tsx uses — rather than the screen's accent.
   // Without this it fell back to brand purple on screens that pass no accent.
   const cartAccent = useServiceAccent();
+  // The bar is one control, so all four tabs share a colour. Screens with no
+  // service context (Orders, Account, Favorites) follow whichever service is
+  // selected, so switching to Meat turns the whole bar maroon rather than only
+  // the Home tab. They used to fall back to brand purple.
+  const accentTokens: ServiceTokens = accent
+    ? tokens.services[accent as keyof typeof tokens.services]
+    : cartAccent;
   const styles = React.useMemo(() => createStyles(tokens, accentTokens, cartAccent),
     [theme, accent, cartAccent]);
 

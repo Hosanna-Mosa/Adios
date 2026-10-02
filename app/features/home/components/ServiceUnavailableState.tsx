@@ -1,7 +1,8 @@
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { showAlert } from "@/components/ui/AppAlert";
 import { type ThemeTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
 
@@ -32,7 +33,7 @@ export function ServiceUnavailableState({
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.noServiceSecondaryButton}
-        onPress={() => Alert.alert(t("app.home.thanks"), t("app.home.wellNotifyYouWhenWeLaunch"))}
+        onPress={() => showAlert(t("app.home.thanks"), t("app.home.wellNotifyYouWhenWeLaunch"))}
       >
         <Text style={styles.noServiceSecondaryButtonText}>{t("app.home.notifyMeWhenYouLaunch")}</Text>
       </TouchableOpacity>

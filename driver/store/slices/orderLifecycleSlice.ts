@@ -83,12 +83,19 @@ export const createOrderLifecycleSlice = (
 
   rejectOrder: async (reason?: string) => {
     const { incomingOrder, token } = get();
-    if (incomingOrder && token && reason) {
+    if (incomingOrder && token) {
+      // The backend requires a non-empty reason (see orders.controller.ts)
+      // and uses this call to end the dispatch offer early rather than let
+      // the server's own ~16s per-driver timer run out — so a dismissal
+      // with no reason (the countdown expiring, the back button, tapping
+      // outside the sheet) still has to reach the server, or the dispatcher
+      // sits waiting out the full timeout for no reason.
+      const declineReason = reason || "Dismissed without reason";
       try {
         await fetch(`${apiUrl}/orders/${incomingOrder.id}/decline`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ reason }),
+          body: JSON.stringify({ reason: declineReason }),
         });
       } catch (e) {
         console.error("Failed to decline order", e);

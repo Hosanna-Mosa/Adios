@@ -20,6 +20,7 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
         lng: parseFloat(params.pickupLng || "0"),
       });
       pickupRef.current?.setAddressText(params.pickupName);
+      setFieldText((current) => ({ ...current, pickup: params.pickupName }));
     }
     if (params.dropName && params.dropLat) {
       setDrop({
@@ -28,6 +29,7 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
         lng: parseFloat(params.dropLng || "0"),
       });
       dropRef.current?.setAddressText(params.dropName);
+      setFieldText((current) => ({ ...current, drop: params.dropName }));
     }
     if (params.stops) {
       try {
@@ -71,6 +73,10 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
   const [searchText, setSearchText] = useState("");
   const [searchError, setSearchError] = useState("");
   const [focusedInput, setFocusedInput] = useState<{ type: 'pickup' | 'drop' | 'stop', id?: string } | null>(null);
+  // What each field currently shows. GooglePlacesAutocomplete keeps its text
+  // internally, so this is the only way to know whether a field has anything in
+  // it — which is what decides whether the clear button is rendered.
+  const [fieldText, setFieldText] = useState<{ pickup: string; drop: string }>({ pickup: "", drop: "" });
 
   const pickupRef = useRef<any>(null);
   const dropRef = useRef<any>(null);
@@ -95,6 +101,27 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
   };
 
   const handleSearch = buildHandleSearch(setSearchResults, setIsSearching, setSearchLoading, setSearchText, setSearchError, setFocusedInput, searchRequestIdRef, pickup);
+
+  const handleFieldChange = (type: 'pickup' | 'drop' | 'stop', id?: string) => (text: string) => {
+    if (type !== 'stop') setFieldText((current) => ({ ...current, [type]: text }));
+    handleSearch(text, type, id);
+  };
+
+  // Empties one field completely — the address, the typed text and the suggestion
+  // list it was driving — and hands focus back so the next address can be typed.
+  const clearField = (type: 'pickup' | 'drop') => {
+    const ref = type === 'pickup' ? pickupRef : dropRef;
+    ref.current?.setAddressText("");
+    setFieldText((current) => ({ ...current, [type]: "" }));
+    if (type === 'pickup') setPickup(null);
+    else setDrop(null);
+    setSearchResults([]);
+    setIsSearching(false);
+    setSearchLoading(false);
+    setSearchText("");
+    setFocusedInput({ type });
+    ref.current?.focus?.();
+  };
 
   const selectResult = async (result: any) => {
     try {
@@ -127,7 +154,10 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
     }
   };
 
-  const handleSelection = buildHandleSelection(pickupRef, dropRef, saveRecentPlace, params, serviceId, name, pickup, setPickup, drop, setDrop, stops, bookingFor, someoneContact, setIsNavigating);
+  const setFieldTextFor = (type: 'pickup' | 'drop', text: string) =>
+    setFieldText((current) => ({ ...current, [type]: text }));
+
+  const handleSelection = buildHandleSelection(pickupRef, dropRef, saveRecentPlace, params, serviceId, name, pickup, setPickup, drop, setDrop, stops, bookingFor, someoneContact, setIsNavigating, setFieldTextFor);
 
   const handleAddStop = () => {
     setStops([...stops, { id: Date.now().toString(), name: "", lat: 0, lng: 0 }]);
@@ -139,5 +169,5 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
 
   const handleStopSelection = buildHandleStopSelection(saveRecentPlace, setStops);
 
-  return { fetchingLocation, setFetchingLocation, searchResults, isSearching, searchLoading, searchText, searchError, setFocusedInput, pickupRef, dropRef, handleSearch, selectResult, handleSelection, handleAddStop, handleRemoveStop, handleStopSelection };
+  return { fetchingLocation, setFetchingLocation, searchResults, isSearching, searchLoading, searchText, searchError, focusedInput, setFocusedInput, fieldText, clearField, handleFieldChange, pickupRef, dropRef, handleSearch, selectResult, handleSelection, handleAddStop, handleRemoveStop, handleStopSelection };
 }

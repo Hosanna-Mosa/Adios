@@ -31,6 +31,10 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
               name: order.driver.name || order.driver.user?.name || order.driver.firstName || "Driver",
               phone: order.driver.phone || order.driver.user?.phone || "",
               vehicle: order.driver.vehicleType || "unknown",
+              // Averaged from this driver's reviews server-side; null until they
+              // have any, which the partner row renders as "New" rather than 0.
+              rating: order.driver.rating ?? null,
+              ratingCount: order.driver.ratingCount ?? 0,
             });
             if (order.driver.currentLocation?.coordinates) {
               const coords = order.driver.currentLocation.coordinates;

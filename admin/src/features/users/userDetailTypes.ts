@@ -24,15 +24,13 @@ export interface UserDetailResponse {
     deliveryOrders: number;
     ridesOrders: number;
     helperOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
+    totalSpent: number;
+    averageOrderValue: number;
+    lastOrderAt: string | null;
   };
   orders: UserOrderItem[];
-}
-
-export interface UserProfileForm {
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
 }
 
 export interface OrderChatMessage {

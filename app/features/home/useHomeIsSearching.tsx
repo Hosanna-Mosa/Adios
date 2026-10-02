@@ -4,7 +4,7 @@ import { HomeBody } from "./components/HomeBody";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, loading: any, loadingDrivers: any, store149Items: any, activeService: any, insets: any, searchText: any, searchQuery: any, appliedSearchTerm: any, setIsSearchActive: any, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: any, accent: any, styles: any, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: any, appliedDistanceKm: any, setDistanceRefreshKey: any, isSearchingDishes: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, setActiveFilterTab: any, setIsFilterModalVisible: any, handleServiceSwitch: any, showHomeSkeleton: any, visibleItems: any, filteredAndSortedItems: any, cuisineChips: any, showCategories: any, greetingAds: any, promoCards: any, areaLabel: any, areaLine: any, activeFilterCount: any) {
+export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, loading: any, loadingDrivers: any, store149Items: any, activeService: any, insets: any, searchText: any, searchQuery: any, appliedSearchTerm: any, setIsSearchActive: any, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: any, accent: any, styles: any, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: any, appliedDistanceKm: any, setDistanceRefreshKey: any, isSearchingDishes: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, setActiveFilterTab: any, setIsFilterModalVisible: any, handleServiceSwitch: any, showHomeSkeleton: any, visibleItems: any, filteredAndSortedItems: any, cuisineChips: any, showCategories: any, noRidersNearby: any, greetingAds: any, promoCards: any, areaLabel: any, areaLine: any, activeFilterCount: any) {
   // True while the debounce or either search request is still in flight — the
   // window in which the list used to claim "No results found" prematurely.
   const isSearching =
@@ -27,13 +27,20 @@ export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, lo
     setDistanceRefreshKey((v: any) => v + 1);
   };
 
-  const renderHeader = () => {
-    const hasRidersButNoVendors = !showHomeSkeleton && !loadingDrivers && (nearbyDriversCount ?? 0) > 0 && visibleItems.length === 0;
-    if (!showCategories || ((!showHomeSkeleton && visibleItems.length === 0) && !hasRidersButNoVendors)) return null;
+  const hasRidersButNoVendors = !showHomeSkeleton && !loadingDrivers && (nearbyDriversCount ?? 0) > 0 && visibleItems.length === 0;
+  const shouldShowHeader = showCategories && !((!showHomeSkeleton && visibleItems.length === 0) && !hasRidersButNoVendors && !noRidersNearby);
 
-    return (
+  // A plain element, computed once per render — not a function that builds one. FlashList's
+  // ListHeaderComponent treats a *function* value as the header's component type, so a fresh
+  // inline closure every render (as this used to be) reads to React as "the header's type just
+  // changed", tearing the whole subtree down and remounting it. That replayed every entrance
+  // animation and re-faded every image in on any unrelated state change while scrolling, which
+  // is what looked like the banner and ₹149 photos "shrinking". An element keeps the same
+  // underlying type (HomeBody) across renders, so React updates it in place instead.
+  const renderHeader = shouldShowHeader ? (
       <HomeBody
         hasRidersButNoVendors={hasRidersButNoVendors}
+        noRidersNearby={noRidersNearby}
         accent={accent}
         activeFilterCount={activeFilterCount}
         activeService={activeService}
@@ -74,8 +81,7 @@ export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, lo
         styles={styles}
         tokens={tokens}
       />
-    );
-  };
+    ) : null;
 
   return { isSearching, handleUseCurrentLocation, renderHeader };
 }

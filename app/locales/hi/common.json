@@ -11,7 +11,8 @@
     "retry": "पुनः प्रयास करें",
     "loading": "लोड हो रहा है...",
     "error": "त्रुटि",
-    "continue": "जारी रखें"
+    "continue": "जारी रखें",
+    "ok": "ठीक है"
   },
   "app": {
     "schedulePill": {
@@ -180,7 +181,8 @@
         "offerAccepted": "ऑफ़र स्वीकार हुआ",
         "helperArrived": "हेल्पर पहुँच गया",
         "taskInProgress": "काम जारी है",
-        "taskCompleted": "काम पूरा हुआ"
+        "taskCompleted": "काम पूरा हुआ",
+        "helperAssigned": "हेल्पर असाइन हुआ"
       },
       "deliveryLabels": {
         "orderPlaced": "ऑर्डर दिया गया",
@@ -398,7 +400,12 @@
       "darkMode": "डार्क मोड",
       "signOutOfAllDevicesButton": "सभी डिवाइस से साइन आउट करें",
       "signOut": "साइन आउट करें",
-      "memberSince": "सदस्य बनने का वर्ष"
+      "memberSince": "सदस्य बनने का वर्ष",
+      "profilePhoto": "प्रोफ़ाइल फ़ोटो",
+      "changePhoto": "फ़ोटो बदलें",
+      "uploadPhoto": "फ़ोटो अपलोड करें",
+      "removePhoto": "फ़ोटो हटाएँ",
+      "failedToRemovePhoto": "फ़ोटो हटाने में विफल"
     },
     "food": {
       "orderFallback": {
@@ -532,7 +539,10 @@
       "closedToday": "आज बंद है",
       "clearCart": "कार्ट खाली करें?",
       "clearCartAction": "कार्ट खाली करें",
-      "thisRemovesEveryItemFromVar": "यह {{value}} से हर आइटम हटा देगा।"
+      "thisRemovesEveryItemFromVar": "यह {{value}} से हर आइटम हटा देगा।",
+      "thisLinkIsntAvailable": "यह लिंक उपलब्ध नहीं है",
+      "theOutletItPointsToMayHaveClosed": "जिस आउटलेट का यह लिंक है, वह बंद हो गया होगा या कहीं और चला गया होगा।",
+      "goToHome": "होम पर जाएँ"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} आपके मूल भुगतान तरीके में वापस कर दिए गए · {{date}}",
@@ -569,14 +579,19 @@
       "activeNow": "अभी सक्रिय",
       "trackOrder": "ऑर्डर ट्रैक करें",
       "cantReorder": "फिर से ऑर्डर नहीं किया जा सका",
-      "weCouldntFindTheItemsFrom": "इस ऑर्डर के आइटम नहीं मिल सके। कृपया उन्हें मेनू से जोड़ें।"
+      "weCouldntFindTheItemsFrom": "इस ऑर्डर के आइटम नहीं मिल सके। कृपया उन्हें मेनू से जोड़ें।",
+      "details": "विवरण",
+      "noOrdersInThisFilter": "इस फ़िल्टर में कोई ऑर्डर नहीं",
+      "ordersInTotalPickAll_one": "आपके कुल {{count}} ऑर्डर हैं — उन्हें देखने के लिए “सभी” चुनें।",
+      "ordersInTotalPickAll_other": "आपके कुल {{count}} ऑर्डर हैं — उन्हें देखने के लिए “सभी” चुनें।"
     },
     "helperTask": {
       "title": {
         "compose": "हेल्पर बुक करें",
         "bidding": "आपका ऑफ़र",
         "searching": "हेल्पर खोजा जा रहा है",
-        "assigned": "टास्क असाइन हुआ"
+        "assigned": "टास्क असाइन हुआ",
+        "noHelpersYet": "अभी कोई हेल्पर नहीं"
       }
     },
     "LocationPickerSheet": {
@@ -814,7 +829,16 @@
       "failedToDeleteAddress": "पता हटाया नहीं जा सका",
       "pleaseEnableLocationServicesToUse": "मौजूदा लोकेशन उपयोग करने के लिए कृपया लोकेशन सेवाएं सक्षम करें.",
       "currentLocationFallback": "मौजूदा लोकेशन",
-      "failedToDetermineCurrentLocation": "मौजूदा लोकेशन तय नहीं हो सकी."
+      "failedToDetermineCurrentLocation": "मौजूदा लोकेशन तय नहीं हो सकी.",
+      "failedToCreateTask": "काम बनाया नहीं जा सका",
+      "offersGoOutOneAtATime": "ऑफ़र एक-एक करके भेजे जाते हैं, हर एक लगभग 15 सेकंड।",
+      "noHelpersTookThisTask": "किसी हेल्पर ने यह काम नहीं लिया",
+      "offeredToHelpers_one": "हमने इसे पास के {{count}} हेल्पर को ऑफ़र किया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
+      "offeredToHelpers_other": "हमने इसे पास के {{count}} हेल्पर्स को ऑफ़र किया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
+      "offeredToHelpersSomePassed_one": "हमने इसे पास के {{count}} हेल्पर को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
+      "offeredToHelpersSomePassed_other": "हमने इसे पास के {{count}} हेल्पर्स को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
+      "nobodyOnShiftNearYou": "अभी आपके पास कोई ड्यूटी पर नहीं है। ऑफ़र बढ़ाने या थोड़ी देर में फिर कोशिश करने से आमतौर पर मदद मिलती है।",
+      "raising": "बढ़ा रहे हैं…"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -965,7 +989,14 @@
       "couldNotFetchCurrentLocation": "वर्तमान स्थान प्राप्त नहीं हो सका।",
       "bookingFailed": "बुकिंग विफल",
       "rideRequest": "राइड अनुरोध",
-      "varIsOnTheWay": "{{value}} रास्ते में हैं!"
+      "varIsOnTheWay": "{{value}} रास्ते में हैं!",
+      "yourTrip": "आपकी यात्रा",
+      "stopNumber": "स्टॉप {{number}}",
+      "clearPickupAddress": "पिकअप पता साफ़ करें",
+      "clearDropAddress": "ड्रॉप पता साफ़ करें",
+      "newDriverRating": "नया",
+      "completionPin": "पूर्णता पिन",
+      "giveThisToYourHelperOnceWorkIsFinished": "काम पूरा होने के बाद ही इसे अपने हेल्पर को दें।"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -1039,7 +1070,15 @@
       "paySecurely": "सुरक्षित रूप से भुगतान करें"
     },
     "personaldetails": {
-      "couldntSave": "सेव नहीं हो सका"
+      "couldntSave": "सेव नहीं हो सका",
+      "fullNameRequired": "पूरा नाम ज़रूरी है।",
+      "useAtLeast3Characters": "कम से कम 3 अक्षर इस्तेमाल करें।",
+      "keepItUnder50Characters": "इसे 50 अक्षरों से कम रखें।",
+      "nameAllowedCharacters": "केवल अक्षर, स्पेस, एपॉस्ट्रॉफ़ी और हाइफ़न।",
+      "keepItUnder20Characters": "इसे 20 अक्षरों से कम रखें।",
+      "usernameAllowedCharacters": "अक्षर से शुरू करें; केवल अक्षर, अंक, . और _।",
+      "emailRequired": "ईमेल ज़रूरी है।",
+      "enterAValidEmailAddress": "मान्य ईमेल पता दर्ज करें, जैसे you@example.com।"
     },
     "rideconfirmation": {
       "backToHome": "होम पर वापस जाएं"
@@ -1068,6 +1107,30 @@
       "meatCentersNearYou": "आपके पास के मीट सेंटर",
       "openNowCutFreshOnOrder": "अभी खुला है · ऑर्डर पर ताज़ा काटा जाता है",
       "searchCentersOrMeatType": "सेंटर या मीट के प्रकार खोजें"
+    },
+    "activeOrderStripe": {
+      "rideInProgress": "राइड जारी है",
+      "taskInProgress": "काम जारी है",
+      "orderInProgress": "ऑर्डर जारी है",
+      "track": "ट्रैक करें",
+      "status": {
+        "findingAMatch": "मैच ढूँढ रहे हैं",
+        "confirmedOnTheWay": "कन्फ़र्म — रास्ते में",
+        "headingToPickup": "पिकअप की ओर जा रहे हैं",
+        "arrivedAtPickup": "पिकअप पर पहुँच गए",
+        "preparingYourOrder": "आपका ऑर्डर तैयार हो रहा है",
+        "inProgress": "जारी है",
+        "arrived": "पहुँच गए"
+      }
+    },
+    "shareLink": {
+      "cantShareRightNow": "अभी शेयर नहीं कर सकते",
+      "sharingIsntConfigured": "इस बिल्ड के लिए शेयरिंग अभी सेट नहीं है।",
+      "couldntShare": "शेयर नहीं हो सका",
+      "shareSheetDidntOpen": "शेयर शीट नहीं खुली। कृपया फिर से कोशिश करें।",
+      "thisDish": "यह डिश",
+      "checkOutItemAtVendor": "Flavour पर {{name}} की {{item}} देखें! {{url}}",
+      "checkOutVendor": "Flavour पर {{name}} देखें! {{url}}"
     }
   }
 }

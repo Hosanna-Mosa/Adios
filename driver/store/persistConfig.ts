@@ -14,6 +14,11 @@ export const persistConfig = {
     driverPhone: state.driverPhone,
     driverUserId: state.driverUserId,
     token: state.token,
+    // Shift status survives a reload: the server keeps the driver ONLINE
+    // across one, so dropping these left the app claiming OFFLINE while
+    // dispatch still considered them on shift.
+    isOnline: state.isOnline,
+    activeServices: state.activeServices,
     // Note: earnings and orderHistory are NOT persisted so fresh data
     // is always fetched from the API on each session start.
     activeChat: state.activeChat,

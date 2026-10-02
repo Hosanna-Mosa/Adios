@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import i18n from "@/i18n";
 import { cancelOrder, getOrderJson } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
@@ -59,7 +59,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       if (timeoutTimer) clearTimeout(timeoutTimer);
       router.replace("/(tabs)");
       setTimeout(() => {
-        Alert.alert(i18n.t("app.ride.orderCancelled"), i18n.t("app.ride.driverIsUnavailable"), [{ text: i18n.t("app.ride.ok"), onPress: () => {} }], { cancelable: true });
+        showAlert(i18n.t("app.ride.orderCancelled"), i18n.t("app.ride.driverIsUnavailable"));
       }, 500);
     };
 
@@ -121,7 +121,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
         if (isTransitioned) return;
         isTransitioned = true;
         if (pollIntervalId) clearInterval(pollIntervalId);
-        Alert.alert(
+        showAlert(
           i18n.t("app.ride.noCaptainFound"),
           i18n.t("app.ride.sorryNoCaptainsAreAvailableTo"),
           [{

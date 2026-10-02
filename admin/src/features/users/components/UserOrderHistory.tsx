@@ -82,7 +82,7 @@ export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) 
   ];
 
   return (
-    <div className="lg:col-span-2 bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
+    <div className="bg-card border border-border p-6 rounded-3xl space-y-4 shadow-sm">
       <h3 className="text-lg font-bold text-foreground">{t("users.orderAndExecutionHistory")}</h3>
       <div className="overflow-x-auto">
         <DataTable

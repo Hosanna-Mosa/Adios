@@ -1,4 +1,5 @@
 import React from "react";
+import { Platform } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -8,6 +9,7 @@ import { PressBox } from "@/components/ui/PressBox";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 import { ModalBox } from "@/components/ui/ModalBox";
+import { KeyboardView } from "@/components/ui/KeyboardView";
 
 /** Centred dialog that shows the details of one profile section.
  *
@@ -27,7 +29,10 @@ export function ProfileSectionModal({
 }) {
   return (
     <ModalBox visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Box style={styles.modalOverlay}>
+      <KeyboardView
+        style={styles.modalOverlay}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
         <Box style={styles.modalCard}>
           <Box style={styles.modalHeader}>
             <AppText style={styles.modalTitle}>{title}</AppText>
@@ -35,11 +40,19 @@ export function ProfileSectionModal({
               <Feather name="x" size={18} color={Colors.text} />
             </PressBox>
           </Box>
-          <ScrollBox style={styles.modalScroll} keyboardShouldPersistTaps="handled">
+          {/* Personal Info's edit fields and the relocated Change Password form
+              both sit inside this modal — with no keyboard-avoidance at all,
+              the last field(s) and the Save/Update button ended up hidden
+              under the keyboard as soon as it opened. */}
+          <ScrollBox
+            style={styles.modalScroll}
+            contentContainerStyle={styles.modalScrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
             {children}
           </ScrollBox>
         </Box>
-      </Box>
+      </KeyboardView>
     </ModalBox>
   );
 }

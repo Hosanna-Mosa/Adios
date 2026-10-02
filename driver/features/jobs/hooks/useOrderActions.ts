@@ -99,12 +99,23 @@ export function useOrderActions(
   }, [t]);
 
   const openRideNavigation = useCallback(() => {
-    const pickupAddress =
-      pickupStop?.address || (pickupStop ? `${pickupStop.lat},${pickupStop.lng}` : "");
-    const destinationAddress =
-      deliveryStop?.address || (deliveryStop ? `${deliveryStop.lat},${deliveryStop.lng}` : "");
+    // Was sending the free-text address to Google Maps and letting it re-geocode,
+    // even when we already had exact coordinates for both stops — an address
+    // string is ambiguous enough (unit numbers, landmarks, similarly-named roads)
+    // that Maps would sometimes drop the pin blocks away from the real spot. The
+    // other navigation links in this screen already pass raw lat/lng; do the same
+    // here so the pin lands exactly where the order says, falling back to the
+    // address only if a coordinate is actually missing.
+    const origin =
+      pickupStop?.lat != null && pickupStop?.lng != null
+        ? `${pickupStop.lat},${pickupStop.lng}`
+        : pickupStop?.address || "";
+    const destination =
+      deliveryStop?.lat != null && deliveryStop?.lng != null
+        ? `${deliveryStop.lat},${deliveryStop.lng}`
+        : deliveryStop?.address || "";
 
-    if (!pickupAddress || !destinationAddress) {
+    if (!origin || !destination) {
       Alert.alert(
         t("jobs.navigationUnavailable"),
         t("jobs.pickupOrDestinationAddressMissing"),
@@ -113,7 +124,7 @@ export function useOrderActions(
     }
 
     Linking.openURL(
-      `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(pickupAddress)}&destination=${encodeURIComponent(destinationAddress)}&travelmode=driving`,
+      `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`,
     );
   }, [pickupStop, deliveryStop, t]);
 

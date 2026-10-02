@@ -1,6 +1,9 @@
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { adminFetch } from "@/lib/api-client";
+import type { LiveOrder } from "@/features/orders/liveOrdersTypes";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import { clearSession, getStaffRole } from "@/lib/session";
 import { socketService } from "@/lib/socketService";
@@ -28,8 +31,8 @@ import {
   SlidersHorizontal,
   Sun,
   ChevronDown,
-  MessageSquare,
   Image,
+  MessageSquare,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
@@ -67,6 +70,22 @@ export function AppSidebar() {
 
   const isSupport = getStaffRole() === "support";
   const visibleNavItems = isSupport ? navItems.filter((item) => SUPPORT_NAV_URLS.has(item.url)) : navItems;
+
+  // Real count for the Live Orders badge below, replacing a literal "24" that
+  // never moved regardless of how many orders were actually active. Shares the
+  // same query key Drivers.tsx and LiveOrders.tsx already use for /admin/orders,
+  // so this doesn't add a request — it just reads their cached result. Gated to
+  // admin sessions: this is an ADMIN-only endpoint, and a support session (the
+  // only other role this sidebar renders for) never shows this item anyway.
+  const isAdminSession = getStaffRole() === "admin";
+  const { data: sidebarOrders = [] } = useQuery({
+    queryKey: ["admin", "orders"],
+    queryFn: () => adminFetch<LiveOrder[]>("/admin/orders"),
+    enabled: isAdminSession,
+  });
+  const liveOrdersCount = sidebarOrders.filter((o) =>
+    ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "searching_driver", "driver_assigned"].includes(o.status)
+  ).length;
 
   const handleLogout = () => {
     clearSession();
@@ -113,9 +132,9 @@ export function AppSidebar() {
                     <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
-                  {item.url === "/live-orders" && (
+                  {item.url === "/live-orders" && liveOrdersCount > 0 && (
                     <span className="text-[10px] font-bold bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
-                      24
+                      {liveOrdersCount}
                     </span>
                   )}
                 </Link>
@@ -126,27 +145,6 @@ export function AppSidebar() {
       </div>
 
       <div className="space-y-4 pb-4">
-        {/* Need Help? Box — support staff are the help, so it's admin-only */}
-        {!isSupport && (
-          <div className="mx-4 p-4 rounded-2xl bg-[#f8fafc] border border-border flex flex-col gap-3">
-            <div className="flex gap-3">
-              <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center text-muted-foreground shrink-0 border border-border shadow-sm">
-                <Headphones className="h-4.5 w-4.5" />
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-xs font-bold text-foreground">{t("sidebar.needHelp")}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight">{t("sidebar.contactSupportForAssistance")}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate("/support")}
-              className="w-full py-2 border border-border bg-white text-xs font-semibold rounded-xl text-foreground hover:bg-muted/50 transition-colors shadow-sm"
-            >
-              {t("sidebar.contactSupport")}
-            </button>
-          </div>
-        )}
-
         {/* Logout Button */}
         <div className="px-6 pt-3 border-t border-border">
           <button

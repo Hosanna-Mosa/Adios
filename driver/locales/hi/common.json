@@ -147,7 +147,8 @@
     "dayThu": "गुरु",
     "dayFri": "शुक्र",
     "daySat": "शनि",
-    "daySun": "रवि"
+    "daySun": "रवि",
+    "today": "आज"
   },
   "support": {
     "liveChat": "लाइव चैट",
@@ -500,7 +501,13 @@
     "startTravel": "यात्रा शुरू करें",
     "upcomingReservedRide": "आगामी आरक्षित राइड!",
     "flavourDriverActive": "Flavour ड्राइवर सक्रिय है",
-    "trackingLocationForOrderDispatches": "बैकग्राउंड में ऑर्डर डिस्पैच के लिए स्थान ट्रैक कर रहा है..."
+    "trackingLocationForOrderDispatches": "बैकग्राउंड में ऑर्डर डिस्पैच के लिए स्थान ट्रैक कर रहा है...",
+    "noHighDemandAreas": "अभी कोई हाई-डिमांड क्षेत्र नहीं है",
+    "backgroundLocationOffNowOffline": "बैकग्राउंड लोकेशन चालू नहीं है, इसलिए ऐप मिनिमाइज़ होने पर आप ऑफ़लाइन हैं।",
+    "noPhoneNumber": "कोई फ़ोन नंबर नहीं",
+    "customerPhoneNotAvailable": "इस ऑर्डर के लिए ग्राहक का फ़ोन नंबर उपलब्ध नहीं है।",
+    "chatEmptyState": "{{value}} के साथ संदेश यहाँ दिखाई देंगे।",
+    "theCustomer": "ग्राहक"
   },
   "onboarding": {
     "sections": {
@@ -604,7 +611,12 @@
     "faceGuidelines": "सुनिश्चित करें कि आपका चेहरा स्पष्ट रूप से दिखाई दे, अच्छी रोशनी में हो, और टोपी या धूप के चश्मे के बिना हो।",
     "pleaseWait": "कृपया प्रतीक्षा करें...",
     "locationVerifiedGeometrically": "स्थान ज्यामितीय रूप से सत्यापित",
-    "coords": "निर्देशांक"
+    "coords": "निर्देशांक",
+    "cameraPermissionNeeded": "कैमरा अनुमति आवश्यक है",
+    "allowCameraForSelfie": "अपनी प्रोफ़ाइल सेल्फ़ी लेने के लिए कृपया कैमरा एक्सेस की अनुमति दें।",
+    "uploadFailed": "अपलोड विफल रहा",
+    "couldNotUploadSelfie": "आपकी सेल्फ़ी अपलोड नहीं हो सकी। कृपया फिर से प्रयास करें।",
+    "retakePhoto": "फ़ोटो दोबारा लें"
   },
   "profile": {
     "personalInfo": "व्यक्तिगत जानकारी",
@@ -754,7 +766,8 @@
     "saveAddress": "पता सहेजें",
     "updateAddress": "पता अपडेट करें",
     "vehicle": "वाहन",
-    "vehicleInfo": "वाहन जानकारी"
+    "vehicleInfo": "वाहन जानकारी",
+    "newRating": "नया"
   },
   "notFound": {
     "oops": "उफ़!",

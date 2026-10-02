@@ -96,6 +96,8 @@ export class DispatchManagerService {
       console.error(`[DISPATCH MANAGER] Error checking order status for ${orderId}:`, e);
     }
 
+    const socketManager = SocketManager.getInstance();
+
     // Advance index past any already declined or invalid drivers
     while (session.currentIndex < session.candidates.length) {
       const candidate = session.candidates[session.currentIndex];
@@ -119,6 +121,25 @@ export class DispatchManagerService {
         continue;
       }
 
+      // The DB can say ONLINE/available for a driver whose app was killed or lost
+      // connectivity without ever calling goOffline — nothing corrects that until
+      // the driver reopens the app (a location ping flips isAvailable back to true,
+      // see socket.manager's driver_location_update handler). Offering to that
+      // driver anyway would just burn the full OFFER_TIMEOUT_MS on a phone that was
+      // never going to answer, pushing every real candidate behind it further back
+      // in the queue — from the customer's side, that IS "the ride never reaches a
+      // driver" when it happens to the first candidate or two. Skip immediately
+      // instead, and self-heal the DB so later searches (this ride's remaining
+      // candidates, and every future ride) stop tripping over the same stale entry.
+      if (!socketManager.isUserConnected(candidate.driverUserId)) {
+        console.log(`[DISPATCH MANAGER] Skipping candidate driverUser ${candidate.driverUserId} — no live socket connection (app likely closed/backgrounded).`);
+        Driver.updateOne({ user: candidate.driverUserId }, { isAvailable: false }).catch((err: any) =>
+          console.warn(`[DISPATCH MANAGER] Failed to mark disconnected driver ${candidate.driverUserId} unavailable:`, err.message)
+        );
+        session.currentIndex++;
+        continue;
+      }
+
       // Valid driver found! Break to offer
       break;
     }
@@ -136,8 +157,6 @@ export class DispatchManagerService {
       `🎯 [DISPATCH OFFER] Offering order ${orderId} to Driver #${session.currentIndex + 1}: ` +
       `User ${currentCandidate.driverUserId} (Doc: ${currentCandidate.driverId}, Distance: ${Math.round(currentCandidate.distanceMeters)}m)`
     );
-
-    const socketManager = SocketManager.getInstance();
 
     // 1. Emit Socket event to this specific driver
     const payloadWithTimer = {

@@ -8,8 +8,10 @@ import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
-import { TAB_PILL_HEIGHT } from "./AppTabBar.styles";
+import { useActiveOrder } from "@/contexts/deliveryStore";
+import { CART_CARD_HEIGHT, TAB_PILL_HEIGHT } from "./AppTabBar.styles";
 import { useAppTabBar } from "./useAppTabBar";
+import { ActiveOrderStripe } from "./ActiveOrderStripe";
 export { useAppTabBarHeight } from "./useAppTabBarHeight";
 
 export type TabKey = "home" | "orders" | "account" | "cart";
@@ -29,7 +31,10 @@ interface AppTabBarProps {
  * exact reserved space (including the floating gaps) instead of screens
  * guessing at a padding that breaks the moment the cart card appears.
  */
-export const BOTTOM_GAP = moderateScale(14);
+// The pill sits directly on the safe-area edge. It used to float a further 14dp
+// above it, which read as a gap under the bar once the duplicate Android spacer
+// in app/_layout.tsx was removed.
+export const BOTTOM_GAP = 0;
 export const STACK_GAP = moderateScale(10);
 export const TOP_CLEARANCE = moderateScale(14);
 export const ALL_TAB_KEYS: TabKey[] = ["home", "orders", "account", "cart"];
@@ -72,9 +77,16 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
   } = useAppTabBar(active, accent, cartVendorName);
   const TABS = useTabs();
   const { t } = useTranslation();
+  const { isActive: hasActiveOrder } = useActiveOrder();
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
+      {hasActiveOrder && (
+        <ActiveOrderStripe
+          bottom={insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP + (itemCount > 0 ? CART_CARD_HEIGHT + STACK_GAP : 0)}
+        />
+      )}
+
       {itemCount > 0 && (
         <Animated.View
           style={[styles.cartCard, { bottom: insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP }]}

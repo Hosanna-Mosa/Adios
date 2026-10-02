@@ -26,7 +26,12 @@ const DAY_LABEL_KEY: Record<string, string> = {
 
 export function EarningsChart({ data, height = 160 }: EarningsChartProps) {
   const { t } = useTranslation();
-  const maxAmount = Math.max(...data.map((d) => d.amount));
+  // A driver with no earnings yet for the week means every amount is 0, which made
+  // this Math.max(...) resolve to 0 and every bar height below divide by zero into
+  // NaN — react-native-svg silently drops a Rect with a NaN height, so the whole
+  // chart (and anything relying on it rendering) appeared broken. Falling back to 1
+  // keeps the division well-defined and simply renders flat, empty bars instead.
+  const maxAmount = Math.max(...data.map((d) => d.amount), 0) || 1;
   const barWidth = 28;
   const gap = 10;
   const chartWidth = data.length * (barWidth + gap) - gap;

@@ -21,6 +21,15 @@ export interface AdminZone {
   radius?: number;
 }
 
+/** The Edit Zone dialog's form state (numbers kept as strings for the inputs). */
+export interface ZoneEditForm {
+  name: string;
+  description: string;
+  pricingMultiplier: string;
+  radius: string;
+  isActive: boolean;
+}
+
 export interface LatLng {
   lat: number;
   lng: number;

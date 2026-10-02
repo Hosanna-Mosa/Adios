@@ -1,8 +1,8 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { signOutAllDevices } from "@/services/users.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useProfile so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -11,7 +11,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
   const { t } = useTranslation();
 
   const handleSignOutAllDevices = () => {
-    Alert.alert(
+    showAlert(
       t("app.profile.signOutOfAllDevices"),
       t("app.profile.everyPhoneSignedInToThis"),
       [
@@ -25,7 +25,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
               await signOutAllDevices();
             } catch (err: any) {
               console.error("Sign out of all devices error:", err);
-              Alert.alert(t("app.profile.errorTitle"), err?.message || t("app.profile.couldntSignOutAllDevices"));
+              showAlert(t("app.profile.errorTitle"), err?.message || t("app.profile.couldntSignOutAllDevices"));
               setSigningOutAll(false);
               return;
             }

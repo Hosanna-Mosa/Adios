@@ -1,11 +1,11 @@
-import { Alert } from "react-native";
 import { router } from "expo-router";
 import { checkZone, searchPlacesJsonBiased } from "@/services/places.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Handlers lifted out of useLocationSelectionFetchingLocation: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
 
-export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPlace: any, params: any, serviceId: any, name: any, pickup: any, setPickup: any, drop: any, setDrop: any, stops: any, bookingFor: any, someoneContact: any, setIsNavigating: any) =>
+export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPlace: any, params: any, serviceId: any, name: any, pickup: any, setPickup: any, drop: any, setDrop: any, stops: any, bookingFor: any, someoneContact: any, setIsNavigating: any, setFieldTextFor: (type: 'pickup' | 'drop', text: string) => void) =>
   async (type: 'pickup' | 'drop', data: any, details: any = null) => {
     const lat = details?.geometry?.location?.lat || data.lat;
     const lng = details?.geometry?.location?.lng || data.lng;
@@ -17,7 +17,7 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
       try {
         const checkRes = await checkZone(lat, lng);
         if (!checkRes || !checkRes.inZone) {
-          Alert.alert("No Service", `No service at current ${type} location.`);
+          showAlert("No Service", `No service at current ${type} location.`);
           if (type === 'pickup') {
             pickupRef.current?.setAddressText("");
             setPickup(null);
@@ -25,6 +25,7 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
             dropRef.current?.setAddressText("");
             setDrop(null);
           }
+          setFieldTextFor(type, "");
           return;
         }
       } catch (err) {
@@ -45,6 +46,7 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
     } else {
       setDrop({ name: addrName, lat, lng });
     }
+    setFieldTextFor(type, addrName);
 
     const currentPickup = type === 'pickup' ? { name: addrName, lat, lng } : pickup;
     const currentDrop = type === 'drop' ? { name: addrName, lat, lng } : drop;

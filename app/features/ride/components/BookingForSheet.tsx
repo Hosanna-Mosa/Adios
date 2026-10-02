@@ -1,11 +1,12 @@
 import React from "react";
-import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type DropLocationStyles } from "@/features/ride/drop-location.styles";
 import { setBookingPreference } from "@/services/users.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/drop-location.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -95,7 +96,7 @@ export function BookingForSheet({
           style={[styles.doneButton, { backgroundColor: accent.accent }, savingPreference && { opacity: 0.7 }]}
           onPress={async () => {
             if (bookingFor === "someone_else" && someoneContact.trim().length < 10) {
-              Alert.alert(t("app.ride.contactRequired"), t("app.ride.pleaseEnterAValidContactNumber"));
+              showAlert(t("app.ride.contactRequired"), t("app.ride.pleaseEnterAValidContactNumber"));
               return;
             }
             if (user?.id) {
@@ -106,7 +107,7 @@ export function BookingForSheet({
                     contactNumber: bookingFor === "someone_else" ? someoneContact.trim() : undefined,
                   });
               } catch (error: any) {
-                Alert.alert(t("app.ride.saveFailed"), error.message || t("app.ride.couldNotSaveBookingPreference"));
+                showAlert(t("app.ride.saveFailed"), error.message || t("app.ride.couldNotSaveBookingPreference"));
                 return;
               } finally {
                 setSavingPreference(false);

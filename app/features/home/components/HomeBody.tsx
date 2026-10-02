@@ -19,7 +19,7 @@ import { HomeIntro } from "./HomeIntro";
 import type { Props } from "./HomeBody.props";
 
 export function HomeBody(props: Props) {
-  const { hasRidersButNoVendors, accent, activeFilterCount, activeService, appliedDistanceKm,
+  const { hasRidersButNoVendors, noRidersNearby, accent, activeFilterCount, activeService, appliedDistanceKm,
   areaLabel, areaLine, bannerIndexRef, bannerScrollX, carouselRef, cuisineChips, filterCostRange,
   filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg,
   filteredAndSortedItems, greetingAds, handleServiceSwitch, insets, onBannerScroll, promoCards,
@@ -64,7 +64,9 @@ export function HomeBody(props: Props) {
             </View>
           ))}
 
-          {activeService === "Food" && store149Items.length > 0 && (
+          {/* Nothing in the ₹149 store can be delivered with no rider on shift,
+              so the rail comes down with the rest of the ordering surface. */}
+          {activeService === "Food" && !noRidersNearby && store149Items.length > 0 && (
             <View style={styles.sectionBlock}>
               <View style={styles.sectionHeadRow}>
                 <View style={styles.sectionHeadLeft}>
@@ -134,11 +136,16 @@ export function HomeBody(props: Props) {
           {filteredAndSortedItems.length > 0 && (
             <View style={styles.listHeadingBlock}>
               <Text style={styles.listHeading}>{activeService === "Meat" ? t("app.home.meatCenters") : t("app.home.allRestaurants")}</Text>
-              <Text style={styles.listHeadingMeta}>
-                {appliedDistanceKm
-                  ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`
-                  : `${filteredAndSortedItems.length} outlets near ${areaLabel}`}
-              </Text>
+              {/* The count is a promise none of those outlets can keep while no
+                  rider is online, so it is left off rather than contradicting the
+                  notice right below it. */}
+              {!noRidersNearby && (
+                <Text style={styles.listHeadingMeta}>
+                  {appliedDistanceKm
+                    ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`
+                    : `${filteredAndSortedItems.length} outlets near ${areaLabel}`}
+                </Text>
+              )}
             </View>
           )}
         </>

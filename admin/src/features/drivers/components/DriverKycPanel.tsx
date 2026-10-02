@@ -54,14 +54,27 @@ export function DriverKycPanel({ driver, onToggleAadhaarVerified, onToggleBankVe
         </div>
       )}
 
-      <div className="flex gap-2 pt-4">
-        <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl" onClick={onApprove}>
-          {t("drivers.approveDriver")}
-        </Button>
-        <Button variant="destructive" className="flex-1 rounded-xl" onClick={onReject}>
-          {t("drivers.rejectDriver")}
-        </Button>
-      </div>
+      {/* Once decided, show the outcome instead of offering Approve/Reject again. */}
+      {["completed", "rejected"].includes(String(driver.onboardingStatus)) ? (
+        <div className="pt-4">
+          <div
+            className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+              driver.onboardingStatus === "completed" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"
+            }`}
+          >
+            {driver.onboardingStatus === "completed" ? t("drivers.driverApprovedBanner") : t("drivers.driverRejectedBanner")}
+          </div>
+        </div>
+      ) : (
+        <div className="flex gap-2 pt-4">
+          <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl" onClick={onApprove}>
+            {t("drivers.approveDriver")}
+          </Button>
+          <Button variant="destructive" className="flex-1 rounded-xl" onClick={onReject}>
+            {t("drivers.rejectDriver")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { getDistanceFromLatLonInKm } from "./useHelperTask.shared";
 import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -35,7 +35,7 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
       if (currentCoords && radius && lat !== null && lng !== null) {
         const distance = getDistanceFromLatLonInKm(currentCoords.lat, currentCoords.lng, lat, lng);
         if (distance > parseFloat(radius)) {
-          Alert.alert(t("app.delivery.outOfRange"), t("app.delivery.thisLocationIsOutsideYourSelected", { value: radius }));
+          showAlert(t("app.delivery.outOfRange"), t("app.delivery.thisLocationIsOutsideYourSelected", { value: radius }));
           setSearchResults([]);
           setActiveField(null);
           return;

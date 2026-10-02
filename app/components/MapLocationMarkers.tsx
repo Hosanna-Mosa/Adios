@@ -3,19 +3,22 @@ import { Image, View } from "react-native";
 import { Marker } from "@/components/maps";
 import { styles } from "@/components/MapBackground.styles";
 import type { DeliveryStop } from "@/contexts/deliveryStore";
+import { vehicleMarkerImage } from "@/components/mapBackground.utils";
 
 // The stop pins plus the "you are here" and driver pins. Moved out of
 // components/MapBackground.tsx unchanged.
-
-const VEHICLE_BIKE_3D = require("@/assets/images/services/scooter_blue_top_view_2.png");
 
 interface Props {
   stops: DeliveryStop[];
   userLocation?: { lat: number; lng: number } | null;
   driverLocation?: { lat: number; lng: number } | null;
+  /** The assigned driver's vehicle, so their live marker matches what was booked.
+   * Falls back to the selected service; it used to always draw a scooter. */
+  driverVehicleType?: string | null;
+  selectedService?: string | null;
 }
 
-export function MapLocationMarkers({ stops, userLocation, driverLocation }: Props) {
+export function MapLocationMarkers({ stops, userLocation, driverLocation, driverVehicleType, selectedService }: Props) {
   return (
     <>
         {stops.map((stop, index) => (
@@ -51,7 +54,7 @@ export function MapLocationMarkers({ stops, userLocation, driverLocation }: Prop
             rotation={(driverLocation as any).heading || 0}
           >
             <Image
-              source={VEHICLE_BIKE_3D}
+              source={vehicleMarkerImage(driverVehicleType || selectedService)}
               style={{ width: 40, height: 40 }}
               resizeMode="contain"
             />

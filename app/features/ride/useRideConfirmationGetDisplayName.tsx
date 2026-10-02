@@ -1,6 +1,7 @@
-import { Share, Alert } from "react-native";
+import { Share } from "react-native";
 import { router } from "expo-router";
 import * as Location from "expo-location";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -16,7 +17,7 @@ export function useRideConfirmationGetDisplayName(params: any, setUserLocation: 
     try {
       await Share.share({ message: `I'm heading from ${params.pickupName} to ${params.dropName}. Tracking my ride!` });
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      showAlert("Error", error.message);
     }
   };
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
@@ -21,8 +22,9 @@ export function ProfileHeaderCard({
   initials: string;
   profilePic?: string | null;
   memberSince: string;
-  rating: number;
+  rating: number | null;
 }) {
+  const { t } = useTranslation();
   return (
     <AnimatedBox entering={fadeInUp(0)} style={styles.header}>
       <Box style={styles.avatarWrap}>
@@ -37,7 +39,7 @@ export function ProfileHeaderCard({
       <AppText style={styles.memberSince}>Member since {memberSince}</AppText>
       <Box style={styles.ratingBadge}>
         <Feather name="star" size={11} color={Colors.white} />
-        <AppText style={styles.ratingText}>{rating.toFixed(1)}</AppText>
+        <AppText style={styles.ratingText}>{rating != null ? rating.toFixed(1) : t("profile.newRating")}</AppText>
       </Box>
     </AnimatedBox>
   );

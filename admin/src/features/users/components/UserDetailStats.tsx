@@ -38,3 +38,43 @@ export function UserDetailStats({ totalOrders, deliveryOrders, ridesOrders, help
     </StaggerList>
   );
 }
+
+interface UserActivityStatsProps {
+  totalSpent?: number;
+  averageOrderValue?: number;
+  completedOrders?: number;
+  cancelledOrders?: number;
+  lastOrderAt?: string | null;
+}
+
+/**
+ * The spend / reliability / recency row on UserDetail — what an admin actually
+ * looks a customer up for, beyond which services they booked.
+ */
+export function UserActivityStats({ totalSpent, averageOrderValue, completedOrders, cancelledOrders, lastOrderAt }: UserActivityStatsProps) {
+  const { t } = useTranslation();
+  return (
+    <StaggerList className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <p className="text-2xl font-bold text-foreground">₹{(totalSpent ?? 0).toLocaleString()}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.totalSpent")}</p>
+      </StaggerItem>
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <p className="text-2xl font-bold text-foreground">₹{(averageOrderValue ?? 0).toLocaleString()}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.avgOrder")}</p>
+      </StaggerItem>
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <p className="text-2xl font-bold text-foreground">{completedOrders ?? 0}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.completedStat")}</p>
+      </StaggerItem>
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <p className="text-2xl font-bold text-foreground">{cancelledOrders ?? 0}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.cancelledStat")}</p>
+      </StaggerItem>
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <p className="text-2xl font-bold text-foreground">{lastOrderAt ? new Date(lastOrderAt).toLocaleDateString() : "—"}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.lastOrder")}</p>
+      </StaggerItem>
+    </StaggerList>
+  );
+}

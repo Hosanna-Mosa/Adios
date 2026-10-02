@@ -16,7 +16,8 @@ import { ChatSafetyBanner } from "@/features/support/components/ChatSafetyBanner
 export default function ChatScreen() {
   const {
   driver, activeChat, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles,
-  inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem
+  inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem,
+  loadingHistory
   } = useChat();
   const { t } = useTranslation();
 
@@ -61,7 +62,9 @@ export default function ChatScreen() {
       />
 
       <ChatBody
+        accent={accent}
         activeChat={activeChat}
+        loadingHistory={loadingHistory}
         flatListRef={flatListRef}
         partnerLabel={partnerLabel}
         renderItem={renderItem}

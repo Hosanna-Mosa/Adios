@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Animated } from "react-native";
+import { Animated } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -8,6 +8,7 @@ import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useIntroSplashStore } from "@/contexts/introSplashStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -89,11 +90,11 @@ export function useAuth() {
   const handleSignIn = async () => {
     const trimmed = identifier.trim();
     if (!trimmed) {
-      Alert.alert(t("actions.error"), t("app.home.pleaseEnterYourPhoneNumberOr"));
+      showAlert(t("actions.error"), t("app.home.pleaseEnterYourPhoneNumberOr"));
       return;
     }
     if (!password) {
-      Alert.alert(t("actions.error"), t("app.home.pleaseEnterYourPassword"));
+      showAlert(t("actions.error"), t("app.home.pleaseEnterYourPassword"));
       return;
     }
 
@@ -102,19 +103,19 @@ export function useAuth() {
       // Token is now saved in AsyncStorage & store → navigate in
       router.replace("/(tabs)");
     } catch (error: any) {
-      Alert.alert(t("app.home.loginFailed"), error.message || t("app.home.failedToSignInPleaseCheck"));
+      showAlert(t("app.home.loginFailed"), error.message || t("app.home.failedToSignInPleaseCheck"));
     }
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(t("app.home.forgotPassword"), t("app.home.passwordRecoveryInstructionsWillBeSent"));
+    showAlert(t("app.home.forgotPassword"), t("app.home.passwordRecoveryInstructionsWillBeSent"));
   };
 
   const handleContinueWithOtp = async () => {
     const trimmed = identifier.trim();
     const digitsOnly = trimmed.replace(/\D/g, "");
     if (digitsOnly.length < 10) {
-      Alert.alert(t("app.home.phoneNumberNeeded"), t("app.home.enterYourPhoneNumberAboveTo"));
+      showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterYourPhoneNumberAboveTo"));
       return;
     }
     setSendingOtp(true);
@@ -122,7 +123,7 @@ export function useAuth() {
       await requestOTP(digitsOnly);
       router.push({ pathname: "/otp", params: { phone: digitsOnly } });
     } catch (error: any) {
-      Alert.alert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
+      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setSendingOtp(false);
     }

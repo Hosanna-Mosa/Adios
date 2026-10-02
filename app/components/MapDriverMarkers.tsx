@@ -1,13 +1,11 @@
 import React from "react";
 import { Image } from "react-native";
 import { Marker } from "@/components/maps";
+import { vehicleMarkerImage } from "@/components/mapBackground.utils";
 
 // The live driver pins on the map. Moved out of components/MapBackground.tsx
 // unchanged, including the filtering rules: cabs are hidden for now, and the
 // selected service decides whether autos or scooters are shown — never both.
-
-const VEHICLE_BIKE_3D = require("@/assets/images/services/scooter_blue_top_view_2.png");
-const VEHICLE_AUTO_3D = require("@/assets/images/services/auto_top_view.png");
 
 interface Props {
   driverMarkers: any[];
@@ -36,7 +34,7 @@ export function MapDriverMarkers({ driverMarkers, selectedService }: Props) {
             if (isAutoVehicle) return null;
           }
 
-          let markerImage = isAutoVehicle ? VEHICLE_AUTO_3D : VEHICLE_BIKE_3D;
+          const markerImage = vehicleMarkerImage(vehicleType);
 
           return (
             <Marker

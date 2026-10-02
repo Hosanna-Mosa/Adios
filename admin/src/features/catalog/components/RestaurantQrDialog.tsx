@@ -12,6 +12,14 @@ interface RestaurantQrDialogProps {
   onDownload: () => void;
 }
 
+// Where a scanned menu QR should land. VITE_FRONTEND_URL was never listed in
+// .env.example, so nobody had reason to set it and every printed QR fell back to
+// a hardcoded http://localhost:5173 — unreachable for a customer at a table.
+// The fallback is now the origin the admin is actually served from, so a
+// deployed panel can never emit a localhost link; set VITE_FRONTEND_URL when
+// the partner site lives on its own domain.
+const menuBaseUrl = (import.meta.env.VITE_FRONTEND_URL || window.location.origin).replace(/\/+$/, "");
+
 /** The digital-menu QR code dialog for a restaurant. */
 export function RestaurantQrDialog({ isOpen, onOpenChange, restaurant, onDownload }: RestaurantQrDialogProps) {
   const { t } = useTranslation();
@@ -27,7 +35,7 @@ export function RestaurantQrDialog({ isOpen, onOpenChange, restaurant, onDownloa
           {restaurant && (
             <QRCode
               id="restaurant-qr-code"
-              value={`${import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173"}/restaurant-menu/${restaurant._id}`}
+              value={`${menuBaseUrl}/restaurant-menu/${restaurant._id}`}
               size={200}
               level="H"
               className="bg-white"

@@ -9,25 +9,35 @@ import { InfoBanner } from "./InfoBanner";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
+import { AppImage } from "@/components/ui/AppImage";
+import { Loader } from "@/components/ui/Loader";
 
 /** Selfie step: the framing viewfinder, the shutter, and the captured state. */
 export function SelfieCaptureSection({
   captured,
+  previewUri,
+  uploading = false,
   onCapture,
 }: {
   captured: boolean;
+  previewUri?: string | null;
+  uploading?: boolean;
   onCapture: () => void;
 }) {
   const { t } = useTranslation();
   return (
     <Box style={{ gap: 20, alignItems: "center" }}>
       <Box style={selfieSectionStyles.viewfinder}>
-        <Box style={selfieSectionStyles.viewfinderInner}>
-          <Feather name="camera" size={36} color={Colors.textMuted} />
-          <AppText style={selfieSectionStyles.viewfinderText}>
-            {t("onboarding.positionYourFaceWithinTheFrame")}
-          </AppText>
-        </Box>
+        {previewUri ? (
+          <AppImage source={{ uri: previewUri }} style={selfieSectionStyles.previewImage} />
+        ) : (
+          <Box style={selfieSectionStyles.viewfinderInner}>
+            <Feather name="camera" size={36} color={Colors.textMuted} />
+            <AppText style={selfieSectionStyles.viewfinderText}>
+              {t("onboarding.positionYourFaceWithinTheFrame")}
+            </AppText>
+          </Box>
+        )}
         {/* Oval cutout guidelines */}
         <Box style={selfieSectionStyles.oval} />
       </Box>
@@ -40,12 +50,20 @@ export function SelfieCaptureSection({
             onCapture();
           }}
           activeOpacity={0.8}
+          disabled={uploading}
         >
-          <Feather name="camera" size={24} color={Colors.white} />
+          {uploading ? (
+            <Loader color={Colors.white} />
+          ) : (
+            <Feather name="camera" size={24} color={Colors.white} />
+          )}
         </Touchable>
       ) : (
         <Box style={{ alignItems: "center", gap: 12 }}>
           <InfoBanner icon="check-circle" text={t("onboarding.photoCapturedSuccessfully")} />
+          <Touchable onPress={onCapture} disabled={uploading}>
+            <AppText style={selfieSectionStyles.retakeText}>{t("onboarding.retakePhoto")}</AppText>
+          </Touchable>
         </Box>
       )}
 

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useJsApiLoader } from "@react-google-maps/api";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { useListQuery } from "@/hooks/useListQuery";
-import type { AdminDriver, AdminOrderSummary, NewDriverForm } from "../types";
+import type { AdminDriver, AdminOrderSummary } from "../types";
 
 const getStatusFilterOptions = (t: (key: string) => string) => [
   { value: "ALL", label: t("dashboard.allStatuses") },
@@ -13,15 +12,6 @@ const getStatusFilterOptions = (t: (key: string) => string) => [
   { value: "OFFLINE", label: t("drivers.offline") },
   { value: "BLOCKED", label: t("users.blockedOnly") },
 ];
-
-const EMPTY_NEW_DRIVER: NewDriverForm = {
-  name: "",
-  email: "",
-  phone: "",
-  password: "",
-  vehicleType: "bike",
-  role: "DRIVER",
-};
 
 // Kept verbatim from the pre-refactor page: shown when the API returns no
 // drivers, so the Fleet Directory demo/staging view isn't empty.
@@ -91,6 +81,9 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
   },
 ];
 
+const COMPLETED_STATUSES = ["DELIVERED", "COMPLETED", "delivered", "completed"];
+const CANCELLED_STATUSES = ["CANCELLED", "cancelled", "rejected", "failed"];
+
 /**
  * All Fleet Directory tab state/query/mutation logic for Drivers.tsx (work
  * queue item #1). Moved out of the page as-is; nothing here changes
@@ -103,27 +96,9 @@ export function useDriversList() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilterState] = useState("ALL");
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [viewingDriver, setViewingDriver] = useState<AdminDriver | null>(null);
-  const [newDriver, setNewDriver] = useState<NewDriverForm>(EMPTY_NEW_DRIVER);
-
-  // Kept from the pre-refactor page: mapCenter/handleFocusOnMap's setMapCenter
-  // call have no visible effect today (the GoogleMap this fed was already
-  // unrendered before this refactor -- imported and computed, never mounted
-  // in JSX), but the toast success/error from clicking "View on map" / the
-  // pin icon is real, so the handler is preserved rather than dropped.
-  const [mapCenter, setMapCenter] = useState({ lat: 17.0005, lng: 81.804 });
-
-  // Also kept from the pre-refactor page: `isLoaded` itself is unused (the
-  // GoogleMap it would gate is not rendered), but the hook call is not a
-  // no-op -- it injects the Google Maps JS API <script> tag as a side
-  // effect, so removing the call would be a real behavior change.
-  useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
 
   const {
     items: drivers,
@@ -152,20 +127,6 @@ export function useDriversList() {
   const { data: orders = [] } = useQuery({
     queryKey: ["admin", "orders"],
     queryFn: () => adminFetch<AdminOrderSummary[]>("/admin/orders"),
-  });
-
-  const createDriverMutation = useMutation({
-    mutationFn: (data: NewDriverForm) =>
-      adminFetch("/admin/users", { method: "POST", body: JSON.stringify(data) }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "drivers"] });
-      toast.success(t("drivers.driverOnboardedSuccessfully"));
-      setIsAddOpen(false);
-      setNewDriver(EMPTY_NEW_DRIVER);
-    },
-    onError: (err: Error) => {
-      toast.error(err.message || t("drivers.failedToOnboardDriver"));
-    },
   });
 
   const toggleStatusMutation = useMutation({
@@ -215,15 +176,6 @@ export function useDriversList() {
     },
   });
 
-  const handleOnboardSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newDriver.name || !newDriver.phone) {
-      toast.error(t("users.nameAndPhoneRequired"));
-      return;
-    }
-    createDriverMutation.mutate(newDriver);
-  };
-
   const handleToggleStatus = (driver: AdminDriver) => {
     const nextStatus = driver.status === "ONLINE" ? "OFFLINE" : "ONLINE";
     toggleStatusMutation.mutate({ id: driver._id, status: nextStatus });
@@ -248,10 +200,12 @@ export function useDriversList() {
     const lng = driver.currentLocation?.coordinates?.[0];
     const lat = driver.currentLocation?.coordinates?.[1];
     if (lat && lng) {
-      setMapCenter({ lat, lng });
-      toast.success(t("drivers.centeredMapOn", { name: driver.user?.name, defaultValue: "Centered map on {{name}}" }));
+      // There is no in-page fleet map to centre (it was never rendered), so open
+      // the driver's last-known position in Google Maps instead of a toast that
+      // claimed to have centred one.
+      window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank", "noopener,noreferrer");
     } else {
-      toast.error(t("drivers.noActiveCoordinatesForDriver"));
+      toast.error(t("drivers.noLocationReportedForDriver"));
     }
   };
 
@@ -271,29 +225,49 @@ export function useDriversList() {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
   };
 
-  // Location helpers matching mock image
+  // Reports the driver's actual last-known position. This used to match on the
+  // driver's *name* and invent a town for it ("sunand" → Tadepalligudem, Near
+  // Railway Station), so the Current Location column showed confident, entirely
+  // fictional places for anyone whose name happened to match.
   const getLocationDetails = (driver: AdminDriver) => {
-    const name = driver.user?.name?.toLowerCase() || "";
-    if (name.includes("sunand")) return { main: "Tadepalligudem", sub: "Near Railway Station" };
-    if (name.includes("mahi")) return { main: "Tadepalligudem", sub: "Main Market Area" };
-    if (name.includes("dow") || name.includes("test")) return { main: "Tadepalligudem", sub: "Bus Stand Area" };
-    if (name.includes("ram")) return { main: "Kakinada", sub: "Near RTC Complex" };
-    if (name.includes("venkatesh")) return { main: "Last seen", sub: "2 hours ago" };
-
     const coords = driver.currentLocation?.coordinates;
     if (coords && coords[1] && coords[0]) {
-      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: t("drivers.activeCoordinates") };
+      return { main: `${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}`, sub: t("drivers.lastReportedPosition") };
     }
-    return { main: t("drivers.unknown"), sub: t("drivers.offlineLocation") };
+    return { main: t("drivers.unknown"), sub: t("drivers.noLocationReported") };
   };
 
   const getVehicleString = (driver: AdminDriver) => {
     const capType = driver.vehicleType
       ? driver.vehicleType.charAt(0).toUpperCase() + driver.vehicleType.slice(1)
       : "Bike";
-    const num = driver.vehicleNumber || `AP39XX${1000 + Math.floor(Math.random() * 8999)}`;
+    // A missing registration is shown as missing, rather than a random plate that
+    // changed on every re-render.
+    const num = driver.vehicleNumber || t("drivers.noVehicleNumber");
     return `${num} • ${capType}`;
   };
+
+  // Month-to-date earnings per driver, from this month's completed orders at the
+  // driver's share of the fare (replaces a hardcoded "₹0.00 / Target: ₹0").
+  const DRIVER_SHARE = 0.8;
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+
+  const mtdByDriver = orders.reduce((acc: Record<string, { total: number; trips: number }>, o) => {
+    if (!o.createdAt || !COMPLETED_STATUSES.includes(o.status || "")) return acc;
+    if (new Date(o.createdAt) < monthStart) return acc;
+    const driverId = typeof o.driver === "string" ? o.driver : o.driver?._id;
+    if (!driverId) return acc;
+    const entry = acc[driverId] || { total: 0, trips: 0 };
+    entry.total += (o.totalPrice || 0) * DRIVER_SHARE;
+    entry.trips += 1;
+    acc[driverId] = entry;
+    return acc;
+  }, {});
+
+  const getDriverMtdEarnings = (driverId: string) => mtdByDriver[driverId]?.total || 0;
+  const getDriverMtdTrips = (driverId: string) => mtdByDriver[driverId]?.trips || 0;
 
   const ordersToday = orders.filter((o) => {
     if (!o.createdAt) return false;
@@ -306,12 +280,11 @@ export function useDriversList() {
     );
   });
 
-  const totalOrdersCount = ordersToday.length > 0 ? ordersToday.length : 24;
-  const completedCount =
-    ordersToday.filter((o) => ["DELIVERED", "COMPLETED", "delivered", "completed"].includes(o.status || "")).length ||
-    18;
-  const cancelledCount =
-    ordersToday.filter((o) => ["CANCELLED", "cancelled", "rejected", "failed"].includes(o.status || "")).length || 3;
+  // Real counts only — these used to fall back to invented 24 / 18 / 3 whenever
+  // the true figure was zero.
+  const totalOrdersCount = ordersToday.length;
+  const completedCount = ordersToday.filter((o) => COMPLETED_STATUSES.includes(o.status || "")).length;
+  const cancelledCount = ordersToday.filter((o) => CANCELLED_STATUSES.includes(o.status || "")).length;
   const totalEarningsSum = ordersToday.reduce((sum, o) => sum + (o.totalPrice || o.deliveryFee || 0), 0);
   const totalEarningsToday = totalEarningsSum > 0 ? `₹${totalEarningsSum.toFixed(2)}` : "₹0.00";
 
@@ -320,9 +293,16 @@ export function useDriversList() {
       o.status || ""
     )
   ).length;
-  const liveOrdersDisplay = activeOrdersCount > 0 ? activeOrdersCount : 24;
+  const liveOrdersDisplay = activeOrdersCount;
 
   const onlineDrivers = drivers.filter((d) => d.status === "ONLINE").length;
+
+  // Real fleet average rating across drivers that actually carry one, and the
+  // share of the fleet on duty — both were hardcoded ("4.8", "98%").
+  const ratedDrivers = drivers.filter((d) => typeof d.rating === "number" && d.rating > 0);
+  const averageRating =
+    ratedDrivers.length > 0 ? (ratedDrivers.reduce((sum, d) => sum + (d.rating || 0), 0) / ratedDrivers.length).toFixed(1) : null;
+  const fleetHealth = drivers.length > 0 ? Math.round((onlineDrivers / drivers.length) * 100) : 0;
 
   const filteredDrivers = searchedDrivers.filter((d) => {
     if (statusFilter === "ALL") return true;
@@ -333,20 +313,6 @@ export function useDriversList() {
   });
 
   const { pageItems: paginatedDrivers, totalPages, safePage } = paginate(filteredDrivers);
-
-  const driverMarkers = searchedDrivers
-    .map((d) => {
-      const lng = d.currentLocation?.coordinates?.[0] || 81.804;
-      const lat = d.currentLocation?.coordinates?.[1] || 17.0005;
-      return {
-        lat: Number(lat),
-        lng: Number(lng),
-        name: d.user?.name || "Driver",
-        vehicle: d.vehicleNumber || "VAN",
-        status: d.status,
-      };
-    })
-    .filter((m) => !isNaN(m.lat) && !isNaN(m.lng));
 
   return {
     drivers,
@@ -364,18 +330,17 @@ export function useDriversList() {
     searchedDrivers,
     orders,
     onlineDrivers,
+    averageRating,
+    ratedDriversCount: ratedDrivers.length,
+    fleetHealth,
+    getDriverMtdEarnings,
+    getDriverMtdTrips,
     totalOrdersCount,
     completedCount,
     cancelledCount,
     totalEarningsToday,
     liveOrdersDisplay,
     ordersToday,
-    isAddOpen,
-    setIsAddOpen,
-    newDriver,
-    setNewDriver,
-    handleOnboardSubmit,
-    isCreating: createDriverMutation.isPending,
     isViewOpen,
     setIsViewOpen,
     viewingDriver,
@@ -391,8 +356,5 @@ export function useDriversList() {
     getLocationDetails,
     getVehicleString,
     updateDriverMutation,
-    // Retained but not rendered anywhere -- see the mapCenter comment above.
-    mapCenter,
-    driverMarkers,
   };
 }

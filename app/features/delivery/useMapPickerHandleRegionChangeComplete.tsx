@@ -1,9 +1,9 @@
 import * as Location from "expo-location";
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import i18n from "@/i18n";
 import { checkZone } from "@/services/places.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useMapPicker so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -35,7 +35,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       setRecentering(true);
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(t("app.delivery.permissionDenied"), t("app.delivery.locationPermissionIsRequired"));
+        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.locationPermissionIsRequired"));
         return;
       }
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
@@ -43,7 +43,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       mapRef.current?.animateToRegion(nextRegion, 350);
       handleRegionChangeComplete(nextRegion);
     } catch {
-      Alert.alert(t("actions.error"), t("app.delivery.couldNotGetCurrentLocation"));
+      showAlert(t("actions.error"), t("app.delivery.couldNotGetCurrentLocation"));
     } finally {
       setRecentering(false);
     }
@@ -55,7 +55,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
       const checkRes = await checkZone(region.latitude, region.longitude);
       if (!checkRes || !checkRes.inZone) {
         const stepLabel = step === "pickup" ? i18n.t("app.delivery.pickupWord") : i18n.t("app.delivery.dropWord");
-        Alert.alert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));
+        showAlert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));
         return;
       }
     } catch (err) {

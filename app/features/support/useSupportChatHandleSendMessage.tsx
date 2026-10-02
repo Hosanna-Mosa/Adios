@@ -1,7 +1,7 @@
-import { Alert } from "react-native";
 import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
 import { resolveTicket, sendTicketMessage } from "@/services/support.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -16,7 +16,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       const updatedTicket = await sendTicketMessage<SupportTicket>(ticket._id, messageText);
       setTicket(updatedTicket);
     } catch (error: any) {
-      Alert.alert(i18n.t("app.support.messageNotSent"), error.message || i18n.t("app.ride.pleaseTryAgain"));
+      showAlert(i18n.t("app.support.messageNotSent"), error.message || i18n.t("app.ride.pleaseTryAgain"));
       setInputText(messageText);
     } finally {
       setSubmittingReply(false);
@@ -30,7 +30,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       setTicket(updated);
       setAllTickets((prev: any) => prev.map((t: any) => (t._id === updated._id ? updated : t)));
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Please try again.");
+      showAlert("Error", err.message || "Please try again.");
     }
   };
 
@@ -41,7 +41,7 @@ export function useSupportChatHandleSendMessage(setViewMode: any, setAllTickets:
       setTicket(t);
       setViewMode("chat");
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to reopen case");
+      showAlert("Error", err.message || "Failed to reopen case");
     }
   };
 

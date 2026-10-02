@@ -1,7 +1,6 @@
-import { View, Platform } from "react-native";
+import { View } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import Colors from "@/constants/colors";
@@ -10,7 +9,6 @@ import Colors from "@/constants/colors";
 // app/_layout.tsx unchanged, so every screen keeps the transition it had.
 
 export function RootLayoutNav() {
-  const insets = useSafeAreaInsets();
   const isInitialized = useAuthStore((s) => s.isInitialized);
   const theme = useThemeStore((s) => s.theme);
   const colors = Colors[theme];
@@ -45,9 +43,6 @@ export function RootLayoutNav() {
         <Stack.Screen name="chat" />
         <Stack.Screen name="149-store" />
       </Stack>
-      {Platform.OS === "android" && insets.bottom > 0 && (
-        <View style={{ height: insets.bottom, backgroundColor: colors.background }} />
-      )}
     </View>
   );
 }

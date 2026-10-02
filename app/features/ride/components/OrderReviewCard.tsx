@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { createStyles } from "../tracking.styles";
 import { getOrderReview, submitReview } from "@/services/support.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/tracking.tsx unchanged. Single-feature for now: promote to
 // components/ui/ or components/shared/ if a second feature needs it.
@@ -67,7 +68,7 @@ export function OrderReviewCard({
         setExistingReview(res.review || { rating, comment, tags: selectedTags });
       }
     } catch (err: any) {
-      Alert.alert(t("app.ride.couldntSubmit"), err.message || t("app.ride.pleaseTryAgain"));
+      showAlert(t("app.ride.couldntSubmit"), err.message || t("app.ride.pleaseTryAgain"));
     } finally {
       setIsSubmitting(false);
     }

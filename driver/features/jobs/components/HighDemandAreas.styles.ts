@@ -88,5 +88,11 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: Colors.border,
+    gap: 6,
+  },
+  emptyText: {
+    fontFamily: "Inter_500Medium",
+    fontSize: typography.sizes.small,
+    color: Colors.textMuted,
   },
 });

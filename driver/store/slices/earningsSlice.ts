@@ -7,8 +7,8 @@ import type { DriverState, GetDriverState, SetDriverState } from "../types";
  * Called from the home screen on mount and on pull-to-refresh.
  *
  * Backend returns:
- *   { availableBalance, weekBalance, trendPercent, weeklyBreakdown,
- *     stats: { completedTrips, onlineHours, totalDistance } }
+ *   { availableBalance, weekBalance, todayBalance, trendPercent, weeklyBreakdown,
+ *     stats: { completedTrips, completedTripsToday, onlineHours, totalDistance } }
  */
 export const createEarningsSlice = (
   set: SetDriverState,
@@ -26,9 +26,10 @@ export const createEarningsSlice = (
 
       set({
         earnings: {
-          today: data.availableBalance ?? 0, // available balance as "today's earnings"
+          today: data.todayBalance ?? 0,
           week: data.weekBalance ?? 0,
           totalDeliveries: data.stats?.completedTrips ?? 0,
+          todayTrips: data.stats?.completedTripsToday ?? 0,
           weeklyBreakdown:
             Array.isArray(data.weeklyBreakdown) && data.weeklyBreakdown.length > 0
               ? data.weeklyBreakdown

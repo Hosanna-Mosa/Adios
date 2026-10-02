@@ -147,7 +147,8 @@
     "dayThu": "Thu",
     "dayFri": "Fri",
     "daySat": "Sat",
-    "daySun": "Sun"
+    "daySun": "Sun",
+    "today": "Today"
   },
   "support": {
     "liveChat": "Live Chat",
@@ -500,7 +501,13 @@
     "startTravel": "Start Travel",
     "upcomingReservedRide": "Upcoming Reserved Ride!",
     "flavourDriverActive": "Flavour Driver Active",
-    "trackingLocationForOrderDispatches": "Tracking location for order dispatches in background..."
+    "trackingLocationForOrderDispatches": "Tracking location for order dispatches in background...",
+    "noHighDemandAreas": "No high-demand areas right now",
+    "backgroundLocationOffNowOffline": "Background location isn't enabled, so you're offline while the app is minimised.",
+    "noPhoneNumber": "No phone number",
+    "customerPhoneNotAvailable": "The customer's phone number isn't available for this order.",
+    "chatEmptyState": "Messages with {{value}} will show up here.",
+    "theCustomer": "the customer"
   },
   "onboarding": {
     "sections": {
@@ -604,7 +611,12 @@
     "faceGuidelines": "Make sure your face is clearly visible, well-lit, and without hats or sunglasses.",
     "pleaseWait": "Please wait...",
     "locationVerifiedGeometrically": "Location Verified Geometrically",
-    "coords": "Coords"
+    "coords": "Coords",
+    "cameraPermissionNeeded": "Camera permission needed",
+    "allowCameraForSelfie": "Please allow camera access to take your profile selfie.",
+    "uploadFailed": "Upload failed",
+    "couldNotUploadSelfie": "Couldn't upload your selfie. Please try again.",
+    "retakePhoto": "Retake photo"
   },
   "profile": {
     "personalInfo": "Personal Info",
@@ -754,7 +766,8 @@
     "saveAddress": "Save Address",
     "updateAddress": "Update Address",
     "vehicle": "Vehicle",
-    "vehicleInfo": "Vehicle Info"
+    "vehicleInfo": "Vehicle Info",
+    "newRating": "New"
   },
   "notFound": {
     "oops": "Oops!",

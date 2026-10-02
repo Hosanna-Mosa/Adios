@@ -5,9 +5,10 @@ import { fadeInUp, staggerListItem } from "@/motion/presets";
 import { HelperTaskCheckRow } from "./HelperTaskCheckRow";
 import { HelperTaskFooter } from "./HelperTaskFooter";
 import { HelperTaskTitleRow } from "./HelperTaskTitleRow";
-import { type ServiceTokens } from "@/constants/colors";
+import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { HelperTaskNoHelpers } from "./HelperTaskNoHelpers";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -22,7 +23,10 @@ interface Props {
   isIncreasingPrice: any;
   offer: any;
   rejectedCount: number;
+  searchExhausted: boolean;
+  searchStartedAt: number | null;
   styles: HelperTaskStyles;
+  tokens: ThemeTokens;
   totalContacted: number;
 }
 
@@ -36,10 +40,29 @@ export function HelperTaskBody({
   isIncreasingPrice,
   offer,
   rejectedCount,
+  searchExhausted,
+  searchStartedAt,
   styles,
+  tokens,
   totalContacted,
 }: Props) {
   const { t } = useTranslation();
+  if (searchExhausted) {
+    return (
+      <HelperTaskNoHelpers
+        accent={accent}
+        currentTaskPrice={currentTaskPrice}
+        handleCancel={handleCancel}
+        handleIncreasePrice={handleIncreasePrice}
+        isIncreasingPrice={isIncreasingPrice}
+        rejectedCount={rejectedCount}
+        styles={styles}
+        tokens={tokens}
+        totalContacted={totalContacted}
+      />
+    );
+  }
+
   return (
     <>
     <View style={{ flex: 1 }}>
@@ -48,7 +71,10 @@ export function HelperTaskBody({
           <HelperTaskTitleRow
             styles={styles}
           />
-          <Text style={styles.subtitle}>{t("app.delivery.matchingYouWithHelpersNearby")}</Text>
+          <Text style={styles.subtitle}>
+            {t("app.delivery.matchingYouWithHelpersNearby")}
+            {searchStartedAt ? ` ${t("app.delivery.offersGoOutOneAtATime")}` : ""}
+          </Text>
         </Animated.View>
 
         <View style={{ gap: 12, marginTop: 18 }}>

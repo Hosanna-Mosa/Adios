@@ -1,14 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { StatCard } from "@/components/shared/StatCard";
-import { StaggerList } from "@/components/motion/StaggerList";
-import { StaggerItem } from "@/components/motion/StaggerItem";
-import { Map as MapIcon, MapPin, Compass } from "lucide-react";
 import { useZonesList } from "@/features/zones/hooks/useZonesList";
 import { useZoneForm } from "@/features/zones/hooks/useZoneForm";
 import { ZoneList } from "@/features/zones/components/ZoneList";
 import { ZoneMapPreview } from "@/features/zones/components/ZoneMapPreview";
 import { ZoneCreateDialog } from "@/features/zones/components/ZoneCreateDialog";
+import { ZoneEditDialog } from "@/features/zones/components/ZoneEditDialog";
 
 export default function Zones() {
   const { t } = useTranslation();
@@ -24,12 +21,16 @@ export default function Zones() {
     handleDelete,
     handleToggleActive,
     handleToggleAutoSurge,
-    handleRename,
+    editingZone,
+    editForm,
+    setEditForm,
+    openEditZone,
+    closeEditZone,
+    handleEditSubmit,
+    isSavingEdit,
     getGoogleCoords,
     getGoogleCenter,
     getZoneColors,
-    activeZonesCount,
-    maxMultiplier,
   } = useZonesList();
 
   const {
@@ -80,26 +81,6 @@ export default function Zones() {
   return (
     <DashboardLayout searchPlaceholder={t("zones.searchZones")}>
       <div className="space-y-6">
-        {/* Statistics Cards */}
-        <StaggerList className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StaggerItem>
-            <StatCard icon={<MapIcon className="h-5 w-5 text-indigo-500" />} label={t("zones.totalZones")} value={zones.length.toString()} badge={t("zones.configured")} badgeColor="success" />
-          </StaggerItem>
-          <StaggerItem>
-            <StatCard icon={<Compass className="h-5 w-5 text-emerald-500" />} label={t("zones.activeZones")} value={activeZonesCount.toString()} badge={t("zones.liveGeofences")} badgeColor="success" />
-          </StaggerItem>
-          <StaggerItem>
-            <StatCard icon={<MapPin className="h-5 w-5 text-amber-500" />} label={t("zones.surgeMultipliers")} value={t("zones.xMax", { value: maxMultiplier, defaultValue: "{{value}}x Max" })} badge={t("zones.dynamicPricing")} badgeColor="warning" />
-          </StaggerItem>
-          <StaggerItem className="stat-card bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 flex flex-col justify-between p-5 rounded-xl border">
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider">{t("zones.dynamicControl")}</p>
-              <h4 className="text-2xl font-bold text-foreground mt-1.5">{t("zones.mapEngine")}</h4>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">{t("zones.visualizingOperationalBoundariesDesc")}</p>
-          </StaggerItem>
-        </StaggerList>
-
         {/* Main Grid: Zones List (Col 2/3) and Map Preview (Col 1/3) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <ZoneList
@@ -109,7 +90,7 @@ export default function Zones() {
             onSelectZone={handleSelectZone}
             onToggleActive={handleToggleActive}
             onToggleAutoSurge={handleToggleAutoSurge}
-            onRename={handleRename}
+            onEdit={openEditZone}
             onDelete={handleDelete}
             onCreateClick={openCreateDialog}
           />
@@ -123,9 +104,12 @@ export default function Zones() {
             getGoogleCoords={getGoogleCoords}
             getGoogleCenter={getGoogleCenter}
             getZoneColors={getZoneColors}
+            onEditZone={openEditZone}
           />
         </div>
       </div>
+
+      <ZoneEditDialog zone={editingZone} form={editForm} onChange={setEditForm} onClose={closeEditZone} onSubmit={handleEditSubmit} isSaving={isSavingEdit} />
 
       <ZoneCreateDialog
         open={isAddOpen}

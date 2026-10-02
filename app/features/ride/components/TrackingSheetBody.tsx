@@ -15,7 +15,7 @@ import type { Props } from "./TrackingSheetBody.props";
 
 export function TrackingSheetBody(props: Props) {
   const { accent, deliveryOtp, deliveryStop, driver, eta, formatClock, handleSOS, handleShareTrip,
-  helperStatus, isHelper, isRide, orderCreatedAt, pickupLabel, pulse1Style, pulse2Style,
+  helperStatus, isHelper, isRide, orderCreatedAt, pickupLabel,
   setTripModalVisible, startOtp, status, stops, styles, timeline, tokens, unreadCount } = props;
   const { t } = useTranslation();
   return (
@@ -25,8 +25,6 @@ export function TrackingSheetBody(props: Props) {
         accent={accent}
         isHelper={isHelper}
         isRide={isRide}
-        pulse1Style={pulse1Style}
-        pulse2Style={pulse2Style}
         styles={styles}
       />
     ) : (
@@ -73,12 +71,12 @@ export function TrackingSheetBody(props: Props) {
             styles={styles}
           />
         )}
-        {!isRide && !isHelper && deliveryOtp && (
+        {!isRide && deliveryOtp && (
           <TrackingPinCard
             accent={accent}
             otp={deliveryOtp}
-            label={t("app.ride.deliveryPin")}
-            hint={t("app.ride.onlyGiveThisCodeWhenYour")}
+            label={isHelper ? t("app.ride.completionPin") : t("app.ride.deliveryPin")}
+            hint={isHelper ? t("app.ride.giveThisToYourHelperOnceWorkIsFinished") : t("app.ride.onlyGiveThisCodeWhenYour")}
             styles={styles}
           />
         )}

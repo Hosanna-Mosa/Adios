@@ -5,6 +5,7 @@ export { CashOutDialog } from "./CashOutDialog";
 export { EarningsChart } from "./EarningsChart";
 export { EarningsStatsRow } from "./EarningsStatsRow";
 export { PerformanceCard } from "./PerformanceCard";
+export type { PerformanceRange } from "./PerformanceCard";
 export { RecentActivityList } from "./RecentActivityList";
 export type { EarningsTransaction } from "./RecentActivityList";
 export { TransactionItem } from "./TransactionItem";

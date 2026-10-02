@@ -7,6 +7,15 @@ import { fontFamilies, typography } from "@/constants/typography";
 
 export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
+/** One stored ChatMessage document as the chat list renders it. `clientId` is the
+ * id the sender's socket payload used, so history lines up with live messages. */
+export const toChatMessage = (m: any) => ({
+  id: String(m.clientId || m._id),
+  text: m.text,
+  sender: (m.role === "driver" ? "driver" : "customer") as "driver" | "customer",
+  timestamp: m.time,
+});
+
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
     header: {
@@ -42,7 +51,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     assignText: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
     assignSend: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.8 },
 
-    quickRepliesRow: { marginTop: 10 },
+    quickRepliesRow: { flexGrow: 0, flexShrink: 0, marginTop: 10 },
     quickReplyChip: { borderWidth: 1, borderColor: tokens.borderStrong, backgroundColor: tokens.surface, borderRadius: 999, paddingHorizontal: 13, paddingVertical: 8, minHeight: 36, justifyContent: "center" },
     quickReplyChipText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
 

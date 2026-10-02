@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { adminFetch } from "@/lib/api-client";
-import type { AdminZone, LatLng } from "../types";
+import type { AdminZone, LatLng, ZoneEditForm } from "../types";
 
 export const DEFAULT_CENTER: LatLng = { lat: 12.92, lng: 77.64 }; // HSR Layout, Bangalore
 
@@ -112,13 +112,57 @@ export function useZonesList() {
     toggleZoneMutation.mutate({ zoneId: zone._id, data: { autoSurgeEnabled: !zone.autoSurgeEnabled } });
   };
 
-  const handleRename = (zone: AdminZone, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newName = prompt(t("zones.enterNewNameForZone"), zone.name);
-    if (newName && newName.trim() !== "" && newName !== zone.name) {
-      toggleZoneMutation.mutate({ zoneId: zone._id, data: { name: newName.trim() } });
-    }
+  // Full edit of an existing zone. Everything the model carries is editable here,
+  // rather than the single name the old prompt() asked for.
+  const [editingZone, setEditingZone] = useState<AdminZone | null>(null);
+  const [editForm, setEditForm] = useState<ZoneEditForm>({
+    name: "",
+    description: "",
+    pricingMultiplier: "1",
+    radius: "1000",
+    isActive: true,
+  });
+
+  const openEditZone = (zone: AdminZone) => {
+    setEditingZone(zone);
+    setEditForm({
+      name: zone.name || "",
+      description: zone.description || "",
+      pricingMultiplier: String(zone.pricingMultiplier ?? 1),
+      radius: String(zone.radius ?? 1000),
+      isActive: Boolean(zone.isActive),
+    });
   };
+
+  const closeEditZone = () => setEditingZone(null);
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingZone) return;
+    if (!editForm.name.trim()) {
+      toast.error(t("zones.zoneNameRequired"));
+      return;
+    }
+    const data: Partial<AdminZone> = {
+      name: editForm.name.trim(),
+      description: editForm.description.trim(),
+      pricingMultiplier: Number(editForm.pricingMultiplier) || 1,
+      isActive: editForm.isActive,
+    };
+    // Radius only means anything for a circular zone; a polygon is defined by its
+    // drawn boundary, which this form does not touch.
+    if (editingZone.type === "circle") {
+      data.radius = Number(editForm.radius) || 0;
+    }
+    toggleZoneMutation.mutate({ zoneId: editingZone._id, data }, { onSuccess: () => setEditingZone(null) });
+  };
+
+  // Keep the map-preview detail card in sync after an edit/toggle refetch.
+  useEffect(() => {
+    if (!selectedZone) return;
+    const fresh = zones.find((z) => z._id === selectedZone._id);
+    if (fresh && fresh !== selectedZone) setSelectedZone(fresh);
+  }, [zones]);
 
   // Map Polygon/Circle helper functions for the selected zone's preview
   const getGoogleCoords = (zone: AdminZone): LatLng[] => {
@@ -143,9 +187,6 @@ export function useZonesList() {
     return { fill: "#6366f1", stroke: "#4f46e5" }; // Slate/indigo
   };
 
-  const activeZonesCount = zones.filter((z) => z.isActive).length;
-  const maxMultiplier = zones.length > 0 ? Math.max(...zones.map((z) => z.pricingMultiplier)) : 1.0;
-
   return {
     isLoaded,
     zones,
@@ -158,11 +199,15 @@ export function useZonesList() {
     handleDelete,
     handleToggleActive,
     handleToggleAutoSurge,
-    handleRename,
+    editingZone,
+    editForm,
+    setEditForm,
+    openEditZone,
+    closeEditZone,
+    handleEditSubmit,
+    isSavingEdit: toggleZoneMutation.isPending,
     getGoogleCoords,
     getGoogleCenter,
     getZoneColors,
-    activeZonesCount,
-    maxMultiplier,
   };
 }

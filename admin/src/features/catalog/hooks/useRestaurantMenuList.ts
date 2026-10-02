@@ -24,6 +24,8 @@ export function useRestaurantMenuList() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterDiet, setFilterDiet] = useState("all");
+  const [filterRating, setFilterRating] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -124,10 +126,17 @@ export function useRestaurantMenuList() {
     img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
   };
 
-  const filteredRestaurants = restaurants.filter(
-    (r) =>
-      r.name.toLowerCase().includes(searchQuery.toLowerCase()) || r.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Dietary and rating narrow the same list the search does, so the three
+  // compose rather than override one another.
+  const filteredRestaurants = restaurants.filter((r) => {
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = r.name.toLowerCase().includes(q) || r.address.toLowerCase().includes(q);
+    const matchesDiet = filterDiet === "all" || (filterDiet === "veg" && r.isPureVeg) || (filterDiet === "nonveg" && !r.isPureVeg);
+    const matchesRating = filterRating === "all" || (Number(r.rating) || 0) >= Number(filterRating);
+    return matchesSearch && matchesDiet && matchesRating;
+  });
+
+  const hasActiveFilters = searchQuery !== "" || filterDiet !== "all" || filterRating !== "all";
 
   const totalPages = Math.ceil(filteredRestaurants.length / ITEMS_PER_PAGE);
   const paginatedRestaurants = filteredRestaurants.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -137,11 +146,34 @@ export function useRestaurantMenuList() {
     setCurrentPage(1);
   };
 
+  const handleDietChange = (value: string) => {
+    setFilterDiet(value);
+    setCurrentPage(1);
+  };
+
+  const handleRatingChange = (value: string) => {
+    setFilterRating(value);
+    setCurrentPage(1);
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFilterDiet("all");
+    setFilterRating("all");
+    setCurrentPage(1);
+  };
+
   return {
     restaurants,
     isLoading,
     searchQuery,
     setSearchQuery: handleSearchChange,
+    filterDiet,
+    setFilterDiet: handleDietChange,
+    filterRating,
+    setFilterRating: handleRatingChange,
+    hasActiveFilters,
+    clearFilters,
     currentPage,
     setCurrentPage,
     itemsPerPage: ITEMS_PER_PAGE,

@@ -96,7 +96,9 @@ export function useOnboardingSave(
 
     setSaving(true);
     try {
-      const patchRes = await patchOnboarding(token, { selfieImage: "captured" });
+      // selfieUri is the real Cloudinary URL from handleCaptureSelfie, not the
+      // placeholder "captured" string this used to send.
+      const patchRes = await patchOnboarding(token, { selfieImage: docs.selfieUri || undefined });
       if (bailIfUnauthorized(patchRes.status)) return;
 
       const res = await postOnboarding(token, "complete");
@@ -116,7 +118,7 @@ export function useOnboardingSave(
     } finally {
       setSaving(false);
     }
-  }, [setSaving, setOnboardingCompleted]);
+  }, [docs.selfieUri, setSaving, setOnboardingCompleted]);
 
   return { saveCurrentSectionData, handleCompleteOnboarding };
 }

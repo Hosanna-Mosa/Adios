@@ -1,11 +1,12 @@
 import React, { useMemo } from "react";
-import { Alert, Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -47,7 +48,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
     }
 
     // A misconfigured store URL used to vanish into the console — surface it.
-    Alert.alert(t("app.UpdateModal.couldntOpenTheStore"), url);
+    showAlert(t("app.UpdateModal.couldntOpenTheStore"), url);
   };
 
   return (

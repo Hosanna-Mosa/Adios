@@ -58,12 +58,27 @@ export default function RestaurantMenuFront() {
         const res = await fetch(
           `${API_BASE_URL}/food/restaurant-menu/restaurants/${id}`,
         );
-        if (!res.ok) {
+        if (res.ok) {
+          const data = await res.json();
+          setRestaurant(data.restaurant);
+          setMenu(data.menu || []);
+          return;
+        }
+
+        // The customer app shares a *vendor* id (app/utils/shareLink.ts), which
+        // lives in a different collection from the admin-curated digital menus
+        // above — so every shared dish link used to land on "Restaurant not
+        // found". Both endpoints below are public, same as the one above.
+        const [vendorRes, menuRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/vendors/${id}`),
+          fetch(`${API_BASE_URL}/food/vendor/${id}`),
+        ]);
+        if (!vendorRes.ok) {
           throw new Error(t("menu.restaurantNotFoundError"));
         }
-        const data = await res.json();
-        setRestaurant(data.restaurant);
-        setMenu(data.menu || []);
+        const vendor = await vendorRes.json();
+        setRestaurant(vendor);
+        setMenu(menuRes.ok ? await menuRes.json() : []);
       } catch (err) {
         setError(
           (err as { message?: string })?.message ||

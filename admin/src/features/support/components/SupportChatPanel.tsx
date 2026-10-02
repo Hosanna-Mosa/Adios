@@ -1,5 +1,4 @@
-import { toast } from "sonner";
-import { Phone, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -57,9 +56,6 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => toast.success(t("support.callingUserLinkEstablished", { name: ticket.user, defaultValue: "Calling {{name}}... Link established." }))} className="p-2 hover:bg-muted rounded-lg transition-colors border border-border">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-          </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="p-2 hover:bg-muted rounded-lg transition-colors border border-border">

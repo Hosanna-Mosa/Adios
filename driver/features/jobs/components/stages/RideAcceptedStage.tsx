@@ -27,7 +27,7 @@ export function RideAcceptedStage() {
     <OrderStage title={t("jobs.rideAccepted")}>
       <Box style={styles.infoBox}>
         <StopInfoItem
-          label={t("jobs.pickupRiderFrom")}
+          label={t("jobs.pickupLocation")}
           name={currentOrder.customerName || t("jobs.rider")}
           address={pickupStop?.address}
           layout="row"

@@ -34,7 +34,7 @@ export function ChatInputBar({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.inputBar, { paddingBottom: Platform.OS === "ios" ? insets.bottom + 8 : 12 }]}>
+    <View style={[styles.inputBar, { paddingBottom: Platform.OS === "ios" ? insets.bottom + 34 : 38 }]}>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}

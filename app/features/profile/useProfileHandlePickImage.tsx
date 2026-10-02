@@ -1,12 +1,13 @@
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
 import { changePassword, uploadProfilePicture } from "@/services/users.service";
+import { customFetch } from "@/utils/api/custom-fetch";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useProfile so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecurityVisible: any, currentPassword: any, setCurrentPassword: any, newPassword: any, setNewPassword: any, confirmPassword: any, setConfirmPassword: any, setChangingPassword: any) {
+export function useProfileHandlePickImage(user: any, setUser: any, setLoading: any, setSecurityVisible: any, currentPassword: any, setCurrentPassword: any, newPassword: any, setNewPassword: any, confirmPassword: any, setConfirmPassword: any, setChangingPassword: any) {
   const { t } = useTranslation();
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, aspect: [1, 1], quality: 0.7 });
@@ -24,23 +25,48 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
       const data = await uploadProfilePicture(fd);
       if (data && data.user) setUser(data.user);
     } catch (err) {
-      Alert.alert(t("actions.error"), t("app.profile.failedToUploadImage"));
+      showAlert(t("actions.error"), t("app.profile.failedToUploadImage"));
     } finally {
       setLoading(false);
     }
   };
 
+  const handleRemoveImage = async () => {
+    try {
+      setLoading(true);
+      const data = await customFetch<any>("/users/profile-pic", { method: "DELETE" });
+      if (data && data.user) setUser(data.user);
+    } catch (err: any) {
+      showAlert(t("actions.error"), err.message || t("app.profile.failedToRemovePhoto"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Tapping the avatar offers both actions rather than jumping straight into the
+  // picker — there was previously no way to get rid of a photo once uploaded.
+  const handleAvatarPress = () => {
+    const options: { text: string; onPress?: () => void; style?: "cancel" | "destructive" }[] = [
+      { text: user?.profilePic ? t("app.profile.changePhoto") : t("app.profile.uploadPhoto"), onPress: handlePickImage },
+    ];
+    if (user?.profilePic) {
+      options.push({ text: t("app.profile.removePhoto"), style: "destructive", onPress: handleRemoveImage });
+    }
+    options.push({ text: t("actions.cancel"), style: "cancel" });
+    showAlert(t("app.profile.profilePhoto"), undefined, options);
+  };
+
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert(t("app.profile.missingFields"), t("app.profile.allFieldsAreRequired"));
+      showAlert(t("app.profile.missingFields"), t("app.profile.allFieldsAreRequired"));
       return;
     }
     if (newPassword.length < 8) {
-      Alert.alert(t("app.profile.weakPassword"), t("app.profile.newPasswordMustBeAtLeast"));
+      showAlert(t("app.profile.weakPassword"), t("app.profile.newPasswordMustBeAtLeast"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert(t("app.profile.doesntMatch"), t("app.profile.passwordsDoNotMatch"));
+      showAlert(t("app.profile.doesntMatch"), t("app.profile.passwordsDoNotMatch"));
       return;
     }
     try {
@@ -48,17 +74,17 @@ export function useProfileHandlePickImage(setUser: any, setLoading: any, setSecu
       // customFetch rather than a hand-built fetch, so an expired session here
       // goes through the same 401 interceptor as every other call.
       await changePassword({ currentPassword, newPassword });
-      Alert.alert(t("app.profile.success"), t("app.profile.passwordChangedSuccessfully"));
+      showAlert(t("app.profile.success"), t("app.profile.passwordChangedSuccessfully"));
       setSecurityVisible(false);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      Alert.alert(t("actions.error"), err.message || t("app.auth.somethingWentWrongTryAgain"));
+      showAlert(t("actions.error"), err.message || t("app.auth.somethingWentWrongTryAgain"));
     } finally {
       setChangingPassword(false);
     }
   };
 
-  return { handlePickImage, handleChangePassword };
+  return { handlePickImage, handleRemoveImage, handleAvatarPress, handleChangePassword };
 }

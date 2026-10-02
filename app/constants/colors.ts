@@ -39,9 +39,9 @@ export type ThemeTokens = {
   nonveg: string;
   // Modal/backdrop scrim.
   overlay: string;
-  // Brand anchor — electric indigo. Used for primary CTAs, active states,
-  // brand marks, progress indicators. Distinct from every competitor in this
-  // space (Swiggy/Zomato red-orange, Uber/Ola/Rapido black-green-yellow).
+  // Brand anchor — the same orange the food/ride services use, so screens with
+  // no service context (login, account) read as the same app as the rest of it.
+  // Was an electric indigo, which left those screens looking purple.
   brand: string;
   brandPressed: string;
   brandSkin: string;
@@ -74,15 +74,18 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     veg: "#16794F",
     nonveg: "#B5281F",
     overlay: "rgba(20, 16, 30, 0.4)",
-    brand: "#4F3CF2",
-    brandPressed: "#3D2ED1",
-    brandSkin: "#EBE8FD",
+    brand: "#E8720C",
+    brandPressed: "#C25F0A",
+    brandSkin: "#FDF0E2",
     onBrand: "#FFFFFF",
     services: {
       food: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
       meat: { accent: "#C13566", skin: "#FBE8EF", on: "#FFFFFF" },
-      ride: { accent: "#0A7EA8", skin: "#E1F2F8", on: "#FFFFFF" },
-      task: { accent: "#6C4FE0", skin: "#EEE9FC", on: "#FFFFFF" },
+      // Ride deliberately shares Food's orange rather than carrying its own teal:
+      // the ride flow is meant to read as the same app as the home screen, not as
+      // a separate product. Meat is the one service that still recolours the UI.
+      ride: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
+      task: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
       delivery: { accent: "#5B8A1E", skin: "#EFF5E1", on: "#FFFFFF" },
     },
   },
@@ -104,15 +107,15 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     veg: "#5FD68C",
     nonveg: "#FF8A80",
     overlay: "rgba(0, 0, 0, 0.7)",
-    brand: "#8B7FFF",
-    brandPressed: "#7263FF",
-    brandSkin: "#241F3D",
+    brand: "#FF9A4D",
+    brandPressed: "#E8842F",
+    brandSkin: "#33200F",
     onBrand: "#131118",
     services: {
       food: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
       meat: { accent: "#F589AC", skin: "#331522", on: "#131118" },
-      ride: { accent: "#4FC7EC", skin: "#0B2A38", on: "#131118" },
-      task: { accent: "#B7A6FF", skin: "#221B44", on: "#131118" },
+      ride: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
+      task: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
       delivery: { accent: "#A6D65C", skin: "#232B10", on: "#131118" },
     },
   },

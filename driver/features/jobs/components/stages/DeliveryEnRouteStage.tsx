@@ -17,7 +17,7 @@ export function DeliveryEnRouteStage() {
 
   return (
     <OrderStage title={t("jobs.travelToCustomer")} showPulse={isSimulating}>
-      <SimPanel target={deliveryStop} idleEta="12 min" idleDistance="3.1 km" />
+      <SimPanel target={deliveryStop} idleEta={currentOrder.duration} idleDistance={currentOrder.distance} />
 
       <CustomerRow
         initial={(currentOrder.customerName || t("jobs.customer")).charAt(0).toUpperCase()}

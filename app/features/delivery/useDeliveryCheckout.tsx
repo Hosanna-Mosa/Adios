@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Alert, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -12,6 +12,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/delivery/checkout.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -102,7 +103,7 @@ export function useDeliveryCheckout() {
 
   const handleConfirm = async () => {
     if (!user || !token) {
-      Alert.alert(t("app.delivery.loginRequired"), t("app.delivery.pleaseLogInToConfirmYour"));
+      showAlert(t("app.delivery.loginRequired"), t("app.delivery.pleaseLogInToConfirmYour"));
       return;
     }
     if (!price || stops.length === 0) return;
@@ -112,6 +113,7 @@ export function useDeliveryCheckout() {
       // Online: the server stores this with the payment and places the order once Razorpay
       // confirms the money. Cash: it goes to /orders directly and the driver collects.
       const orderData = {
+        serviceType: "delivery",
         stops: stops.map((s) => ({ ...s, items: s.items || [] })),
         totalDistance: route?.totalDistance,
         totalPrice: price.total,
@@ -129,7 +131,7 @@ export function useDeliveryCheckout() {
     } catch (error: any) {
       console.error("Delivery checkout failed:", error);
       const described = describePaymentError(error);
-      Alert.alert(described?.title ?? t("app.delivery.orderFailed"), described?.message ?? (error?.message || t("app.delivery.unableToProcessYourOrder")));
+      showAlert(described?.title ?? t("app.delivery.orderFailed"), described?.message ?? (error?.message || t("app.delivery.unableToProcessYourOrder")));
     } finally {
       setIsProcessing(false);
     }

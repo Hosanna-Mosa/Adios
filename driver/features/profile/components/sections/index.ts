@@ -6,7 +6,6 @@ export { GenderPicker } from "./GenderPicker";
 export type { GenderOption } from "./GenderPicker";
 export { PersonalSection } from "./PersonalSection";
 export type { PersonalValues } from "./PersonalSection";
-export { SettingsSection } from "./SettingsSection";
-export type { SavedAddress } from "./SettingsSection";
+export { ChangePasswordForm } from "./ChangePasswordForm";
 export { SupportSection } from "./SupportSection";
 export { VehicleSection } from "./VehicleSection";

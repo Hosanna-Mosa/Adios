@@ -1,4 +1,7 @@
-import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import {
+  ScrollView,
+} from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { Button } from "@/components/ui/Button";
@@ -21,7 +24,7 @@ export default function OTPScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior="padding"
     >
       {/* Back button — same treatment as screen 2 */}
       <OtpHeaderRow
