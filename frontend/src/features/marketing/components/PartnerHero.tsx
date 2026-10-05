@@ -20,7 +20,7 @@ export function PartnerHero({ onGetStarted }: Props) {
           </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] mb-6 tracking-tight text-white font-extrabold">
             {t("partnerHero.headline")}{" "}
-            <span className="text-brand-kinetic">Hybrid</span>
+            <span className="text-brand-kinetic">Adios</span>
           </h1>
           <p className="text-lg text-white/70 max-w-xl mx-auto mb-10 leading-relaxed">
             {t("partnerHero.subtitle")}

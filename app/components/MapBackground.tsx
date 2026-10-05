@@ -31,6 +31,10 @@ interface Props {
   /** The assigned driver's vehicle, so their live marker matches what was booked.
    * Falls back to the selected service; it used to always draw a scooter. */
   driverVehicleType?: string | null;
+  /** Restaurant / meat-shop order: 3D restaurant + home markers, and the live blue dot. */
+  outletOrder?: boolean;
+  /** Ride: green "Pickup" / red "Drop" bubbles, and the live blue dot. */
+  rideOrder?: boolean;
 }
 
 export interface MapBackgroundRef {
@@ -56,7 +60,9 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
   onMarkerPress,
   radiusCenter,
   driverVehicleType,
-  radiusMeters
+  radiusMeters,
+  outletOrder,
+  rideOrder,
 }, ref) => {
   const {
     region, setRegion, autoRoutePolyline, setAutoRoutePolyline,
@@ -80,7 +86,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
         initialRegion={region}
         onRegionChangeComplete={(r) => setRegion(r)}
         mapType={mapType}
-        showsUserLocation={!userLocation}
+        showsUserLocation={!userLocation || !!outletOrder || !!rideOrder}
         showsPointsOfInterest={false}
         showsCompass={false}
         showsMyLocationButton={false}
@@ -151,6 +157,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
           driverLocation={driverLocation}
           driverVehicleType={driverVehicleType}
           selectedService={selectedService}
+          outletOrder={outletOrder}
+          rideOrder={rideOrder}
         />
 
         {(polyline || autoRoutePolyline) ? (

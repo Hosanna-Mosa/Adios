@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Icon } from "../../../components/shared/Icon";
 import { categoryOptionLabel } from "../constants";
+import { isValidEmail } from "../hooks/useOnboardingForm";
 import type { useOnboardingForm } from "../hooks/useOnboardingForm";
 
 type Props = { form: ReturnType<typeof useOnboardingForm> };
@@ -24,13 +25,6 @@ export function StepBusinessInfo({ form }: Props) {
     setConfirmPortalPassword,
     ownerPhone,
     setOwnerPhone,
-    otpSent,
-    otp,
-    setOtp,
-    otpVerified,
-    sendOtp,
-    verifyOtp,
-    setOtpSent,
     primaryContact,
     setPrimaryContact,
     sameAsOwner,
@@ -119,7 +113,8 @@ export function StepBusinessInfo({ form }: Props) {
             </div>
             {cuisines.length > 0 && (
               <p className="text-xs text-secondary-app mt-2">
-                {t("onboarding.selectedColon")} {cuisines.map(categoryOptionLabel).join(", ")}
+                {t("onboarding.selectedColon")}{" "}
+                {cuisines.map(categoryOptionLabel).join(", ")}
               </p>
             )}
           </div>
@@ -144,7 +139,8 @@ export function StepBusinessInfo({ form }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
-                {t("onboarding.fullName")} <span className="text-brand-kinetic">*</span>
+                {t("onboarding.fullName")}{" "}
+                <span className="text-brand-kinetic">*</span>
               </label>
               <input
                 type="text"
@@ -156,7 +152,8 @@ export function StepBusinessInfo({ form }: Props) {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">
-                {t("onboarding.emailAddress")} <span className="text-brand-kinetic">*</span>
+                {t("onboarding.emailAddress")}{" "}
+                <span className="text-brand-kinetic">*</span>
               </label>
               <input
                 type="email"
@@ -165,6 +162,18 @@ export function StepBusinessInfo({ form }: Props) {
                 placeholder="owner@business.com"
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
+              {ownerEmail.trim() && !isValidEmail(ownerEmail) ? (
+                <p className="mt-2 text-xs font-medium text-red-600">
+                  {t("onboarding.invalidEmail", "Enter a valid email address.")}
+                </p>
+              ) : (
+                <p className="mt-2 text-xs text-secondary-app">
+                  {t(
+                    "onboarding.emailUsedForUpdates",
+                    "We'll email your application status here.",
+                  )}
+                </p>
+              )}
             </div>
           </div>
 
@@ -185,7 +194,8 @@ export function StepBusinessInfo({ form }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  {t("onboarding.password")} <span className="text-brand-kinetic">*</span>
+                  {t("onboarding.password")}{" "}
+                  <span className="text-brand-kinetic">*</span>
                 </label>
                 <input
                   type="password"
@@ -197,7 +207,8 @@ export function StepBusinessInfo({ form }: Props) {
               </div>
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  {t("onboarding.confirmPassword")} <span className="text-brand-kinetic">*</span>
+                  {t("onboarding.confirmPassword")}{" "}
+                  <span className="text-brand-kinetic">*</span>
                 </label>
                 <input
                   type="password"
@@ -216,80 +227,34 @@ export function StepBusinessInfo({ form }: Props) {
               )}
           </div>
 
-          {/* Phone with OTP */}
+          {/* Owner mobile number — recorded as entered, no OTP step */}
           <div>
             <label className="block text-sm font-semibold mb-2">
-              {t("onboarding.phoneNumber")} <span className="text-brand-kinetic">*</span>
+              {t("onboarding.phoneNumber")}{" "}
+              <span className="text-brand-kinetic">*</span>
             </label>
-            {!otpSent ? (
-              <div className="flex gap-3">
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white">
-                  <span className="text-sm font-semibold">🇮🇳 +91</span>
-                </div>
-                <input
-                  type="tel"
-                  value={ownerPhone}
-                  onChange={(e) =>
-                    setOwnerPhone(
-                      e.target.value.replace(/\D/g, "").slice(0, 10),
-                    )
-                  }
-                  placeholder={t("onboarding.enterPhoneNumber")}
-                  className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={sendOtp}
-                  disabled={ownerPhone.length < 10}
-                  className="px-5 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  {t("onboarding.sendOtp")}
-                </button>
+            <div className="flex gap-3">
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+                <span className="text-sm font-semibold">🇮🇳 +91</span>
               </div>
-            ) : !otpVerified ? (
-              <div className="space-y-3">
-                <p className="text-xs text-secondary-app">
-                  {t("onboarding.weveSentA4DigitCodeTo")}{" "}
-                  <strong className="text-on-surface">{ownerPhone}</strong>
-                </p>
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) =>
-                      setOtp(e.target.value.replace(/\D/g, "").slice(0, 4))
-                    }
-                    placeholder={t("onboarding.enterOtp")}
-                    maxLength={4}
-                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm text-center text-xl tracking-[0.5em] font-bold"
-                  />
-                  <button
-                    type="button"
-                    onClick={verifyOtp}
-                    disabled={otp.length < 4}
-                    className="px-5 py-3 rounded-xl bg-brand-kinetic text-white text-sm font-semibold hover:bg-brand-kinetic/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {t("onboarding.verify")}
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtp("");
-                  }}
-                  className="text-xs text-secondary-app hover:text-on-surface transition-colors"
-                >
-                  {t("onboarding.changePhoneNumber")}
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-green-50 border border-green-200">
-                <Icon name="check_circle" className="text-xl text-green-600" />
-                <span className="text-sm font-semibold text-green-700">
-                  {t("onboarding.verifiedDash")} {ownerPhone}
-                </span>
-              </div>
+              <input
+                type="tel"
+                inputMode="numeric"
+                value={ownerPhone}
+                onChange={(e) =>
+                  setOwnerPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                }
+                placeholder={t("onboarding.enterPhoneNumber")}
+                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+              />
+            </div>
+            {ownerPhone.length > 0 && ownerPhone.length < 10 && (
+              <p className="mt-2 text-xs font-medium text-red-600">
+                {t(
+                  "onboarding.enterValidTenDigitPhone",
+                  "Enter a valid 10-digit mobile number.",
+                )}
+              </p>
             )}
           </div>
 
@@ -475,7 +440,9 @@ export function StepBusinessInfo({ form }: Props) {
           <div className="w-8 h-8 rounded-lg bg-brand-kinetic/10 flex items-center justify-center">
             <Icon name="location_on" className="text-base text-brand-kinetic" />
           </div>
-          <h2 className="font-display text-lg font-bold">{t("onboarding.detailedAddress")}</h2>
+          <h2 className="font-display text-lg font-bold">
+            {t("onboarding.detailedAddress")}
+          </h2>
         </div>
 
         <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
@@ -483,7 +450,9 @@ export function StepBusinessInfo({ form }: Props) {
             <div>
               <label className="block text-sm font-semibold mb-2">
                 {t("onboarding.shopNoBuildingTower")}{" "}
-                <span className="text-gray-400 font-normal">{t("onboarding.optional")}</span>
+                <span className="text-gray-400 font-normal">
+                  {t("onboarding.optional")}
+                </span>
               </label>
               <input
                 type="text"
@@ -496,7 +465,9 @@ export function StepBusinessInfo({ form }: Props) {
             <div>
               <label className="block text-sm font-semibold mb-2">
                 {t("onboarding.floorDetails")}{" "}
-                <span className="text-gray-400 font-normal">{t("onboarding.optional")}</span>
+                <span className="text-gray-400 font-normal">
+                  {t("onboarding.optional")}
+                </span>
               </label>
               <input
                 type="text"
@@ -525,7 +496,8 @@ export function StepBusinessInfo({ form }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
-                {t("onboarding.city")} <span className="text-brand-kinetic">*</span>
+                {t("onboarding.city")}{" "}
+                <span className="text-brand-kinetic">*</span>
               </label>
               <input
                 type="text"
@@ -537,7 +509,8 @@ export function StepBusinessInfo({ form }: Props) {
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">
-                {t("onboarding.nearbyLandmark")} <span className="text-brand-kinetic">*</span>
+                {t("onboarding.nearbyLandmark")}{" "}
+                <span className="text-brand-kinetic">*</span>
               </label>
               <input
                 type="text"

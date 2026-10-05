@@ -3,6 +3,7 @@ import webpush from "web-push";
 import Notification, { INotification } from "../database/models/Notification";
 import User from "../database/models/User";
 import Vendor from "../database/models/Vendor";
+import MeatCenter from "../database/models/MeatCenter";
 import { IWebPushSubscription } from "../database/models/WebPushSubscription";
 import { SocketManager } from "../sockets/socket.manager";
 
@@ -14,6 +15,18 @@ if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   );
 } else {
   console.warn("[NotificationService] VAPID keys not set — browser web push is disabled.");
+}
+
+// The partner app (Food-Partner/) registers an Android channel with this id and
+// bundles this sound — order alerts must ring loud enough to cut through a kitchen.
+const PARTNER_ORDER_CHANNEL = "orders";
+const PARTNER_ORDER_SOUND = "new_order.wav";
+
+export interface PushOptions {
+  /** "default", or the file name of a sound bundled with the app. */
+  sound?: string;
+  /** "high" wakes an Android device from Doze straight away. */
+  priority?: "default" | "normal" | "high";
 }
 
 export interface SendNotificationPayload {
@@ -79,11 +92,15 @@ export class NotificationService {
       console.error("[NotificationService] Socket emission failed:", err);
     }
 
-    // 3. Send Push Notification via Expo if target user has a push token registered
+    // 3. Send Push Notification via Expo — to a customer/driver's registered device,
+    // or, when the id is a partner outlet's (Vendor / MeatCenter), to every device
+    // signed in to the partner app.
     try {
       const user = await User.findById(userId).select("expoPushToken");
       if (user && user.expoPushToken) {
         await this.sendPushNotification(user.expoPushToken, title, body, data, this.resolveChannelId(type, category));
+      } else if (!user) {
+        await this.sendPartnerPush(userId.toString(), title, body, category, data);
       }
     } catch (err) {
       console.error("[NotificationService] Push notification fetch/dispatch failed:", err);
@@ -144,6 +161,28 @@ export class NotificationService {
   }
 
   /**
+   * Pushes to every partner-app device of an outlet. Order alerts go out at high
+   * priority on the app's "orders" channel with its bundled ring; anything else
+   * (support replies, system notices) uses the default channel and sound.
+   */
+  private async sendPartnerPush(outletId: string, title: string, body: string, category?: string, data?: any): Promise<void> {
+    const vendor = await Vendor.findById(outletId).select("expoPushTokens");
+    const outlet = vendor ?? (await MeatCenter.findById(outletId).select("expoPushTokens"));
+    const tokens = outlet?.expoPushTokens ?? [];
+    if (tokens.length === 0) return;
+
+    const isOrderAlert = category === "order_status";
+    await this.sendPushNotificationsBatch(
+      tokens,
+      title,
+      body,
+      data,
+      isOrderAlert ? PARTNER_ORDER_CHANNEL : "default",
+      isOrderAlert ? { sound: PARTNER_ORDER_SOUND, priority: "high" } : {}
+    );
+  }
+
+  /**
    * Maps a notification's type/category to an Android notification channel, so users can
    * mute promotions independently from order/chat alerts at the OS level.
    */
@@ -162,7 +201,8 @@ export class NotificationService {
     title: string,
     body: string,
     data?: any,
-    channelId: string = "default"
+    channelId: string = "default",
+    options: PushOptions = {}
   ): Promise<boolean> {
     // 1. Filter out invalid tokens
     const validTokens = expoPushTokens.filter(token => token && token.startsWith("ExponentPushToken"));
@@ -185,7 +225,8 @@ export class NotificationService {
         // Construct payload. Note: Expo expects an array of messages
         const payload = chunk.map(token => ({
           to: token,
-          sound: "default",
+          sound: options.sound ?? "default",
+          ...(options.priority ? { priority: options.priority } : {}),
           title,
           body,
           data,
@@ -269,12 +310,17 @@ export class NotificationService {
   }
 
   /**
-   * Clears a stale push token from user profiles.
+   * Clears a stale push token from user profiles and partner outlets.
    */
   private async removePushToken(token: string): Promise<void> {
     try {
-      const result = await User.updateMany({ expoPushToken: token }, { $unset: { expoPushToken: "" } });
-      console.log(`[NotificationService] Unset stale push token. Modified count: ${result.modifiedCount}`);
+      const [users, vendors, centers] = await Promise.all([
+        User.updateMany({ expoPushToken: token }, { $unset: { expoPushToken: "" } }),
+        Vendor.updateMany({ expoPushTokens: token }, { $pull: { expoPushTokens: token } }),
+        MeatCenter.updateMany({ expoPushTokens: token }, { $pull: { expoPushTokens: token } }),
+      ]);
+      const modified = users.modifiedCount + vendors.modifiedCount + centers.modifiedCount;
+      console.log(`[NotificationService] Unset stale push token. Modified count: ${modified}`);
     } catch (err: any) {
       console.error(`[NotificationService] Error clearing stale token:`, err.message);
     }

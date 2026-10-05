@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Icon } from "../components/shared/Icon";
 import { useOnboardingForm } from "../features/onboarding/hooks/useOnboardingForm";
+import { usePartnerTheme } from "../features/onboarding/hooks/usePartnerTheme";
 import { OnboardingStepper } from "../features/onboarding/components/OnboardingStepper";
 import { StepBusinessInfo } from "../features/onboarding/components/StepBusinessInfo";
 import { StepTimings } from "../features/onboarding/components/StepTimings";
@@ -12,6 +13,7 @@ import { StepContractReview } from "../features/onboarding/components/StepContra
 import { SaveDraftModal } from "../features/onboarding/components/SaveDraftModal";
 
 export default function PartnerOnboarding() {
+  usePartnerTheme();
   const { t } = useTranslation();
   const form = useOnboardingForm();
   const {
@@ -75,12 +77,15 @@ export default function PartnerOnboarding() {
                 to="/partner"
                 className="lg:hidden font-display text-lg font-extrabold text-brand-kinetic tracking-tighter"
               >
-                HYBRID
+                ADIOS
               </Link>
               {/* Mobile step indicator */}
               <div className="lg:hidden flex items-center gap-2 text-sm">
                 <span className="font-semibold text-on-surface">
-                  {t("onboarding.stepOfFour", { value: step, defaultValue: "Step {{value}}/4" })}
+                  {t("onboarding.stepOfFour", {
+                    value: step,
+                    defaultValue: "Step {{value}}/4",
+                  })}
                 </span>
                 <span className="text-secondary-app">
                   — {onboardingSteps[step - 1].label}
@@ -93,7 +98,9 @@ export default function PartnerOnboarding() {
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
               >
                 <Icon name="save" className="text-lg" />
-                <span className="hidden sm:inline">{t("onboarding.saveDraft")}</span>
+                <span className="hidden sm:inline">
+                  {t("onboarding.saveDraft")}
+                </span>
               </button>
               <a
                 href="#"
@@ -164,7 +171,14 @@ export default function PartnerOnboarding() {
               )}
 
               {/* ═══════════════ STEP 3: Documents & Legal Verification ═══════════════ */}
-              {step === 3 && <StepKycDocuments form={form} />}
+              {step === 3 && (
+                <StepKycDocuments
+                  docs={form}
+                  isMeatPartner={isMeatPartner}
+                  copy={copy}
+                  ownerPhone={form.ownerPhone}
+                />
+              )}
 
               {/* ═══════════════ STEP 4: Contract & Review ═══════════════ */}
               {step === 4 && <StepContractReview form={form} />}
@@ -226,7 +240,9 @@ export default function PartnerOnboarding() {
                       name={isSubmitting ? "pending" : "how_to_reg"}
                       className="text-lg"
                     />
-                    {isSubmitting ? t("onboarding.submitting") : t("onboarding.submitAndSign")}
+                    {isSubmitting
+                      ? t("onboarding.submitting")
+                      : t("onboarding.submitAndSign")}
                   </button>
                 )}
               </div>

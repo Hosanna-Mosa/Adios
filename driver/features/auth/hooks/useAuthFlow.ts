@@ -20,6 +20,7 @@ export function useAuthFlow() {
   const [step, setStep] = useState<AuthStep>("form");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -35,7 +36,7 @@ export function useAuthFlow() {
   );
 
   const actions = useAuthActions({
-    mode, phone, name, password, confirmPassword, otp, setOtp, setStep, otpRefs,
+    mode, phone, name, email, password, confirmPassword, otp, setOtp, setStep, otpRefs,
     onSwitchToSignUp: () => setMode("signup"),
     onAdvanceToOtp: () => {
       slideAnim.value = withSpring(1, SPRING);
@@ -50,10 +51,11 @@ export function useAuthFlow() {
     setPassword("");
     setConfirmPassword("");
     setName("");
+    setEmail("");
   };
 
   return {
-    mode, step, phone, setPhone, name, setName,
+    mode, step, phone, setPhone, name, setName, email, setEmail,
     password, setPassword, confirmPassword, setConfirmPassword,
     otp, setOtp, otpRefs, slideAnimatedStyle,
     switchMode, setStep,

@@ -106,7 +106,19 @@
     "addFirstMeatItems": "Add your first meat items to start receiving orders.",
     "addFirstFoodItems": "Add your first food items to start receiving orders.",
     "meatCenterLower": "meat center",
-    "vendorLower": "vendor"
+    "vendorLower": "vendor",
+    "orderAcceptedFindingDriver": "Order accepted. Finding a delivery partner.",
+    "failedToAcceptOrder": "Couldn't accept the order. Please try again.",
+    "acceptToFindDriver": "Accept the order to start finding a delivery partner. Nearby drivers who can reach you before the food is ready are all asked at once.",
+    "prepTimeQuestion": "How long will the food take?",
+    "prepMinutes": "{{value}} min",
+    "acceptReadyIn": "Accept · Ready in {{value}} min",
+    "rejectOrder": "Reject Order",
+    "confirmRejectOrder": "Reject this order? The customer will be told and any online payment refunded.",
+    "keepOrder": "Keep Order",
+    "yesRejectOrder": "Yes, Reject",
+    "acceptWithin": "Accept within {{time}} or this order is cancelled",
+    "acceptTimeUp": "Time's up — this order is being cancelled"
   },
   "orderStatus": {
     "searchingDriver": "Searching Driver",
@@ -116,7 +128,11 @@
     "outForDelivery": "Out for Delivery",
     "driverAtCustomer": "Driver at Customer",
     "delivered": "Delivered",
-    "unknown": "UNKNOWN"
+    "unknown": "UNKNOWN",
+    "newOrder": "New Order",
+    "preparingFindingDriver": "Preparing · Finding Driver",
+    "readyFindingDriver": "Ready · Finding Driver",
+    "cancelledNotAccepted": "Cancelled · Not Accepted in Time"
   },
   "vendorMenu": {
     "searchMenuItems": "Search menu items...",
@@ -230,6 +246,8 @@
     "liveOrders": "Live Orders",
     "scheduledOrders": "Scheduled Orders",
     "drivers": "Drivers",
+    "driverVerification": "Driver Verification",
+    "restaurantVerification": "Restaurant Verification",
     "devDrivers": "Dev Drivers",
     "users": "Users",
     "vendors": "Vendors",
@@ -1129,6 +1147,7 @@
     "step2UploadMenuImages": "Step 2: Upload Menu Images",
     "step3ReviewEditExtractedMenu": "Step 3: Review & Edit Extracted Menu",
     "submitted": "Submitted",
+    "resubmissionRequired": "Documents requested",
     "supportsPngJpgJpegMax5": "Supports PNG, JPG, JPEG (Max 5 files)",
     "targetUrlOptional": "Target URL (Optional)",
     "temporarilyClosedDesc": "Temporarily closed (stop taking orders)",

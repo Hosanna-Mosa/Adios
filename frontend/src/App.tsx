@@ -3,10 +3,12 @@ import { Routes, Route } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "./routes/__root";
 import { RouteLoadingFallback } from "@/components/motion/RouteLoadingFallback";
+import { AppDialogHost } from "@/components/shared/AppDialogHost";
 
 const Home = lazy(() => import("./routes/index"));
 const PartnerPage = lazy(() => import("./routes/partner"));
 const PartnerOnboarding = lazy(() => import("./routes/partner-onboarding"));
+const PartnerResubmit = lazy(() => import("./routes/partner-resubmit"));
 const RestaurantMenuFront = lazy(() => import("./routes/restaurant-menu"));
 
 function NotFound() {
@@ -104,6 +106,7 @@ class ErrorBoundary extends Component<
 export default function App() {
   return (
     <ErrorBoundary>
+      <AppDialogHost />
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
           <Route element={<Layout variant="marketing" />}>
@@ -113,6 +116,7 @@ export default function App() {
             <Route path="partner" element={<PartnerPage />} />
           </Route>
           <Route path="partner/onboarding" element={<PartnerOnboarding />} />
+          <Route path="partner/resubmit" element={<PartnerResubmit />} />
           <Route path="restaurant-menu/:id" element={<RestaurantMenuFront />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

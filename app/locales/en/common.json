@@ -123,7 +123,7 @@
         },
         "pinSafety": {
           "question": "Is my PIN safe to share?",
-          "answer": "Only hand it over once your items are physically in hand, or once your captain has arrived for a ride. Nobody from Flavour will ever ask for it over a call."
+          "answer": "Only hand it over once your items are physically in hand, or once your rider has arrived for a ride. Nobody from Flavour will ever ask for it over a call."
         }
       },
       "categories": {
@@ -172,7 +172,7 @@
     },
     "tracking": {
       "rideLabels": {
-        "captainAssigned": "Captain assigned",
+        "captainAssigned": "Rider assigned",
         "headingToPickup": "Heading to pickup",
         "tripInProgress": "Trip in progress",
         "tripCompleted": "Trip completed"
@@ -189,7 +189,13 @@
         "prepared": "Prepared",
         "outForDelivery": "Out for delivery",
         "delivered": "Delivered"
-      }
+      },
+      "waitingForRestaurant": "Waiting for the restaurant to accept your order",
+      "restaurantPreparing": "The restaurant is preparing your food",
+      "restaurantPin": "Restaurant",
+      "deliveryLocationPin": "Your delivery location",
+      "pickupPin": "Pickup",
+      "dropPin": "Drop"
     },
     "orderStatusTimeline": {
       "steps": {
@@ -204,9 +210,9 @@
       },
       "rideSteps": {
         "rideBooked": "Ride Booked",
-        "captainAssigned": "Captain Assigned",
-        "captainOnTheWay": "Captain on the Way",
-        "captainArrived": "Captain Arrived",
+        "captainAssigned": "Rider Assigned",
+        "captainOnTheWay": "Rider on the Way",
+        "captainArrived": "Rider Arrived",
         "tripInProgress": "Trip In Progress",
         "arrivedAtDestination": "Arrived at Destination",
         "tripCompleted": "Trip Completed"
@@ -323,7 +329,7 @@
       "useMyCurrentLocation": "Use my current location",
       "enterAddressManually": "Enter address manually",
       "noRidersAvailableNearby": "No riders available nearby",
-      "allCaptainsNearbyAreOnTrips": "All captains nearby are on trips right now. It's usually a few minutes before one frees up.",
+      "allCaptainsNearbyAreOnTrips": "All riders nearby are on trips right now. It's usually a few minutes before one frees up.",
       "retrySearch": "Retry search",
       "freshMeatDaily": "Fresh Meat Daily!",
       "cravingSomethingDelicious": "Craving something\ndelicious?",
@@ -362,7 +368,9 @@
       "forgot": "Forgot?",
       "thisPageMoved": "This page moved",
       "theLinkYouFollowedDoesnapostExist": "The link you followed doesn't exist any more.",
-      "goHome": "Go home"
+      "goHome": "Go home",
+      "pickAServiceToGetStarted": "Pick a service to get started.",
+      "beta": "Beta"
     },
     "profile": {
       "menuItems": {
@@ -542,7 +550,15 @@
       "thisRemovesEveryItemFromVar": "This removes every item from {{value}}.",
       "thisLinkIsntAvailable": "This link isn't available",
       "theOutletItPointsToMayHaveClosed": "The outlet it points to may have closed or moved.",
-      "goToHome": "Go to home"
+      "goToHome": "Go to home",
+      "notAcceptingOrders": "Not accepting orders",
+      "notAcceptingOrdersNow": "Not accepting orders right now",
+      "closedNow": "Closed now",
+      "closedOpensAt": "Closed now · Opens at {{time}}",
+      "closedPill": "Closed",
+      "outletClosedMessage": "{{name}} isn't taking orders right now. You can still browse the menu and order once it opens.",
+      "outletClosedOpensAtMessage": "{{name}} is closed right now and opens at {{time}}. You can still browse the menu and order then.",
+      "closedBannerHint": "You can browse the menu, but ordering is paused until it opens."
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -553,7 +569,7 @@
       "helperOnTheWay": "Helper on the way",
       "matchingAHelper": "Matching a helper",
       "riderOnTheRoute": "Rider on the route",
-      "findingYourCaptain": "Finding your captain",
+      "findingYourCaptain": "Finding your rider",
       "past": "Past",
       "cancelled": "Cancelled",
       "repeatRoute": "Repeat route",
@@ -575,7 +591,7 @@
       "submit": "Submit",
       "noOrdersYet": "No orders yet",
       "foodMeatRidesHelpersAndCourier": "Food, meat, rides, helpers and courier runs will all show up here once you place your first one.",
-      "exploreFlavour": "Explore Flavour",
+      "exploreFlavour": "Explore Adios",
       "activeNow": "Active now",
       "trackOrder": "Track order",
       "cantReorder": "Can't reorder",
@@ -583,7 +599,20 @@
       "details": "Details",
       "noOrdersInThisFilter": "No orders in this filter",
       "ordersInTotalPickAll_one": "You have {{count}} order in total — pick “All” to see them.",
-      "ordersInTotalPickAll_other": "You have {{count}} orders in total — pick “All” to see them."
+      "ordersInTotalPickAll_other": "You have {{count}} orders in total — pick “All” to see them.",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "orderFallback": "Order",
+      "activeCount": "{{count}} active",
+      "scheduledCount": "{{count}} scheduled",
+      "pastCount": "{{count}} past",
+      "waitingForRestaurant": "Waiting for the restaurant to accept",
+      "itemCount_one": "{{count}} item",
+      "itemCount_other": "{{count}} items",
+      "placedAt": "Placed {{time}}",
+      "deliveringTo": "Delivering to",
+      "dropAt": "Drop",
+      "taskLocation": "Task location"
     },
     "helperTask": {
       "title": {
@@ -595,6 +624,7 @@
       }
     },
     "LocationPickerSheet": {
+      "useCurrentLocation": "Use current location",
       "noLocationDetectedToSave": "No location detected to save.",
       "saved": "Saved!",
       "yourCurrentLocationHasBeenAdded": "Your current location has been added to saved addresses.",
@@ -706,7 +736,7 @@
       "point": "point",
       "pickupWord": "pickup",
       "dropWord": "drop",
-      "moveThePinToWhereYouaposll": "Move the pin to where you'll actually stand. Captains cancel most often when the pin is inside a gated community.",
+      "moveThePinToWhereYouaposll": "Move the pin to where you'll actually stand. Riders cancel most often when the pin is inside a gated community.",
       "locating": "Locating…",
       "fetchingAddressDetails": "Fetching address details…",
       "confirm": "Confirm",
@@ -846,7 +876,7 @@
       "areYouSureYouWantTo": "Are you sure you want to cancel",
       "thisRide": "this ride?",
       "dropLocationCanBeChangedBefore": "Drop location can be changed before booking another ride.",
-      "pickupLocationCanBeChangedUp": "Pickup location can be changed up to a radius of 200m even after the captain is assigned.",
+      "pickupLocationCanBeChangedUp": "Pickup location can be changed up to a radius of 200m even after the rider is assigned.",
       "reason": "Reason",
       "yourCurrentAddressIs": "Your current {{label}} address is",
       "cancelMyRide": "Cancel my ride",
@@ -865,7 +895,7 @@
       "reviewTags": {
         "onTime": "On time",
         "smoothRide": "Smooth ride",
-        "politeCaptain": "Polite captain",
+        "politeCaptain": "Polite rider",
         "cleanVehicle": "Clean vehicle",
         "greatRoute": "Great route",
         "carefulWithItems": "Careful with items",
@@ -887,7 +917,7 @@
       "submitRating": "Submit rating",
       "reservation": "Reservation",
       "confirmedLower": "confirmed",
-      "weaposllAssignYourCaptainAt": "We'll assign your captain at",
+      "weaposllAssignYourCaptainAt": "We'll assign your rider at",
       "andNotifyYou": "and notify you.",
       "pickupTime": "Pickup time",
       "pickup": "Pickup",
@@ -910,14 +940,14 @@
       "payingViaCash": "Paying via cash",
       "back": "Back",
       "cancelRide": "Cancel Ride",
-      "findingYourCaptain": "Finding your captain",
+      "findingYourCaptain": "Finding your rider",
       "searchingNearby": "Searching {{tier}} nearby. ",
-      "searchingNearbyCaptains": "Searching nearby captains. ",
+      "searchingNearbyCaptains": "Searching nearby riders. ",
       "usuallyUnderAMinute": "Usually under a minute.",
       "searching": "Searching",
       "cancelRideLower": "Cancel ride",
       "scheduleARide": "Schedule a ride",
-      "weaposllAssignACaptain15Minutes": "We'll assign a captain 15 minutes before pickup.",
+      "weaposllAssignACaptain15Minutes": "We'll assign a rider 15 minutes before pickup.",
       "date": "Date",
       "today": "Today",
       "estimatedFareConfirmedAtPickup": "Estimated ₹{{amount}} · fare confirmed at pickup",
@@ -925,7 +955,7 @@
       "reserveFor": "Reserve for",
       "connectingWithNearbyDriversInYour": "Connecting with nearby drivers in your area",
       "tripDetails": "Trip Details",
-      "captainsArenapostAcceptingAt": "Captains aren't accepting at ₹",
+      "captainsArenapostAcceptingAt": "Riders aren't accepting at ₹",
       "tryAddingMore": ". Try adding more:",
       "orderCancelled": "Order cancelled",
       "wereSorryThisOrderCouldNot": "We're sorry — this order could not be completed and has been cancelled.",
@@ -937,8 +967,8 @@
       "yourEmergencyAlertHasBeenSent": "Your emergency alert has been sent. Support is on the way.",
       "failedToTriggerSos": "Failed to trigger SOS. Please call emergency services.",
       "driverIsUnavailable": "Driver is unavailable.",
-      "noCaptainFound": "No captain found",
-      "sorryNoCaptainsAreAvailableTo": "Sorry, no captains are available to accept your reservation request right now. Please try scheduling again later.",
+      "noCaptainFound": "No rider found",
+      "sorryNoCaptainsAreAvailableTo": "Sorry, no riders are available to accept your reservation request right now. Please try scheduling again later.",
       "savedPlaces": "Saved places",
       "addressFallback": "Address",
       "searchResults": "Search results",
@@ -947,11 +977,11 @@
       "noMatchingPlacesFound": "No matching places found.",
       "yourSearchedPlacesWillAppearHere": "Your searched places will appear here.",
       "bookingConfirmed": "Booking confirmed",
-      "aCaptainHasAcceptedYourReserved": "A captain has accepted your reserved ride for",
+      "aCaptainHasAcceptedYourReserved": "A rider has accepted your reserved ride for",
       "theScheduledTime": "the scheduled time",
       "weaposllNotifyYou15MinutesBefore": ". We'll notify you 15 minutes before pickup.",
-      "captain": "Captain",
-      "noCancellationFeeWeHavenapostAssigned": "No cancellation fee — we haven't assigned a captain yet.",
+      "captain": "Rider",
+      "noCancellationFeeWeHavenapostAssigned": "No cancellation fee — we haven't assigned a rider yet.",
       "addStop": "+ Add stop",
       "selectOnMap": "Select on map",
       "whereTo": "Where to?",
@@ -976,7 +1006,7 @@
       "help": "Help",
       "helperUpdate": "Helper update",
       "startRidePin": "Start ride PIN",
-      "giveThisToYourCaptainTo": "Give this to your captain to start the trip.",
+      "giveThisToYourCaptainTo": "Give this to your rider to start the trip.",
       "endRidePin": "End ride PIN",
       "deliveryPin": "Delivery PIN",
       "onlyGiveThisCodeWhenYour": "Only give this code when your items are safely received.",
@@ -996,7 +1026,20 @@
       "clearDropAddress": "Clear drop address",
       "newDriverRating": "New",
       "completionPin": "Completion PIN",
-      "giveThisToYourHelperOnceWorkIsFinished": "Give this to your helper only once the work is finished."
+      "giveThisToYourHelperOnceWorkIsFinished": "Give this to your helper only once the work is finished.",
+      "restaurantDidNotAcceptInTime": "The restaurant didn't accept your order in time, so it has been cancelled. Any online payment will be refunded.",
+      "restaurantCouldNotTakeOrder": "The restaurant couldn't take your order, so it has been cancelled. Any online payment will be refunded.",
+      "waitingForRestaurantTitle": "Waiting for the restaurant",
+      "waitingForRestaurantSubtitle": "The restaurant will accept your order shortly. We'll find a rider as soon as it does.",
+      "restaurantPreparingTitle": "Restaurant is preparing your food",
+      "restaurantPreparingSubtitle": "Finding a rider to pick it up. Usually under a minute.",
+      "cancelOrderLower": "Cancel order",
+      "cancelledByRestaurant": "Restaurant cancelled your order",
+      "cancelledByRider": "Rider cancelled your order",
+      "riderCancelledOrder": "Your rider had to cancel, so this order has been cancelled. Any online payment will be refunded.",
+      "cancelledByAdios": "Order cancelled by Adios",
+      "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
+      "youCancelledThisOrder": "You cancelled this order."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -1120,7 +1163,8 @@
         "arrivedAtPickup": "Arrived at pickup",
         "preparingYourOrder": "Preparing your order",
         "inProgress": "In progress",
-        "arrived": "Arrived"
+        "arrived": "Arrived",
+        "waitingForRestaurant": "Waiting for restaurant"
       }
     },
     "shareLink": {

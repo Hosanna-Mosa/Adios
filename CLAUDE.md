@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository shape
 
-This is **not** a single app — it's 5 independently-managed projects living side by side in one repo, each with its own `package.json`/lockfile and no shared workspace tooling (no turborepo/nx/lerna, no root `package.json`). Always `cd` into the relevant folder before running any command.
+This is **not** a single app — it's 6 independently-managed projects living side by side in one repo, each with its own `package.json`/lockfile and no shared workspace tooling (no turborepo/nx/lerna, no root `package.json`). Always `cd` into the relevant folder before running any command.
 
 | Folder | What it is | Stack |
 |---|---|---|
-| `backend/` | REST + Socket.IO API used by all four clients below | Express 5 + TypeScript (commonjs), MongoDB/Mongoose, Redis + BullMQ, Socket.IO |
+| `backend/` | REST + Socket.IO API used by all five clients below | Express 5 + TypeScript (commonjs), MongoDB/Mongoose, Redis + BullMQ, Socket.IO |
 | `app/` | Customer mobile app — branded "Flavour" (rides, package delivery, food/meat ordering, chat, support) | Expo Router 6, React Native 0.81, React 19, Zustand, TanStack Query |
 | `driver/` | Driver mobile app — branded "Flavour Driver" (KYC onboarding, live jobs, earnings, chat) | Same Expo/RN stack as `app/` |
+| `Food-Partner/` | Restaurant / meat-centre owner app — branded "Flavour Partner". The mobile version of the admin SPA's **vendor** role (orders + mark ready, scheduled requests, menu / meat inventory, change password) plus payouts and the customer app's support screens | Same Expo/RN stack as `app/` |
 | `admin/` | One SPA serving **three roles** (admin / support / vendor) gated by separate `localStorage` tokens (`admin_token`, `support_token`, `vendor_token`) — see `RootRedirect` in `admin/src/App.tsx` | React 18 + Vite + shadcn/ui (Radix) + Tailwind 3, TanStack Query |
 | `frontend/` | Public partner website — vendor sign-up/onboarding + restaurant menu preview | React 19 + Vite + Tailwind 4, react-router-dom v7 |
 
@@ -59,6 +60,19 @@ npm run android / ios       # native builds via `expo run:*`
 ```
 Both are built/distributed via **EAS** (`eas.json` has `development`/`preview`/`production` profiles). No automated test setup in either.
 
+### Food-Partner (Expo)
+```
+cd Food-Partner
+npm run dev            # expo start (npm start = --tunnel)
+npm run typecheck      # tsc --noEmit
+npm run lint           # expo lint — same layer/typography rules as app/
+npm run i18n:check     # every t("…") key exists in en/te/hi, and the three locales match
+npm test               # jest (jest-expo) — unit tests live in __tests__/
+```
+Signs in with the same credentials as the admin SPA's vendor role (`/vendors/login`, falling back to `/meat/login`); vendor tokens carry the Vendor/MeatCenter `_id`, not a User `_id`. All config comes from `EXPO_PUBLIC_*` vars (see `Food-Partner/.env.example`); its `eas.json` holds no keys — set them as EAS environment variables. Data hooks shared across features live in `queries/` (TanStack Query); live order/scheduled/ticket events are handled once in `components/GlobalSocketHandler.tsx`.
+
+Order alerts also reach a closed app by Expo push: `components/PushNotificationHandler.tsx` registers the device with `POST /vendors/me/push-token` (stored in `expoPushTokens` on the Vendor/MeatCenter), and the backend's `NotificationService` sends order pushes to the app's `orders` Android channel with the bundled `assets/sounds/new_order.wav`. Pushes need `EAS_PROJECT_ID` set. The "Accepting orders" switch is `PUT /vendors/me/open` (sets `isManuallyClosed`). The Payouts screen reads `GET /vendors/me/payouts` (balance from the same `getVendorPayoutBalance` that `POST /vendors/payout` checks, bank account masked to its last 4 digits) and requests with `POST /vendors/payout`; legacy MeatCenter accounts get `payoutsEnabled: false`. Orders load as a live set (`?since=` start of today, plus anything in progress) and history pages (`?before=&limit=`); `GET /orders/vendor/:id` without a query still returns everything, which is what the admin panel uses.
+
 There are no Dockerfiles and no CI workflows (no `.github/workflows`) anywhere in the repo — running/building/deploying is done manually via the commands above.
 
 A `commit-msg` hook lives at `.githooks/commit-msg` (rejects one-word/sub-10-character commit subjects — this repo's history has a lot of those, e.g. "Wasp", "sdhf"). It's opt-in per clone since there's no root `package.json` to auto-install it via `prepare`:
@@ -91,7 +105,7 @@ The ad-hoc one-off debug scripts (`check_*.ts`, `fix_*.ts`, `scratch-*.ts`) and 
 
 ## Client conventions
 
-- All four clients read the backend URL from an env var: `EXPO_PUBLIC_API_URL` (app/driver) or `VITE_API_URL` (admin/frontend), documented per-app in each `.env.example`.
+- All five clients read the backend URL from an env var: `EXPO_PUBLIC_API_URL` (app/driver/Food-Partner) or `VITE_API_URL` (admin/frontend), documented per-app in each `.env.example`.
 - `admin/src/lib/api-client.ts` and `frontend/src/lib/api-client.ts` centralize HTTP calls to the backend; `admin/src/lib/socketService.ts` centralizes Socket.IO client setup.
 - `admin` and `frontend` share the same shadcn/ui component style (`components.json`, `src/components/ui/`) but are on different major versions of React/Tailwind — don't assume code ports directly between them.
 - `app` and `driver` share near-identical Expo project structure/config (Expo Router file-based routing under `app/`, same native module set) since they were scaffolded from the same template.

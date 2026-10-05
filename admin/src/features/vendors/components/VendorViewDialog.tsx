@@ -9,6 +9,7 @@ const STATUS_LABEL_KEY: Record<string, string> = {
   approved: "catalog.approved",
   rejected: "catalog.rejected",
   submitted: "catalog.submitted",
+  resubmission_required: "catalog.resubmissionRequired",
   draft: "catalog.draft",
 };
 

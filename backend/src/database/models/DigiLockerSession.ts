@@ -26,6 +26,18 @@ export enum DigiLockerPurpose {
   AADHAAR = "aadhaar",
   PAN = "pan",
   DOCUMENTS = "documents",
+  /** Restaurant/meat-center owner KYC from the public partner onboarding form. */
+  VENDOR_KYC = "vendor_kyc",
+}
+
+/**
+ * Who a session belongs to. App sessions are owned by a logged-in User; the
+ * partner website's onboarding form has no account yet, so its sessions are
+ * owned by whoever holds the random access key handed out when it started.
+ */
+export enum DigiLockerSubjectType {
+  USER = "user",
+  VENDOR_ONBOARDING = "vendor_onboarding",
 }
 
 export interface IDigiLockerDocumentRef {
@@ -42,7 +54,13 @@ export interface IDigiLockerDocumentRef {
 export interface IDigiLockerSession extends Document {
   /** Mongoose `_id` virtual, as a hex string. */
   id: string;
-  user: mongoose.Types.ObjectId;
+  /** Absent for VENDOR_ONBOARDING sessions, which have no User yet. */
+  user?: mongoose.Types.ObjectId;
+  subjectType: DigiLockerSubjectType;
+  /** SHA-256 of the access key a VENDOR_ONBOARDING session was issued with. */
+  accessKeyHash?: string;
+  /** The vendor application this session's KYC was copied onto. */
+  vendor?: mongoose.Types.ObjectId;
   status: DigiLockerSessionStatus;
   purpose: DigiLockerPurpose;
   mode: "live" | "sandbox";
@@ -124,7 +142,21 @@ const DocumentRefSchema = new Schema<IDigiLockerDocumentRef>(
 
 const DigiLockerSessionSchema = new Schema<IDigiLockerSession>(
   {
-    user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      index: true,
+      required: function (this: IDigiLockerSession) {
+        return this.subjectType !== DigiLockerSubjectType.VENDOR_ONBOARDING;
+      },
+    },
+    subjectType: {
+      type: String,
+      enum: Object.values(DigiLockerSubjectType),
+      default: DigiLockerSubjectType.USER,
+    },
+    accessKeyHash: { type: String },
+    vendor: { type: Schema.Types.ObjectId, ref: "Vendor", index: true },
     status: {
       type: String,
       enum: Object.values(DigiLockerSessionStatus),
@@ -230,6 +262,7 @@ DigiLockerSessionSchema.set("toJSON", {
     delete ret.accessTokenEnc;
     delete ret.refreshTokenEnc;
     delete ret.codeVerifierEnc;
+    delete ret.accessKeyHash;
     return ret;
   },
 });

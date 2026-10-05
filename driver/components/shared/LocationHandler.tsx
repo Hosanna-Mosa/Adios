@@ -49,6 +49,16 @@ export const LocationHandler = () => {
           return;
         }
 
+        // On a job the driver leaves the app all the time — Google Maps
+        // navigation, a call to the restaurant or customer. Going offline then
+        // took them off shift mid-delivery, so they finished the order offline.
+        // An active order keeps them online.
+        if (store.currentOrder) {
+          console.log("[LocationHandler] App minimised during an active order. Staying online.");
+          appState.current = nextAppState;
+          return;
+        }
+
         // Background location updates keep the driver dispatchable while
         // minimised, so there is no reason to end their shift. Without them the
         // dispatcher would be sending orders nobody can see, so that case does

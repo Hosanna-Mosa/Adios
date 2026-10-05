@@ -2,32 +2,21 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
-import { CashCollectionPanel, OptionPicker, OrderStage, OtpEntry, StageActionButton } from "../order";
+import { CashCollectionPanel, OrderStage, OtpEntry, StageActionButton, StageSpacer } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
-
-const DELIVERY_OPTIONS = ["door", "gate", "contactless"] as const;
+import { isOutletOrder } from "../../orderStops";
 
 export function DeliveryArrivedStage() {
   const { t } = useTranslation();
-  const { verification, handleStatusTransition } = useActiveOrderCtx();
-
-  const deliveryOptionLabel = (opt: (typeof DELIVERY_OPTIONS)[number]) =>
-    opt === "door" ? t("jobs.deliveryOptionDoor")
-    : opt === "gate" ? t("jobs.deliveryOptionGate")
-    : t("jobs.deliveryOptionContactless");
+  const { currentOrder, verification, handleStatusTransition } = useActiveOrderCtx();
+  // Restaurant / meat-shop orders are handed over without the customer's OTP.
+  const needsOtp = !isOutletOrder(currentOrder);
 
   return (
     <OrderStage title={t("jobs.confirmCustomerDelivery")}>
-      <OptionPicker
-        label={t("jobs.deliveryType")}
-        options={DELIVERY_OPTIONS}
-        selected={verification.deliveryOption}
-        onSelect={verification.setDeliveryOption}
-        renderLabel={deliveryOptionLabel}
-      />
-
       <CashCollectionPanel />
 
+      {needsOtp ? (
       <OtpEntry
         label={t("jobs.customerConfirmationOtp")}
         placeholder={t("jobs.enter4DigitOtp")}
@@ -40,9 +29,11 @@ export function DeliveryArrivedStage() {
         hasError={verification.customerOTPError}
         errorText={t("jobs.invalidOtpAskCustomerDeliveryCode")}
       />
+      ) : null}
 
+      <StageSpacer />
       <StageActionButton
-        label={t("jobs.verifyOtpAndCompleteDelivery")}
+        label={needsOtp ? t("jobs.verifyOtpAndCompleteDelivery") : t("jobs.completeDelivery")}
         onPress={handleStatusTransition}
       />
       <CancelDeliveryButton />

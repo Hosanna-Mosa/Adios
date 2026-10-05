@@ -8,6 +8,23 @@ import { CouponsService } from "../coupons/coupons.service";
 import { ValidationError, NotFoundError, UnauthorizedError, ConflictError, ForbiddenError } from "../../utils/errors";
 import { InvoiceService } from "../../services/invoice.service";
 import { getDriverRating } from "../reviews/driver-rating";
+import * as foodDispatch from "../../services/foodDispatch.service";
+import Vendor from "../../database/models/Vendor";
+import MeatCenter from "../../database/models/MeatCenter";
+import mongoose from "mongoose";
+
+/**
+ * The outlet behind a food / meat order, by the id in `order.vendor` (a Vendor, or a
+ * legacy MeatCenter). Null for orders without one (rides, courier, helper).
+ */
+async function outletSummary(vendorRef: unknown): Promise<{ name: string; partnerType: string } | null> {
+  const id = String((vendorRef as any)?._id ?? vendorRef ?? "");
+  if (!mongoose.Types.ObjectId.isValid(id)) return null;
+  const vendor: any = await Vendor.findById(id).select("name partnerType").lean();
+  if (vendor) return { name: vendor.name, partnerType: vendor.partnerType || "food" };
+  const meat: any = await MeatCenter.findById(id).select("name").lean();
+  return meat ? { name: meat.name, partnerType: "meat" } : null;
+}
 
 const ordersService = new OrdersService();
 const couponsService = new CouponsService();
@@ -58,6 +75,14 @@ const canAccessVendorData = (vendorId: string, user?: { userId: string; role: st
   if (!user?.userId || !vendorId) return false;
   if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
   return user.userId === vendorId;
+};
+
+/** cancelReason + the customer's notification text, by who cancelled the order. */
+const CANCEL_BY: Record<string, { reason: string; customerMessage?: string }> = {
+  vendor: { reason: "restaurant_rejected", customerMessage: "The restaurant couldn't take your order, so it has been cancelled." },
+  driver: { reason: "driver_cancelled", customerMessage: "Your rider had to cancel, so this order has been cancelled." },
+  staff: { reason: "admin_cancelled", customerMessage: "The Adios team cancelled this order." },
+  customer: { reason: "customer_cancelled" },
 };
 
 export class OrdersController {
@@ -152,6 +177,9 @@ export class OrdersController {
       if (json.driver?._id) {
         json.driver = { ...json.driver, ...(await getDriverRating(json.driver._id)) };
       }
+      // The tracking screen names the restaurant and draws it (and the delivery home)
+      // as such. Added alongside `vendor`, which stays the bare id other callers expect.
+      if (json.vendor) json.outlet = await outletSummary(json.vendor);
       return res.json(json);
     } catch (error) {
       next(error);
@@ -359,7 +387,7 @@ export class OrdersController {
       }
 
       // Who may move this order, and where to. Strangers get "not found".
-      const { relation } = await ordersService.getOrderForActor(id as string, req.user);
+      const { order: current, relation } = await ordersService.getOrderForActor(id as string, req.user);
       // Support staff can look orders up to help customers, but only admins change them.
       if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
         throw new ForbiddenError("Support can view orders but not change them.");
@@ -388,7 +416,10 @@ export class OrdersController {
         if (storedCash && !orderObj.cashCollected) {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
-        if (orderObj && orderObj.deliveryOtp) {
+        // Restaurant / meat-shop orders and rides finish without the customer's OTP
+        // (a ride still starts with its PIN); parcels and helper tasks still need it.
+        const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
+        if (orderObj && orderObj.deliveryOtp && !orderObj.vendor && !isRide) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError("Invalid delivery verification OTP. Please ask the customer for the correct code.");
           }
@@ -404,6 +435,12 @@ export class OrdersController {
 
       if (isPickupCompletedStatus) {
         const orderObj = await ordersService.getOrderById(id as string);
+        // A rider can't collect an outlet order the kitchen hasn't marked ready
+        // ("Mark as ready" in the partner app / vendor panel).
+        const markedReady = !!orderObj?.foodReadyAt || String(orderObj?.status).toLowerCase() === OrderStatus.PICKING_ITEMS_LC;
+        if (orderObj?.vendor && relation === "driver" && !markedReady) {
+          throw new ConflictError("The restaurant hasn't marked this order ready yet. You can pick it up once they tap \"Mark as ready\".");
+        }
         if (orderObj && (orderObj as any).restaurantPickupCode) {
           // Only the order's own code — no master code (RAZORPAY_INTEGRATION.md §5.4 A2/C1).
           if (!verificationCodeMatches(otp, (orderObj as any).restaurantPickupCode)) {
@@ -412,7 +449,9 @@ export class OrdersController {
         }
       }
 
-      const order = await ordersService.updateOrderStatus(id as string, status);
+      // Every cancellation records who made it, so the customer is told who
+      // cancelled (the restaurant, the rider, the Adios team) — not a generic notice.
+      const order = await ordersService.updateOrderStatus(id as string, status, isCancel ? CANCEL_BY[relation] : {});
       return res.json(order);
     } catch (error: any) {
       if (error.message === "Order not found") {
@@ -451,6 +490,62 @@ export class OrdersController {
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
+      next(error);
+    }
+  }
+
+  /** The restaurant accepts a food order and quotes a prep time; the rider search starts here. */
+  async restaurantAccept(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { relation } = await ordersService.getOrderForActor(id as string, req.user);
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
+        throw new ForbiddenError("Support can view orders but not change them.");
+      }
+      if (relation !== "vendor" && relation !== "staff") {
+        throw new ForbiddenError("Only the restaurant can accept this order.");
+      }
+
+      const order = await ordersService.restaurantAcceptOrder(id as string, Number(req.body.prepMinutes));
+      return res.json(order);
+    } catch (error: any) {
+      if (error.message === "Order not found") {
+        return next(new NotFoundError(error.message));
+      }
+      next(error);
+    }
+  }
+
+  /** The food offer this driver is holding, for when the socket event was missed. */
+  /** GET /orders/driver/active — the job this driver is on, or { order: null }. */
+  async driverActiveOrder(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const order: any = await ordersService.getDriverActiveOrder(userId);
+      if (!order) return res.json({ order: null });
+
+      const json: any = order.toJSON();
+      // A legacy meat centre isn't a Vendor document, so populate leaves `vendor`
+      // empty; put its id and name back so the app still treats it as an outlet order.
+      const vendorId = order.populated?.("vendor");
+      if (!json.vendor && vendorId) {
+        const outlet = await outletSummary(vendorId);
+        if (outlet) json.vendor = { _id: String(vendorId), ...outlet };
+      }
+      return res.json({ order: json });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async currentFoodOffer(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const offer = await foodDispatch.currentOfferFor(userId);
+      return res.json({ offer });
+    } catch (error) {
       next(error);
     }
   }
@@ -528,7 +623,14 @@ export class OrdersController {
         throw new ForbiddenError("You do not have access to this vendor's orders");
       }
 
-      const orders = await ordersService.getVendorOrders(vendorId as string);
+      // Already validated by vendorOrdersQuerySchema. Read straight from req.query:
+      // Express 5 re-parses it on every access, so validateRequest's coercion doesn't stick.
+      const { since, before, limit } = req.query as Record<string, string | undefined>;
+      const orders = await ordersService.getVendorOrders(vendorId as string, {
+        since: since ? new Date(since) : undefined,
+        before: before ? new Date(before) : undefined,
+        limit: limit ? Number(limit) : undefined,
+      });
       return res.json(orders);
     } catch (error) {
       next(error);

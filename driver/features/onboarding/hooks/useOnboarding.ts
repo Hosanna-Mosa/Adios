@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   getDigilockerSubtitle,
   getFormalitySubtitles,
   getSectionSubtitles,
   getSectionTitles,
+  type OnboardingSectionKey,
 } from "../onboardingSections";
 import { useDocumentFields } from "./useDocumentFields";
 import { useIdentityFields } from "./useIdentityFields";
@@ -18,8 +19,11 @@ import { useVerifyIdentity } from "./useVerifyIdentity";
 
 export type OnboardingController = ReturnType<typeof useOnboarding>;
 
-/** Everything the onboarding screen and its sections need, in one object. */
-export function useOnboarding() {
+/** Everything the onboarding screen and its sections need, in one object.
+ *
+ * With `onlySections` it drives the re-upload screen instead: just the
+ * documents an admin asked for, then straight back for review. */
+export function useOnboarding(options: { onlySections?: OnboardingSectionKey[] } = {}) {
   const [saving, setSaving] = useState(false);
 
   const step1 = useStep1Fields();
@@ -28,12 +32,15 @@ export function useOnboarding() {
 
   useOnboardingHydrate(step1, identity, docs);
 
-  const nav = useOnboardingNav(identity.aadhaarVerified, identity.panVerified);
+  const nav = useOnboardingNav(identity.aadhaarVerified, identity.panVerified, options.onlySections);
   const gates = useOnboardingGates(step1, identity, docs, nav.currentKey);
+  // Verifying one ID normally drops the other section, shifting the cursor
+  // back; the re-upload screen keeps every requested section, so it mustn't.
+  const keepSectionIdx = useCallback((_fn: (p: number) => number) => {}, []);
   const { handleVerifyPAN, handleVerifyAadhaar } = useVerifyIdentity(
     identity,
     setSaving,
-    nav.setSectionIdx,
+    options.onlySections ? keepSectionIdx : nav.setSectionIdx,
   );
   const handleVerifyBank = useVerifyBank(docs, setSaving);
   const { saveCurrentSectionData, handleCompleteOnboarding } = useOnboardingSave(
@@ -66,5 +73,6 @@ export function useOnboarding() {
     handleVerifyPAN, handleVerifyAadhaar, handleVerifyBank,
     saveCurrentSectionData, handleCompleteOnboarding,
     sectionTitle, sectionSubtitle,
+    isReupload: Boolean(options.onlySections),
   };
 }

@@ -5,7 +5,7 @@ import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { socketService } from "@/utils/socketService";
 import { showAlert } from "@/components/ui/AppAlert";
-import { normalizeStatus } from "@/features/ride/useTracking.shared";
+import { nextFoodStage, normalizeStatus } from "@/features/ride/useTracking.shared";
 
 export function GlobalSocketHandler() {
   const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
@@ -89,15 +89,20 @@ export function GlobalSocketHandler() {
     const onOrderAccepted = (data: any) => {
       if (data?.driver) setDriver(data.driver);
       setStatus("driver_assigned");
+      useDeliveryStore.getState().setFoodStage(null);
     };
     const onOrderStatusUpdate = (data: any) => {
       if (!data?.status) return;
       const statusStr = String(data.status).toLowerCase();
       if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
+        // Before the status: screens reacting to "cancelled" read who did it from here.
+        useDeliveryStore.getState().setCancelReason(data.reason ?? null);
         setStatus("cancelled");
         return;
       }
       setStatus(normalizeStatus(data.status));
+      const store = useDeliveryStore.getState();
+      store.setFoodStage(nextFoodStage(store.foodStage, data.status));
     };
     const onOrderCancelled = () => setStatus("cancelled");
 

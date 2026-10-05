@@ -15,7 +15,7 @@ export function OnboardingStepper({ form }: Props) {
           to="/partner"
           className="font-display text-xl font-extrabold text-brand-kinetic tracking-tighter"
         >
-          HYBRID<span className="text-on-surface"> Partner</span>
+          ADIOS<span className="text-on-surface"> Partner</span>
         </Link>
         <p className="text-xs text-secondary-app mt-2 font-medium">
           {copy.sidebarTitle}

@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { ActiveTaskCard } from "./ActiveTaskCard";
 import { NoActiveTasksCard } from "./NoActiveTasksCard";
 import { SectionHeading } from "./SectionHeading";
+import { isRideOrder } from "../orderStops";
 
 /** The job in progress, or the empty state when there isn't one. */
 export function ActiveTasksSection({
@@ -22,7 +23,8 @@ export function ActiveTasksSection({
       <SectionHeading title={t("jobs.activeTasks")} />
       {currentOrder ? (
         <ActiveTaskCard
-          mode={currentOrder.serviceType?.toLowerCase() === "helper" ? "delivery" : "ride"}
+          // Rides say "Next ride"; food, parcel and helper jobs "Next delivery".
+          mode={isRideOrder(currentOrder) ? "ride" : "delivery"}
           time={
             currentOrder.timestamp
               ? new Date(currentOrder.timestamp).toLocaleTimeString([], {

@@ -10,6 +10,8 @@ import { useCartStore } from "@/contexts/cartStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 import { FoodItem } from "./useRestaurantMenu.shared";
+import { useOutletOrderingState } from "./useOutletOrderingState";
+import { showOutletClosedAlert } from "@/components/shared/outletClosed";
 
 // Split out of useRestaurantMenu so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -51,9 +53,17 @@ export function useRestaurantMenuId() {
   const [selectedDishDetail, setSelectedDishDetail] = useState<FoodItem | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+  const { orderingState, isClosed: outletClosed, refresh: refreshOrderingState } = useOutletOrderingState(id as string);
 
   const handleAddToCart = (item: FoodItem) => {
     if (loadingItems[item._id] || item.isAvailable === false) return;
+    // The partner switched "Accepting orders" off, or it's outside its hours.
+    // Re-check in the background so a reopened outlet unlocks on the next tap.
+    if (outletClosed) {
+      showOutletClosedAlert(orderingState, name as string);
+      refreshOrderingState();
+      return;
+    }
     setLoadingItems((prev) => ({ ...prev, [item._id]: true }));
     setTimeout(() => {
       requestAddItem(item as any, id as string, name as string);
@@ -61,5 +71,5 @@ export function useRestaurantMenuId() {
     }, 450);
   };
 
-  return { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems, setLoadingItems, handleAddToCart };
+  return { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems, setLoadingItems, handleAddToCart, orderingState, outletClosed };
 }

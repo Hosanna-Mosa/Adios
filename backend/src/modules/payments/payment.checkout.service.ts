@@ -44,6 +44,15 @@ export class CheckoutService {
     language?: string;
     baseUrl: string;
   }) {
+    // Never take money for an order a closed restaurant can't accept.
+    const scheduledRaw =
+      input.orderData?.scheduledFor ??
+      (input.orderData?.scheduledDelivery?.type === "later" ? input.orderData.scheduledDelivery.requestedAt : undefined);
+    const scheduledAt = scheduledRaw ? new Date(scheduledRaw).getTime() : NaN;
+    await this.ordersService.assertOutletAcceptingOrders(input.orderData?.vendorId, {
+      scheduled: Number.isFinite(scheduledAt) && scheduledAt > Date.now(),
+    });
+
     // The server decides the amount (plan §2 principle 1). input.amount is only what the app
     // displayed; it is compared for logging and never charged.
     const quote = await new OnlinePriceService().quote(input.orderData);

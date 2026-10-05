@@ -1,4 +1,3 @@
-import { Image } from "expo-image";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
@@ -6,7 +5,8 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type RestaurantMenuStyles } from "@/features/food/restaurant-menu.styles";
+import { type RestaurantMenuStyles } from "../restaurant-menu.styles";
+import { DishImageCarousel } from "./DishImageCarousel";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -21,6 +21,8 @@ interface Props {
   isDishFavorite: any;
   items: any[];
   name: string | string[];
+  /** The outlet isn't taking orders — no adding, though quantities can still go down. */
+  outletClosed: boolean;
   selectedDishDetail: any;
   setSelectedDishDetail: React.Dispatch<React.SetStateAction<any>>;
   styles: RestaurantMenuStyles;
@@ -38,6 +40,7 @@ export function DishDetailSheet({
   isDishFavorite,
   items,
   name,
+  outletClosed,
   selectedDishDetail,
   setSelectedDishDetail,
   styles,
@@ -51,11 +54,12 @@ export function DishDetailSheet({
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setSelectedDishDetail(null)} />
         {selectedDishDetail && (
           <View style={styles.modalSheet}>
-            <Image
-              source={{ uri: selectedDishDetail.images?.[0] || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=800" }}
-              style={styles.modalImage}
-              contentFit="cover"
-              transition={200}
+            {/* Keyed by dish, so each dish opens on its first photo. */}
+            <DishImageCarousel
+              key={selectedDishDetail._id}
+              images={selectedDishDetail.images}
+              imageStyle={styles.modalImage}
+              activeColor={accent.accent}
             />
             <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setSelectedDishDetail(null)}>
               <Ionicons name="close" size={22} color="#fff" />
@@ -95,6 +99,8 @@ export function DishDetailSheet({
 
               {selectedDishDetail.isAvailable === false ? (
                 <View style={styles.modalSoldOut}><Text style={styles.soldOutText}>{t("app.food.currentlySoldOut")}</Text></View>
+              ) : outletClosed && !items.find((i) => i._id === selectedDishDetail._id) ? (
+                <View style={styles.modalSoldOut}><Text style={styles.soldOutText}>{t("app.food.notAcceptingOrdersNow")}</Text></View>
               ) : items.find((i) => i._id === selectedDishDetail._id) ? (
                 <View style={styles.modalQtyRow}>
                   <TouchableOpacity
@@ -104,7 +110,7 @@ export function DishDetailSheet({
                     <Feather name="minus" size={16} color={accent.accent} />
                   </TouchableOpacity>
                   <Text style={styles.modalQtyText}>{items.find((i) => i._id === selectedDishDetail._id)?.quantity}</Text>
-                  <TouchableOpacity style={styles.modalQtyBtn} onPress={() => handleAddToCart(selectedDishDetail)}>
+                  <TouchableOpacity style={[styles.modalQtyBtn, outletClosed && { opacity: 0.35 }]} onPress={() => handleAddToCart(selectedDishDetail)}>
                     <Feather name="plus" size={16} color={accent.accent} />
                   </TouchableOpacity>
                 </View>

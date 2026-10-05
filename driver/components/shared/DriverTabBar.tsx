@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -83,7 +83,7 @@ export function DriverTabBar({ active }: DriverTabBarProps) {
   return (
     <Box style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
       <Box style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
-        <BlurView intensity={90} tint="light" style={StyleSheet.absoluteFillObject} />
+        <SafeBlurView intensity={90} tint="light" style={StyleSheet.absoluteFillObject} />
         <Box style={styles.tabRow} onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}>
           {pillWidth > 0 && (
             <AnimatedBox style={[styles.indicator, indicatorStyle]}>

@@ -52,11 +52,17 @@ export default function TrackingScreen() {
 
   const timeline = buildTimeline(status, isRide, isHelper, t);
   const pickupLabel = vendorName || pickupStop?.address || stops?.[0]?.address || "Pickup location";
+  // A restaurant / meat-shop order: map markers for both ends, and no delivery PIN —
+  // the rider hands these over without one. Rides end without one too (they still
+  // start with the start-ride PIN); parcels and helper tasks keep theirs.
+  const outletOrder = !isRide && !isHelper && !!vendorName;
 
   return (
     <ScreenShell>
       <TrackingScreenBody
         status={status}
+        outletOrder={outletOrder}
+        rideOrder={!!isRide}
         currentOrderId={currentOrderId}
         route={route}
         stops={stops}
@@ -73,7 +79,7 @@ export default function TrackingScreen() {
         tripModalVisible={tripModalVisible}
         setTripModalVisible={setTripModalVisible}
         helperStatus={helperStatus}
-        deliveryOtp={deliveryOtp}
+        deliveryOtp={outletOrder || isRide ? null : deliveryOtp}
         startOtp={startOtp}
         driverLocation={driverLocation}
         radius={radius}

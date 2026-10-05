@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import { useListQuery } from "@/hooks/useListQuery";
 import type { AdminDriver, AdminOrderSummary } from "../types";
 
@@ -22,7 +23,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "bike",
     vehicleNumber: "AP39XX1234",
     currentLocation: { coordinates: [81.804, 17.0005] },
-    user: { name: "Sunand", phone: "+91 97040 72652", email: "sunand@flavour.com", isBlocked: false },
+    user: { name: "Sunand", phone: "+91 97040 72652", email: "sunand@adios.com", isBlocked: false },
     rating: 4.8,
   },
   {
@@ -31,7 +32,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "scooter",
     vehicleNumber: "AP39XX5678",
     currentLocation: { coordinates: [81.801, 17.0025] },
-    user: { name: "Mahi", phone: "+91 88832 49896", email: "mahi@flavour.com", isBlocked: false },
+    user: { name: "Mahi", phone: "+91 88832 49896", email: "mahi@adios.com", isBlocked: false },
     rating: 4.8,
   },
   {
@@ -40,7 +41,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "bike",
     vehicleNumber: "AP39XX9012",
     currentLocation: { coordinates: [81.798, 17.001] },
-    user: { name: "Dow Testing", phone: "+91 76701 76422", email: "dow@flavour.com", isBlocked: false },
+    user: { name: "Dow Testing", phone: "+91 76701 76422", email: "dow@adios.com", isBlocked: false },
     rating: 4.9,
   },
   {
@@ -49,7 +50,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "bike",
     vehicleNumber: "AP39XX1122",
     currentLocation: { coordinates: [82.235, 16.983] },
-    user: { name: "Ram Prasad", phone: "+91 88970 99881", email: "ram@flavour.com", isBlocked: false },
+    user: { name: "Ram Prasad", phone: "+91 88970 99881", email: "ram@adios.com", isBlocked: false },
     rating: 4.7,
   },
   {
@@ -58,7 +59,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "scooter",
     vehicleNumber: "AP39XX3344",
     currentLocation: { coordinates: [81.8055, 17.006] },
-    user: { name: "Venkatesh", phone: "+91 94920 11223", email: "venkatesh@flavour.com", isBlocked: false },
+    user: { name: "Venkatesh", phone: "+91 94920 11223", email: "venkatesh@adios.com", isBlocked: false },
     rating: 4.6,
   },
   {
@@ -67,7 +68,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "bike",
     vehicleNumber: "AP39XX5566",
     currentLocation: { coordinates: [81.8005, 17.004] },
-    user: { name: "Srinivas", phone: "+91 91234 56780", email: "srinivas@flavour.com", isBlocked: false },
+    user: { name: "Srinivas", phone: "+91 91234 56780", email: "srinivas@adios.com", isBlocked: false },
     rating: 4.5,
   },
   {
@@ -76,7 +77,7 @@ const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
     vehicleType: "bike",
     vehicleNumber: "AP39XX7788",
     currentLocation: { coordinates: [81.802, 16.999] },
-    user: { name: "Kalyan", phone: "+91 98765 43210", email: "kalyan@flavour.com", isBlocked: false },
+    user: { name: "Kalyan", phone: "+91 98765 43210", email: "kalyan@adios.com", isBlocked: false },
     rating: 4.7,
   },
 ];
@@ -185,8 +186,8 @@ export function useDriversList() {
     toggleBlockMutation.mutate({ id: driver._id, isBlocked: !driver.user?.isBlocked });
   };
 
-  const handleDeleteClick = (driver: AdminDriver) => {
-    if (confirm(t("drivers.confirmRemoveDriver", { name: driver.user?.name, defaultValue: "Are you sure you want to remove driver {{name}}?" }))) {
+  const handleDeleteClick = async (driver: AdminDriver) => {
+    if (await appConfirm({ title: t("drivers.confirmRemoveDriver", { name: driver.user?.name, defaultValue: "Are you sure you want to remove driver {{name}}?" }), tone: "destructive" })) {
       deleteDriverMutation.mutate(driver._id);
     }
   };

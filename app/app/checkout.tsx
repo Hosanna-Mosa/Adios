@@ -6,6 +6,7 @@ import { Header } from "@/components/ui/Header";
 import { ScheduleDateTimeSheet } from "@/components/ScheduleDateTimeSheet";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useFoodCheckout } from "@/features/food/useFoodCheckout";
+import { useState } from "react";
 
 export default function FoodCheckoutScreen() {
   const {
@@ -17,6 +18,9 @@ export default function FoodCheckoutScreen() {
   addressIssue, applyCode, removeCode, placeOrder
   } = useFoodCheckout();
   const { t } = useTranslation();
+  // The footer's height depends on the payment options shown; measured so the
+  // last section (bill total) is never hidden behind it.
+  const [footerHeight, setFooterHeight] = useState(0);
 
   return (
     <ScreenShell>
@@ -27,6 +31,7 @@ export default function FoodCheckoutScreen() {
       />
 
       <CheckoutBody
+        footerHeight={footerHeight}
         TIP_OPTIONS={TIP_OPTIONS}
         formatSlot={formatSlot}
         accent={accent}
@@ -66,6 +71,7 @@ export default function FoodCheckoutScreen() {
       />
 
       <CheckoutFooter
+        onHeightChange={setFooterHeight}
         accent={accent}
         addressIssue={addressIssue}
         insets={insets}

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
 
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +22,7 @@ import {
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/home.styles";
 import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
+import { useFoodOfferPoll } from "@/features/jobs/hooks/useFoodOfferPoll";
 import { useOnlineActions } from "@/features/jobs/hooks/useOnlineActions";
 import { useScooterAnimation } from "@/features/jobs/hooks/useScooterAnimation";
 import { formatCurrency } from "@/utils/format";
@@ -41,6 +43,14 @@ export default function HomeScreen() {
   const activeServices = useDriverStore((s) => s.activeServices);
   const toggleHomeMode = useDriverStore((s) => s.toggleHomeMode);
   const currentOrder = useDriverStore((s) => s.currentOrder);
+  const restoreActiveOrder = useDriverStore((s) => s.restoreActiveOrder);
+  // Each time home opens, bring back a job the driver accepted before the app was
+  // closed or reloaded, so it shows under Active tasks to continue.
+  useFocusEffect(
+    useCallback(() => {
+      void restoreActiveOrder();
+    }, [restoreActiveOrder]),
+  );
   const driverName = useDriverStore((s) => s.driverName);
   const earnings = useDriverStore((s) => s.earnings);
 
@@ -51,6 +61,8 @@ export default function HomeScreen() {
     setHotspots,
     setIsLoadingHotspots,
   });
+
+  useFoodOfferPoll();
 
   const {
     showOnlineModal,

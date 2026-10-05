@@ -65,14 +65,20 @@ export interface CallbackPageOptions {
    * each get their own scheme back.
    */
   deepLink?: string;
+  /**
+   * Close the window instead of following a deep link. Used for the partner
+   * website, which opens consent in a popup and polls for the result.
+   */
+  closeWindow?: boolean;
 }
 
 export function renderCallbackPage(res: Response, opts: CallbackPageOptions): Response {
   const accent = opts.ok ? "#0f9d58" : "#d93025";
-  const deepLink = opts.deepLink || digilockerConfig.clientRedirectUrl;
+  const deepLink = opts.closeWindow ? undefined : opts.deepLink || digilockerConfig.clientRedirectUrl;
+  const runsScript = Boolean(deepLink || opts.closeWindow);
 
   const nonce = crypto.randomBytes(16).toString("base64");
-  setDigilockerPageCsp(res, deepLink ? nonce : undefined);
+  setDigilockerPageCsp(res, runsScript ? nonce : undefined);
 
   // Bounce into the app's deep link when configured, so the driver app's
   // WebView closes itself instead of stranding the user on this page.
@@ -83,7 +89,9 @@ export function renderCallbackPage(res: Response, opts: CallbackPageOptions): Re
           "status=" +
           (opts.ok ? "success" : "failed")
       )};},1500);</script>`
-    : "";
+    : opts.closeWindow
+      ? `<script nonce="${nonce}">setTimeout(function(){window.close();},1500);</script>`
+      : "";
 
   const sandboxNotice = digilockerConfig.isSandbox
     ? `<p style="margin:20px 0 0;font-size:12px;color:#b06000;background:#fff4e5;padding:8px 12px;border-radius:8px">Sandbox mode — simulated data, not a real verification.</p>`

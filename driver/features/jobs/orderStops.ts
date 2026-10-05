@@ -26,6 +26,11 @@ export function isRideOrder(currentOrder: any) {
   return RIDE_SERVICE_TYPES.includes(currentOrder?.serviceType?.toLowerCase() || "");
 }
 
+/** A restaurant / meat-shop order, as opposed to a parcel, ride or helper task. */
+export function isOutletOrder(currentOrder: any) {
+  return !!(currentOrder?.hasOutlet || currentOrder?.vendorName);
+}
+
 export function isHelperOrder(currentOrder: any) {
   return currentOrder?.serviceType?.toLowerCase() === "helper";
 }

@@ -180,19 +180,6 @@ export function ItemForm({
                   onChange={(e) => setPhoto(e.target.files?.[0] || null)}
                 />
               </label>
-              <button
-                type="button"
-                onClick={() =>
-                  setPhoto(
-                    new File(["dummy photo data"], "item_photo_dummy.png", {
-                      type: "image/png",
-                    }),
-                  )
-                }
-                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium text-secondary-app hover:text-brand-kinetic hover:border-brand-kinetic/30 transition-all"
-              >
-                {t("onboarding.useDummyPhoto")}
-              </button>
             </div>
           )}
         </div>

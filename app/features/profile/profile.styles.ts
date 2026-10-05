@@ -29,8 +29,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     menuIcon: { width: 36, height: 36, borderRadius: 11, alignItems: "center", justifyContent: "center", flexShrink: 0 },
     menuLabel: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
     menuBadgeText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
-    menuCountBadge: { minWidth: 20, height: 20, borderRadius: 10, backgroundColor: tokens.error, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-    menuCountBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: "#fff" },
 
     signOutBtn: { marginTop: 14, borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
     signOutBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.error },

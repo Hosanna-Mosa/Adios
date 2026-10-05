@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 import type { OnboardingSectionKey } from "../onboardingSections";
-import { validateAadhaarFormat, validateDLFormat, validatePANFormat } from "../validators";
+import { validateAadhaarFormat, validateDLFormat, validateEmailFormat, validatePANFormat } from "../validators";
 import type { DocumentFields } from "./useDocumentFields";
 import type { IdentityFields } from "./useIdentityFields";
 import type { Step1Fields } from "./useStep1Fields";
@@ -37,6 +37,7 @@ export function useOnboardingGates(
 
   const canProceedSection = useCallback((): boolean => {
     switch (currentKey) {
+      case "email": return validateEmailFormat(step1.email);
       case "gender": return !!step1.gender;
       case "vehicle": return !!step1.vehicle;
       case "zone": return !!step1.preferredZone;

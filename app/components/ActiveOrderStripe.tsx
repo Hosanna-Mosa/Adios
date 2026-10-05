@@ -1,7 +1,7 @@
 import React from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -46,7 +46,7 @@ export function ActiveOrderStripe({ bottom }: Props) {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const { isActive, orderId, serviceType, status, driver } = useActiveOrder();
+  const { isActive, orderId, serviceType, status, driver, foodStage } = useActiveOrder();
 
   const isRide = RIDE_TYPES.includes(String(serviceType).toLowerCase());
   const isHelper = serviceType === "helper";
@@ -60,12 +60,17 @@ export function ActiveOrderStripe({ bottom }: Props) {
     : isHelper
       ? t("app.activeOrderStripe.taskInProgress")
       : t("app.activeOrderStripe.orderInProgress");
-  const statusLabel = t(`app.activeOrderStripe.status.${STATUS_LABEL_KEY[status] || "inProgress"}`);
+  const statusLabel =
+    foodStage === "awaiting_restaurant"
+      ? t("app.activeOrderStripe.status.waitingForRestaurant")
+      : foodStage === "preparing"
+        ? t("app.activeOrderStripe.status.preparingYourOrder")
+        : t(`app.activeOrderStripe.status.${STATUS_LABEL_KEY[status] || "inProgress"}`);
   const caption = driver?.name ? `${statusLabel} · ${driver.name}` : statusLabel;
 
   return (
     <Animated.View entering={fadeInUp(0)} style={[styles.card, { bottom }]}>
-      <BlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+      <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
       <TouchableOpacity
         style={styles.row}
         activeOpacity={0.85}

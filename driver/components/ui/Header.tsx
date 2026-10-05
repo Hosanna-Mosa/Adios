@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "./SafeBlurView";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 import Animated, { interpolate, SharedValue, useAnimatedStyle } from "react-native-reanimated";
@@ -44,7 +44,7 @@ export function Header({
     <Box style={{ paddingTop: insets.top }}>
       {scrollY ? (
         <Animated.View style={[StyleSheet.absoluteFillObject, scrollLinkedStyle]}>
-          <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFillObject} />
+          <SafeBlurView intensity={80} tint="light" style={StyleSheet.absoluteFillObject} />
         </Animated.View>
       ) : !transparent ? (
         <Box style={[StyleSheet.absoluteFillObject, { backgroundColor: Colors.background }]} />

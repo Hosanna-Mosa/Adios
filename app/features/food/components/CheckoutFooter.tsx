@@ -13,6 +13,8 @@ import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector
 
 interface Props {
   accent: ServiceTokens;
+  /** Reports the footer's rendered height so the page can scroll its last section clear of it. */
+  onHeightChange?: (height: number) => void;
   addressIssue: any;
   insets: EdgeInsets;
   isPlacingOrder: boolean;
@@ -25,6 +27,7 @@ interface Props {
 
 export function CheckoutFooter({
   accent,
+  onHeightChange,
   addressIssue,
   insets,
   isPlacingOrder,
@@ -36,7 +39,10 @@ export function CheckoutFooter({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
+    <View
+      style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}
+      onLayout={(e) => onHeightChange?.(e.nativeEvent.layout.height)}
+    >
       {!!addressIssue && (
         <TouchableOpacity
           style={styles.blockedNote}

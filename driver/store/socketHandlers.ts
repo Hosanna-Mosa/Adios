@@ -48,6 +48,16 @@ export function registerOrderSocketHandlers(
       (RIDE_TYPES.includes(serviceType) && activeServices.includes("ride")) ||
       (FOOD_TYPES.includes(serviceType) && activeServices.includes("food"));
 
+    // A food offer goes to every nearby rider and stays open until someone takes
+    // it, so it never replaces a card the rider is already reading or interrupts
+    // a job in progress. The server still holds it; the open-offer poll
+    // (useFoodOfferPoll) shows it once the rider is free, if nobody took it first.
+    const busy = !!get().incomingOrder || !!get().currentOrder;
+    if (data.dispatchMode === "broadcast" && busy) {
+      console.log(`Holding food offer ${data.id || data._id} — rider is busy with another card or job.`);
+      return;
+    }
+
     if (matchesActiveServices) {
       get().setIncomingOrder(data as Order);
     } else {
@@ -65,6 +75,11 @@ export function registerOrderSocketHandlers(
     const incoming = get().incomingOrder;
     if (incoming && (!orderId || sameId(incoming.id, orderId))) {
       set({ incomingOrder: null });
+      // A food offer the rider was looking at went to someone faster — say so,
+      // rather than have the card vanish without a reason.
+      if (data.reason === "taken") {
+        Alert.alert(i18n.t("jobs.offerGoneTitle"), i18n.t("jobs.offerTakenMessage"));
+      }
     }
   });
 

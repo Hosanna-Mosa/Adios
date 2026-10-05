@@ -1,25 +1,62 @@
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Check, MapPin, Phone, ShieldAlert, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { StatusDisplay, VendorOrder } from "../vendorDashboardTypes";
+import { needsAcceptance, PREP_TIME_OPTIONS, type StatusDisplay, type VendorOrder } from "../vendorDashboardTypes";
 
 interface VendorOrderDetailDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   order: VendorOrder | null;
-  getStatusDisplay: (status: string) => StatusDisplay;
+  getStatusDisplay: (status: string, order?: VendorOrder) => StatusDisplay;
   getOrderItems: (order: VendorOrder) => { name: string; quantity: number; price: number }[];
   onMarkAsReady: (orderId: string) => void;
+  onAccept: (orderId: string, prepMinutes: number) => void;
+  onReject: (orderId: string) => void;
+  isAccepting: boolean;
   isUpdatingStatus: boolean;
 }
 
 const READY_ELIGIBLE_STATUSES = ["created", "searching_driver", "driver_assigned", "arrived_pickup"];
+const DEFAULT_PREP_MINUTES = 20;
 
-/** The order detail modal: customer/driver info, items, and the vendor's "mark as ready" action. */
-export function VendorOrderDetailDialog({ isOpen, onOpenChange, order, getStatusDisplay, getOrderItems, onMarkAsReady, isUpdatingStatus }: VendorOrderDetailDialogProps) {
+const secondsUntil = (deadline?: string | null) =>
+  deadline ? Math.max(0, Math.ceil((new Date(deadline).getTime() - Date.now()) / 1000)) : null;
+const formatMmSs = (total: number) => `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+
+/**
+ * The order detail modal: customer/driver info, items, and the vendor's actions —
+ * accept (with a prep time) or reject a new food order, then "mark as ready".
+ */
+export function VendorOrderDetailDialog({
+  isOpen, onOpenChange, order, getStatusDisplay, getOrderItems, onMarkAsReady, onAccept, onReject, isAccepting, isUpdatingStatus,
+}: VendorOrderDetailDialogProps) {
   const { t } = useTranslation();
+  const [prepMinutes, setPrepMinutes] = useState(DEFAULT_PREP_MINUTES);
+  const [confirmingReject, setConfirmingReject] = useState(false);
+  const awaitingAcceptance = !!order && needsAcceptance(order);
+  const canMarkReady =
+    !!order && !awaitingAcceptance && !order.foodReadyAt && READY_ELIGIBLE_STATUSES.includes(order.status ? order.status.toLowerCase() : "");
+  const busy = isAccepting || isUpdatingStatus;
+
+  // A different order starts from the default prep time, with no half-made reject.
+  useEffect(() => {
+    setPrepMinutes(DEFAULT_PREP_MINUTES);
+    setConfirmingReject(false);
+  }, [order?._id]);
+
+  // Seconds left to accept before the order is cancelled automatically.
+  const acceptBy = awaitingAcceptance ? order?.restaurantAcceptBy : null;
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(() => secondsUntil(acceptBy));
+  useEffect(() => {
+    setSecondsLeft(secondsUntil(acceptBy));
+    if (!acceptBy) return;
+    const timer = setInterval(() => setSecondsLeft(secondsUntil(acceptBy)), 1000);
+    return () => clearInterval(timer);
+  }, [acceptBy]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md rounded-3xl">
@@ -27,7 +64,7 @@ export function VendorOrderDetailDialog({ isOpen, onOpenChange, order, getStatus
           <DialogTitle className="text-xl font-bold flex items-center justify-between">
             <span>{t("vendorDashboard.orderDetails")}</span>
             {order && (
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${getStatusDisplay(order.status).color}`}>{getStatusDisplay(order.status).text}</span>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase border ${getStatusDisplay(order.status, order).color}`}>{getStatusDisplay(order.status, order).text}</span>
             )}
           </DialogTitle>
         </DialogHeader>
@@ -114,11 +151,74 @@ export function VendorOrderDetailDialog({ isOpen, onOpenChange, order, getStatus
             ) : (
               <div className="bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10 flex items-center gap-3">
                 <ShieldAlert className="h-5 w-5 text-amber-500 shrink-0" />
-                <p className="text-xs text-amber-700 leading-snug">{t("vendorDashboard.awaitingDriverAssignment")}</p>
+                <p className="text-xs text-amber-700 leading-snug">
+                  {t(awaitingAcceptance ? "vendorDashboard.acceptToFindDriver" : "vendorDashboard.awaitingDriverAssignment")}
+                </p>
               </div>
             )}
 
-            {READY_ELIGIBLE_STATUSES.includes(order.status ? order.status.toLowerCase() : "") && (
+            {awaitingAcceptance && (
+              <div className="pt-2 space-y-3">
+                {confirmingReject ? (
+                  <>
+                    <p className="text-sm text-foreground text-center leading-snug">{t("vendorDashboard.confirmRejectOrder")}</p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1 h-11 rounded-2xl" onClick={() => setConfirmingReject(false)} disabled={busy}>
+                        {t("vendorDashboard.keepOrder")}
+                      </Button>
+                      <Button variant="destructive" className="flex-1 h-11 rounded-2xl font-bold" onClick={() => onReject(order._id)} disabled={busy}>
+                        {t("vendorDashboard.yesRejectOrder")}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {secondsLeft !== null && (
+                      <p className={`text-sm font-bold text-center ${secondsLeft <= 30 ? "text-red-600" : "text-amber-600"}`}>
+                        {secondsLeft > 0
+                          ? t("vendorDashboard.acceptWithin", { time: formatMmSs(secondsLeft) })
+                          : t("vendorDashboard.acceptTimeUp")}
+                      </p>
+                    )}
+                    <p className="text-sm font-semibold text-foreground text-center">{t("vendorDashboard.prepTimeQuestion")}</p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {PREP_TIME_OPTIONS.map((minutes) => (
+                        <button
+                          key={minutes}
+                          type="button"
+                          onClick={() => setPrepMinutes(minutes)}
+                          aria-pressed={prepMinutes === minutes}
+                          className={`px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors ${
+                            prepMinutes === minutes ? "bg-primary text-white border-primary" : "bg-muted/30 text-foreground border-border hover:bg-muted"
+                          }`}
+                        >
+                          {t("vendorDashboard.prepMinutes", { value: minutes })}
+                        </button>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => onAccept(order._id, prepMinutes)}
+                      disabled={busy}
+                      className="w-full h-11 text-base font-bold bg-primary hover:bg-primary/95 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary/15"
+                    >
+                      {isAccepting ? (
+                        <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <Check className="h-5 w-5" />
+                          {t("vendorDashboard.acceptReadyIn", { value: prepMinutes })}
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="ghost" className="w-full h-10 rounded-2xl text-destructive" onClick={() => setConfirmingReject(true)} disabled={busy}>
+                      {t("vendorDashboard.rejectOrder")}
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {canMarkReady && (
               <div className="pt-2">
                 <Button
                   onClick={() => onMarkAsReady(order._id)}

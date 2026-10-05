@@ -62,11 +62,22 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+/**
+ * Where a restaurant food order stands before a delivery partner is assigned —
+ * something `status` alone can't say: "awaiting_restaurant" until the restaurant
+ * accepts (it has 2 minutes, or the order is cancelled), then "preparing" while the
+ * food is cooked and a partner is found. null for every other order and stage.
+ */
+export type FoodStage = "awaiting_restaurant" | "preparing" | null;
+
 export interface DeliveryState {
   stops: DeliveryStop[];
   route: RouteInfo | null;
   price: PriceBreakdown | null;
   status: OrderStatus;
+  foodStage: FoodStage;
+  /** Who cancelled the current order (backend `cancelReason`), once it is cancelled. */
+  cancelReason: string | null;
   scheduling: "asap" | "scheduled";
   loadType: "parcel" | "grocery" | "fragile" | "mixed";
   paymentMethod: string;
@@ -101,6 +112,8 @@ export interface DeliveryState {
   calculateRoute: () => void;
   calculatePrice: () => void;
   setStatus: (status: OrderStatus) => void;
+  setFoodStage: (foodStage: FoodStage) => void;
+  setCancelReason: (cancelReason: string | null) => void;
   setRoute: (route: RouteInfo) => void;
   setStops: (stops: DeliveryStop[]) => void;
   resetDelivery: () => void;

@@ -32,6 +32,7 @@ export function VendorFilters({ filterSearch, onSearchChange, filterStatus, onSt
         <option value="all">{t("dashboard.allStatuses")}</option>
         <option value="approved">{t("catalog.approved")}</option>
         <option value="submitted">{t("catalog.submitted")}</option>
+        <option value="resubmission_required">{t("catalog.resubmissionRequired")}</option>
         <option value="draft">{t("catalog.draft")}</option>
         <option value="rejected">{t("catalog.rejected")}</option>
       </select>

@@ -41,6 +41,31 @@ export function OfferHeader({
   );
 }
 
+/** In place of the countdown on a food offer: when the food is ready and how far
+ * away the rider is. The offer has no timer — the first rider to accept gets it. */
+export function OfferReadyInfo({
+  readyAt,
+  etaMinutes,
+}: {
+  readyAt?: string | null;
+  etaMinutes?: number;
+}) {
+  const { t } = useTranslation();
+  const readyIn = readyAt ? Math.round((new Date(readyAt).getTime() - Date.now()) / 60000) : null;
+  const readyLine =
+    readyIn !== null && readyIn > 0
+      ? t("jobs.foodReadyIn", { value: readyIn })
+      : t("jobs.foodReadyNow");
+  return (
+    <Box style={styles.timerContainer}>
+      <AppText style={[styles.timerText, { color: Colors.brand }]}>
+        {etaMinutes !== undefined ? `${readyLine} · ${t("jobs.youAreMinAway", { value: Math.max(1, etaMinutes) })}` : readyLine}
+      </AppText>
+      <AppText style={[styles.subtitle, { marginTop: 4 }]}>{t("jobs.firstToAcceptGetsIt")}</AppText>
+    </Box>
+  );
+}
+
 /** Bar that drains while the offer is live. */
 export function OfferCountdown({
   secondsLeft,

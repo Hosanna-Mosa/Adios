@@ -47,6 +47,10 @@ export interface Order {
   polyline?: string;
   vendorName?: string;
   vendorPhone?: string;
+  /** Restaurant / meat-shop order (it has a vendor): no delivery OTP, and pickup waits for "ready". */
+  hasOutlet?: boolean;
+  /** When the outlet tapped "Mark as ready" (ISO); the pickup code unlocks after it. */
+  foodReadyAt?: string | null;
   isReserved?: boolean;
   reservedAt?: Date | string;
   /** From the backend only. "online" = already paid through Razorpay; "cash" = collect it. */
@@ -56,6 +60,13 @@ export interface Order {
   payableAmount?: number;
   cashCollected?: boolean;
   cashCollectedAmount?: number | null;
+  /** "broadcast" = a restaurant food offer sent to every nearby rider at once. No countdown; first to accept gets it. */
+  dispatchMode?: "sequential" | "broadcast";
+  /** Broadcast offers only: when the restaurant said the food will be ready (ISO). */
+  readyAt?: string | null;
+  /** Broadcast offers only: this rider's distance to the restaurant and the ride there. */
+  distanceToPickupMeters?: number;
+  etaMinutes?: number;
 }
 
 export interface CompletedOrder {
@@ -85,6 +96,23 @@ export interface EarningsData {
   weeklyBreakdown: { day: string; amount: number }[];
 }
 
+/** Mirrors the backend's Driver.onboardingStatus. */
+export type DriverOnboardingStatus =
+  | "not_started"
+  | "in_progress"
+  | "pending_approval"
+  | "resubmission_required"
+  | "completed"
+  | "rejected";
+
+/** The admin's latest verification decision (see the Driver Verification page). */
+export interface DriverVerificationReview {
+  requestedDocuments?: ("aadhaar" | "pan" | "license" | "bank" | "selfie")[];
+  note?: string;
+  rejectionReason?: string;
+  requestedAt?: string;
+}
+
 export interface DriverState {
   isOnline: boolean;
   homeMode: boolean;
@@ -97,10 +125,15 @@ export interface DriverState {
   driverLocation: { lat: number; lng: number } | null;
   driverName: string;
   driverPhone: string;
+  /** Contact email from the profile; empty when the driver hasn't given one. */
+  driverEmail: string;
   driverUserId: string | null;
   token: string | null;
   isAuthenticated: boolean;
+  /** True only once an admin has approved the driver (status "completed"). */
   hasCompletedOnboarding: boolean;
+  onboardingStatus: DriverOnboardingStatus | null;
+  verificationReview: DriverVerificationReview | null;
   identityVerified: boolean;
   activeChat: ChatMessage[];
   unreadCount: number;
@@ -109,7 +142,10 @@ export interface DriverState {
   goOnline: (services: ("food" | "ride")[]) => Promise<void>;
   goOffline: () => Promise<void>;
   toggleHomeMode: () => void;
-  acceptOrder: () => void;
+  /** Resolves false when the order couldn't be taken (a food offer someone else accepted first). */
+  acceptOrder: () => Promise<boolean>;
+  /** Brings back the job the server has this driver on (lost when the app restarts). */
+  restoreActiveOrder: () => Promise<void>;
   rejectOrder: (reason?: string) => void;
   updateStep: (step: number) => void;
   updateOrderStatus: (status: OrderStatus, otp?: string) => Promise<void>;
@@ -120,6 +156,8 @@ export interface DriverState {
   updateDriverLocation: (lat: number, lng: number) => void;
   setAuthenticated: (name: string, phone: string, token: string, userId: string) => void;
   setOnboardingCompleted: () => void;
+  /** Records the status the server returned, e.g. after submitting onboarding. */
+  setOnboardingStatus: (status: DriverOnboardingStatus) => void;
   setIdentityVerified: (verified: boolean) => void;
   resetOnboarding: () => void;
   logout: () => void;

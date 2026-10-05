@@ -1,5 +1,8 @@
 import React from "react";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDriverStore } from "@/store/driverStore";
+import { signedInHome } from "@/hooks/useAuthGate";
 import { Box } from "@/components/ui/Box";
 import { Colors } from "@/constants/colors";
 import { SelectLanguageBody } from "@/features/language/components/SelectLanguageBody";
@@ -23,8 +26,14 @@ export default function SelectLanguageScreen() {
     setLanguage(code);
   };
 
+  // Always navigate from here rather than waiting on useAuthGate's effect.
+  // Signed out → sign in. Already signed in (the saved session finished
+  // restoring after this screen opened) → straight to where they belong;
+  // this used to do nothing for them, so Continue looked broken.
   const handleContinue = () => {
     confirmLanguage();
+    const state = useDriverStore.getState();
+    router.replace(state.isAuthenticated && state.token ? signedInHome(state) : "/auth");
   };
 
   return (

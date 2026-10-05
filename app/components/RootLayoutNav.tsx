@@ -35,7 +35,9 @@ export function RootLayoutNav() {
         <Stack.Screen name="cart" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="checkout" />
         <Stack.Screen name="payment" />
-        <Stack.Screen name="tracking" />
+        {/* Back from tracking goes Home (see goHomeFromTracking); a swipe would pop
+            to the previous screen instead, so it's off here. */}
+        <Stack.Screen name="tracking" options={{ gestureEnabled: false }} />
         <Stack.Screen name="pickup-confirmation" />
         <Stack.Screen name="ride-searching" />
         <Stack.Screen name="restaurant-menu" />

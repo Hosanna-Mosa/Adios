@@ -3,6 +3,7 @@ import Order, { OrderStatus, ServiceType, StopType } from "../../database/models
 import User from "../../database/models/User";
 import Driver from "../../database/models/Driver";
 import Vendor from "../../database/models/Vendor";
+import MeatCenter from "../../database/models/MeatCenter";
 import ScheduledDeliveryRequest from "../../database/models/ScheduledDeliveryRequest";
 import SupportTicket from "../../database/models/SupportTicket";
 import { RoutingService } from "../routing/routing.service";
@@ -20,9 +21,17 @@ import ChatMessage from "../../database/models/ChatMessage";
 import { RefundService } from "../payments/refund.service";
 import { assignAndSaveTicket, emitTicketUpdate } from "../../services/supportAssignment.service";
 import { getDriverRating } from "../reviews/driver-rating";
-import { mapServiceTypeToDriverVehicleType, driverAcceptsServiceType } from "../../config/dispatch.config";
+import { mapServiceTypeToDriverVehicleType, driverAcceptsServiceType, FOOD_BROADCAST_CONFIG } from "../../config/dispatch.config";
+import * as foodDispatch from "../../services/foodDispatch.service";
+import { driverPaymentInfo } from "./orders.payment";
+import { getOutletOrderingState } from "../../utils/outletOrderingState";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
+
+const isReadyStatus = (status: string) => String(status).toLowerCase() === OrderStatus.PICKING_ITEMS_LC;
+
+/** How long a restaurant has to accept a new food order, in minutes (for messages). */
+const ACCEPT_MINUTES = Math.round(FOOD_BROADCAST_CONFIG.restaurantAcceptTimeoutMs / 60000);
 
 export class OrdersService {
   private routingService = new RoutingService();
@@ -148,6 +157,30 @@ export class OrdersService {
     };
   }
 
+  /**
+   * Refuses a new order for a restaurant / meat centre that isn't taking orders.
+   *
+   * An order for now needs the outlet open now (its hours, and the partner's
+   * "Accepting orders" switch). A scheduled order only needs the switch on —
+   * a future slot within its hours is the restaurant's to accept or decline.
+   * Rides, courier and helper orders carry no outlet and pass straight through.
+   */
+  async assertOutletAcceptingOrders(vendorId: string | undefined, opts: { scheduled: boolean }) {
+    const outlet = await getOutletOrderingState(vendorId);
+    if (!outlet) return;
+
+    if (outlet.manuallyClosed) {
+      throw new ConflictError(`${outlet.name} isn't accepting orders right now. Please try again later.`);
+    }
+    if (opts.scheduled) return;
+
+    if (!outlet.isOpen) {
+      throw new ConflictError(
+        `${outlet.name} is closed right now${outlet.opensAt ? ` and opens at ${outlet.opensAt}` : ""}. Please order when it's open.`
+      );
+    }
+  }
+
   async createOrder(userId: string, stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, radius?: number, duration?: number, isReserved?: boolean, reservedAt?: Date | string, metadata?: any) {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new Error("Invalid User ID format");
@@ -180,6 +213,13 @@ export class OrdersService {
       }
     }
     const isScheduledOrder = !!scheduledForDate;
+
+    // A closed restaurant takes no new orders. Skipped once the order is already
+    // paid: online checkout checks this before charging, and an order paid for
+    // while the restaurant closed is placed rather than losing the payment.
+    if (metadata?.paymentStatus !== "paid") {
+      await this.assertOutletAcceptingOrders(vendorId, { scheduled: isScheduledOrder });
+    }
 
     const effectiveTotals = appliedCouponCode && totals
       ? { ...totals, couponCode: appliedCouponCode, discount: couponDiscount, total: totalPrice }
@@ -217,6 +257,13 @@ export class OrdersService {
       };
     });
 
+    // A restaurant food order waits for the restaurant to accept and quote a prep time;
+    // the rider search starts then (restaurantAcceptOrder → foodDispatch.startDispatch).
+    const isFoodBroadcast = await foodDispatch.usesFoodBroadcast(effectiveType, vendorId, {
+      scheduled: isScheduledOrder,
+      reserved: !!isReserved,
+    });
+
     const deliveryOtp = Math.floor(1000 + Math.random() * 9000).toString();
     const restaurantPickupCode = Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -248,7 +295,14 @@ export class OrdersService {
       totalDistance: optimizationResult.totalDistance,
       totalPrice,
       priceBreakdown,
-      status: (isReserved || isScheduledOrder) ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
+      status: (isReserved || isScheduledOrder || isFoodBroadcast) ? OrderStatus.CREATED : OrderStatus.SEARCHING_DRIVER,
+      ...(isFoodBroadcast
+        ? {
+            dispatchMode: "broadcast",
+            dispatch: { state: "idle", offers: [] },
+            restaurantAcceptBy: new Date(Date.now() + FOOD_BROADCAST_CONFIG.restaurantAcceptTimeoutMs),
+          }
+        : {}),
       stops: orderStops,
       radius,
       duration,
@@ -274,6 +328,13 @@ export class OrdersService {
     });
 
     const savedOrder = await order.save();
+
+    // The restaurant has until restaurantAcceptBy to accept, or the order is cancelled.
+    if (isFoodBroadcast && savedOrder.restaurantAcceptBy) {
+      foodDispatch.scheduleRestaurantTimeout(savedOrder._id.toString(), savedOrder.restaurantAcceptBy, (id) =>
+        this.cancelUnacceptedFoodOrder(id),
+      );
+    }
 
     if (appliedCouponId) {
       this.couponsService
@@ -318,28 +379,32 @@ export class OrdersService {
     let vendorName = "Restaurant";
     let vendorPhone = "";
     if (vendorId) {
+      // Alert the outlet of the new order: in-app history, browser web push for the
+      // vendor dashboard, and Expo push for every device signed in to the partner app.
+      // sendNotification() is id-agnostic, so this reaches a restaurant (Vendor) and a
+      // legacy meat centre (MeatCenter) alike. `kind` tells the partner app what a tap opens.
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: vendorId.toString(),
+          title: "New order received 🛎️",
+          body: `A new ${effectiveType.toLowerCase()} order just came in. Tap to view details.`,
+          type: "transactional",
+          category: "order_status",
+          data: {
+            kind: "new_order",
+            orderId: savedOrder._id.toString(),
+            customerName: user.name || "Customer",
+            totalPrice: savedOrder.totalPrice,
+            deepLink: { app: "admin", screen: "/vendor/dashboard" },
+          },
+        })
+        .catch((err) => console.error("[orders.service] Failed to send vendor new-order notification:", err));
+
       try {
         const vendorObj = await Vendor.findById(vendorId);
         if (vendorObj) {
           vendorName = vendorObj.name;
           vendorPhone = vendorObj.phone;
-
-          // Alert the vendor's dashboard (web push + in-app history) of the new order.
-          // Vendors aren't mobile-app users, so this only reaches them via Phase 4's web push —
-          // sendNotification() is id-agnostic and already checks the Vendor collection too.
-          NotificationService.getInstance()
-            .sendNotification({
-              userId: vendorObj._id.toString(),
-              title: "New order received 🛎️",
-              body: `A new ${effectiveType.toLowerCase()} order just came in. Tap to view details.`,
-              type: "transactional",
-              category: "order_status",
-              data: {
-                orderId: savedOrder._id,
-                deepLink: { app: "admin", screen: "/vendor/dashboard" },
-              },
-            })
-            .catch((err) => console.error("[orders.service] Failed to send vendor new-order notification:", err));
         }
       } catch (err) {
         console.error("Error fetching vendor for order broadcast:", err);
@@ -348,7 +413,11 @@ export class OrdersService {
 
     // BROADCAST to drivers
     const socketManager = SocketManager.getInstance();
-    if (socketManager) {
+    if (socketManager && isFoodBroadcast) {
+      // No driver is searched for yet: the restaurant has to accept first.
+      console.log(`🛒 [NEW FOOD ORDER] ${savedOrder._id} — waiting for the restaurant to accept.`);
+      this.emitNewOrderToVendor(savedOrder, user, effectiveType);
+    } else if (socketManager) {
       const { ZonesService } = require("../zones/zones.service");
       const zonesService = new ZonesService();
       const pickupZone = await zonesService.getZoneForCoordinates(startPos.latitude, startPos.longitude);
@@ -568,31 +637,152 @@ export class OrdersService {
 
       // NOTIFY vendor/restaurant
       if (vendorId && !isReserved) {
-        console.log(`[SOCKET] Emitting new_order_vendor to vendor ${vendorId}`);
-        socketManager.emitToUser(vendorId.toString(), "new_order_vendor", {
-          id: savedOrder._id,
-          serviceType: effectiveType,
-          totalPrice: savedOrder.totalPrice,
-          customerName: user.name || "Customer",
-          customerPhone: user.phone || "N/A",
-          status: savedOrder.status,
-          timestamp: savedOrder.createdAt,
-          restaurantPickupCode: savedOrder.restaurantPickupCode,
-          scheduledDelivery: savedOrder.scheduledDelivery,
-          stops: savedOrder.stops.map(s => ({
-            id: (s as any)._id,
-            type: s.type.toLowerCase(),
-            locationName: s.address?.split(',')[0],
-            address: s.address,
-            lat: s.location.coordinates[1],
-            lng: s.location.coordinates[0],
-            items: s.items,
-          }))
-        }, "orders.createOrder.vendor");
+        this.emitNewOrderToVendor(savedOrder, user, effectiveType);
       }
     }
 
     return result;
+  }
+
+  private emitNewOrderToVendor(savedOrder: any, user: any, effectiveType: ServiceType) {
+    const vendorId = savedOrder.vendor?.toString();
+    if (!vendorId) return;
+    console.log(`[SOCKET] Emitting new_order_vendor to vendor ${vendorId}`);
+    SocketManager.getInstance().emitToUser(vendorId, "new_order_vendor", {
+      id: savedOrder._id,
+      serviceType: effectiveType,
+      totalPrice: savedOrder.totalPrice,
+      customerName: user.name || "Customer",
+      customerPhone: user.phone || "N/A",
+      status: savedOrder.status,
+      dispatchMode: savedOrder.dispatchMode,
+      timestamp: savedOrder.createdAt,
+      restaurantPickupCode: savedOrder.restaurantPickupCode,
+      scheduledDelivery: savedOrder.scheduledDelivery,
+      stops: savedOrder.stops.map((s: any) => ({
+        id: s._id,
+        type: s.type.toLowerCase(),
+        locationName: s.address?.split(',')[0],
+        address: s.address,
+        lat: s.location.coordinates[1],
+        lng: s.location.coordinates[0],
+        items: s.items,
+      }))
+    }, "orders.createOrder.vendor");
+  }
+
+  /**
+   * The restaurant accepts a food order and says how long it will take. This is where
+   * the rider search starts: the prep time becomes the search radius (see
+   * services/foodDispatch.service.ts). Only for orders created with dispatchMode "broadcast".
+   */
+  async restaurantAcceptOrder(orderId: string, prepMinutes: number) {
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    if (!order) throw new Error("Order not found");
+    if (order.dispatchMode !== "broadcast") {
+      throw new ConflictError("This order doesn't need to be accepted. Mark it ready when it's packed.");
+    }
+
+    // Atomic, so a customer cancelling at the same moment can't end up with an
+    // accepted, cancelled order and a rider sent for it.
+    const accepted = await Order.findOneAndUpdate(
+      { _id: order._id, dispatchMode: "broadcast", status: OrderStatus.CREATED, restaurantAcceptedAt: null },
+      { $set: { status: OrderStatus.SEARCHING_DRIVER, restaurantAcceptedAt: new Date(), prepMinutes } },
+      { new: true },
+    );
+    if (!accepted) {
+      const current = await Order.findOne(this.getOrderQuery(orderId)).select("status cancelReason").lean();
+      if (current?.cancelReason === "restaurant_timeout") {
+        throw new ConflictError(`This order was cancelled because it wasn't accepted within ${ACCEPT_MINUTES} minutes.`);
+      }
+      if (current?.status === OrderStatus.CANCELLED) throw new ConflictError("This order was cancelled.");
+      throw new ConflictError("This order was already accepted.");
+    }
+    foodDispatch.clearRestaurantTimeout(accepted._id.toString());
+
+    const socketManager = SocketManager.getInstance();
+    if (socketManager) {
+      const update = { orderId: accepted._id.toString(), status: accepted.status };
+      socketManager.emitToOrderRoom(update.orderId, "order_status_update", update);
+      socketManager.emitToUser(accepted.user.toString(), "customer_order_list_update", update);
+      socketManager.emitToUser(accepted.vendor!.toString(), "order_status_update_vendor", update);
+    }
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: accepted.user.toString(),
+        title: "Restaurant accepted your order 🍳",
+        body: `Your food will be ready in about ${prepMinutes} min. We're finding a delivery partner.`,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          orderId: accepted._id,
+          status: accepted.status,
+          serviceType: accepted.serviceType,
+          deepLink: { screen: "/tracking", params: { orderId: accepted._id.toString() } },
+        },
+      })
+      .catch((err) => console.error("[orders.service] Failed to send restaurant-accepted notification:", err));
+
+    // Not awaited: the restaurant is waiting for its button, not for a rider.
+    foodDispatch.startDispatch(accepted._id.toString(), "accepted");
+
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+  }
+
+  /**
+   * "Food is ready" on a food order that has no rider yet. The order's status stays
+   * SEARCHING_DRIVER — the rider app reads picking_items as "the rider is at the
+   * counter" — and the search runs again now that the food is waiting.
+   */
+  private async markFoodReadyBeforeRider(order: any) {
+    order.foodReadyAt = order.foodReadyAt || new Date();
+    await order.save();
+
+    const socketManager = SocketManager.getInstance();
+    socketManager?.emitToUser(order.vendor.toString(), "order_status_update_vendor", {
+      orderId: order._id.toString(),
+      status: order.status,
+      foodReadyAt: order.foodReadyAt,
+    });
+
+    if (["searching", "unassigned"].includes(order.dispatch?.state)) {
+      foodDispatch.startDispatch(order._id.toString(), "food is ready");
+    }
+    return Order.findOne(this.getOrderQuery(order._id.toString())).populate("user").populate("driver").populate("vendor");
+  }
+
+  /**
+   * The restaurant didn't accept a food order in time (restaurantAcceptBy). Cancelled
+   * atomically — only if it is still unaccepted, so an accept that lands at the last
+   * moment wins — then refunded and announced like any other cancellation.
+   */
+  async cancelUnacceptedFoodOrder(orderId: string) {
+    const cancelled = await Order.findOneAndUpdate(
+      { _id: orderId, dispatchMode: "broadcast", status: OrderStatus.CREATED, restaurantAcceptedAt: null },
+      { $set: { status: OrderStatus.CANCELLED, cancelReason: "restaurant_timeout" } },
+      { new: true },
+    );
+    if (!cancelled) return null; // accepted or cancelled in the meantime
+
+    console.warn(`⏰ [FOOD ORDER] ${orderId} cancelled — the restaurant didn't accept within ${ACCEPT_MINUTES} min.`);
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: cancelled.vendor!.toString(),
+        title: "Order cancelled ⏰",
+        body: `Order ${cancelled._id} was cancelled because it wasn't accepted within ${ACCEPT_MINUTES} minutes.`,
+        type: "transactional",
+        category: "order_status",
+        data: { kind: "order_cancelled", orderId: cancelled._id.toString(), deepLink: { app: "admin", screen: "/vendor/dashboard" } },
+      })
+      .catch((err) => console.error("[orders.service] Failed to tell the restaurant about an accept timeout:", err));
+
+    // Status is already CANCELLED: this runs the usual refund, sockets and customer push.
+    return this.updateOrderStatus(orderId, OrderStatus.CANCELLED, {
+      reason: "restaurant_timeout",
+      customerMessage: "The restaurant didn't accept your order in time, so it has been cancelled.",
+    });
   }
 
   async requestScheduledDelivery(userId: string, vendorId: string, scheduledFor: Date | string, orderId?: string) {
@@ -639,6 +829,30 @@ export class OrdersService {
       socketManager.emitToUser(vendor._id.toString(), "scheduled_delivery_request", payload);
       socketManager.emitToUser(customerId, "scheduled_delivery_pending", payload);
     }
+
+    // The socket only reaches an open app; a push reaches the partner's phone even when
+    // it's closed, and the customer is waiting on an accept/decline.
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: vendor._id.toString(),
+        title: "Scheduled delivery request 📅",
+        body: `${saved.customerName} wants a delivery at ${requestedAt.toLocaleString("en-IN", {
+          timeZone: process.env.BUSINESS_TIMEZONE || "Asia/Kolkata",
+          dateStyle: "medium",
+          timeStyle: "short",
+        })}. Tap to accept or decline.`,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          kind: "scheduled_request",
+          requestId,
+          customerName: saved.customerName,
+          customerPhone: saved.customerPhone,
+          scheduledFor: requestedAt.toISOString(),
+          deepLink: { app: "admin", screen: "/vendor/scheduled-orders" },
+        },
+      })
+      .catch((err) => console.error("[orders.service] Failed to send scheduled-request notification:", err));
 
     return {
       requestId,
@@ -815,6 +1029,7 @@ export class OrdersService {
       order.scheduledDelivery.restaurantAccepted = false;
       order.scheduleRejectionReason = reason || "The restaurant could not take this order for the requested slot";
       order.status = OrderStatus.CANCELLED;
+      order.cancelReason = "restaurant_rejected";
     }
 
     await order.save();
@@ -857,19 +1072,9 @@ export class OrdersService {
     return VENDOR_ROLES.includes(role) && !!actor?.userId && actor.userId === String(vendorId);
   }
 
-  /**
-   * Payment facts every driver-facing payload carries. Read from the stored order only —
-   * never from anything a driver sends. Anything that is not a confirmed online payment is
-   * reported as cash, so a driver is never told "paid online" for money that wasn't received.
-   */
+  /** See orders.payment.ts. */
   driverPaymentInfo(order: any) {
-    const paidOnline = order?.paymentMethod === "online" && order?.paymentStatus === "paid";
-    return {
-      paymentMethod: paidOnline ? "online" : "cash",
-      paymentStatus: order?.paymentStatus || "pending",
-      payableAmount: Math.round(Number(order?.totalPrice) || 0),
-      cashCollected: !!order?.cashCollected,
-    };
+    return driverPaymentInfo(order);
   }
 
   /**
@@ -1136,6 +1341,10 @@ export class OrdersService {
     if (order.status !== OrderStatus.SEARCHING_DRIVER && order.status !== OrderStatus.CREATED) {
       throw new Error("Cannot increase price for a non-pending order");
     }
+    // Re-dispatching below is the sequential dispatcher's; it would hijack a food order's search.
+    if (order.dispatchMode === "broadcast") {
+      throw new ValidationError("The price of a food order can't be raised.");
+    }
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -1293,10 +1502,30 @@ export class OrdersService {
     }
   }
 
-  async updateOrderStatus(orderId: string, status: OrderStatus) {
+  /**
+   * `opts.reason` / `opts.customerMessage`: why the system cancelled it (food orders),
+   * sent to the apps and used as the customer's notification text.
+   */
+  async updateOrderStatus(orderId: string, status: OrderStatus, opts: { reason?: string; customerMessage?: string } = {}) {
     const order = await Order.findOne(this.getOrderQuery(orderId));
     if (!order) throw new Error("Order not found");
-    
+    if (opts.reason && status === OrderStatus.CANCELLED) order.cancelReason = opts.reason;
+
+    // Food orders: "ready" needs the restaurant's accept first, happens once, and
+    // before a rider is assigned it doesn't touch the status at all.
+    if (order.dispatchMode === "broadcast" && isReadyStatus(status)) {
+      if (!order.restaurantAcceptedAt) throw new ConflictError("Accept the order before marking it ready.");
+      if (order.foodReadyAt) {
+        return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+      }
+      if (!order.driver) return this.markFoodReadyBeforeRider(order);
+      order.foodReadyAt = new Date();
+    } else if (order.vendor && isReadyStatus(status) && !order.foodReadyAt) {
+      // Other outlet orders (meat shops) record it too: the rider's pickup code
+      // unlocks on this, and it survives the rider's own status updates.
+      order.foodReadyAt = new Date();
+    }
+
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -1332,6 +1561,7 @@ export class OrdersService {
     // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
     if (status === OrderStatus.CANCELLED) {
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
+      if (order.dispatchMode === "broadcast") await foodDispatch.cancelDispatch(order._id.toString());
     }
 
     const savedOrder = await Order.findOne(this.getOrderQuery(orderId));
@@ -1342,6 +1572,7 @@ export class OrdersService {
       socketManager.emitToOrderRoom(orderId.toString(), "order_status_update", {
         orderId: orderId.toString(),
         status: status,
+        ...(opts.reason ? { reason: opts.reason } : {}),
       });
 
       // ALSO emit to the customer's own room, under a distinct event — not
@@ -1357,6 +1588,7 @@ export class OrdersService {
         socketManager.emitToUser(order.user.toString(), "customer_order_list_update", {
           orderId: orderId.toString(),
           status: status,
+          ...(opts.reason ? { reason: opts.reason } : {}),
         });
       }
 
@@ -1365,6 +1597,7 @@ export class OrdersService {
         socketManager.emitToUser(order.vendor.toString(), "order_status_update_vendor", {
           orderId: orderId.toString(),
           status: status,
+          ...(opts.reason ? { reason: opts.reason } : {}),
         });
       }
 
@@ -1388,6 +1621,13 @@ export class OrdersService {
         switch (status) {
           case OrderStatus.ARRIVED_PICKUP:
           case OrderStatus.ARRIVED_PICKUP_LC:
+            if (populated.vendor) {
+              // A restaurant / meat-shop order: "pickup" is the outlet, not the customer,
+              // and its pickup code is between the rider and the restaurant.
+              title = "Rider at the restaurant 🛵";
+              body = "Your rider has reached the restaurant and will pick up your order as soon as it's ready.";
+              break;
+            }
             title = "Driver Arrived 🚖";
             body = `Your driver has arrived at your location. Give PIN ${populated.restaurantPickupCode || populated.deliveryOtp || ""} to start your ${serviceName} safely.`;
             break;
@@ -1407,7 +1647,7 @@ export class OrdersService {
             break;
           case OrderStatus.CANCELLED:
             title = "Order Cancelled ❌";
-            body = `Your ${serviceName} has been cancelled.${await this.refundNotice(populated._id.toString())}`;
+            body = `${opts.customerMessage || `Your ${serviceName} has been cancelled.`}${await this.refundNotice(populated._id.toString())}`;
             break;
         }
 
@@ -1478,10 +1718,38 @@ export class OrdersService {
 
   async getUserOrders(userId: string) {
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    const outlets = await this.outletSummaries(orders.map((order: any) => order.vendor));
     return orders.map((order: any) => ({
       ...order,
+      // The outlet's name, photo and type ride along so the order list can show the
+      // restaurant / meat shop picture and tell food from meat. Falls back to the bare
+      // id when the outlet no longer exists, which is what this field used to be.
+      vendor: (order.vendor && outlets.get(String(order.vendor))) || order.vendor,
       items: this.extractOrderItems(order),
     }));
+  }
+
+  /**
+   * `{ _id, name, image, partnerType }` per outlet id, looked up in one query per
+   * collection. An order's `vendor` is either a restaurant (Vendor) or a legacy meat
+   * centre (MeatCenter), and the id alone doesn't say which.
+   */
+  private async outletSummaries(ids: any[]) {
+    const unique = [...new Set(ids.filter(Boolean).map(String))];
+    const summaries = new Map<string, { _id: string; name?: string; image?: string; partnerType: "food" | "meat" }>();
+    if (!unique.length) return summaries;
+
+    const [vendors, meatCenters] = await Promise.all([
+      Vendor.find({ _id: { $in: unique } }).select("name image partnerType").lean(),
+      MeatCenter.find({ _id: { $in: unique } }).select("name image").lean(),
+    ]);
+    for (const v of vendors as any[]) {
+      summaries.set(String(v._id), { _id: String(v._id), name: v.name, image: v.image, partnerType: v.partnerType === "meat" ? "meat" : "food" });
+    }
+    for (const m of meatCenters as any[]) {
+      summaries.set(String(m._id), { _id: String(m._id), name: m.name, image: m.image, partnerType: "meat" });
+    }
+    return summaries;
   }
 
   /**
@@ -1528,10 +1796,27 @@ export class OrdersService {
     return this.cartService.saveCart(userId, vendorId, items);
   }
 
-  async getVendorOrders(vendorId: string) {
-    return Order.find({ vendor: vendorId })
-      .populate("user")
+  /**
+   * An outlet's orders, newest first.
+   *   - no options: the whole history (the web vendor panel);
+   *   - `since`: the live set — everything created since then, plus any older order still in progress;
+   *   - `before` + `limit`: one page of history, for infinite scroll.
+   * The windowed forms are the partner app's, and populate only the customer's name and phone.
+   */
+  async getVendorOrders(vendorId: string, options: { since?: Date; before?: Date; limit?: number } = {}) {
+    const { since, before, limit } = options;
+    const windowed = !!(since || before || limit);
+    const filter: Record<string, unknown> = { vendor: vendorId };
+    if (since) {
+      const finished = [OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.COMPLETED, OrderStatus.CANCELLED, "completed", "cancelled"];
+      filter.$or = [{ createdAt: { $gte: since } }, { status: { $nin: finished } }];
+    }
+    if (before) filter.createdAt = { $lt: before };
+
+    const query = Order.find(filter)
+      .populate("user", windowed ? "name phone" : undefined)
       .sort({ createdAt: -1 });
+    return limit ? query.limit(limit) : query;
   }
 
   async declineOrder(orderId: string, driverUserId: string, reason: string) {
@@ -1582,11 +1867,44 @@ export class OrdersService {
       }
     }
 
-    // Trigger dispatch manager to pass order to next nearest driver in sequence
-    const { dispatchManager } = require("../../services/dispatch.manager");
-    await dispatchManager.handleDriverDecline(orderId, driverUserId);
+    if (order.dispatchMode === "broadcast") {
+      // Everyone in range was asked at once, so there's no next driver to hand it to.
+      await foodDispatch.declineOffer(order._id.toString(), driverUserId, reason);
+    } else {
+      // Trigger dispatch manager to pass order to next nearest driver in sequence
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      await dispatchManager.handleDriverDecline(orderId, driverUserId);
+    }
 
     return order;
+  }
+
+  /**
+   * The job a driver is on right now, so the app can bring it back after a restart
+   * (it only held it in memory). Same rule as "busy" in food dispatch: not finished,
+   * touched in the last 6 hours, and not a reserved ride still waiting for its time.
+   * Populated like acceptOrder's answer, which is what the app maps.
+   */
+  async getDriverActiveOrder(driverUserId: string) {
+    const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
+    if (!driver) return null;
+    const now = new Date();
+    return Order.findOne({
+      driver: driver._id,
+      status: {
+        $nin: [
+          OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED,
+          OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
+          "completed", "cancelled",
+        ],
+      },
+      updatedAt: { $gte: new Date(now.getTime() - 6 * 60 * 60 * 1000) },
+      $nor: [{ isReserved: true, reservedAt: { $gt: now } }],
+    })
+      .sort({ updatedAt: -1 })
+      .populate("user")
+      .populate("driver")
+      .populate("vendor");
   }
 
   async acceptOrder(orderId: string, driverUserId: string) {
@@ -1600,30 +1918,46 @@ export class OrdersService {
     const order = await Order.findOne(this.getOrderQuery(orderId));
     if (!order) throw new Error("Order not found");
 
-    if (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) {
-      throw new Error("Order is no longer available");
-    }
+    if (order.dispatchMode === "broadcast") {
+      // Food orders are offered to many riders at once: one atomic claim decides who
+      // gets it, and everyone else is told it's gone (foodDispatch.claimOffer).
+      await foodDispatch.claimOffer(order._id.toString(), driverUserId, driver._id);
+      await Driver.updateOne({ _id: driver._id }, { isAvailable: false });
+      SocketManager.getInstance()?.emitToUser(order.vendor!.toString(), "order_status_update_vendor", {
+        orderId: order._id.toString(),
+        status: OrderStatus.DRIVER_ASSIGNED,
+      });
+    } else {
+      if (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) {
+        throw new Error("Order is no longer available");
+      }
 
-    // Notify dispatch manager that order was accepted to stop cascade timers
-    const { dispatchManager } = require("../../services/dispatch.manager");
-    dispatchManager.handleDriverAccept(orderId, driverUserId);
+      // Notify dispatch manager that order was accepted to stop cascade timers
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      dispatchManager.handleDriverAccept(orderId, driverUserId);
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      order.driver = driver._id;
-      order.status = OrderStatus.DRIVER_ASSIGNED;
-      await order.save({ session });
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        order.driver = driver._id;
+        order.status = OrderStatus.DRIVER_ASSIGNED;
+        await order.save({ session });
 
-      driver.isAvailable = false;
-      await driver.save({ session });
+        driver.isAvailable = false;
+        await driver.save({ session });
 
-      await session.commitTransaction();
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+        await session.commitTransaction();
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
+
+      // A driver who just took a ride/task is no longer free for a food offer they were holding.
+      foodDispatch.closeOffersForDriver(driverUserId).catch((err) =>
+        console.warn("[orders.service] Failed to close food offers for a busy driver:", err?.message),
+      );
     }
 
     const savedOrder = await Order.findOne(this.getOrderQuery(orderId));

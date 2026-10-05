@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import FoodItem from "../../database/models/FoodItem";
 import Vendor from "../../database/models/Vendor";
+import { evaluateOutletOpenState } from "../../utils/openingHours";
 import { CloudinaryService } from "../../services/cloudinary.service";
 import { ZonesService } from "../zones/zones.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
@@ -335,6 +336,8 @@ export const searchFoodItems = async (req: Request, res: Response) => {
       if (seen.has(key)) return;
       seen.add(key);
       matchedVendorIds.add(String(vendor._id));
+      // The app greys out ADD for an outlet that isn't taking orders right now.
+      vendor.openState ??= evaluateOutletOpenState(vendor);
       scored.push({
         item: { ...item, vendorId: vendor },
         score: scoreItem(item, term, tokens),
@@ -452,6 +455,8 @@ export const getStore149Items = async (req: Request, res: Response) => {
           },
           { $limit: 10 }
         ]);
+        // A closed restaurant's dishes can't be ordered, so they don't belong in the store.
+        vendors = vendors.filter((vendor) => evaluateOutletOpenState(vendor).isOpen);
       }
     }
 

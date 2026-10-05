@@ -16,10 +16,11 @@ const MOCK_DRIVER = {
 export const createOrderLifecycleSlice = (
   set: SetDriverState,
   get: GetDriverState,
-): Pick<DriverState, "acceptOrder" | "rejectOrder"> => ({
+): Pick<DriverState, "acceptOrder" | "rejectOrder" | "restoreActiveOrder"> => ({
   acceptOrder: async () => {
     const { incomingOrder, token } = get();
-    if (!incomingOrder) return;
+    if (!incomingOrder) return false;
+    const isBroadcast = incomingOrder.dispatchMode === "broadcast";
 
     let accepted = false;
     let orderFromApi: any = null;
@@ -30,14 +31,25 @@ export const createOrderLifecycleSlice = (
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
-          const error = await res.json();
+          const error = await res.json().catch(() => ({}));
           console.warn(error.message || "Failed to accept order via API");
+          // A food offer goes to many riders at once, so losing it is normal:
+          // say so and close the card rather than pretend the job is ours.
+          if (isBroadcast) {
+            set({ incomingOrder: null });
+            Alert.alert(i18n.t("jobs.offerGoneTitle"), error.message || i18n.t("jobs.offerGoneMessage"));
+            return false;
+          }
         } else {
           accepted = true;
           orderFromApi = await res.json();
         }
       } catch (e) {
         console.error("Order acceptance API failed:", e);
+        if (isBroadcast) {
+          Alert.alert(i18n.t("jobs.offerAcceptFailedTitle"), i18n.t("jobs.offerAcceptFailedMessage"));
+          return false;
+        }
       }
     }
 
@@ -67,7 +79,7 @@ export const createOrderLifecycleSlice = (
         [{ text: i18n.t("actions.ok") }],
       );
       set({ currentOrder: null, incomingOrder: null, activeChat: [], unreadCount: 0 });
-      return;
+      return true;
     }
 
     set({
@@ -79,6 +91,27 @@ export const createOrderLifecycleSlice = (
       activeChat: [],
       unreadCount: 0,
     });
+    return true;
+  },
+
+  // The accepted job only lives in memory, so closing or reloading the app used to
+  // lose it while the server still had this driver on it. The home screen asks for
+  // it whenever it opens; a job already on screen is left alone.
+  restoreActiveOrder: async () => {
+    const { token, currentOrder } = get();
+    if (!token || currentOrder) return;
+    try {
+      const res = await fetch(`${apiUrl}/orders/driver/active`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const { order } = await res.json();
+      // Accepted or cleared while the request was out — keep that.
+      if (!order || get().currentOrder || get().token !== token) return;
+      set({ currentOrder: mapApiOrder(order), currentStep: 0 });
+    } catch {
+      // Offline: try again the next time home opens.
+    }
   },
 
   rejectOrder: async (reason?: string) => {

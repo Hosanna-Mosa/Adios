@@ -14,6 +14,8 @@ import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
 import { QueueManager } from "./services/queue.service";
 import { SchedulerService } from "./services/scheduler.service";
+import { startFoodDispatchSweeper } from "./services/foodDispatch.service";
+import { OrdersService } from "./modules/orders/orders.service";
 import { logDigilockerConfig } from "./services/digilocker";
 
 // Routes
@@ -40,6 +42,7 @@ import cartRoutes from "./modules/cart/cart.routes";
 import couponsRoutes from "./modules/coupons/coupons.routes";
 import analyticsRoutes from "./modules/analytics/analytics.routes";
 import digilockerRoutes from "./modules/digilocker/digilocker.routes";
+import verificationRoutes from "./modules/verification/verification.routes";
 import { getRestaurantShareLanding } from "./modules/vendors/share-landing.controller";
 
 const app = express();
@@ -127,6 +130,7 @@ connectDB().then(async () => {
   app.use("/api/v1/users", userRoutes);
   app.use("/api/v1/drivers", driverRoutes);
   app.use("/api/v1/orders", orderRoutes);
+  app.use("/api/v1/admin/verifications", verificationRoutes); // Driver/Restaurant Verification pages
   app.use("/api/v1/admin", adminRoutes);
   app.use("/api/v1/admin", adminMoneyRoutes); // Refunds & Payouts pages
   app.use("/api/v1/places", placesRoutes);
@@ -158,6 +162,11 @@ connectDB().then(async () => {
 
     // Initialize periodic scheduler
     SchedulerService.getInstance().startScheduler();
+
+    // Food orders: cancel ones the restaurant didn't accept in time, retry searches that
+    // found nobody, and re-arm timers after a restart
+    const ordersService = new OrdersService();
+    startFoodDispatchSweeper({ onRestaurantTimeout: (id) => ordersService.cancelUnacceptedFoodOrder(id) });
 
     // Report which DigiLocker backend is active (sandbox vs live)
     logDigilockerConfig();

@@ -19,6 +19,7 @@ import {
   getSupportWorkloads,
 } from "../../services/supportAssignment.service";
 import { NotificationService } from "../../services/notification.service";
+import { sendDriverDecisionEmail } from "../verification/verification.emails";
 
 const SUPPORT_PHONE_PREFIX = "support-";
 
@@ -345,6 +346,7 @@ export class AdminController {
               data: { deepLink: { screen: "/(tabs)" } },
             })
             .catch((err) => console.error("[admin.controller] Failed to send onboarding-approved notification:", err));
+          sendDriverDecisionEmail(driver, { kind: "approved" });
         }
 
         if (onboardingStatus === OnboardingStatus.REJECTED && previousOnboardingStatus !== OnboardingStatus.REJECTED) {
@@ -358,6 +360,7 @@ export class AdminController {
               data: { deepLink: { screen: "/onboarding" } },
             })
             .catch((err) => console.error("[admin.controller] Failed to send onboarding-rejected notification:", err));
+          sendDriverDecisionEmail(driver, { kind: "rejected" });
         }
 
         if (isBlocked !== undefined && previousIsBlocked !== undefined && isBlocked !== previousIsBlocked) {

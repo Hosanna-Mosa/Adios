@@ -10,29 +10,42 @@ import {
   OrderStage,
   RoundCommButton,
   StageActionButton,
+  StageSpacer,
+  TripSummary,
 } from "../order";
-import { SimPanel } from "./SimPanel";
+import { Box } from "@/components/ui/Box";
+import { PickupNavButton } from "./PickupNavButton";
 import { AppText } from "@/components/ui/AppText";
 
 export function RideEnRoutePickupStage() {
   const { t } = useTranslation();
-  const { currentOrder, pickupStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
+  const { currentOrder, pickupStop, deliveryStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
 
   return (
     <OrderStage title={t("jobs.travelToUserPickup")} showPulse={isSimulating}>
-      <SimPanel target={pickupStop} idleEta={currentOrder.duration} idleDistance={currentOrder.distance} />
-
       <ContactHeaderRow
         name={<>{t("jobs.userColon", { value: currentOrder.customerName || t("jobs.customer"), defaultValue: "User: {{value}}" })}</>}
         address={pickupStop?.address}
         actions={
-          <RoundCommButton
-            icon="call"
-            onPress={() => Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)}
-          />
+          <Box style={styles.communicationBtns}>
+            <RoundCommButton
+              icon="call"
+              onPress={() => Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)}
+            />
+            <PickupNavButton pickupStop={pickupStop} />
+          </Box>
         }
       />
 
+      <TripSummary
+        pickup={pickupStop?.address}
+        drop={deliveryStop?.address}
+        distance={currentOrder.distance}
+        duration={currentOrder.duration}
+        heading="pickup"
+      />
+
+      <StageSpacer />
       <StageActionButton label={t("jobs.arrivedAtPickupLocation")} onPress={handleStatusTransition} />
     </OrderStage>
   );
@@ -40,15 +53,14 @@ export function RideEnRoutePickupStage() {
 
 export function RideInProgressStage() {
   const { t } = useTranslation();
-  const { currentOrder, deliveryStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
+  const { currentOrder, pickupStop, deliveryStop, isSimulating, handleStatusTransition, openRideNavigation } = useActiveOrderCtx();
 
   return (
     <OrderStage title={t("jobs.tripInProgress")} showPulse={isSimulating}>
-      <SimPanel target={deliveryStop} idleEta={currentOrder.duration} idleDistance={currentOrder.distance} />
-
       <CustomerRow
         initial={(currentOrder.customerName || t("jobs.rider")).charAt(0).toUpperCase()}
         name={currentOrder.customerName || t("jobs.rider")}
+        trailing={<RoundCommButton icon="navigate" onPress={openRideNavigation} />}
       >
         <AppText style={styles.infoLabel}>{t("jobs.headingToDestination")}</AppText>
         <AppText style={styles.addressText} numberOfLines={1}>
@@ -56,6 +68,15 @@ export function RideInProgressStage() {
         </AppText>
       </CustomerRow>
 
+      <TripSummary
+        pickup={pickupStop?.address}
+        drop={deliveryStop?.address}
+        distance={currentOrder.distance}
+        duration={currentOrder.duration}
+        heading="drop"
+      />
+
+      <StageSpacer />
       <StageActionButton label={t("jobs.arrivedAtDestination")} onPress={handleStatusTransition} />
     </OrderStage>
   );

@@ -5,20 +5,17 @@ import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
-import { CustomerRow, OrderStage, RoundCommButton, StageActionButton } from "../order";
+import { CustomerRow, OrderStage, RoundCommButton, StageActionButton, StageSpacer } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
-import { SimPanel } from "./SimPanel";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
 export function DeliveryEnRouteStage() {
   const { t } = useTranslation();
-  const { currentOrder, deliveryStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
+  const { currentOrder, isSimulating, handleStatusTransition } = useActiveOrderCtx();
 
   return (
     <OrderStage title={t("jobs.travelToCustomer")} showPulse={isSimulating}>
-      <SimPanel target={deliveryStop} idleEta={currentOrder.duration} idleDistance={currentOrder.distance} />
-
       <CustomerRow
         initial={(currentOrder.customerName || t("jobs.customer")).charAt(0).toUpperCase()}
         name={currentOrder.customerName || t("jobs.customer")}
@@ -45,6 +42,7 @@ export function DeliveryEnRouteStage() {
         <AppText style={styles.customerPhoneInside}>{currentOrder.customerPhone || "..."}</AppText>
       </CustomerRow>
 
+      <StageSpacer />
       <StageActionButton label={t("jobs.arrivedAtCustomer")} onPress={handleStatusTransition} />
       <CancelDeliveryButton />
     </OrderStage>

@@ -33,7 +33,7 @@ export function useChatCurrentOrderId() {
   const isRide = RIDE_TYPES.includes(serviceType?.toLowerCase() || "");
   const isHelper = serviceType?.toLowerCase() === "helper";
   const accent = tokens.services[isRide ? "ride" : isHelper ? "task" : "food"];
-  const partnerLabel = isRide ? "Captain" : isHelper ? "Helper" : "Delivery partner";
+  const partnerLabel = isRide ? "Rider" : isHelper ? "Helper" : "Delivery partner";
   const styles = useMemo(() => createStyles(tokens, accent), [theme, isRide, isHelper]);
 
   const [inputText, setInputText] = useState("");

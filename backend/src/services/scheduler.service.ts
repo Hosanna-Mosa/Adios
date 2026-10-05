@@ -61,10 +61,13 @@ export class SchedulerService {
       const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000);
       const fortyFiveMinsAgo = new Date(Date.now() - 45 * 60 * 1000);
 
-      // Find orders created between 15 and 45 minutes ago that are still in creation/matching state
+      // Find orders created between 15 and 45 minutes ago that are still in creation/matching state.
+      // Food orders are left out: one is being cooked for most of that window, and its
+      // own dispatcher tells the customer if no rider turns up (foodDispatch.service.ts).
       const stuckOrders = await Order.find({
         status: { $in: [OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER] },
         createdAt: { $gte: fortyFiveMinsAgo, $lte: fifteenMinsAgo },
+        dispatchMode: { $ne: "broadcast" },
       });
 
       console.log(`[SCHEDULER] Found ${stuckOrders.length} potentially abandoned bookings.`);

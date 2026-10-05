@@ -6,11 +6,17 @@ import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { GpsVerifiedBox, OrderStage, StageActionButton, WaitNotification } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { RestaurantOtpEntry } from "./RestaurantOtpEntry";
+import { isOutletOrder } from "../../orderStops";
+import { useRestaurantReadyPoll } from "../../hooks/useRestaurantReadyPoll";
 
 export function DeliveryArrivedPickupStage() {
   const { t } = useTranslation();
-  const { verification, handleStatusTransition } = useActiveOrderCtx();
-  const hasCode = !!verification.restaurantOTP.trim();
+  const { currentOrder, verification, handleStatusTransition } = useActiveOrderCtx();
+  // Restaurant / meat-shop orders: the pickup code can't be entered until the outlet
+  // has tapped "Mark as ready" (the server refuses the pickup before that too).
+  const ready = !isOutletOrder(currentOrder) || !!currentOrder.foodReadyAt;
+  useRestaurantReadyPoll(currentOrder?.id, !ready);
+  const hasCode = ready && !!verification.restaurantOTP.trim();
 
   return (
     <OrderStage title={t("jobs.arrivedAtRestaurant")}>
@@ -21,11 +27,11 @@ export function DeliveryArrivedPickupStage() {
 
       <WaitNotification
         message={
-          <>{t("jobs.enterPickupCodeFromRestaurant")}</>
+          <>{ready ? t("jobs.enterPickupCodeFromRestaurant") : t("jobs.restaurantNotReadyYet")}</>
         }
       />
 
-      <RestaurantOtpEntry />
+      {ready ? <RestaurantOtpEntry /> : null}
 
       <StageActionButton
         label={hasCode ? t("jobs.verifyAndPickUp") : t("jobs.waitingForRestaurant")}

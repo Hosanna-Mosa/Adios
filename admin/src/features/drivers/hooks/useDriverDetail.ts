@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { DetailZoneOption, DriverDetailResponse, OrderChatMessage } from "../driverDetailTypes";
 
 /** All state/query/mutation logic for DriverDetail.tsx (work queue item #6). */
@@ -65,8 +66,8 @@ export function useDriverDetail(id: string | undefined) {
     },
   });
 
-  const handleDeleteClick = () => {
-    if (confirm(t("drivers.confirmPermanentlyRemoveDriver"))) {
+  const handleDeleteClick = async () => {
+    if (await appConfirm({ title: t("drivers.confirmPermanentlyRemoveDriver"), tone: "destructive" })) {
       deleteDriverMutation.mutate();
     }
   };

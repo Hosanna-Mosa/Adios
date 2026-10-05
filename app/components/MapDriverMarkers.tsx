@@ -1,7 +1,6 @@
 import React from "react";
-import { Image } from "react-native";
 import { Marker } from "@/components/maps";
-import { vehicleMarkerImage } from "@/components/mapBackground.utils";
+import { driverMarkerLook } from "@/components/mapBackground.utils";
 
 // The live driver pins on the map. Moved out of components/MapBackground.tsx
 // unchanged, including the filtering rules: cabs are hidden for now, and the
@@ -34,21 +33,16 @@ export function MapDriverMarkers({ driverMarkers, selectedService }: Props) {
             if (isAutoVehicle) return null;
           }
 
-          const markerImage = vehicleMarkerImage(vehicleType);
-
+          // image prop, not an <Image> child: see vehicleMarkerIcon (Android hardware-bitmap crash).
+          const look = driverMarkerLook(vehicleType, { heading: driver.heading });
           return (
             <Marker
               key={driver.id || driver._id}
               coordinate={{ latitude: Number(driver.lat), longitude: Number(driver.lng) }}
-              anchor={{ x: 0.5, y: 0.5 }}
+              anchor={look.anchor}
               title={driver.name || "Driver"}
-            >
-              <Image
-                source={markerImage}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
-            </Marker>
+              image={look.image}
+            />
           );
         })}
     </>

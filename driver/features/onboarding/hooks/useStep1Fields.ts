@@ -6,6 +6,7 @@ import { API_URL } from "@/utils/apiUrl";
 export type Step1Fields = ReturnType<typeof useStep1Fields>;
 
 export function useStep1Fields() {
+  const [email, setEmail] = useState("");
   const [gender, setGender] = useState<string | null>(null);
   const [homeAddressLine, setHomeAddressLine] = useState("");
   const [homeLat, setHomeLat] = useState<number | null>(null);
@@ -41,6 +42,7 @@ export function useStep1Fields() {
   }, []);
 
   return {
+    email, setEmail,
     gender, setGender,
     homeAddressLine, setHomeAddressLine,
     homeLat, setHomeLat,

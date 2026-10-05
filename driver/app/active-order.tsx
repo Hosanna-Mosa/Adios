@@ -61,6 +61,11 @@ export default function ActiveOrderScreen() {
           driverLocation={driverLocation}
           driverHeading={driverHeading}
           polyline={currentOrder.polyline}
+          status={status}
+          showLegRoute={!isRide && !isHelper}
+          restaurantName={currentOrder.vendorName}
+          isRide={isRide}
+          customerName={currentOrder.customerName}
         />
 
         <OrderDetailSheet

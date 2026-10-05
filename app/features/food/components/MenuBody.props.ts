@@ -1,4 +1,5 @@
 import React from "react";
+import type { OutletOrderingState } from "@/services/catalog.service";
 
 // Props for MenuBody, kept beside it so neither file passes 150 lines.
 
@@ -23,6 +24,9 @@ export interface Props {
   metaLine1Parts: any;
   metaLine2Parts: any;
   name: any;
+  /** Live "taking orders?" for this outlet; null until the first answer. */
+  orderingState: OutletOrderingState | null;
+  outletClosed: boolean;
   rating: any;
   reviews: any;
   scrollViewRef: any;

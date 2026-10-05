@@ -7,8 +7,7 @@ import {
   ChecklistGroup,
   ChecklistRow,
   OrderStage,
-  PickupActionRow,
-  TimersGrid,
+  StageActionButton,
 } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { RestaurantOtpEntry } from "./RestaurantOtpEntry";
@@ -17,16 +16,12 @@ import { Box } from "@/components/ui/Box";
 export function DeliveryPickingItemsStage() {
   const { t } = useTranslation();
   const {
-    prepTimeRemaining, waitingComp, foodItems, verification,
-    handleReportIssue, handleStatusTransition,
+    foodItems, verification, handleStatusTransition,
   } = useActiveOrderCtx();
-  const { checkedItems, setCheckedItems, sealedChecked, setSealedChecked, countChecked, setCountChecked } =
-    verification;
+  const { checkedItems, setCheckedItems, sealedChecked, setSealedChecked } = verification;
 
   return (
     <OrderStage title={t("jobs.waitAndVerifyOrder")}>
-      <TimersGrid prepTimeRemaining={prepTimeRemaining} waitingComp={waitingComp} />
-
       <Box style={styles.checklistScroll}>
         <ChecklistGroup title={t("jobs.itemsInOrder")} />
         {foodItems.map((item: any, idx: number) => (
@@ -47,20 +42,11 @@ export function DeliveryPickingItemsStage() {
           label={t("jobs.foodPackageIsSealedAndTamperProof")}
           onToggle={() => setSealedChecked(!sealedChecked)}
         />
-        <ChecklistRow
-          checked={countChecked}
-          label={t("jobs.verifiedCorrectItemCountAgainstInvoice")}
-          onToggle={() => setCountChecked(!countChecked)}
-        />
 
         <RestaurantOtpEntry />
       </Box>
 
-      <PickupActionRow
-        onReportIssue={handleReportIssue}
-        onConfirm={handleStatusTransition}
-        confirmLabel={t("jobs.confirmPickedUp")}
-      />
+      <StageActionButton label={t("jobs.confirmPickedUp")} onPress={handleStatusTransition} />
       <CancelDeliveryButton />
     </OrderStage>
   );

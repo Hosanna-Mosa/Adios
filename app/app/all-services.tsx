@@ -14,6 +14,7 @@ import { AppTabBar, useAppTabBarHeight } from "@/components/AppTabBar";
 import { AllServicesHeaderRow } from "@/features/home/components/AllServicesHeaderRow";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { AllServicesBody } from "@/features/home/components/AllServicesBody";
+import type { ServiceCardItem } from "@/features/home/components/AllServicesTierGrid";
 
 type RideTier = {
   id: string;
@@ -44,11 +45,40 @@ export default function AllServicesScreen() {
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme, accent, tokens]);
   const setServiceType = useDeliveryStore((state) => state.setServiceType);
   const RIDE_TIERS = useRideTiers();
+  const { t } = useTranslation();
 
   const selectTier = (tier: RideTier) => {
     setServiceType(tier.id);
     router.push({ pathname: "/drop-location", params: { serviceId: tier.id, name: tier.name } });
   };
+
+  // Four equal cards: the ride tiers, then Hire a helper and Package delivery.
+  const services: ServiceCardItem[] = [
+    ...RIDE_TIERS.map((tier) => ({
+      id: tier.id,
+      name: tier.name,
+      icon: tier.icon,
+      description: tier.description,
+      accent: tokens.services.ride,
+      onPress: () => selectTier(tier),
+    })),
+    {
+      id: "helper",
+      name: t("app.home.hireAHelper"),
+      icon: "hammer-wrench",
+      description: t("app.home.from120Hour"),
+      accent: tokens.services.task,
+      onPress: () => router.push("/helper-task"),
+    },
+    {
+      id: "package-delivery",
+      name: t("app.delivery.packageDelivery"),
+      icon: "package-variant-closed",
+      description: t("app.home.multistopCourierFrom39"),
+      accent: tokens.services.delivery,
+      onPress: () => router.push("/delivery/entry"),
+    },
+  ];
 
   return (
     <ScreenShell>
@@ -58,14 +88,7 @@ export default function AllServicesScreen() {
         tokens={tokens}
       />
 
-      <AllServicesBody
-        RIDE_TIERS={RIDE_TIERS}
-        accent={accent}
-        selectTier={selectTier}
-        styles={styles}
-        tabBarHeight={tabBarHeight}
-        tokens={tokens}
-      />
+      <AllServicesBody services={services} styles={styles} tabBarHeight={tabBarHeight} />
 
       <AppTabBar accent="ride" />
     </ScreenShell>
@@ -89,7 +112,17 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     tierGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 20 },
     tierCard: {
       width: "47%", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
-      borderRadius: moderateScale(20), padding: 16,
+      borderRadius: moderateScale(20),
+    },
+    // Fills the card so the whole card is tappable and both cards in a row match heights.
+    tierCardTouchable: { flex: 1, padding: 16 },
+    tierBadge: {
+      position: "absolute", top: 12, right: 12, backgroundColor: tokens.sunken,
+      borderRadius: moderateScale(6), paddingHorizontal: 7, paddingVertical: 3,
+    },
+    tierBadgeText: {
+      fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small,
+      letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec,
     },
     tierIconCircle: {
       width: moderateScale(52), height: moderateScale(52), borderRadius: moderateScale(16),
@@ -97,19 +130,4 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     },
     tierName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },
     tierDescription: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 3 },
-    sectionLabel: {
-      fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase",
-      color: tokens.muted, marginTop: 28, marginBottom: 12,
-    },
-    crossPromoList: { gap: 10 },
-    crossPromoRow: {
-      flexDirection: "row", alignItems: "center", gap: 12, minHeight: moderateScale(56),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(16), paddingHorizontal: 14, paddingVertical: 12,
-    },
-    crossPromoIcon: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(12), alignItems: "center", justifyContent: "center" },
-    crossPromoTextWrap: { flex: 1 },
-    crossPromoTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
-    crossPromoSubtitle: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
-    betaBadge: { backgroundColor: tokens.sunken, borderRadius: moderateScale(5), paddingHorizontal: 7, paddingVertical: 4 },
-    betaBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.sec },
   });

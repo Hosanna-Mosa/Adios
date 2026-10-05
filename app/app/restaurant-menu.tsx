@@ -8,6 +8,11 @@ import { shareRestaurant } from "@/utils/shareLink";
 import { RestaurantMenuSolidHeader } from "@/features/food/components/RestaurantMenuSolidHeader";
 import { RestaurantMenuHeroOverlay } from "@/features/food/components/RestaurantMenuHeroOverlay";
 import { useRestaurantMenu } from "@/features/food/useRestaurantMenu";
+import { useEffect } from "react";
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { selectNoRidersOnline, useHomeStore } from "@/contexts/homeStore";
+import { showAlert } from "@/components/ui/AppAlert";
 
 export default function RestaurantMenu() {
   const {
@@ -16,8 +21,18 @@ export default function RestaurantMenu() {
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
   highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed
   } = useRestaurantMenu();
+  const { t } = useTranslation();
+  const noRidersOnline = useHomeStore(selectNoRidersOnline);
+
+  // Backstop for every entry point (cart, search, links): with no rider
+  // online nothing here can be delivered, so return to Home.
+  useEffect(() => {
+    if (!noRidersOnline) return;
+    showAlert(t("app.home.noRidersAvailableNearby"), t("app.home.allCaptainsNearbyAreOnTrips"));
+    router.replace("/(tabs)");
+  }, [noRidersOnline, t]);
 
   return (
     <View style={styles.container}>
@@ -73,6 +88,8 @@ export default function RestaurantMenu() {
         metaLine1Parts={metaLine1Parts}
         metaLine2Parts={metaLine2Parts}
         name={name}
+        orderingState={orderingState}
+        outletClosed={outletClosed}
         rating={rating}
         reviews={reviews}
         scrollViewRef={scrollViewRef}
@@ -98,6 +115,7 @@ export default function RestaurantMenu() {
         isDishFavorite={isDishFavorite}
         items={items}
         name={name}
+        outletClosed={outletClosed}
         selectedDishDetail={selectedDishDetail}
         setSelectedDishDetail={setSelectedDishDetail}
         styles={styles}

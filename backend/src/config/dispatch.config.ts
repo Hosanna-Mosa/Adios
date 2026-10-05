@@ -60,6 +60,40 @@ export const DISPATCH_CONFIG: Record<string, VehicleDispatchConfig> = {
   },
 };
 
+/**
+ * Food (restaurant) delivery dispatch — see services/foodDispatch.service.ts.
+ *
+ * Food orders do not use the stage rings above. The restaurant accepts and quotes a
+ * prep time, and that quote becomes the search radius: every rider who could reach
+ * the restaurant before the food is ready (at PLANNING_SPEED_KMH) is offered the
+ * order at the same moment, and the first to accept gets it.
+ */
+export const FOOD_BROADCAST_CONFIG = {
+  /** A scooter in ordinary city traffic. Turns prep minutes into a distance. */
+  planningSpeedKmh: 20,
+  /** Never search narrower than this, however short the quote. */
+  minRadiusMeters: 2000,
+  /** How much further each widen step reaches, in minutes of riding. */
+  widenStepMinutes: 10,
+  /** Full searches an order gets (accept, ready, retries) before a person is needed. */
+  maxSweeps: 3,
+  /** Safety valve on how many riders one round can wake up. */
+  maxBroadcast: 40,
+  /** The second widen check runs this long before the food is due. */
+  finalCheckpointLeadMs: 5 * 60 * 1000,
+  /** A widen check is never booked closer to now than this. */
+  minCheckpointMs: 60 * 1000,
+  /** Base wait before an order that found nobody is searched again; grows per attempt. */
+  unassignedRetryMs: 2 * 60 * 1000,
+  /** How often the backstop looks for searches this process lost track of. */
+  sweepIntervalMs: 60 * 1000,
+  /** Prep times a restaurant may quote. */
+  prepMinutesMin: 5,
+  prepMinutesMax: 120,
+  /** A new food order the restaurant hasn't accepted by then is cancelled (and refunded). */
+  restaurantAcceptTimeoutMs: 2 * 60 * 1000,
+};
+
 export function getDispatchStagesForVehicle(vehicleType?: string): ExpansionStage[] {
   if (!vehicleType) return DISPATCH_CONFIG.default.stages;
   const normalized = vehicleType.toLowerCase();

@@ -57,7 +57,7 @@
     "enter10DigitNumber": "10-అంకెల నంబర్‌ను నమోదు చేయండి",
     "password": "పాస్‌వర్డ్",
     "enterYourPassword": "మీ పాస్‌వర్డ్‌ను నమోదు చేయండి",
-    "createAPassword6Chars": "పాస్‌వర్డ్ సృష్టించండి (6+ అక్షరాలు)",
+    "createAPassword6Chars": "పాస్‌వర్డ్ సృష్టించండి (8+ అక్షరాలు)",
     "confirmPassword": "పాస్‌వర్డ్‌ను నిర్ధారించండి",
     "reEnterYourPassword": "మీ పాస్‌వర్డ్‌ను మళ్లీ నమోదు చేయండి",
     "signingIn": "సైన్ ఇన్ అవుతోంది...",
@@ -85,7 +85,7 @@
     "pleaseEnterYourFullName": "దయచేసి మీ పూర్తి పేరును నమోదు చేయండి",
     "pleaseCreateAPassword": "దయచేసి పాస్‌వర్డ్ సృష్టించండి",
     "weakPassword": "బలహీన పాస్‌వర్డ్",
-    "passwordMustBeAtLeast6Characters": "పాస్‌వర్డ్ కనీసం 6 అక్షరాలు ఉండాలి",
+    "passwordMustBeAtLeast6Characters": "పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి",
     "passwordsDontMatch": "పాస్‌వర్డ్‌లు సరిపోలడం లేదు",
     "pleaseMakeSureBothPasswordsMatch": "దయచేసి రెండు పాస్‌వర్డ్‌లు సరిపోలేలా చూసుకోండి",
     "failedToSendOtp": "OTP పంపడంలో విఫలమైంది",
@@ -507,7 +507,18 @@
     "noPhoneNumber": "ఫోన్ నంబర్ లేదు",
     "customerPhoneNotAvailable": "ఈ ఆర్డర్‌కు కస్టమర్ ఫోన్ నంబర్ అందుబాటులో లేదు.",
     "chatEmptyState": "{{value}}తో సందేశాలు ఇక్కడ కనిపిస్తాయి.",
-    "theCustomer": "కస్టమర్"
+    "theCustomer": "కస్టమర్",
+    "offerGoneTitle": "ఆర్డర్ అందుబాటులో లేదు",
+    "offerGoneMessage": "ఈ ఆర్డర్ ఇక అందుబాటులో లేదు.",
+    "offerTakenMessage": "మరో డ్రైవర్ ఈ ఆర్డర్‌ను ముందుగా అంగీకరించారు.",
+    "offerAcceptFailedTitle": "అంగీకరించలేకపోయాము",
+    "offerAcceptFailedMessage": "మీ ఇంటర్నెట్ కనెక్షన్ చూసి మళ్ళీ ప్రయత్నించండి.",
+    "foodReadyIn": "ఆహారం {{value}} నిమిషాల్లో సిద్ధం",
+    "foodReadyNow": "ఆహారం ఇప్పుడు సిద్ధంగా ఉంది",
+    "youAreMinAway": "మీరు {{value}} నిమిషాల దూరంలో ఉన్నారు",
+    "firstToAcceptGetsIt": "దగ్గరలోని డ్రైవర్లకు పంపబడింది — ముందుగా అంగీకరించిన వారికి దక్కుతుంది",
+    "restaurantNotReadyYet": "రెస్టారెంట్ ఈ ఆర్డర్‌ను సిద్ధంగా ఉందని మార్క్ చేసే వరకు వేచి ఉండండి. ఆ తర్వాత మీరు పికప్ కోడ్ నమోదు చేయవచ్చు.",
+    "completeDelivery": "డెలివరీ పూర్తి చేయండి"
   },
   "onboarding": {
     "sections": {
@@ -549,9 +560,18 @@
       "pan": "PAN వివరాలు రికార్డుల కోసం సేకరించబడ్డాయి (గుర్తింపు ధృవీకరణ కోసం ఆధార్ ఉపయోగించబడింది)."
     },
     "vehicles": {
-      "bike": { "label": "బైక్", "desc": "డెలివరీల కోసం వేగవంతమైన & ఇంధన-సమర్థవంతమైనది" },
-      "auto": { "label": "ఆటో", "desc": "పెద్ద ఆర్డర్‌ల కోసం విశాలమైనది" },
-      "car": { "label": "కారు", "desc": "ప్రీమియం డెలివరీలు & ఎక్కువ దూరాలు" }
+      "bike": {
+        "label": "బైక్",
+        "desc": "డెలివరీల కోసం వేగవంతమైన & ఇంధన-సమర్థవంతమైనది"
+      },
+      "auto": {
+        "label": "ఆటో",
+        "desc": "పెద్ద ఆర్డర్‌ల కోసం విశాలమైనది"
+      },
+      "car": {
+        "label": "కారు",
+        "desc": "ప్రీమియం డెలివరీలు & ఎక్కువ దూరాలు"
+      }
     },
     "aadhaarNumber": "ఆధార్ నంబర్",
     "aadhaarDetailsCollectedForRecords": "ఆధార్ వివరాలు రికార్డుల కోసం సేకరించబడ్డాయి. గుర్తింపు ధృవీకరణ కోసం PAN ఉపయోగించబడింది.",

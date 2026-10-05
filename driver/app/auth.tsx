@@ -12,7 +12,7 @@ export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const {
-    mode, step, phone, setPhone, name, setName,
+    mode, step, phone, setPhone, name, setName, email, setEmail,
     password, setPassword, confirmPassword, setConfirmPassword,
     otp, setOtp, loading, otpRefs, slideAnimatedStyle,
     switchMode, setStep,
@@ -43,6 +43,8 @@ export default function AuthScreen() {
             onSwitchMode={switchMode}
             name={name}
             onNameChange={setName}
+            email={email}
+            onEmailChange={setEmail}
             phone={phone}
             onPhoneChange={setPhone}
             password={password}

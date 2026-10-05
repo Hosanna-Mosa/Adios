@@ -14,17 +14,25 @@ import {
   getStep1Sections,
   getStep2Sections,
   type OnboardingSection,
+  type OnboardingSectionKey,
 } from "../onboardingSections";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export type OnboardingNav = ReturnType<typeof useOnboardingNav>;
 
-/** Step / section cursor plus the slide animation that runs between them. */
-export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean) {
+/** Step / section cursor plus the slide animation that runs between them.
+ *
+ * `onlySections` limits the flow to those document sections (the re-upload
+ * screen passes what an admin asked for); the profile step is skipped then. */
+export function useOnboardingNav(
+  aadhaarVerified: boolean,
+  panVerified: boolean,
+  onlySections?: OnboardingSectionKey[],
+) {
   const { i18n: i18nInstance } = useTranslation();
   const params = useLocalSearchParams();
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2>(onlySections ? 2 : 1);
   const [sectionIdx, setSectionIdx] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
   const slideAnim = useSharedValue(0);
@@ -53,13 +61,18 @@ export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean)
   // Re-reads section labels whenever the language changes (i18nInstance.language
   // in the dependency array), since getStep1Sections()/getStep2Sections() read
   // the current language at call time and would otherwise stay stale.
+  const onlyKey = onlySections?.join(",");
   const currentSections: OnboardingSection[] = useMemo(() => {
+    if (onlySections) {
+      return [...getStep1Sections(), ...getStep2Sections()].filter((s) => onlySections.includes(s.key));
+    }
     if (step === 1) return getStep1Sections();
     const step2 = getStep2Sections();
     if (aadhaarVerified) return step2.filter((s) => s.key !== "pan");
     if (panVerified) return step2.filter((s) => s.key !== "aadhaar");
     return step2;
-  }, [step, aadhaarVerified, panVerified, i18nInstance.language]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onlyKey stands in for onlySections
+  }, [step, aadhaarVerified, panVerified, onlyKey, i18nInstance.language]);
 
   const totalSections = currentSections.length;
 
@@ -105,6 +118,7 @@ export function useOnboardingNav(aadhaarVerified: boolean, panVerified: boolean)
   return {
     step, sectionIdx, setSectionIdx, scrollRef, slideAnimatedStyle,
     currentSections, totalSections, currentKey: currentSections[sectionIdx]?.key,
+    isLastSection: sectionIdx === totalSections - 1,
     nextSection: currentSections[sectionIdx + 1],
     goToNextSection, goToPrevSection, goToNextStep, goToPrevStep,
   };

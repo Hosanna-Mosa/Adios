@@ -1,5 +1,5 @@
 /** Payout breakdown shown on the completion screens. */
-export function computeEarnings(distance: string | undefined, waitingComp: number) {
+export function computeEarnings(distance: string | undefined) {
   const distanceVal = parseFloat(distance || "4.2") || 4.2;
   const distanceFare = Math.round(distanceVal * 6);
   const baseFare = 40;
@@ -17,6 +17,6 @@ export function computeEarnings(distance: string | undefined, waitingComp: numbe
     rainBonus,
     customerTip,
     totalEarningsCalculated:
-      baseFare + distanceFare + surgeBonus + peakBonus + rainBonus + waitingComp + customerTip,
+      baseFare + distanceFare + surgeBonus + peakBonus + rainBonus + customerTip,
   };
 }

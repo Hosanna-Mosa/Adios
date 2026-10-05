@@ -1,7 +1,11 @@
+import crypto from "crypto";
+import mongoose from "mongoose";
 import Driver, { IDriver, OnboardingStatus } from "../../database/models/Driver";
+import Vendor from "../../database/models/Vendor";
 import DigiLockerSession, {
   DigiLockerPurpose,
   DigiLockerSessionStatus,
+  DigiLockerSubjectType,
   IDigiLockerSession,
 } from "../../database/models/DigiLockerSession";
 import { createPkcePair, randomToken } from "../../utils/crypto";
@@ -36,6 +40,35 @@ export interface StartSessionOptions {
   clientRedirectUrl?: string;
   /** Origin the client reached us on; sandbox uses it to stay reachable. */
   requestOrigin?: string;
+}
+
+/** How long a linked restaurant-onboarding grant waits to be used by a submission. */
+const VENDOR_SESSION_UNCLAIMED_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+const hashAccessKey = (key: string) => crypto.createHash("sha256").update(key).digest("hex");
+
+/** Constant-time comparison of a presented access key against the stored hash. */
+function accessKeyMatches(session: IDigiLockerSession, key: string | undefined): boolean {
+  if (!key || !session.accessKeyHash) return false;
+  const presented = Buffer.from(hashAccessKey(key), "hex");
+  const stored = Buffer.from(session.accessKeyHash, "hex");
+  return presented.length === stored.length && crypto.timingSafeEqual(presented, stored);
+}
+
+/** Owner KYC copied from a restaurant-onboarding DigiLocker session. */
+export interface VendorDigilockerKyc {
+  sessionId: string;
+  sandbox: boolean;
+  digilockerId?: string;
+  holderName?: string;
+  dob?: string;
+  gender?: string;
+  maskedAadhaar?: string;
+  aadhaarVerified: boolean;
+  panNumber?: string;
+  panName?: string;
+  issuedDocuments: string[];
+  skipped: string[];
 }
 
 /**
@@ -183,23 +216,26 @@ export class DigiLockerModuleService {
       throw error;
     }
 
-    // Only one live grant per user: retire any previous link.
-    await DigiLockerSession.updateMany(
-      {
-        user: session.user,
-        status: DigiLockerSessionStatus.LINKED,
-        _id: { $ne: session._id },
-      },
-      {
-        $set: {
-          status: DigiLockerSessionStatus.REVOKED,
-          revokedAt: new Date(),
-          lastError: "Replaced by a newer DigiLocker link",
-          accessTokenEnc: null,
-          refreshTokenEnc: null,
+    // Only one live grant per user: retire any previous link. Restaurant
+    // onboarding sessions have no user, and must never match other rows here.
+    if (session.user) {
+      await DigiLockerSession.updateMany(
+        {
+          user: session.user,
+          status: DigiLockerSessionStatus.LINKED,
+          _id: { $ne: session._id },
         },
-      }
-    );
+        {
+          $set: {
+            status: DigiLockerSessionStatus.REVOKED,
+            revokedAt: new Date(),
+            lastError: "Replaced by a newer DigiLocker link",
+            accessTokenEnc: null,
+            refreshTokenEnc: null,
+          },
+        }
+      );
+    }
 
     session.status = DigiLockerSessionStatus.LINKED;
     session.linkedAt = new Date();
@@ -216,8 +252,13 @@ export class DigiLockerModuleService {
     session.holderGender = bundle.gender;
     session.eaadhaarAvailable = bundle.eaadhaarAvailable;
     session.lastError = undefined;
-    // Clearing this exempts the row from the pending-session TTL sweep.
-    session.expiresAt = null;
+    // Clearing this exempts the row from the pending-session TTL sweep. An
+    // anonymous restaurant-onboarding grant gets a longer expiry instead, so one
+    // that no submission ever uses is still swept eventually.
+    session.expiresAt =
+      session.subjectType === DigiLockerSubjectType.VENDOR_ONBOARDING
+        ? new Date(Date.now() + VENDOR_SESSION_UNCLAIMED_TTL_MS)
+        : null;
 
     await session.save();
 
@@ -521,6 +562,221 @@ export class DigiLockerModuleService {
       },
       sandbox: session.mode === "sandbox",
     };
+  }
+
+  // ── Restaurant / meat-center onboarding (partner website, no account yet) ──
+
+  /**
+   * Begin a consent flow for the public partner onboarding form.
+   *
+   * The applicant has no User, so the session is bound to a random access key
+   * instead: only its SHA-256 is stored, and only the browser that started the
+   * flow holds the key needed to read the result or attach it to a submission.
+   */
+  async startVendorOnboardingSession(
+    options: Pick<StartSessionOptions, "persona" | "verifiedMobile" | "requestOrigin"> = {}
+  ) {
+    const state = randomToken(32);
+    const accessKey = randomToken(32);
+    const { codeVerifier, codeChallenge } = createPkcePair();
+
+    const authUrl = digilockerProvider.getAuthorizationUrl({
+      state,
+      codeChallenge,
+      persona: options.persona,
+      verifiedMobile: options.verifiedMobile,
+      requestOrigin: options.requestOrigin,
+    });
+
+    const redirectUri =
+      digilockerConfig.isSandbox && options.requestOrigin
+        ? options.requestOrigin + "/api/v1/digilocker/callback"
+        : digilockerConfig.redirectUri;
+
+    const expiresAt = new Date(Date.now() + digilockerConfig.sessionTtlMinutes * 60 * 1000);
+
+    const session = new DigiLockerSession({
+      subjectType: DigiLockerSubjectType.VENDOR_ONBOARDING,
+      accessKeyHash: hashAccessKey(accessKey),
+      status: DigiLockerSessionStatus.PENDING,
+      purpose: DigiLockerPurpose.VENDOR_KYC,
+      mode: digilockerConfig.mode,
+      state,
+      codeChallenge,
+      redirectUri,
+      authUrl,
+      sandboxPersona: digilockerConfig.isSandbox ? options.persona : undefined,
+      expiresAt,
+    });
+
+    session.setCodeVerifier(codeVerifier);
+    await session.save();
+
+    return {
+      sessionId: session.id as string,
+      accessKey,
+      authUrl,
+      mode: digilockerConfig.mode,
+      expiresAt,
+      sandbox: digilockerConfig.isSandbox,
+    };
+  }
+
+  /** Load a restaurant-onboarding session, proving the caller holds its access key. */
+  private async findVendorOnboardingSession(sessionId: string, accessKey: string | undefined) {
+    const notFound = () =>
+      new DigiLockerSessionError(
+        "DigiLocker verification not found. Please verify with DigiLocker again.",
+        404,
+        "session_not_found"
+      );
+
+    if (!mongoose.Types.ObjectId.isValid(sessionId)) throw notFound();
+
+    const session = await DigiLockerSession.findOne({
+      _id: sessionId,
+      subjectType: DigiLockerSubjectType.VENDOR_ONBOARDING,
+    });
+
+    // Same answer for "no such session" and "wrong key", so ids can't be probed.
+    if (!session || !accessKeyMatches(session, accessKey)) throw notFound();
+
+    return session;
+  }
+
+  /**
+   * Poll a restaurant-onboarding consent. Once linked, the owner's Aadhaar and
+   * PAN are fetched exactly once and cached on the session; the DigiLocker
+   * tokens are then dropped, since nothing else is ever read with them.
+   */
+  async getVendorOnboardingResult(sessionId: string, accessKey: string | undefined) {
+    const session = await this.findVendorOnboardingSession(sessionId, accessKey);
+    const sandbox = session.mode === "sandbox";
+
+    if (session.status === DigiLockerSessionStatus.PENDING) {
+      if (!session.expiresAt || session.expiresAt.getTime() > Date.now()) {
+        return { status: session.status, sandbox };
+      }
+      session.status = DigiLockerSessionStatus.EXPIRED;
+      session.lastError = "Consent window expired before approval";
+      await session.save();
+    }
+
+    if (session.status !== DigiLockerSessionStatus.LINKED) {
+      return {
+        status: session.status,
+        sandbox,
+        error: session.lastError || "DigiLocker verification did not complete. Please try again.",
+      };
+    }
+
+    await this.ensureVendorKycFetched(session);
+
+    return { status: session.status, sandbox, kyc: this.toVendorKyc(session) };
+  }
+
+  private async ensureVendorKycFetched(session: IDigiLockerSession) {
+    if (session.aadhaarFetchedAt || session.panFetchedAt) return;
+
+    const accessToken = session.getAccessToken();
+    if (!accessToken) {
+      throw new DigiLockerSessionError(
+        "Your DigiLocker session has expired. Please verify with DigiLocker again.",
+        428,
+        "access_token_missing"
+      );
+    }
+
+    const notIssued = (error: any) =>
+      error instanceof DigiLockerApiError && error.upstreamCode === "document_not_issued";
+
+    // The issued-documents list is informational only, for the admin reviewer.
+    try {
+      await this.listDocuments(session, accessToken);
+    } catch (error: any) {
+      console.warn("[DIGILOCKER] Could not list issued documents for vendor onboarding:", error?.message);
+    }
+
+    // Either document may be missing from the owner's locker; the admin sees which.
+    try {
+      await this.getAadhaar(session, accessToken);
+    } catch (error: any) {
+      if (!notIssued(error)) throw error;
+      session.aadhaarFetchedAt = new Date();
+    }
+    try {
+      await this.getPan(session, accessToken);
+    } catch (error: any) {
+      if (!notIssued(error)) throw error;
+      session.panFetchedAt = new Date();
+    }
+
+    session.setAccessToken(null);
+    session.setRefreshToken(null);
+    await session.save();
+  }
+
+  private toVendorKyc(session: IDigiLockerSession): VendorDigilockerKyc {
+    const aadhaar = (session.aadhaarData || {}) as DigiLockerAadhaarData;
+    const pan = (session.panData || {}) as DigiLockerPanData;
+    const panNumber = pan.panNumber && isValidPanFormat(pan.panNumber) ? pan.panNumber.toUpperCase() : undefined;
+
+    const skipped: string[] = [];
+    if (!aadhaar.maskedAadhaarNumber) skipped.push("aadhaar");
+    if (!panNumber) skipped.push("pan");
+
+    return {
+      sessionId: session.id as string,
+      sandbox: session.mode === "sandbox",
+      digilockerId: session.digilockerId,
+      holderName: aadhaar.name || pan.name || session.holderName,
+      dob: aadhaar.dob || pan.dob || session.holderDob,
+      gender: aadhaar.gender || session.holderGender,
+      maskedAadhaar: aadhaar.maskedAadhaarNumber,
+      aadhaarVerified: Boolean(aadhaar.maskedAadhaarNumber),
+      panNumber,
+      panName: pan.name,
+      issuedDocuments: (session.documents || []).map((doc) => doc.name || doc.doctype).filter(Boolean),
+      skipped,
+    };
+  }
+
+  /**
+   * Resolve the KYC a vendor application may claim, and bind the session to
+   * that vendor so the same consent can never be attached to a second one.
+   */
+  async claimVendorOnboardingKyc(sessionId: string, accessKey: string | undefined, vendorId: string) {
+    const session = await this.findVendorOnboardingSession(sessionId, accessKey);
+
+    if (session.status !== DigiLockerSessionStatus.LINKED) {
+      throw new DigiLockerSessionError(
+        "Your DigiLocker verification is not complete. Please verify with DigiLocker again.",
+        428,
+        "not_linked"
+      );
+    }
+
+    // A claim whose submission then failed (e.g. a duplicate email) left no
+    // vendor behind; the applicant's retry may take the session over.
+    if (
+      session.vendor &&
+      session.vendor.toString() !== vendorId &&
+      (await Vendor.exists({ _id: session.vendor }))
+    ) {
+      throw new DigiLockerSessionError(
+        "This DigiLocker verification was already used for another application. Please verify again.",
+        409,
+        "already_claimed"
+      );
+    }
+
+    await this.ensureVendorKycFetched(session);
+
+    session.vendor = new mongoose.Types.ObjectId(vendorId);
+    session.expiresAt = null;
+    await session.save();
+
+    return this.toVendorKyc(session);
   }
 
   /** Full attempt history for a user — used by the admin/support view. */

@@ -25,7 +25,12 @@ export function useFindingDriverInsets() {
   const [confirmedDriver, setConfirmedDriver] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
-  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string }>({});
+  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean }>({});
+
+  // Set from each poll of the order (and right after a food order is placed).
+  const foodStage = useDeliveryStore((s) => s.foodStage);
+  const serviceType = useDeliveryStore((s) => s.serviceType);
+  const isRide = ["bike", "auto", "cab", "cab_prime"].includes(String(orderSummary.serviceType || serviceType || "").toLowerCase());
 
   const sweep = useSharedValue(0);
 
@@ -39,5 +44,5 @@ export function useFindingDriverInsets() {
 
   useEffect(buildFindingDriverInsetsEffect(orderId, isReserved, setBookingConfirmed, setConfirmedDriver, setStops, setOrderSummary), [orderId, isReserved, dateTimeStr]);
 
-  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle };
+  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide };
 }

@@ -26,6 +26,8 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "off",
+      // Use appAlert / appConfirm from "@/lib/dialog", never the browser's popups.
+      "no-alert": "error",
     },
   },
   {

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { Coupon, NewCouponForm } from "../couponTypes";
 
 const EMPTY_FORM: NewCouponForm = {
@@ -93,8 +94,8 @@ export function useCoupons() {
 
   const isExpired = (coupon: Coupon) => !!coupon.expiryDate && new Date(coupon.expiryDate) <= new Date();
 
-  const handleDelete = (id: string, code: string) => {
-    if (confirm(t("catalog.confirmDeleteCoupon", { code, defaultValue: "Are you sure you want to delete coupon {{code}}?" }))) {
+  const handleDelete = async (id: string, code: string) => {
+    if (await appConfirm({ title: t("catalog.confirmDeleteCoupon", { code, defaultValue: "Are you sure you want to delete coupon {{code}}?" }), tone: "destructive" })) {
       deleteMutation.mutate(id);
     }
   };

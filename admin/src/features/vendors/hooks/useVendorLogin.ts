@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { adminFetch } from "@/lib/api-client";
+import { adminFetch, ApiError } from "@/lib/api-client";
 import { trackEvent } from "@/lib/analytics";
 import { socketService } from "@/lib/socketService";
 import { startSession, SUPPORT_HOME, type PanelRole } from "@/lib/session";
@@ -23,6 +23,9 @@ interface StaffLoginResponse {
 }
 
 const LOGIN_ROLE_KEY = "panel_login_role";
+
+// Same fallback as the menu QR codes (RestaurantQrDialog): the partner website's origin.
+const partnerWebsiteUrl = (import.meta.env.VITE_FRONTEND_URL || window.location.origin).replace(/\/+$/, "");
 
 function getRememberedLoginRole(): PanelRole {
   try {
@@ -53,6 +56,9 @@ export function useVendorLogin() {
   const [loginRole, setLoginRoleState] = useState<PanelRole>(getRememberedLoginRole);
 
   const setLoginRole = (role: PanelRole) => {
+    // Each role signs in with a different identifier (admin: mobile only), so
+    // don't carry an email typed for one role into another.
+    if (role !== loginRole) setIdentifier("");
     setLoginRoleState(role);
     try {
       localStorage.setItem(LOGIN_ROLE_KEY, role);
@@ -70,7 +76,12 @@ export function useVendorLogin() {
 
     setIsLoading(true);
     try {
-      const isEmail = identifier.includes("@");
+      if (loginRole === "admin" && !/^\d{10}$/.test(identifier)) {
+        toast.error(t("panelAuth.enterValidMobile", "Enter your 10-digit mobile number"));
+        return;
+      }
+      // Admins always sign in by mobile number; other roles may use email or phone.
+      const isEmail = loginRole !== "admin" && identifier.includes("@");
       const payload = isEmail ? { email: identifier, password } : { phone: identifier, password };
 
       // The chosen role decides the one endpoint we try. The server checks the
@@ -102,7 +113,10 @@ export function useVendorLogin() {
           method: "POST",
           body: JSON.stringify(payload),
         });
-      } catch {
+      } catch (vendorError) {
+        // 403 means the password matched but the application isn't approved
+        // yet — say so instead of masking it with a meat-center login failure.
+        if (vendorError instanceof ApiError && vendorError.status === 403) throw vendorError;
         // 2. If restaurant fails, try Meat Center login
         data = await adminFetch<VendorLoginResponse>("/meat/login", {
           method: "POST",
@@ -116,7 +130,19 @@ export function useVendorLogin() {
       toast.success(t("vendorAuth.welcomeBack", { name: data.name, defaultValue: "Welcome back, {{name}}" }));
       navigate(data.role === "meat_vendor" ? "/vendor/meat-menu" : "/vendor/dashboard");
     } catch (error) {
-      toast.error((error as Error).message || t("vendorAuth.invalidCredentials"));
+      if (error instanceof ApiError && error.body.code === "VENDOR_RESUBMISSION_REQUIRED") {
+        // Documents are re-uploaded on the partner website, not in this panel.
+        const note = typeof error.body.note === "string" && error.body.note ? ` ${error.body.note}` : "";
+        toast.error(`${error.message}${note}`, {
+          duration: 15000,
+          action: {
+            label: t("vendorAuth.resubmitDocuments", "Resubmit documents"),
+            onClick: () => window.open(`${partnerWebsiteUrl}/partner/resubmit`, "_blank", "noopener"),
+          },
+        });
+      } else {
+        toast.error((error as Error).message || t("vendorAuth.invalidCredentials"));
+      }
     } finally {
       setIsLoading(false);
     }

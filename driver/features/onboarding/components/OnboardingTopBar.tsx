@@ -8,7 +8,7 @@ import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
-/** Back arrow (only once there is somewhere to go back to) and Skip. */
+/** Back arrow (only once there is somewhere to go back to) and, when given, Skip. */
 export function OnboardingTopBar({
   canGoBack,
   onBack,
@@ -16,7 +16,7 @@ export function OnboardingTopBar({
 }: {
   canGoBack: boolean;
   onBack: () => void;
-  onSkip: () => void;
+  onSkip?: () => void;
 }) {
   const { t } = useTranslation();
   return (
@@ -28,9 +28,13 @@ export function OnboardingTopBar({
       ) : (
         <Box style={{ width: 40 }} />
       )}
-      <Touchable onPress={onSkip} style={styles.topBarBtn}>
-        <AppText style={styles.skipText}>{t("actions.skip")}</AppText>
-      </Touchable>
+      {onSkip ? (
+        <Touchable onPress={onSkip} style={styles.topBarBtn}>
+          <AppText style={styles.skipText}>{t("actions.skip")}</AppText>
+        </Touchable>
+      ) : (
+        <Box style={{ width: 40 }} />
+      )}
     </Box>
   );
 }

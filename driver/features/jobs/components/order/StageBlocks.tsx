@@ -1,10 +1,8 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../../active-order.styles";
-import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
@@ -19,69 +17,6 @@ export function HighDemandZones({ title, zones }: { title: string; zones: string
           <AppText style={styles.hotspotText}>{zone}</AppText>
         </Box>
       ))}
-    </Box>
-  );
-}
-
-/** Segmented picker — door / gate / contactless.
- * `options` stay in English (the value sent to the backend); `renderLabel`
- * lets callers show a translated version without touching that value. */
-export function OptionPicker<T extends string>({
-  label,
-  options,
-  selected,
-  onSelect,
-  renderLabel,
-}: {
-  label: string;
-  options: readonly T[];
-  selected: T;
-  onSelect: (value: T) => void;
-  renderLabel?: (option: T) => string;
-}) {
-  return (
-    <Box style={styles.optionsBlock}>
-      <AppText style={styles.blockLabel}>{label}</AppText>
-      <Box style={styles.optionsRow}>
-        {options.map((opt) => {
-          const active = selected === opt;
-          return (
-            <Touchable
-              key={opt}
-              style={[styles.optionBtn, active ? styles.optionBtnSelected : null]}
-              onPress={() => onSelect(opt)}
-            >
-              <AppText style={[styles.optionBtnText, active ? styles.optionBtnTextSelected : null]}>
-                {(renderLabel ? renderLabel(opt) : opt).toUpperCase()}
-              </AppText>
-            </Touchable>
-          );
-        })}
-      </Box>
-    </Box>
-  );
-}
-
-/** Report-an-issue and confirm buttons side by side at pickup. */
-export function PickupActionRow({
-  onReportIssue,
-  onConfirm,
-  confirmLabel,
-}: {
-  onReportIssue: () => void;
-  onConfirm: () => void;
-  confirmLabel: string;
-}) {
-  const { t } = useTranslation();
-  return (
-    <Box style={styles.pickupActionRow}>
-      <Touchable style={styles.issueBtn} onPress={onReportIssue}>
-        <Ionicons name="warning-outline" size={20} color={Colors.error} />
-        <AppText style={styles.issueBtnText}>{t("jobs.issue")}</AppText>
-      </Touchable>
-      <Touchable style={[styles.pickupConfirmBtn]} onPress={onConfirm}>
-        <AppText style={styles.actionBtnText}>{confirmLabel}</AppText>
-      </Touchable>
     </Box>
   );
 }

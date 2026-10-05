@@ -106,7 +106,19 @@
     "addFirstMeatItems": "ऑर्डर प्राप्त करना शुरू करने के लिए अपने पहले मीट आइटम जोड़ें।",
     "addFirstFoodItems": "ऑर्डर प्राप्त करना शुरू करने के लिए अपने पहले फ़ूड आइटम जोड़ें।",
     "meatCenterLower": "मीट सेंटर",
-    "vendorLower": "वेंडर"
+    "vendorLower": "वेंडर",
+    "orderAcceptedFindingDriver": "ऑर्डर स्वीकार किया गया। डिलीवरी पार्टनर ढूंढ रहे हैं।",
+    "failedToAcceptOrder": "ऑर्डर स्वीकार नहीं हो सका। कृपया फिर से कोशिश करें।",
+    "acceptToFindDriver": "डिलीवरी पार्टनर ढूंढना शुरू करने के लिए ऑर्डर स्वीकार करें। खाना तैयार होने से पहले पहुंच सकने वाले सभी पास के ड्राइवरों से एक साथ पूछा जाएगा।",
+    "prepTimeQuestion": "खाना बनने में कितना समय लगेगा?",
+    "prepMinutes": "{{value}} मिनट",
+    "acceptReadyIn": "स्वीकार करें · {{value}} मिनट में तैयार",
+    "rejectOrder": "ऑर्डर अस्वीकार करें",
+    "confirmRejectOrder": "यह ऑर्डर अस्वीकार करें? ग्राहक को बताया जाएगा और ऑनलाइन भुगतान वापस किया जाएगा।",
+    "keepOrder": "ऑर्डर रखें",
+    "yesRejectOrder": "हां, अस्वीकार करें",
+    "acceptWithin": "{{time}} में स्वीकार करें, नहीं तो यह ऑर्डर रद्द हो जाएगा",
+    "acceptTimeUp": "समय खत्म — यह ऑर्डर रद्द किया जा रहा है"
   },
   "orderStatus": {
     "searchingDriver": "ड्राइवर खोजा जा रहा है",
@@ -116,7 +128,11 @@
     "outForDelivery": "डिलीवरी के लिए निकल गया",
     "driverAtCustomer": "ग्राहक के पास ड्राइवर",
     "delivered": "डिलीवर हो गया",
-    "unknown": "अज्ञात"
+    "unknown": "अज्ञात",
+    "newOrder": "नया ऑर्डर",
+    "preparingFindingDriver": "बन रहा है · ड्राइवर ढूंढ रहे हैं",
+    "readyFindingDriver": "तैयार · ड्राइवर ढूंढ रहे हैं",
+    "cancelledNotAccepted": "रद्द · समय पर स्वीकार नहीं हुआ"
   },
   "vendorMenu": {
     "searchMenuItems": "मेनू आइटम खोजें...",
@@ -230,6 +246,8 @@
     "liveOrders": "लाइव ऑर्डर",
     "scheduledOrders": "निर्धारित ऑर्डर",
     "drivers": "ड्राइवर",
+    "driverVerification": "ड्राइवर सत्यापन",
+    "restaurantVerification": "रेस्टोरेंट सत्यापन",
     "devDrivers": "डेव ड्राइवर",
     "users": "उपयोगकर्ता",
     "vendors": "वेंडर",
@@ -1129,6 +1147,7 @@
     "step2UploadMenuImages": "चरण 2: मेनू छवियां अपलोड करें",
     "step3ReviewEditExtractedMenu": "चरण 3: निकाले गए मेनू की समीक्षा और संपादन करें",
     "submitted": "प्रस्तुत",
+    "resubmissionRequired": "दस्तावेज़ फिर से मांगे गए",
     "supportsPngJpgJpegMax5": "PNG, JPG, JPEG समर्थित (अधिकतम 5 फ़ाइलें)",
     "targetUrlOptional": "टारगेट URL (वैकल्पिक)",
     "temporarilyClosedDesc": "अस्थायी रूप से बंद (ऑर्डर लेना बंद करें)",

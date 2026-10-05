@@ -6,12 +6,25 @@ import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.se
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { PaymentService } from "../payments/payment.service";
-import VendorPayout, { VendorPayoutStatus } from "../../database/models/VendorPayout";
+import VendorPayout, { MIN_VENDOR_PAYOUT_AMOUNT, VendorPayoutStatus } from "../../database/models/VendorPayout";
 import Order, { OrderStatus } from "../../database/models/Order";
 import { RazorpayXError } from "../payments/razorpayx.client";
 import { applyRazorpayXPayout } from "../payments/payout.status";
 import FoodItem from "../../database/models/FoodItem";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { getOutletOrderingState } from "../../utils/outletOrderingState";
+import { AppError } from "../../utils/errors";
+import { sendVendorDecisionEmail } from "../verification/verification.emails";
+import { Types } from "mongoose";
+import type { VendorDigilockerKyc } from "../digilocker/digilocker.service";
+import {
+  claimDigilockerKyc,
+  fileName,
+  getVendorAccessBlock,
+  isPanDigilockerVerified,
+  missingDocumentFields,
+  toVendorKycFields,
+} from "./vendor-verification.service";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -209,7 +222,15 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     const searchTerm = typeof search === "string" ? search.trim() : "";
 
     // Build spatial match query enforcing active zone boundaries
-    const geoQuery: any = { partnerType: { $ne: "meat" } };
+    const geoQuery: any = {
+      partnerType: { $ne: "meat" },
+      // Applications still in review (or turned down) must not reach customers.
+      // Admin-created and legacy vendors carry no onboardingSource and are unaffected.
+      $nor: [
+        { onboardingStatus: { $in: ["submitted", "rejected", "resubmission_required"] } },
+        { onboardingSource: "partner_website", onboardingStatus: { $ne: "approved" } },
+      ],
+    };
     // Applied inside $geoNear so pagination counts only matching vendors — a
     // client-side pass would filter one page and let $skip re-introduce the rest.
     if (hasMinRating) {
@@ -312,6 +333,23 @@ export const getVendorById = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * GET /api/v1/vendors/:id/ordering-state — public. Whether a restaurant or meat
+ * centre is taking orders right now, so the customer menu can stop adding to
+ * the cart once the partner turns "Accepting orders" off. Order creation
+ * re-checks the same state (OrdersService.assertOutletAcceptingOrders).
+ */
+export const getOutletOrderingStatus = async (req: Request, res: Response) => {
+  try {
+    const state = await getOutletOrderingState(String(req.params.id));
+    if (!state) return res.status(404).json({ message: "Outlet not found" });
+    res.json(state);
+  } catch (error) {
+    console.error("Error fetching outlet ordering state:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 import generateToken from "../../utils/generateToken";
 
 export const loginVendor = async (req: Request, res: Response) => {
@@ -333,6 +371,13 @@ export const loginVendor = async (req: Request, res: Response) => {
     }
 
     if (await vendor.matchPassword(password)) {
+      // Only checked after the password matches, so an application's review
+      // status is never revealed to someone who doesn't own it.
+      const block = getVendorAccessBlock(vendor);
+      if (block) {
+        return res.status(403).json(block);
+      }
+
       res.json({
         _id: vendor._id,
         name: vendor.name,
@@ -380,7 +425,10 @@ export const createVendor = async (req: Request, res: Response) => {
       categories,
       isPureVeg,
       deliveryFee,
-      minOrderValue
+      minOrderValue,
+      // Created by an admin directly, so there is no application to review.
+      onboardingStatus: "approved",
+      onboardingSource: "admin",
     });
 
     await vendor.save();
@@ -391,9 +439,7 @@ export const createVendor = async (req: Request, res: Response) => {
   }
 };
 
-const fileName = (file?: { name?: string } | null) => file?.name || undefined;
-
-const requireFields = (payload: any) => {
+const requireFields = (payload: any, kyc: VendorDigilockerKyc | null) => {
   const missing: string[] = [];
   const requireText = (value: unknown, label: string) => {
     if (typeof value !== "string" || value.trim().length === 0) missing.push(label);
@@ -405,10 +451,11 @@ const requireFields = (payload: any) => {
     missing.push(partnerType === "meat" ? "Meat categories" : "Cuisine / Food Category");
   }
   requireText(payload.ownerName, "Owner full name");
-  if (!payload.ownerEmail || !String(payload.ownerEmail).includes("@")) missing.push("Owner email address");
+  // Mandatory and must be deliverable: review outcomes are emailed to it.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(payload.ownerEmail || "").trim())) missing.push("Owner email address");
   if (String(payload.portalPassword || "").length < 6) missing.push("Vendor portal password");
+  // The owner's mobile number is recorded as given — it is not OTP-verified.
   if (!/^\d{10}$/.test(String(payload.ownerPhone || ""))) missing.push("Owner phone number");
-  if (payload.otp !== "1234" || !payload.otpVerified) missing.push("OTP verification");
   if (!payload.location?.lat || !payload.location?.lng) missing.push("GPS location");
   requireText(payload.address?.area, "Area / Sector / Locality");
   requireText(payload.address?.city, "City");
@@ -435,20 +482,10 @@ const requireFields = (payload: any) => {
     }
   }
 
-  requireText(payload.panNumber, "PAN number");
-  if (!fileName(payload.panFile)) missing.push("PAN file");
-  if (!payload.gstExempt) {
-    requireText(payload.gstin, "GSTIN");
-    if (!fileName(payload.gstFile)) missing.push("GST file");
+  // Owner identity comes from DigiLocker; a PAN that matches it needs no copy.
+  for (const document of ["identity", "pan", "gst", "fssai", "bank"] as const) {
+    missing.push(...missingDocumentFields(document, payload, kyc));
   }
-  if (!/^\d{14}$/.test(String(payload.fssaiNumber || ""))) missing.push("FSSAI number");
-  requireText(payload.fssaiExpiry, "FSSAI expiry");
-  if (!fileName(payload.fssaiFile)) missing.push("FSSAI file");
-  if (String(payload.bankAccount || "").length < 9) missing.push("Bank account number");
-  if (payload.bankAccount !== payload.bankConfirm) missing.push("Matching bank account confirmation");
-  if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(String(payload.ifsc || ""))) missing.push("IFSC code");
-  if (!payload.ifscFetched) missing.push("IFSC verification");
-  if (!fileName(payload.chequeFile)) missing.push("Cancelled cheque / bank statement");
   if (!payload.acceptedTos) missing.push("Accepted contract terms");
   requireText(payload.signature, "Digital signature");
 
@@ -459,16 +496,6 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
   try {
     const payload = req.body;
     const status = payload.status === "submitted" ? "submitted" : "draft";
-
-    if (status === "submitted") {
-      const missing = requireFields(payload);
-      if (missing.length > 0) {
-        return res.status(400).json({
-          message: `Please complete required fields: ${missing.join(", ")}`,
-          missing,
-        });
-      }
-    }
 
     const ownerPhoneInput = String(payload.ownerPhone || payload.phone || "").replace(/\D/g, "");
     const ownerEmail = String(payload.ownerEmail || payload.email || "").trim().toLowerCase();
@@ -501,12 +528,13 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
       googlePlaceId: payload.googlePlaceId,
       onboardingStatus: status,
       partnerType: payload.partnerType === "meat" ? "meat" : "food",
+      onboardingSource: "partner_website",
+      ...(status === "submitted" ? { submittedAt: new Date() } : {}),
       owner: {
         name: payload.ownerName,
         email: ownerEmail,
         phone: ownerPhoneInput || "",
         primaryContact: payload.primaryContact || ownerPhoneInput,
-        otpVerified: payload.otpVerified && payload.otp === "1234",
       },
       location: {
         type: "Point",
@@ -553,6 +581,7 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
       },
       legal: {
         panNumber: payload.panNumber,
+        panVerified: false,
         panFileName: fileName(payload.panFile),
         gstin: payload.gstin,
         gstFileName: fileName(payload.gstFile),
@@ -563,7 +592,8 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
         bankAccount: payload.bankAccount,
         accountType: payload.accountType || "savings",
         ifsc: payload.ifsc,
-        ifscVerified: Boolean(payload.ifscFetched),
+        // Not checked on the form any more; an admin reviews bank details.
+        ifscVerified: false,
         chequeFileName: fileName(payload.chequeFile),
       },
       contract: {
@@ -601,9 +631,40 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
       delete (vendorData as { password?: string }).password;
     }
 
+    // The id is fixed up front so the DigiLocker consent can be bound to this
+    // application before it is written.
+    const vendorId = existing?._id ? String(existing._id) : new Types.ObjectId().toString();
+
+    let kyc: VendorDigilockerKyc | null = null;
+    try {
+      kyc = await claimDigilockerKyc(payload, vendorId);
+    } catch (error) {
+      // A draft is still worth saving without it; a submission is not.
+      if (status === "submitted") {
+        if (error instanceof AppError) return res.status(error.statusCode).json({ message: error.message });
+        throw error;
+      }
+    }
+
+    if (status === "submitted") {
+      const missing = requireFields(payload, kyc);
+      if (missing.length > 0) {
+        return res.status(400).json({
+          message: `Please complete required fields: ${missing.join(", ")}`,
+          missing,
+        });
+      }
+    }
+
+    if (kyc) {
+      Object.assign(vendorData, { kyc: toVendorKycFields(kyc) });
+      vendorData.legal.panVerified = isPanDigilockerVerified(payload.panNumber, kyc);
+      if (vendorData.legal.panVerified) vendorData.legal.panNumber = kyc.panNumber;
+    }
+
     const vendor = await Vendor.findOneAndUpdate(
       matchQuery,
-      { $set: vendorData },
+      { $set: vendorData, $setOnInsert: { _id: vendorId } },
       { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
     );
 
@@ -825,10 +886,18 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (isManuallyClosed !== undefined) vendor.isManuallyClosed = isManuallyClosed;
     if (deliveryFee !== undefined) vendor.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) vendor.minOrderValue = minOrderValue;
+    const previousOnboardingStatus = vendor.onboardingStatus;
     if (onboardingStatus !== undefined) vendor.onboardingStatus = onboardingStatus;
     if (commissionRate !== undefined) vendor.commissionRate = commissionRate;
 
     await vendor.save();
+
+    // Approve/Reject from the Vendors page tell the applicant too, same as
+    // the Restaurant Verification page does.
+    if (onboardingStatus !== previousOnboardingStatus) {
+      if (onboardingStatus === "approved") sendVendorDecisionEmail(vendor, { kind: "approved" });
+      if (onboardingStatus === "rejected") sendVendorDecisionEmail(vendor, { kind: "rejected" });
+    }
     const updatedVendor = vendor.toObject();
     res.json({
       message: "Vendor updated successfully",
@@ -880,7 +949,13 @@ export async function getVendorPayoutBalance(vendorId: any, commissionRate?: num
     { $group: { _id: null, total: { $sum: "$amount" } } },
   ]);
   const earnedShare = Math.floor((earned?.gross || 0) * (1 - rate / 100));
-  return { earnedShare, paidOut: paid?.total || 0, availableBalance: Math.max(0, earnedShare - (paid?.total || 0)) };
+  return {
+    earnedShare,
+    paidOut: paid?.total || 0,
+    availableBalance: Math.max(0, earnedShare - (paid?.total || 0)),
+    /** The commission % the share was computed with (the partner app shows it). */
+    commissionRate: rate,
+  };
 }
 
 export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
@@ -897,8 +972,8 @@ export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
     }
 
     const payoutAmount = Number(amount);
-    if (isNaN(payoutAmount) || payoutAmount < 100) {
-      return res.status(400).json({ message: "Minimum payout amount is Rs.100" });
+    if (isNaN(payoutAmount) || payoutAmount < MIN_VENDOR_PAYOUT_AMOUNT) {
+      return res.status(400).json({ message: `Minimum payout amount is Rs.${MIN_VENDOR_PAYOUT_AMOUNT}` });
     }
 
     // One payout request at a time per vendor, so two requests can't both pass the balance check.

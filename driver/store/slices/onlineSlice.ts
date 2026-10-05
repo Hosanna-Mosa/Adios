@@ -29,7 +29,20 @@ export const createOnlineSlice = (
         // existed, so dispatch could offer a food order to a ride-only driver
         // whose app would then silently drop it. Sending it here lets the
         // backend skip that driver as a candidate instead of wasting the offer.
-        await patchDriver(token, "status", { status: "ONLINE", activeServices: services });
+        const res = await patchDriver(token, "status", { status: "ONLINE", activeServices: services });
+        // Refused because an admin hasn't approved this driver (yet): stay
+        // offline and don't open the dispatch socket.
+        if (res.status === 403) {
+          const body = await res.json().catch(() => ({}));
+          if (body?.code === "DRIVER_NOT_APPROVED") {
+            set({ isOnline: false, onboardingStatus: body.onboardingStatus ?? get().onboardingStatus });
+            Alert.alert(
+              i18n.t("verification.notApprovedTitle", "Verification pending"),
+              body.message || i18n.t("verification.notApprovedBody", "You can go online once an admin approves your documents."),
+            );
+            return;
+          }
+        }
       } catch (e) {
         console.error("Failed to set online status:", e);
       }

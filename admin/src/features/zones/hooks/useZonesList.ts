@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { AdminZone, LatLng, ZoneEditForm } from "../types";
 
 export const DEFAULT_CENTER: LatLng = { lat: 12.92, lng: 77.64 }; // HSR Layout, Bangalore
@@ -95,9 +96,9 @@ export function useZonesList() {
     },
   });
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(t("zones.confirmDeleteZone"))) {
+    if (await appConfirm({ title: t("zones.confirmDeleteZone"), tone: "destructive" })) {
       deleteZoneMutation.mutate(id);
     }
   };

@@ -4,6 +4,7 @@ import { useOnboardingCtx } from "../../OnboardingContext";
 import { SelfieCaptureSection } from "../SelfieCaptureSection";
 import { AadhaarSection } from "./AadhaarSection";
 import { BankSection } from "./BankSection";
+import { EmailSection } from "./EmailSection";
 import { GenderSection } from "./GenderSection";
 import { HomeAddressSection } from "./HomeAddressSection";
 import { LicenseSection } from "./LicenseSection";
@@ -15,6 +16,7 @@ export function OnboardingSection() {
   const { currentKey, docs } = useOnboardingCtx();
 
   switch (currentKey) {
+    case "email": return <EmailSection />;
     case "gender": return <GenderSection />;
     case "vehicle": return <VehicleSection />;
     case "zone": return <ZoneSection />;

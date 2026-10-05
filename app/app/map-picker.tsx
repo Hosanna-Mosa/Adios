@@ -1,4 +1,4 @@
-import { LIGHT_GREEN_MAP_STYLE } from "@/constants/mapStyle";
+import { LIGHT_WARM_MAP_STYLE } from "@/constants/mapStyle";
 import { MapPickerBottomPanel } from "@/features/delivery/components/MapPickerBottomPanel";
 import { MapPickerMapContainer } from "@/features/delivery/components/MapPickerMapContainer";
 import { ScreenShell } from "@/components/ui/ScreenShell";
@@ -13,7 +13,7 @@ export default function MapPickerScreen() {
   return (
     <ScreenShell>
       <MapPickerMapContainer
-        LIGHT_GREEN_MAP_STYLE={LIGHT_GREEN_MAP_STYLE}
+        LIGHT_WARM_MAP_STYLE={LIGHT_WARM_MAP_STYLE}
         handleRegionChangeComplete={handleRegionChangeComplete}
         handleUseCurrentLocation={handleUseCurrentLocation}
         insets={insets}

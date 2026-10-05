@@ -1,9 +1,28 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { DigiLockerRequest } from "../../middleware/digilocker.middleware";
 import { digilockerModuleService } from "./digilocker.service";
 import { digilockerConfig, renderCallbackPage } from "../../services/digilocker";
-import { DigiLockerPurpose, DigiLockerSessionStatus } from "../../database/models/DigiLockerSession";
+import {
+  DigiLockerPurpose,
+  DigiLockerSessionStatus,
+  DigiLockerSubjectType,
+} from "../../database/models/DigiLockerSession";
 import { UnauthorizedError } from "../../utils/errors";
+
+/**
+ * Sandbox only. In live mode the redirect URI must match DigiLocker's
+ * registration exactly, and the Host header is caller-controlled, so it must
+ * never influence it. Behind a TLS-terminating proxy req.protocol is "http";
+ * an http callback after the https consent page breaks the form's
+ * `form-action 'self'`, so prefer PUBLIC_API_URL / X-Forwarded-Proto.
+ */
+export function getSandboxRequestOrigin(req: Request): string | undefined {
+  if (!digilockerConfig.isSandbox) return undefined;
+  return (
+    process.env.PUBLIC_API_URL ||
+    `${(req.headers["x-forwarded-proto"] as string)?.split(",")[0] || req.protocol}://${req.get("host")}`
+  ).replace(/\/+$/, "");
+}
 
 /**
  * DigiLocker controllers.
@@ -19,16 +38,7 @@ export class DigiLockerController {
       const userId = req.user?.userId;
       if (!userId) throw new UnauthorizedError();
 
-      // Sandbox only. In live mode the redirect URI must match DigiLocker's
-      // registration exactly, and the Host header is caller-controlled, so it
-      // must never influence it. Behind a TLS-terminating proxy req.protocol is
-      // "http"; an http callback after the https consent page breaks the form's
-      // `form-action 'self'`, so prefer PUBLIC_API_URL / X-Forwarded-Proto.
-      const requestOrigin = digilockerConfig.isSandbox
-        ? (process.env.PUBLIC_API_URL ||
-            `${(req.headers["x-forwarded-proto"] as string)?.split(",")[0] || req.protocol}://${req.get("host")}`
-          ).replace(/\/+$/, "")
-        : undefined;
+      const requestOrigin = getSandboxRequestOrigin(req);
 
       const result = await digilockerModuleService.startSession(userId, {
         purpose: (req.body?.purpose as DigiLockerPurpose) || undefined,
@@ -73,6 +83,10 @@ export class DigiLockerController {
    */
   async handleRedirect(req: DigiLockerRequest, res: Response, _next: NextFunction) {
     const session = req.digilockerPendingSession!;
+    // The partner website opens consent in a popup and polls for the result,
+    // so its page closes itself rather than pointing back at an app.
+    const fromWebsite = session.subjectType === DigiLockerSubjectType.VENDOR_ONBOARDING;
+    const returnTo = fromWebsite ? "the partner onboarding form" : "the app";
 
     try {
       const { code, error, error_description: errorDescription } = req.query as Record<string, string>;
@@ -85,11 +99,12 @@ export class DigiLockerController {
 
         return renderCallbackPage(res, {
           deepLink: session.clientRedirectUrl,
+          closeWindow: fromWebsite,
           ok: false,
           title: "DigiLocker verification cancelled",
           detail:
             error === "access_denied"
-              ? "You declined to share your documents. You can try again from the app."
+              ? `You declined to share your documents. You can try again from ${returnTo}.`
               : session.lastError,
         });
       }
@@ -98,17 +113,19 @@ export class DigiLockerController {
 
       return renderCallbackPage(res, {
         deepLink: session.clientRedirectUrl,
+        closeWindow: fromWebsite,
         ok: true,
         title: "DigiLocker verification complete",
-        detail: "You can close this window and return to the app.",
+        detail: `You can close this window and return to ${returnTo}.`,
       });
     } catch (error: any) {
       // A browser landed here, so answer with a page rather than a JSON error.
       return renderCallbackPage(res, {
         deepLink: session?.clientRedirectUrl,
+        closeWindow: fromWebsite,
         ok: false,
         title: "DigiLocker verification failed",
-        detail: error?.message || "Something went wrong. Please try again from the app.",
+        detail: error?.message || `Something went wrong. Please try again from ${returnTo}.`,
       });
     }
   }

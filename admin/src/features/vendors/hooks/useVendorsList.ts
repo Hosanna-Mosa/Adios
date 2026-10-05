@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { Vendor } from "../types";
 
 const ITEMS_PER_PAGE = 8;
@@ -71,8 +72,8 @@ export function useVendorsList() {
     },
   });
 
-  const handleDeleteClick = (vendor: Vendor) => {
-    if (confirm(t("catalog.confirmDeleteVendor", { name: vendor.name, defaultValue: "Are you sure you want to delete {{name}}?" }))) {
+  const handleDeleteClick = async (vendor: Vendor) => {
+    if (await appConfirm({ title: t("catalog.confirmDeleteVendor", { name: vendor.name, defaultValue: "Are you sure you want to delete {{name}}?" }), tone: "destructive" })) {
       deleteVendorMutation.mutate(vendor._id);
     }
   };
