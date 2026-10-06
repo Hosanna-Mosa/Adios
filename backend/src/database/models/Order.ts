@@ -52,6 +52,35 @@ export interface IStop {
   items?: any;
 }
 
+/** How a rider is found. "broadcast" = restaurant food orders (services/foodDispatch.service.ts). */
+export type DispatchMode = "sequential" | "broadcast";
+
+export type FoodDispatchState = "idle" | "searching" | "assigned" | "unassigned";
+
+export type FoodOfferOutcome = "offered" | "accepted" | "declined" | "superseded" | "timeout" | "cancelled";
+
+export interface IFoodOffer {
+  driverUserId: string;
+  driverId: string;
+  distanceMeters: number;
+  offeredAt: Date;
+  outcome: FoodOfferOutcome;
+  respondedAt?: Date;
+  reason?: string;
+}
+
+/** The rider search for a broadcast (food) order. Runs alongside `status`, which stays the order's main track. */
+export interface IFoodDispatch {
+  state: FoodDispatchState;
+  radiusMeters: number;
+  attempts: number;
+  startedAt?: Date;
+  lastAttemptAt?: Date;
+  candidateCount: number;
+  failureReason?: string;
+  offers: IFoodOffer[];
+}
+
 export interface IOrder extends Omit<Document, "_id"> {
   _id: string;
   user: mongoose.Types.ObjectId;
@@ -123,6 +152,19 @@ export interface IOrder extends Omit<Document, "_id"> {
   review?: mongoose.Types.ObjectId;
   declineReasons?: { driverId: string; reason: string }[];
   totalCandidatesCount?: number;
+  // Food (restaurant) orders only. Unset on every other order, which keeps the sequential dispatcher.
+  dispatchMode?: DispatchMode;
+  /** Food orders: the restaurant must accept before this, or the order is cancelled. */
+  restaurantAcceptBy?: Date | null;
+  restaurantAcceptedAt?: Date | null;
+  /**
+   * Who cancelled it: "restaurant_rejected" | "restaurant_timeout" | "driver_cancelled" |
+   * "admin_cancelled" | "customer_cancelled". Null on orders cancelled before this was recorded.
+   */
+  cancelReason?: string | null;
+  prepMinutes?: number | null;
+  foodReadyAt?: Date | null;
+  dispatch?: IFoodDispatch;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -148,6 +190,37 @@ const StopSchema: Schema = new Schema({
   },
   items: { type: Schema.Types.Mixed },
 });
+
+const FoodOfferSchema: Schema = new Schema(
+  {
+    driverUserId: { type: String, required: true },
+    driverId: { type: String, required: true },
+    distanceMeters: { type: Number, default: 0 },
+    offeredAt: { type: Date, required: true },
+    outcome: {
+      type: String,
+      enum: ["offered", "accepted", "declined", "superseded", "timeout", "cancelled"],
+      default: "offered",
+    },
+    respondedAt: { type: Date },
+    reason: { type: String },
+  },
+  { _id: false }
+);
+
+const FoodDispatchSchema: Schema = new Schema(
+  {
+    state: { type: String, enum: ["idle", "searching", "assigned", "unassigned"], default: "idle" },
+    radiusMeters: { type: Number, default: 0 },
+    attempts: { type: Number, default: 0 },
+    startedAt: { type: Date },
+    lastAttemptAt: { type: Date },
+    candidateCount: { type: Number, default: 0 },
+    failureReason: { type: String },
+    offers: { type: [FoodOfferSchema], default: [] },
+  },
+  { _id: false }
+);
 
 const OrderSchema: Schema = new Schema(
   {
@@ -241,10 +314,42 @@ const OrderSchema: Schema = new Schema(
     notified15Min: { type: Boolean, default: false },
     isReviewed: { type: Boolean, default: false },
     review: { type: Schema.Types.ObjectId, ref: "Review" },
+    dispatchMode: { type: String, enum: ["sequential", "broadcast"] },
+    restaurantAcceptBy: { type: Date, default: null },
+    restaurantAcceptedAt: { type: Date, default: null },
+    cancelReason: { type: String, default: null },
+    prepMinutes: { type: Number, default: null },
+    foodReadyAt: { type: Date, default: null },
+    // Left unset (not defaulted) on everything but broadcast orders.
+    dispatch: { type: FoodDispatchSchema, default: undefined },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      // Who was offered a food order, and how far away they were, is the dispatcher's
+      // business — not the customer's or the restaurant's. Every API response goes
+      // through toJSON; the dispatcher works on documents and still sees the list.
+      transform: (_doc: any, ret: any) => {
+        if (ret.dispatch && Array.isArray(ret.dispatch.offers)) {
+          ret.dispatch = { ...ret.dispatch, offerCount: ret.dispatch.offers.length };
+          delete ret.dispatch.offers;
+        }
+        return ret;
+      },
+    },
+  }
 );
 
 OrderSchema.index({ "stops.location": "2dsphere" });
+// An outlet's orders, newest first — the vendor panel and partner app list and page through these.
+OrderSchema.index({ vendor: 1, createdAt: -1 });
+// The food dispatcher's backstop sweep, and a rider's open-offer lookup.
+OrderSchema.index({ "dispatch.state": 1 }, { sparse: true });
+OrderSchema.index({ "dispatch.offers.driverUserId": 1, "dispatch.state": 1 }, { sparse: true });
+// Food orders still waiting for the restaurant — the accept-timeout backstop reads only these.
+OrderSchema.index(
+  { restaurantAcceptBy: 1 },
+  { partialFilterExpression: { dispatchMode: "broadcast", status: "CREATED" } },
+);
 
 export default mongoose.model<IOrder>("Order", OrderSchema);

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { MeatCenter } from "../meatCenterTypes";
 
 /**
@@ -57,8 +58,8 @@ export function useMeatCentersList() {
     },
   });
 
-  const handleDeleteClick = (center: MeatCenter) => {
-    if (confirm(t("catalog.confirmDeleteVendor", { name: center.name, defaultValue: "Are you sure you want to delete {{name}}?" }))) {
+  const handleDeleteClick = async (center: MeatCenter) => {
+    if (await appConfirm({ title: t("catalog.confirmDeleteVendor", { name: center.name, defaultValue: "Are you sure you want to delete {{name}}?" }), tone: "destructive" })) {
       deleteCenterMutation.mutate(center._id);
     }
   };

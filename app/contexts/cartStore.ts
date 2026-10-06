@@ -5,6 +5,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import type { CartItem, CartState, CartSyncNotice } from "@/contexts/cart.types";
 import { cartKey, toWire } from "@/contexts/cart.wire";
 import { createHydrate } from "@/contexts/cart.hydrate";
+import { createRefresh } from "@/contexts/cart.refresh";
 export type { CartItem, CartState, CartStatus, CartSyncNotice, FoodItem, PendingCartConflict } from "@/contexts/cart.types";
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
@@ -163,6 +164,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   hydrate: createHydrate(set, get),
+  refresh: createRefresh(set, get, flushCartSync),
 
   reset: () => {
     if (syncTimer) {
@@ -180,6 +182,16 @@ export const useCartStore = create<CartState>((set, get) => ({
     return get().items.reduce((sum, item) => sum + item.quantity, 0);
   },
 }));
+
+/** Sends an edit still waiting on the debounce, then resolves once every queued write has landed. */
+export function flushCartSync(): Promise<void> {
+  if (syncTimer) {
+    clearTimeout(syncTimer);
+    syncTimer = null;
+    runSync();
+  }
+  return syncChain;
+}
 
 /** Cancels a pending debounced push — used on sign-out and on reset. */
 export function clearSyncTimer() {

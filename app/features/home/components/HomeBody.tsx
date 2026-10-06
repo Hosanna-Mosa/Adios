@@ -83,7 +83,10 @@ export function HomeBody(props: Props) {
             </View>
           )}
 
-          {activeService === "Food" && (
+          {/* With no rider online nothing can be ordered, so the veg toggle,
+              filter chips (incl. the 149 Store filter) and the cuisine strip
+              come down along with the ₹149 rail above. */}
+          {activeService === "Food" && !noRidersNearby && (
             <View style={styles.vegOnlyRow}>
               <View style={styles.vegOnlyLeft}>
                 <View style={styles.vegOnlyIcon}><View style={styles.vegOnlyDot} /></View>
@@ -100,6 +103,7 @@ export function HomeBody(props: Props) {
           )}
 
           {/* Filter chips — quick filters differ per service, "Filter" always opens the full modal */}
+          {!noRidersNearby && (
           <FilterChips
             styles={styles}
             accent={accent}
@@ -122,16 +126,19 @@ export function HomeBody(props: Props) {
             setSelectedCuisines={setSelectedCuisines}
             setFilterCostRange={setFilterCostRange}
           />
+          )}
 
           {/* Browse by cuisine (Food) / meat type (Meat, no eyebrow label in the mockup) */}
-          <CuisineStrip
-            styles={styles}
-            activeService={activeService}
-            cuisineChips={cuisineChips}
-            selectedCuisines={selectedCuisines}
-            setSelectedCuisines={setSelectedCuisines}
-            accent={accent}
-          />
+          {!noRidersNearby && (
+            <CuisineStrip
+              styles={styles}
+              activeService={activeService}
+              cuisineChips={cuisineChips}
+              selectedCuisines={selectedCuisines}
+              setSelectedCuisines={setSelectedCuisines}
+              accent={accent}
+            />
+          )}
 
           {filteredAndSortedItems.length > 0 && (
             <View style={styles.listHeadingBlock}>

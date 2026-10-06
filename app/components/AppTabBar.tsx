@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -81,7 +81,8 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-      {hasActiveOrder && (
+      {/* Orders already shows the live order as a full card, so the stripe would only repeat it. */}
+      {hasActiveOrder && active !== "orders" && (
         <ActiveOrderStripe
           bottom={insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP + (itemCount > 0 ? CART_CARD_HEIGHT + STACK_GAP : 0)}
         />
@@ -91,7 +92,7 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
         <Animated.View
           style={[styles.cartCard, { bottom: insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP }]}
         >
-          <BlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+          <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
           <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
             <View style={styles.cartCountBadge}>
               <Text style={styles.cartCountText}>{itemCount}</Text>
@@ -109,7 +110,7 @@ export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
       )}
 
       <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
-        <BlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+        <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
         <View
           style={styles.tabRow}
           onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}

@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import { calculateBearing, normalizeStatus } from "./useTracking.shared";
+import { foodStageOf, nextDriverLocation, normalizeStatus } from "./useTracking.shared";
 import { getOrder } from "@/services/orders.service";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
 
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
 export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any) {
   const pickupStop = stops?.find((s: any) => s.type?.toLowerCase() === "pickup" || s.type?.toLowerCase() === "store");
+  const setFoodStage = useDeliveryStore((s) => s.setFoodStage);
 
   useEffect(() => {
     if (!currentOrderId) return;
@@ -18,11 +20,12 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.status) {
             const statusStr = String(order.status).toLowerCase();
             if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
-              handleOrderCancelledByDriver();
+              handleOrderCancelledByDriver(order.cancelReason);
               return;
             }
             const normalized = normalizeStatus(order.status);
             setStatus(normalized);
+            setFoodStage(foodStageOf(order));
             if (normalized === "delivered") setDeliveredAt((prev: any) => prev || new Date());
           }
           if (order.driver) {
@@ -43,8 +46,7 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
                   const lat = coords[1];
                   const lng = coords[0];
                   if (!prev || Math.abs(prev.lat - lat) > 0.00001 || Math.abs(prev.lng - lng) > 0.00001) {
-                    const heading = prev && (prev.lat !== lat || prev.lng !== lng) ? calculateBearing(prev.lat, prev.lng, lat, lng) : prev?.heading || 0;
-                    return { lat, lng, heading };
+                    return nextDriverLocation(prev, lat, lng);
                   }
                   return prev;
                 });
@@ -54,6 +56,10 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.vendor && typeof order.vendor === "object") {
             setVendorName(order.vendor.name || null);
             setVendorPartnerType(order.vendor.partnerType || null);
+          } else if (order.outlet) {
+            // GET /orders/:id sends the vendor as a bare id, with its name in `outlet`.
+            setVendorName(order.outlet.name || null);
+            setVendorPartnerType(order.outlet.partnerType || null);
           }
           if (order.stops?.length > 0) {
             setStops(

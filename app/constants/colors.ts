@@ -86,7 +86,7 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
       // a separate product. Meat is the one service that still recolours the UI.
       ride: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
       task: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
-      delivery: { accent: "#5B8A1E", skin: "#EFF5E1", on: "#FFFFFF" },
+      delivery: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
     },
   },
   dark: {
@@ -116,7 +116,7 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
       meat: { accent: "#F589AC", skin: "#331522", on: "#131118" },
       ride: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
       task: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
-      delivery: { accent: "#A6D65C", skin: "#232B10", on: "#131118" },
+      delivery: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
     },
   },
 };

@@ -43,6 +43,8 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // Use appAlert / appConfirm from "@/lib/dialog", never the browser's popups.
+      "no-alert": "error",
     },
   },
   // --- Refactor scaffolding added in Phase 1, locked to error in Phase 4

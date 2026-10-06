@@ -57,7 +57,7 @@
     "enter10DigitNumber": "Enter 10-digit number",
     "password": "Password",
     "enterYourPassword": "Enter your password",
-    "createAPassword6Chars": "Create a password (6+ chars)",
+    "createAPassword6Chars": "Create a password (8+ chars)",
     "confirmPassword": "Confirm Password",
     "reEnterYourPassword": "Re-enter your password",
     "signingIn": "Signing in...",
@@ -85,7 +85,7 @@
     "pleaseEnterYourFullName": "Please enter your full name",
     "pleaseCreateAPassword": "Please create a password",
     "weakPassword": "Weak Password",
-    "passwordMustBeAtLeast6Characters": "Password must be at least 6 characters",
+    "passwordMustBeAtLeast6Characters": "Password must be at least 8 characters",
     "passwordsDontMatch": "Passwords Don't Match",
     "pleaseMakeSureBothPasswordsMatch": "Please make sure both passwords match",
     "failedToSendOtp": "Failed to send OTP",
@@ -507,7 +507,18 @@
     "noPhoneNumber": "No phone number",
     "customerPhoneNotAvailable": "The customer's phone number isn't available for this order.",
     "chatEmptyState": "Messages with {{value}} will show up here.",
-    "theCustomer": "the customer"
+    "theCustomer": "the customer",
+    "offerGoneTitle": "Order not available",
+    "offerGoneMessage": "This order is no longer available.",
+    "offerTakenMessage": "Another driver accepted this order first.",
+    "offerAcceptFailedTitle": "Couldn't accept",
+    "offerAcceptFailedMessage": "Check your connection and try again.",
+    "foodReadyIn": "Food ready in {{value}} min",
+    "foodReadyNow": "Food is ready now",
+    "youAreMinAway": "you are {{value}} min away",
+    "firstToAcceptGetsIt": "Sent to nearby drivers — the first to accept gets it",
+    "restaurantNotReadyYet": "Waiting for the restaurant to mark this order ready. You can enter the pickup code once they do.",
+    "completeDelivery": "Complete Delivery"
   },
   "onboarding": {
     "sections": {
@@ -549,9 +560,18 @@
       "pan": "PAN details collected for records (Aadhaar was used for identity verification)."
     },
     "vehicles": {
-      "bike": { "label": "Bike", "desc": "Fast & fuel-efficient for deliveries" },
-      "auto": { "label": "Auto", "desc": "Spacious for larger orders" },
-      "car": { "label": "Car", "desc": "Premium deliveries & longer distances" }
+      "bike": {
+        "label": "Bike",
+        "desc": "Fast & fuel-efficient for deliveries"
+      },
+      "auto": {
+        "label": "Auto",
+        "desc": "Spacious for larger orders"
+      },
+      "car": {
+        "label": "Car",
+        "desc": "Premium deliveries & longer distances"
+      }
     },
     "aadhaarNumber": "Aadhaar Number",
     "aadhaarDetailsCollectedForRecords": "Aadhaar details collected for records. PAN was used for identity verification.",

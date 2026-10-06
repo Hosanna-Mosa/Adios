@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
 import { socketService } from "@/lib/socketService";
 import { playNewOrderChime } from "@/lib/notificationSound";
-import type { ScheduledDeliveryRequest, StatusDisplay, VendorData, VendorOrder } from "../vendorDashboardTypes";
+import { needsAcceptance, type ScheduledDeliveryRequest, type StatusDisplay, type VendorData, type VendorOrder } from "../vendorDashboardTypes";
 
 /** All state/query/socket logic for VendorDashboard.tsx (work queue item #7). */
 export function useVendorDashboard() {
@@ -64,13 +64,15 @@ export function useVendorDashboard() {
     socketService.join(vendorData._id, "VENDOR");
 
     // Listen for order status updates
-    const handleStatusUpdate = (data: { orderId: string; status: string }) => {
+    const handleStatusUpdate = (data: { orderId: string; status: string; reason?: string }) => {
       console.log("[SOCKET] Order status updated:", data);
       queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
 
       // If the currently open modal's order is updated, we fetch it or update local state
       if (selectedOrder && selectedOrder._id === data.orderId) {
-        setSelectedOrder((prev) => (prev ? { ...prev, status: data.status } : null));
+        setSelectedOrder((prev) =>
+          prev ? { ...prev, status: data.status, ...(data.reason ? { cancelReason: data.reason } : {}) } : null,
+        );
       }
     };
 
@@ -117,6 +119,31 @@ export function useVendorDashboard() {
     updateStatusMutation.mutate({ orderId, status: "picking_items" });
   };
 
+  // A food order: accepting with a prep time is what starts the driver search.
+  const acceptMutation = useMutation({
+    mutationFn: ({ orderId, prepMinutes }: { orderId: string; prepMinutes: number }) =>
+      adminFetch<VendorOrder>(`/orders/${orderId}/restaurant-accept`, {
+        method: "POST",
+        body: JSON.stringify({ prepMinutes }),
+      }),
+    onSuccess: (updatedOrder) => {
+      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
+      toast.success(t("vendorDashboard.orderAcceptedFindingDriver"));
+      setSelectedOrder(updatedOrder);
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || t("vendorDashboard.failedToAcceptOrder"));
+    },
+  });
+
+  const acceptOrder = (orderId: string, prepMinutes: number) => {
+    acceptMutation.mutate({ orderId, prepMinutes });
+  };
+
+  const rejectOrder = (orderId: string) => {
+    updateStatusMutation.mutate({ orderId, status: "CANCELLED" });
+  };
+
   const totalRevenue = orders?.reduce((acc, order) => acc + (order.totalPrice || 0), 0) || 0;
 
   // Helper to extract items list from stops
@@ -125,9 +152,21 @@ export function useVendorDashboard() {
     return dropStop?.items?.lines || [];
   };
 
-  // Helper to get formatted status text & colors
-  const getStatusDisplay = (status: string): StatusDisplay => {
+  // Helper to get formatted status text & colors. Pass the order to show the
+  // food-order states (new / preparing / ready) the status alone can't.
+  const getStatusDisplay = (status: string, order?: VendorOrder): StatusDisplay => {
     const s = status ? status.toLowerCase() : "";
+    if (order && needsAcceptance(order)) {
+      return { text: t("orderStatus.newOrder"), color: "bg-orange-500/10 text-orange-600 border-orange-200" };
+    }
+    if (s === "cancelled" && order?.cancelReason === "restaurant_timeout") {
+      return { text: t("orderStatus.cancelledNotAccepted"), color: "bg-red-500/10 text-red-600 border-red-200" };
+    }
+    if (order?.dispatchMode === "broadcast" && s === "searching_driver") {
+      return order.foodReadyAt
+        ? { text: t("orderStatus.readyFindingDriver"), color: "bg-pink-500/10 text-pink-600 border-pink-200" }
+        : { text: t("orderStatus.preparingFindingDriver"), color: "bg-blue-500/10 text-blue-600 border-blue-200" };
+    }
     switch (s) {
       case "created":
       case "searching_driver":
@@ -169,6 +208,9 @@ export function useVendorDashboard() {
     respondToScheduledDelivery,
     isResponding: respondMutation.isPending,
     markAsReady,
+    acceptOrder,
+    rejectOrder,
+    isAccepting: acceptMutation.isPending,
     isUpdatingStatus: updateStatusMutation.isPending,
     getOrderItems,
     getStatusDisplay,

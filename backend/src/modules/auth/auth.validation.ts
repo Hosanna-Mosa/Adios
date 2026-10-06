@@ -5,6 +5,8 @@ import { OTP_ROLE_NOT_ALLOWED_MESSAGE } from "../../config/auth.config";
 export const requestOtpSchema = z.object({
   body: z.object({
     phone: z.string().min(10, "Phone number must be at least 10 digits").max(15, "Phone number must be at most 15 digits"),
+    // Sign-up sends it so a taken address is reported before the OTP step.
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address").optional(),
   }),
 });
 

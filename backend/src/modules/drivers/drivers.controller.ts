@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { DriverService } from "./drivers.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
-import Driver from "../../database/models/Driver";
+import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
 import User from "../../database/models/User";
 
 const driverService = new DriverService();
@@ -15,6 +15,15 @@ export class DriversController {
       const driver = await Driver.findOne({ user: userId });
 
       if (!driver) return res.status(404).json({ message: "Driver profile not found" });
+
+      // Only drivers an admin has approved may take jobs.
+      if (status === DriverStatus.ONLINE && driver.onboardingStatus !== OnboardingStatus.COMPLETED) {
+        return res.status(403).json({
+          code: "DRIVER_NOT_APPROVED",
+          onboardingStatus: driver.onboardingStatus,
+          message: "Your documents are still being verified. You can go online once an admin approves your account.",
+        });
+      }
 
       await driverService.updateStatus((driver._id as any).toString(), status, activeServices);
       return res.json({ message: "Status updated", status });

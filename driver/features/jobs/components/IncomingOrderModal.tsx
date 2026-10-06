@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,7 +10,7 @@ import { paymentFields } from "@/store/orderMapper";
 import { Button } from "@/components/ui/Button";
 import { styles } from "./IncomingOrderModal.styles";
 import { DeclineReasonList } from "./DeclineReasonList";
-import { OfferCountdown, OfferHeader } from "./OfferHeader";
+import { OfferCountdown, OfferHeader, OfferReadyInfo } from "./OfferHeader";
 import {
   OfferItems,
   OfferMetrics,
@@ -35,6 +35,7 @@ export default function IncomingOrderModal() {
   const insets = useSafeAreaInsets();
   const { incomingOrder, acceptOrder, rejectOrder } = useDriverStore();
   const {
+    isBroadcast,
     secondsLeft,
     showDeclineReasons,
     setShowDeclineReasons,
@@ -53,7 +54,7 @@ export default function IncomingOrderModal() {
   return (
     <ModalBox visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
       <Box style={styles.overlay}>
-        <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
+        <SafeBlurView intensity={40} tint="dark" style={StyleSheet.absoluteFillObject} />
         <AnimatedBox
           style={[
             styles.sheet,
@@ -73,7 +74,11 @@ export default function IncomingOrderModal() {
             isHelper={isHelper}
           />
 
-          <OfferCountdown secondsLeft={secondsLeft} barStyle={timerBarAnimatedStyle} />
+          {isBroadcast ? (
+            <OfferReadyInfo readyAt={incomingOrder.readyAt} etaMinutes={incomingOrder.etaMinutes} />
+          ) : (
+            <OfferCountdown secondsLeft={secondsLeft} barStyle={timerBarAnimatedStyle} />
+          )}
 
           {showDeclineReasons ? (
             <DeclineReasonList
@@ -129,7 +134,8 @@ export default function IncomingOrderModal() {
                 onPress={async () => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   const isReserved = incomingOrder.isReserved;
-                  await acceptOrder();
+                  const accepted = await acceptOrder();
+                  if (!accepted) return; // a food offer someone else took first
                   if (!isReserved) {
                     if (isHelper) {
                       router.push({ pathname: "/chat", params: { orderId: incomingOrder.id } });

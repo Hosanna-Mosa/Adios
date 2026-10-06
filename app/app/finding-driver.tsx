@@ -12,7 +12,7 @@ export default function FindingDriverScreen() {
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
-  CANCEL_REASONS
+  CANCEL_REASONS, foodStage, isRide
   } = useFindingDriver();
 
   if (bookingConfirmed && confirmedDriver) {
@@ -29,7 +29,7 @@ export default function FindingDriverScreen() {
 
   return (
     <View style={styles.root}>
-      <MapBackground stops={stops} driverMarkers={onlineDrivers} style={StyleSheet.absoluteFill} />
+      <MapBackground stops={stops} driverMarkers={onlineDrivers} outletOrder={!!orderSummary.hasOutlet} rideOrder={isRide} style={StyleSheet.absoluteFill} />
 
       <FindingDriverBackButton
         insets={insets}
@@ -40,6 +40,8 @@ export default function FindingDriverScreen() {
 
       <FindingDriverSheet
         dropStop={dropStop}
+        foodStage={foodStage}
+        isRide={isRide}
         orderSummary={orderSummary}
         pickupStop={pickupStop}
         setShowCancelSheet={setShowCancelSheet}

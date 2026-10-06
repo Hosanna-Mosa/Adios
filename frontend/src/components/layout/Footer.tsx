@@ -20,7 +20,7 @@ function MarketingFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 text-left">
             <h2 className="text-[28px] font-black text-white mb-6 tracking-tight font-display">
-              Flavor
+              Adios
             </h2>
             <p className="text-neutral-400 text-sm leading-relaxed mb-6 font-body">
               {t("footer.tagline")}
@@ -189,7 +189,7 @@ function MinimalFooter() {
             to="/"
             className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter"
           >
-            HYBRID
+            ADIOS
           </Link>
           <div className="flex gap-6 text-sm text-white/60">
             <a href="#" className="hover:text-white transition-colors">

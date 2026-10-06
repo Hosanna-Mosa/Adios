@@ -36,9 +36,11 @@ export function RideArrivedPickupStage() {
   );
 }
 
+// Ends without the rider's OTP (removed like food deliveries); the trip still
+// starts with the start-ride OTP above.
 export function RideArrivedDeliveryStage() {
   const { t } = useTranslation();
-  const { verification, handleStatusTransition } = useActiveOrderCtx();
+  const { handleStatusTransition } = useActiveOrderCtx();
 
   return (
     <OrderStage title={t("jobs.confirmRideCompletion")}>
@@ -48,20 +50,6 @@ export function RideArrivedDeliveryStage() {
       />
 
       <CashCollectionPanel />
-
-      <OtpEntry
-        label={t("jobs.enterEndRideOtp")}
-        placeholder={t("jobs.enter4DigitOtp")}
-        maxLength={4}
-        value={verification.customerOTP}
-        onChangeText={(val) => {
-          verification.setCustomerOTP(val);
-          verification.setCustomerOTPError(false);
-        }}
-        hasError={verification.customerOTPError}
-        errorText={t("jobs.invalidOtpAskRiderForEndRideOtp")}
-        style={OTP_SPACING}
-      />
 
       <StageActionButton label={t("jobs.endTripAndCompleteRide")} onPress={handleStatusTransition} />
     </OrderStage>

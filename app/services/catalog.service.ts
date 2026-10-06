@@ -25,6 +25,19 @@ export const getNearbyMeatCentres = <T = Vendor[]>(
 /** `id` may arrive straight from a route param, which is string | string[]. */
 export const getVendor = <T = Vendor>(id: string | string[]) => customFetch<T>(`/vendors/${id}`);
 
+/** Whether a restaurant or meat centre is taking orders right now (see backend utils/outletOrderingState.ts). */
+export interface OutletOrderingState {
+  name: string;
+  /** The partner turned "Accepting orders" off, or the outlet was closed by the Adios team. */
+  manuallyClosed: boolean;
+  isOpen: boolean;
+  label: string;
+  opensAt: string | null;
+}
+
+export const getOutletOrderingState = (id: string) =>
+  customFetch<OutletOrderingState>(`/vendors/${id}/ordering-state`);
+
 export const getVendorMenu = (vendorId: string) =>
   customFetch<MenuItem[]>(`/food/vendor/${vendorId}`);
 

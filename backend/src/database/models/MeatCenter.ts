@@ -21,6 +21,8 @@ export interface IMeatCenter extends Document {
   isManuallyClosed: boolean;
   deliveryFee: number;
   minOrderValue: number;
+  /** Expo push tokens of every device signed in to the partner app. */
+  expoPushTokens?: string[];
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -63,6 +65,7 @@ const MeatCenterSchema: Schema = new Schema(
     isManuallyClosed: { type: Boolean, default: false },
     deliveryFee: { type: Number, default: 0 },
     minOrderValue: { type: Number, default: 0 },
+    expoPushTokens: { type: [String], default: [] },
   },
   { timestamps: true }
 );

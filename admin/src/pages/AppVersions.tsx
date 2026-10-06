@@ -28,7 +28,7 @@ export default function AppVersions() {
               title={t("system.appleIosApplication")}
               subtitle={t("system.manageIosBuildsDesc")}
               storeLabel={t("system.appStoreUrl")}
-              storePlaceholder="https://apps.apple.com/app/flavour/..."
+              storePlaceholder="https://apps.apple.com/app/adios/..."
               config={ios}
               onChange={setIos}
               onSave={() => handleSave("ios")}

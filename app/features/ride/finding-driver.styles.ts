@@ -47,9 +47,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     routeAddr: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
     routeMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
 
-    searchingChip: { backgroundColor: accent.skin, borderRadius: 12, padding: 12, marginBottom: 14, alignSelf: "flex-start" },
-    searchingLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
-    searchingValue: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginTop: 4 },
 
     cancelBtn: { borderWidth: 1, borderColor: tokens.error, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     cancelBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.error },

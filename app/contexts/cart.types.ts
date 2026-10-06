@@ -58,6 +58,8 @@ export interface CartState {
   /** Swaps the whole cart in one write — used by reorder so a burst is a single sync. */
   replaceCart: (vendorId: string | null, items: CartItem[], vendorName?: string) => void;
   hydrate: (userId: string) => Promise<void>;
+  /** Re-checks the cart against the outlet's live menu (deleted / sold-out / repriced dishes). */
+  refresh: () => Promise<void>;
   reset: () => void;
   getTotalPrice: () => number;
   getItemCount: () => number;

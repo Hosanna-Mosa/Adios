@@ -73,8 +73,8 @@ export class AuthController {
   }
   async requestOTP(req: Request, res: Response, next: NextFunction) {
     try {
-      const { phone } = req.body;
-      const result = await authService.requestOTP(phone);
+      const { phone, email } = req.body;
+      const result = await authService.requestOTP(phone, email);
       return res.json(result);
     } catch (error: any) {
       next(error);

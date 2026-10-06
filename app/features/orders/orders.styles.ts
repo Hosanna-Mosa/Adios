@@ -3,15 +3,15 @@ import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 
-// Styles for app/(tabs)/orders.tsx. Moved out of the screen unchanged -- every value
-// is exactly as it was, so nothing renders differently. Lives here rather
-// than beside the screen because app/ is Expo Router's routing directory
-// and a non-route file in there is treated as a route.
+// Styles for app/(tabs)/orders.tsx (My orders). Lives here rather than beside
+// the screen because app/ is Expo Router's routing directory and a non-route
+// file in there is treated as a route.
 
 export const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingBottom: 10 },
     headline: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
+    headerSub: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 2 },
     filterBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
@@ -19,38 +19,49 @@ export const createStyles = (tokens: ThemeTokens) =>
 
     chipsRow: { paddingHorizontal: 16, gap: 8 },
     chip: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9, minHeight: 40 },
-    chipActive: { backgroundColor: tokens.text, borderColor: tokens.text },
+    chipActive: { backgroundColor: tokens.brand, borderColor: tokens.brand },
     chipText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
-    chipTextActive: { color: tokens.bg },
+    chipTextActive: { color: tokens.onBrand },
 
     section: { paddingHorizontal: 16, paddingTop: 22 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
 
-    card: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 14 },
-    cardEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase" },
-    cardTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text, marginTop: 6 },
-    cardMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 4 },
-    cardMetaRight: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec },
+    // Shared by every row/card: the service icon square.
+    iconTile: { width: moderateScale(44), height: moderateScale(44), borderRadius: moderateScale(14), alignItems: "center", justifyContent: "center" },
+    thumbImage: { width: "100%", height: "100%" },
+    titleWrap: { flex: 1, minWidth: 0 },
 
-    liveRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-    liveDot: { width: 8, height: 8, marginLeft: "auto", marginRight: 0 },
-    liveDotCore: { width: 8, height: 8, borderRadius: 4 },
-    liveLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small },
-    cancelledBadge: { backgroundColor: tokens.errorSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
-    cancelledBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.error },
-    schedulePill: { marginLeft: "auto", backgroundColor: tokens.warningSkin, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
-    schedulePillText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.5, textTransform: "uppercase", color: tokens.warning },
+    // Active order card (Track order).
+    activeCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 20, padding: 16, marginBottom: 12 },
+    activeTop: { flexDirection: "row", alignItems: "center", gap: 12 },
+    activeTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, color: tokens.text },
+    activeSub: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 2 },
+    activePrice: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, color: tokens.text, alignSelf: "flex-start" },
+    liveBox: { marginTop: 14, borderRadius: 16, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 12 },
+    liveCaption: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium },
+    activeFoot: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 14 },
+    footLabel: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.muted },
+    footAddress: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.text },
+    trackPill: { flexDirection: "row", alignItems: "center", gap: 6, borderRadius: 999, paddingHorizontal: 16, minHeight: moderateScale(44) },
+    trackPillText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
+
+    // Past / scheduled rows, grouped in one card.
+    listCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 20, overflow: "hidden" },
+    row: { flexDirection: "row", alignItems: "flex-start", gap: 12, padding: 14 },
+    rowDivider: { height: 1, backgroundColor: tokens.border, marginLeft: 14 + moderateScale(44) + 12 },
+    rowTitleLine: { flexDirection: "row", alignItems: "center", gap: 8 },
+    rowTitle: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.text },
+    rowMeta: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.sec, marginTop: 3 },
+    rowChevron: { alignSelf: "center" },
+    statusTag: { borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
+    statusTagText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small },
+    rowActions: { flexDirection: "row", alignItems: "center", gap: 18, marginTop: 10 },
+    rowAction: { flexDirection: "row", alignItems: "center", gap: 5, minHeight: 28 },
+    rowActionText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
+
     refundRow: { flexDirection: "row", alignItems: "flex-start", gap: 6, marginTop: 8 },
     refundText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small },
     rejectionReason: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.error, marginTop: 6 },
-
-    actionRow: { flexDirection: "row", gap: 8, marginTop: 12 },
-    actionBtnFilled: { flex: 1, borderWidth: 1, borderRadius: 10, minHeight: 40, alignItems: "center", justifyContent: "center" },
-    actionBtnFilledText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium },
-    actionBtnOutline: { flex: 1, borderWidth: 1, borderColor: tokens.borderStrong, backgroundColor: tokens.surface, borderRadius: 10, minHeight: 40, alignItems: "center", justifyContent: "center" },
-    actionBtnOutlineText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
-    trackBtn: { marginTop: 12, borderRadius: 12, minHeight: 44, alignItems: "center", justifyContent: "center" },
-    trackBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 
     skeletonCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 14 },
     skeletonBar: { backgroundColor: tokens.sunken, borderRadius: 6 },

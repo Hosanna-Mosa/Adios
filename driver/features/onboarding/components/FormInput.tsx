@@ -23,7 +23,7 @@ export function FormInput({
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
-  keyboardType?: "default" | "number-pad" | "phone-pad";
+  keyboardType?: "default" | "number-pad" | "phone-pad" | "email-address";
   maxLength?: number;
   icon?: keyof typeof Feather.glyphMap;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";

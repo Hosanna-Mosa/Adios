@@ -6,14 +6,14 @@ import { PrimaryButton } from "./PrimaryButton";
 import { Box } from "@/components/ui/Box";
 
 /** Sections that save, then advance one section within the same step. */
-const SAVE_THEN_NEXT = ["gender", "vehicle", "zone", "aadhaar", "pan", "license", "bank"];
+const SAVE_THEN_NEXT = ["email", "gender", "vehicle", "zone", "aadhaar", "pan", "license", "bank"];
 
 export function OnboardingBottomButton() {
   const { t } = useTranslation();
   const {
     currentKey, nextSection, saving, docs,
     canProceedSection, saveCurrentSectionData, handleCompleteOnboarding,
-    goToNextSection, goToNextStep,
+    goToNextSection, goToNextStep, isReupload, isLastSection,
   } = useOnboardingCtx();
 
   const nextLabel = nextSection?.label ? `${t("onboarding.next")} — ${nextSection.label}` : t("actions.continue");
@@ -22,8 +22,23 @@ export function OnboardingBottomButton() {
   if (currentKey === "selfie" && docs.selfieCaptured) {
     return (
       <PrimaryButton
-        title={t("onboarding.completeAndActivate")}
+        title={isReupload ? t("verification.submitForReview", "Submit for review") : t("onboarding.completeAndActivate")}
         onPress={handleCompleteOnboarding}
+        icon="check"
+        loading={saving}
+      />
+    );
+  }
+
+  // Re-upload screen: the last requested document saves and resubmits.
+  if (isReupload && isLastSection && currentKey !== "selfie" && ready) {
+    return (
+      <PrimaryButton
+        title={t("verification.submitForReview", "Submit for review")}
+        onPress={async () => {
+          if (!(await saveCurrentSectionData())) return;
+          await handleCompleteOnboarding();
+        }}
         icon="check"
         loading={saving}
       />
@@ -36,7 +51,7 @@ export function OnboardingBottomButton() {
       <PrimaryButton
         title={t("onboarding.saveAndContinue")}
         onPress={async () => {
-          await saveCurrentSectionData();
+          if (!(await saveCurrentSectionData())) return;
           goToNextStep();
         }}
         icon="arrow-right"
@@ -51,7 +66,7 @@ export function OnboardingBottomButton() {
       <PrimaryButton
         title={saveAndContinue ? t("onboarding.saveAndContinue") : nextLabel}
         onPress={async () => {
-          await saveCurrentSectionData();
+          if (!(await saveCurrentSectionData())) return;
           goToNextSection();
         }}
         icon="arrow-right"

@@ -38,7 +38,7 @@ export function DeliveryCheckoutFooter({
     <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
       {isOnline && (
         <View style={styles.trustRow}>
-          <Ionicons name="lock-closed" size={13} color={tokens.success} />
+          <Ionicons name="lock-closed" size={13} color={accent.accent} />
           <Text style={styles.trustText}>{t("app.delivery.encryptedAndSecureTransactionRazorpay")}</Text>
         </View>
       )}

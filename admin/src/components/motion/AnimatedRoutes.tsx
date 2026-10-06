@@ -34,6 +34,8 @@ const Coupons = lazy(() => import("@/pages/Coupons"));
 const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
+const DriverVerification = lazy(() => import("@/pages/DriverVerification"));
+const RestaurantVerification = lazy(() => import("@/pages/RestaurantVerification"));
 
 const VendorDashboard = lazy(() => import("@/pages/VendorDashboard"));
 const VendorScheduledOrders = lazy(() => import("@/pages/VendorScheduledOrders"));
@@ -70,6 +72,8 @@ export function AnimatedRoutes() {
         <Route path="/live-orders/:id" element={<RequireAdmin><OrderDetail /></RequireAdmin>} />
         <Route path="/scheduled-orders" element={<RequireAdmin><ScheduledOrders /></RequireAdmin>} />
         <Route path="/drivers" element={<RequireAdmin><Drivers /></RequireAdmin>} />
+        <Route path="/driver-verification" element={<RequireAdmin><DriverVerification /></RequireAdmin>} />
+        <Route path="/restaurant-verification" element={<RequireAdmin><RestaurantVerification /></RequireAdmin>} />
         <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />
         <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
         <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />

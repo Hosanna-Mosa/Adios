@@ -3,12 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /** AsyncStorage mirror of `selectedAddress`, kept for the screens that still read the raw key. */
 import type {
-  ChatMessage, DeliveryItem, DeliveryState, DeliveryStop, OrderStatus,
+  ChatMessage, DeliveryItem, DeliveryState, DeliveryStop, FoodStage, OrderStatus,
   PriceBreakdown, RouteInfo, SelectedDeliveryAddress,
 } from "@/contexts/delivery.types";
 
 export type {
-  ChatMessage, DeliveryItem, DeliveryState, DeliveryStop, OrderStatus,
+  ChatMessage, DeliveryItem, DeliveryState, DeliveryStop, FoodStage, OrderStatus,
   PriceBreakdown, RouteInfo, SelectedDeliveryAddress,
 } from "@/contexts/delivery.types";
 
@@ -29,6 +29,8 @@ const initialState = {
   route: null,
   price: null,
   status: "pending" as OrderStatus,
+  foodStage: null as FoodStage,
+  cancelReason: null as string | null,
   scheduling: "asap" as const,
   loadType: "mixed" as const,
   paymentMethod: "**** 4342",
@@ -74,7 +76,7 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
     set((state) =>
       state.currentOrderId === currentOrderId
         ? { currentOrderId }
-        : { currentOrderId, activeChat: [], unreadCount: 0 }
+        : { currentOrderId, activeChat: [], unreadCount: 0, foodStage: null, cancelReason: null }
     ),
   setServiceType: (serviceType) => set({ serviceType }),
   setDriver: (driver) => set({ driver }),
@@ -162,6 +164,8 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
   },
 
   setStatus: (status) => set({ status }),
+  setFoodStage: (foodStage) => set({ foodStage }),
+  setCancelReason: (cancelReason) => set({ cancelReason }),
   setRoute: (route) => set({ route }),
   setStops: (stops) => set({ stops }),
   resetDelivery: () => set(initialState),
@@ -191,6 +195,7 @@ export const useActiveOrder = () => {
   const status = useDeliveryStore((s) => s.status);
   const serviceType = useDeliveryStore((s) => s.serviceType);
   const driver = useDeliveryStore((s) => s.driver);
+  const foodStage = useDeliveryStore((s) => s.foodStage);
   const isActive = !!orderId && !TERMINAL_ORDER_STATUSES.includes(status);
-  return { isActive, orderId, serviceType, status, driver };
+  return { isActive, orderId, serviceType, status, driver, foodStage };
 };

@@ -30,12 +30,8 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     width: moderateScale(44), height: moderateScale(44), borderRadius: moderateScale(22),
     backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
   },
-  notificationBadge: {
-    position: "absolute", top: -2, right: -2, minWidth: moderateScale(16), height: moderateScale(16),
-    borderRadius: moderateScale(8), backgroundColor: tokens.error, alignItems: "center", justifyContent: "center",
-    paddingHorizontal: 3, borderWidth: 1.5, borderColor: tokens.bg,
-  },
-  notificationBadgeText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: "#fff" },
+  // Position only — the pill itself is components/ui/CountBadge.
+  notificationBadge: { position: "absolute", top: -moderateScale(6), right: -moderateScale(8) },
 
   headline: {
     fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,

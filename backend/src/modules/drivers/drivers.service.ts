@@ -572,6 +572,8 @@ export class DriverService {
             currentLocation: driver.currentLocation || null,
             onboardingStatus: driver.onboardingStatus,
             onboardingCompletedAt: driver.onboardingCompletedAt || null,
+            submittedForReviewAt: driver.submittedForReviewAt || null,
+            verificationReview: driver.verificationReview || null,
             gender: driver.gender || null,
             vehicleType: driver.vehicleType || null,
             aadhaarNumber: this.maskValue(driver.aadhaarNumber, 4),

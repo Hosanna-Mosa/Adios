@@ -10,6 +10,7 @@ type Actions = Pick<
   DriverState,
   | "setAuthenticated"
   | "setOnboardingCompleted"
+  | "setOnboardingStatus"
   | "setIdentityVerified"
   | "resetOnboarding"
   | "refreshSession"
@@ -30,6 +31,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
   },
 
   setOnboardingCompleted: () => set({ hasCompletedOnboarding: true }),
+  setOnboardingStatus: (status) =>
+    set({ onboardingStatus: status, hasCompletedOnboarding: status === "completed" }),
   setIdentityVerified: (verified) => set({ identityVerified: verified }),
   resetOnboarding: () => set({ hasCompletedOnboarding: false, isOnline: false }),
 
@@ -69,8 +72,11 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
         set({
           driverName: result.account?.name || "",
           driverPhone: result.account?.phone || "",
+          driverEmail: result.account?.email || "",
           driverUserId: result.account?.id || null,
           hasCompletedOnboarding: result.driver?.onboardingStatus === "completed",
+          onboardingStatus: result.driver?.onboardingStatus ?? null,
+          verificationReview: result.driver?.verificationReview ?? null,
           identityVerified: result.verification?.identity ?? false,
         });
 
@@ -116,8 +122,11 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
     set({
       isAuthenticated: false,
       hasCompletedOnboarding: false,
+      onboardingStatus: null,
+      verificationReview: null,
       driverName: "",
       driverPhone: "",
+      driverEmail: "",
       driverUserId: null,
       token: null,
       isOnline: false,

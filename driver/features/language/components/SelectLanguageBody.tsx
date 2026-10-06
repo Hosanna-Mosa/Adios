@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors, radius } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
@@ -45,7 +45,7 @@ export function SelectLanguageBody({ onSelect, selectedLanguage, onContinue }: P
               onPress={() => onSelect(option.code)}
               style={[styles.card, { borderColor: isSelected ? Colors.success : Colors.border }]}
             >
-              <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFillObject} />
+              <SafeBlurView intensity={60} tint="light" style={StyleSheet.absoluteFillObject} pointerEvents="none" />
               <Text style={styles.cardLabel}>{option.nativeLabel}</Text>
               {isSelected && <Ionicons name="checkmark-circle" size={22} color={Colors.success} />}
             </Pressable>
@@ -56,13 +56,15 @@ export function SelectLanguageBody({ onSelect, selectedLanguage, onContinue }: P
         <Pressable
           onPress={canContinue ? onContinue : undefined}
           disabled={!canContinue}
-          style={[
+          accessibilityRole="button"
+          hitSlop={8}
+          style={({ pressed }) => [
             styles.card,
             styles.continueCard,
-            { borderColor: canContinue ? Colors.success : Colors.border, opacity: canContinue ? 1 : 0.5 },
+            { borderColor: canContinue ? Colors.success : Colors.border, opacity: !canContinue ? 0.5 : pressed ? 0.7 : 1 },
           ]}
         >
-          <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFillObject} />
+          <SafeBlurView intensity={60} tint="light" style={StyleSheet.absoluteFillObject} pointerEvents="none" />
           <Text style={[styles.cardLabel, { fontFamily: fontFamilies.body.bold }]}>{t("actions.continue")}</Text>
           {canContinue && <Ionicons name="checkmark-circle" size={22} color={Colors.success} />}
         </Pressable>

@@ -50,6 +50,7 @@ export const SOCKET_ORIGIN = API_URL.split("/api")[0] || API_URL;
 if (__DEV__ && !configured) {
   console.warn(
     "[api] EXPO_PUBLIC_API_URL is not set — falling back to " + API_URL +
-      ". Create driver/.env from .env.example and restart with `expo start --clear`.",
+      ". Create driver/.env from .env.example and restart with `expo start --clear`. " +
+      "Only EXPO_PUBLIC_* names are read — VITE_API_BASE_URL is ignored by Expo.",
   );
 }

@@ -24,30 +24,6 @@ export function FileUploader({
   // empty id and collide with other FileUploader instances on the page.
   const fileInputId = `file-${useId()}`;
 
-  const handleUseDummy = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const ext = accept.includes(".csv") ? "csv" : "png";
-    const slug = label.toLowerCase().replace(/[^a-z0-9]/g, "_");
-    const dummyName = `${slug || "upload"}_dummy.${ext}`;
-    const fileContent =
-      ext === "csv"
-        ? [
-            "category",
-            "itemName",
-            "price",
-            "description",
-            "type",
-            "isBestseller",
-          ].join(",")
-        : "dummy data";
-    onChange(
-      new File([fileContent], dummyName, {
-        type: ext === "csv" ? "text/csv" : "image/png",
-      }),
-    );
-  };
-
   return (
     <div
       onDragOver={(e) => {
@@ -116,13 +92,6 @@ export function FileUploader({
               </span>{" "}
               {t("fileUploader.orDragAndDrop")}
             </label>
-            <button
-              type="button"
-              onClick={handleUseDummy}
-              className="text-xs font-semibold text-brand-kinetic bg-brand-kinetic/10 hover:bg-brand-kinetic/20 px-3 py-1 rounded-full transition-all border border-brand-kinetic/20"
-            >
-              {t("fileUploader.useDummyFile")}
-            </button>
           </div>
 
           <p className="text-[10px] text-secondary-app/40 mt-2">

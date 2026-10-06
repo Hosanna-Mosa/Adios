@@ -57,7 +57,7 @@
     "enter10DigitNumber": "10 अंकों का नंबर दर्ज करें",
     "password": "पासवर्ड",
     "enterYourPassword": "अपना पासवर्ड दर्ज करें",
-    "createAPassword6Chars": "पासवर्ड बनाएं (6+ अक्षर)",
+    "createAPassword6Chars": "पासवर्ड बनाएं (8+ अक्षर)",
     "confirmPassword": "पासवर्ड की पुष्टि करें",
     "reEnterYourPassword": "अपना पासवर्ड फिर से दर्ज करें",
     "signingIn": "साइन इन हो रहा है...",
@@ -85,7 +85,7 @@
     "pleaseEnterYourFullName": "कृपया अपना पूरा नाम दर्ज करें",
     "pleaseCreateAPassword": "कृपया एक पासवर्ड बनाएं",
     "weakPassword": "कमज़ोर पासवर्ड",
-    "passwordMustBeAtLeast6Characters": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+    "passwordMustBeAtLeast6Characters": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए",
     "passwordsDontMatch": "पासवर्ड मेल नहीं खाते",
     "pleaseMakeSureBothPasswordsMatch": "कृपया सुनिश्चित करें कि दोनों पासवर्ड मेल खाते हैं",
     "failedToSendOtp": "OTP भेजने में विफल",
@@ -507,7 +507,18 @@
     "noPhoneNumber": "कोई फ़ोन नंबर नहीं",
     "customerPhoneNotAvailable": "इस ऑर्डर के लिए ग्राहक का फ़ोन नंबर उपलब्ध नहीं है।",
     "chatEmptyState": "{{value}} के साथ संदेश यहाँ दिखाई देंगे।",
-    "theCustomer": "ग्राहक"
+    "theCustomer": "ग्राहक",
+    "offerGoneTitle": "ऑर्डर उपलब्ध नहीं है",
+    "offerGoneMessage": "यह ऑर्डर अब उपलब्ध नहीं है।",
+    "offerTakenMessage": "किसी दूसरे ड्राइवर ने यह ऑर्डर पहले स्वीकार कर लिया।",
+    "offerAcceptFailedTitle": "स्वीकार नहीं हो सका",
+    "offerAcceptFailedMessage": "अपना इंटरनेट कनेक्शन जांचें और फिर से कोशिश करें।",
+    "foodReadyIn": "खाना {{value}} मिनट में तैयार होगा",
+    "foodReadyNow": "खाना अभी तैयार है",
+    "youAreMinAway": "आप {{value}} मिनट दूर हैं",
+    "firstToAcceptGetsIt": "पास के ड्राइवरों को भेजा गया — जो पहले स्वीकार करेगा उसे मिलेगा",
+    "restaurantNotReadyYet": "रेस्टोरेंट के इस ऑर्डर को तैयार मार्क करने का इंतज़ार है। उसके बाद आप पिकअप कोड डाल सकते हैं।",
+    "completeDelivery": "डिलीवरी पूरी करें"
   },
   "onboarding": {
     "sections": {
@@ -549,9 +560,18 @@
       "pan": "PAN विवरण रिकॉर्ड के लिए एकत्र किया गया (पहचान सत्यापन के लिए आधार का उपयोग किया गया था)।"
     },
     "vehicles": {
-      "bike": { "label": "बाइक", "desc": "डिलीवरी के लिए तेज़ और ईंधन-कुशल" },
-      "auto": { "label": "ऑटो", "desc": "बड़े ऑर्डर के लिए विशाल" },
-      "car": { "label": "कार", "desc": "प्रीमियम डिलीवरी और लंबी दूरी" }
+      "bike": {
+        "label": "बाइक",
+        "desc": "डिलीवरी के लिए तेज़ और ईंधन-कुशल"
+      },
+      "auto": {
+        "label": "ऑटो",
+        "desc": "बड़े ऑर्डर के लिए विशाल"
+      },
+      "car": {
+        "label": "कार",
+        "desc": "प्रीमियम डिलीवरी और लंबी दूरी"
+      }
     },
     "aadhaarNumber": "आधार नंबर",
     "aadhaarDetailsCollectedForRecords": "आधार विवरण रिकॉर्ड के लिए एकत्र किया गया। पहचान सत्यापन के लिए PAN का उपयोग किया गया था।",

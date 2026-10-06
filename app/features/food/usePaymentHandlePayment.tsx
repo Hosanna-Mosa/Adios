@@ -3,6 +3,8 @@ import { router } from "expo-router";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { foodStageOf } from "@/contexts/foodStage";
 import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of usePayment so each file stays small. Kept in the original call
@@ -77,6 +79,8 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
           ? await payOnlineAndPlaceOrder(total, orderData)
           : await createOrder({ ...orderData, paymentMethod: "cash" });
       setOrderId(finalOrder._id || finalOrder.id);
+      // A restaurant order waits for the restaurant before any rider is searched for.
+      useDeliveryStore.getState().setFoodStage(foodStageOf(finalOrder));
       setServiceType("delivery");
       setStatus("confirmed");
       clearCart();

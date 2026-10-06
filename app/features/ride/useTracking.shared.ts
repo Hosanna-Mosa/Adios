@@ -1,5 +1,8 @@
 import { OrderStatus } from "@/contexts/deliveryStore";
 
+// Lives in contexts/ so the food checkout can set the stage too; re-exported for existing imports.
+export { foodStageOf, nextFoodStage } from "@/contexts/foodStage";
+
 // Module-level values shared by the parts of useTracking.
 
 export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
@@ -48,6 +51,36 @@ export function normalizeStatus(backendStatus: string): OrderStatus {
     default:
       return "confirmed";
   }
+}
+
+/** How far the rider must travel before their marker turns to the new direction. */
+const TURN_AFTER_METERS = 10;
+
+function metersBetween(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const rad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rad;
+  const dLng = (lng2 - lng1) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLng / 2) ** 2;
+  return 2 * 6371000 * Math.asin(Math.sqrt(h));
+}
+
+/**
+ * The rider's next position for the map, with a steady heading. The direction is
+ * the way they actually travelled since the last turn point, and only once that is
+ * at least 10 m — GPS wobble of a metre or two used to swing the marker around, and
+ * so did the phone's compass (sent with live updates), which turns whenever the
+ * phone does. The compass is only used before there's any movement to go by.
+ */
+export function nextDriverLocation(prev: any, lat: number, lng: number, reportedHeading?: number | null) {
+  if (!prev) {
+    return { lat, lng, heading: Number(reportedHeading) || 0, turnLat: lat, turnLng: lng };
+  }
+  const fromLat = prev.turnLat ?? prev.lat;
+  const fromLng = prev.turnLng ?? prev.lng;
+  if (metersBetween(fromLat, fromLng, lat, lng) >= TURN_AFTER_METERS) {
+    return { lat, lng, heading: calculateBearing(fromLat, fromLng, lat, lng), turnLat: lat, turnLng: lng };
+  }
+  return { lat, lng, heading: prev.heading ?? 0, turnLat: fromLat, turnLng: fromLng };
 }
 
 export function calculateBearing(lat1: number, lng1: number, lat2: number, lng2: number): number {

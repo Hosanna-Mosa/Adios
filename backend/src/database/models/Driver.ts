@@ -8,9 +8,18 @@ export enum DriverStatus {
 export enum OnboardingStatus {
   NOT_STARTED = "not_started",
   IN_PROGRESS = "in_progress",
+  /** Driver finished the flow; waiting for an admin to verify the documents. */
+  PENDING_APPROVAL = "pending_approval",
+  /** An admin asked the driver to provide some documents again. */
+  RESUBMISSION_REQUIRED = "resubmission_required",
+  /** Approved by an admin — the only status allowed to go online. */
   COMPLETED = "completed",
   REJECTED = "rejected",
 }
+
+/** Documents an admin can ask a driver to provide again. */
+export const DRIVER_RESUBMITTABLE_DOCUMENTS = ["aadhaar", "pan", "license", "bank", "selfie"] as const;
+export type DriverResubmittableDocument = (typeof DRIVER_RESUBMITTABLE_DOCUMENTS)[number];
 
 export interface IDriver extends Document {
   user: mongoose.Types.ObjectId;
@@ -65,6 +74,16 @@ export interface IDriver extends Document {
   }[];
   selfieImage?: string;
   onboardingCompletedAt?: Date;
+  /** When the driver last sent the application for admin review. */
+  submittedForReviewAt?: Date;
+  /** The admin's latest verification decision on this driver. */
+  verificationReview?: {
+    requestedDocuments?: DriverResubmittableDocument[];
+    note?: string;
+    rejectionReason?: string;
+    requestedAt?: Date;
+    reviewedAt?: Date;
+  };
   homeMode: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -133,6 +152,14 @@ const DriverSchema: Schema = new Schema(
     }],
     selfieImage: { type: String },
     onboardingCompletedAt: { type: Date },
+    submittedForReviewAt: { type: Date },
+    verificationReview: {
+      requestedDocuments: { type: [String], enum: DRIVER_RESUBMITTABLE_DOCUMENTS, default: undefined },
+      note: { type: String },
+      rejectionReason: { type: String },
+      requestedAt: { type: Date },
+      reviewedAt: { type: Date },
+    },
   },
   { timestamps: true }
 );

@@ -5,6 +5,8 @@ import { MapBackgroundRef } from "@/components/MapBackground";
 import { raiseSos } from "@/services/orders.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { useToast } from "@/components/ui/Toast";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { cancellationNotice } from "@/utils/cancellationNotice";
 
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -25,7 +27,10 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
   const cancellationAlerted = useRef(false);
   const { show: showToast } = useToast();
 
-  const handleOrderCancelledByDriver = () => {
+  // `reason` is who cancelled the order (cancelReason on the backend Order), so the
+  // customer is told who. When the status arrived first through the global socket
+  // handler (no reason passed here), the reason it stored is used instead.
+  const handleOrderCancelledByDriver = (reason?: string | null) => {
     if (cancellationAlerted.current) return;
     cancellationAlerted.current = true;
     resetDelivery();
@@ -34,7 +39,10 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
     // "OK" on before doing anything else read as a lot of ceremony for a passive
     // notice with nothing to confirm. This surfaces the same instant, over the
     // home screen, and clears itself.
-    showToast(t("app.ride.wereSorryThisOrderCouldNot"), "error");
+    const who = reason ?? useDeliveryStore.getState().cancelReason;
+    // The customer cancelled it themselves — nothing to announce.
+    if (who === "customer_cancelled") return;
+    showToast(cancellationNotice(who).message, "error");
   };
 
   const handleSOS = () => {

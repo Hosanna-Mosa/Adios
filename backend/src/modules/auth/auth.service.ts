@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User, { UserRole } from "../../database/models/User";
 import RevokedToken from "../../database/models/RevokedToken";
-import { ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
+import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
 import { isSelfSignupRole, isAdminPhone, OTP_ROLE_NOT_ALLOWED_MESSAGE, ACCOUNT_BLOCKED_MESSAGE } from "../../config/auth.config";
 
@@ -55,8 +55,16 @@ const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
 // stay in step with the User model's bcrypt.genSalt(10).
 const DUMMY_PASSWORD_HASH = "$2b$10$bPAxJGsgdz.EoM9tuODmYOti.AVMh.XLTXpxeeIkuU5E2yvUwxyrS";
 
+const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, or use a different email.";
+
 export class AuthService {
-  async requestOTP(phone: string) {
+  async requestOTP(phone: string, email?: string) {
+    // Checked before the OTP step so a sign-up with a taken email fails here,
+    // not after the user has typed the code.
+    if (email && (await User.exists({ email }))) {
+      throw new AppError(409, EMAIL_TAKEN_MESSAGE);
+    }
+
     // Dummy mode — log and return success (no SMS sent)
     console.log(`[DUMMY AUTH] OTP requested for ${phone}. Any 6-digit code will work.`);
     return { success: true, message: "OTP sent successfully" };
@@ -94,6 +102,10 @@ export class AuthService {
       }
       if (!password) {
         throw new ValidationError("Password is required for new user registration");
+      }
+      // Re-checked here in case the address was taken since request-otp.
+      if (email && (await User.exists({ email }))) {
+        throw new AppError(409, EMAIL_TAKEN_MESSAGE);
       }
       // Create new user with password
       user = new User({

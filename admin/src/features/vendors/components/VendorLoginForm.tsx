@@ -32,6 +32,8 @@ export function VendorLoginForm({
 }: VendorLoginFormProps) {
   const { t } = useTranslation();
   const isVendor = role === "vendor";
+  // Admins sign in with their mobile number only (no email).
+  const isAdmin = role === "admin";
 
   const roleOptions: { value: PanelRole; label: string }[] = [
     { value: "vendor", label: t("panelAuth.roleVendor", "Vendor partner") },
@@ -75,20 +77,34 @@ export function VendorLoginForm({
 
         <div className="space-y-2">
           <label htmlFor="login-identifier" className="text-sm font-medium text-foreground">
-            {role === "support" ? t("panelAuth.workEmail", "Work email") : t("vendorAuth.emailOrPhone")}
+            {role === "support"
+              ? t("panelAuth.workEmail", "Work email")
+              : isAdmin
+                ? t("panelAuth.mobileNumber", "Mobile number")
+                : t("vendorAuth.emailOrPhone")}
           </label>
           <div className="relative">
             <div className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground">
-              {role === "support" || identifier.includes("@") ? <Mail className="h-4 w-4" /> : <Phone className="h-4 w-4" />}
+              {!isAdmin && (role === "support" || identifier.includes("@")) ? <Mail className="h-4 w-4" /> : <Phone className="h-4 w-4" />}
             </div>
             <Input
               id="login-identifier"
-              type={role === "support" ? "email" : "text"}
-              autoComplete="username"
-              placeholder={role === "support" ? "name@company.com" : t("vendorAuth.enterEmailOrMobile")}
+              type={role === "support" ? "email" : isAdmin ? "tel" : "text"}
+              inputMode={isAdmin ? "numeric" : undefined}
+              maxLength={isAdmin ? 10 : undefined}
+              autoComplete={isAdmin ? "tel" : "username"}
+              placeholder={
+                role === "support"
+                  ? "name@company.com"
+                  : isAdmin
+                    ? t("panelAuth.enterMobileNumber", "10-digit mobile number")
+                    : t("vendorAuth.enterEmailOrMobile")
+              }
               className="pl-10 h-11"
               value={identifier}
-              onChange={(e) => onIdentifierChange(e.target.value)}
+              onChange={(e) =>
+                onIdentifierChange(isAdmin ? e.target.value.replace(/\D/g, "").slice(0, 10) : e.target.value)
+              }
             />
           </div>
         </div>

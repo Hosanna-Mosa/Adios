@@ -2,6 +2,10 @@ import Driver, { OnboardingStatus, IDriver } from "../../database/models/Driver"
 import { surepassService } from "../../services/surepass.service";
 import { digilockerModuleService } from "../digilocker/digilocker.service";
 import DigiLockerSession, { DigiLockerPurpose, DigiLockerSessionStatus } from "../../database/models/DigiLockerSession";
+import { AppError } from "../../utils/errors";
+import User from "../../database/models/User";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export class OnboardingService {
   /**
@@ -25,11 +29,22 @@ export class OnboardingService {
    * Merges provided fields with existing data.
    * If Driver doesn't exist yet, creates it.
    */
-  async saveOnboardingData(userId: string, data: Partial<IDriver>) {
+  async saveOnboardingData(userId: string, data: Partial<IDriver> & { email?: string }) {
+    // Contact email lives on the User; review outcomes are emailed to it.
+    if (data.email !== undefined) {
+      await this.saveEmail(userId, data.email);
+    }
+
     const driver = await this.getOrCreateDriver(userId);
 
-    // If onboarding is not in progress, set it to in_progress
-    if (driver.onboardingStatus !== OnboardingStatus.IN_PROGRESS) {
+    // Starting (or restarting after a rejection) puts the driver in progress.
+    // Approved, awaiting-review and resubmission statuses are left alone: this
+    // endpoint is also how an approved driver adds a bank account later, and
+    // that must not quietly take them off the road.
+    if (
+      driver.onboardingStatus === OnboardingStatus.NOT_STARTED ||
+      driver.onboardingStatus === OnboardingStatus.REJECTED
+    ) {
       driver.onboardingStatus = OnboardingStatus.IN_PROGRESS;
     }
 
@@ -100,9 +115,24 @@ export class OnboardingService {
       onboardingStatus: driver.onboardingStatus,
       aadhaarVerified: driver.aadhaarVerified,
       savedFields: Object.keys(data).filter((k) =>
-        allowedFields.includes(k as any) || k === "aadhaarNumber" || k === "panNumber"
+        allowedFields.includes(k as any) || k === "aadhaarNumber" || k === "panNumber" || k === "email"
       ),
     };
+  }
+
+  /** Validate and store the driver's contact email on their User record. */
+  private async saveEmail(userId: string, raw: unknown) {
+    const email = String(raw || "").trim().toLowerCase();
+    if (!EMAIL_PATTERN.test(email)) {
+      throw new AppError(400, "Please enter a valid email address.");
+    }
+
+    const taken = await User.exists({ email, _id: { $ne: userId } });
+    if (taken) {
+      throw new AppError(409, "This email is already used by another account. Please use a different one.");
+    }
+
+    await User.findByIdAndUpdate(userId, { email });
   }
 
   /**
@@ -148,17 +178,27 @@ export class OnboardingService {
    * Get current driver's onboarding progress and all saved data.
    */
   async getOnboardingStatus(userId: string) {
-    let driver = await Driver.findOne({ user: userId });
+    const [driver, user] = await Promise.all([
+      Driver.findOne({ user: userId }),
+      User.findById(userId).select("email").lean(),
+    ]);
+    // Lets the app pre-fill the (mandatory) contact email step.
+    const email = user?.email || null;
 
     if (!driver) {
       return {
         onboardingStatus: OnboardingStatus.NOT_STARTED,
+        email,
         data: null,
       };
     }
 
     return {
       onboardingStatus: driver.onboardingStatus,
+      email,
+      // What an admin asked for, so the app can show it on the review screen.
+      verificationReview: driver.verificationReview || null,
+      submittedForReviewAt: driver.submittedForReviewAt || null,
       data: {
         gender: driver.gender,
         vehicleType: driver.vehicleType,
@@ -188,7 +228,9 @@ export class OnboardingService {
   }
 
   /**
-   * Mark onboarding as completed.
+   * Finish the onboarding flow and send the application to an admin for
+   * review. Only the admin's approval (Driver Verification page) moves a
+   * driver to COMPLETED, which is what lets them go online.
    */
   async completeOnboarding(userId: string) {
     const driver = await Driver.findOne({ user: userId });
@@ -197,14 +239,48 @@ export class OnboardingService {
       throw new Error("Driver not found. Please start onboarding first.");
     }
 
-    // Mark as completed
-    driver.onboardingStatus = OnboardingStatus.COMPLETED;
+    // Already approved — finishing the flow again changes nothing.
+    if (driver.onboardingStatus === OnboardingStatus.COMPLETED) {
+      return {
+        message: "Onboarding already approved",
+        onboardingStatus: OnboardingStatus.COMPLETED,
+      };
+    }
+
+    // Mandatory: the review outcome (approved / rejected with reason /
+    // documents requested) is emailed, so there must be somewhere to send it.
+    const user = await User.findById(userId).select("email").lean();
+    if (!user?.email) {
+      throw new AppError(
+        400,
+        "Please add your email address before submitting — we email you when your application is reviewed."
+      );
+    }
+
+    // A resubmission must actually carry every document the admin asked for
+    // again (the request cleared them from the record).
+    if (driver.onboardingStatus === OnboardingStatus.RESUBMISSION_REQUIRED) {
+      const present: Record<string, unknown> = {
+        aadhaar: driver.aadhaarNumber,
+        pan: driver.panNumber,
+        license: driver.dlNumber,
+        bank: driver.bankAccountNumber,
+        selfie: driver.selfieImage,
+      };
+      const missing = (driver.verificationReview?.requestedDocuments || []).filter((doc) => !present[doc]);
+      if (missing.length) {
+        throw new AppError(400, `Please provide these documents again before resubmitting: ${missing.join(", ")}`);
+      }
+    }
+
+    driver.onboardingStatus = OnboardingStatus.PENDING_APPROVAL;
     driver.onboardingCompletedAt = new Date();
+    driver.submittedForReviewAt = new Date();
     await driver.save();
 
     return {
-      message: "Onboarding completed successfully",
-      onboardingStatus: OnboardingStatus.COMPLETED,
+      message: "Onboarding submitted for verification",
+      onboardingStatus: OnboardingStatus.PENDING_APPROVAL,
     };
   }
 

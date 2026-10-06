@@ -4,7 +4,9 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
+import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/contexts/cartStore";
+import { showOutletClosedAlert } from "@/components/shared/outletClosed";
 
 // Moved out of app/(tabs)/index.tsx unchanged. Home-only for now: promote to
 // components/ui/ or components/shared/ if a second feature ever needs it.
@@ -16,9 +18,20 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
   const cartItem = items.find((i) => i._id === item._id);
   const vendor = item.vendorId;
   const soldOut = item.isAvailable === false;
+  // Search stamps each outlet with its open state; a closed one can't take the dish.
+  const outletClosed = vendor?.openState?.isOpen === false;
+  const { t } = useTranslation();
 
   const handleAdd = () => {
     if (soldOut) return;
+    if (outletClosed) {
+      showOutletClosedAlert({
+        name: vendor?.name,
+        manuallyClosed: vendor?.isManuallyClosed === true || vendor?.isOpen === false,
+        opensAt: vendor?.openState?.opensAt ?? null,
+      });
+      return;
+    }
     if (vendor?._id) requestAddItem(item, vendor._id, vendor?.name);
   };
 
@@ -59,6 +72,10 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
             <View style={styles.dishSoldOutPill}>
               <Text style={styles.dishSoldOutPillText}>SOLD OUT</Text>
             </View>
+          ) : outletClosed && !cartItem ? (
+            <TouchableOpacity onPress={handleAdd} style={styles.dishSoldOutPill} activeOpacity={0.7}>
+              <Text style={styles.dishSoldOutPillText}>{t("app.food.closedPill").toUpperCase()}</Text>
+            </TouchableOpacity>
           ) : cartItem ? (
             <View style={styles.dishQuantityPill}>
               <TouchableOpacity onPress={() => updateQuantity(item._id, cartItem.quantity - 1)} style={styles.dishQtyActionBtn}>

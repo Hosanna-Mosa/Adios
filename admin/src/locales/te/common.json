@@ -106,7 +106,19 @@
     "addFirstMeatItems": "ఆర్డర్‌లు స్వీకరించడం ప్రారంభించడానికి మీ మొదటి మీట్ అంశాలను జోడించండి.",
     "addFirstFoodItems": "ఆర్డర్‌లు స్వీకరించడం ప్రారంభించడానికి మీ మొదటి ఫుడ్ అంశాలను జోడించండి.",
     "meatCenterLower": "మీట్ సెంటర్",
-    "vendorLower": "వెండర్"
+    "vendorLower": "వెండర్",
+    "orderAcceptedFindingDriver": "ఆర్డర్ అంగీకరించబడింది. డెలివరీ పార్ట్‌నర్ కోసం వెతుకుతున్నాం.",
+    "failedToAcceptOrder": "ఆర్డర్ అంగీకరించలేకపోయాము. దయచేసి మళ్ళీ ప్రయత్నించండి.",
+    "acceptToFindDriver": "డెలివరీ పార్ట్‌నర్ కోసం వెతకడం ప్రారంభించడానికి ఆర్డర్ అంగీకరించండి. ఆహారం సిద్ధమయ్యేలోపు చేరుకోగల దగ్గరి డ్రైవర్లందరికీ ఒకేసారి పంపబడుతుంది.",
+    "prepTimeQuestion": "ఆహారం సిద్ధం కావడానికి ఎంత సమయం పడుతుంది?",
+    "prepMinutes": "{{value}} నిమి",
+    "acceptReadyIn": "అంగీకరించండి · {{value}} నిమిషాల్లో సిద్ధం",
+    "rejectOrder": "ఆర్డర్ తిరస్కరించండి",
+    "confirmRejectOrder": "ఈ ఆర్డర్ తిరస్కరించాలా? కస్టమర్‌కు తెలియజేయబడుతుంది, ఆన్‌లైన్ చెల్లింపు తిరిగి ఇవ్వబడుతుంది.",
+    "keepOrder": "ఆర్డర్ ఉంచండి",
+    "yesRejectOrder": "అవును, తిరస్కరించండి",
+    "acceptWithin": "{{time}} లోపు అంగీకరించండి, లేకపోతే ఈ ఆర్డర్ రద్దవుతుంది",
+    "acceptTimeUp": "సమయం అయిపోయింది — ఈ ఆర్డర్ రద్దు చేయబడుతోంది"
   },
   "orderStatus": {
     "searchingDriver": "డ్రైవర్‌ను వెతుకుతోంది",
@@ -116,7 +128,11 @@
     "outForDelivery": "డెలివరీ కోసం బయలుదేరింది",
     "driverAtCustomer": "కస్టమర్ వద్ద డ్రైవర్",
     "delivered": "డెలివరీ చేయబడింది",
-    "unknown": "తెలియదు"
+    "unknown": "తెలియదు",
+    "newOrder": "కొత్త ఆర్డర్",
+    "preparingFindingDriver": "తయారవుతోంది · డ్రైవర్ కోసం వెతుకుతున్నాం",
+    "readyFindingDriver": "సిద్ధం · డ్రైవర్ కోసం వెతుకుతున్నాం",
+    "cancelledNotAccepted": "రద్దు · సమయానికి అంగీకరించలేదు"
   },
   "vendorMenu": {
     "searchMenuItems": "మెనూ అంశాల కోసం శోధించండి...",
@@ -230,6 +246,8 @@
     "liveOrders": "లైవ్ ఆర్డర్‌లు",
     "scheduledOrders": "షెడ్యూల్ చేసిన ఆర్డర్‌లు",
     "drivers": "డ్రైవర్‌లు",
+    "driverVerification": "డ్రైవర్ ధృవీకరణ",
+    "restaurantVerification": "రెస్టారెంట్ ధృవీకరణ",
     "devDrivers": "డెవ్ డ్రైవర్‌లు",
     "users": "వినియోగదారులు",
     "vendors": "వెండర్‌లు",
@@ -1129,6 +1147,7 @@
     "step2UploadMenuImages": "దశ 2: మెనూ చిత్రాలు అప్‌లోడ్ చేయండి",
     "step3ReviewEditExtractedMenu": "దశ 3: సేకరించిన మెనూను సమీక్షించి సవరించండి",
     "submitted": "సమర్పించబడింది",
+    "resubmissionRequired": "పత్రాలు మళ్లీ అడిగారు",
     "supportsPngJpgJpegMax5": "PNG, JPG, JPEG మద్దతు (గరిష్టంగా 5 ఫైళ్లు)",
     "targetUrlOptional": "టార్గెట్ URL (ఐచ్ఛికం)",
     "temporarilyClosedDesc": "తాత్కాలికంగా మూసివేయబడింది (ఆర్డర్‌లు తీసుకోవడం ఆపండి)",

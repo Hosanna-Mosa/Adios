@@ -34,7 +34,8 @@ export async function sendEmail({ to, subject, text, html, attachments }: SendEm
   }
 
   await transporter.sendMail({
-    from: `"Flavour" <${process.env.SMTP_USER}>`,
+    // Display name on every email; the address is always the SMTP account.
+    from: `"${(process.env.EMAIL_FROM_NAME || "Adios").replace(/"/g, "")}" <${process.env.SMTP_USER}>`,
     to,
     subject,
     text,

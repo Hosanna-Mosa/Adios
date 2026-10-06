@@ -9,6 +9,7 @@ export const persistConfig = {
   partialize: (state: DriverState) => ({
     isAuthenticated: state.isAuthenticated,
     hasCompletedOnboarding: state.hasCompletedOnboarding,
+    onboardingStatus: state.onboardingStatus,
     identityVerified: state.identityVerified,
     driverName: state.driverName,
     driverPhone: state.driverPhone,

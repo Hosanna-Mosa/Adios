@@ -1,7 +1,7 @@
 import { Platform, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { goHomeFromTracking } from "../useTrackingHandleBack";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type TrackingStyles } from "@/features/ride/tracking.styles";
@@ -30,7 +30,7 @@ export function TrackingTopBar({
 }: Props) {
   return (
     <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
-      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backBtn} onPress={goHomeFromTracking}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>

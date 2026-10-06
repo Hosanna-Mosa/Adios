@@ -18,6 +18,8 @@ import { type CheckoutStyles } from "@/features/food/checkout.styles";
 // from the screen's scope is now a prop of the same name.
 
 interface Props {
+  /** Height of the floating footer (payment method + Place order); the last section scrolls clear of it. */
+  footerHeight?: number;
   formatSlot: any;
   TIP_OPTIONS: any[];
   accent: ServiceTokens;
@@ -57,10 +59,13 @@ interface Props {
 }
 
 export function CheckoutBody(props: Props) {
-  const { addressIssue, insets, receiverName, receiverPhone, selectedAddress, styles, tokens } = props;
+  const { addressIssue, footerHeight, insets, receiverName, receiverPhone, selectedAddress, styles, tokens } = props;
   const { t } = useTranslation();
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 150 }} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: Math.max(footerHeight ?? 0, insets.bottom + 150) + 16 }}
+      showsVerticalScrollIndicator={false}
+    >
       <Animated.View entering={fadeInUp(0)} style={styles.section}>
         <TouchableOpacity
           style={[styles.addressCard, !!addressIssue && styles.addressCardBlocked]}

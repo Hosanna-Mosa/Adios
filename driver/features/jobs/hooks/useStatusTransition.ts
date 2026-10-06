@@ -90,10 +90,6 @@ export function useStatusTransition(args: Args) {
       Alert.alert(t("jobs.tamperProofSealCheck"), t("jobs.pleaseVerifyAndCheckSealedPackaging"));
       return;
     }
-    if (!verification.countChecked) {
-      Alert.alert(t("jobs.itemCountCheck"), t("jobs.pleaseVerifyAndCheckItemCount"));
-      return;
-    }
     if (
       !otpMatches(
         verification.restaurantOTP,

@@ -181,7 +181,7 @@ function renderConsentPage(opts: { state: string; selectedId: string }): string 
 
   <h1 style="margin:0 0 6px;font-size:19px;color:#202124">Share documents with Flavour</h1>
   <p style="margin:0 0 20px;color:#5f6368;font-size:14px;line-height:1.5">
-    Flavour is requesting access to your issued documents for driver KYC verification.
+    Flavour is requesting access to your issued documents for KYC verification.
     Choose a test identity to continue as.
   </p>
 

@@ -1,5 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+/** The smallest payout a vendor can request, in rupees. */
+export const MIN_VENDOR_PAYOUT_AMOUNT = 100;
+
 export enum VendorPayoutStatus {
   PENDING = "pending",
   PROCESSING = "processing",

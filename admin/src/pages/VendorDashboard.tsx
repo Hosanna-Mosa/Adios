@@ -27,6 +27,9 @@ export default function VendorDashboard() {
     respondToScheduledDelivery,
     isResponding,
     markAsReady,
+    acceptOrder,
+    rejectOrder,
+    isAccepting,
     isUpdatingStatus,
     getOrderItems,
     getStatusDisplay,
@@ -64,6 +67,9 @@ export default function VendorDashboard() {
         getStatusDisplay={getStatusDisplay}
         getOrderItems={getOrderItems}
         onMarkAsReady={markAsReady}
+        onAccept={acceptOrder}
+        onReject={rejectOrder}
+        isAccepting={isAccepting}
         isUpdatingStatus={isUpdatingStatus}
       />
 

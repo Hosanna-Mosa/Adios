@@ -12,9 +12,11 @@ const { height } = Dimensions.get("window");
 /** Countdown, alert sound and sheet animation for an incoming order offer.
  *
  * Reserved rides get 60 seconds, everything else 15; when it runs out the
- * offer is rejected automatically. Lifted out of IncomingOrderModal unchanged. */
+ * offer is rejected automatically. Food offers (dispatchMode "broadcast") have
+ * no countdown: they go to every nearby rider and stay open until one accepts. */
 export function useIncomingOffer() {
   const { incomingOrder, rejectOrder } = useDriverStore();
+  const isBroadcast = incomingOrder?.dispatchMode === "broadcast";
 
   const slideAnim = useSharedValue(height);
   const sheetAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ translateY: slideAnim.value }] }));
@@ -45,6 +47,12 @@ export function useIncomingOffer() {
   }, [sound]);
 
   useEffect(() => {
+    if (incomingOrder && incomingOrder.dispatchMode === "broadcast") {
+      playSound();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      slideAnim.value = withSpring(0, SPRING);
+      return;
+    }
     if (incomingOrder) {
       playSound();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -69,10 +77,10 @@ export function useIncomingOffer() {
   }, [incomingOrder, slideAnim, rejectOrder]);
 
   useEffect(() => {
-    if (!incomingOrder) return;
+    if (!incomingOrder || incomingOrder.dispatchMode === "broadcast") return;
     const total = incomingOrder.isReserved ? 60 : 15;
     timerWidth.value = withTiming((secondsLeft / total) * 100, { duration: 320 });
   }, [secondsLeft, incomingOrder, timerWidth]);
 
-  return { secondsLeft, showDeclineReasons, setShowDeclineReasons, sheetAnimatedStyle, timerBarAnimatedStyle };
+  return { isBroadcast, secondsLeft, showDeclineReasons, setShowDeclineReasons, sheetAnimatedStyle, timerBarAnimatedStyle };
 }

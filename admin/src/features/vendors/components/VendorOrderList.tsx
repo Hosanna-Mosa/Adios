@@ -8,7 +8,7 @@ import type { StatusDisplay, VendorOrder } from "../vendorDashboardTypes";
 interface VendorOrderListProps {
   orders: VendorOrder[] | undefined;
   isLoading: boolean;
-  getStatusDisplay: (status: string) => StatusDisplay;
+  getStatusDisplay: (status: string, order?: VendorOrder) => StatusDisplay;
   onOrderClick: (order: VendorOrder) => void;
 }
 
@@ -37,7 +37,7 @@ export function VendorOrderList({ orders, isLoading, getStatusDisplay, onOrderCl
       ) : (
         <StaggerList className="space-y-4">
           {orders.slice(0, 10).map((order) => {
-            const display = getStatusDisplay(order.status);
+            const display = getStatusDisplay(order.status, order);
             return (
               <StaggerItem
                 key={order._id}

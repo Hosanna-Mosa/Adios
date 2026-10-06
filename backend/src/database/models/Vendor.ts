@@ -3,13 +3,51 @@ import bcrypt from "bcryptjs";
 import { webPushSubscriptionSchema, IWebPushSubscription } from "./WebPushSubscription";
 import { WeeklyHours } from "../../utils/openingHours";
 
+export type VendorOnboardingStatus = "draft" | "submitted" | "approved" | "rejected" | "resubmission_required";
+
+/** Documents an admin can ask a vendor applicant to provide again. */
+export const VENDOR_RESUBMITTABLE_DOCUMENTS = ["identity", "pan", "gst", "fssai", "bank"] as const;
+export type VendorResubmittableDocument = (typeof VENDOR_RESUBMITTABLE_DOCUMENTS)[number];
+
 export interface IVendor extends Document {
   name: string;
   email: string;
   phone: string;
   password?: string;
   googlePlaceId?: string;
-  onboardingStatus?: "draft" | "submitted" | "approved" | "rejected";
+  onboardingStatus?: VendorOnboardingStatus;
+  /**
+   * Where the record came from. Only applications from the partner website are
+   * held back from the vendor portal until an admin approves them; vendors an
+   * admin created (or that predate this field) keep signing in as before.
+   */
+  onboardingSource?: "partner_website" | "admin";
+  submittedAt?: Date;
+  /** The admin's latest verification decision on this application. */
+  verificationReview?: {
+    requestedDocuments?: VendorResubmittableDocument[];
+    note?: string;
+    rejectionReason?: string;
+    requestedAt?: Date;
+    reviewedAt?: Date;
+    resubmittedAt?: Date;
+  };
+  /** Owner identity as read from DigiLocker, via the owner's own consent. */
+  kyc?: {
+    source?: "digilocker";
+    digilockerVerified?: boolean;
+    verifiedAt?: Date;
+    sandbox?: boolean;
+    digilockerId?: string;
+    holderName?: string;
+    dob?: string;
+    gender?: string;
+    maskedAadhaar?: string;
+    aadhaarVerified?: boolean;
+    panNumber?: string;
+    panName?: string;
+    issuedDocuments?: string[];
+  };
   commissionRate?: number;
   // Short lock so two payout requests can't both pass the balance check.
   payoutLockUntil?: Date | null;
@@ -68,6 +106,8 @@ export interface IVendor extends Document {
   };
   legal?: {
     panNumber?: string;
+    /** True when panNumber matches the PAN DigiLocker returned for the owner. */
+    panVerified?: boolean;
     panFileName?: string;
     gstin?: string;
     gstFileName?: string;
@@ -93,6 +133,8 @@ export interface IVendor extends Document {
   deliveryFee: number;
   minOrderValue: number;
   webPushSubscriptions?: IWebPushSubscription[];
+  /** Expo push tokens of every device signed in to the partner app (owner's phone, kitchen tablet…). */
+  expoPushTokens?: string[];
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -125,8 +167,33 @@ const VendorSchema: Schema = new Schema(
     googlePlaceId: { type: String },
     onboardingStatus: {
       type: String,
-      enum: ["draft", "submitted", "approved", "rejected"],
+      enum: ["draft", "submitted", "approved", "rejected", "resubmission_required"],
       default: "draft",
+    },
+    onboardingSource: { type: String, enum: ["partner_website", "admin"] },
+    submittedAt: { type: Date },
+    verificationReview: {
+      requestedDocuments: { type: [String], enum: VENDOR_RESUBMITTABLE_DOCUMENTS, default: undefined },
+      note: { type: String },
+      rejectionReason: { type: String },
+      requestedAt: { type: Date },
+      reviewedAt: { type: Date },
+      resubmittedAt: { type: Date },
+    },
+    kyc: {
+      source: { type: String, enum: ["digilocker"] },
+      digilockerVerified: { type: Boolean },
+      verifiedAt: { type: Date },
+      sandbox: { type: Boolean },
+      digilockerId: { type: String },
+      holderName: { type: String },
+      dob: { type: String },
+      gender: { type: String },
+      maskedAadhaar: { type: String },
+      aadhaarVerified: { type: Boolean },
+      panNumber: { type: String },
+      panName: { type: String },
+      issuedDocuments: { type: [String], default: undefined },
     },
     payoutLockUntil: { type: Date, default: null },
     commissionRate: {
@@ -219,6 +286,7 @@ const VendorSchema: Schema = new Schema(
     },
     legal: {
       panNumber: { type: String },
+      panVerified: { type: Boolean, default: false },
       panFileName: { type: String },
       gstin: { type: String },
       gstFileName: { type: String },
@@ -244,6 +312,7 @@ const VendorSchema: Schema = new Schema(
     deliveryFee: { type: Number, default: 0 },
     minOrderValue: { type: Number, default: 0 },
     webPushSubscriptions: [webPushSubscriptionSchema],
+    expoPushTokens: { type: [String], default: [] },
   },
   { timestamps: true }
 );

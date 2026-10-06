@@ -367,7 +367,8 @@ export const verifyDigilockerState = (options: { html?: boolean } = {}) => {
       // When the caller is authenticated, the grant must be theirs. The browser
       // redirect from DigiLocker carries no Authorization header, so the state
       // itself is the binding in that case — it is unguessable and single-use.
-      if (req.user?.userId && session.user.toString() !== req.user.userId) {
+      // A restaurant-onboarding session has no user, so it never matches here.
+      if (req.user?.userId && session.user?.toString() !== req.user.userId) {
         return reject(res, {
           status: 403,
           code: "DIGILOCKER_INVALID_STATE",

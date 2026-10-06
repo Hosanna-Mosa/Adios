@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch, BASE_URL } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { Banner, BannerFormData } from "../bannerTypes";
 
 const EMPTY_FORM: BannerFormData = {
@@ -145,8 +146,8 @@ export function useBanners() {
     saveMutation.mutate(formData);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm(t("catalog.confirmDeleteBanner"))) {
+  const handleDelete = async (id: string) => {
+    if (await appConfirm({ title: t("catalog.confirmDeleteBanner"), tone: "destructive" })) {
       deleteMutation.mutate(id);
     }
   };

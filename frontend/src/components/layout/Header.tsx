@@ -39,7 +39,7 @@ function MarketingHeader() {
             to="/"
             className="text-[28px] font-black tracking-tight text-primary font-display"
           >
-            Flavor
+            Adios
           </Link>
 
           <div className="hidden lg:flex items-center gap-10">
@@ -93,7 +93,7 @@ function MinimalHeader() {
           to="/"
           className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter"
         >
-          HYBRID
+          ADIOS
         </Link>
         <div className="flex items-center gap-6">
           <LanguageSwitcher />

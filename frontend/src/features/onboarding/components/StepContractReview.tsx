@@ -24,6 +24,7 @@ export function StepContractReview({ form }: Props) {
     selectedDays,
     dayTimeSlots,
     gstExempt,
+    digilocker,
   } = form;
   return (
     <div>
@@ -99,7 +100,9 @@ export function StepContractReview({ form }: Props) {
           <div className="w-8 h-8 rounded-lg bg-brand-kinetic/10 flex items-center justify-center">
             <Icon name="signature" className="text-base text-brand-kinetic" />
           </div>
-          <h2 className="font-display text-lg font-bold">{t("onboarding.digitalSignOff")}</h2>
+          <h2 className="font-display text-lg font-bold">
+            {t("onboarding.digitalSignOff")}
+          </h2>
         </div>
 
         <div className="space-y-5">
@@ -114,28 +117,36 @@ export function StepContractReview({ form }: Props) {
               </p>
               <p className="mb-2">{t("onboarding.contractIntro")}</p>
               <p className="mb-2">
-                <strong className="text-on-surface">{t("onboarding.contractClause1Title")}</strong>{" "}
+                <strong className="text-on-surface">
+                  {t("onboarding.contractClause1Title")}
+                </strong>{" "}
                 {t("onboarding.contractClause1Body", {
                   value: isMeatPartner
                     ? t("onboarding.meatCenterLower")
                     : t("onboarding.restaurantLower"),
                   service: copy.contractServiceText,
                   defaultValue:
-                    "The Platform agrees to list the Partner's {{value}} and facilitate {{service}} to end customers through the HYBRID platform.",
+                    "The Platform agrees to list the Partner's {{value}} and facilitate {{service}} to end customers through the Adios platform.",
                 })}
               </p>
               <p className="mb-2">
-                <strong className="text-on-surface">{t("onboarding.contractClause2Title")}</strong>{" "}
+                <strong className="text-on-surface">
+                  {t("onboarding.contractClause2Title")}
+                </strong>{" "}
                 {t("onboarding.contractClause2Body")}
               </p>
               <p className="mb-2">
-                <strong className="text-on-surface">{t("onboarding.contractClause3Title")}</strong>{" "}
+                <strong className="text-on-surface">
+                  {t("onboarding.contractClause3Title")}
+                </strong>{" "}
                 {t("onboarding.contractClause3Body")}
               </p>
               <p className="mb-2">
                 <strong className="text-on-surface">
                   {t("onboarding.contractClause4Title", {
-                    value: isMeatPartner ? t("onboarding.products") : t("onboarding.menu"),
+                    value: isMeatPartner
+                      ? t("onboarding.products")
+                      : t("onboarding.menu"),
                     defaultValue: "4. {{value}} & Pricing:",
                   })}
                 </strong>{" "}
@@ -154,11 +165,15 @@ export function StepContractReview({ form }: Props) {
                 {t("onboarding.contractClause6Body")}
               </p>
               <p className="mb-2">
-                <strong className="text-on-surface">{t("onboarding.contractClause7Title")}</strong>{" "}
+                <strong className="text-on-surface">
+                  {t("onboarding.contractClause7Title")}
+                </strong>{" "}
                 {t("onboarding.contractClause7Body")}
               </p>
               <p className="mb-2">
-                <strong className="text-on-surface">{t("onboarding.contractClause8Title")}</strong>{" "}
+                <strong className="text-on-surface">
+                  {t("onboarding.contractClause8Title")}
+                </strong>{" "}
                 {t("onboarding.contractClause8Body")}
               </p>
               <p className="mt-3 text-on-surface">
@@ -191,7 +206,8 @@ export function StepContractReview({ form }: Props) {
           {/* E-Signature */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <label className="block text-sm font-semibold mb-2">
-              {t("onboarding.digitalSignature")} <span className="text-brand-kinetic">*</span>
+              {t("onboarding.digitalSignature")}{" "}
+              <span className="text-brand-kinetic">*</span>
             </label>
             <p className="text-xs text-secondary-app mb-3">
               {t("onboarding.digitalSignatureDesc")}
@@ -259,7 +275,10 @@ export function StepContractReview({ form }: Props) {
             {
               label: t("onboarding.documents"),
               value: t("onboarding.allUploaded"),
-              detail: `${t("onboarding.pan")} · ${gstExempt ? t("onboarding.gstExempt") : t("onboarding.gst")} · ${t("onboarding.fssai")} · ${t("onboarding.bank")}`,
+              detail: `${t("onboarding.digilocker.reviewIdentity", {
+                name: digilocker.kyc?.holderName || "",
+                defaultValue: "Identity verified with DigiLocker ({{name}})",
+              })} · ${t("onboarding.pan")} · ${gstExempt ? t("onboarding.gstExempt") : t("onboarding.gst")} · ${t("onboarding.fssai")} · ${t("onboarding.bank")}`,
             },
           ].map((item) => (
             <div

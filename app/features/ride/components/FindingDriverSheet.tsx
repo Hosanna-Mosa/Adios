@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
+import type { FoodStage } from "@/contexts/delivery.types";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -11,6 +12,9 @@ import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles"
 
 interface Props {
   dropStop: any;
+  /** Restaurant orders: the restaurant hasn't accepted yet, or is cooking while a rider is found. */
+  foodStage: FoodStage;
+  isRide: boolean;
   orderSummary: any;
   pickupStop: any;
   setShowCancelSheet: React.Dispatch<React.SetStateAction<any>>;
@@ -21,6 +25,8 @@ interface Props {
 
 export function FindingDriverSheet({
   dropStop,
+  foodStage,
+  isRide,
   orderSummary,
   pickupStop,
   setShowCancelSheet,
@@ -29,16 +35,29 @@ export function FindingDriverSheet({
   tierLabel,
 }: Props) {
   const { t } = useTranslation();
+  const searchingText =
+    (tierLabel ? t("app.ride.searchingNearby", { tier: tierLabel, defaultValue: "Searching {{tier}} nearby. " }) : t("app.ride.searchingNearbyCaptains")) +
+    t("app.ride.usuallyUnderAMinute");
+  const title =
+    foodStage === "awaiting_restaurant"
+      ? t("app.ride.waitingForRestaurantTitle")
+      : foodStage === "preparing"
+        ? t("app.ride.restaurantPreparingTitle")
+        : t("app.ride.findingYourCaptain");
+  const subtitle =
+    foodStage === "awaiting_restaurant"
+      ? t("app.ride.waitingForRestaurantSubtitle")
+      : foodStage === "preparing"
+        ? t("app.ride.restaurantPreparingSubtitle")
+        : searchingText;
   return (
     <View style={styles.sheet}>
       <View style={styles.sheetHandle} />
       <View style={styles.titleRow}>
         <Animated.View style={[styles.spinner, spinStyle]} />
-        <Text style={styles.title}>{t("app.ride.findingYourCaptain")}</Text>
+        <Text style={styles.title}>{title}</Text>
       </View>
-      <Text style={styles.subtitle}>
-        {tierLabel ? t("app.ride.searchingNearby", { tier: tierLabel, defaultValue: "Searching {{tier}} nearby. " }) : t("app.ride.searchingNearbyCaptains")}{t("app.ride.usuallyUnderAMinute")}
-      </Text>
+      <Text style={styles.subtitle}>{subtitle}</Text>
 
       {(orderSummary.totalPrice != null || pickupStop || dropStop) && (
         <Animated.View entering={fadeInUp(0)} style={styles.routeCard}>
@@ -70,16 +89,9 @@ export function FindingDriverSheet({
         </Animated.View>
       )}
 
-      {tierLabel && (
-        <View style={styles.searchingChip}>
-          <Text style={styles.searchingLabel}>{t("app.ride.searching")}</Text>
-          <Text style={styles.searchingValue}>{tierLabel}</Text>
-        </View>
-      )}
-
       <View style={{ marginTop: "auto" }}>
         <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowCancelSheet(true)} activeOpacity={0.85}>
-          <Text style={styles.cancelBtnText}>{t("app.ride.cancelRideLower")}</Text>
+          <Text style={styles.cancelBtnText}>{isRide ? t("app.ride.cancelRideLower") : t("app.ride.cancelOrderLower")}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -43,6 +43,14 @@ const buildFilterParams = (filters?: HomeFetchFilters) => {
   return parts.join("");
 };
 
+/**
+ * True only once the nearby-rider check has finished and found none. An
+ * unknown count (not checked yet, e.g. a deep link straight to a restaurant)
+ * is not treated as "no riders", so nothing is blocked on missing data.
+ */
+export const selectNoRidersOnline = (state: Pick<HomeState, "loadingDrivers" | "nearbyDriversCount">) =>
+  !state.loadingDrivers && state.nearbyDriversCount === 0;
+
 export const useHomeStore = create<HomeState>((set, get) => ({
   restaurants: [],
   meatCenters: [],

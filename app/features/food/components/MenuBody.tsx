@@ -8,6 +8,7 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { MenuVegOnly } from "./MenuVegOnly";
+import { outletClosedLabel } from "@/components/shared/outletClosed";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -15,7 +16,7 @@ import { MenuVegOnly } from "./MenuVegOnly";
 import type { Props } from "./MenuBody.props";
 
 export function MenuBody(props: Props) {
-  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
+  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, orderingState, outletClosed, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   const { t } = useTranslation();
   return (
     <ScrollView
@@ -26,6 +27,17 @@ export function MenuBody(props: Props) {
       scrollEventThrottle={16}
     >
       <MenuVegOnly {...props} />
+
+      {/* Browsing stays open; adding to the cart is refused while the outlet is closed. */}
+      {outletClosed && (
+        <View style={styles.closedBanner}>
+          <Ionicons name="time-outline" size={moderateScale(20)} color={tokens.error} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.closedBannerTitle}>{outletClosedLabel(orderingState)}</Text>
+            <Text style={styles.closedBannerText}>{t("app.food.closedBannerHint")}</Text>
+          </View>
+        </View>
+      )}
 
       {!scrolledPast && categoryTabs.length > 0 && (
         <View style={styles.inlineTabsBar}>
@@ -93,6 +105,10 @@ export function MenuBody(props: Props) {
                     />
                     {soldOut ? (
                       <View style={styles.soldOutBadge}><Text style={styles.soldOutText}>{t("app.food.soldOut")}</Text></View>
+                    ) : outletClosed && !cartItem ? (
+                      <TouchableOpacity style={styles.soldOutBadge} activeOpacity={0.7} onPress={() => handleAddToCart(item)}>
+                        <Text style={styles.soldOutText}>{t("app.food.closedPill")}</Text>
+                      </TouchableOpacity>
                     ) : cartItem ? (
                       <View style={styles.qtyPill}>
                         <TouchableOpacity style={styles.qtyBtn} onPress={() => handleUpdateQuantity(item._id, cartItem.quantity - 1)} disabled={loadingItems[item._id]}>
@@ -103,7 +119,7 @@ export function MenuBody(props: Props) {
                         ) : (
                           <Text style={styles.qtyText}>{cartItem.quantity}</Text>
                         )}
-                        <TouchableOpacity style={styles.qtyBtn} onPress={() => handleAddToCart(item)} disabled={loadingItems[item._id]}>
+                        <TouchableOpacity style={[styles.qtyBtn, outletClosed && { opacity: 0.35 }]} onPress={() => handleAddToCart(item)} disabled={loadingItems[item._id]}>
                           <Feather name="plus" size={14} color={accent.accent} />
                         </TouchableOpacity>
                       </View>

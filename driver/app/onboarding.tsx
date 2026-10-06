@@ -1,11 +1,9 @@
-import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useDriverStore } from "@/store/driverStore";
 import { trackEvent } from "@/utils/analytics";
+
 import { OnboardingProvider } from "@/features/onboarding/OnboardingContext";
 import { useOnboarding } from "@/features/onboarding/hooks/useOnboarding";
 import { styles } from "@/features/onboarding/onboarding.styles";
@@ -24,18 +22,23 @@ import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const setOnboardingCompleted = useDriverStore((s) => s.setOnboardingCompleted);
   const onboarding = useOnboarding();
   const {
     step, sectionIdx, currentSections, currentKey, scrollRef, slideAnimatedStyle,
     sectionTitle, sectionSubtitle, docs, goToPrevSection, goToPrevStep,
+    isLastSection, goToNextSection, goToNextStep,
   } = onboarding;
 
+  // Skip moves past this one section without saving it. It used to mark the whole
+  // of onboarding done and open the tabs, so the application never reached an
+  // admin; now the driver still submits at the end and still needs approval
+  // (the admin can ask for anything skipped). Not shown on the last section
+  // (the selfie), which is where the driver submits.
+  const canSkip = !(step === 2 && isLastSection);
   const handleSkip = () => {
-    trackEvent("onboarding_skipped", { step });
-    setOnboardingCompleted();
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    router.replace("/(tabs)");
+    trackEvent("onboarding_skipped", { step, section: currentKey ?? "" });
+    if (isLastSection) goToNextStep();
+    else goToNextSection();
   };
 
   return (
@@ -48,7 +51,7 @@ export default function OnboardingScreen() {
           <OnboardingTopBar
             canGoBack={sectionIdx > 0 || step > 1}
             onBack={sectionIdx > 0 ? goToPrevSection : goToPrevStep}
-            onSkip={handleSkip}
+            onSkip={canSkip ? handleSkip : undefined}
           />
 
           <StepIndicator step={step} />

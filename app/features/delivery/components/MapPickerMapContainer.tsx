@@ -14,7 +14,7 @@ import { type MapPickerStyles } from "@/features/delivery/useMapPicker.shared";
 // scope is now a prop of the same name.
 
 interface Props {
-  LIGHT_GREEN_MAP_STYLE: any;
+  LIGHT_WARM_MAP_STYLE: any;
   handleRegionChangeComplete: any;
   handleUseCurrentLocation: () => void;
   insets: EdgeInsets;
@@ -26,7 +26,7 @@ interface Props {
 }
 
 export function MapPickerMapContainer({
-  LIGHT_GREEN_MAP_STYLE,
+  LIGHT_WARM_MAP_STYLE,
   handleRegionChangeComplete,
   handleUseCurrentLocation,
   insets,
@@ -44,7 +44,7 @@ export function MapPickerMapContainer({
         style={StyleSheet.absoluteFill}
         initialRegion={region}
         onRegionChangeComplete={handleRegionChangeComplete}
-        customMapStyle={LIGHT_GREEN_MAP_STYLE}
+        customMapStyle={LIGHT_WARM_MAP_STYLE}
       />
 
       <Animated.View entering={fadeIn(150)} style={styles.centerMarkerContainer} pointerEvents="none">

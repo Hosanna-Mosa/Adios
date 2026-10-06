@@ -18,6 +18,8 @@ interface Props {
   onSwitchMode: (mode: AuthMode) => void;
   name: string;
   onNameChange: (v: string) => void;
+  email: string;
+  onEmailChange: (v: string) => void;
   phone: string;
   onPhoneChange: (v: string) => void;
   password: string;
@@ -35,6 +37,8 @@ export function AuthForm({
   onSwitchMode,
   name,
   onNameChange,
+  email,
+  onEmailChange,
   phone,
   onPhoneChange,
   password,
@@ -69,6 +73,24 @@ export function AuthForm({
             value={name}
             onChangeText={onNameChange}
             autoCapitalize="words"
+          />
+        </AnimatedBox>
+      )}
+
+      {/* Email — sign up only; review outcomes are emailed here */}
+      {mode === "signup" && (
+        <AnimatedBox entering={fadeInUp(20)}>
+          <TextField
+            label={t("auth.emailAddress", "Email address")}
+            icon={<Feather name="mail" size={18} color={Colors.brand} />}
+            placeholder={t("auth.enterYourEmail", "you@example.com")}
+            value={email}
+            onChangeText={(v) => onEmailChange(v.replace(/\s/g, ""))}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
           />
         </AnimatedBox>
       )}

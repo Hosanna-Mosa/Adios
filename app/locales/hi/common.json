@@ -123,7 +123,7 @@
         },
         "pinSafety": {
           "question": "क्या मेरा पिन शेयर करना सुरक्षित है?",
-          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका कैप्टन पहुँच चुका हो. Flavour से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
+          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका राइडर पहुँच चुका हो. Flavour से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
         }
       },
       "categories": {
@@ -172,7 +172,7 @@
     },
     "tracking": {
       "rideLabels": {
-        "captainAssigned": "कैप्टन असाइन हुआ",
+        "captainAssigned": "राइडर असाइन हुआ",
         "headingToPickup": "पिकअप की ओर जा रहे हैं",
         "tripInProgress": "यात्रा जारी है",
         "tripCompleted": "यात्रा पूरी हुई"
@@ -189,7 +189,13 @@
         "prepared": "तैयार किया गया",
         "outForDelivery": "डिलीवरी के लिए निकल गया",
         "delivered": "डिलीवर हो गया"
-      }
+      },
+      "waitingForRestaurant": "रेस्टोरेंट के आपका ऑर्डर स्वीकार करने का इंतज़ार है",
+      "restaurantPreparing": "रेस्टोरेंट आपका खाना बना रहा है",
+      "restaurantPin": "रेस्टोरेंट",
+      "deliveryLocationPin": "आपकी डिलीवरी लोकेशन",
+      "pickupPin": "पिकअप",
+      "dropPin": "ड्रॉप"
     },
     "orderStatusTimeline": {
       "steps": {
@@ -204,9 +210,9 @@
       },
       "rideSteps": {
         "rideBooked": "राइड बुक हुई",
-        "captainAssigned": "कैप्टन असाइन हुआ",
-        "captainOnTheWay": "कैप्टन रास्ते में है",
-        "captainArrived": "कैप्टन पहुँच गया",
+        "captainAssigned": "राइडर असाइन हुआ",
+        "captainOnTheWay": "राइडर रास्ते में है",
+        "captainArrived": "राइडर पहुँच गया",
         "tripInProgress": "यात्रा जारी है",
         "arrivedAtDestination": "गंतव्य पर पहुँच गए",
         "tripCompleted": "यात्रा पूरी हुई"
@@ -323,7 +329,7 @@
       "useMyCurrentLocation": "मेरी मौजूदा लोकेशन उपयोग करें",
       "enterAddressManually": "पता खुद दर्ज करें",
       "noRidersAvailableNearby": "पास में कोई राइडर उपलब्ध नहीं",
-      "allCaptainsNearbyAreOnTrips": "पास के सभी कैप्टन अभी ट्रिप पर हैं. आमतौर पर एक के खाली होने में कुछ मिनट लगते हैं.",
+      "allCaptainsNearbyAreOnTrips": "पास के सभी राइडर अभी ट्रिप पर हैं. आमतौर पर एक के खाली होने में कुछ मिनट लगते हैं.",
       "retrySearch": "फिर से खोजें",
       "freshMeatDaily": "रोज़ ताज़ा मीट!",
       "cravingSomethingDelicious": "कुछ स्वादिष्ट\nखाने का मन है?",
@@ -362,7 +368,9 @@
       "forgot": "भूल गए?",
       "thisPageMoved": "यह पेज स्थानांतरित हो गया है",
       "theLinkYouFollowedDoesnapostExist": "आपके द्वारा खोला गया लिंक अब मौजूद नहीं है।",
-      "goHome": "होम पर जाएँ"
+      "goHome": "होम पर जाएँ",
+      "pickAServiceToGetStarted": "शुरू करने के लिए कोई सेवा चुनें।",
+      "beta": "बीटा"
     },
     "profile": {
       "menuItems": {
@@ -542,7 +550,15 @@
       "thisRemovesEveryItemFromVar": "यह {{value}} से हर आइटम हटा देगा।",
       "thisLinkIsntAvailable": "यह लिंक उपलब्ध नहीं है",
       "theOutletItPointsToMayHaveClosed": "जिस आउटलेट का यह लिंक है, वह बंद हो गया होगा या कहीं और चला गया होगा।",
-      "goToHome": "होम पर जाएँ"
+      "goToHome": "होम पर जाएँ",
+      "notAcceptingOrders": "ऑर्डर नहीं ले रहे",
+      "notAcceptingOrdersNow": "अभी ऑर्डर नहीं ले रहे",
+      "closedNow": "अभी बंद है",
+      "closedOpensAt": "अभी बंद है · {{time}} बजे खुलेगा",
+      "closedPill": "बंद",
+      "outletClosedMessage": "{{name}} अभी ऑर्डर नहीं ले रहा है। आप मेन्यू देख सकते हैं और खुलने पर ऑर्डर कर सकते हैं।",
+      "outletClosedOpensAtMessage": "{{name}} अभी बंद है और {{time}} बजे खुलेगा। आप मेन्यू देख सकते हैं और तब ऑर्डर कर सकते हैं।",
+      "closedBannerHint": "आप मेन्यू देख सकते हैं, लेकिन खुलने तक ऑर्डर बंद हैं।"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} आपके मूल भुगतान तरीके में वापस कर दिए गए · {{date}}",
@@ -553,7 +569,7 @@
       "helperOnTheWay": "हेल्पर रास्ते में है",
       "matchingAHelper": "हेल्पर खोजा जा रहा है",
       "riderOnTheRoute": "राइडर रास्ते में है",
-      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है",
+      "findingYourCaptain": "आपका राइडर खोजा जा रहा है",
       "past": "पिछले",
       "cancelled": "रद्द",
       "repeatRoute": "रूट दोहराएं",
@@ -575,7 +591,7 @@
       "submit": "सबमिट करें",
       "noOrdersYet": "अभी तक कोई ऑर्डर नहीं",
       "foodMeatRidesHelpersAndCourier": "आपका पहला ऑर्डर करते ही फ़ूड, मीट, राइड, हेल्पर और कूरियर रन सभी यहाँ दिखने लगेंगे।",
-      "exploreFlavour": "Flavour को एक्सप्लोर करें",
+      "exploreFlavour": "Adios एक्सप्लोर करें",
       "activeNow": "अभी सक्रिय",
       "trackOrder": "ऑर्डर ट्रैक करें",
       "cantReorder": "फिर से ऑर्डर नहीं किया जा सका",
@@ -583,7 +599,20 @@
       "details": "विवरण",
       "noOrdersInThisFilter": "इस फ़िल्टर में कोई ऑर्डर नहीं",
       "ordersInTotalPickAll_one": "आपके कुल {{count}} ऑर्डर हैं — उन्हें देखने के लिए “सभी” चुनें।",
-      "ordersInTotalPickAll_other": "आपके कुल {{count}} ऑर्डर हैं — उन्हें देखने के लिए “सभी” चुनें।"
+      "ordersInTotalPickAll_other": "आपके कुल {{count}} ऑर्डर हैं — उन्हें देखने के लिए “सभी” चुनें।",
+      "delivered": "डिलीवर हुआ",
+      "completed": "पूरा हुआ",
+      "orderFallback": "ऑर्डर",
+      "activeCount": "{{count}} सक्रिय",
+      "scheduledCount": "{{count}} शेड्यूल्ड",
+      "pastCount": "{{count}} पिछले",
+      "waitingForRestaurant": "रेस्टोरेंट के स्वीकार करने का इंतज़ार",
+      "itemCount_one": "{{count}} आइटम",
+      "itemCount_other": "{{count}} आइटम",
+      "placedAt": "{{time}} बजे ऑर्डर किया",
+      "deliveringTo": "डिलीवरी पता",
+      "dropAt": "ड्रॉप",
+      "taskLocation": "काम की जगह"
     },
     "helperTask": {
       "title": {
@@ -595,6 +624,7 @@
       }
     },
     "LocationPickerSheet": {
+      "useCurrentLocation": "वर्तमान लोकेशन का उपयोग करें",
       "noLocationDetectedToSave": "सेव करने के लिए कोई लोकेशन नहीं मिली.",
       "saved": "सेव हो गया!",
       "yourCurrentLocationHasBeenAdded": "आपकी मौजूदा लोकेशन सेव किए गए पतों में जोड़ दी गई है.",
@@ -706,7 +736,7 @@
       "point": "पॉइंट",
       "pickupWord": "पिकअप",
       "dropWord": "ड्रॉप",
-      "moveThePinToWhereYouaposll": "पिन को वहाँ ले जाएं जहाँ आप असल में खड़े होंगे. जब पिन किसी गेटेड कम्युनिटी के अंदर होता है तो कैप्टन सबसे ज़्यादा रद्द करते हैं.",
+      "moveThePinToWhereYouaposll": "पिन को वहाँ ले जाएं जहाँ आप असल में खड़े होंगे. जब पिन किसी गेटेड कम्युनिटी के अंदर होता है तो राइडर सबसे ज़्यादा रद्द करते हैं.",
       "locating": "लोकेशन ढूंढी जा रही है…",
       "fetchingAddressDetails": "पते का विवरण लाया जा रहा है…",
       "confirm": "पुष्टि करें",
@@ -846,7 +876,7 @@
       "areYouSureYouWantTo": "क्या आप वाकई रद्द करना चाहते हैं",
       "thisRide": "यह राइड?",
       "dropLocationCanBeChangedBefore": "दूसरी राइड बुक करने से पहले ड्रॉप लोकेशन बदली जा सकती है.",
-      "pickupLocationCanBeChangedUp": "कैप्टन असाइन होने के बाद भी पिकअप लोकेशन 200मी दायरे में बदली जा सकती है.",
+      "pickupLocationCanBeChangedUp": "राइडर असाइन होने के बाद भी पिकअप लोकेशन 200मी दायरे में बदली जा सकती है.",
       "reason": "कारण",
       "yourCurrentAddressIs": "आपका मौजूदा {{label}} पता है",
       "cancelMyRide": "मेरी राइड रद्द करें",
@@ -865,7 +895,7 @@
       "reviewTags": {
         "onTime": "समय पर",
         "smoothRide": "आरामदायक राइड",
-        "politeCaptain": "विनम्र कैप्टन",
+        "politeCaptain": "विनम्र राइडर",
         "cleanVehicle": "साफ़ वाहन",
         "greatRoute": "बेहतरीन रूट",
         "carefulWithItems": "सामान का ध्यान रखा",
@@ -887,7 +917,7 @@
       "submitRating": "रेटिंग सबमिट करें",
       "reservation": "रिज़र्वेशन",
       "confirmedLower": "पुष्टि हो गई",
-      "weaposllAssignYourCaptainAt": "हम आपका कैप्टन असाइन करेंगे",
+      "weaposllAssignYourCaptainAt": "हम आपका राइडर असाइन करेंगे",
       "andNotifyYou": "और आपको सूचित करेंगे.",
       "pickupTime": "पिकअप का समय",
       "pickup": "पिकअप",
@@ -910,14 +940,14 @@
       "payingViaCash": "नकद से भुगतान",
       "back": "वापस",
       "cancelRide": "राइड रद्द करें",
-      "findingYourCaptain": "आपका कैप्टन खोजा जा रहा है",
+      "findingYourCaptain": "आपका राइडर खोजा जा रहा है",
       "searchingNearby": "पास में {{tier}} खोजा जा रहा है. ",
-      "searchingNearbyCaptains": "पास के कैप्टन खोजे जा रहे हैं. ",
+      "searchingNearbyCaptains": "पास के राइडर खोजे जा रहे हैं. ",
       "usuallyUnderAMinute": "आमतौर पर एक मिनट से कम में.",
       "searching": "खोजा जा रहा है",
       "cancelRideLower": "राइड रद्द करें",
       "scheduleARide": "राइड शेड्यूल करें",
-      "weaposllAssignACaptain15Minutes": "पिकअप से 15 मिनट पहले हम कैप्टन असाइन करेंगे.",
+      "weaposllAssignACaptain15Minutes": "पिकअप से 15 मिनट पहले हम राइडर असाइन करेंगे.",
       "date": "तारीख़",
       "today": "आज",
       "estimatedFareConfirmedAtPickup": "अनुमानित ₹{{amount}} · किराया पिकअप पर तय होगा",
@@ -925,7 +955,7 @@
       "reserveFor": "इसके लिए रिज़र्व करें",
       "connectingWithNearbyDriversInYour": "आपके क्षेत्र के पास के ड्राइवरों से जुड़ रहे हैं",
       "tripDetails": "यात्रा विवरण",
-      "captainsArenapostAcceptingAt": "कैप्टन ₹ पर स्वीकार नहीं कर रहे",
+      "captainsArenapostAcceptingAt": "राइडर ₹ पर स्वीकार नहीं कर रहे",
       "tryAddingMore": ". और जोड़कर देखें:",
       "orderCancelled": "ऑर्डर रद्द हुआ",
       "wereSorryThisOrderCouldNot": "माफ़ करें — यह ऑर्डर पूरा नहीं हो सका और रद्द कर दिया गया है.",
@@ -937,8 +967,8 @@
       "yourEmergencyAlertHasBeenSent": "आपका आपातकालीन अलर्ट भेज दिया गया है. सपोर्ट रास्ते में है.",
       "failedToTriggerSos": "SOS भेजने में विफल. कृपया आपातकालीन सेवाओं को कॉल करें.",
       "driverIsUnavailable": "ड्राइवर उपलब्ध नहीं है.",
-      "noCaptainFound": "कोई कैप्टन नहीं मिला",
-      "sorryNoCaptainsAreAvailableTo": "माफ़ करें, अभी आपके रिज़र्वेशन अनुरोध को स्वीकार करने के लिए कोई कैप्टन उपलब्ध नहीं है. कृपया बाद में फिर से शेड्यूल करें.",
+      "noCaptainFound": "कोई राइडर नहीं मिला",
+      "sorryNoCaptainsAreAvailableTo": "माफ़ करें, अभी आपके रिज़र्वेशन अनुरोध को स्वीकार करने के लिए कोई राइडर उपलब्ध नहीं है. कृपया बाद में फिर से शेड्यूल करें.",
       "savedPlaces": "सेव किए गए स्थान",
       "addressFallback": "पता",
       "searchResults": "खोज परिणाम",
@@ -947,11 +977,11 @@
       "noMatchingPlacesFound": "कोई मेल खाती जगह नहीं मिली.",
       "yourSearchedPlacesWillAppearHere": "आपकी खोजी गई जगहें यहाँ दिखेंगी.",
       "bookingConfirmed": "बुकिंग की पुष्टि हुई",
-      "aCaptainHasAcceptedYourReserved": "एक कैप्टन ने आपकी रिज़र्व की गई राइड स्वीकार कर ली है",
+      "aCaptainHasAcceptedYourReserved": "एक राइडर ने आपकी रिज़र्व की गई राइड स्वीकार कर ली है",
       "theScheduledTime": "तय समय",
       "weaposllNotifyYou15MinutesBefore": ". पिकअप से 15 मिनट पहले हम आपको सूचित करेंगे.",
-      "captain": "कैप्टन",
-      "noCancellationFeeWeHavenapostAssigned": "कोई रद्दीकरण शुल्क नहीं — हमने अभी तक कैप्टन असाइन नहीं किया है।",
+      "captain": "राइडर",
+      "noCancellationFeeWeHavenapostAssigned": "कोई रद्दीकरण शुल्क नहीं — हमने अभी तक राइडर असाइन नहीं किया है।",
       "addStop": "+ स्टॉप जोड़ें",
       "selectOnMap": "मैप पर चुनें",
       "whereTo": "कहाँ जाना है?",
@@ -976,7 +1006,7 @@
       "help": "मदद",
       "helperUpdate": "हेल्पर अपडेट",
       "startRidePin": "राइड शुरू करने का PIN",
-      "giveThisToYourCaptainTo": "यात्रा शुरू करने के लिए यह अपने कैप्टन को दें।",
+      "giveThisToYourCaptainTo": "यात्रा शुरू करने के लिए यह अपने राइडर को दें।",
       "endRidePin": "राइड समाप्त करने का PIN",
       "deliveryPin": "डिलीवरी PIN",
       "onlyGiveThisCodeWhenYour": "यह कोड तभी दें जब आपका सामान सुरक्षित रूप से मिल जाए।",
@@ -996,7 +1026,20 @@
       "clearDropAddress": "ड्रॉप पता साफ़ करें",
       "newDriverRating": "नया",
       "completionPin": "पूर्णता पिन",
-      "giveThisToYourHelperOnceWorkIsFinished": "काम पूरा होने के बाद ही इसे अपने हेल्पर को दें।"
+      "giveThisToYourHelperOnceWorkIsFinished": "काम पूरा होने के बाद ही इसे अपने हेल्पर को दें।",
+      "restaurantDidNotAcceptInTime": "रेस्टोरेंट ने समय पर आपका ऑर्डर स्वीकार नहीं किया, इसलिए इसे रद्द कर दिया गया है। ऑनलाइन भुगतान वापस कर दिया जाएगा।",
+      "restaurantCouldNotTakeOrder": "रेस्टोरेंट आपका ऑर्डर नहीं ले सका, इसलिए इसे रद्द कर दिया गया है। ऑनलाइन भुगतान वापस कर दिया जाएगा।",
+      "waitingForRestaurantTitle": "रेस्टोरेंट का इंतज़ार",
+      "waitingForRestaurantSubtitle": "रेस्टोरेंट जल्द ही आपका ऑर्डर स्वीकार करेगा। स्वीकार होते ही हम राइडर ढूँढेंगे।",
+      "restaurantPreparingTitle": "रेस्टोरेंट आपका खाना तैयार कर रहा है",
+      "restaurantPreparingSubtitle": "इसे लेने के लिए राइडर ढूँढ रहे हैं। आमतौर पर एक मिनट से कम।",
+      "cancelOrderLower": "ऑर्डर रद्द करें",
+      "cancelledByRestaurant": "रेस्टोरेंट ने आपका ऑर्डर रद्द कर दिया",
+      "cancelledByRider": "राइडर ने आपका ऑर्डर रद्द कर दिया",
+      "riderCancelledOrder": "आपके राइडर को रद्द करना पड़ा, इसलिए यह ऑर्डर रद्द कर दिया गया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा।",
+      "cancelledByAdios": "Adios द्वारा ऑर्डर रद्द किया गया",
+      "adiosCancelledOrder": "Adios टीम ने यह ऑर्डर रद्द कर दिया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा। कोई सवाल हो तो सपोर्ट से संपर्क करें।",
+      "youCancelledThisOrder": "आपने यह ऑर्डर रद्द किया।"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -1120,7 +1163,8 @@
         "arrivedAtPickup": "पिकअप पर पहुँच गए",
         "preparingYourOrder": "आपका ऑर्डर तैयार हो रहा है",
         "inProgress": "जारी है",
-        "arrived": "पहुँच गए"
+        "arrived": "पहुँच गए",
+        "waitingForRestaurant": "रेस्टोरेंट का इंतज़ार"
       }
     },
     "shareLink": {

@@ -2,6 +2,10 @@
 
 export interface Props {
   status: any;
+  /** Restaurant / meat-shop order: the map marks the restaurant and the delivery home. */
+  outletOrder?: boolean;
+  /** A ride: the map marks the pickup and drop with green / red bubbles. */
+  rideOrder?: boolean;
   currentOrderId: any;
   route: any;
   stops: any;

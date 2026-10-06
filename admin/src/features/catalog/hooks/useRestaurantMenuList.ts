@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { BASE_URL } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { MenuItem, Restaurant } from "../restaurantMenuTypes";
 
 const ITEMS_PER_PAGE = 10;
@@ -85,8 +86,8 @@ export function useRestaurantMenuList() {
     },
   });
 
-  const handleDelete = (restaurant: Restaurant) => {
-    if (confirm(t("catalog.confirmDeleteRestaurantAndMenu", { name: restaurant.name, defaultValue: "Are you sure you want to delete {{name}} and all its menu items?" }))) {
+  const handleDelete = async (restaurant: Restaurant) => {
+    if (await appConfirm({ title: t("catalog.confirmDeleteRestaurantAndMenu", { name: restaurant.name, defaultValue: "Are you sure you want to delete {{name}} and all its menu items?" }), tone: "destructive" })) {
       deleteMutation.mutate(restaurant._id);
     }
   };

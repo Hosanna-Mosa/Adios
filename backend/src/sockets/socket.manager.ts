@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
 import RevokedToken from "../database/models/RevokedToken";
 import Order from "../database/models/Order";
-import Driver, { DriverStatus } from "../database/models/Driver";
+import Driver, { DriverStatus, OnboardingStatus } from "../database/models/Driver";
 import ChatMessage from "../database/models/ChatMessage";
 import { getJwtSecret } from "../utils/jwtSecret";
 
@@ -340,8 +340,12 @@ export class SocketManager {
               type: "Point",
               coordinates: [Number(data.lng), Number(data.lat)]
             };
-            resolvedDriver.status = DriverStatus.ONLINE;
-            resolvedDriver.isAvailable = true; // Set available on active tracking update
+            // A location ping must not put an unapproved driver on the road —
+            // PATCH /drivers/status refuses them too.
+            if (resolvedDriver.onboardingStatus === OnboardingStatus.COMPLETED) {
+              resolvedDriver.status = DriverStatus.ONLINE;
+              resolvedDriver.isAvailable = true; // Set available on active tracking update
+            }
             try {
               const { ZonesService } = require("../modules/zones/zones.service");
               const zonesService = new ZonesService();

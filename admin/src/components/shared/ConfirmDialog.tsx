@@ -27,14 +27,9 @@ interface ConfirmDialogProps {
  * A styled confirmation modal built on the existing (previously unused)
  * shadcn AlertDialog primitive.
  *
- * NOTE: every confirmation flow in this app today (Users, Vendors, Drivers,
- * MeatCenters, ...) uses the browser's native `confirm()`, not a Dialog.
- * This component is built now per the refactor plan's Phase 2 shared-piece
- * list, but it is NOT wired into any page yet — swapping native `confirm()`
- * for a styled modal is a real, visible UI/interaction change (different
- * look, async instead of blocking, different keyboard handling), which
- * conflicts with this refactor's "zero UI change" rule. It's available for
- * a future, explicitly-approved pass that migrates those `confirm()` calls.
+ * For a one-off "are you sure?" use `appConfirm()` from "@/lib/dialog"
+ * instead — it needs no open/close state and is what every delete flow uses.
+ * This component remains for confirmations whose open state a page manages.
  */
 export function ConfirmDialog({
   open,

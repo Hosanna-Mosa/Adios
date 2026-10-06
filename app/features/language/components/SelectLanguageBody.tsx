@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { BlurView } from "expo-blur";
+import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import { Ionicons } from "@expo/vector-icons";
 import { radius } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
@@ -57,7 +57,7 @@ export function SelectLanguageBody({ tokens, theme, onSelect, selectedLanguage, 
               onPress={() => onSelect(option.code)}
               style={[styles.card, { borderColor: isSelected ? tokens.success : tokens.border }]}
             >
-              <BlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
+              <SafeBlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
               <Text style={[styles.cardLabel, { color: tokens.text, fontFamily: fontFamilies.body.semibold }]}>
                 {option.nativeLabel}
               </Text>
@@ -76,7 +76,7 @@ export function SelectLanguageBody({ tokens, theme, onSelect, selectedLanguage, 
             { borderColor: canContinue ? tokens.success : tokens.border, opacity: canContinue ? 1 : 0.5 },
           ]}
         >
-          <BlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
+          <SafeBlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
           <Text style={[styles.cardLabel, { color: tokens.text, fontFamily: fontFamilies.body.bold }]}>
             {t("actions.continue")}
           </Text>

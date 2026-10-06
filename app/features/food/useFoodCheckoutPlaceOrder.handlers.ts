@@ -3,6 +3,8 @@ import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { foodStageOf } from "@/contexts/foodStage";
 import { showAlert } from "@/components/ui/AppAlert";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
@@ -110,6 +112,8 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       const finalOrderId: string = placedOrder._id || placedOrder.id;
 
       setOrderId(finalOrderId);
+      // A restaurant order waits for the restaurant before any rider is searched for.
+      useDeliveryStore.getState().setFoodStage(foodStageOf(placedOrder));
       setServiceType("delivery");
       setStatus("pending");
       clearCart();

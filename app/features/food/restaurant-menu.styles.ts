@@ -100,6 +100,9 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     qtyText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
     soldOutBadge: { backgroundColor: tokens.sunken, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 5 },
     soldOutText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.sec, textTransform: "uppercase", letterSpacing: 0.4 },
+    closedBanner: { flexDirection: "row", alignItems: "center", gap: 10, marginHorizontal: 16, marginTop: 14, padding: 12, borderRadius: 14, backgroundColor: tokens.errorSkin },
+    closedBannerTitle: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.error },
+    closedBannerText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
     modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
     modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden" },

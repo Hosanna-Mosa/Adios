@@ -1,6 +1,7 @@
 import i18n from "@/i18n";
 
 export type OnboardingSectionKey =
+  | "email"
   | "gender"
   | "vehicle"
   | "zone"
@@ -19,6 +20,7 @@ export type OnboardingSection = { key: OnboardingSectionKey; label: string };
 
 export function getStep1Sections(): OnboardingSection[] {
   return [
+    { key: "email", label: i18n.t("onboarding.sections.email", "Email") },
     { key: "gender", label: i18n.t("onboarding.sections.gender", "Gender") },
     { key: "vehicle", label: i18n.t("onboarding.sections.vehicle", "Vehicle") },
     { key: "zone", label: i18n.t("onboarding.sections.preferredZone", "Preferred Zone") },
@@ -38,6 +40,7 @@ export function getStep2Sections(): OnboardingSection[] {
 
 export function getSectionTitles(): Record<OnboardingSectionKey, string> {
   return {
+    email: i18n.t("onboarding.sectionTitles.email", "Your Email Address"),
     gender: i18n.t("onboarding.sectionTitles.gender", "Select Your Gender"),
     vehicle: i18n.t("onboarding.sectionTitles.vehicle", "Select Your Vehicle"),
     zone: i18n.t("onboarding.sectionTitles.zone", "Select Preferred Zone"),
@@ -52,6 +55,10 @@ export function getSectionTitles(): Record<OnboardingSectionKey, string> {
 
 export function getSectionSubtitles(): Record<OnboardingSectionKey, string> {
   return {
+    email: i18n.t(
+      "onboarding.sectionSubtitles.email",
+      "Required. We'll email you when your application is approved, rejected, or needs documents.",
+    ),
     gender: i18n.t("onboarding.sectionSubtitles.gender", "This helps us personalise your experience."),
     vehicle: i18n.t("onboarding.sectionSubtitles.vehicle", "Choose the vehicle you'll use for deliveries. You can change this later."),
     zone: i18n.t("onboarding.sectionSubtitles.zone", "Choose your preferred operational zone. This is where you will receive ride and delivery requests."),

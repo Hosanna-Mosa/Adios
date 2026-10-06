@@ -3,7 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGoogleMaps } from "../../../hooks/useGoogleMaps";
 import { apiFetch } from "../../../lib/api-client";
+import { appAlert } from "../../../lib/dialog";
 import { parseCsvRows, parseXlsxRows } from "../../../lib/spreadsheet";
+import { useKycDocuments } from "./useKycDocuments";
 import {
   getSteps,
   getPartnerCopy,
@@ -98,6 +100,10 @@ interface GoogleNamespace {
   };
 }
 
+/** The owner's email is mandatory: approval / rejection / document requests are emailed to it. */
+export const isValidEmail = (value: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
+
 const createDefaultDayTimeSlots = (): DayTimeSlots =>
   DAYS.reduce((acc, day) => {
     acc[day] = [{ open: "09:00", close: "22:00" }];
@@ -120,7 +126,9 @@ export function useOnboardingForm() {
       : stepItem.num === 2
         ? {
             ...stepItem,
-            label: isMeatPartner ? t("onboarding.steps.operationalDetails") : stepItem.label,
+            label: isMeatPartner
+              ? t("onboarding.steps.operationalDetails")
+              : stepItem.label,
           }
         : stepItem,
   );
@@ -363,10 +371,8 @@ export function useOnboardingForm() {
   const [ownerEmail, setOwnerEmail] = useState("");
   const [portalPassword, setPortalPassword] = useState("");
   const [confirmPortalPassword, setConfirmPortalPassword] = useState("");
+  // Recorded as entered — the owner's number is not OTP-verified.
   const [ownerPhone, setOwnerPhone] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [otpVerified, setOtpVerified] = useState(false);
   const [primaryContact, setPrimaryContact] = useState("");
   const [sameAsOwner, setSameAsOwner] = useState(true);
 
@@ -391,18 +397,6 @@ export function useOnboardingForm() {
     );
   };
 
-  const sendOtp = () => {
-    if (ownerPhone.length >= 10) setOtpSent(true);
-  };
-
-  const verifyOtp = () => {
-    if (otp === "1234") {
-      setOtpVerified(true);
-    } else {
-      alert(t("onboarding.invalidOtpDemoCode"));
-    }
-  };
-
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -421,7 +415,14 @@ export function useOnboardingForm() {
 
           reverseGeocode(lat, lng);
         },
-        () => alert(t("onboarding.unableToRetrieveLocation")),
+        () =>
+          appAlert({
+            title: t(
+              "onboarding.locationUnavailableTitle",
+              "Location unavailable",
+            ),
+            description: t("onboarding.unableToRetrieveLocation"),
+          }),
       );
     }
   };
@@ -553,31 +554,8 @@ export function useOnboardingForm() {
 
   // ── Step 3: Documents & Legal ───────────────────────────────────────────
 
-  const [panNumber, setPanNumber] = useState("");
-  const [panFile, setPanFile] = useState<File | null>(null);
-  const [gstin, setGstin] = useState("");
-  const [gstFile, setGstFile] = useState<File | null>(null);
-  const [gstExempt, setGstExempt] = useState(false);
-
-  const [fssaiNumber, setFssaiNumber] = useState("");
-  const [fssaiExpiry, setFssaiExpiry] = useState("");
-  const [fssaiFile, setFssaiFile] = useState<File | null>(null);
-
-  const [bankAccount, setBankAccount] = useState("");
-  const [bankConfirm, setBankConfirm] = useState("");
-  const [accountType, setAccountType] = useState<"savings" | "current">(
-    "savings",
-  );
-  const [ifsc, setIfsc] = useState("");
-  const [ifscFetched, setIfscFetched] = useState(false);
-  const [chequeFile, setChequeFile] = useState<File | null>(null);
-
-  const fetchBankDetails = () => {
-    if (ifsc.length === 11) {
-      // Simulate IFSC auto-fetch
-      setIfscFetched(true);
-    }
-  };
+  // Owner identity via DigiLocker, PAN, GST, FSSAI and bank details.
+  const kycDocs = useKycDocuments();
 
   // ── Step 4: Contract & Review ───────────────────────────────────────────
 
@@ -591,10 +569,10 @@ export function useOnboardingForm() {
       restaurantName.length > 0 &&
       cuisines.length > 0 &&
       ownerName.length > 0 &&
-      ownerEmail.includes("@") &&
+      isValidEmail(ownerEmail) &&
       portalPassword.length >= 6 &&
       portalPassword === confirmPortalPassword &&
-      otpVerified &&
+      /^\d{10}$/.test(ownerPhone) &&
       area.length > 0 &&
       city.length > 0 &&
       landmark.length > 0
@@ -625,21 +603,10 @@ export function useOnboardingForm() {
     );
   };
 
-  const canProceedStep3 = () => {
-    return (
-      panNumber.length >= 10 &&
-      panFile !== null &&
-      (gstExempt || (gstin.length > 0 && gstFile !== null)) &&
-      fssaiNumber.length === 14 &&
-      fssaiExpiry.length > 0 &&
-      fssaiFile !== null &&
-      bankAccount.length >= 9 &&
-      bankAccount === bankConfirm &&
-      ifsc.length === 11 &&
-      ifscFetched &&
-      chequeFile !== null
+  const canProceedStep3 = () =>
+    (["identity", "pan", "gst", "fssai", "bank"] as const).every(
+      kycDocs.isSectionComplete,
     );
-  };
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
@@ -667,8 +634,6 @@ export function useOnboardingForm() {
       ownerEmail,
       portalPassword,
       ownerPhone,
-      otp: otp || "1234",
-      otpVerified,
       primaryContact: sameAsOwner ? ownerPhone : primaryContact,
       sameAsOwner,
       location: {
@@ -709,20 +674,7 @@ export function useOnboardingForm() {
           photo: item.photo ? { name: item.photo.name } : null,
         })),
       })),
-      panNumber,
-      panFile: panFile ? { name: panFile.name } : null,
-      gstin,
-      gstFile: gstFile ? { name: gstFile.name } : null,
-      gstExempt,
-      fssaiNumber,
-      fssaiExpiry,
-      fssaiFile: fssaiFile ? { name: fssaiFile.name } : null,
-      bankAccount,
-      bankConfirm,
-      accountType,
-      ifsc,
-      ifscFetched,
-      chequeFile: chequeFile ? { name: chequeFile.name } : null,
+      ...kycDocs.getDocumentsPayload(),
       acceptedTos,
       signature,
     };
@@ -742,7 +694,12 @@ export function useOnboardingForm() {
         setDraftSaved(false);
       }, 2500);
     } catch (err) {
-      alert(t("onboarding.errorSavingDraft") + (err as { message?: string }).message);
+      appAlert({
+        title: t("onboarding.errorSavingDraftTitle", "Couldn't save draft"),
+        description:
+          t("onboarding.errorSavingDraft") +
+          (err as { message?: string }).message,
+      });
     } finally {
       setIsSaving(false);
     }
@@ -757,10 +714,15 @@ export function useOnboardingForm() {
       });
       setSubmitted(true);
     } catch (err) {
-      alert(
-        t("onboarding.errorSubmittingApplication") +
+      appAlert({
+        title: t(
+          "onboarding.errorSubmittingTitle",
+          "Couldn't submit application",
+        ),
+        description:
+          t("onboarding.errorSubmittingApplication") +
           (err as { message?: string }).message,
-      );
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -808,12 +770,6 @@ export function useOnboardingForm() {
     setConfirmPortalPassword,
     ownerPhone,
     setOwnerPhone,
-    otpSent,
-    setOtpSent,
-    otp,
-    setOtp,
-    otpVerified,
-    setOtpVerified,
     primaryContact,
     setPrimaryContact,
     sameAsOwner,
@@ -833,8 +789,6 @@ export function useOnboardingForm() {
     landmark,
     setLandmark,
     toggleCuisine,
-    sendOtp,
-    verifyOtp,
     selectedDays,
     setSelectedDays,
     activeTimingDay,
@@ -861,35 +815,7 @@ export function useOnboardingForm() {
     addCategory,
     validateMenuReferenceFile,
     updateMenuUploadRowImage,
-    panNumber,
-    setPanNumber,
-    panFile,
-    setPanFile,
-    gstin,
-    setGstin,
-    gstFile,
-    setGstFile,
-    gstExempt,
-    setGstExempt,
-    fssaiNumber,
-    setFssaiNumber,
-    fssaiExpiry,
-    setFssaiExpiry,
-    fssaiFile,
-    setFssaiFile,
-    bankAccount,
-    setBankAccount,
-    bankConfirm,
-    setBankConfirm,
-    accountType,
-    setAccountType,
-    ifsc,
-    setIfsc,
-    ifscFetched,
-    setIfscFetched,
-    chequeFile,
-    setChequeFile,
-    fetchBankDetails,
+    ...kycDocs,
     acceptedTos,
     setAcceptedTos,
     signature,

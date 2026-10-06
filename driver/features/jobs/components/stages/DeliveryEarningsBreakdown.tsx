@@ -7,7 +7,7 @@ import { formatCurrency } from "@/utils/format";
 
 export function DeliveryEarningsBreakdown() {
   const { t } = useTranslation();
-  const { earnings, waitingComp } = useActiveOrderCtx();
+  const { earnings } = useActiveOrderCtx();
   const {
     baseFare, distanceVal, distanceFare, surgeBonus, rainBonus, peakBonus,
     customerTip, totalEarningsCalculated,
@@ -23,7 +23,6 @@ export function DeliveryEarningsBreakdown() {
       <BreakdownRow label={t("jobs.surgeIncentives")} value={formatCurrency(surgeBonus)} />
       <BreakdownRow label={t("jobs.rainBonusWeatherSurge")} value={formatCurrency(rainBonus)} />
       <BreakdownRow label={t("jobs.peakHourBonus")} value={formatCurrency(peakBonus)} />
-      <BreakdownRow label={t("jobs.waitFeeCompensation")} value={formatCurrency(waitingComp)} />
       <BreakdownRow label={t("jobs.customerTip")} value={formatCurrency(customerTip)} />
       <BreakdownTotal label={t("jobs.totalPayout")} value={formatCurrency(totalEarningsCalculated)} />
     </EarningsBreakdownPanel>

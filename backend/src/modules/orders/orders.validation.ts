@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ServiceType } from "../../database/models/Order";
+import { FOOD_BROADCAST_CONFIG } from "../../config/dispatch.config";
 
 const coordinateSchema = z.object({
   latitude: z.number().optional(),
@@ -94,10 +95,34 @@ export const respondScheduledDeliverySchema = z.object({
   }),
 });
 
+// GET /orders/vendor/:vendorId — optional windowing for the partner app. With no
+// query at all the outlet's whole history comes back, as the web vendor panel expects.
+export const vendorOrdersQuerySchema = z.object({
+  params: z.object({ vendorId: z.string().min(1, "Vendor ID is required") }),
+  query: z.object({
+    since: z.iso.datetime({ message: "since must be an ISO date-time" }).optional(),
+    before: z.iso.datetime({ message: "before must be an ISO date-time" }).optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+  }),
+});
+
 // The assigned driver confirms the cash they received. The server compares it with the order total.
 export const cashCollectedSchema = z.object({
   params: z.object({ id: z.string().min(1) }),
   body: z.object({
     amount: z.number({ message: "Enter the cash amount you collected" }).positive().max(1_000_000),
+  }),
+});
+
+const { prepMinutesMin, prepMinutesMax } = FOOD_BROADCAST_CONFIG;
+
+export const restaurantAcceptSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    prepMinutes: z
+      .number({ message: "Choose how long the food will take" })
+      .int()
+      .min(prepMinutesMin, `Prep time must be at least ${prepMinutesMin} minutes`)
+      .max(prepMinutesMax, `Prep time can be at most ${prepMinutesMax} minutes`),
   }),
 });

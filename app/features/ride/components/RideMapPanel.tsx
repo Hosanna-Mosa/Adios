@@ -2,7 +2,7 @@ import React from "react";
 import MapView, { Marker, Callout, PROVIDER_GOOGLE, Polyline } from "@/components/maps";
 import MapViewDirections from "@/components/maps/MapViewDirections";
 import { fadeIn } from "@/motion/presets";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -14,9 +14,10 @@ import Animated from "react-native-reanimated";
 // have to be touched.
 
 import type { Props } from "./RideMapPanel.props";
+import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
 
 export function RideMapPanel(props: Props) {
-  const { VEHICLE_BIKE_3D, VEHICLE_AUTO_3D, GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
+  const { GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
   fitTripToMap, getDisplayName, handleAddStopFromMap, handleRecenter, handleShareRoute,
   initialRegion, insets, mapRef, nearbyDrivers, params, pickupCoords, pickupIsValid,
   routeCoordinates, selectedFare, selectedTier, setMapReady, styles, tokens, tripCoordinates,
@@ -56,17 +57,19 @@ export function RideMapPanel(props: Props) {
           const isAutoVehicle = vehicleType.includes("auto");
           if ((selectedTier === "auto") !== isAutoVehicle) return null;
           return (
-            <Marker key={driver.id} coordinate={{ latitude: Number(driver.lat), longitude: Number(driver.lng) }} anchor={{ x: 0.5, y: 0.5 }}>
-              <Image source={isAutoVehicle ? VEHICLE_AUTO_3D : VEHICLE_BIKE_3D} style={{ width: 40, height: 40 }} resizeMode="contain" />
-            </Marker>
+            // image prop, not an <Image> child: see vehicleMarkerIcon (Android hardware-bitmap crash).
+            <Marker
+              key={driver.id}
+              coordinate={{ latitude: Number(driver.lat), longitude: Number(driver.lng) }}
+              anchor={{ x: 0.5, y: 0.5 }}
+              image={vehicleMarkerIcon(isAutoVehicle ? "auto" : "bike")}
+            />
           );
         })}
 
         {pickupIsValid && (
-          <Marker coordinate={pickupCoords} anchor={{ x: 0.5, y: 1 }} tracksViewChanges>
-            <View collapsable={false} style={styles.mapPinContainer}>
-              <View style={styles.pickupDotMarker} />
-            </View>
+          // Bubble via `image` (a custom view gets cut off on Android); the Callout still opens on tap.
+          <Marker coordinate={pickupCoords} image={rideStopMarker("pickup")} anchor={RIDE_STOP_ANCHOR} zIndex={3}>
             <Callout tooltip onPress={() => router.back()}>
               <View style={styles.locationBubble}>
                 <Text style={styles.locationBubbleText} numberOfLines={1}>{getDisplayName(params.pickupName)}</Text>
@@ -84,10 +87,7 @@ export function RideMapPanel(props: Props) {
         ))}
 
         {dropIsValid && (
-          <Marker coordinate={dropCoords} anchor={{ x: 0.5, y: 1 }} tracksViewChanges>
-            <View collapsable={false} style={styles.mapPinContainer}>
-              <View style={styles.dropSquareMarker} />
-            </View>
+          <Marker coordinate={dropCoords} image={rideStopMarker("drop")} anchor={RIDE_STOP_ANCHOR} zIndex={3}>
             <Callout tooltip onPress={() => router.back()}>
               <View style={styles.locationBubble}>
                 <Text style={styles.locationBubbleText} numberOfLines={1}>{getDisplayName(params.dropName)}</Text>

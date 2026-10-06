@@ -5,6 +5,7 @@ import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type ProfileStyles } from "@/features/profile/profile.styles";
+import { CountBadge } from "@/components/ui/CountBadge";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -42,9 +43,7 @@ export function ProfileMenuCard({
             <Text style={styles.menuLabel}>{item.label}</Text>
             {"badge" in item && item.badge && <Text style={styles.menuBadgeText}>{item.badge}</Text>}
             {"countBadge" in item && item.countBadge ? (
-              <View style={styles.menuCountBadge}>
-                <Text style={styles.menuCountBadgeText}>{item.countBadge}</Text>
-              </View>
+              <CountBadge count={Number(item.countBadge) || 0} ringColor={tokens.surface} />
             ) : null}
             <Ionicons name="chevron-forward" size={18} color={tokens.muted} />
           </TouchableOpacity>

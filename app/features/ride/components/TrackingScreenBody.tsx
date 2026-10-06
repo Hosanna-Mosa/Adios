@@ -19,7 +19,7 @@ import { TrackingBottomSheet } from "./TrackingBottomSheet";
 export function TrackingScreenBody(props: Props) {
   const {
   accent, bannerText, driver, driverLocation, eta, insets, mapRef, radius, route, status, stops,
-  styles, tokens, userLocCoords
+  styles, tokens, userLocCoords, outletOrder, rideOrder
   } = props;
   return (
     <>
@@ -30,6 +30,8 @@ export function TrackingScreenBody(props: Props) {
       driverLocation={driverLocation}
       driverVehicleType={driver?.vehicle && driver.vehicle !== "unknown" ? driver.vehicle : undefined}
       userLocation={userLocCoords}
+      outletOrder={outletOrder}
+      rideOrder={rideOrder}
       radiusCenter={stops?.[0]?.lat !== undefined && stops?.[0]?.lng !== undefined ? { lat: stops[0].lat, lng: stops[0].lng } : null}
       radiusMeters={radius ? radius * 1000 : undefined}
       style={StyleSheet.absoluteFill}

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import type { OrderChatMessage, UserDetailResponse } from "../userDetailTypes";
 
 /** All state/query/mutation logic for UserDetail.tsx (work queue item #11). */
@@ -53,8 +54,8 @@ export function useUserDetail(id: string | undefined) {
     },
   });
 
-  const handleDeleteClick = () => {
-    if (confirm(t("users.confirmPermanentlyDeleteUser"))) {
+  const handleDeleteClick = async () => {
+    if (await appConfirm({ title: t("users.confirmPermanentlyDeleteUser"), tone: "destructive" })) {
       deleteUserMutation.mutate();
     }
   };

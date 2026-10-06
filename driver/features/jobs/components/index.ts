@@ -8,7 +8,6 @@ export { ChatMessageBubble } from "./ChatMessageBubble";
 export type { ChatMessage } from "./ChatMessageBubble";
 export { CustomerChatHeader } from "./CustomerChatHeader";
 export { GoOnlineModal } from "./GoOnlineModal";
-export { GpsSimulatorPanel } from "./GpsSimulatorPanel";
 export { HeadHomeToggle } from "./HeadHomeToggle";
 export { HighDemandAreas } from "./HighDemandAreas";
 export { HomeGreetingHeader } from "./HomeGreetingHeader";

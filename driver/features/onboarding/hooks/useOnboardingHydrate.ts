@@ -27,7 +27,9 @@ export function useOnboardingHydrate(
         const res = await getOnboarding(token);
         if (bailIfUnauthorized(res.status)) return;
         if (res.ok) {
-          const d = (await res.json()).data;
+          const body = await res.json();
+          if (body.email) step1.setEmail(body.email);
+          const d = body.data;
           if (d) {
             if (d.gender) step1.setGender(d.gender);
             if (d.vehicleType) step1.setVehicle(d.vehicleType);

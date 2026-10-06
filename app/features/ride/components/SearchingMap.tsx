@@ -1,8 +1,9 @@
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "@/components/maps";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
+import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -22,9 +23,6 @@ interface Props {
 }
 
 export function SearchingMap({
-  VEHICLE_CAB_3D,
-  VEHICLE_BIKE_3D,
-  VEHICLE_AUTO_3D,
   colors,
   dropCoords,
   fitTripMarkers,
@@ -62,11 +60,7 @@ export function SearchingMap({
           strokeColor="rgba(61, 132, 215, 0.18)"
           strokeWidth={1}
         />
-        <Marker coordinate={dropCoords} anchor={{ x: 0.5, y: 1 }}>
-          <View style={styles.dropMarker}>
-            <View style={styles.dropMarkerInner} />
-          </View>
-        </Marker>
+        <Marker coordinate={dropCoords} image={rideStopMarker("drop")} anchor={RIDE_STOP_ANCHOR} zIndex={3} />
         {onlineDrivers.map((drv) => {
           const coords = drv.currentLocation?.coordinates;
           if (
@@ -88,29 +82,12 @@ export function SearchingMap({
                 longitude: coords[0],
               }}
               anchor={{ x: 0.5, y: 0.5 }}
-            >
-              <Image
-                source={
-                  drv.vehicleType === "auto"
-                    ? VEHICLE_AUTO_3D
-                    : drv.vehicleType === "car"
-                    ? VEHICLE_CAB_3D
-                    : VEHICLE_BIKE_3D
-                }
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
-            </Marker>
+              // image prop, not an <Image> child: see vehicleMarkerIcon (Android hardware-bitmap crash).
+              image={vehicleMarkerIcon(drv.vehicleType === "car" ? "cab" : drv.vehicleType)}
+            />
           );
         })}
-        <Marker coordinate={pickupCoords} anchor={{ x: 0.5, y: 0.5 }}>
-          <View style={styles.pickupMarkerWrap}>
-            <View style={styles.pickupMarker}>
-              <View style={styles.pickupDot} />
-            </View>
-            <View style={styles.pickupStem} />
-          </View>
-        </Marker>
+        <Marker coordinate={pickupCoords} image={rideStopMarker("pickup")} anchor={RIDE_STOP_ANCHOR} zIndex={3} />
       </MapView>
       <TouchableOpacity
         style={styles.screenBackButton}

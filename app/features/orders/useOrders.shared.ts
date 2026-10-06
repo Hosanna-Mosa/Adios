@@ -81,12 +81,10 @@ export function toCartItem(line: any) {
 
 export function resolveServiceKey(order: any): string {
   if (order.serviceType === "delivery" && order.vendor) {
-    // GET /api/v1/orders doesn't populate vendor (it's a raw id here), so
-    // there's no real field to tell a food order from a meat one at this
-    // list level — labelled "Food" as the more common case rather than
-    // guessing from a partnerType that isn't actually present on this
-    // response.
-    return "food";
+    // GET /api/v1/orders sends the outlet as { _id, name, image, partnerType }.
+    // An older backend sent a bare id, with nothing to tell food from meat, so
+    // that case stays "Food" as the more common one.
+    return typeof order.vendor === "object" && order.vendor.partnerType === "meat" ? "meat" : "food";
   }
   return order.serviceType || "delivery";
 }

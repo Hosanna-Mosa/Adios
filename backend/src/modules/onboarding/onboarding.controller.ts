@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { OnboardingService } from "./onboarding.service";
+import { AppError } from "../../utils/errors";
 
 const onboardingService = new OnboardingService();
 
@@ -18,7 +19,9 @@ export class OnboardingController {
       return res.json(result);
     } catch (error: any) {
       console.error("[ONBOARDING] Save error:", error);
-      return res.status(500).json({ message: error.message || "Internal server error" });
+      // e.g. 400 invalid email, 409 email already used by another account.
+      const status = error instanceof AppError ? error.statusCode : 500;
+      return res.status(status).json({ message: error.message || "Internal server error" });
     }
   }
 
@@ -90,7 +93,8 @@ export class OnboardingController {
       return res.json(result);
     } catch (error: any) {
       console.error("[ONBOARDING] Complete error:", error);
-      return res.status(500).json({ message: error.message || "Internal server error" });
+      const status = error instanceof AppError ? error.statusCode : 500;
+      return res.status(status).json({ message: error.message || "Internal server error" });
     }
   }
 

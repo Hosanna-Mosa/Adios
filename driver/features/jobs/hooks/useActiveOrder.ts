@@ -72,7 +72,7 @@ export function useActiveOrder() {
     deliveryStop,
   );
 
-  const earnings = computeEarnings(currentOrder?.distance, timers.waitingComp);
+  const earnings = computeEarnings(currentOrder?.distance);
 
   return {
     // The screen bails before rendering any stage when this is null.

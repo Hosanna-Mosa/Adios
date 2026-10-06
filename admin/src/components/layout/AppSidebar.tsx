@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
 import type { LiveOrder } from "@/features/orders/liveOrdersTypes";
+import type { VerificationQueueResponse } from "@/features/verification/types";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
 import { clearSession, getStaffRole } from "@/lib/session";
 import { socketService } from "@/lib/socketService";
@@ -33,6 +34,8 @@ import {
   ChevronDown,
   Image,
   MessageSquare,
+  ShieldCheck,
+  BadgeCheck,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
@@ -44,9 +47,11 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.liveOrders"), url: "/live-orders", icon: ShoppingCart },
     { title: t("sidebar.scheduledOrders"), url: "/scheduled-orders", icon: CalendarClock },
     { title: t("sidebar.drivers"), url: "/drivers", icon: Truck },
+    { title: t("sidebar.driverVerification"), url: "/driver-verification", icon: ShieldCheck },
     { title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal },
     { title: t("sidebar.users"), url: "/users", icon: Users },
     { title: t("sidebar.vendors"), url: "/vendors", icon: Store },
+    { title: t("sidebar.restaurantVerification"), url: "/restaurant-verification", icon: BadgeCheck },
     { title: t("sidebar.restaurantMenu"), url: "/restaurant-menu", icon: Store },
     { title: t("sidebar.meatCenters"), url: "/meat-centers", icon: Drumstick },
     { title: t("sidebar.meatPricing"), url: "/meat-pricing", icon: IndianRupee },
@@ -87,6 +92,24 @@ export function AppSidebar() {
     ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "searching_driver", "driver_assigned"].includes(o.status)
   ).length;
 
+  // Applications waiting for review. Same query keys as the verification pages'
+  // default tab, so opening a page reuses this result.
+  const { data: driverQueue } = useQuery({
+    queryKey: ["verifications", "drivers", "pending_approval"],
+    queryFn: () => adminFetch<VerificationQueueResponse>("/admin/verifications/drivers?status=pending_approval"),
+    enabled: isAdminSession,
+  });
+  const { data: vendorQueue } = useQuery({
+    queryKey: ["verifications", "vendors", "submitted"],
+    queryFn: () => adminFetch<VerificationQueueResponse>("/admin/verifications/vendors?status=submitted"),
+    enabled: isAdminSession,
+  });
+  const badgeCounts: Record<string, number> = {
+    "/live-orders": liveOrdersCount,
+    "/driver-verification": driverQueue?.counts.pending_approval || 0,
+    "/restaurant-verification": vendorQueue?.counts.submitted || 0,
+  };
+
   const handleLogout = () => {
     clearSession();
     // The socket authenticated with this session's token; drop it so the next
@@ -98,7 +121,7 @@ export function AppSidebar() {
     <aside className="w-[240px] h-screen bg-card border-r border-border flex flex-col justify-between shrink-0 sticky top-0 overflow-y-auto">
       <div>
         <div className="px-6 py-6">
-          <h1 className="text-xl font-extrabold text-brand-teal tracking-wide">FLAVOUR</h1>
+          <h1 className="text-xl font-extrabold text-brand-teal tracking-wide">ADIOS</h1>
           <p className="text-[9px] uppercase tracking-[0.22em] text-muted-foreground font-bold mt-0.5">
             {t("sidebar.foodAndServices")}
           </p>
@@ -132,9 +155,9 @@ export function AppSidebar() {
                     <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
-                  {item.url === "/live-orders" && liveOrdersCount > 0 && (
+                  {badgeCounts[item.url] > 0 && (
                     <span className="text-[10px] font-bold bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
-                      {liveOrdersCount}
+                      {badgeCounts[item.url]}
                     </span>
                   )}
                 </Link>

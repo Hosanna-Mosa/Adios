@@ -123,7 +123,7 @@
         },
         "pinSafety": {
           "question": "నా పిన్ షేర్ చేయడం సురక్షితమేనా?",
-          "answer": "మీ వస్తువులు భౌతికంగా మీ చేతికి వచ్చిన తర్వాత, లేదా రైడ్ కోసం మీ కెప్టెన్ చేరుకున్న తర్వాత మాత్రమే దానిని ఇవ్వండి. Flavour నుండి ఎవరూ దానిని కాల్‌లో అడగరు."
+          "answer": "మీ వస్తువులు భౌతికంగా మీ చేతికి వచ్చిన తర్వాత, లేదా రైడ్ కోసం మీ రైడర్ చేరుకున్న తర్వాత మాత్రమే దానిని ఇవ్వండి. Flavour నుండి ఎవరూ దానిని కాల్‌లో అడగరు."
         }
       },
       "categories": {
@@ -172,7 +172,7 @@
     },
     "tracking": {
       "rideLabels": {
-        "captainAssigned": "కెప్టెన్ కేటాయించబడ్డారు",
+        "captainAssigned": "రైడర్ కేటాయించబడ్డారు",
         "headingToPickup": "పికప్‌కి వెళ్తున్నారు",
         "tripInProgress": "ప్రయాణం జరుగుతోంది",
         "tripCompleted": "ప్రయాణం పూర్తయింది"
@@ -189,7 +189,13 @@
         "prepared": "సిద్ధం చేయబడింది",
         "outForDelivery": "డెలివరీకి బయలుదేరింది",
         "delivered": "డెలివరీ చేయబడింది"
-      }
+      },
+      "waitingForRestaurant": "రెస్టారెంట్ మీ ఆర్డర్‌ను అంగీకరించడం కోసం వేచి ఉన్నాం",
+      "restaurantPreparing": "రెస్టారెంట్ మీ ఆహారాన్ని సిద్ధం చేస్తోంది",
+      "restaurantPin": "రెస్టారెంట్",
+      "deliveryLocationPin": "మీ డెలివరీ లొకేషన్",
+      "pickupPin": "పికప్",
+      "dropPin": "డ్రాప్"
     },
     "orderStatusTimeline": {
       "steps": {
@@ -204,9 +210,9 @@
       },
       "rideSteps": {
         "rideBooked": "రైడ్ బుక్ చేయబడింది",
-        "captainAssigned": "కెప్టెన్ కేటాయించబడ్డారు",
-        "captainOnTheWay": "కెప్టెన్ దారిలో ఉన్నారు",
-        "captainArrived": "కెప్టెన్ చేరుకున్నారు",
+        "captainAssigned": "రైడర్ కేటాయించబడ్డారు",
+        "captainOnTheWay": "రైడర్ దారిలో ఉన్నారు",
+        "captainArrived": "రైడర్ చేరుకున్నారు",
         "tripInProgress": "ప్రయాణం జరుగుతోంది",
         "arrivedAtDestination": "గమ్యస్థానానికి చేరుకున్నారు",
         "tripCompleted": "ప్రయాణం పూర్తయింది"
@@ -323,7 +329,7 @@
       "useMyCurrentLocation": "నా ప్రస్తుత లొకేషన్‌ను ఉపయోగించండి",
       "enterAddressManually": "చిరునామాను మాన్యువల్‌గా నమోదు చేయండి",
       "noRidersAvailableNearby": "సమీపంలో రైడర్లు అందుబాటులో లేరు",
-      "allCaptainsNearbyAreOnTrips": "సమీపంలోని అందరు కెప్టెన్‌లు ప్రస్తుతం ప్రయాణంలో ఉన్నారు. సాధారణంగా ఒకరు ఖాళీ అవ్వడానికి కొన్ని నిమిషాలు పడుతుంది.",
+      "allCaptainsNearbyAreOnTrips": "సమీపంలోని అందరు రైడర్‌లు ప్రస్తుతం ప్రయాణంలో ఉన్నారు. సాధారణంగా ఒకరు ఖాళీ అవ్వడానికి కొన్ని నిమిషాలు పడుతుంది.",
       "retrySearch": "మళ్లీ వెతకండి",
       "freshMeatDaily": "ప్రతిరోజూ తాజా మాంసం!",
       "cravingSomethingDelicious": "రుచికరమైనది\nకావాలా?",
@@ -362,7 +368,9 @@
       "forgot": "మర్చిపోయారా?",
       "thisPageMoved": "ఈ పేజీ తరలించబడింది",
       "theLinkYouFollowedDoesnapostExist": "మీరు అనుసరించిన లింక్ ఇక అందుబాటులో లేదు.",
-      "goHome": "హోమ్‌కు వెళ్లండి"
+      "goHome": "హోమ్‌కు వెళ్లండి",
+      "pickAServiceToGetStarted": "ప్రారంభించడానికి ఒక సేవను ఎంచుకోండి.",
+      "beta": "బీటా"
     },
     "profile": {
       "menuItems": {
@@ -542,7 +550,15 @@
       "thisRemovesEveryItemFromVar": "ఇది {{value}} నుండి ప్రతి వస్తువును తీసివేస్తుంది.",
       "thisLinkIsntAvailable": "ఈ లింక్ అందుబాటులో లేదు",
       "theOutletItPointsToMayHaveClosed": "ఇది సూచించే అవుట్‌లెట్ మూసివేయబడి ఉండవచ్చు లేదా మారి ఉండవచ్చు.",
-      "goToHome": "హోమ్‌కు వెళ్ళండి"
+      "goToHome": "హోమ్‌కు వెళ్ళండి",
+      "notAcceptingOrders": "ఆర్డర్లు తీసుకోవడం లేదు",
+      "notAcceptingOrdersNow": "ప్రస్తుతం ఆర్డర్లు తీసుకోవడం లేదు",
+      "closedNow": "ప్రస్తుతం మూసి ఉంది",
+      "closedOpensAt": "ప్రస్తుతం మూసి ఉంది · {{time}}కి తెరుచుకుంటుంది",
+      "closedPill": "మూసి ఉంది",
+      "outletClosedMessage": "{{name}} ప్రస్తుతం ఆర్డర్లు తీసుకోవడం లేదు. మీరు మెనూ చూడవచ్చు, తెరిచిన తర్వాత ఆర్డర్ చేయవచ్చు.",
+      "outletClosedOpensAtMessage": "{{name}} ప్రస్తుతం మూసి ఉంది, {{time}}కి తెరుచుకుంటుంది. మీరు మెనూ చూడవచ్చు, అప్పుడు ఆర్డర్ చేయవచ్చు.",
+      "closedBannerHint": "మీరు మెనూ చూడవచ్చు, కానీ తెరిచే వరకు ఆర్డర్లు నిలిపివేయబడ్డాయి."
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} మీ అసలు చెల్లింపు విధానానికి తిరిగి ఇవ్వబడింది · {{date}}",
@@ -553,7 +569,7 @@
       "helperOnTheWay": "హెల్పర్ దారిలో ఉన్నారు",
       "matchingAHelper": "హెల్పర్‌ను వెతుకుతున్నాము",
       "riderOnTheRoute": "రైడర్ మార్గంలో ఉన్నారు",
-      "findingYourCaptain": "మీ కెప్టెన్‌ను వెతుకుతున్నాము",
+      "findingYourCaptain": "మీ రైడర్‌ను వెతుకుతున్నాము",
       "past": "గత",
       "cancelled": "రద్దు చేయబడింది",
       "repeatRoute": "మార్గాన్ని పునరావృతం చేయండి",
@@ -575,7 +591,7 @@
       "submit": "సమర్పించండి",
       "noOrdersYet": "ఇంకా ఆర్డర్‌లు లేవు",
       "foodMeatRidesHelpersAndCourier": "మీరు మీ మొదటి ఆర్డర్ చేసిన తర్వాత ఫుడ్, మీట్, రైడ్‌లు, హెల్పర్‌లు మరియు కొరియర్ రన్‌లు అన్నీ ఇక్కడ కనిపిస్తాయి.",
-      "exploreFlavour": "Flavourను అన్వేషించండి",
+      "exploreFlavour": "Adios అన్వేషించండి",
       "activeNow": "ప్రస్తుతం యాక్టివ్‌గా ఉంది",
       "trackOrder": "ఆర్డర్‌ను ట్రాక్ చేయండి",
       "cantReorder": "మళ్లీ ఆర్డర్ చేయడం సాధ్యం కాలేదు",
@@ -583,7 +599,20 @@
       "details": "వివరాలు",
       "noOrdersInThisFilter": "ఈ ఫిల్టర్‌లో ఆర్డర్‌లు లేవు",
       "ordersInTotalPickAll_one": "మీకు మొత్తం {{count}} ఆర్డర్ ఉంది — చూడటానికి “అన్నీ” ఎంచుకోండి.",
-      "ordersInTotalPickAll_other": "మీకు మొత్తం {{count}} ఆర్డర్‌లు ఉన్నాయి — చూడటానికి “అన్నీ” ఎంచుకోండి."
+      "ordersInTotalPickAll_other": "మీకు మొత్తం {{count}} ఆర్డర్‌లు ఉన్నాయి — చూడటానికి “అన్నీ” ఎంచుకోండి.",
+      "delivered": "డెలివర్ అయింది",
+      "completed": "పూర్తయింది",
+      "orderFallback": "ఆర్డర్",
+      "activeCount": "{{count}} యాక్టివ్",
+      "scheduledCount": "{{count}} షెడ్యూల్",
+      "pastCount": "{{count}} గతం",
+      "waitingForRestaurant": "రెస్టారెంట్ అంగీకారం కోసం వేచి ఉన్నాం",
+      "itemCount_one": "{{count}} ఐటమ్",
+      "itemCount_other": "{{count}} ఐటమ్‌లు",
+      "placedAt": "{{time}}కి ఆర్డర్ చేశారు",
+      "deliveringTo": "డెలివరీ చిరునామా",
+      "dropAt": "డ్రాప్",
+      "taskLocation": "పని జరిగే చోటు"
     },
     "helperTask": {
       "title": {
@@ -595,6 +624,7 @@
       }
     },
     "LocationPickerSheet": {
+      "useCurrentLocation": "ప్రస్తుత లొకేషన్ ఉపయోగించండి",
       "noLocationDetectedToSave": "సేవ్ చేయడానికి ఏ లొకేషన్ కనుగొనబడలేదు.",
       "saved": "సేవ్ చేయబడింది!",
       "yourCurrentLocationHasBeenAdded": "మీ ప్రస్తుత లొకేషన్ సేవ్ చేసిన చిరునామాలకు జోడించబడింది.",
@@ -706,7 +736,7 @@
       "point": "పాయింట్",
       "pickupWord": "పికప్",
       "dropWord": "డ్రాప్",
-      "moveThePinToWhereYouaposll": "మీరు నిజంగా నిలబడే చోటుకు పిన్‌ను తరలించండి. పిన్ గేటెడ్ కమ్యూనిటీ లోపల ఉన్నప్పుడు కెప్టెన్‌లు ఎక్కువగా రద్దు చేస్తారు.",
+      "moveThePinToWhereYouaposll": "మీరు నిజంగా నిలబడే చోటుకు పిన్‌ను తరలించండి. పిన్ గేటెడ్ కమ్యూనిటీ లోపల ఉన్నప్పుడు రైడర్‌లు ఎక్కువగా రద్దు చేస్తారు.",
       "locating": "గుర్తిస్తోంది…",
       "fetchingAddressDetails": "చిరునామా వివరాలను పొందుతోంది…",
       "confirm": "నిర్ధారించండి",
@@ -846,7 +876,7 @@
       "areYouSureYouWantTo": "మీరు ఖచ్చితంగా రద్దు చేయాలనుకుంటున్నారా",
       "thisRide": "ఈ రైడ్‌ను?",
       "dropLocationCanBeChangedBefore": "మరో రైడ్‌ను బుక్ చేసే ముందు డ్రాప్ లొకేషన్‌ను మార్చవచ్చు.",
-      "pickupLocationCanBeChangedUp": "కెప్టెన్‌ను కేటాయించిన తర్వాత కూడా పికప్ లొకేషన్‌ను 200మీ పరిధిలో మార్చవచ్చు.",
+      "pickupLocationCanBeChangedUp": "రైడర్‌ను కేటాయించిన తర్వాత కూడా పికప్ లొకేషన్‌ను 200మీ పరిధిలో మార్చవచ్చు.",
       "reason": "కారణం",
       "yourCurrentAddressIs": "మీ ప్రస్తుత {{label}} చిరునామా",
       "cancelMyRide": "నా రైడ్‌ను రద్దు చేయండి",
@@ -865,7 +895,7 @@
       "reviewTags": {
         "onTime": "సమయానికి",
         "smoothRide": "సాఫీగా ప్రయాణం",
-        "politeCaptain": "మర్యాదపూర్వక కెప్టెన్",
+        "politeCaptain": "మర్యాదపూర్వక రైడర్",
         "cleanVehicle": "శుభ్రమైన వాహనం",
         "greatRoute": "అద్భుతమైన మార్గం",
         "carefulWithItems": "వస్తువుల పట్ల జాగ్రత్త",
@@ -887,7 +917,7 @@
       "submitRating": "రేటింగ్‌ను సమర్పించండి",
       "reservation": "రిజర్వేషన్",
       "confirmedLower": "నిర్ధారించబడింది",
-      "weaposllAssignYourCaptainAt": "మేము మీ కెప్టెన్‌ను కేటాయిస్తాము",
+      "weaposllAssignYourCaptainAt": "మేము మీ రైడర్‌ను కేటాయిస్తాము",
       "andNotifyYou": "మరియు మీకు తెలియజేస్తాము.",
       "pickupTime": "పికప్ సమయం",
       "pickup": "పికప్",
@@ -910,14 +940,14 @@
       "payingViaCash": "నగదు ద్వారా చెల్లిస్తున్నారు",
       "back": "వెనుకకు",
       "cancelRide": "రైడ్‌ను రద్దు చేయండి",
-      "findingYourCaptain": "మీ కెప్టెన్‌ను వెతుకుతోంది",
+      "findingYourCaptain": "మీ రైడర్‌ను వెతుకుతోంది",
       "searchingNearby": "సమీపంలో {{tier}} వెతుకుతోంది. ",
-      "searchingNearbyCaptains": "సమీపంలోని కెప్టెన్‌లను వెతుకుతోంది. ",
+      "searchingNearbyCaptains": "సమీపంలోని రైడర్‌లను వెతుకుతోంది. ",
       "usuallyUnderAMinute": "సాధారణంగా ఒక నిమిషం లోపు.",
       "searching": "వెతుకుతోంది",
       "cancelRideLower": "రైడ్‌ను రద్దు చేయండి",
       "scheduleARide": "రైడ్‌ను షెడ్యూల్ చేయండి",
-      "weaposllAssignACaptain15Minutes": "పికప్‌కి 15 నిమిషాల ముందు మేము కెప్టెన్‌ను కేటాయిస్తాము.",
+      "weaposllAssignACaptain15Minutes": "పికప్‌కి 15 నిమిషాల ముందు మేము రైడర్‌ను కేటాయిస్తాము.",
       "date": "తేదీ",
       "today": "ఈరోజు",
       "estimatedFareConfirmedAtPickup": "అంచనా ₹{{amount}} · పికప్ వద్ద ఛార్జీ నిర్ధారించబడుతుంది",
@@ -925,7 +955,7 @@
       "reserveFor": "కోసం రిజర్వ్ చేయండి",
       "connectingWithNearbyDriversInYour": "మీ ప్రాంతంలోని సమీప డ్రైవర్‌లతో కనెక్ట్ అవుతోంది",
       "tripDetails": "ప్రయాణ వివరాలు",
-      "captainsArenapostAcceptingAt": "కెప్టెన్‌లు ₹ వద్ద అంగీకరించడం లేదు",
+      "captainsArenapostAcceptingAt": "రైడర్‌లు ₹ వద్ద అంగీకరించడం లేదు",
       "tryAddingMore": ". మరింత జోడించడానికి ప్రయత్నించండి:",
       "orderCancelled": "ఆర్డర్ రద్దు చేయబడింది",
       "wereSorryThisOrderCouldNot": "క్షమించండి — ఈ ఆర్డర్‌ను పూర్తి చేయలేకపోయాము మరియు రద్దు చేయబడింది.",
@@ -937,8 +967,8 @@
       "yourEmergencyAlertHasBeenSent": "మీ అత్యవసర అలర్ట్ పంపబడింది. సపోర్ట్ దారిలో ఉంది.",
       "failedToTriggerSos": "SOSను ప్రేరేపించడంలో విఫలమైంది. దయచేసి అత్యవసర సేవలకు కాల్ చేయండి.",
       "driverIsUnavailable": "డ్రైవర్ అందుబాటులో లేరు.",
-      "noCaptainFound": "కెప్టెన్ కనుగొనబడలేదు",
-      "sorryNoCaptainsAreAvailableTo": "క్షమించండి, ప్రస్తుతం మీ రిజర్వేషన్ అభ్యర్థనను అంగీకరించడానికి కెప్టెన్‌లు అందుబాటులో లేరు. దయచేసి తర్వాత మళ్లీ షెడ్యూల్ చేయడానికి ప్రయత్నించండి.",
+      "noCaptainFound": "రైడర్ కనుగొనబడలేదు",
+      "sorryNoCaptainsAreAvailableTo": "క్షమించండి, ప్రస్తుతం మీ రిజర్వేషన్ అభ్యర్థనను అంగీకరించడానికి రైడర్‌లు అందుబాటులో లేరు. దయచేసి తర్వాత మళ్లీ షెడ్యూల్ చేయడానికి ప్రయత్నించండి.",
       "savedPlaces": "సేవ్ చేసిన ప్రదేశాలు",
       "addressFallback": "చిరునామా",
       "searchResults": "శోధన ఫలితాలు",
@@ -947,11 +977,11 @@
       "noMatchingPlacesFound": "సరిపోలే ప్రదేశాలు కనుగొనబడలేదు.",
       "yourSearchedPlacesWillAppearHere": "మీరు శోధించిన ప్రదేశాలు ఇక్కడ కనిపిస్తాయి.",
       "bookingConfirmed": "బుకింగ్ నిర్ధారించబడింది",
-      "aCaptainHasAcceptedYourReserved": "కెప్టెన్ మీ రిజర్వ్ చేసిన రైడ్‌ను అంగీకరించారు",
+      "aCaptainHasAcceptedYourReserved": "రైడర్ మీ రిజర్వ్ చేసిన రైడ్‌ను అంగీకరించారు",
       "theScheduledTime": "షెడ్యూల్ చేసిన సమయం",
       "weaposllNotifyYou15MinutesBefore": ". పికప్‌కి 15 నిమిషాల ముందు మేము మీకు తెలియజేస్తాము.",
-      "captain": "కెప్టెన్",
-      "noCancellationFeeWeHavenapostAssigned": "క్యాన్సలేషన్ ఫీజు లేదు — మేము ఇంకా కెప్టెన్‌ను కేటాయించలేదు.",
+      "captain": "రైడర్",
+      "noCancellationFeeWeHavenapostAssigned": "క్యాన్సలేషన్ ఫీజు లేదు — మేము ఇంకా రైడర్‌ను కేటాయించలేదు.",
       "addStop": "+ స్టాప్ జోడించండి",
       "selectOnMap": "మ్యాప్‌లో ఎంచుకోండి",
       "whereTo": "ఎక్కడికి?",
@@ -976,7 +1006,7 @@
       "help": "సహాయం",
       "helperUpdate": "హెల్పర్ అప్‌డేట్",
       "startRidePin": "రైడ్ ప్రారంభ PIN",
-      "giveThisToYourCaptainTo": "ప్రయాణాన్ని ప్రారంభించడానికి దీన్ని మీ కెప్టెన్‌కు ఇవ్వండి.",
+      "giveThisToYourCaptainTo": "ప్రయాణాన్ని ప్రారంభించడానికి దీన్ని మీ రైడర్‌కు ఇవ్వండి.",
       "endRidePin": "రైడ్ ముగింపు PIN",
       "deliveryPin": "డెలివరీ PIN",
       "onlyGiveThisCodeWhenYour": "మీ వస్తువులు సురక్షితంగా అందిన తర్వాతే ఈ కోడ్‌ను ఇవ్వండి.",
@@ -996,7 +1026,20 @@
       "clearDropAddress": "డ్రాప్ చిరునామాను క్లియర్ చేయండి",
       "newDriverRating": "కొత్త",
       "completionPin": "పూర్తి పిన్",
-      "giveThisToYourHelperOnceWorkIsFinished": "పని పూర్తయిన తర్వాత మాత్రమే దీన్ని మీ హెల్పర్‌కు ఇవ్వండి."
+      "giveThisToYourHelperOnceWorkIsFinished": "పని పూర్తయిన తర్వాత మాత్రమే దీన్ని మీ హెల్పర్‌కు ఇవ్వండి.",
+      "restaurantDidNotAcceptInTime": "రెస్టారెంట్ సమయానికి మీ ఆర్డర్‌ను అంగీకరించలేదు, అందుకే అది రద్దు చేయబడింది. ఆన్‌లైన్ చెల్లింపు తిరిగి ఇవ్వబడుతుంది.",
+      "restaurantCouldNotTakeOrder": "రెస్టారెంట్ మీ ఆర్డర్‌ను తీసుకోలేకపోయింది, అందుకే అది రద్దు చేయబడింది. ఆన్‌లైన్ చెల్లింపు తిరిగి ఇవ్వబడుతుంది.",
+      "waitingForRestaurantTitle": "రెస్టారెంట్ కోసం వేచి ఉన్నాం",
+      "waitingForRestaurantSubtitle": "రెస్టారెంట్ త్వరలో మీ ఆర్డర్‌ను అంగీకరిస్తుంది. అంగీకరించిన వెంటనే రైడర్‌ను వెతుకుతాం.",
+      "restaurantPreparingTitle": "రెస్టారెంట్ మీ ఆహారాన్ని సిద్ధం చేస్తోంది",
+      "restaurantPreparingSubtitle": "దాన్ని తీసుకెళ్లడానికి రైడర్‌ను వెతుకుతున్నాం. సాధారణంగా ఒక నిమిషం లోపే.",
+      "cancelOrderLower": "ఆర్డర్ రద్దు చేయండి",
+      "cancelledByRestaurant": "రెస్టారెంట్ మీ ఆర్డర్‌ను రద్దు చేసింది",
+      "cancelledByRider": "రైడర్ మీ ఆర్డర్‌ను రద్దు చేశారు",
+      "riderCancelledOrder": "మీ రైడర్ రద్దు చేయాల్సి వచ్చింది, కాబట్టి ఈ ఆర్డర్ రద్దు చేయబడింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది.",
+      "cancelledByAdios": "Adios ద్వారా ఆర్డర్ రద్దు చేయబడింది",
+      "adiosCancelledOrder": "Adios బృందం ఈ ఆర్డర్‌ను రద్దు చేసింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది. ప్రశ్నలు ఉంటే సపోర్ట్‌ను సంప్రదించండి.",
+      "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -1120,7 +1163,8 @@
         "arrivedAtPickup": "పికప్ వద్దకు చేరుకున్నారు",
         "preparingYourOrder": "మీ ఆర్డర్ సిద్ధమవుతోంది",
         "inProgress": "కొనసాగుతోంది",
-        "arrived": "చేరుకున్నారు"
+        "arrived": "చేరుకున్నారు",
+        "waitingForRestaurant": "రెస్టారెంట్ కోసం వేచి ఉన్నాం"
       }
     },
     "shareLink": {

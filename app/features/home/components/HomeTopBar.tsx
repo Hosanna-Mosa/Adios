@@ -7,6 +7,7 @@ import { router, useFocusEffect } from "expo-router";
 import { type ThemeTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
 import { customFetch } from "@/utils/api/custom-fetch";
+import { CountBadge } from "@/components/ui/CountBadge";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from
 // the screen's scope is now passed in as props.
@@ -62,11 +63,7 @@ export function HomeTopBar({
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconBtnCircle} onPress={() => router.push("/notifications")}>
           <Ionicons name="notifications-outline" size={moderateScale(18)} color={tokens.sec} />
-          {unreadCount > 0 && (
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>{unreadCount > 9 ? "9+" : unreadCount}</Text>
-            </View>
-          )}
+          <CountBadge count={unreadCount} style={styles.notificationBadge} />
         </TouchableOpacity>
       </View>
     </View>

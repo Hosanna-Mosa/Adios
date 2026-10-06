@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { appConfirm } from "@/lib/dialog";
 import { useListQuery } from "@/hooks/useListQuery";
 import type { AdminUser } from "../types";
 
@@ -97,8 +98,8 @@ export function useUsersList() {
     createUserMutation.mutate(newUser);
   };
 
-  const handleDeleteClick = (user: AdminUser) => {
-    if (confirm(t("users.confirmDeleteUser", { name: user.name, defaultValue: "Are you sure you want to delete user {{name}}?" }))) {
+  const handleDeleteClick = async (user: AdminUser) => {
+    if (await appConfirm({ title: t("users.confirmDeleteUser", { name: user.name, defaultValue: "Are you sure you want to delete user {{name}}?" }), tone: "destructive" })) {
       deleteUserMutation.mutate(user._id);
     }
   };

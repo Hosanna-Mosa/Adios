@@ -8,16 +8,26 @@ import { useRouteAfterAuth } from "./useRouteAfterAuth";
 
 const MOCK_OTP = "123456";
 
+// Must match the backend's verify-otp rule; the app used to accept 6.
+const MIN_PASSWORD_LENGTH = 8;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** The backend's most specific message: a field error before the generic one. */
+const errorMessage = (data: any, fallback: string): string =>
+  data?.errors?.[0]?.message || data?.message || fallback;
+
 /** The three network actions behind the auth screen: password sign-in,
  * sending an OTP, and verifying it. Split out of useAuthFlow so both files
  * stay under 150 lines. */
 export function useAuthActions({
-  mode, phone, name, password, confirmPassword, otp, setOtp, setStep, otpRefs,
+  mode, phone, name, email, password, confirmPassword, otp, setOtp, setStep, otpRefs,
   onSwitchToSignUp, onAdvanceToOtp,
 }: {
   mode: "signin" | "signup";
   phone: string;
   name: string;
+  /** Required at sign-up: application review outcomes are emailed to it. */
+  email: string;
   password: string;
   confirmPassword: string;
   otp: string[];
@@ -75,11 +85,18 @@ export function useAuthActions({
       Alert.alert(t("auth.invalidPhone"), t("auth.pleaseEnterAValid10DigitPhone"));
       return;
     }
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      Alert.alert(
+        t("auth.invalidEmailTitle", "Email required"),
+        t("auth.pleaseEnterAValidEmail", "Please enter a valid email address. We'll email you when your account is approved."),
+      );
+      return;
+    }
     if (!password) {
       Alert.alert(t("auth.passwordRequired"), t("auth.pleaseCreateAPassword"));
       return;
     }
-    if (password.length < 6) {
+    if (password.length < MIN_PASSWORD_LENGTH) {
       Alert.alert(t("auth.weakPassword"), t("auth.passwordMustBeAtLeast6Characters"));
       return;
     }
@@ -94,10 +111,10 @@ export function useAuthActions({
       const response = await fetch(`${apiUrl}/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${phone}` }),
+        body: JSON.stringify({ phone: `+91${phone}`, email: email.trim().toLowerCase() }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || t("auth.failedToSendOtp"));
+      if (!response.ok) throw new Error(errorMessage(data, t("auth.failedToSendOtp")));
 
       setStep("otp");
       onAdvanceToOtp();
@@ -121,11 +138,12 @@ export function useAuthActions({
           code: fullOtp,
           role: "DRIVER",
           name: name.trim(),
+          email: email.trim().toLowerCase(),
           password,
         }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || t("auth.verificationFailed"));
+      if (!response.ok) throw new Error(errorMessage(data, t("auth.verificationFailed")));
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const { setAuthenticated } = useDriverStore.getState();
