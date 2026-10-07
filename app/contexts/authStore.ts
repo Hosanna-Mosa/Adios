@@ -116,8 +116,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   /**
    * Called once on app start (inside _layout.tsx).
-   * Reads the persisted token & user from AsyncStorage.
-   * Sets isInitialized=true when done so the layout can safely redirect.
+   * Reads the persisted token & user from AsyncStorage and marks
+   * isInitialized=true as soon as they are read, so the layout can redirect
+   * without waiting on the network. The saved profile is then refreshed in
+   * the background (see refreshProfileInBackground below).
    */
   initializeAuth: async () => {
     try {
@@ -128,34 +130,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (token && userStr) {
         const cachedUser = JSON.parse(userStr);
-        set({ token, user: cachedUser });
-
-        try {
-          const response = await fetch(`${apiUrl}/users/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            set({ user: data, isInitialized: true });
-            await AsyncStorage.setItem("user", JSON.stringify(data));
-          } else if (response.status === 401) {
-            // 401 is the only status the API uses for a dead session — missing,
-            // expired or revoked token, or a user that no longer exists. A 403
-            // means authenticated-but-not-permitted and a 404 means the route
-            // moved; neither is a reason to throw the session away.
-            set({ token: null, user: null, isInitialized: true });
-            await Promise.all([
-              AsyncStorage.removeItem("token"),
-              AsyncStorage.removeItem("user"),
-            ]);
-          } else {
-            set({ isInitialized: true });
-          }
-        } catch (fetchErr) {
-          console.warn("Failed to verify user session with server, using cached session", fetchErr);
-          set({ isInitialized: true });
-        }
+        set({ token, user: cachedUser, isInitialized: true });
+        void refreshProfileInBackground(token, set, get);
       } else {
         set({ isInitialized: true });
       }
@@ -199,3 +175,54 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   ...createCredentialActions(set),
 }));
+
+/** How long the start-up profile refresh may take before it is abandoned. */
+const PROFILE_REFRESH_TIMEOUT_MS = 8000;
+
+/**
+ * Re-validates a restored session against GET /users/profile without blocking
+ * start-up. Same outcomes as the old blocking check:
+ * - 200 → the fresh profile replaces the cached one (memory + AsyncStorage);
+ * - 401 → the session is dead (missing/expired/revoked token or deleted user):
+ *   token and user are cleared, and the routing gate in app/_layout.tsx sends
+ *   the customer back through sign-in;
+ * - anything else (403, 404, 5xx), a network error or the timeout → keep the
+ *   cached session; none of those is a reason to sign the customer out.
+ * Results are ignored if the session changed meanwhile (sign-out / new login).
+ */
+async function refreshProfileInBackground(
+  token: string,
+  set: (partial: Partial<AuthState>) => void,
+  get: () => AuthState,
+) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PROFILE_REFRESH_TIMEOUT_MS);
+  try {
+    const response = await fetch(`${apiUrl}/users/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
+    });
+    if (get().token !== token) return;
+
+    if (response.ok) {
+      const data = await response.json();
+      if (get().token !== token) return;
+      set({ user: data });
+      await AsyncStorage.setItem("user", JSON.stringify(data));
+    } else if (response.status === 401) {
+      // 401 is the only status the API uses for a dead session — missing,
+      // expired or revoked token, or a user that no longer exists. A 403
+      // means authenticated-but-not-permitted and a 404 means the route
+      // moved; neither is a reason to throw the session away.
+      set({ token: null, user: null });
+      await Promise.all([
+        AsyncStorage.removeItem("token"),
+        AsyncStorage.removeItem("user"),
+      ]);
+    }
+  } catch (fetchErr) {
+    console.warn("Failed to verify user session with server, using cached session", fetchErr);
+  } finally {
+    clearTimeout(timer);
+  }
+}

@@ -5,6 +5,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import type { CartItem, CartState, CartSyncNotice } from "@/contexts/cart.types";
 import { cartKey, toWire } from "@/contexts/cart.wire";
 import { createHydrate } from "@/contexts/cart.hydrate";
+import { effectivePrice } from "@/utils/pricing";
 import { createRefresh } from "@/contexts/cart.refresh";
 export type { CartItem, CartState, CartStatus, CartSyncNotice, FoodItem, PendingCartConflict } from "@/contexts/cart.types";
 
@@ -83,6 +84,10 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   requestAddItem: (item, vendorId, vendorName, vendorImage) => {
     const { items, vendorId: currentVendorId } = get();
+    // A dish on offer is charged its offer price: fold it into `price`, which is
+    // what every cart total, the checkout bill and the /cart sync read.
+    // Idempotent — once price === offerPrice there is no valid offer left to apply.
+    const item = { ...rawItem, price: effectivePrice(rawItem) };
 
     // Items from two outlets can't share one cart — surface the choice instead
     // of silently replacing what's already there.

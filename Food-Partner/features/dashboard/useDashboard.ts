@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePartnerTabBarHeight } from "@/components/PartnerTabBar";
 import { useIsMeatPartner } from "@/contexts/authStore";
@@ -10,6 +11,7 @@ import { isToday } from "@/utils/format";
 import { isActive, isCancelled, needsAction } from "@/utils/orderStatus";
 import { mergeOrders } from "@/utils/orderWindow";
 import { createStyles } from "./dashboard.styles";
+import { outletStatus } from "./outletStatus";
 
 // Everything the dashboard shows, derived from the same caches the other tabs
 // use. The web panel's stats (VendorStatsRow) counted every order ever as
@@ -18,6 +20,7 @@ import { createStyles } from "./dashboard.styles";
 // vendors — is left out rather than faked.
 
 export function useDashboard() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const tabBarHeight = usePartnerTabBarHeight();
   const tokens = useTokens();
@@ -68,6 +71,7 @@ export function useDashboard() {
     styles,
     profile,
     profileLoaded,
+    outletBadge: outletStatus(profile, t)?.badge,
     rating: ratingOf(profile),
     reviewCount: reviewCountOf(profile),
     isMeat,

@@ -9,6 +9,34 @@ export const setMyOpenStateSchema = z.object({
   }),
 });
 
+const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Use HH:mm (24-hour) times");
+const dayHours = z.object({ open: hhmm, close: hhmm, closed: z.boolean() });
+
+export const updateMyVendorProfileSchema = z.object({
+  body: z
+    .object({
+      name: z.string().trim().min(1, "Name cannot be empty").max(120).optional(),
+      phone: z.string().trim().min(6, "Enter a valid phone number").max(20).optional(),
+      email: z.string().trim().email("Enter a valid email").optional(),
+      address: z.string().trim().min(1, "Address cannot be empty").max(500).optional(),
+      image: z.string().trim().max(2048).optional(),
+      // Empty string or null removes the branch code.
+      branchCode: z.string().trim().max(50).nullable().optional(),
+      currentLocation: z
+        .object({
+          lat: z.number().min(-90).max(90),
+          lng: z.number().min(-180).max(180),
+          address: z.string().trim().max(500).optional(),
+        })
+        .nullable()
+        .optional(),
+      // The whole week at once. open === close means open 24 hours; close before open runs past midnight.
+      openingHours: z
+        .object({ mon: dayHours, tue: dayHours, wed: dayHours, thu: dayHours, fri: dayHours, sat: dayHours, sun: dayHours })
+        .optional(),
+    }),
+});
+
 export const partnerPushTokenSchema = z.object({
   body: z.object({
     // The same shape NotificationService.sendPushNotificationsBatch accepts.

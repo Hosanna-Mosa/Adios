@@ -22,6 +22,9 @@ export function RootLayoutNav() {
         <Stack.Screen name="scheduled-orders" />
         <Stack.Screen name="payouts" />
         <Stack.Screen name="dish-form" options={{ animation: "slide_from_bottom" }} />
+        <Stack.Screen name="menu-bulk-upload" />
+        <Stack.Screen name="edit-profile" />
+        <Stack.Screen name="opening-hours" />
         <Stack.Screen name="change-password" />
         <Stack.Screen name="language-settings" />
         <Stack.Screen name="support" />

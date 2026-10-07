@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePartnerTabBarHeight } from "@/components/PartnerTabBar";
 import { showAlert } from "@/components/ui/AppAlert";
@@ -47,6 +48,7 @@ export function useAccount() {
     toggleTheme,
     languageName: LANGUAGE_NAMES[language],
     confirmSignOut,
+    editProfile: () => router.push("/edit-profile"),
     version: Constants.expoConfig?.version ?? "1.0.0",
   };
 }

@@ -8,7 +8,7 @@ import { getBanners, searchDishes } from "@/services/catalog.service";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeSearchAndBanners(searchQuery: any, banners: any, setBanners: any, hasShownStartupAd: any, setHasShownStartupAd: any, setActiveStartupAd: any, setSelectedAddress: any, setIsAddressLoaded: any, setSearchedDishes: any, setIsSearchingDishes: any) {
+export function useHomeSearchAndBanners(searchQuery: any, banners: any, setBanners: any, hasShownStartupAd: any, setHasShownStartupAd: any, setActiveStartupAd: any, setSelectedAddress: any, setIsAddressLoaded: any, setSearchedDishes: any, setIsSearchingDishes: any, setBannersLoading: (v: boolean) => void) {
   useEffect(() => {
     if (!searchQuery) {
       setSearchedDishes([]);
@@ -72,6 +72,8 @@ export function useHomeSearchAndBanners(searchQuery: any, banners: any, setBanne
           }
         } catch (e) {
           console.error("Failed to load banners:", e);
+        } finally {
+          setBannersLoading(false);
         }
       })();
     }, [])

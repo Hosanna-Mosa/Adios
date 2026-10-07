@@ -24,6 +24,7 @@ const DYNAMIC_KEYS = [
   "scheduled.statusPending", "scheduled.statusAccepted", "scheduled.statusRejected",
   "greeting.morning", "greeting.afternoon", "greeting.evening",
   "vehicle.bike", "vehicle.auto", "vehicle.car",
+  ...["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((d) => `hours.days.${d}`),
   ...["markReady", "soldOut", "scheduled", "pickupCode", "payouts", "password"].flatMap((k) => [`support.faqs.${k}.q`, `support.faqs.${k}.a`]),
 ];
 

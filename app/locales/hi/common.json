@@ -348,7 +348,9 @@
       "theLinkYouFollowedDoesnapostExist": "आपके द्वारा खोला गया लिंक अब मौजूद नहीं है।",
       "goHome": "होम पर जाएँ",
       "pickAServiceToGetStarted": "शुरू करने के लिए कोई सेवा चुनें।",
-      "beta": "बीटा"
+      "beta": "बीटा",
+      "offerEyebrow": "ऑफ़र",
+      "viewOffer": "ऑफ़र देखें"
     },
     "profile": {
       "menuItems": {
@@ -535,7 +537,12 @@
       "closedPill": "बंद",
       "outletClosedMessage": "{{name}} अभी ऑर्डर नहीं ले रहा है। आप मेन्यू देख सकते हैं और खुलने पर ऑर्डर कर सकते हैं।",
       "outletClosedOpensAtMessage": "{{name}} अभी बंद है और {{time}} बजे खुलेगा। आप मेन्यू देख सकते हैं और तब ऑर्डर कर सकते हैं।",
-      "closedBannerHint": "आप मेन्यू देख सकते हैं, लेकिन खुलने तक ऑर्डर बंद हैं।"
+      "closedBannerHint": "आप मेन्यू देख सकते हैं, लेकिन खुलने तक ऑर्डर बंद हैं।",
+      "originalPrice": "मूल कीमत {{price}}",
+      "percentOff": "{{percent}}% छूट",
+      "bestseller": "बेस्टसेलर",
+      "kcal": "{{value}} kcal",
+      "proteinGrams": "{{value}} ग्राम प्रोटीन"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} आपके मूल भुगतान तरीके में वापस कर दिए गए · {{date}}",
@@ -1154,6 +1161,23 @@
       "thisDish": "यह डिश",
       "checkOutItemAtVendor": "Flavour पर {{name}} की {{item}} देखें! {{url}}",
       "checkOutVendor": "Flavour पर {{name}} देखें! {{url}}"
+    },
+    "offers": {
+      "title": "आपके लिए ऑफ़र",
+      "percentOffUpTo": "{{value}}% छूट, अधिकतम {{max}}",
+      "percentOff": "{{value}}% छूट",
+      "flatOff": "{{value}} की छूट",
+      "aboveMin": "{{min}} से ऊपर के ऑर्डर पर",
+      "validTill": "{{date}} तक मान्य",
+      "useCode": "कोड {{code}} इस्तेमाल करें",
+      "pureVeg": "शुद्ध शाकाहारी",
+      "open": "अभी खुला है",
+      "closed": "बंद",
+      "errorTitle": "ऑफ़र लोड नहीं हो सके",
+      "errorSubtitle": "अपना कनेक्शन जाँचें और फिर से कोशिश करें.",
+      "retry": "फिर से कोशिश करें",
+      "emptyTitle": "अभी कोई ऑफ़र नहीं है",
+      "emptySubtitle": "आपके पास के रेस्टोरेंट के नए ऑफ़र यहाँ दिखेंगे."
     }
   }
 }

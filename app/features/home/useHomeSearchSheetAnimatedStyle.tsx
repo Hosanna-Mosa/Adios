@@ -15,6 +15,9 @@ export function useHomeSearchSheetAnimatedStyle(searchTranslateY: any, searchBac
   }));
 
   const [banners, setBanners] = useState<any[]>([]);
+  // True until the first GET /banners settles, so the carousel and greeting ad
+  // show a shimmer instead of flashing the hardcoded fallback promos.
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [hasShownStartupAd, setHasShownStartupAd] = useState(false);
   const [activeStartupAd, setActiveStartupAd] = useState<any | null>(null);
 
@@ -49,5 +52,5 @@ export function useHomeSearchSheetAnimatedStyle(searchTranslateY: any, searchBac
     }
   };
 
-  return { searchSheetAnimatedStyle, searchBackdropAnimatedStyle, banners, setBanners, hasShownStartupAd, setHasShownStartupAd, activeStartupAd, setActiveStartupAd, carouselRef, bannerScrollX, bannerIndexRef, onBannerScroll, addRecentSearch };
+  return { searchSheetAnimatedStyle, searchBackdropAnimatedStyle, banners, setBanners, bannersLoading, setBannersLoading, hasShownStartupAd, setHasShownStartupAd, activeStartupAd, setActiveStartupAd, carouselRef, bannerScrollX, bannerIndexRef, onBannerScroll, addRecentSearch };
 }

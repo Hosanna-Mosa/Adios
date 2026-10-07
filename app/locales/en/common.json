@@ -348,7 +348,9 @@
       "theLinkYouFollowedDoesnapostExist": "The link you followed doesn't exist any more.",
       "goHome": "Go home",
       "pickAServiceToGetStarted": "Pick a service to get started.",
-      "beta": "Beta"
+      "beta": "Beta",
+      "offerEyebrow": "Offer",
+      "viewOffer": "View offer"
     },
     "profile": {
       "menuItems": {
@@ -535,7 +537,12 @@
       "closedPill": "Closed",
       "outletClosedMessage": "{{name}} isn't taking orders right now. You can still browse the menu and order once it opens.",
       "outletClosedOpensAtMessage": "{{name}} is closed right now and opens at {{time}}. You can still browse the menu and order then.",
-      "closedBannerHint": "You can browse the menu, but ordering is paused until it opens."
+      "closedBannerHint": "You can browse the menu, but ordering is paused until it opens.",
+      "originalPrice": "Original price {{price}}",
+      "percentOff": "{{percent}}% OFF",
+      "bestseller": "Bestseller",
+      "kcal": "{{value}} kcal",
+      "proteinGrams": "{{value}}g protein"
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -1154,6 +1161,23 @@
       "thisDish": "this dish",
       "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Flavour! {{url}}",
       "checkOutVendor": "Check out {{name}} on Flavour! {{url}}"
+    },
+    "offers": {
+      "title": "Offers for you",
+      "percentOffUpTo": "{{value}}% OFF up to {{max}}",
+      "percentOff": "{{value}}% OFF",
+      "flatOff": "{{value}} OFF",
+      "aboveMin": "above {{min}}",
+      "validTill": "Valid till {{date}}",
+      "useCode": "Use code {{code}}",
+      "pureVeg": "Pure veg",
+      "open": "Open now",
+      "closed": "Closed",
+      "errorTitle": "Couldn't load offers",
+      "errorSubtitle": "Check your connection and try again.",
+      "retry": "Retry",
+      "emptyTitle": "No offers right now",
+      "emptySubtitle": "New deals from restaurants near you will show up here."
     }
   }
 }

@@ -10,6 +10,8 @@ import ChatMessage from "../../database/models/ChatMessage";
 import AppVersion from "../../database/models/AppVersion";
 import Zone from "../../database/models/Zone";
 import Banner from "../../database/models/Banner";
+import Offer from "../../database/models/Offer";
+import Vendor from "../../database/models/Vendor";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import {
   SUPPORT_CASE_LIMIT,
@@ -1337,4 +1339,123 @@ export class AdminController {
       return res.status(500).json({ message: "Internal server error" });
     }
   }
+
+  async getOffers(req: Request, res: Response) {
+    try {
+      const offers = await Offer.find()
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .populate("vendor", "_id name image");
+      return res.json(offers);
+    } catch (error) {
+      console.error("Error getting offers:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async createOffer(req: Request, res: Response) {
+    try {
+      const body = req.body;
+      if (!(await Vendor.exists({ _id: body.vendor }))) {
+        return res.status(400).json({ message: "Restaurant not found" });
+      }
+
+      const offer = new Offer(stripEmptyOfferFields(body));
+      await offer.save();
+      await offer.populate("vendor", "_id name image");
+      return res.status(201).json(offer);
+    } catch (error) {
+      console.error("Error creating offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async updateOffer(req: Request, res: Response) {
+    try {
+      const id = String(req.params.id);
+      if (!Types.ObjectId.isValid(id)) return res.status(404).json({ message: "Offer not found" });
+
+      const body = req.body;
+      if (body.vendor !== undefined && !(await Vendor.exists({ _id: body.vendor }))) {
+        return res.status(400).json({ message: "Restaurant not found" });
+      }
+
+      const existing = await Offer.findById(id).lean();
+      if (!existing) return res.status(404).json({ message: "Offer not found" });
+
+      const $set: Record<string, unknown> = {};
+      const $unset: Record<string, ""> = {};
+      for (const field of OFFER_FIELDS) {
+        const value = body[field];
+        if (value === undefined) continue;
+        if (value === null || value === "") $unset[field] = "";
+        else $set[field] = value;
+      }
+
+      // A partial update still has to leave a valid offer behind.
+      const start = "startDate" in $unset ? null : (($set.startDate as Date | undefined) ?? existing.startDate);
+      const end = "endDate" in $unset ? null : (($set.endDate as Date | undefined) ?? existing.endDate);
+      if (start && end && new Date(end) < new Date(start)) {
+        return res.status(400).json({ message: "End date must be after the start date" });
+      }
+      const discountType = ($set.discountType as string | undefined) ?? existing.discountType;
+      const discountValue = ($set.discountValue as number | undefined) ?? existing.discountValue;
+      if (discountType === "PERCENTAGE" && discountValue > 100) {
+        return res.status(400).json({ message: "A percentage discount cannot exceed 100" });
+      }
+      for (const required of ["title", "vendor", "discountType", "discountValue"]) {
+        if (required in $unset) return res.status(400).json({ message: `${required} cannot be cleared` });
+      }
+
+      const update: Record<string, unknown> = {};
+      if (Object.keys($set).length) update.$set = $set;
+      if (Object.keys($unset).length) update.$unset = $unset;
+      const offer = await Offer.findByIdAndUpdate(id, update, { new: true, runValidators: true }).populate(
+        "vendor",
+        "_id name image"
+      );
+      return res.json(offer);
+    } catch (error) {
+      console.error("Error updating offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async deleteOffer(req: Request, res: Response) {
+    try {
+      const id = String(req.params.id);
+      if (!Types.ObjectId.isValid(id)) return res.status(404).json({ message: "Offer not found" });
+      const offer = await Offer.findByIdAndDelete(id);
+      if (!offer) return res.status(404).json({ message: "Offer not found" });
+      return res.json({ message: "Offer deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+}
+
+const OFFER_FIELDS = [
+  "title",
+  "description",
+  "vendor",
+  "discountType",
+  "discountValue",
+  "maxDiscount",
+  "minOrderValue",
+  "couponCode",
+  "imageUrl",
+  "startDate",
+  "endDate",
+  "isActive",
+  "displayOrder",
+] as const;
+
+/** Leaves cleared ("" / null) optional fields out, so they are simply absent on a new offer. */
+function stripEmptyOfferFields(body: Record<string, unknown>) {
+  const doc: Record<string, unknown> = {};
+  for (const field of OFFER_FIELDS) {
+    const value = body[field];
+    if (value !== undefined && value !== null && value !== "") doc[field] = value;
+  }
+  return doc;
 }

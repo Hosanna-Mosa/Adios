@@ -4,7 +4,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { LandingBody } from "@/features/home/components/LandingBody";
 import { LandingLoadingBody } from "@/features/home/components/LandingLoadingBody";
 import { useAuth } from "@/features/home/useAuth";
-import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
+import { LandingBrandBackdrop } from "@/features/home/components/LandingBrandBackdrop";
 import { useAuthStore } from "@/contexts/authStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 
@@ -37,17 +37,14 @@ export default function AuthScreen() {
   }
 
   // A saved session (or the language gate) means the routing gate in
-  // app/_layout.tsx is about to leave this screen. Show the loader instead of
-  // the login form so a logged-in user never sees login flash before Home.
+  // app/_layout.tsx is about to leave this screen. Keep the splash's brand
+  // colour up instead of the login form (or a white loader screen) so a
+  // logged-in user goes from the splash straight to Home.
   const hasSession = Boolean(token);
   const redirectingAway = hasSession || !languageConfirmed;
 
   if (!isInitialized || redirectingAway) {
-    return (
-      <ScreenShell style={{ justifyContent: "center", alignItems: "center" }}>
-        <FullScreenLoader color={tokens.brand} />
-      </ScreenShell>
-    );
+    return <LandingBrandBackdrop tokens={tokens} showLoader={!isInitialized} />;
   }
 
   return (

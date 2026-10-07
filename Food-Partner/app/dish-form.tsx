@@ -6,7 +6,9 @@ import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { Header } from "@/components/ui/Header";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { DishDetailsCard } from "@/features/menu/components/DishDetailsCard";
+import { DishExtrasCard } from "@/features/menu/components/DishExtrasCard";
 import { DishPhotosCard } from "@/features/menu/components/DishPhotosCard";
+import { DishPreviewSheet } from "@/features/menu/components/DishPreviewSheet";
 import { useDishForm } from "@/features/menu/useDishForm";
 import { MAX_IMAGES } from "@/features/menu/useDishPhotos";
 
@@ -49,7 +51,17 @@ export default function DishFormScreen() {
         onRemove={f.removeImage}
         styles={f.styles}
       />
-      <DishDetailsCard form={f.form} update={f.update} errors={f.errors} categories={f.categories} styles={f.styles} tokens={f.tokens} />
+      <DishDetailsCard form={f.form} update={f.update} errors={f.errors} categories={f.categories} discount={f.discount} styles={f.styles} tokens={f.tokens} />
+      <DishExtrasCard form={f.form} update={f.update} errors={f.errors} styles={f.styles} tokens={f.tokens} />
+      <DishPreviewSheet
+        visible={f.previewing}
+        form={f.form}
+        isEdit={f.isEdit}
+        saving={f.saving}
+        onEdit={f.closePreview}
+        onConfirm={f.confirm}
+        tokens={f.tokens}
+      />
     </ScreenShell>
   );
 }

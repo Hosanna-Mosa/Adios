@@ -17,13 +17,15 @@ interface Props {
   badge?: number;
   /** Dashed brand outline — an "add something" tile. */
   dashed?: boolean;
+  /** No card chrome — icon and label sit directly on the screen background. */
+  plain?: boolean;
   loading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
 /** A square shortcut tile: icon on top, label below (dashboard shortcuts, "Add photo"). */
-export function ActionTile({ icon, label, onPress, color, background, badge, dashed, loading, disabled, style }: Props) {
+export function ActionTile({ icon, label, onPress, color, background, badge, dashed, plain, loading, disabled, style }: Props) {
   const tokens = designTokens[useThemeStore((s) => s.theme)];
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const fg = color ?? tokens.brand;
@@ -31,7 +33,7 @@ export function ActionTile({ icon, label, onPress, color, background, badge, das
 
   return (
     <TouchableOpacity
-      style={[styles.tile, dashed && styles.dashed, style]}
+      style={[styles.tile, dashed && styles.dashed, plain && styles.plain, style]}
       activeOpacity={0.85}
       onPress={onPress}
       disabled={disabled || loading}
@@ -45,13 +47,18 @@ export function ActionTile({ icon, label, onPress, color, background, badge, das
           <View style={[styles.iconTile, { backgroundColor: dashed ? "transparent" : bg }]}>
             <Ionicons name={icon} size={moderateScale(dashed ? 24 : 19)} color={fg} />
           </View>
-          <Text style={[styles.label, dashed && { color: fg }]} numberOfLines={2}>
+          <Text
+            style={[styles.label, dashed && { color: fg }, plain && styles.plainLabel]}
+            numberOfLines={2}
+            adjustsFontSizeToFit={plain}
+            minimumFontScale={0.85}
+          >
             {label}
           </Text>
         </>
       )}
       {badge ? (
-        <View style={styles.badge}>
+        <View style={[styles.badge, plain && styles.plainBadge]}>
           <Text style={styles.badgeText}>{badge > 99 ? "99+" : badge}</Text>
         </View>
       ) : null}
@@ -91,6 +98,23 @@ const createStyles = (tokens: ThemeTokens) =>
       gap: 4,
       padding: 8,
     },
+    plain: {
+      backgroundColor: "transparent",
+      borderWidth: 0,
+      padding: 0,
+      paddingVertical: 4,
+      gap: 8,
+      minHeight: undefined,
+      alignItems: "center",
+    },
+    plainLabel: {
+      fontFamily: fontFamilies.body.semibold,
+      fontSize: typography.sizes.small,
+      lineHeight: typography.lineHeights.small,
+      textAlign: "center",
+      alignSelf: "stretch",
+    },
+    plainBadge: { top: -4, right: 4 },
     iconTile: {
       width: moderateScale(38),
       height: moderateScale(38),

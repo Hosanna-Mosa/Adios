@@ -23,6 +23,7 @@ import {
   resubmitVendorDocumentsSchema,
   setMyOpenStateSchema,
   partnerPushTokenSchema,
+  updateMyVendorProfileSchema,
 } from "./vendors.validation";
 import {
   digilockerRateLimit,
@@ -35,7 +36,7 @@ import {
   resubmitOnboardingDocuments,
   startOnboardingDigilocker,
 } from "./vendor-verification.controller";
-import { getMyVendorProfile, registerMyPushToken, removeMyPushToken, setMyOpenState } from "./vendor-profile.controller";
+import { getMyVendorProfile, registerMyPushToken, removeMyPushToken, setMyOpenState, updateMyVendorProfile } from "./vendor-profile.controller";
 import { getMyPayouts } from "./vendor-payouts.controller";
 
 const router = Router();
@@ -45,6 +46,7 @@ router.get("/search-google", validateRequest(searchGooglePlacesSchema), searchGo
 router.get("/place-details/:placeId", validateRequest(placeDetailsParamSchema), getPlaceDetails);
 // The signed-in outlet's own profile (partner app). Registered before /:id so "me" is never read as an id.
 router.get("/me", authenticateToken, getMyVendorProfile);
+router.put("/me", authenticateToken, validateRequest(updateMyVendorProfileSchema), updateMyVendorProfile);
 router.put("/me/open", authenticateToken, validateRequest(setMyOpenStateSchema), setMyOpenState);
 router.get("/me/payouts", authenticateToken, getMyPayouts);
 router.post("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), registerMyPushToken);

@@ -8,6 +8,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     search: { marginHorizontal: 16 },
+    titleActions: { flexDirection: "row", alignItems: "center", gap: 8 },
 
     dishCard: { padding: 0, overflow: "hidden" },
     dishRow: { flexDirection: "row", gap: 12, padding: 12 },
@@ -38,7 +39,7 @@ export const createStyles = (tokens: ThemeTokens) =>
     dishName: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
     category: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.brand, textTransform: "uppercase", letterSpacing: 0.6 },
     description: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.sec },
-    price: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.large, color: tokens.text, marginTop: 2 },
+    bestsellerProgress: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.warning },
     dishFooter: {
       flexDirection: "row",
       alignItems: "center",

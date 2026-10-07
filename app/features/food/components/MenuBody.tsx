@@ -8,6 +8,8 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { MenuVegOnly } from "./MenuVegOnly";
+import { BestsellerBadge, NutritionLine } from "./DishHighlights";
+import { DishPrice } from "@/components/shared/DishPrice";
 import { outletClosedLabel } from "@/components/shared/outletClosed";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
@@ -89,8 +91,10 @@ export function MenuBody(props: Props) {
                         <View style={styles.nonvegTriangle} />
                       )}
                     </View>
+                    {item.isBestseller && <BestsellerBadge tokens={tokens} style={{ marginBottom: 4 }} />}
                     <Text style={styles.rowName} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.rowPrice}>₹{item.price}</Text>
+                    <DishPrice price={item.price} offerPrice={item.offerPrice} discountPercent={item.discountPercent} priceStyle={styles.rowPrice} />
+                    <NutritionLine calories={item.calories} protein={item.protein} tokens={tokens} style={{ marginTop: 4 }} />
                     {!!item.description && (
                       <Text style={styles.rowDesc} numberOfLines={2}>{item.description}</Text>
                     )}

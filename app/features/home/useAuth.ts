@@ -8,6 +8,7 @@ import { designTokens } from "@/constants/colors";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useIntroSplashStore } from "@/contexts/introSplashStore";
+import { useLanguageStore } from "@/contexts/languageStore";
 import { showAlert } from "@/components/ui/AppAlert";
 
 // State, data loading and handlers for app/index.tsx.
@@ -18,10 +19,11 @@ export function useAuth() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  // Arrival Animation States for "FLAVOUR"
+  // Arrival Animation States for "ADIOS". Timing and layout follow letters.length,
+  // so the word can change without touching the animation below.
   const [showSplash, setShowSplash] = useState(true);
   const splashOpacity = React.useRef(new Animated.Value(1)).current;
-  const letters = ["F", "L", "A", "V", "O", "U", "R"];
+  const letters = ["A", "D", "I", "O", "S"];
   const translateAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
   const opacityAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
 
@@ -51,19 +53,15 @@ export function useAuth() {
       Animated.delay(200),
       Animated.stagger(120, animations),
       Animated.delay(1200), // Let the complete name rest in the center
-      Animated.timing(splashOpacity, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      })
     ]).start(() => {
-      setShowSplash(false);
+      setIntroPlayed(true);
       // Lets app/_layout.tsx's routing gate know the splash has fully played,
       // so it can safely redirect (to select-language, login, or tabs)
       // without cutting this animation short.
       useIntroSplashStore.getState().setIntroSplashDone();
     });
   }, []);
+  const [introPlayed, setIntroPlayed] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -78,6 +76,21 @@ export function useAuth() {
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme]);
+
+  // The splash stays up (brand colour, no fade) whenever the routing gate is
+  // about to replace this screen — a restored session going to /(tabs), or the
+  // language gate. Fading it out first uncovered the white root view and a
+  // loader, which was the white screen between the splash and Home. It only
+  // fades when this screen's own login form is what comes next.
+  const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
+  useEffect(() => {
+    if (!introPlayed || !showSplash || !isInitialized || token || !languageConfirmed) return;
+    Animated.timing(splashOpacity, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => setShowSplash(false));
+  }, [introPlayed, showSplash, isInitialized, token, languageConfirmed, splashOpacity]);
 
   // Guard: if a token already exists, skip straight to the app.
   // This handles the edge case where the user navigates back to "/" while still logged in.

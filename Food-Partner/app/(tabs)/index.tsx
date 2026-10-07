@@ -11,7 +11,7 @@ import { useDashboard } from "@/features/dashboard/useDashboard";
 /** Home tab: whether the outlet is taking orders, today at a glance, what needs doing, and the latest orders. */
 export default function DashboardScreen() {
   const {
-    insets, tabBarHeight, tokens, styles, profile, profileLoaded, rating, reviewCount, isMeat, recentOrders, ordersLoading, ordersError, stats, inStock, menuTotal,
+    insets, tabBarHeight, tokens, styles, profile, profileLoaded, outletBadge, rating, reviewCount, isMeat, recentOrders, ordersLoading, ordersError, stats, inStock, menuTotal,
     pendingScheduled, refreshing, refresh,
   } = useDashboard();
 
@@ -26,7 +26,7 @@ export default function DashboardScreen() {
         name={profile?.name ?? ""}
         image={profile?.image}
         isMeat={isMeat}
-        isOpen={profile?.openState?.isOpen}
+        status={outletBadge}
         rating={rating}
         reviewCount={reviewCount}
         styles={styles}
