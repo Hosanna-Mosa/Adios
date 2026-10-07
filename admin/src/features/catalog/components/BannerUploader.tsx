@@ -9,16 +9,19 @@ interface BannerUploaderProps {
   onImageUrlChange: (value: string) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   uploading: boolean;
+  /** Banners need an image; other forms (offers) can make it optional. */
+  required?: boolean;
+  label?: string;
 }
 
 /** The banner form's Image field: a URL input plus a file-upload button that fills it in. */
-export function BannerUploader({ imageUrl, onImageUrlChange, onFileUpload, uploading }: BannerUploaderProps) {
+export function BannerUploader({ imageUrl, onImageUrlChange, onFileUpload, uploading, required = true, label }: BannerUploaderProps) {
   const { t } = useTranslation();
   return (
     <div className="space-y-2">
-      <Label htmlFor="imageUrl">{t("catalog.image")}</Label>
+      <Label htmlFor="imageUrl">{label ?? t("catalog.image")}</Label>
       <div className="flex gap-2">
-        <Input id="imageUrl" value={imageUrl} onChange={(e) => onImageUrlChange(e.target.value)} placeholder="https://images.unsplash.com/photo-..." required className="flex-1" />
+        <Input id="imageUrl" value={imageUrl} onChange={(e) => onImageUrlChange(e.target.value)} placeholder="https://images.unsplash.com/photo-..." required={required} className="flex-1" />
         <div className="relative">
           <input type="file" accept="image/*" onChange={onFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" disabled={uploading} />
           <Button type="button" variant="outline" className="px-3" disabled={uploading}>

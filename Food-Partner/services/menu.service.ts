@@ -1,5 +1,6 @@
 import { customFetch } from "@/utils/api/custom-fetch";
-import type { FoodItem, FoodItemInput, MeatItem } from "@/types/models";
+import type { BulkFoodItem, BulkUploadResult, FoodItem, FoodItemInput, MeatItem } from "@/types/models";
+import { parseNumber } from "@/utils/number";
 
 // Restaurant menu (food) and meat inventory — the calls
 // admin/src/features/vendors/hooks/useVendorMenu.ts and useVendorMeatMenu.ts make.
@@ -8,6 +9,7 @@ import type { FoodItem, FoodItemInput, MeatItem } from "@/types/models";
 
 export const getFoodMenu = (vendorId: string) => customFetch<FoodItem[]>(`/food/vendor/${vendorId}`);
 
+// Optional numbers go as null when empty, so an edit that clears one clears it on the server too.
 const toPayload = (input: FoodItemInput) => ({
   name: input.name.trim(),
   description: input.description.trim(),
@@ -15,6 +17,11 @@ const toPayload = (input: FoodItemInput) => ({
   category: input.category.trim(),
   isVeg: input.isVeg,
   images: input.images,
+  offerPrice: parseNumber(input.offerPrice),
+  protein: parseNumber(input.protein),
+  calories: parseNumber(input.calories),
+  // Promoted with no count = show the badge right away.
+  bestsellerMinOrders: input.promoteBestseller ? Math.max(0, Math.floor(parseNumber(input.bestsellerMinOrders) ?? 0)) : null,
 });
 
 export const addFoodItem = (vendorId: string, input: FoodItemInput) =>
@@ -23,6 +30,10 @@ export const addFoodItem = (vendorId: string, input: FoodItemInput) =>
 // Never carries isAvailable — that flag has its own endpoint so an edit can't clobber it.
 export const updateFoodItem = (id: string, input: FoodItemInput) =>
   customFetch<FoodItem>(`/food/${id}`, { method: "PUT", body: JSON.stringify(toPayload(input)) });
+
+/** Up to 500 dishes from the Excel sheet; valid rows are added, invalid ones reported back by index. */
+export const bulkAddFoodItems = (vendorId: string, items: BulkFoodItem[]) =>
+  customFetch<BulkUploadResult>("/food/bulk", { method: "POST", body: JSON.stringify({ vendorId, items }) });
 
 export const deleteFoodItem = (id: string) => customFetch(`/food/${id}`, { method: "DELETE" });
 

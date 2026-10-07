@@ -5,21 +5,25 @@ import { Card } from "@/components/ui/Card";
 import { TextField } from "@/components/ui/TextField";
 import type { ThemeTokens } from "@/constants/colors";
 import type { FoodItemInput } from "@/types/models";
+import { sanitizeDecimal } from "@/utils/number";
 import type { DishFormStyles } from "../dishForm.styles";
 import { VegToggle } from "./VegToggle";
 
 interface Props {
   form: FoodItemInput;
   update: <K extends keyof FoodItemInput>(key: K, value: FoodItemInput[K]) => void;
-  errors: { name?: string; price?: string; category?: string };
+  errors: { name?: string; price?: string; category?: string; offerPrice?: string };
   categories: string[];
+  /** Live "X% off" for a valid offer price, else null. */
+  discount: number | null;
   styles: DishFormStyles;
   tokens: ThemeTokens;
 }
 
-/** Name, price, category (with suggestions), description and veg/non-veg. */
-export function DishDetailsCard({ form, update, errors, categories, styles, tokens }: Props) {
+/** Name, price and offer price, category (with suggestions), description and veg/non-veg. */
+export function DishDetailsCard({ form, update, errors, categories, discount, styles, tokens }: Props) {
   const { t } = useTranslation();
+  const rupee = <Text style={styles.rupee}>₹</Text>;
   return (
     <Card bordered elevationLevel="none" style={styles.card}>
       <TextField label={t("dishForm.name")} placeholder={t("dishForm.namePlaceholder")} value={form.name} onChangeText={(v) => update("name", v)} error={errors.name} maxLength={80} />
@@ -27,11 +31,27 @@ export function DishDetailsCard({ form, update, errors, categories, styles, toke
         label={t("dishForm.price")}
         placeholder="299"
         value={form.price}
-        onChangeText={(v) => update("price", v.replace(/[^0-9.]/g, ""))}
+        onChangeText={(v) => update("price", sanitizeDecimal(v))}
         error={errors.price}
         keyboardType="decimal-pad"
-        icon={<Text style={styles.rupee}>₹</Text>}
+        icon={rupee}
       />
+      <View style={styles.field}>
+        <TextField
+          label={t("dishForm.offerPrice")}
+          placeholder={t("dishForm.optional")}
+          value={form.offerPrice}
+          onChangeText={(v) => update("offerPrice", sanitizeDecimal(v))}
+          error={errors.offerPrice}
+          keyboardType="decimal-pad"
+          icon={rupee}
+        />
+        {!errors.offerPrice ? (
+          <Text style={discount != null ? styles.offerHint : styles.hint}>
+            {discount != null ? t("dishForm.offerDiscount", { percent: discount }) : t("dishForm.offerHint")}
+          </Text>
+        ) : null}
+      </View>
       <View style={styles.field}>
         <TextField
           label={t("dishForm.category")}

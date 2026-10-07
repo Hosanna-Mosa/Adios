@@ -8,6 +8,9 @@ export interface FoodItem {
   category: string;
   isVeg: boolean;
   images: string[];
+  /** Menu offer fields. requestAddItem folds a valid offerPrice into `price`. */
+  offerPrice?: number | null;
+  discountPercent?: number | null;
 }
 
 export interface CartItem extends FoodItem {

@@ -6,6 +6,8 @@ import { CloudinaryService } from "../../services/cloudinary.service";
 import { ZonesService } from "../zones/zones.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
+import { bulkFoodRowSchema } from "./food.validation";
+import { getDishOrderCounts, withComputedDishFields } from "./food.service";
 
 const cloudinaryService = new CloudinaryService();
 
@@ -13,6 +15,9 @@ const cloudinaryService = new CloudinaryService();
 // portal / seeds) or, for outlets that came through partner onboarding, inside
 // vendor.operations. Everything customer-facing has to read both — the meat
 // module already does this via buildOnboardedMeatItems().
+const isTruthyFlag = (value: unknown) =>
+  value === true || /^(yes|y|true|1)$/i.test(String(value ?? "").trim());
+
 const parsePrice = (value: unknown) => {
   if (typeof value === "number") return value;
   const parsed = Number(String(value || "").replace(/[^\d.]/g, ""));
@@ -36,6 +41,9 @@ export const buildOnboardedFoodItems = (vendor: any) => {
       category: category.name || "General",
       isAvailable: true,
       isVeg: !!item.isVeg,
+      orderCount: 0,
+      isBestseller: isTruthyFlag(item.isBestseller),
+      discountPercent: null,
     }))
   );
 
@@ -49,6 +57,9 @@ export const buildOnboardedFoodItems = (vendor: any) => {
     category: row.category || "General",
     isAvailable: true,
     isVeg: String(row.type || "").toLowerCase() === "veg",
+    orderCount: 0,
+    isBestseller: isTruthyFlag(row.isBestseller),
+    discountPercent: null,
   }));
 
   return [...manualItems, ...uploadedItems].filter((item) => item.name && item.price > 0);
@@ -106,10 +117,12 @@ export const getVendorMenu = async (req: Request, res: Response) => {
   try {
     const { vendorId } = req.params;
     // Unfiltered on purpose: the app renders isAvailable === false as "Sold out".
-    const [menu, vendor] = await Promise.all([
+    const [storedMenu, vendor, counts] = await Promise.all([
       FoodItem.find({ vendorId }).lean(),
       Vendor.findById(vendorId).lean(),
+      getDishOrderCounts(String(vendorId)),
     ]);
+    const menu = storedMenu.map((item) => withComputedDishFields(item, counts));
     res.json(vendor ? [...menu, ...buildOnboardedFoodItems(vendor)] : menu);
   } catch (error) {
     console.error("Error fetching menu:", error);
@@ -117,12 +130,44 @@ export const getVendorMenu = async (req: Request, res: Response) => {
   }
 };
 
+const EDITABLE_FOOD_FIELDS = [
+  "name",
+  "description",
+  "price",
+  "images",
+  "category",
+  "isAvailable",
+  "isVeg",
+  "offerPrice",
+  "protein",
+  "calories",
+  "bestsellerMinOrders",
+] as const;
+
+/** An offer price, when set, has to undercut the regular price. */
+const offerPriceError = (price: unknown, offerPrice: unknown): string | null => {
+  if (offerPrice === null || offerPrice === undefined) return null;
+  const offer = Number(offerPrice);
+  const regular = Number(price);
+  if (!Number.isFinite(offer) || offer <= 0) return "offerPrice must be greater than 0";
+  if (!Number.isFinite(regular) || offer >= regular) return "offerPrice must be less than price";
+  return null;
+};
+
 export const addFoodItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { vendorId, name, description, price, images, category, isVeg } = req.body;
+    const {
+      vendorId, name, description, price, images, category, isVeg,
+      offerPrice, protein, calories, bestsellerMinOrders,
+    } = req.body;
 
     if (req.user?.role !== UserRole.ADMIN && vendorId !== req.user?.userId) {
       return res.status(403).json({ message: "Access denied" });
+    }
+
+    const offerError = offerPriceError(price, offerPrice);
+    if (offerError) {
+      return res.status(400).json({ message: offerError });
     }
 
     const foodItem = new FoodItem({
@@ -132,13 +177,70 @@ export const addFoodItem = async (req: AuthRequest, res: Response) => {
       price,
       images,
       category,
-      isVeg
+      isVeg,
+      offerPrice: offerPrice ?? null,
+      protein: protein ?? null,
+      calories: calories ?? null,
+      bestsellerMinOrders: bestsellerMinOrders ?? null,
     });
 
     await foodItem.save();
     res.status(201).json(foodItem);
   } catch (error) {
     console.error("Error adding food item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * POST /food/bulk — spreadsheet menu import. Rows are validated one by one: the
+ * valid ones are inserted, the rest come back as { row (1-based), error }.
+ */
+export const bulkAddFoodItems = async (req: AuthRequest, res: Response) => {
+  try {
+    const { vendorId, items } = req.body as { vendorId: string; items: unknown[] };
+
+    if (req.user?.role !== UserRole.ADMIN && vendorId !== req.user?.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const docs: Record<string, unknown>[] = [];
+    const failed: { row: number; error: string }[] = [];
+
+    items.forEach((raw, index) => {
+      const parsed = bulkFoodRowSchema.safeParse(raw ?? {});
+      if (!parsed.success) {
+        const issue = parsed.error.issues[0];
+        failed.push({ row: index + 1, error: issue?.message || "Invalid row" });
+        return;
+      }
+      const row = parsed.data;
+      docs.push({
+        vendorId,
+        name: row.name,
+        category: row.category,
+        price: row.price,
+        description: row.description || "",
+        offerPrice: row.offerPrice ?? null,
+        isVeg: row.isVeg,
+        protein: row.protein ?? null,
+        calories: row.calories ?? null,
+        images: [],
+      });
+    });
+
+    let created = 0;
+    if (docs.length > 0) {
+      const inserted = await FoodItem.insertMany(docs);
+      created = inserted.length;
+    }
+
+    res.json({ created, failed });
+  } catch (error: any) {
+    if (error?.name === "CastError" || error?.name === "ValidationError") {
+      return res.status(400).json({ message: "Invalid vendorId or menu rows" });
+    }
+    console.error("Error bulk adding food items:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -154,7 +256,21 @@ export const updateFoodItem = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const updatedItem = await FoodItem.findByIdAndUpdate(id, req.body, { new: true });
+    // Allow-list: vendorId / timestamps / _id are never client-editable.
+    const update: Record<string, unknown> = {};
+    for (const field of EDITABLE_FOOD_FIELDS) {
+      if (req.body[field] !== undefined) update[field] = req.body[field];
+    }
+
+    // Validate against the stored price when only one of the two is being sent.
+    const effectivePrice = update.price !== undefined ? update.price : existingItem.price;
+    const effectiveOffer = update.offerPrice !== undefined ? update.offerPrice : existingItem.offerPrice;
+    const offerError = offerPriceError(effectivePrice, effectiveOffer);
+    if (offerError) {
+      return res.status(400).json({ message: offerError });
+    }
+
+    const updatedItem = await FoodItem.findByIdAndUpdate(id, { $set: update }, { new: true });
     res.json(updatedItem);
   } catch (error) {
     console.error("Error updating food item:", error);

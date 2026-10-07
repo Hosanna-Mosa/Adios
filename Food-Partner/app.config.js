@@ -26,6 +26,7 @@ export default {
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'Pick photos of your dishes to show customers on your menu.',
         NSCameraUsageDescription: 'Take photos of your dishes to show customers on your menu.',
+        NSLocationWhenInUseUsageDescription: 'Use your current location to set where your outlet is.',
       },
     },
     android: {
@@ -66,6 +67,17 @@ export default {
           // The new-order ring. The backend names it ("new_order.wav") in order pushes,
           // and the app's "orders" Android channel plays it — see utils/pushNotifications.ts.
           sounds: ['./assets/sounds/new_order.wav'],
+        },
+      ],
+      // "Use my current location" on Edit restaurant details — foreground only.
+      [
+        'expo-location',
+        {
+          locationWhenInUsePermission: 'Use your current location to set where your outlet is.',
+          locationAlwaysAndWhenInUsePermission: false,
+          locationAlwaysPermission: false,
+          isAndroidBackgroundLocationEnabled: false,
+          isAndroidForegroundServiceEnabled: false,
         },
       ],
       // Plays the same ring in-app. Playback only — no microphone permission requested.

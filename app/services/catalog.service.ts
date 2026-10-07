@@ -1,5 +1,5 @@
 import { customFetch } from "@/utils/api/custom-fetch";
-import type { Banner, MenuItem, Vendor } from "@/types/models";
+import type { Banner, MenuItem, Offer, Vendor } from "@/types/models";
 
 // The browsable catalogue: outlets, their menus, the ₹149 store and the home
 // banners. Paths are unchanged from the call sites these replaced.
@@ -52,6 +52,9 @@ export const searchDishes = <T = any>(query: string, coordParams = "") =>
   customFetch<T>(`/food/search?query=${encodeURIComponent(query)}${coordParams}`);
 
 export const getBanners = <T = { data?: Banner[] }>() => customFetch<T>("/banners");
+
+/** Active admin-managed offers, vendor populated (see the Offers page). */
+export const getOffers = () => customFetch<{ success?: boolean; data?: Offer[] }>("/offers");
 
 /** meat-centres builds its own filtered URL (paging + rating + open-now). */
 export const getMeatCentresByUrl = <T = any>(url: string) => customFetch<T>(url);

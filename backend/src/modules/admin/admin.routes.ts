@@ -21,6 +21,8 @@ import {
   updateDevDriverSchema,
   createBannerSchema,
   updateBannerSchema,
+  createOfferSchema,
+  updateOfferSchema,
 } from "./admin.validation";
 
 const router = Router();
@@ -71,6 +73,11 @@ router.get("/banners", authenticateToken, authorizeRole([UserRole.ADMIN]), admin
 router.post("/banners", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createBannerSchema), adminController.createBanner.bind(adminController));
 router.put("/banners/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(updateBannerSchema), adminController.updateBanner.bind(adminController));
 router.delete("/banners/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.deleteBanner.bind(adminController));
+// Offers management routes (customer app Offers page)
+router.get("/offers", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getOffers.bind(adminController));
+router.post("/offers", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createOfferSchema), adminController.createOffer.bind(adminController));
+router.put("/offers/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(updateOfferSchema), adminController.updateOffer.bind(adminController));
+router.delete("/offers/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.deleteOffer.bind(adminController));
 
 // User and Driver details routes
 router.get("/users/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.getUserDetail.bind(adminController));

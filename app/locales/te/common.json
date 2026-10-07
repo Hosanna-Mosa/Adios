@@ -370,7 +370,9 @@
       "theLinkYouFollowedDoesnapostExist": "మీరు అనుసరించిన లింక్ ఇక అందుబాటులో లేదు.",
       "goHome": "హోమ్‌కు వెళ్లండి",
       "pickAServiceToGetStarted": "ప్రారంభించడానికి ఒక సేవను ఎంచుకోండి.",
-      "beta": "బీటా"
+      "beta": "బీటా",
+      "offerEyebrow": "ఆఫర్",
+      "viewOffer": "ఆఫర్ చూడండి"
     },
     "profile": {
       "menuItems": {
@@ -558,7 +560,12 @@
       "closedPill": "మూసి ఉంది",
       "outletClosedMessage": "{{name}} ప్రస్తుతం ఆర్డర్లు తీసుకోవడం లేదు. మీరు మెనూ చూడవచ్చు, తెరిచిన తర్వాత ఆర్డర్ చేయవచ్చు.",
       "outletClosedOpensAtMessage": "{{name}} ప్రస్తుతం మూసి ఉంది, {{time}}కి తెరుచుకుంటుంది. మీరు మెనూ చూడవచ్చు, అప్పుడు ఆర్డర్ చేయవచ్చు.",
-      "closedBannerHint": "మీరు మెనూ చూడవచ్చు, కానీ తెరిచే వరకు ఆర్డర్లు నిలిపివేయబడ్డాయి."
+      "closedBannerHint": "మీరు మెనూ చూడవచ్చు, కానీ తెరిచే వరకు ఆర్డర్లు నిలిపివేయబడ్డాయి.",
+      "originalPrice": "అసలు ధర {{price}}",
+      "percentOff": "{{percent}}% తగ్గింపు",
+      "bestseller": "బెస్ట్‌సెల్లర్",
+      "kcal": "{{value}} kcal",
+      "proteinGrams": "{{value}}గ్రా ప్రోటీన్"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} మీ అసలు చెల్లింపు విధానానికి తిరిగి ఇవ్వబడింది · {{date}}",
@@ -1175,6 +1182,23 @@
       "thisDish": "ఈ వంటకం",
       "checkOutItemAtVendor": "Flavour లో {{name}} వద్ద {{item}} చూడండి! {{url}}",
       "checkOutVendor": "Flavour లో {{name}} చూడండి! {{url}}"
+    },
+    "offers": {
+      "title": "మీ కోసం ఆఫర్లు",
+      "percentOffUpTo": "{{value}}% తగ్గింపు, గరిష్టంగా {{max}}",
+      "percentOff": "{{value}}% తగ్గింపు",
+      "flatOff": "{{value}} తగ్గింపు",
+      "aboveMin": "{{min}} పైబడిన ఆర్డర్లపై",
+      "validTill": "{{date}} వరకు చెల్లుతుంది",
+      "useCode": "{{code}} కోడ్ ఉపయోగించండి",
+      "pureVeg": "పూర్తి శాకాహారం",
+      "open": "ఇప్పుడు తెరిచి ఉంది",
+      "closed": "మూసివేయబడింది",
+      "errorTitle": "ఆఫర్లు లోడ్ కాలేదు",
+      "errorSubtitle": "మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+      "retry": "మళ్లీ ప్రయత్నించండి",
+      "emptyTitle": "ప్రస్తుతం ఆఫర్లు లేవు",
+      "emptySubtitle": "మీ దగ్గరలోని రెస్టారెంట్ల కొత్త ఆఫర్లు ఇక్కడ కనిపిస్తాయి."
     }
   }
 }
