@@ -15,6 +15,7 @@ features:
 | `profile`  | (tabs)/profile, notifications |
 | `meat`     | meat-centers |
 | `orders`   | (tabs)/orders |
+| `offers`   | offers |
 
 ## Where does a component go?
 

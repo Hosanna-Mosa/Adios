@@ -22,6 +22,7 @@ export const createChipBadgeStyles = (tokens: ThemeTokens, accent: ServiceTokens
 
   listHeadingBlock: { paddingHorizontal: 16, marginTop: 26, marginBottom: 12 },
   listHeading: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
+  listHeadingMeat: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, letterSpacing: -0.3, color: tokens.text },
   listHeadingMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
 
   listSectionHeader: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1.2, textTransform: "uppercase", color: accent.accent, paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },

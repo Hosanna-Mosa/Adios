@@ -5,6 +5,7 @@ import { UserRole } from "../../database/models/User";
 import {
   getVendorMenu, 
   addFoodItem, 
+  bulkAddFoodItems,
   updateFoodItem, 
   deleteFoodItem,
   uploadImages,
@@ -25,6 +26,7 @@ import {
   vendorIdParamSchema,
   foodItemIdParamSchema,
   addFoodItemSchema,
+  bulkFoodItemsSchema,
   updateFoodItemSchema,
   searchFoodItemsSchema,
   updateFoodItemAvailabilitySchema,
@@ -41,6 +43,8 @@ router.get("/search", validateRequest(searchFoodItemsSchema), searchFoodItems);
 router.get("/store-149", validateRequest(store149ItemsSchema), getStore149Items);
 router.get("/vendor/:vendorId", validateRequest(vendorIdParamSchema), getVendorMenu);
 router.post("/", authenticateToken, validateRequest(addFoodItemSchema), addFoodItem);
+// Spreadsheet menu import (Food-Partner). Registered with the other static paths.
+router.post("/bulk", authenticateToken, validateRequest(bulkFoodItemsSchema), bulkAddFoodItems);
 router.post("/upload", authenticateToken, upload.array("images", 5), uploadImages);
 // Vendor-or-admin stock toggle. Registered before PUT /:id so the three-segment
 // path is never matched as an item id.

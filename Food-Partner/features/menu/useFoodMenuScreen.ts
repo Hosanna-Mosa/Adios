@@ -100,6 +100,7 @@ export function useFoodMenuScreen() {
     toggleAvailability,
     confirmDelete,
     addDish: () => router.push("/dish-form"),
+    bulkUpload: () => router.push("/menu-bulk-upload"),
     editDish: (item: FoodItem) => router.push({ pathname: "/dish-form", params: { id: item._id } }),
     refreshing,
     refresh,

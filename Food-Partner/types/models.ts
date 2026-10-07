@@ -1,5 +1,11 @@
 // Shapes of what the backend sends the partner app. Field names match the
 // API exactly (see backend/src/modules/{vendors,meat,orders,food,support}).
+// Menu and inventory shapes live in ./menu and are re-exported here.
+
+import type { WeekHours } from "./hours";
+
+export * from "./menu";
+export * from "./hours";
 
 /** restaurant_vendor → a Vendor document; meat_vendor → a Vendor (partnerType "meat") or MeatCenter. */
 export type PartnerRole = "restaurant_vendor" | "meat_vendor";
@@ -82,37 +88,6 @@ export interface ScheduledRequestAlert {
   scheduledFor: string;
 }
 
-export interface FoodItem {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  isVeg: boolean;
-  images: string[];
-  isAvailable?: boolean;
-}
-
-export interface FoodItemInput {
-  name: string;
-  description: string;
-  price: string;
-  category: string;
-  isVeg: boolean;
-  images: string[];
-}
-
-export interface MeatItem {
-  _id: string;
-  name: string;
-  weight: string;
-  price: number;
-  category: string;
-  image?: string;
-  isAvailable: boolean;
-  isGlobalItem?: boolean;
-}
-
 export interface ChatMessage {
   sender: "user" | "admin" | "system";
   time: string;
@@ -146,10 +121,35 @@ export interface PartnerProfile extends PartnerSession {
   isPureVeg?: boolean;
   /** The partner's own "Accepting orders" switch, turned off. */
   isManuallyClosed?: boolean;
-  /** The Flavour team's switch — false closes the outlet whatever the partner sets. */
+  /** The Adios team's switch — false closes the outlet whatever the partner sets. */
   isOpen?: boolean;
   /** Whether customers can order right now: opening hours plus both switches. */
   openState?: { isOpen: boolean; label: string; today: string | null };
+  /** Client-only: the switch was just turned on and the server's open state hasn't come back yet. */
+  openStatePending?: boolean;
+  branchCode?: string;
+  /** Where the owner says the outlet is — separate from the searchable map pin. */
+  currentLocation?: OutletLocation;
+  /** The week the outlet runs on; null = no schedule, open whenever the switch is on. */
+  openingHours?: WeekHours | null;
+}
+
+export interface OutletLocation {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+/** PUT /vendors/me — every field optional; null clears branchCode / currentLocation. */
+export interface ProfileUpdate {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  image?: string;
+  branchCode?: string | null;
+  currentLocation?: OutletLocation | null;
+  openingHours?: WeekHours;
 }
 
 /** pending = requested, processing = with the bank, processed = paid, failed = rejected or bounced. */

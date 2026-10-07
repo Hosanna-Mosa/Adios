@@ -10,7 +10,7 @@ import { useAccount } from "@/features/account/useAccount";
 
 export default function AccountScreen() {
   const { t } = useTranslation();
-  const { insets, tabBarHeight, tokens, styles, profile, isMeat, isDark, toggleTheme, languageName, confirmSignOut, version } = useAccount();
+  const { insets, tabBarHeight, tokens, styles, profile, isMeat, isDark, toggleTheme, languageName, confirmSignOut, editProfile, version } = useAccount();
 
   return (
     <ScreenShell scroll contentStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: tabBarHeight }]}>
@@ -21,7 +21,9 @@ export default function AccountScreen() {
         address={profile?.address}
         email={profile?.email}
         phone={profile?.phone}
+        branchCode={profile?.branchCode}
         isMeat={isMeat}
+        onEdit={editProfile}
       />
       <BusinessSection isMeat={isMeat} tokens={tokens} />
       <PreferencesSection isDark={isDark} toggleTheme={toggleTheme} languageName={languageName} tokens={tokens} />

@@ -1,6 +1,6 @@
 import { customFetch } from "@/utils/api/custom-fetch";
 import { ApiError } from "@/utils/api/http.errors";
-import type { PartnerProfile, PartnerRole, PartnerSession } from "@/types/models";
+import type { PartnerProfile, PartnerRole, PartnerSession, ProfileUpdate } from "@/types/models";
 
 // Sign-in, password reset and password change — the same endpoints and the
 // same fallbacks as admin/src/features/vendors/hooks/useVendorLogin.ts.
@@ -66,3 +66,7 @@ export const logoutSession = (headers?: HeadersInit) => customFetch("/auth/logou
 
 /** The signed-in outlet's own profile — name, contact, address, rating, open state. */
 export const getMyProfile = () => customFetch<PartnerProfile>("/vendors/me");
+
+/** Edits the outlet's own details; answers with the fresh profile (same shape as GET /vendors/me). */
+export const updateMyProfile = (update: ProfileUpdate) =>
+  customFetch<PartnerProfile>("/vendors/me", { method: "PUT", body: JSON.stringify(update) });

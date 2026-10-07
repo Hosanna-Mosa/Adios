@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
+import { DishPrice } from "@/components/shared/DishPrice";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -53,7 +54,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
           </View>
           <Text style={styles.dishItemName} numberOfLines={1}>{item.name}</Text>
         </View>
-        <Text style={styles.dishItemPrice}>₹{item.price}</Text>
+        <DishPrice price={item.price} offerPrice={item.offerPrice} discountPercent={item.discountPercent} priceStyle={styles.dishItemPrice} />
         <Text style={styles.dishItemDesc} numberOfLines={2}>{item.description}</Text>
         {vendor && (
           <View style={styles.dishVendorRow}>

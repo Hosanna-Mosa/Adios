@@ -7,6 +7,8 @@ import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type RestaurantMenuStyles } from "../restaurant-menu.styles";
 import { DishImageCarousel } from "./DishImageCarousel";
+import { BestsellerBadge, NutritionLine } from "./DishHighlights";
+import { DishPrice } from "@/components/shared/DishPrice";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -80,8 +82,15 @@ export function DishDetailSheet({
                   )}
                 </View>
                 <View style={{ flex: 1 }}>
+                  {selectedDishDetail.isBestseller && <BestsellerBadge tokens={tokens} style={{ marginBottom: 6 }} />}
                   <Text style={styles.modalTitle}>{selectedDishDetail.name}</Text>
-                  <Text style={styles.modalPrice}>₹{selectedDishDetail.price}</Text>
+                  <DishPrice
+                    price={selectedDishDetail.price}
+                    offerPrice={selectedDishDetail.offerPrice}
+                    discountPercent={selectedDishDetail.discountPercent}
+                    priceStyle={styles.modalPrice}
+                  />
+                  <NutritionLine calories={selectedDishDetail.calories} protein={selectedDishDetail.protein} tokens={tokens} style={{ marginTop: 6 }} />
                 </View>
                 <TouchableOpacity
                   style={styles.modalFavoriteBtn}

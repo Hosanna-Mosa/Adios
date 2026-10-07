@@ -36,6 +36,7 @@ import {
   MessageSquare,
   ShieldCheck,
   BadgeCheck,
+  BadgePercent,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
@@ -62,6 +63,7 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
     { title: t("sidebar.coupons"), url: "/coupons", icon: Ticket },
+    { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
     { title: t("sidebar.banners"), url: "/banners", icon: Image },
   ];

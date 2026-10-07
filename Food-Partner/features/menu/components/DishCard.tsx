@@ -8,8 +8,9 @@ import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { ThemeTokens } from "@/constants/colors";
 import { isInStock } from "@/queries/menu.queries";
 import type { FoodItem } from "@/types/models";
-import { formatCurrency } from "@/utils/format";
 import type { MenuStyles } from "../menu.styles";
+import { BestsellerTag } from "./BestsellerTag";
+import { PriceTag } from "./PriceTag";
 import { VegMarker } from "./VegMarker";
 
 interface Props {
@@ -22,7 +23,7 @@ interface Props {
   tokens: ThemeTokens;
 }
 
-/** One dish: photo, veg marker, name, price, and the in-stock switch — the web panel's FoodItemCard. */
+/** One dish: photo, veg marker, name, price (with any offer), bestseller state, and the in-stock switch — the web panel's FoodItemCard. */
 export function DishCard({ item, toggling, onToggle, onEdit, onDelete, styles, tokens }: Props) {
   const { t } = useTranslation();
   const inStock = isInStock(item);
@@ -60,7 +61,8 @@ export function DishCard({ item, toggling, onToggle, onEdit, onDelete, styles, t
               {item.description}
             </Text>
           ) : null}
-          <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+          <PriceTag price={item.price} offerPrice={item.offerPrice} tokens={tokens} />
+          <BestsellerTag item={item} styles={styles} />
         </View>
       </View>
       <View style={styles.dishFooter}>

@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
-import Colors from "@/constants/colors";
+import Colors, { designTokens } from "@/constants/colors";
 
 // The navigator itself plus the per-route animation options. Split out of
 // app/_layout.tsx unchanged, so every screen keeps the transition it had.
@@ -14,7 +14,10 @@ export function RootLayoutNav() {
   const colors = Colors[theme];
 
   if (!isInitialized) {
-    return null; // Or a custom Loading/Splash view
+    // Auth restores from AsyncStorage only (the profile refresh runs in the
+    // background), so this is a frame or two — painted in the splash's brand
+    // colour so it never reads as a white screen.
+    return <View style={{ flex: 1, backgroundColor: designTokens[theme].brand }} />;
   }
 
   return (

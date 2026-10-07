@@ -162,7 +162,8 @@ const bannerBodySchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  targetUrl: z.string().optional(),
+  // Where a tap on the banner goes (opened with Linking.openURL); "" clears it.
+  targetUrl: z.union([z.literal(""), z.string().trim().url("Link URL must be a valid URL")]).optional(),
   itemType: z.enum(["banner", "ad"]).optional(),
   position: z.enum(["hero", "startup", "below_greetings", "driver_dashboard", "inline"]).optional(),
   isActive: z.boolean().optional(),
@@ -183,4 +184,52 @@ export const updateBannerSchema = z.object({
     id: z.string().min(1, "Banner ID is required"),
   }),
   body: bannerBodySchema,
+});
+
+// --- Offers (customer app Offers page) --------------------------------------
+
+const objectIdString = (label: string) => z.string().regex(/^[a-f\d]{24}$/i, `${label} must be a valid id`);
+// "" / null from a cleared form field means "no date".
+const optionalDate = z
+  .union([z.literal(""), z.null(), z.coerce.date({ error: "Enter a valid date" })])
+  .optional()
+  .transform((value) => (value === "" ? null : value));
+const optionalNonNegative = z.union([z.null(), z.coerce.number().min(0, "Must be 0 or more")]).optional();
+
+const offerBodySchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(120),
+  description: z.string().trim().max(500).optional(),
+  vendor: objectIdString("Restaurant"),
+  discountType: z.enum(["PERCENTAGE", "FLAT"]),
+  discountValue: z.coerce.number().positive("Discount value must be greater than 0"),
+  maxDiscount: optionalNonNegative,
+  minOrderValue: optionalNonNegative,
+  couponCode: z.string().trim().max(40).optional(),
+  imageUrl: z.union([z.literal(""), z.string().trim().url("Image must be a valid URL")]).optional(),
+  startDate: optionalDate,
+  endDate: optionalDate,
+  isActive: z.boolean().optional(),
+  displayOrder: z.coerce.number().int().optional(),
+});
+
+const offerRules = <T extends z.ZodType<any>>(schema: T) =>
+  schema
+    .refine((body: any) => !(body.discountType === "PERCENTAGE" && body.discountValue > 100), {
+      message: "A percentage discount cannot exceed 100",
+      path: ["discountValue"],
+    })
+    .refine((body: any) => !(body.startDate && body.endDate && body.endDate < body.startDate), {
+      message: "End date must be after the start date",
+      path: ["endDate"],
+    });
+
+export const createOfferSchema = z.object({
+  body: offerRules(offerBodySchema),
+});
+
+export const updateOfferSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Offer ID is required"),
+  }),
+  body: offerRules(offerBodySchema.partial()),
 });

@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/contexts/authStore";
 import {
   addFoodItem,
+  bulkAddFoodItems,
   deleteFoodItem,
   getFoodMenu,
   getMeatInventory,
@@ -10,7 +11,7 @@ import {
   setMeatItemPrice,
   updateFoodItem,
 } from "@/services/menu.service";
-import type { FoodItem, FoodItemInput, MeatItem } from "@/types/models";
+import type { BulkFoodItem, FoodItem, FoodItemInput, MeatItem } from "@/types/models";
 import { queryKeys } from "./keys";
 
 // Restaurant menu and meat inventory. Shared by the menu tab, the dish form
@@ -41,6 +42,16 @@ export function useSaveFoodItem() {
     mutationFn: ({ id, input }: { id?: string; input: FoodItemInput }) =>
       id ? updateFoodItem(id, input) : addFoodItem(vendorId, input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.foodMenu(vendorId) }),
+  });
+}
+
+/** The Excel bulk upload. Refreshes the menu even on a partial success. */
+export function useBulkAddFoodItems() {
+  const { vendorId } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (items: BulkFoodItem[]) => bulkAddFoodItems(vendorId, items),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.foodMenu(vendorId) }),
   });
 }
 

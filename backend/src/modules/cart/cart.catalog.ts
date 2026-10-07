@@ -82,10 +82,14 @@ export async function resolveCatalog(vendorId: string): Promise<Map<string, Cata
   const add = (row: any) => {
     const id = String(row?._id ?? "");
     if (!id || catalog.has(id)) return;
+    // A dish on offer is charged its offer price, the same one the menu shows.
+    const listPrice = Number(row?.price) || 0;
+    const offerPrice = Number(row?.offerPrice);
+    const hasOffer = row?.offerPrice != null && offerPrice > 0 && offerPrice < listPrice;
     catalog.set(id, {
       name: String(row?.name ?? ""),
       description: String(row?.description ?? ""),
-      price: Number(row?.price) || 0,
+      price: hasOffer ? offerPrice : listPrice,
       category: String(row?.category ?? ""),
       isVeg: row?.isVeg === true,
       images: imagesOf(row),

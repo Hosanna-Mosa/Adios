@@ -16,6 +16,13 @@ export const createStyles = (tokens: ThemeTokens) =>
     hint: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.muted },
     error: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.error },
     chips: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+    offerHint: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.success },
+    row: { flexDirection: "row", gap: 12 },
+    half: { flex: 1 },
+    switchRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+    switchTexts: { flex: 1, gap: 2 },
+    switchTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
+    unit: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted },
     rupee: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.muted },
   });
 

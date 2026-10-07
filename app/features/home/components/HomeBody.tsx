@@ -1,5 +1,4 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -12,6 +11,8 @@ import { CuisineStrip } from "./CuisineStrip";
 import { Store149Card } from "./Store149Card";
 import { ServiceTiles } from "./ServiceTiles";
 import { HomeIntro } from "./HomeIntro";
+import { GreetingAdCard } from "./GreetingAdCard";
+import { CuisineStripSkeleton, GreetingAdSkeleton, MealsRailSkeleton, PromoCarouselSkeleton } from "./HomeSectionSkeletons";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -26,7 +27,7 @@ export function HomeBody(props: Props) {
   restaurants, searchBarAnimatedStyle, selectedCuisines, setActiveFilterTab, setFilterCostRange,
   setFilterFastDelivery, setFilterMinRating, setFilterOffers, setFilterOpenNow,
   setFilterVegNonVeg, setIsDistanceSheetOpen, setIsFilterModalVisible, setIsSearchActive,
-  setSelectedCuisines, store149Items, styles, tokens } = props;
+  setSelectedCuisines, store149Items, styles, tokens, bannersLoading, store149Loading, cuisinesLoading } = props;
   const { t } = useTranslation();
   return (
     <>
@@ -43,6 +44,7 @@ export function HomeBody(props: Props) {
 
       {hasRidersButNoVendors ? null : (
         <>
+          {bannersLoading ? <PromoCarouselSkeleton tokens={tokens} /> : (
           <PromoCarousel
             styles={styles}
             promoCards={promoCards}
@@ -53,19 +55,19 @@ export function HomeBody(props: Props) {
             onBannerScroll={onBannerScroll}
             bannerIndexRef={bannerIndexRef}
           />
+          )}
+
+          {bannersLoading && <GreetingAdSkeleton tokens={tokens} />}
 
           {greetingAds.length > 0 && greetingAds.map((banner, index) => (
-            <View key={banner._id || index} style={styles.adCard}>
-              <Image source={{ uri: banner.imageUrl }} style={styles.adImage} contentFit="cover" transition={200} />
-              <View style={styles.adCaption}>
-                <Text style={styles.adTitle}>{banner.title}</Text>
-                {banner.description && <Text style={styles.adDescription}>{banner.description}</Text>}
-              </View>
-            </View>
+            <GreetingAdCard key={banner._id || index} banner={banner} styles={styles} />
           ))}
 
           {/* Nothing in the ₹149 store can be delivered with no rider on shift,
               so the rail comes down with the rest of the ordering surface. */}
+          {activeService === "Food" && !noRidersNearby && store149Loading && store149Items.length === 0 && (
+            <MealsRailSkeleton tokens={tokens} />
+          )}
           {activeService === "Food" && !noRidersNearby && store149Items.length > 0 && (
             <View style={styles.sectionBlock}>
               <View style={styles.sectionHeadRow}>
@@ -129,7 +131,8 @@ export function HomeBody(props: Props) {
           )}
 
           {/* Browse by cuisine (Food) / meat type (Meat, no eyebrow label in the mockup) */}
-          {!noRidersNearby && (
+          {!noRidersNearby && cuisinesLoading && <CuisineStripSkeleton tokens={tokens} />}
+          {!noRidersNearby && !cuisinesLoading && (
             <CuisineStrip
               styles={styles}
               activeService={activeService}
@@ -142,7 +145,7 @@ export function HomeBody(props: Props) {
 
           {filteredAndSortedItems.length > 0 && (
             <View style={styles.listHeadingBlock}>
-              <Text style={styles.listHeading}>{activeService === "Meat" ? t("app.home.meatCenters") : t("app.home.allRestaurants")}</Text>
+              <Text style={activeService === "Meat" ? styles.listHeadingMeat : styles.listHeading}>{activeService === "Meat" ? t("app.home.meatCenters") : t("app.home.allRestaurants")}</Text>
               {/* The count is a promise none of those outlets can keep while no
                   rider is online, so it is left off rather than contradicting the
                   notice right below it. */}
