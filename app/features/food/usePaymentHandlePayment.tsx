@@ -27,13 +27,22 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
       return;
     }
 
+    // The address's own pin — never a made-up point.
+    const dropLat = Number(selectedAddress.coordinates?.lat ?? selectedAddress.location?.coordinates?.[1]);
+    const dropLng = Number(selectedAddress.coordinates?.lng ?? selectedAddress.location?.coordinates?.[0]);
+    if (!Number.isFinite(dropLat) || !Number.isFinite(dropLng)) {
+      showAlert(t("app.food.addressRequired"), t("app.food.pleaseSelectADeliveryAddress"));
+      router.push("/delivery/saved-addresses");
+      return;
+    }
+
     setProcessing(true);
     try {
-      const dropLat = Number(selectedAddress.coordinates?.lat ?? selectedAddress.location?.coordinates?.[1] ?? 17.0005);
-      const dropLng = Number(selectedAddress.coordinates?.lng ?? selectedAddress.location?.coordinates?.[0] ?? 81.804);
+      // Pickup is the restaurant; the server pins it to the outlet's stored location too
+      // (OrdersService.pinPickupToOutlet), so the delivery point only stands in when unknown here.
       const vendorCoords = vendor?.location?.coordinates;
-      const pickupLat = Number(vendorCoords?.[1] ?? dropLat + 0.004);
-      const pickupLng = Number(vendorCoords?.[0] ?? dropLng + 0.004);
+      const pickupLat = Number(vendorCoords?.[1] ?? dropLat);
+      const pickupLng = Number(vendorCoords?.[0] ?? dropLng);
       const orderItems = items.map((item: any) => ({ id: item._id, name: item.name, quantity: item.quantity, price: item.price, total: item.price * item.quantity }));
 
       // Online: this goes with the payment and the server places the order once Razorpay

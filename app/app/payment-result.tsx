@@ -3,6 +3,8 @@ import { Stack, router, useLocalSearchParams } from "expo-router";
 import { PaymentReturningBody } from "@/features/food/components/PaymentReturningBody";
 import { useAuthStore } from "@/contexts/authStore";
 import { verifyPayment } from "@/services/payments.service";
+import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
+import { isDefinitePaymentFailure } from "@/utils/razorpay";
 
 // Target of flavour://payment-result, where the browser checkout sends the customer back.
 // Normally RazorpayIntegration.open (utils/razorpay.ts) is already waiting for this link and
@@ -30,6 +32,7 @@ export default function PaymentResultScreen() {
     // signed-out user to login by itself).
     if (!isInitialized || !token) return;
     if (params.status !== "success" || !params.razorpay_order_id) {
+      if (params.status === "failed") void showPaymentOutcome("failure");
       router.replace("/");
       return;
     }
@@ -39,7 +42,11 @@ export default function PaymentResultScreen() {
         ? { razorpay_payment_id: params.razorpay_payment_id, razorpay_signature: params.razorpay_signature }
         : {}),
     })
-      .catch((error) => console.warn("Payment confirmation after restart failed", error))
+      .then(() => void showPaymentOutcome("success"))
+      .catch((error) => {
+        console.warn("Payment confirmation after restart failed", error);
+        if (isDefinitePaymentFailure(error)) void showPaymentOutcome("failure");
+      })
       .finally(() => router.replace("/(tabs)/orders"));
     // Runs for the link that opened this screen, once the session is known.
     // eslint-disable-next-line react-hooks/exhaustive-deps

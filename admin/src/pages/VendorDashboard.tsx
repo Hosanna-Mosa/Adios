@@ -16,6 +16,7 @@ export default function VendorDashboard() {
     ordersLoading,
     menuCount,
     totalRevenue,
+    rating,
     selectedOrder,
     setSelectedOrder,
     isModalOpen,
@@ -43,7 +44,7 @@ export default function VendorDashboard() {
           <p className="text-muted-foreground">{isMeatVendor ? t("vendorDashboard.meatCenterTodaySummary") : t("vendorDashboard.restaurantTodaySummary")}</p>
         </div>
 
-        <VendorStatsRow ordersCount={orders?.length || 0} menuCount={menuCount || 0} isMeatVendor={isMeatVendor} totalRevenue={totalRevenue} />
+        <VendorStatsRow ordersCount={orders?.length || 0} menuCount={menuCount || 0} isMeatVendor={isMeatVendor} totalRevenue={totalRevenue} rating={rating} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <VendorOrderList

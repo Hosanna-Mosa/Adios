@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { STRIDE } from "./constants";
 import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";
@@ -8,22 +7,6 @@ import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";
 // order, so React still sees the same hook sequence.
 
 export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nearbyDriversCount: any, loadingDrivers: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any) {
-  const { t } = useTranslation();
-
-  // Pure display copy (not compared against anything), safe to translate
-  // directly — unlike DEFAULT_CUISINES/DEFAULT_MEAT_TYPES below, which stay
-  // in English since they double as fallback filter-chip values matched
-  // against live backend category data (see CuisineStrip.tsx's
-  // translateFoodTag() for how those get a translated display instead).
-  const FOOD_PROMOS = useMemo(() => [
-    { eyebrow: t("app.home.foodPromos.firstOrder.eyebrow"), headline: t("app.home.foodPromos.firstOrder.headline"), caption: t("app.home.foodPromos.firstOrder.caption") },
-    { eyebrow: t("app.home.foodPromos.lateNight.eyebrow"), headline: t("app.home.foodPromos.lateNight.headline"), caption: t("app.home.foodPromos.lateNight.caption") },
-  ], [t]);
-  const MEAT_PROMOS = useMemo(() => [
-    { eyebrow: t("app.home.meatPromos.sundaySpecial.eyebrow"), headline: t("app.home.meatPromos.sundaySpecial.headline"), caption: "" },
-    { eyebrow: t("app.home.meatPromos.cleanedAndCut.eyebrow"), headline: t("app.home.meatPromos.cleanedAndCut.headline"), caption: "" },
-  ], [t]);
-
   const availableCuisines = useMemo(() => {
     const cuisinesSet = new Set<string>();
     const items = activeService === "Meat" ? meatCenters : restaurants;
@@ -49,11 +32,12 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   );
   const greetingAds = useMemo(() => banners.filter((b: any) => b.itemType === "ad" && b.position === "below_greetings"), [banners]);
 
-  const promoCards = heroBanners.length > 0
-    ? heroBanners.map((b: any) => ({ eyebrow: "Offer", headline: b.title, caption: b.description || "" }))
-    : activeService === "Meat" ? MEAT_PROMOS : FOOD_PROMOS;
+  // Only the banners the Adios team published — no built-in offer cards (the old
+  // fallback advertised codes like FLAV50 that don't exist). No banners, no carousel.
+  const promoCards = heroBanners.map((b: any) => ({ eyebrow: "Offer", headline: b.title, caption: b.description || "" }));
 
   useEffect(() => {
+    if (promoCards.length < 2) return;
     const interval = setInterval(() => {
       let next = bannerIndexRef.current + 1;
       if (next >= promoCards.length) next = 0;

@@ -48,7 +48,9 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.scheduledOrders"), url: "/scheduled-orders", icon: CalendarClock },
     { title: t("sidebar.drivers"), url: "/drivers", icon: Truck },
     { title: t("sidebar.driverVerification"), url: "/driver-verification", icon: ShieldCheck },
-    { title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal },
+    // Seeds fake check1..check10 drivers: a local-development tool only, never
+    // offered in a production build.
+    ...(import.meta.env.DEV ? [{ title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal }] : []),
     { title: t("sidebar.users"), url: "/users", icon: Users },
     { title: t("sidebar.vendors"), url: "/vendors", icon: Store },
     { title: t("sidebar.restaurantVerification"), url: "/restaurant-verification", icon: BadgeCheck },

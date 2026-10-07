@@ -16,7 +16,7 @@ export const createHydrate = (set: Set, get: Get) => async (userId: string) => {
     if (get().ownerId === userId && get().status !== "idle") return;
     // Starts empty, so a different account never sees the previous one's items,
     // not even for a frame.
-    set({ ownerId: userId, status: "hydrating", items: [], vendorId: null, vendorName: null, pendingConflict: null, syncNotices: [] });
+    set({ ownerId: userId, status: "hydrating", items: [], vendorId: null, vendorName: null, vendorImage: null, pendingConflict: null, syncNotices: [] });
 
     try {
       const raw = await AsyncStorage.getItem(cartKey(userId));

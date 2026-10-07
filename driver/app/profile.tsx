@@ -15,6 +15,8 @@ import {
   ProfileStatsRow,
 } from "@/features/profile/components";
 import { styles } from "@/features/profile/profile.styles";
+import { useProfileTab } from "@/features/profile/hooks/useProfileTab";
+import { formatAcceptanceRate } from "@/features/profile/utils/format";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { AppText } from "@/components/ui/AppText";
 
@@ -23,6 +25,9 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { driverName, driverPhone, earnings, logout, isOnline } =
     useDriverStore();
+  // Rating and acceptance from GET /drivers/profile, the same source as the
+  // profile tab; these were a fixed "4.9" and "98%" for every driver.
+  const stats = useProfileTab().profile?.stats;
 
   const MENU_ITEMS = [
     {
@@ -124,8 +129,11 @@ export default function ProfileScreen() {
       <ProfileStatsRow
         stats={[
           { value: earnings.totalDeliveries, label: t("profile.deliveries") },
-          { value: "4.9", label: t("profile.rating") },
-          { value: "98%", label: t("profile.acceptance") },
+          {
+            value: stats?.rating != null ? stats.rating.toFixed(1) : stats ? t("profile.newRating") : "—",
+            label: t("profile.rating"),
+          },
+          { value: formatAcceptanceRate(stats?.acceptanceRate), label: t("profile.acceptance") },
         ]}
       />
 

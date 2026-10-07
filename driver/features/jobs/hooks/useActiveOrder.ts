@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 
 import { useDriverStore } from "@/store/driverStore";
 import { findStops, getFoodItems, isHelperOrder, isRideOrder } from "../orderStops";
-import { computeEarnings } from "../orderEarnings";
+import { orderPayout } from "../orderEarnings";
 import { useDriverTracking } from "./useDriverTracking";
 import { useGpsSimulator } from "./useGpsSimulator";
 import { useOrderActions } from "./useOrderActions";
@@ -72,7 +72,7 @@ export function useActiveOrder() {
     deliveryStop,
   );
 
-  const earnings = computeEarnings(currentOrder?.distance);
+  const earnings = orderPayout(currentOrder);
 
   return {
     // The screen bails before rendering any stage when this is null.

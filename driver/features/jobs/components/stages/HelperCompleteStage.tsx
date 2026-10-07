@@ -7,10 +7,11 @@ import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { StageActionButton, StopInfoItem, StopsPanel } from "../order";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
+import { formatCurrency } from "@/utils/format";
 
 export function HelperCompleteStage() {
   const { t } = useTranslation();
-  const { taskTimerSeconds, currentOrder, handleStatusTransition } = useActiveOrderCtx();
+  const { taskTimerSeconds, earnings, handleStatusTransition } = useActiveOrderCtx();
 
   return (
     <Box style={styles.stepContainer}>
@@ -20,9 +21,11 @@ export function HelperCompleteStage() {
           label={t("jobs.timeLogged")}
           name={<>{t("jobs.minsN", { value: Math.floor(taskTimerSeconds / 60), defaultValue: "{{value}} Mins" })}</>}
         />
+        {/* The driver's pay. Was the order's totalPrice, which the mapped order
+            doesn't carry (so it always read ₹0) and is the customer's fare anyway. */}
         <StopInfoItem
           label={t("jobs.totalPayout")}
-          name={<>₹{(currentOrder as any).totalPrice || 0}</>}
+          name={formatCurrency(earnings.total)}
           nameStyle={{ color: Colors.success, fontWeight: "900" }}
         />
       </StopsPanel>

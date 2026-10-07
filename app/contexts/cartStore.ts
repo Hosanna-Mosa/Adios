@@ -68,6 +68,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   vendorId: null,
   vendorName: null,
+  vendorImage: null,
   isHoveringSearch: false,
   ownerId: null,
   status: "idle",
@@ -76,32 +77,36 @@ export const useCartStore = create<CartState>((set, get) => ({
   clearSyncNotices: () => set({ syncNotices: [] }),
   setIsHoveringSearch: (hovering) => set({ isHoveringSearch: hovering }),
 
-  addItem: (item, vendorId, vendorName) => {
-    get().requestAddItem(item, vendorId, vendorName);
+  addItem: (item, vendorId, vendorName, vendorImage) => {
+    get().requestAddItem(item, vendorId, vendorName, vendorImage);
   },
 
-  requestAddItem: (item, vendorId, vendorName) => {
+  requestAddItem: (item, vendorId, vendorName, vendorImage) => {
     const { items, vendorId: currentVendorId } = get();
 
     // Items from two outlets can't share one cart — surface the choice instead
     // of silently replacing what's already there.
     if (currentVendorId && items.length > 0 && currentVendorId !== vendorId) {
-      set({ pendingConflict: { item, vendorId, vendorName } });
+      set({ pendingConflict: { item, vendorId, vendorName, vendorImage } });
       return "conflict";
     }
 
+    // A photo from another outlet must never sit beside this one's name.
+    const keptImage = currentVendorId === vendorId ? get().vendorImage : null;
     const existingItem = items.find((i) => i._id === item._id);
     if (existingItem) {
       set({
         items: items.map((i) => (i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i)),
         vendorId,
         vendorName: vendorName ?? get().vendorName,
+        vendorImage: vendorImage || keptImage,
       });
     } else {
       set({
         items: [...items, { ...item, quantity: 1 }],
         vendorId,
         vendorName: vendorName ?? get().vendorName,
+        vendorImage: vendorImage || keptImage,
       });
     }
     scheduleSync();
@@ -119,6 +124,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       items: [{ ...pending.item, quantity: 1 }],
       vendorId: pending.vendorId,
       vendorName: pending.vendorName ?? null,
+      vendorImage: pending.vendorImage ?? null,
       pendingConflict: null,
     });
     scheduleSync();
@@ -131,6 +137,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         items: newItems,
         vendorId: newItems.length === 0 ? null : state.vendorId,
         vendorName: newItems.length === 0 ? null : state.vendorName,
+        vendorImage: newItems.length === 0 ? null : state.vendorImage,
       };
     });
     scheduleSync();
@@ -148,7 +155,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: () => {
-    set({ items: [], vendorId: null, vendorName: null, pendingConflict: null });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, pendingConflict: null });
     // Order placement navigates away immediately, so this one can't sit on a debounce.
     scheduleSync(true);
   },
@@ -158,6 +165,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       items,
       vendorId: items.length ? vendorId : null,
       vendorName: items.length ? vendorName ?? null : null,
+      vendorImage: items.length && vendorId === get().vendorId ? get().vendorImage : null,
       pendingConflict: null,
     });
     scheduleSync();
@@ -171,7 +179,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       clearTimeout(syncTimer);
       syncTimer = null;
     }
-    set({ items: [], vendorId: null, vendorName: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
   },
 
   getTotalPrice: () => {

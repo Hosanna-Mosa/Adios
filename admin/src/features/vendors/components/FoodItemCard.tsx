@@ -1,4 +1,4 @@
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Utensils } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LazyImage } from "@/components/shared/LazyImage";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -22,12 +22,20 @@ export function FoodItemCard({ item, isToggling, onEditClick, onDeleteClick, onT
   return (
     <StaggerItem className={`bg-card border overflow-hidden rounded-3xl shadow-sm hover:shadow-xl transition-all group ${inStock ? "border-border" : "border-dashed border-muted-foreground/40 opacity-75"}`}>
       <div className="h-48 w-full relative overflow-hidden">
-        <LazyImage
-          src={item.images[0] || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"}
-          alt={item.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-          wrapperClassName="h-full w-full"
-        />
+        {/* A dish with no photo gets a neutral placeholder, not a stock food photo
+            that looks like the dish. */}
+        {item.images?.[0] ? (
+          <LazyImage
+            src={item.images[0]}
+            alt={item.name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            wrapperClassName="h-full w-full"
+          />
+        ) : (
+          <div className="h-full w-full bg-muted flex items-center justify-center text-muted-foreground/50">
+            <Utensils className="h-10 w-10" />
+          </div>
+        )}
         <div className="absolute top-4 left-4 h-6 w-6 rounded border border-white bg-white/20 backdrop-blur-md flex items-center justify-center p-1">
           <div className={`h-full w-full rounded-full ${item.isVeg ? "bg-success" : "bg-destructive"}`} />
         </div>

@@ -66,7 +66,7 @@ export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
 
 
   return {
-  insets, theme, tokens, accentTokens, styles, itemCount, totalPrice, pillWidth, setPillWidth,
+  insets, theme, tokens, accentTokens, cartAccent, styles, itemCount, totalPrice, pillWidth, setPillWidth,
   indicatorStyle, handleTabPress
   };
 }

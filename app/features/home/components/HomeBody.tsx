@@ -43,16 +43,18 @@ export function HomeBody(props: Props) {
 
       {hasRidersButNoVendors ? null : (
         <>
-          <PromoCarousel
-            styles={styles}
-            promoCards={promoCards}
-            accent={accent}
-            tokens={tokens}
-            carouselRef={carouselRef}
-            bannerScrollX={bannerScrollX}
-            onBannerScroll={onBannerScroll}
-            bannerIndexRef={bannerIndexRef}
-          />
+          {promoCards.length > 0 && (
+            <PromoCarousel
+              styles={styles}
+              promoCards={promoCards}
+              accent={accent}
+              tokens={tokens}
+              carouselRef={carouselRef}
+              bannerScrollX={bannerScrollX}
+              onBannerScroll={onBannerScroll}
+              bannerIndexRef={bannerIndexRef}
+            />
+          )}
 
           {greetingAds.length > 0 && greetingAds.map((banner, index) => (
             <View key={banner._id || index} style={styles.adCard}>

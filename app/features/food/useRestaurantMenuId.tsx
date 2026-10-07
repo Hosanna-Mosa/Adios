@@ -19,11 +19,11 @@ import { showOutletClosedAlert } from "@/components/shared/outletClosed";
 export function useRestaurantMenuId() {
   const {
     id, name, image, rating, reviews, isMeat, highlightDishId,
-    categories, minOrderValue, time, distance, address,
+    categories, minOrderValue, time, distance, address, isOpen,
   } = useLocalSearchParams();
 
   const insets = useSafeAreaInsets();
-  const tabBarHeight = useAppTabBarHeight();
+  const tabBarHeight = useAppTabBarHeight({ hideTabs: true });
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services[isMeat === "true" ? "meat" : "food"];
@@ -53,7 +53,7 @@ export function useRestaurantMenuId() {
   const [selectedDishDetail, setSelectedDishDetail] = useState<FoodItem | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
-  const { orderingState, isClosed: outletClosed, refresh: refreshOrderingState } = useOutletOrderingState(id as string);
+  const { orderingState, isClosed: outletClosed, refresh: refreshOrderingState } = useOutletOrderingState(id as string, isOpen === "false" ? false : undefined);
 
   const handleAddToCart = (item: FoodItem) => {
     if (loadingItems[item._id] || item.isAvailable === false) return;
@@ -66,7 +66,7 @@ export function useRestaurantMenuId() {
     }
     setLoadingItems((prev) => ({ ...prev, [item._id]: true }));
     setTimeout(() => {
-      requestAddItem(item as any, id as string, name as string);
+      requestAddItem(item as any, id as string, name as string, (image as string) || undefined);
       setLoadingItems((prev) => ({ ...prev, [item._id]: false }));
     }, 450);
   };

@@ -79,12 +79,14 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.restaurantPickupCode) setStartOtp(order.restaurantPickupCode);
           if (order.totalPrice != null) setTotalPrice(order.totalPrice);
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));
+          // The route's time is only a first estimate: once the driver's live position
+          // has produced one, this 7-second poll must not reset it.
           if (order.duration) {
-            const durMinutes = parseInt(order.duration.toString().replace(/[^0-9]/g, ""), 10) || 15;
-            setEta(durMinutes);
+            const durMinutes = parseInt(order.duration.toString().replace(/[^0-9]/g, ""), 10);
+            if (durMinutes > 0) setEta((prev: number | null) => prev ?? durMinutes);
           }
           if (order.polyline) {
-            setRoute({ totalDistance: order.totalDistance || 0, estimatedTime: order.duration || 15, polyline: order.polyline });
+            setRoute({ totalDistance: order.totalDistance || 0, estimatedTime: order.duration || 0, polyline: order.polyline });
           }
         })
         .catch((err) => console.error("Error fetching order in tracking:", err));

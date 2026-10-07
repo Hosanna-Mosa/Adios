@@ -11,7 +11,8 @@ export interface OrderStop {
 }
 
 export interface OrderDriver {
-  user?: { name?: string };
+  /** The driver's User. GET /admin/orders/:id may leave it unpopulated (just an id), so read it defensively. */
+  user?: { name?: string; phone?: string };
   vehicleNumber?: string;
 }
 
@@ -22,6 +23,8 @@ export interface Order {
   updatedAt: string;
   driver?: OrderDriver;
   stops?: OrderStop[];
+  /** Food (broadcast) orders: the rider search, whose accepted offer records when a driver took the order. */
+  dispatch?: { offers?: { outcome?: string; respondedAt?: string }[] };
 }
 
 export interface MapMarker {

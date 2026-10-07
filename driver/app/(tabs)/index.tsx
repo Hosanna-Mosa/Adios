@@ -16,7 +16,6 @@ import {
   HomeGreetingHeader,
   IncomingOrderModal,
   OnlineStatusCard,
-  SafetyAlertCard,
   ScheduledRidesSection,
   ServiceToggle,
 } from "@/features/jobs/components";
@@ -140,11 +139,9 @@ export default function HomeScreen() {
             />
           </Box>
 
-          {/* Safety Alerts */}
-          <SafetyAlertCard
-            title={t("jobs.safetyAlert")}
-            message={t("jobs.roadClosureReportedOnMainSt")}
-          />
+          {/* The "Safety Alert" card that sat here always said "Road closure reported
+              on Main St" — there is no alerts feed behind it, so it's gone until
+              there is one (SafetyAlertCard is kept for that). */}
         </Box>
       </ScrollBox>
 

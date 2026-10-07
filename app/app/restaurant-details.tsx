@@ -74,7 +74,7 @@ export default function RestaurantDetails() {
         </ScrollView>
       )}
 
-      <AppTabBar accent={isMeat === "true" ? "meat" : "food"} cartVendorName={displayName} />
+      <AppTabBar accent={isMeat === "true" ? "meat" : "food"} cartVendorName={displayName} hideTabs />
     </ScreenShell>
   );
 }

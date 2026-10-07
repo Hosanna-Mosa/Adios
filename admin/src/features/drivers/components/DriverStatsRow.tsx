@@ -3,65 +3,7 @@ import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
 
-// Sparkline SVGs for Stat Cards
-const GreenSparkline = () => (
-  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#22c55e" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path d="M0,22 Q15,8 30,18 T60,5 T90,12 L100,8" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" />
-    <path d="M0,22 Q15,8 30,18 T60,5 T90,12 L100,8 L100,30 L0,30 Z" fill="url(#greenGrad)" />
-  </svg>
-);
-
-const OrangeSparkline = () => (
-  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path d="M0,25 Q15,15 30,22 T60,10 T90,18 L100,12" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round" />
-    <path d="M0,25 Q15,15 30,22 T60,10 T90,18 L100,12 L100,30 L0,30 Z" fill="url(#orangeGrad)" />
-  </svg>
-);
-
-const BlueSparkline = () => (
-  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path d="M0,20 Q15,18 30,25 T60,12 T90,20 L100,15" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
-    <path d="M0,20 Q15,18 30,25 T60,12 T90,20 L100,15 L100,30 L0,30 Z" fill="url(#blueGrad)" />
-  </svg>
-);
-
-// Kept from the pre-refactor page: defined but never rendered by any card
-// below (there were only 4 sparkline colors used for 5 cards -- the 5th,
-// Fleet Health, uses FleetHealthCircularProgress instead). Moved as-is
-// rather than deleted, since removing unused pre-existing code would be a
-// functional change, not a move.
-const PurpleSparkline = () => (
-  <svg className="h-8 w-24 overflow-hidden" viewBox="0 0 100 30" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#a855f7" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path d="M0,15 Q15,22 30,12 T60,25 T90,15 L100,20" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" />
-    <path d="M0,15 Q15,22 30,12 T60,25 T90,15 L100,20 L100,30 L0,30 Z" fill="url(#purpleGrad)" />
-  </svg>
-);
-
-const FleetHealthCircularProgress = ({ percentage = 98 }: { percentage?: number }) => {
+const FleetHealthCircularProgress = ({ percentage = 0 }: { percentage?: number }) => {
   const radius = 22;
   const stroke = 4;
   const circumference = radius * 2 * Math.PI;
@@ -126,9 +68,6 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <p className="text-[11px] font-semibold text-emerald-500 mt-1">{t("drivers.onDutyNow", { count: onlineDrivers, defaultValue: "{{count}} on duty now" })}</p>
           </div>
         </div>
-        <div className="self-end pb-1">
-          <GreenSparkline />
-        </div>
       </StaggerItem>
 
       {/* Card 2: On-Duty Drivers */}
@@ -146,9 +85,6 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
               {t("drivers.percentOfTotal", { percent: totalRegistered > 0 ? Math.round((onlineDrivers / totalRegistered) * 100) : 0, defaultValue: "{{percent}}% of total" })}
             </p>
           </div>
-        </div>
-        <div className="self-end pb-1">
-          <GreenSparkline />
         </div>
       </StaggerItem>
 
@@ -170,9 +106,6 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             </p>
           </div>
         </div>
-        <div className="self-end pb-1">
-          <OrangeSparkline />
-        </div>
       </StaggerItem>
 
       {/* Card 4: Today's Earnings */}
@@ -188,9 +121,6 @@ export function DriverStatsRow({ totalRegistered, onlineDrivers, totalEarningsTo
             <p className="text-3xl font-bold text-foreground">{totalEarningsToday}</p>
             <p className="text-[11px] font-semibold text-muted-foreground mt-1">{t("drivers.nOrdersToday", { count: ordersTodayCount, defaultValue: "{{count}} orders today" })}</p>
           </div>
-        </div>
-        <div className="self-end pb-1">
-          <BlueSparkline />
         </div>
       </StaggerItem>
 

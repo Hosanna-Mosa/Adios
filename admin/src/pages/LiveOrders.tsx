@@ -23,7 +23,7 @@ export default function LiveOrders() {
 
         <LiveOrdersStatsRow orders={orders} activeOrdersCount={activeOrdersCount} />
 
-        <LiveOrdersTable isLoading={isLoading} filteredOrders={filteredOrders} totalCount={orders.length} />
+        <LiveOrdersTable isLoading={isLoading} filteredOrders={filteredOrders} totalCount={filteredOrders.length} />
       </div>
     </DashboardLayout>
   );

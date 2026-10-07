@@ -20,12 +20,7 @@ export function useMeatPricing() {
   // Fetch current master prices
   const { data: prices, isLoading } = useQuery({
     queryKey: ["global-meat-prices"],
-    queryFn: async () => {
-      // If we don't have an endpoint to list global prices yet, we can fetch from a generic one
-      // For now, let's assume we can get them from a mock or initial data
-      const res = await adminFetch<GlobalPrice[]>("/meat/menu/global");
-      return res;
-    },
+    queryFn: () => adminFetch<GlobalPrice[]>("/meat/menu/global"),
   });
 
   const updateMutation = useMutation({

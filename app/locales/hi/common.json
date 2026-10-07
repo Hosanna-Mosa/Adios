@@ -260,28 +260,6 @@
       "prawns": "झींगा"
     },
     "home": {
-      "foodPromos": {
-        "firstOrder": {
-          "eyebrow": "पहला ऑर्डर",
-          "headline": "₹120 तक 50% छूट",
-          "caption": "कोड FLAV50 · न्यूनतम ₹199"
-        },
-        "lateNight": {
-          "eyebrow": "लेट नाइट",
-          "headline": "रात 2 बजे तक खुला",
-          "caption": "आपके पास 42 आउटलेट"
-        }
-      },
-      "meatPromos": {
-        "sundaySpecial": {
-          "eyebrow": "संडे स्पेशल",
-          "headline": "देसी चिकन ₹399 / किलो"
-        },
-        "cleanedAndCut": {
-          "eyebrow": "साफ़ करके काटा गया",
-          "headline": "आज कोई शुल्क नहीं"
-        }
-      },
       "browseByCuisine": "व्यंजन के अनुसार देखें",
       "pleaseEnterYourPhoneNumberOr": "कृपया अपना फ़ोन नंबर या ईमेल दर्ज करें",
       "pleaseEnterYourPassword": "कृपया अपना पासवर्ड दर्ज करें",
@@ -332,7 +310,7 @@
       "allCaptainsNearbyAreOnTrips": "पास के सभी राइडर अभी ट्रिप पर हैं. आमतौर पर एक के खाली होने में कुछ मिनट लगते हैं.",
       "retrySearch": "फिर से खोजें",
       "freshMeatDaily": "रोज़ ताज़ा मीट!",
-      "cravingSomethingDelicious": "कुछ स्वादिष्ट\nखाने का मन है?",
+      "cravingSomethingDelicious": "कुछ स्वादिष्ट खाने का मन है?",
       "searchMuttonCurryCutPrawns": "“मटन करी कट”, “झींगा” खोजें",
       "searchBiryaniBawarchi": "“बिरयानी”, “Bawarchi” खोजें",
       "show149StorePartners": "149 स्टोर पार्टनर दिखाएं",
@@ -438,7 +416,6 @@
       "codeApplied": "{{code}} लागू हुआ",
       "haveAPromoCode": "क्या आपके पास प्रोमो कोड है?",
       "youSaved": "आपने ₹{{amount}} बचाए",
-      "tapToAddItAtCheckout": "चेकआउट पर जोड़ने के लिए टैप करें",
       "remove": "हटाएं",
       "apply": "लागू करें",
       "enterCode": "कोड दर्ज करें",
@@ -1104,6 +1081,8 @@
       "confirmingHint": "हम आपके बैंक की पुष्टि का इंतज़ार कर रहे हैं। पुष्टि होते ही आपका ऑर्डर मेरे ऑर्डर में दिखेगा।",
       "invalid": "यह भुगतान स्वीकार नहीं किया जा सका। अगर पैसा कटा है, तो वह वापस कर दिया जाएगा।",
       "couldNotStart": "भुगतान शुरू नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "successTitle": "भुगतान सफल रहा",
+      "successHint": "आपका ऑर्डर कन्फ़र्म हो गया है।",
       "returning": "आपका भुगतान पूरा हो रहा है…",
       "method": "भुगतान का तरीका",
       "cash": "नकद",

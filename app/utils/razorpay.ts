@@ -3,6 +3,7 @@ import * as Linking from "expo-linking";
 import i18n from "@/i18n";
 import { ApiError } from "@/utils/api/custom-fetch";
 import { createPaymentOrder, getCheckoutStatus, verifyPayment } from "@/services/payments.service";
+import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
 
 // Razorpay checkout in the phone's browser (Chrome Custom Tab on Android, an in-app Safari
 // sheet on iOS). The backend hosts the page; Razorpay posts the result to the backend, which
@@ -70,24 +71,51 @@ export const RazorpayIntegration = {
  */
 export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown): Promise<T> {
   const checkout = await createPaymentOrder(amount, orderData);
-  const result = await RazorpayIntegration.open({
-    checkoutUrl: checkout.checkoutUrl,
-    returnUrl: checkout.returnUrl,
-    order_id: checkout.id,
-  });
+  let result: CheckoutResult;
+  try {
+    result = await RazorpayIntegration.open({
+      checkoutUrl: checkout.checkoutUrl,
+      returnUrl: checkout.returnUrl,
+      order_id: checkout.id,
+    });
+  } catch (error) {
+    // Back from the browser with a declined payment. A cancel stays quiet — no money moved.
+    if (isDefinitePaymentFailure(error)) await showPaymentOutcome("failure");
+    throw error;
+  }
   // While the server is still placing the order (the checkout callback usually got there first
   // and holds the lock for a few seconds), verify answers 409 CONFIRMING. Keep asking briefly
   // instead of leaving the customer on the checkout screen with a paid order.
   for (let attempt = 1; ; attempt++) {
     try {
       const verified = await verifyPayment<{ order: T }>(result);
+      // Not awaited: the caller moves on to the order while the animation plays over it.
+      void showPaymentOutcome("success");
       return verified.order;
     } catch (error) {
       const code = error instanceof ApiError ? (error.data as { code?: string } | null)?.code : undefined;
-      if (code !== "CONFIRMING" || attempt >= CONFIRM_ATTEMPTS) throw error;
+      if (code !== "CONFIRMING" || attempt >= CONFIRM_ATTEMPTS) {
+        // The animation finishes before the caller's explanatory alert opens on top of it.
+        if (isDefinitePaymentFailure(error)) await showPaymentOutcome("failure");
+        throw error;
+      }
       await new Promise((resolve) => setTimeout(resolve, CONFIRM_INTERVAL_MS));
     }
   }
+}
+
+/**
+ * A payment the customer attempted and that did not go through — declined in
+ * the checkout, or rejected by /payments/verify. Not a cancel, not a timeout
+ * while the bank confirms, not a network error: those may still turn out paid.
+ */
+export function isDefinitePaymentFailure(error: unknown): boolean {
+  if (error instanceof PaymentFlowError) return error.code === "FAILED";
+  if (error instanceof ApiError) {
+    const code = (error.data as { code?: string } | null)?.code;
+    return code === "PAYMENT_NOT_COMPLETED" || code === "INVALID_PAYMENT" || code === "INVALID_SIGNATURE";
+  }
+  return false;
 }
 
 const CONFIRM_ATTEMPTS = 12;

@@ -18,23 +18,13 @@ export const rangeDaysLabel = (days: number, t: (key: string) => string): string
   return t(option.labelKey);
 };
 
-const DEFAULT_VELOCITY_DATA = [
-  { day: "MON", orders: 1800 },
-  { day: "TUE", orders: 2200 },
-  { day: "WED", orders: 2600 },
-  { day: "THU", orders: 2842 },
-  { day: "FRI", orders: 2400 },
-  { day: "SAT", orders: 3200 },
-  { day: "SUN", orders: 2800 },
-];
-
 /** All state/query logic for Analytics.tsx (work queue item #17). */
 export function useAnalytics() {
   const { t } = useTranslation();
   const [rangeDays, setRangeDays] = useState(30);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
-  const { data: analyticsData, isLoading } = useQuery({
+  const { data: analyticsData, isLoading, isError } = useQuery({
     // rangeDays is part of the key, so changing the range actually refetches.
     queryKey: ["admin", "analytics", rangeDays],
     queryFn: () => adminFetch<AnalyticsData>(`/admin/analytics?days=${rangeDays}`),
@@ -43,7 +33,9 @@ export function useAnalytics() {
   const rangeLabel = rangeDaysLabel(rangeDays, t);
   const summary: AnalyticsSummary = analyticsData?.summary || {};
 
-  const velocityData = analyticsData?.velocityData || DEFAULT_VELOCITY_DATA;
+  // Real per-day counts only. A failed request used to fall back to a fixed
+  // MON-SUN series (1,800-3,200 orders a day); the chart now says it failed.
+  const velocityData = analyticsData?.velocityData || [];
 
   // Real stuck orders only — this used to fall back to three invented shipments,
   // so a healthy system still displayed a feed of anomalies.
@@ -72,6 +64,7 @@ export function useAnalytics() {
     isDownloadOpen,
     setIsDownloadOpen,
     isLoading,
+    isError,
     velocityData,
     anomalies,
     downloadData,

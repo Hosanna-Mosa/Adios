@@ -40,6 +40,7 @@ import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { useVersionGate } from "@/utils/useVersionGate";
 import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
+import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { AppAlert } from "@/components/ui/AppAlert";
@@ -202,6 +203,7 @@ export default function RootLayout() {
                   onDismiss={handleDismissUpdate}
                 />
                 <CartConflictDialog />
+                <PaymentOutcomeOverlay />
                 <AppAlert />
               </ToastProvider>
             </KeyboardProvider>

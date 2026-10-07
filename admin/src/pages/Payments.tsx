@@ -3,8 +3,6 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { usePayments } from "@/features/orders/hooks/usePayments";
 import { PaymentsStatsRow } from "@/features/orders/components/PaymentsStatsRow";
 import { PaymentsTable } from "@/features/orders/components/PaymentsTable";
-import { RevenueBreakdownPanel } from "@/features/orders/components/RevenueBreakdownPanel";
-import { FluidityInsightPanel } from "@/features/orders/components/FluidityInsightPanel";
 import { TransactionDetailsDialog } from "@/features/orders/components/TransactionDetailsDialog";
 
 export default function Payments() {
@@ -19,7 +17,14 @@ export default function Payments() {
     setStatusFilter,
     handleViewTxn,
     totalEarned,
+    driverPayoutsTotal,
+    paidDriverPayoutsCount,
     filteredTxns,
+    paginatedTxns,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    handleExportCsv,
   } = usePayments();
 
   return (
@@ -30,22 +35,30 @@ export default function Payments() {
           <p className="page-subtitle">{t("orders.realTimeFinancialReconciliationDesc")}</p>
         </div>
 
-        <PaymentsStatsRow totalEarned={totalEarned} />
+        <PaymentsStatsRow
+          totalEarned={totalEarned}
+          transactionCount={transactions.length}
+          driverPayoutsTotal={driverPayoutsTotal}
+          paidDriverPayoutsCount={paidDriverPayoutsCount}
+        />
 
         <PaymentsTable
           isLoading={isLoading}
-          filteredTxns={filteredTxns}
+          pageTxns={paginatedTxns}
+          filteredCount={filteredTxns.length}
           totalCount={transactions.length}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           onViewTxn={handleViewTxn}
+          onExportCsv={handleExportCsv}
         />
 
-        {/* Bottom */}
-        <div className="grid grid-cols-2 gap-4">
-          <RevenueBreakdownPanel />
-          <FluidityInsightPanel />
-        </div>
+        {/* The "Revenue Breakdown" panel (fixed 65/25/10% split) and the
+            "Fluidity Insight" callout (a made-up recommendation) were removed:
+            /admin/payments has no service-type split or insight behind them. */}
       </div>
 
       <TransactionDetailsDialog open={isViewOpen} onOpenChange={setIsViewOpen} transaction={selectedTxn} />

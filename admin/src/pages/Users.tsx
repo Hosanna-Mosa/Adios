@@ -44,7 +44,7 @@ export default function Users() {
     <DashboardLayout searchPlaceholder={t("users.searchByNameEmailOrId")}>
       <ListPageShell
         stats={[
-          { icon: <UsersIcon className="h-5 w-5" />, label: t("users.totalUsers"), value: users.length.toString(), badge: t("users.plus8ThisMonth"), badgeColor: "success" },
+          { icon: <UsersIcon className="h-5 w-5" />, label: t("users.totalUsers"), value: users.length.toString() },
           { icon: <UserCheck className="h-5 w-5" />, label: t("users.customers"), value: activeUsersCount.toString(), badge: t("users.active"), badgeColor: "success" },
           { icon: <UserX className="h-5 w-5" />, label: t("sidebar.drivers"), value: driverCount.toString(), badge: t("users.verified"), badgeColor: "muted" },
           { icon: <Shield className="h-5 w-5" />, label: t("users.admins"), value: adminCount.toString(), badge: t("dashboard.system"), badgeColor: "success" },

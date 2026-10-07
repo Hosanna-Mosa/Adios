@@ -5,6 +5,7 @@ import type { VelocityDatum } from "../analyticsTypes";
 
 interface OrdersVelocityChartProps {
   isLoading: boolean;
+  isError: boolean;
   velocityData: VelocityDatum[];
   rangeLabel: string;
 }
@@ -14,7 +15,7 @@ interface OrdersVelocityChartProps {
  * Stream card that sat beside it was a fake W1-W4 toggle with a hardcoded
  * growth figure, and was removed.
  */
-export function OrdersVelocityChart({ isLoading, velocityData, rangeLabel }: OrdersVelocityChartProps) {
+export function OrdersVelocityChart({ isLoading, isError, velocityData, rangeLabel }: OrdersVelocityChartProps) {
   const { t } = useTranslation();
   return (
     <FadeIn className="col-span-3 section-card p-6">
@@ -27,6 +28,10 @@ export function OrdersVelocityChart({ isLoading, velocityData, rangeLabel }: Ord
       </div>
       {isLoading ? (
         <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">{t("analytics.loadingVelocity")}</div>
+      ) : isError || velocityData.length === 0 ? (
+        <div className="h-[250px] flex items-center justify-center text-muted-foreground text-sm">
+          {isError ? t("analytics.velocityLoadFailed") : t("analytics.noVelocityData")}
+        </div>
       ) : (
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={velocityData}>

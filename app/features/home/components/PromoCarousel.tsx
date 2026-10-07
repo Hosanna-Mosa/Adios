@@ -48,9 +48,9 @@ export function PromoCarousel({
         <View key={index} style={[styles.promoCard, index === 0 ? { backgroundColor: accent.skin } : { backgroundColor: tokens.sunken }]}>
           <View>
             <Text style={[styles.promoEyebrow, { color: index === 0 ? accent.accent : tokens.sec }]}>{promo.eyebrow}</Text>
-            <Text style={styles.promoHeadline}>{promo.headline}</Text>
+            <Text style={styles.promoHeadline} numberOfLines={2}>{promo.headline}</Text>
           </View>
-          {!!promo.caption && <Text style={styles.promoCaption}>{promo.caption}</Text>}
+          {!!promo.caption && <Text style={styles.promoCaption} numberOfLines={2}>{promo.caption}</Text>}
         </View>
       ))}
     </Animated.ScrollView>

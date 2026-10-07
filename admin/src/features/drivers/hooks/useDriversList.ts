@@ -14,74 +14,6 @@ const getStatusFilterOptions = (t: (key: string) => string) => [
   { value: "BLOCKED", label: t("users.blockedOnly") },
 ];
 
-// Kept verbatim from the pre-refactor page: shown when the API returns no
-// drivers, so the Fleet Directory demo/staging view isn't empty.
-const DEFAULT_MOCK_DRIVERS: AdminDriver[] = [
-  {
-    _id: "mock-1",
-    status: "ONLINE",
-    vehicleType: "bike",
-    vehicleNumber: "AP39XX1234",
-    currentLocation: { coordinates: [81.804, 17.0005] },
-    user: { name: "Sunand", phone: "+91 97040 72652", email: "sunand@adios.com", isBlocked: false },
-    rating: 4.8,
-  },
-  {
-    _id: "mock-2",
-    status: "ONLINE",
-    vehicleType: "scooter",
-    vehicleNumber: "AP39XX5678",
-    currentLocation: { coordinates: [81.801, 17.0025] },
-    user: { name: "Mahi", phone: "+91 88832 49896", email: "mahi@adios.com", isBlocked: false },
-    rating: 4.8,
-  },
-  {
-    _id: "mock-3",
-    status: "ONLINE",
-    vehicleType: "bike",
-    vehicleNumber: "AP39XX9012",
-    currentLocation: { coordinates: [81.798, 17.001] },
-    user: { name: "Dow Testing", phone: "+91 76701 76422", email: "dow@adios.com", isBlocked: false },
-    rating: 4.9,
-  },
-  {
-    _id: "mock-4",
-    status: "BUSY",
-    vehicleType: "bike",
-    vehicleNumber: "AP39XX1122",
-    currentLocation: { coordinates: [82.235, 16.983] },
-    user: { name: "Ram Prasad", phone: "+91 88970 99881", email: "ram@adios.com", isBlocked: false },
-    rating: 4.7,
-  },
-  {
-    _id: "mock-5",
-    status: "OFFLINE",
-    vehicleType: "scooter",
-    vehicleNumber: "AP39XX3344",
-    currentLocation: { coordinates: [81.8055, 17.006] },
-    user: { name: "Venkatesh", phone: "+91 94920 11223", email: "venkatesh@adios.com", isBlocked: false },
-    rating: 4.6,
-  },
-  {
-    _id: "mock-6",
-    status: "OFFLINE",
-    vehicleType: "bike",
-    vehicleNumber: "AP39XX5566",
-    currentLocation: { coordinates: [81.8005, 17.004] },
-    user: { name: "Srinivas", phone: "+91 91234 56780", email: "srinivas@adios.com", isBlocked: false },
-    rating: 4.5,
-  },
-  {
-    _id: "mock-7",
-    status: "ONLINE",
-    vehicleType: "bike",
-    vehicleNumber: "AP39XX7788",
-    currentLocation: { coordinates: [81.802, 16.999] },
-    user: { name: "Kalyan", phone: "+91 98765 43210", email: "kalyan@adios.com", isBlocked: false },
-    rating: 4.7,
-  },
-];
-
 const COMPLETED_STATUSES = ["DELIVERED", "COMPLETED", "delivered", "completed"];
 const CANCELLED_STATUSES = ["CANCELLED", "cancelled", "rejected", "failed"];
 
@@ -112,10 +44,7 @@ export function useDriversList() {
     paginate,
   } = useListQuery<AdminDriver>({
     queryKey: ["admin", "drivers"],
-    queryFn: async () => {
-      const data = await adminFetch<AdminDriver[]>("/admin/drivers");
-      return data && data.length > 0 ? data : DEFAULT_MOCK_DRIVERS;
-    },
+    queryFn: async () => (await adminFetch<AdminDriver[]>("/admin/drivers")) || [],
     itemsPerPage: 5,
     searchFields: (d) => [d.user?.name, d.user?.phone, d.user?.email, d.vehicleNumber],
   });
@@ -210,19 +139,13 @@ export function useDriversList() {
     }
   };
 
-  // Profile photo fallbacks matching names in image
-  const getAvatarUrl = (name: string) => {
-    const lower = name.toLowerCase();
-    if (lower.includes("sunand"))
-      return "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80";
-    if (lower.includes("mahi"))
-      return "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80";
-    if (lower.includes("dow") || lower.includes("test"))
-      return "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=100&q=80";
-    if (lower.includes("ram"))
-      return "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=100&q=80";
-    if (lower.includes("venkatesh"))
-      return "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=100&q=80";
+  // The driver's own photo (account profile picture, else the onboarding
+  // selfie), or a generated initials avatar. This used to hand out Unsplash
+  // stock portraits to anyone whose name matched "sunand", "mahi", "ram"...
+  const getAvatarUrl = (driver: AdminDriver) => {
+    const photo = driver.user?.profilePic || driver.selfieImage;
+    if (photo) return photo;
+    const name = driver.user?.name || "";
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
   };
 
@@ -239,12 +162,12 @@ export function useDriversList() {
   };
 
   const getVehicleString = (driver: AdminDriver) => {
-    const capType = driver.vehicleType
-      ? driver.vehicleType.charAt(0).toUpperCase() + driver.vehicleType.slice(1)
-      : "Bike";
     // A missing registration is shown as missing, rather than a random plate that
-    // changed on every re-render.
+    // changed on every re-render; a missing vehicle type is left out rather than
+    // assumed to be "Bike".
     const num = driver.vehicleNumber || t("drivers.noVehicleNumber");
+    if (!driver.vehicleType) return num;
+    const capType = driver.vehicleType.charAt(0).toUpperCase() + driver.vehicleType.slice(1);
     return `${num} • ${capType}`;
   };
 

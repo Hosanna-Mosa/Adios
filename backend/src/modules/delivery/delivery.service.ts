@@ -2,6 +2,7 @@ import { DriverService } from "../drivers/drivers.service";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Driver from "../../database/models/Driver";
 import { SocketManager } from "../../sockets/socket.manager";
+import { getDriverRating } from "../reviews/driver-rating";
 import mongoose from "mongoose";
 
 export class DeliveryService {
@@ -62,14 +63,16 @@ export class DeliveryService {
       driverPhone: (driver.user as any).phone,
     });
 
-    // Notify all listeners in the order room (Customer tracking screen)
+    // Notify all listeners in the order room (Customer tracking screen). The rating is the
+    // driver's real review average (null when unrated), the same source the order screens use.
+    const { rating } = await getDriverRating(driver._id);
     socketManager.emitToOrderRoom(orderId, "order_accepted", {
       orderId,
       driver: {
         id: driver._id,
         name: (driver.user as any).name,
         phone: (driver.user as any).phone,
-        rating: 4.9,
+        rating,
       }
     });
 

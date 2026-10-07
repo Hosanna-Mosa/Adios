@@ -65,7 +65,9 @@ export async function postHomeAddress(
     body: JSON.stringify({
       label: "Home",
       addressLine,
-      phone: useDriverStore.getState().driverPhone || "+919999999999",
+      // The driver's own number. Left out when the store doesn't have it yet —
+      // the backend then saves the account's phone — instead of a made-up one.
+      phone: useDriverStore.getState().driverPhone || undefined,
       coordinates: { lat, lng },
     }),
   });

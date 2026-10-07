@@ -42,9 +42,11 @@ function toSupportMemberResponse(member: { _id: unknown; name: string; email?: s
 export class AdminController {
   async getAllOrders(req: Request, res: Response) {
     try {
+      // The driver's name and phone live on its User document — populate it so the
+      // admin tables show the real driver rather than a generic label.
       const orders = await Order.find()
         .populate("user")
-        .populate("driver")
+        .populate({ path: "driver", populate: { path: "user", select: "name phone profilePic" } })
         .sort({ createdAt: -1 });
       return res.json(orders);
     } catch (error) {
@@ -90,13 +92,11 @@ export class AdminController {
             createdAt: { $gte: start, $lt: end }
           });
 
-          // Target is a baseline value (e.g. 10 + random offset, or static)
-          const target = Math.max(15, delivered + 5);
-
+          // The real count only: an empty slot is 0, not a random number, and there is no
+          // invented "target" alongside it.
           return {
             time: timeStr,
-            delivered: delivered || Math.floor(Math.random() * 20 + 20), // fallback if empty
-            target
+            delivered,
           };
         })
       );
@@ -114,12 +114,9 @@ export class AdminController {
             createdAt: { $gte: start, $lt: end }
           });
 
-          const target = Math.max(100, delivered + 40);
-
           return {
             time: `Week ${5 - weekNum}`,
-            delivered: delivered || Math.floor(Math.random() * 150 + 300), // fallback if empty
-            target
+            delivered,
           };
         })
       );
@@ -401,7 +398,10 @@ export class AdminController {
   async getOrderById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const order = await Order.findById(id).populate("user").populate("driver").populate("vendor");
+      const order = await Order.findById(id)
+        .populate("user")
+        .populate({ path: "driver", populate: { path: "user", select: "name phone profilePic" } })
+        .populate("vendor");
       if (!order) return res.status(404).json({ message: "Order not found" });
       return res.json(order);
     } catch (error) {
@@ -426,25 +426,22 @@ export class AdminController {
         status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] }
       }).sort({ createdAt: -1 });
 
-      const payments = orders.map(o => ({
-        id: o._id.startsWith("FLR-") ? o._id.replace("FLR-", "TXN-") : o._id.startsWith("ORD-") ? o._id.replace("ORD-", "TXN-") : `#TXN-${o._id.substring(o._id.length - 6).toUpperCase()}`,
-        date: new Date(o.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }),
-        time: new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        route: o.stops && o.stops.length > 1 ? `${o.stops[0].address || "Pickup"} → ${o.stops[o.stops.length - 1].address || "Dropoff"}` : "Local Delivery",
-        fee: `₹${o.totalPrice || 150}`,
-        status: "SETTLED",
-        statusVariant: "settled" as any
-      }));
+      const payments = orders.map(o => {
+        // The order's own payment state: captured online ("paid") or cash the driver
+        // confirmed receiving ("cash_collected") is settled; anything else is still pending.
+        const settled = o.paymentStatus === "paid" || o.paymentStatus === "cash_collected";
+        return {
+          id: o._id.startsWith("FLR-") ? o._id.replace("FLR-", "TXN-") : o._id.startsWith("ORD-") ? o._id.replace("ORD-", "TXN-") : `#TXN-${o._id.substring(o._id.length - 6).toUpperCase()}`,
+          date: new Date(o.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }),
+          time: new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          route: o.stops && o.stops.length > 1 ? `${o.stops[0].address || "Pickup"} → ${o.stops[o.stops.length - 1].address || "Dropoff"}` : "Local Delivery",
+          fee: `₹${o.totalPrice || 0}`,
+          status: settled ? "SETTLED" : "PENDING",
+          statusVariant: settled ? "settled" : "pending",
+        };
+      });
 
-      // If empty, return a fallback invoice array for gorgeous demonstration
-      if (payments.length === 0) {
-        payments.push(
-          { id: "#TXN-90214", date: "Oct 24, 2023", time: "02:45 PM", route: "Zone A → Downtown Hub", fee: "₹24.50", status: "SETTLED", statusVariant: "settled" as const },
-          { id: "#TXN-90215", date: "Oct 24, 2023", time: "03:12 PM", route: "North Wharf → Storage 04", fee: "₹18.20", status: "SETTLED", statusVariant: "settled" as const },
-          { id: "#TXN-90216", date: "Oct 24, 2023", time: "03:55 PM", route: "Central → Airport Cargo", fee: "₹42.00", status: "PENDING", statusVariant: "pending" as const }
-        );
-      }
-
+      // No transactions yet means an empty list — never invented demo rows.
       return res.json(payments);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });

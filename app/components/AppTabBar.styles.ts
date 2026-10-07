@@ -8,7 +8,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 
 const SIDE_MARGIN = moderateScale(16);
 
-export const CART_CARD_HEIGHT = moderateScale(60);
+export const CART_CARD_HEIGHT = moderateScale(68);
 
 export const TAB_PILL_HEIGHT = moderateScale(62);
 
@@ -44,33 +44,35 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: S
     gap: 12,
     paddingHorizontal: 14,
   },
-  cartCountBadge: {
-    width: moderateScale(32),
-    height: moderateScale(32),
-    borderRadius: moderateScale(10),
+  // The outlet's photo on the cart stripe (components/CartStripe.tsx).
+  cartThumb: {
+    width: moderateScale(46),
+    height: moderateScale(46),
+    borderRadius: moderateScale(12),
     backgroundColor: cart.skin,
+  },
+  cartThumbFallback: {
     alignItems: "center",
     justifyContent: "center",
-  },
-  cartCountText: {
-    fontFamily: fontFamilies.body.bold,
-    fontSize: typography.sizes.medium,
-    color: cart.accent,
   },
   cartInfo: {
     flex: 1,
     minWidth: 0,
   },
-  cartPrice: {
+  cartVendor: {
     fontFamily: fontFamilies.body.semibold,
     fontSize: typography.sizes.medium,
+    color: tokens.text,
+  },
+  cartPrice: {
+    fontFamily: fontFamilies.body.bold,
     color: tokens.text,
   },
   cartMeta: {
     fontFamily: fontFamilies.body.medium,
     fontSize: typography.sizes.small,
     color: tokens.sec,
-    marginTop: 1,
+    marginTop: 2,
   },
   cartCta: {
     fontFamily: fontFamilies.body.bold,
@@ -133,3 +135,5 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: S
     color: accent.on,
   },
 });
+
+export type AppTabBarStyles = ReturnType<typeof createStyles>;

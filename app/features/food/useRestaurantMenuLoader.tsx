@@ -25,8 +25,8 @@ export function useRestaurantMenuLoader(id: any, isMeat: any, highlightDishId: a
             return {
               ...item,
               isVeg: false,
-              images: item.images || [item.image || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400"],
-              description: item.description || `Fresh ${item.name} - ${item.weight}`,
+              images: item.images || (item.image ? [item.image] : []),
+              description: item.description || (item.weight ? String(item.weight) : ""),
             };
           }
           return item;

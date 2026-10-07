@@ -18,6 +18,8 @@ interface Props {
   styles: RestaurantMenuStyles;
   toggleFavorite: any;
   tokens: ThemeTokens;
+  /** Reports the bar's real height, so the pinned category strip sits flush beneath it. */
+  onHeight?: (height: number) => void;
 }
 
 export function RestaurantMenuSolidHeader({
@@ -29,9 +31,10 @@ export function RestaurantMenuSolidHeader({
   styles,
   toggleFavorite,
   tokens,
+  onHeight,
 }: Props) {
   return (
-    <View style={[styles.solidHeader, { paddingTop: insets.top }]}>
+    <View style={[styles.solidHeader, { paddingTop: insets.top }]} onLayout={(e) => onHeight?.(e.nativeEvent.layout.height)}>
       <TouchableOpacity style={styles.solidHeaderBtn} onPress={() => router.back()}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>

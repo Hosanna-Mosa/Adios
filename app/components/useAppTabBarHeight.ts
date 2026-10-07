@@ -9,14 +9,14 @@ import { ORDER_STRIPE_HEIGHT } from "./ActiveOrderStripe";
 // so AppTabBar.tsx stays under 150 lines; AppTabBar re-exports it, so the
 // existing `from "@/components/AppTabBar"` imports keep working.
 
-export function useAppTabBarHeight() {
+export function useAppTabBarHeight(options?: { hideTabs?: boolean }) {
   const insets = useSafeAreaInsets();
   const itemCount = useCartStore((s) => s.getItemCount());
   const { isActive: hasActiveOrder } = useActiveOrder();
   return (
     insets.bottom +
     BOTTOM_GAP +
-    TAB_PILL_HEIGHT +
+    (options?.hideTabs ? 0 : TAB_PILL_HEIGHT) +
     TOP_CLEARANCE +
     (itemCount > 0 ? CART_CARD_HEIGHT + STACK_GAP : 0) +
     (hasActiveOrder ? ORDER_STRIPE_HEIGHT + STACK_GAP : 0)

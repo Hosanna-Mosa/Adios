@@ -17,7 +17,6 @@ interface Props {
   phone: string;
   otp: string[];
   otpRefs: React.MutableRefObject<(TextInput | null)[]>;
-  mockOtp: string;
   loading: boolean;
   onOtpChange: (text: string, idx: number) => void;
   onKeyPress: (e: { nativeEvent: { key: string } }, idx: number) => void;
@@ -32,7 +31,6 @@ export function OtpForm({
   phone,
   otp,
   otpRefs,
-  mockOtp,
   loading,
   onOtpChange,
   onKeyPress,
@@ -52,7 +50,6 @@ export function OtpForm({
       <AppText style={styles.formSubtitle}>
         {t("auth.enterThe6DigitCodeSentTo", { value: phone, defaultValue: "Enter the 6-digit code sent to\n+91 {{value}}" })}
       </AppText>
-      <AppText style={styles.demoHint}>{t("auth.demoOtp", { value: mockOtp, defaultValue: "Demo OTP: {{value}}" })}</AppText>
 
       <Box style={styles.otpContainer}>
         {otp.map((digit, idx) => (

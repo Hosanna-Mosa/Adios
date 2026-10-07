@@ -109,6 +109,23 @@ export class InvoiceService {
   }
 
   /**
+   * An order's invoice number. Derived from the order id — unique, and already carrying the
+   * service letter and order date (ADS F ddmmyy nnnnnn) — so rendering or re-sending the same
+   * order's invoice always shows the same number. `suffix` keeps one order's separate
+   * invoices (ride charge vs platform fee) apart.
+   */
+  private invoiceNumber(order: any, suffix = ""): string {
+    const id = String(order?._id ?? "").replace(/^ADS/, "");
+    return `INV${id}${suffix}`;
+  }
+
+  /** The order's routed distance, or "—" when none was recorded. */
+  private formatDistance(totalDistance: unknown): string {
+    const km = Number(totalDistance);
+    return km > 0 ? `${km.toFixed(2)} kms` : "—";
+  }
+
+  /**
    * Helper to convert a number to words for the invoice total
    */
   private numberToWords(num: number): string {
@@ -154,23 +171,24 @@ export class InvoiceService {
     const itemsList = dropStop?.items?.lines || [];
     const totals = dropStop?.items?.totals || {};
 
-    const orderId = order._id || "222972423858594";
+    const orderId = order._id || "—";
     const dateObj = order.createdAt || new Date();
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = String(dateObj.getFullYear()).slice(-2);
-    const random6Digits = Math.floor(100000 + Math.random() * 900000).toString();
-    const invoiceNo = `INV${day}${month}${year}${random6Digits}`;
+    const invoiceNo = this.invoiceNumber(order);
     const dateTime = this.formatDate(dateObj);
     const paymentMethod = order.paymentMethod || "Online (Razorpay)";
-    const userName = order.user?.name || "Suman SB";
-    const userAddress = dropStop?.address || order.stops[1]?.address || "Unit 1106, TOWER-1, Gachibowli Cir, Telecom Nagar, Gachibowli, Hyderabad, Telangana 500081, India";
-    const userPhone = order.user?.phone || "+91 9876543210";
-    
-    const vendorName = order.vendor?.name || "Rayalaseema Ruchulu";
-    const vendorAddress = order.vendor?.address || "22, Sector 1, Huda Techno Enclave, Above Axis Bank, Hitech City";
-    const vendorFssai = order.vendor?.fssaiLicense || "13619013001824";
-    const vendorGstin = order.vendor?.gstin || "36AAWCA9693G1ZS";
+    // Real customer / outlet details only — a missing value shows as "—", never a sample one.
+    const userName = order.user?.name || "—";
+    const userAddress = dropStop?.address || order.stops[1]?.address || "—";
+
+    // A meat-centre order's `vendor` is a MeatCenter id, which this Vendor populate leaves
+    // null — its name and address then read "—" rather than another outlet's.
+    const vendorName = order.vendor?.name || "—";
+    const vendorAddress = order.vendor?.address || "—";
+    // The restaurant's own registration numbers from onboarding (Vendor.legal). A line with
+    // nothing on record is left out of the invoice instead of printing a made-up number.
+    const vendorLegal = order.vendor?.legal || {};
+    const vendorFssai = vendorLegal.fssaiNumber || "";
+    const vendorGstin = vendorLegal.gstin || (vendorLegal.gstExempt ? "Unregistered" : "");
 
     const subtotal = totals.subtotal || order.totalPrice;
     const taxes = totals.taxes || 0;
@@ -290,14 +308,18 @@ export class InvoiceService {
               <span class="field-label">Restaurant Name:</span>
               <span class="field-value">${vendorName}</span>
             </div>
+            ${vendorGstin ? `
             <div style="margin-bottom: 6px;">
               <span class="field-label">Restaurant GSTIN:</span>
               <span class="field-value">${vendorGstin}</span>
             </div>
+            ` : ''}
+            ${vendorFssai ? `
             <div style="margin-bottom: 6px;">
               <span class="field-label">Restaurant FSSAI License:</span>
               <span class="field-value">${vendorFssai}</span>
             </div>
+            ` : ''}
             <div style="margin-bottom: 6px;">
               <span class="field-label">Address:</span>
               <span class="field-value">${vendorAddress}</span>
@@ -440,20 +462,24 @@ export class InvoiceService {
    * Compiles the Ride Share (3-page replica) Invoice HTML
    */
   public generateRideInvoiceHtml(order: any): string {
-    const orderId = order._id || "RD17808812185935874";
+    const orderId = order._id || "—";
     const staticMapUrl = this.getStaticMapUrl(order);
     const dateTime = this.formatDate(order.createdAt || new Date());
     const paymentMethod = order.paymentMethod || "Cash";
-    const totalPrice = order.totalPrice || 20.00;
-    
-    const userName = order.user?.name || "Uttej Yadala";
-    const pickupAddress = order.stops[0]?.address || "RK Beach, Beach Road, Visakhapatnam, Andhra Pradesh, India";
-    const dropAddress = order.stops[1]?.address || "15-3-17, Krishna Nagar, Maharani Peta, Visakhapatnam, Andhra Pradesh 530002, India";
-    
-    const driverName = order.driver?.name || "Dinesh Nidadavolu";
-    const vehicleNumber = order.driver?.vehicleNumber || "AP39RN7856";
-    const distance = order.totalDistance || 0.39;
-    const duration = order.duration || 1.98;
+    const totalPrice = Number(order.totalPrice) || 0;
+
+    // Real ride details only — a missing value shows as "—", never a sample one.
+    const userName = order.user?.name || "—";
+    const pickupAddress = order.stops[0]?.address || "—";
+    const dropAddress = order.stops[1]?.address || "—";
+
+    // The Driver model has no name of its own: it is on the linked User, which the invoice
+    // loaders populate (driver → user). The model doesn't record a vehicle registration
+    // number either, so that reads "—" until one is stored.
+    const driverName = order.driver?.user?.name || "—";
+    const vehicleNumber = order.driver?.vehicleNumber || "—";
+    const distanceText = this.formatDistance(order.totalDistance);
+    const durationText = order.duration ? `${Number(order.duration).toFixed(2)} mins` : "—";
 
     // Platform Fee: Fixed ₹7.00 for fares > 15, otherwise ₹3.00
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
@@ -473,13 +499,8 @@ export class InvoiceService {
     const bookingFee = 1.00;
     const convenienceCharges = Math.round((subTotalPlatform - bookingFee) * 100) / 100;
 
-    const dateObj = order.createdAt || new Date();
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = String(dateObj.getFullYear()).slice(-2);
-    const random6Digits = Math.floor(100000 + Math.random() * 900000).toString();
-    const invoiceNo = `INV${day}${month}${year}${random6Digits}`;
-    const platformInvoiceNo = `INV${day}${month}${year}${Math.floor(100000 + Math.random() * 900000).toString()}`;
+    const invoiceNo = this.invoiceNumber(order);
+    const platformInvoiceNo = this.invoiceNumber(order, "-PF");
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -549,9 +570,9 @@ export class InvoiceService {
         <img src="${staticMapUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; position: absolute; top: 0; left: 0;" alt="" />
       </div>
       <div class="metrics-col">
-        <div class="metric-value">${Number(distance).toFixed(2)} kms</div>
+        <div class="metric-value">${distanceText}</div>
         <div class="metric-label">Distance</div>
-        <div class="metric-value">${Number(duration).toFixed(2)} mins</div>
+        <div class="metric-value">${durationText}</div>
         <div class="metric-label">Duration</div>
       </div>
     </div>
@@ -807,7 +828,8 @@ export class InvoiceService {
     const staticMapUrl = this.getStaticMapUrl(order);
     const orderPlacedAt = this.formatDate(order.createdAt || new Date());
     const orderDeliveredAt = this.formatDate(order.updatedAt || new Date());
-    const duration = order.duration || 45; // minutes
+    // Only claim a delivery time the order actually recorded (minutes).
+    const deliveredInText = order.duration ? ` in ${order.duration} minutes` : "";
     
     const userName = order.user?.name || "Customer";
     const userAddress = dropStop?.address || order.stops[1]?.address || "";
@@ -880,7 +902,7 @@ export class InvoiceService {
     <div class="email-body">
       <div class="greeting-text">
         Greetings from Flavour,<br/>
-        Your order was delivered in ${duration} minutes! Rate this timely delivery <a href="#" style="color: #ff5200; text-decoration: none; font-weight: bold;">here</a>
+        Your order was delivered${deliveredInText}! Rate this timely delivery <a href="#" style="color: #ff5200; text-decoration: none; font-weight: bold;">here</a>
       </div>
       
       <table class="order-info-table">
@@ -1028,9 +1050,9 @@ export class InvoiceService {
     
     const pickupAddress = order.stops[0]?.address || "";
     const dropAddress = order.stops[1]?.address || "";
-    
-    const distance = order.totalDistance || 0;
-    const duration = order.duration || 0;
+
+    const distanceText = this.formatDistance(order.totalDistance);
+    const durationText = order.duration ? `${Number(order.duration).toFixed(2)} mins` : "—";
 
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
     const rideCharge = totalPrice - platformFee;
@@ -1112,12 +1134,12 @@ export class InvoiceService {
     ` : ''}
 
     <div>
-      <div class="metric-title">${Number(distance).toFixed(2)} kms</div>
+      <div class="metric-title">${distanceText}</div>
       <div class="metric-sub">DISTANCE</div>
-      
+
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; width: 280px;" />
-      
-      <div class="metric-title">${Number(duration).toFixed(2)} mins</div>
+
+      <div class="metric-title">${durationText}</div>
       <div class="metric-sub">DURATION</div>
     </div>
 
@@ -1256,9 +1278,10 @@ export class InvoiceService {
     const pickupAddress = order.stops[0]?.address || "Pickup Location";
     const dropAddress = order.stops[1]?.address || "Dropoff Location";
     
-    const driverName = order.driver?.user?.name || order.driver?.name || "Helper Agent";
+    const driverName = order.driver?.user?.name || "—";
     const distance = order.totalDistance || 0;
-    const hours = order.duration || 2.5; // represented as hours
+    // Hours as booked on the order; "—" when none was recorded rather than a made-up 2.5.
+    const hoursText = order.duration ? `${Number(order.duration).toFixed(1)} hrs` : "—";
 
     // Platform Fee: Fixed ₹7.00 for tasks > 15, otherwise ₹3.00
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
@@ -1350,7 +1373,7 @@ export class InvoiceService {
         <img src="${staticMapUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; position: absolute; top: 0; left: 0;" alt="" />
       </div>
       <div class="metrics-col">
-        <div class="metric-value">${Number(hours).toFixed(1)} hrs</div>
+        <div class="metric-value">${hoursText}</div>
         <div class="metric-label">Total Hours Taken</div>
         
         <div class="metric-value">${Number(distance).toFixed(2)} km</div>
@@ -1433,7 +1456,7 @@ export class InvoiceService {
       </tr>
       <tr>
         <td class="label-col">Hours Billed</td>
-        <td class="val-col">${Number(hours).toFixed(1)} hrs</td>
+        <td class="val-col">${hoursText}</td>
       </tr>
       <tr>
         <td class="label-col">Distance Traveled</td>
@@ -1518,7 +1541,7 @@ export class InvoiceService {
       </tr>
       <tr>
         <td class="label-col">Hours Billed</td>
-        <td class="val-col">${Number(hours).toFixed(1)} hrs</td>
+        <td class="val-col">${hoursText}</td>
       </tr>
       <tr>
         <td class="label-col">Distance Traveled</td>
@@ -1577,7 +1600,7 @@ export class InvoiceService {
     const dropAddress = order.stops[1]?.address || "";
     
     const distance = order.totalDistance || 0;
-    const hours = order.duration || 2.5; // represented as hours
+    const hoursText = order.duration ? `${Number(order.duration).toFixed(1)} hrs` : "—";
 
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
     const taskCharge = totalPrice - platformFee;
@@ -1649,7 +1672,7 @@ export class InvoiceService {
     ` : ''}
 
     <div>
-      <div class="metric-title">${Number(hours).toFixed(1)} hrs</div>
+      <div class="metric-title">${hoursText}</div>
       <div class="metric-sub">TOTAL HOURS TAKEN</div>
       
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 12px 0; width: 280px;" />

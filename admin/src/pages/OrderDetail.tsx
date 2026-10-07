@@ -21,7 +21,7 @@ export default function OrderDetail() {
     mapMarkers,
     mapCenter,
     polylinePath,
-    handleContactDriver,
+    driverPhone,
   } = useOrderDetail();
 
   if (isLoading) {
@@ -53,7 +53,7 @@ export default function OrderDetail() {
       <div className="grid grid-cols-2 gap-0 min-h-[calc(100vh-3.5rem)] -m-6">
         {/* Left Panel */}
         <div className="p-6 overflow-auto">
-          <OrderDetailHeader order={order} onContactDriver={handleContactDriver} />
+          <OrderDetailHeader order={order} driverPhone={driverPhone} />
           <OrderTimeline timelineSteps={timelineSteps} />
           <RouteInventoryList stops={order.stops} />
         </div>
