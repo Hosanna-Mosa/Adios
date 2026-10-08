@@ -31,6 +31,14 @@ export type OrderStatus =
   | "completed"
   | "CANCELLED";
 
+/** A package delivery by bike/auto: the job is a ride, but carries a package between two contacts. */
+export interface PackageDeliveryInfo {
+  /** Where a cash fare is collected: from the sender at pickup, or the receiver at drop. */
+  payAt: "pickup" | "drop";
+  pickupContact?: { name?: string; phone?: string };
+  dropContact?: { name?: string; phone?: string };
+}
+
 export interface Order {
   id: string;
   distance: string;
@@ -61,6 +69,8 @@ export interface Order {
   payableAmount?: number;
   cashCollected?: boolean;
   cashCollectedAmount?: number | null;
+  /** Set on bike/auto jobs booked from the customer app's Package delivery flow. */
+  packageDelivery?: PackageDeliveryInfo | null;
   /** "broadcast" = a restaurant food offer sent to every nearby rider at once. No countdown; first to accept gets it. */
   dispatchMode?: "sequential" | "broadcast";
   /** Broadcast offers only: when the restaurant said the food will be ready (ISO). */

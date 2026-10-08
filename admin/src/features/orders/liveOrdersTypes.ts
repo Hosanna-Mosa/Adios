@@ -1,4 +1,6 @@
-export interface LiveOrder {
+import type { OrderServiceFields } from "@/components/shared/orderService";
+
+export interface LiveOrder extends OrderServiceFields {
   _id: string;
   status: string;
   createdAt: string;

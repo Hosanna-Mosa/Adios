@@ -519,7 +519,23 @@
     "enterStartOtpFromCustomer": "Enter the start OTP shown on the customer's screen.",
     "overtimeByMin": "+{{value}} min over",
     "customerConfirmedAskStartOtp": "The customer confirmed the task. Ask for their start OTP to begin.",
-    "agreeTaskThenAskStartOtp": "Agree on the task here, then ask the customer for their start OTP."
+    "agreeTaskThenAskStartOtp": "Agree on the task here, then ask the customer for their start OTP.",
+    "newPackageDeliveryRequest": "New Package Delivery Request!",
+    "packageDeliveryAccepted": "Package Delivery Accepted",
+    "packageDeliveryInTransit": "Delivering Package",
+    "confirmPackageDelivery": "Confirm Package Delivery",
+    "packageDeliveryCollectFrom": "Package delivery · collect from",
+    "packageDeliveryDeliverTo": "Package delivery · deliver to",
+    "packageDeliveryPaidOnline": "Paid online — no cash to collect",
+    "packageDeliveryCashAtPickup": "Collect ₹{{amount}} cash from the sender at pickup",
+    "packageDeliveryCashAtDrop": "Collect ₹{{amount}} cash from the receiver at drop",
+    "receiver": "Receiver",
+    "packageDeliveryAtPickup": "You've reached the pickup point. Collect the package and start the trip — no OTP needed.",
+    "packageDeliveryStartTrip": "Package collected — start trip",
+    "packageDeliveryEnterOtp": "Enter the delivery OTP from the receiver",
+    "packageDeliveryOtpPlaceholder": "4-digit OTP",
+    "packageDeliveryInvalidOtp": "Wrong OTP. Ask the receiver for the 4-digit code the sender shared with them.",
+    "packageDeliveryComplete": "Complete package delivery"
   },
   "onboarding": {
     "sections": {

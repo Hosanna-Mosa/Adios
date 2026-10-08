@@ -287,7 +287,7 @@ export class CheckoutService {
         // store, package, rides and helpers — is placed exactly as a cash order would be, plus paid.
         const {
           stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt,
-          customerPrice, bookingFor, scheduledDelivery, scheduledFor, couponCode,
+          customerPrice, bookingFor, scheduledDelivery, scheduledFor, couponCode, packageDelivery,
         } = orderData;
         const effectiveServiceType = Object.values(ServiceType).includes(serviceType) ? serviceType : ServiceType.DELIVERY;
         order = await this.ordersService.createOrder(
@@ -304,6 +304,7 @@ export class CheckoutService {
             customerPrice,
             bookingFor,
             couponCode,
+            packageDelivery,
             // The money is already taken, so a slot that lapsed while paying must not throw:
             // send it as scheduledDelivery, which createOrder places immediately instead.
             scheduledDelivery: scheduledDelivery ?? (scheduledFor ? { type: "later", requestedAt: scheduledFor } : undefined),

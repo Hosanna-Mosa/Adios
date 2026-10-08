@@ -519,7 +519,23 @@
     "enterStartOtpFromCustomer": "ग्राहक की स्क्रीन पर दिखाया गया स्टार्ट OTP दर्ज करें।",
     "overtimeByMin": "+{{value}} मिनट अधिक",
     "customerConfirmedAskStartOtp": "ग्राहक ने कार्य की पुष्टि कर दी है। शुरू करने के लिए उनका स्टार्ट OTP माँगें।",
-    "agreeTaskThenAskStartOtp": "यहाँ कार्य तय करें, फिर ग्राहक से उनका स्टार्ट OTP माँगें।"
+    "agreeTaskThenAskStartOtp": "यहाँ कार्य तय करें, फिर ग्राहक से उनका स्टार्ट OTP माँगें।",
+    "newPackageDeliveryRequest": "नया पैकेज डिलीवरी अनुरोध!",
+    "packageDeliveryAccepted": "पैकेज डिलीवरी स्वीकार की गई",
+    "packageDeliveryInTransit": "पैकेज पहुँचा रहे हैं",
+    "confirmPackageDelivery": "पैकेज डिलीवरी पक्की करें",
+    "packageDeliveryCollectFrom": "पैकेज डिलीवरी · इनसे लें",
+    "packageDeliveryDeliverTo": "पैकेज डिलीवरी · इन्हें दें",
+    "packageDeliveryPaidOnline": "ऑनलाइन भुगतान हो चुका — नकद नहीं लेना है",
+    "packageDeliveryCashAtPickup": "पिकअप पर भेजने वाले से ₹{{amount}} नकद लें",
+    "packageDeliveryCashAtDrop": "ड्रॉप पर पाने वाले से ₹{{amount}} नकद लें",
+    "receiver": "पाने वाला",
+    "packageDeliveryAtPickup": "आप पिकअप पॉइंट पर पहुँच गए हैं। पैकेज लें और ट्रिप शुरू करें — OTP की ज़रूरत नहीं।",
+    "packageDeliveryStartTrip": "पैकेज ले लिया — ट्रिप शुरू करें",
+    "packageDeliveryEnterOtp": "पाने वाले से डिलीवरी OTP दर्ज करें",
+    "packageDeliveryOtpPlaceholder": "4 अंकों का OTP",
+    "packageDeliveryInvalidOtp": "गलत OTP। पाने वाले से वह 4 अंकों का कोड पूछें जो भेजने वाले ने उन्हें भेजा है।",
+    "packageDeliveryComplete": "पैकेज डिलीवरी पूरी करें"
   },
   "onboarding": {
     "sections": {

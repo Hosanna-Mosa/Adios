@@ -149,7 +149,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
           ) : null
         ))}
 
-        <MapDriverMarkers driverMarkers={driverMarkers} selectedService={selectedService} />
+        <MapDriverMarkers driverMarkers={driverMarkers} selectedService={selectedService} food={!!outletOrder} />
 
         <MapLocationMarkers
           stops={stops}

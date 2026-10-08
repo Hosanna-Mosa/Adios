@@ -58,6 +58,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     pinBox: { flex: 1, borderWidth: 1, borderRadius: 10, paddingVertical: 10, alignItems: "center", backgroundColor: tokens.surface },
     pinDigit: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.large, color: tokens.text },
     pinHint: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 10, lineHeight: typography.lineHeights.small },
+    pinShareBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 12, minHeight: 40, borderRadius: 10, borderWidth: 1, backgroundColor: tokens.surface },
+    pinShareText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium },
 
     helperUpdate: { borderRadius: 14, padding: 13, marginBottom: 14 },
     helperUpdateLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase" },

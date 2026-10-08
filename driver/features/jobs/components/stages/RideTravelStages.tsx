@@ -7,6 +7,7 @@ import {
   ContactHeaderRow,
   CustomerRow,
   OrderStage,
+  PackageDeliveryBanner,
   RoundCommButton,
   StageActionButton,
   StageSpacer,
@@ -23,6 +24,7 @@ export function RideEnRoutePickupStage() {
 
   return (
     <OrderStage title={t("jobs.travelToUserPickup")} showPulse={isSimulating}>
+      <PackageDeliveryBanner order={currentOrder} leg="pickup" />
       <ContactHeaderRow
         name={<>{t("jobs.userColon", { value: currentOrder.customerName || t("jobs.customer"), defaultValue: "User: {{value}}" })}</>}
         address={pickupStop?.address}
@@ -56,7 +58,8 @@ export function RideInProgressStage() {
   const { currentOrder, pickupStop, deliveryStop, isSimulating, handleStatusTransition, openRideNavigation } = useActiveOrderCtx();
 
   return (
-    <OrderStage title={t("jobs.tripInProgress")} showPulse={isSimulating}>
+    <OrderStage title={currentOrder.packageDelivery ? t("jobs.packageDeliveryInTransit") : t("jobs.tripInProgress")} showPulse={isSimulating}>
+      <PackageDeliveryBanner order={currentOrder} leg="drop" />
       <CustomerRow
         initial={(currentOrder.customerName || t("jobs.rider")).charAt(0).toUpperCase()}
         name={currentOrder.customerName || t("jobs.rider")}

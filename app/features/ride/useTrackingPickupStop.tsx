@@ -5,12 +5,12 @@ import { getOrder } from "@/services/orders.service";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 
 // Split out of useTracking so each file stays small. Kept in the original call
-// order, so React still sees the same hook sequence.
+// order, so React still sees the same hook sequence
 
 /** A helper task before the helper starts is shown on the helper screen, not here. */
 const HELPER_PRE_START = ["CREATED", "SEARCHING_DRIVER", "DRIVER_ASSIGNED"];
 
-export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any) {
+export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any, setIsPackageDelivery: (value: boolean) => void) {
   const pickupStop = stops?.find((s: any) => s.type?.toLowerCase() === "pickup" || s.type?.toLowerCase() === "store");
   const setFoodStage = useDeliveryStore((s) => s.setFoodStage);
 
@@ -86,7 +86,9 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.radius) setRadius(order.radius);
           if (order.deliveryOtp) setDeliveryOtp(order.deliveryOtp);
           if (order.serviceType) setServiceType(order.serviceType);
-          if (order.restaurantPickupCode) setStartOtp(order.restaurantPickupCode);
+          // A package delivery starts without a PIN, so there is none to show.
+          setIsPackageDelivery(!!order.packageDelivery);
+          if (order.restaurantPickupCode && !order.packageDelivery) setStartOtp(order.restaurantPickupCode);
           if (order.totalPrice != null) setTotalPrice(order.totalPrice);
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));
           // The route's time is only a first estimate: once the driver's live position

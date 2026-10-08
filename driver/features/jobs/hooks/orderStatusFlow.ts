@@ -47,6 +47,11 @@ export async function runPickupLeg(
     return true;
   }
   if (status === "arrived_pickup") {
+    // A package delivery starts without a code — it's secured by the receiver's OTP at the drop.
+    if (currentOrder.packageDelivery) {
+      await updateOrderStatus("en_route_delivery");
+      return true;
+    }
     if (!otpMatches(restaurantOTP, currentOrder.restaurantPickupCode, currentOrder.id.slice(-4))) {
       setRestaurantOTPError(true);
       return true;

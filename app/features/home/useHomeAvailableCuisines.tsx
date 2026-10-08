@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { STRIDE } from "./constants";
 import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";

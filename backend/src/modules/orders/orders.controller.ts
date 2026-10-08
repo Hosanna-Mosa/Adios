@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { OrdersService } from "./orders.service";
+import { isPackageDeliveryOrder, withoutDriverSecrets } from "./orders.packageDelivery";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import Order, { OrderStatus, ServiceType } from "../../database/models/Order";
 import { UserRole } from "../../database/models/User";
@@ -174,7 +175,7 @@ export class OrdersController {
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       // customerPrice is not taken from the app: it used to set any order's fare outright.
-      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, bookingFor, scheduledDelivery, scheduledFor, couponCode } = req.body;
+      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, bookingFor, scheduledDelivery, scheduledFor, couponCode, packageDelivery } = req.body;
       const userId = req.user?.userId;
 
       if (!userId) {
@@ -186,6 +187,7 @@ export class OrdersController {
         scheduledDelivery,
         scheduledFor,
         couponCode,
+        packageDelivery,
       });
 
       return res.status(201).json(order);
@@ -220,6 +222,8 @@ export class OrdersController {
       // The tracking screen names the restaurant and draws it (and the delivery home)
       // as such. Added alongside `vendor`, which stays the bare id other callers expect.
       if (json.vendor) json.outlet = await outletSummary(json.vendor);
+      // A package delivery's OTP is the receiver's to give — never the driver's to read.
+      if (relation === "driver" && isPackageDeliveryOrder(json)) delete json.deliveryOtp;
       return res.json(json);
     } catch (error) {
       next(error);
@@ -457,11 +461,18 @@ export class OrdersController {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
         // Restaurant / meat-shop orders and rides finish without the customer's OTP
-        // (a ride still starts with its PIN); parcels and helper tasks still need it.
+        // (a ride still starts with its PIN); package deliveries and helper tasks still need it.
+        // A package delivery is stored as a bike/auto ride, but it always ends with the
+        // receiver's OTP — that is the only proof the package reached the right person.
+        const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        if (orderObj && orderObj.deliveryOtp && !orderObj.vendor && !isRide) {
+        if (orderObj && orderObj.deliveryOtp && !orderObj.vendor && (!isRide || isPackageDelivery)) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
-            throw new ValidationError("Invalid delivery verification OTP. Please ask the customer for the correct code.");
+            throw new ValidationError(
+              isPackageDelivery
+                ? "Invalid delivery OTP. Ask the receiver for the 4-digit code the sender shared with them."
+                : "Invalid delivery verification OTP. Please ask the customer for the correct code."
+            );
           }
         }
       }
@@ -481,7 +492,9 @@ export class OrdersController {
         if (orderObj?.vendor && relation === "driver" && !markedReady) {
           throw new ConflictError("The restaurant hasn't marked this order ready yet. You can pick it up once they tap \"Mark as ready\".");
         }
-        if (orderObj && (orderObj as any).restaurantPickupCode) {
+        // A package delivery starts without a code: the captain collects the package and
+        // goes. It is secured at the other end instead, by the receiver's delivery OTP.
+        if (orderObj && (orderObj as any).restaurantPickupCode && !isPackageDeliveryOrder(orderObj)) {
           // Only the order's own code — no master code (RAZORPAY_INTEGRATION.md §5.4 A2/C1).
           if (!verificationCodeMatches(otp, (orderObj as any).restaurantPickupCode)) {
             throw new ValidationError("Invalid restaurant pickup code. Please ask the restaurant for the correct code.");
@@ -503,7 +516,8 @@ export class OrdersController {
         ...(isCancel ? CANCEL_BY[relation] : {}),
         actor: relation,
       });
-      return res.json(relation === "driver" ? withoutCustomerCodes(order?.toJSON?.() ?? order) : order);
+      // A driver never receives the receiver's package OTP or a helper task's customer codes.
+      return res.json(relation === "driver" ? withoutCustomerCodes(withoutDriverSecrets(order)) : order);
     } catch (error: any) {
       if (error.message === "Order not found") {
         return next(new NotFoundError(error.message));
@@ -517,7 +531,7 @@ export class OrdersController {
       const userId = req.user?.userId;
       if (!userId) throw new UnauthorizedError("User is not authenticated");
       const order = await ordersService.confirmCashCollected(String(req.params.id), userId, Number(req.body.amount));
-      return res.json(order);
+      return res.json(withoutCustomerCodes(withoutDriverSecrets(order)));
     } catch (error) {
       next(error);
     }
@@ -532,8 +546,8 @@ export class OrdersController {
         throw new UnauthorizedError("User is not authenticated");
       }
 
-      const order: any = await ordersService.acceptOrder(id as string, userId);
-      return res.json(withoutCustomerCodes(order?.toJSON?.() ?? order));
+      const order = await ordersService.acceptOrder(id as string, userId);
+      return res.json(withoutCustomerCodes(withoutDriverSecrets(order)));
     } catch (error: any) {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
@@ -576,7 +590,7 @@ export class OrdersController {
       const order: any = await ordersService.getDriverActiveOrder(userId);
       if (!order) return res.json({ order: null });
 
-      const json: any = withoutCustomerCodes(order.toJSON());
+      const json: any = withoutCustomerCodes(withoutDriverSecrets(order));
       // A legacy meat centre isn't a Vendor document, so populate leaves `vendor`
       // empty; put its id and name back so the app still treats it as an outlet order.
       const vendorId = order.populated?.("vendor");
@@ -656,7 +670,7 @@ export class OrdersController {
         status: OrderStatus.DRIVER_ASSIGNED,
       }).populate("user").sort({ reservedAt: 1 });
 
-      return res.json(orders);
+      return res.json(orders.map((o) => withoutCustomerCodes(withoutDriverSecrets(o))));
     } catch (error: any) {
       next(error);
     }

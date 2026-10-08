@@ -3,15 +3,17 @@ import { create } from 'zustand';
 export type PaymentMethod = 'cash' | 'online';
 
 /** Every place the customer pays. Each keeps its own choice. */
-export type PaymentFlow = 'food' | 'delivery' | 'ride' | 'helper';
+export type PaymentFlow = 'food' | 'delivery' | 'ride' | 'helper' | 'packageDelivery';
 
 // Defaults match what each flow did before the choice existed: food and package delivery
-// were online-only, rides and helper tasks were cash.
+// were online-only, rides and helper tasks were cash. Package deliveries start on cash, paid at
+// pickup or drop (see packageDeliveryStore.payAt).
 const DEFAULTS: Record<PaymentFlow, PaymentMethod> = {
   food: 'online',
   delivery: 'online',
   ride: 'cash',
   helper: 'cash',
+  packageDelivery: 'cash',
 };
 
 interface PaymentMethodState {

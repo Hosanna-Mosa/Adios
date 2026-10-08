@@ -675,8 +675,8 @@ export class DriverService {
       ...allCompletedOrders.map((order: any) => ({
         id: order._id.toString(),
         type: "earning",
-        icon: order.serviceType === "delivery" || order.serviceType === "helper" ? "package" : "car",
-        label: `${this.formatServiceLabel(order.serviceType)} - ${this.getOrderDestination(order)}`,
+        icon: order.serviceType === "delivery" || order.serviceType === "helper" || order.packageDelivery ? "package" : "car",
+        label: `${this.formatServiceLabel(order)} - ${this.getOrderDestination(order)}`,
         amount: Math.round((order.totalPrice || 0) * 0.8),
         paymentMethod: order.paymentMethod,
         cashCollectedAmount: order.cashCollected ? order.cashCollectedAmount : undefined,
@@ -981,8 +981,9 @@ export class DriverService {
     return weekStart;
   }
 
-  private formatServiceLabel(serviceType: string) {
-    if (serviceType === "delivery" || serviceType === "helper") return "Delivery";
+  private formatServiceLabel(order: any) {
+    if (order.packageDelivery) return "Package delivery";
+    if (order.serviceType === "delivery" || order.serviceType === "helper") return "Delivery";
     return "Ride";
   }
 

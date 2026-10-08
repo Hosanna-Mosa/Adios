@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { usePackageDeliveryStore } from "@/contexts/packageDeliveryStore";
 import { RIDE_TYPES, readStopLines, resolveServiceKey } from "./useOrders.shared";
 
 // Split out of useOrders so each file stays small. Kept in the original call
@@ -8,6 +9,29 @@ import { RIDE_TYPES, readStopLines, resolveServiceKey } from "./useOrders.shared
 export function useOrdersHandleReorder(reorderIntoCart: any) {
   const handleReorder = (order: any) => {
     const serviceKey = order.__serviceKey || resolveServiceKey(order);
+
+    // A package delivery goes back through the package delivery flow with the same route, contacts and
+    // vehicle — never to ride-confirmation, which would book a passenger ride.
+    if (order.packageDelivery) {
+      const pickup = order.stops?.find((s: any) => s.type === "pickup") || order.stops?.[0];
+      const drop = order.stops?.find((s: any) => s.type === "drop") || order.stops?.[order.stops.length - 1];
+      if (!pickup || !drop) return;
+      const toPoint = (stop: any, contact: any) => ({
+        address: stop.address || "",
+        lat: Number(stop.location?.coordinates?.[1]),
+        lng: Number(stop.location?.coordinates?.[0]),
+        contactName: contact?.name || "",
+        contactPhone: contact?.phone || "",
+      });
+      const packageDelivery = usePackageDeliveryStore.getState();
+      packageDelivery.reset();
+      packageDelivery.setPoint("pickup", toPoint(pickup, order.packageDelivery.pickupContact));
+      packageDelivery.setPoint("drop", toPoint(drop, order.packageDelivery.dropContact));
+      packageDelivery.setVehicle(order.serviceType === "auto" ? "auto" : "bike");
+      packageDelivery.setPayAt(order.packageDelivery.payAt === "drop" ? "drop" : "pickup");
+      router.push("/package-delivery");
+      return;
+    }
 
     if (RIDE_TYPES.includes(order.serviceType)) {
       const pickup = order.stops?.find((s: any) => s.type === "pickup") || order.stops?.[0];

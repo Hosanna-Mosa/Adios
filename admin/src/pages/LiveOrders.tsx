@@ -12,6 +12,8 @@ export default function LiveOrders() {
     isLoading,
     statusFilter,
     setStatusFilter,
+    serviceFilter,
+    setServiceFilter,
     activeOrdersCount,
     filteredOrders,
   } = useLiveOrders();
@@ -19,7 +21,7 @@ export default function LiveOrders() {
   return (
     <DashboardLayout searchPlaceholder={t("orders.searchOrdersDrivers")}>
       <div className="space-y-6">
-        <LiveOrdersHeader statusFilter={statusFilter} setStatusFilter={setStatusFilter} />
+        <LiveOrdersHeader statusFilter={statusFilter} setStatusFilter={setStatusFilter} serviceFilter={serviceFilter} setServiceFilter={setServiceFilter} />
 
         <LiveOrdersStatsRow orders={orders} activeOrdersCount={activeOrdersCount} />
 

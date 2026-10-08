@@ -20,6 +20,8 @@ import { getOrders } from "@/services/orders.service";
 // populates `vendor`, so meat can't be told apart from food here — food is
 // the more common case, not a guess dressed up as certainty.
 function resolveServiceKey(order: any): string {
+  // Stored as a bike/auto ride, but it's a package delivery — never label it "Ride".
+  if (order.packageDelivery) return "packageDelivery";
   if (order.serviceType === "delivery" && order.vendor) return "food";
   return order.serviceType || "delivery";
 }
@@ -59,6 +61,7 @@ export default function SupportScreen() {
     cab_prime: { label: t("app.serviceMeta.ride"), accent: "ride" },
     helper: { label: t("app.serviceMeta.task"), accent: "task" },
     delivery: { label: t("app.serviceMeta.delivery"), accent: "delivery" },
+    packageDelivery: { label: t("app.serviceMeta.packageDelivery"), accent: "delivery" },
   }), [t]);
 
   const FAQS: FAQItem[] = useMemo(() => [

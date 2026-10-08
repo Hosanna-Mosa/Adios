@@ -8,6 +8,10 @@ export type RefundStatus = "due" | "pending" | "processed" | "failed";
 export interface RefundRow {
   orderId: string;
   serviceType: string;
+  /** True for a package delivery (stored as a bike/auto ride). */
+  packageDelivery?: boolean;
+  /** True when the order has an outlet (food / meat). */
+  vendor?: boolean;
   customerName: string;
   customerPhone: string;
   amount: number;

@@ -34,6 +34,7 @@ export default function OrdersScreen() {
     cab_prime: { label: t("app.serviceMeta.ride"), accent: "ride" },
     helper: { label: t("app.serviceMeta.task"), accent: "task" },
     delivery: { label: t("app.serviceMeta.delivery"), accent: "delivery" },
+    packageDelivery: { label: t("app.serviceMeta.packageDelivery"), accent: "delivery" },
   }), [t]);
 
   const REVIEW_TAGS = useMemo(() => [

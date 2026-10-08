@@ -49,6 +49,13 @@ export function useStatusTransition(args: Args) {
 
   const confirmDelivery = useCallback(async (who: string) => {
     if (cashStillToCollect()) return;
+    // A package delivery can't be completed without the receiver's 4-digit OTP. The app
+    // never has the code (the backend withholds it from drivers) — it only checks the
+    // shape here, and the backend checks the value.
+    if (currentOrder?.packageDelivery && !/^\d{4}$/.test(verification.customerOTP.trim())) {
+      verification.setCustomerOTPError(true);
+      return;
+    }
     try {
       await updateOrderStatus("delivered", verification.customerOTP);
       verification.setCustomerOTPError(false);
@@ -56,7 +63,7 @@ export function useStatusTransition(args: Args) {
       verification.setCustomerOTPError(true);
       warnVerificationFailed(err, who);
     }
-  }, [updateOrderStatus, verification, cashStillToCollect]);
+  }, [currentOrder, updateOrderStatus, verification, cashStillToCollect]);
 
   /**
    * Helper tasks: start with the customer's start OTP, complete with their completion PIN.
@@ -135,7 +142,7 @@ export function useStatusTransition(args: Args) {
       return;
     }
     if (status === "arrived_delivery") {
-      await confirmDelivery(isRide ? t("jobs.rider") : t("jobs.customer"));
+      await confirmDelivery(currentOrder?.packageDelivery ? t("jobs.receiver") : isRide ? t("jobs.rider") : t("jobs.customer"));
       return;
     }
     if (status === "delivered") finish();

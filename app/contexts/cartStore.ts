@@ -82,7 +82,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     get().requestAddItem(item, vendorId, vendorName, vendorImage);
   },
 
-  requestAddItem: (item, vendorId, vendorName, vendorImage) => {
+  requestAddItem: (rawItem, vendorId, vendorName, vendorImage) => {
     const { items, vendorId: currentVendorId } = get();
     // A dish on offer is charged its offer price: fold it into `price`, which is
     // what every cart total, the checkout bill and the /cart sync read.

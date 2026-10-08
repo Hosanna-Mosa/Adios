@@ -519,7 +519,23 @@
     "enterStartOtpFromCustomer": "కస్టమర్ స్క్రీన్‌పై చూపిన ప్రారంభ OTP నమోదు చేయండి.",
     "overtimeByMin": "+{{value}} నిమి అదనంగా",
     "customerConfirmedAskStartOtp": "కస్టమర్ టాస్క్‌ను నిర్ధారించారు. ప్రారంభించడానికి వారి ప్రారంభ OTP అడగండి.",
-    "agreeTaskThenAskStartOtp": "ఇక్కడ టాస్క్ గురించి మాట్లాడుకుని, ఆపై కస్టమర్‌ను వారి ప్రారంభ OTP అడగండి."
+    "agreeTaskThenAskStartOtp": "ఇక్కడ టాస్క్ గురించి మాట్లాడుకుని, ఆపై కస్టమర్‌ను వారి ప్రారంభ OTP అడగండి.",
+    "newPackageDeliveryRequest": "కొత్త ప్యాకేజీ డెలివరీ అభ్యర్థన!",
+    "packageDeliveryAccepted": "ప్యాకేజీ డెలివరీ అంగీకరించబడింది",
+    "packageDeliveryInTransit": "ప్యాకేజీ డెలివరీ చేస్తున్నారు",
+    "confirmPackageDelivery": "ప్యాకేజీ డెలివరీ నిర్ధారించండి",
+    "packageDeliveryCollectFrom": "ప్యాకేజీ డెలివరీ · వీరి నుండి తీసుకోండి",
+    "packageDeliveryDeliverTo": "ప్యాకేజీ డెలివరీ · వీరికి అందించండి",
+    "packageDeliveryPaidOnline": "ఆన్‌లైన్‌లో చెల్లించారు — నగదు తీసుకోవాల్సిన అవసరం లేదు",
+    "packageDeliveryCashAtPickup": "పికప్ వద్ద పంపేవారి నుండి ₹{{amount}} నగదు తీసుకోండి",
+    "packageDeliveryCashAtDrop": "డ్రాప్ వద్ద అందుకునేవారి నుండి ₹{{amount}} నగదు తీసుకోండి",
+    "receiver": "అందుకునేవారు",
+    "packageDeliveryAtPickup": "మీరు పికప్ ప్రదేశానికి చేరుకున్నారు. ప్యాకేజీ తీసుకుని ట్రిప్ ప్రారంభించండి — OTP అవసరం లేదు.",
+    "packageDeliveryStartTrip": "ప్యాకేజీ తీసుకున్నాను — ట్రిప్ ప్రారంభించండి",
+    "packageDeliveryEnterOtp": "అందుకునేవారి నుండి డెలివరీ OTP నమోదు చేయండి",
+    "packageDeliveryOtpPlaceholder": "4 అంకెల OTP",
+    "packageDeliveryInvalidOtp": "OTP తప్పు. పంపేవారు పంచుకున్న 4 అంకెల కోడ్‌ను అందుకునేవారిని అడగండి.",
+    "packageDeliveryComplete": "ప్యాకేజీ డెలివరీ పూర్తి చేయండి"
   },
   "onboarding": {
     "sections": {

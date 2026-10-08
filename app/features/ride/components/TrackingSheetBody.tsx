@@ -1,5 +1,5 @@
 import { TrackingFooterButton } from "@/features/ride/components/TrackingFooterButton";
-import { Linking, View } from "react-native";
+import { Linking, Share, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
 import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
@@ -15,9 +15,13 @@ import type { Props } from "./TrackingSheetBody.props";
 
 export function TrackingSheetBody(props: Props) {
   const { accent, deliveryOtp, deliveryStop, driver, eta, formatClock, handleSOS, handleShareTrip,
-  helperStatus, isHelper, isRide, orderCreatedAt, pickupLabel,
+  helperStatus, isHelper, isRide, isPackageDelivery, orderCreatedAt, pickupLabel,
   setTripModalVisible, startOtp, status, stops, styles, timeline, tokens, unreadCount } = props;
   const { t } = useTranslation();
+  // A package delivery's OTP goes to the receiver, who gives it to the captain at the drop.
+  const shareDeliveryOtp = () => {
+    Share.share({ message: t("app.packageDelivery.shareOtpMessage", { otp: deliveryOtp }) }).catch(() => {});
+  };
   return (
     <>
     {!driver ? (
@@ -63,7 +67,18 @@ export function TrackingSheetBody(props: Props) {
             styles={styles}
           />
         )}
-        {isRide && deliveryOtp && status === "arrived_delivery" && (
+        {isPackageDelivery && deliveryOtp && !["delivered", "cancelled"].includes(status) && (
+          <TrackingPinCard
+            accent={accent}
+            otp={deliveryOtp}
+            label={t("app.packageDelivery.deliveryOtpLabel")}
+            hint={t("app.packageDelivery.deliveryOtpHint")}
+            onShare={shareDeliveryOtp}
+            shareLabel={t("app.packageDelivery.shareOtp")}
+            styles={styles}
+          />
+        )}
+        {isRide && !isPackageDelivery && deliveryOtp && status === "arrived_delivery" && (
           <TrackingPinCard
             accent={accent}
             otp={deliveryOtp}
