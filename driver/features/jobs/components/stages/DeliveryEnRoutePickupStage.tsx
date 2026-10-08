@@ -1,9 +1,9 @@
 import React from "react";
-import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { ContactHeaderRow, OrderStage, RoundCommButton, StageActionButton, StageSpacer } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { PickupNavButton } from "./PickupNavButton";
 
@@ -20,7 +20,7 @@ export function DeliveryEnRoutePickupStage() {
           <>
             <RoundCommButton
               icon="call"
-              onPress={() => Linking.openURL(`tel:${currentOrder.vendorPhone || "1234567890"}`)}
+              onPress={() => callPhone(currentOrder.vendorPhone, "restaurant")}
             />
             <PickupNavButton pickupStop={pickupStop} />
           </>

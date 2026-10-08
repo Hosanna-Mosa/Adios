@@ -30,7 +30,7 @@ export function Store149Card({ item, styles, accent }: Props) {
       price: item.price,
       category: item.category || t("app.food.categoryFallback.store149"),
       isVeg: item.isVeg,
-      images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"],
+      images: item.images && item.images.length > 0 ? item.images : [],
     };
     addCartItem(foodItem, item.vendorId, item.brand);
   };
@@ -39,7 +39,7 @@ export function Store149Card({ item, styles, accent }: Props) {
     <View style={styles.mealCard}>
       <View style={styles.mealImageWrap}>
         <Image
-          source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" }}
+          source={item.images?.[0] ? { uri: item.images[0] } : null}
           style={styles.mealImage}
           contentFit="cover"
           transition={200}
@@ -58,7 +58,7 @@ export function Store149Card({ item, styles, accent }: Props) {
       <Text style={styles.mealName} numberOfLines={1}>{item.name}</Text>
       <Text style={styles.mealVendor} numberOfLines={1}>
         {item.brand || "Nearby"}
-        {typeof item.distanceKm === "number" ? ` · ${item.distanceKm} km` : ""} · {item.rating || "4.3"} ★
+        {typeof item.distanceKm === "number" ? ` · ${item.distanceKm} km` : ""}{Number(item.rating) > 0 ? ` · ${item.rating} ★` : ""}
       </Text>
     </View>
   );

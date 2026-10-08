@@ -47,7 +47,7 @@ export function Store149ModalOverlay({
         {selectedItem && (
           <View>
             <Image
-              source={{ uri: selectedItem.images && selectedItem.images.length > 0 ? selectedItem.images[0] : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" }}
+              source={selectedItem.images?.[0] ? { uri: selectedItem.images[0] } : undefined}
               style={styles.sheetImage}
               resizeMode="cover"
             />
@@ -80,15 +80,21 @@ export function Store149ModalOverlay({
               <Text style={styles.sheetTitle}>{selectedItem.name}</Text>
               <View style={{ flexDirection: "row", alignItems: "baseline", gap: 8 }}>
                 <Text style={styles.sheetPrice}>₹{selectedItem.price}</Text>
-                {!!selectedItem.originalPrice && <Text style={styles.cardOriginalPrice}>₹{selectedItem.originalPrice}</Text>}
+                {Number(selectedItem.originalPrice) > Number(selectedItem.price) && <Text style={styles.cardOriginalPrice}>₹{selectedItem.originalPrice}</Text>}
               </View>
-              <Text style={styles.sheetRating}>
-                {selectedItem.rating || "4.2"} ★ ({selectedItem.ratingCount || "34"} {t("app.food.ratings")}
-                {typeof selectedItem.distanceKm === "number" ? ` · ${selectedItem.distanceKm} km away` : ""}
-              </Text>
-              <Text style={styles.sheetDescription}>
-                {selectedItem.description || "Fresh and delicious, prepared by our top partners."}
-              </Text>
+              {/* Only what the outlet really has — no stand-in rating or blurb. */}
+              {(Number(selectedItem.rating) > 0 || typeof selectedItem.distanceKm === "number") && (
+                <Text style={styles.sheetRating}>
+                  {Number(selectedItem.rating) > 0 ? `${selectedItem.rating} ★` : ""}
+                  {Number(selectedItem.reviewsCount) > 0 ? ` (${selectedItem.reviewsCount} ${t("app.food.ratings")}` : ""}
+                  {typeof selectedItem.distanceKm === "number"
+                    ? `${Number(selectedItem.rating) > 0 ? " · " : ""}${selectedItem.distanceKm} km away`
+                    : ""}
+                </Text>
+              )}
+              {!!selectedItem.description && (
+                <Text style={styles.sheetDescription}>{selectedItem.description}</Text>
+              )}
             </View>
           </View>
         )}

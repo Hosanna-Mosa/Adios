@@ -39,6 +39,11 @@ export function formatMonthYear(value?: string | null) {
   });
 }
 
+/** "87%", or "—" when the backend has no acceptance rate for this driver yet. */
+export function formatAcceptanceRate(rate?: number | null) {
+  return typeof rate === "number" && Number.isFinite(rate) ? `${Math.round(rate)}%` : "—";
+}
+
 export function formatCoordinates(coordinates?: number[]) {
   if (!coordinates || coordinates.length < 2) return i18n.t("profile.notAdded");
   return `${coordinates[1]}, ${coordinates[0]}`;

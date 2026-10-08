@@ -19,8 +19,9 @@ const DigitalMenuRestaurantSchema: Schema = new Schema(
     address: { type: String, required: true },
     isPureVeg: { type: Boolean, default: false },
     qrCodeUrl: { type: String },
-    rating: { type: Number, default: 4.0 },
-    reviews: { type: String, default: "1" }
+    // Unrated until real reviews exist — same defaults as Vendor, not an invented 4.0 / "1".
+    rating: { type: Number, default: 0 },
+    reviews: { type: String, default: "0" }
   },
   { timestamps: true }
 );

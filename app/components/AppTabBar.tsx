@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
 import { fontFamilies } from "@/constants/typography";
@@ -12,6 +11,7 @@ import { useActiveOrder } from "@/contexts/deliveryStore";
 import { CART_CARD_HEIGHT, TAB_PILL_HEIGHT } from "./AppTabBar.styles";
 import { useAppTabBar } from "./useAppTabBar";
 import { ActiveOrderStripe } from "./ActiveOrderStripe";
+import { CartStripe } from "./CartStripe";
 export { useAppTabBarHeight } from "./useAppTabBarHeight";
 
 export type TabKey = "home" | "orders" | "account" | "cart";
@@ -23,6 +23,12 @@ interface AppTabBarProps {
   accent?: keyof ThemeTokens["services"];
   /** Vendor name shown in the cart row, e.g. "Bawarchi". Falls back to a generic label. */
   cartVendorName?: string;
+  /**
+   * Drop the Home / Orders / Account / Cart pill and keep only the floating
+   * cart (and live-order) stripes, sitting on the bottom edge instead. Used by
+   * the restaurant screens. Pair with `useAppTabBarHeight({ hideTabs: true })`.
+   */
+  hideTabs?: boolean;
 }
 
 /**
@@ -70,101 +76,96 @@ function useTabs(): TabDef[] {
  * than teleporting. An optional cart summary card floats just above it,
  * matching the same rounded-and-lifted treatment, when the cart has items.
  */
-export function AppTabBar({ active, accent, cartVendorName }: AppTabBarProps) {
+export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBarProps) {
   const {
-  insets, theme, tokens, accentTokens, styles, itemCount, totalPrice, pillWidth, setPillWidth,
+  insets, theme, tokens, accentTokens, cartAccent, styles, itemCount, totalPrice, pillWidth, setPillWidth,
   indicatorStyle, handleTabPress
   } = useAppTabBar(active, accent, cartVendorName);
   const TABS = useTabs();
   const { t } = useTranslation();
   const { isActive: hasActiveOrder } = useActiveOrder();
+  // Where the first floating stripe sits: above the pill, or on the bottom edge without it.
+  const stackBase = insets.bottom + BOTTOM_GAP + (hideTabs ? 0 : TAB_PILL_HEIGHT) + STACK_GAP;
 
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
       {/* Orders already shows the live order as a full card, so the stripe would only repeat it. */}
       {hasActiveOrder && active !== "orders" && (
         <ActiveOrderStripe
-          bottom={insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP + (itemCount > 0 ? CART_CARD_HEIGHT + STACK_GAP : 0)}
+          bottom={stackBase + (itemCount > 0 ? CART_CARD_HEIGHT + STACK_GAP : 0)}
         />
       )}
 
       {itemCount > 0 && (
-        <Animated.View
-          style={[styles.cartCard, { bottom: insets.bottom + BOTTOM_GAP + TAB_PILL_HEIGHT + STACK_GAP }]}
-        >
-          <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-          <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
-            <View style={styles.cartCountBadge}>
-              <Text style={styles.cartCountText}>{itemCount}</Text>
-            </View>
-            <View style={styles.cartInfo}>
-              <Text style={styles.cartPrice}>₹{totalPrice}</Text>
-              <Text style={styles.cartMeta} numberOfLines={1}>
-                {cartVendorName ? `${cartVendorName} · ` : ""}
-                {itemCount} {itemCount === 1 ? "item" : "items"}
-              </Text>
-            </View>
-            <Text style={styles.cartCta}>View cart</Text>
-          </TouchableOpacity>
-        </Animated.View>
+        <CartStripe
+          bottom={stackBase}
+          styles={styles}
+          theme={theme}
+          cartAccent={cartAccent}
+          itemCount={itemCount}
+          totalPrice={totalPrice}
+          cartVendorName={cartVendorName}
+        />
       )}
 
-      <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
-        <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-        <View
-          style={styles.tabRow}
-          onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
-        >
-          {pillWidth > 0 && (
-            <Animated.View style={[styles.indicator, indicatorStyle]}>
-              <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
-            </Animated.View>
-          )}
-
-          {TABS.map((tab) => {
-            const isActive = tab.key === active;
-            return (
-              <TouchableOpacity
-                key={tab.key}
-                style={styles.tabItem}
-                activeOpacity={0.7}
-                onPress={() => handleTabPress(tab.key, tab.route)}
-              >
-                <Ionicons
-                  name={isActive ? tab.activeIcon : tab.icon}
-                  size={moderateScale(21)}
-                  color={isActive ? accentTokens.accent : tokens.muted}
-                />
-                <Text style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-
-          <TouchableOpacity
-            style={styles.tabItem}
-            activeOpacity={0.7}
-            onPress={() => handleTabPress("cart", "/cart")}
+      {!hideTabs && (
+        <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
+          <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+          <View
+            style={styles.tabRow}
+            onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
           >
-            <View style={styles.cartIconWrap}>
-              <Ionicons
-                name={active === "cart" ? "bag" : "bag-outline"}
-                size={moderateScale(21)}
-                color={active === "cart" ? accentTokens.accent : tokens.muted}
-              />
-              {itemCount > 0 && (
-                <View style={styles.cartBadge}>
-                  <Text style={styles.cartBadgeText}>{itemCount}</Text>
-                </View>
-              )}
-            </View>
-            <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
-              {t("tabs.cart")}
-            </Text>
-          </TouchableOpacity>
+            {pillWidth > 0 && (
+              <Animated.View style={[styles.indicator, indicatorStyle]}>
+                <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
+              </Animated.View>
+            )}
+
+            {TABS.map((tab) => {
+              const isActive = tab.key === active;
+              return (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={styles.tabItem}
+                  activeOpacity={0.7}
+                  onPress={() => handleTabPress(tab.key, tab.route)}
+                >
+                  <Ionicons
+                    name={isActive ? tab.activeIcon : tab.icon}
+                    size={moderateScale(21)}
+                    color={isActive ? accentTokens.accent : tokens.muted}
+                  />
+                  <Text style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+
+            <TouchableOpacity
+              style={styles.tabItem}
+              activeOpacity={0.7}
+              onPress={() => handleTabPress("cart", "/cart")}
+            >
+              <View style={styles.cartIconWrap}>
+                <Ionicons
+                  name={active === "cart" ? "bag" : "bag-outline"}
+                  size={moderateScale(21)}
+                  color={active === "cart" ? accentTokens.accent : tokens.muted}
+                />
+                {itemCount > 0 && (
+                  <View style={styles.cartBadge}>
+                    <Text style={styles.cartBadgeText}>{itemCount}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                {t("tabs.cart")}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }

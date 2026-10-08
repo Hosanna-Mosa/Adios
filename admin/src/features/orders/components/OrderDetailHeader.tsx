@@ -6,11 +6,12 @@ import { adminOrderStatusLabel } from "../adminOrderStatus";
 
 interface OrderDetailHeaderProps {
   order: Order;
-  onContactDriver: () => void;
+  /** The assigned driver's phone; the "Contact Driver" call link only renders when there is one. */
+  driverPhone?: string;
 }
 
-/** The order-id/status/created-at header + "Contact Driver" button on OrderDetail.tsx. */
-export function OrderDetailHeader({ order, onContactDriver }: OrderDetailHeaderProps) {
+/** The order-id/status/created-at header + "Contact Driver" call link on OrderDetail.tsx. */
+export function OrderDetailHeader({ order, driverPhone }: OrderDetailHeaderProps) {
   const { t } = useTranslation();
   return (
     <div className="flex items-start justify-between mb-6">
@@ -25,12 +26,14 @@ export function OrderDetailHeader({ order, onContactDriver }: OrderDetailHeaderP
           </span>
         </div>
       </div>
-      <button
-        onClick={onContactDriver}
-        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-      >
-        {t("orders.contactDriver")}
-      </button>
+      {driverPhone && (
+        <a
+          href={`tel:${driverPhone.replace(/[^\d+]/g, "")}`}
+          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+        >
+          {t("orders.contactDriver")}
+        </a>
+      )}
     </div>
   );
 }

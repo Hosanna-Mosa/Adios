@@ -31,7 +31,7 @@ export const createRefresh = (set: Set, get: Get, flush: () => Promise<void>) =>
 
     const items = fromWire(data?.items ?? []);
     const vendorId = items.length ? (data?.vendorId ?? null) : null;
-    set({ items, vendorId, ...(items.length ? {} : { vendorName: null }), syncNotices: changes });
+    set({ items, vendorId, ...(items.length ? {} : { vendorName: null, vendorImage: null }), syncNotices: changes });
     await AsyncStorage.setItem(cartKey(ownerId), JSON.stringify({ vendorId, items })).catch(() => {});
   } catch {
     // Offline: keep the cart as it is until the next check.

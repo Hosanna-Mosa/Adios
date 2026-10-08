@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { interpolate, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { STRIDE } from "./constants";
 import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";
@@ -64,6 +63,7 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
     : bannersLoading ? [] : activeService === "Meat" ? MEAT_PROMOS : FOOD_PROMOS;
 
   useEffect(() => {
+    if (promoCards.length < 2) return;
     const interval = setInterval(() => {
       let next = bannerIndexRef.current + 1;
       if (promoCards.length === 0) return;

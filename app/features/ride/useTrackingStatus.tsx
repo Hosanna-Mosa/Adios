@@ -48,7 +48,9 @@ export function useTrackingStatus() {
   const accent = tokens.services[accentKey];
   const styles = useMemo(() => createStyles(tokens, accent), [theme, accentKey]);
 
-  const [eta, setEta] = useState(15);
+  // Minutes until the driver reaches the next stop. null until there is a real
+  // estimate (the order's route time, then the driver's live position).
+  const [eta, setEta] = useState<number | null>(null);
 
   return { status, setStatus, currentOrderId, setOrderId, setServiceType, route, setRoute, stops, setStops, driver, setDriver, unreadCount, resetDelivery, insets, params, tokens, isRide, isHelper, vendorName, setVendorName, setVendorPartnerType, accent, styles, eta, setEta };
 }

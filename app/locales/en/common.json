@@ -260,28 +260,6 @@
       "prawns": "Prawns"
     },
     "home": {
-      "foodPromos": {
-        "firstOrder": {
-          "eyebrow": "First order",
-          "headline": "50% off up to ₹120",
-          "caption": "Code FLAV50 · min ₹199"
-        },
-        "lateNight": {
-          "eyebrow": "Late night",
-          "headline": "Open till 2 AM",
-          "caption": "42 outlets near you"
-        }
-      },
-      "meatPromos": {
-        "sundaySpecial": {
-          "eyebrow": "Sunday special",
-          "headline": "Country chicken ₹399 / kg"
-        },
-        "cleanedAndCut": {
-          "eyebrow": "Cleaned & cut",
-          "headline": "No fee today"
-        }
-      },
       "browseByCuisine": "Browse by cuisine",
       "pleaseEnterYourPhoneNumberOr": "Please enter your phone number or email",
       "pleaseEnterYourPassword": "Please enter your password",
@@ -332,7 +310,7 @@
       "allCaptainsNearbyAreOnTrips": "All riders nearby are on trips right now. It's usually a few minutes before one frees up.",
       "retrySearch": "Retry search",
       "freshMeatDaily": "Fresh Meat Daily!",
-      "cravingSomethingDelicious": "Craving something\ndelicious?",
+      "cravingSomethingDelicious": "Craving something delicious?",
       "searchMuttonCurryCutPrawns": "Search “mutton curry cut”, “prawns”",
       "searchBiryaniBawarchi": "Search “biryani”, “Bawarchi”",
       "show149StorePartners": "Show 149 Store partners",
@@ -440,7 +418,6 @@
       "codeApplied": "{{code}} applied",
       "haveAPromoCode": "Have a promo code?",
       "youSaved": "You saved ₹{{amount}}",
-      "tapToAddItAtCheckout": "Tap to add it at checkout",
       "remove": "Remove",
       "apply": "Apply",
       "enterCode": "Enter code",
@@ -1111,6 +1088,8 @@
       "confirmingHint": "We're waiting for your bank to confirm. Your order will appear in My orders once it does.",
       "invalid": "This payment couldn't be accepted. If money was deducted, it will be refunded.",
       "couldNotStart": "Couldn't start the payment. Please try again.",
+      "successTitle": "Payment successful",
+      "successHint": "Your order is confirmed.",
       "returning": "Finishing your payment…",
       "method": "Pay with",
       "cash": "Cash",

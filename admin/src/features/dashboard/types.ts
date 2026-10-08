@@ -1,7 +1,7 @@
+/** One delivery-performance bar: completed deliveries in that slot (0 when none). */
 export interface BarDatum {
   time: string;
   delivered: number;
-  target: number;
 }
 
 export interface ActivityLogItem {

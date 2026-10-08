@@ -13,7 +13,6 @@ import { createReservedRideSlice } from "./slices/reservedRideSlice";
 import type { DriverState } from "./types";
 
 export * from "./types";
-export { useMockIncomingOrder } from "./mockOrder";
 
 export const useDriverStore = create<DriverState>()(
   persist(

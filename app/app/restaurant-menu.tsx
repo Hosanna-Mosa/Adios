@@ -8,7 +8,7 @@ import { shareRestaurant } from "@/utils/shareLink";
 import { RestaurantMenuSolidHeader } from "@/features/food/components/RestaurantMenuSolidHeader";
 import { RestaurantMenuHeroOverlay } from "@/features/food/components/RestaurantMenuHeroOverlay";
 import { useRestaurantMenu } from "@/features/food/useRestaurantMenu";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { selectNoRidersOnline, useHomeStore } from "@/contexts/homeStore";
@@ -25,6 +25,9 @@ export default function RestaurantMenu() {
   } = useRestaurantMenu();
   const { t } = useTranslation();
   const noRidersOnline = useHomeStore(selectNoRidersOnline);
+  // The pinned category strip hangs directly off the solid header. A fixed guess
+  // at its height left a sliver of menu showing between the two.
+  const [solidHeaderHeight, setSolidHeaderHeight] = useState(0);
 
   // Backstop for every entry point (cart, search, links): with no rider
   // online nothing here can be delivered, so return to Home.
@@ -58,11 +61,12 @@ export default function RestaurantMenu() {
           styles={styles}
           toggleFavorite={toggleFavorite}
           tokens={tokens}
+          onHeight={setSolidHeaderHeight}
         />
       )}
 
       {scrolledPast && categoryTabs.length > 0 && (
-        <View style={[styles.fixedTabsBar, { top: insets.top + moderateScale(52) }]}>
+        <View style={[styles.fixedTabsBar, { top: solidHeaderHeight || insets.top + moderateScale(52) }]}>
           <CategoryTabs categoryTabs={categoryTabs} activeCategory={activeCategory} onPress={handleCategoryPress} styles={styles} />
         </View>
       )}
@@ -123,7 +127,8 @@ export default function RestaurantMenu() {
         tokens={tokens}
       />
 
-      <AppTabBar accent={isMeat === "true" ? "meat" : "food"} cartVendorName={name as string} />
+      {/* No tab pill on a restaurant's menu — only the cart stripe, on the bottom edge. */}
+      <AppTabBar accent={isMeat === "true" ? "meat" : "food"} cartVendorName={name as string} hideTabs />
     </View>
   );
 }

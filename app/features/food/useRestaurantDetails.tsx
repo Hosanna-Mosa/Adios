@@ -26,7 +26,7 @@ const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "
 export function useRestaurantDetails() {
   const { id, name: searchName, rating: searchRating, reviews: searchReviews, isMeat } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const tabBarHeight = useAppTabBarHeight();
+  const tabBarHeight = useAppTabBarHeight({ hideTabs: true });
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services[isMeat === "true" ? "meat" : "food"];

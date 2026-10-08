@@ -2,8 +2,6 @@ import { Image } from "expo-image";
 import React, { useMemo, useState } from "react";
 import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=800";
-
 interface Props {
   images?: (string | null | undefined)[];
   /** Height, background and radius of each photo — the sheet's own image style. */
@@ -22,7 +20,8 @@ export function DishImageCarousel({ images, imageStyle, activeColor }: Props) {
   const [index, setIndex] = useState(0);
   const photos = useMemo(() => {
     const unique = Array.from(new Set((images ?? []).filter((uri): uri is string => typeof uri === "string" && !!uri.trim())));
-    return unique.length > 0 ? unique : [FALLBACK_IMAGE];
+    // No photo: one empty slot, which shows the image style's own background.
+    return unique.length > 0 ? unique : [""];
   }, [images]);
 
   return (
@@ -37,7 +36,7 @@ export function DishImageCarousel({ images, imageStyle, activeColor }: Props) {
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         renderItem={({ item }) => (
-          <Image source={{ uri: item }} style={[imageStyle, { width }]} contentFit="cover" transition={200} />
+          <Image source={item ? { uri: item } : null} style={[imageStyle, { width }]} contentFit="cover" transition={200} />
         )}
       />
       {photos.length > 1 && (

@@ -13,7 +13,8 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const LiveOrders = lazy(() => import("@/pages/LiveOrders"));
 const ScheduledOrders = lazy(() => import("@/pages/ScheduledOrders"));
 const Drivers = lazy(() => import("@/pages/Drivers"));
-const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
+// Dev-only page (seeds fake drivers): not even bundled into production builds.
+const DevDrivers = import.meta.env.DEV ? lazy(() => import("@/pages/DevDrivers")) : null;
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
 const Payments = lazy(() => import("@/pages/Payments"));
@@ -75,7 +76,8 @@ export function AnimatedRoutes() {
         <Route path="/drivers" element={<RequireAdmin><Drivers /></RequireAdmin>} />
         <Route path="/driver-verification" element={<RequireAdmin><DriverVerification /></RequireAdmin>} />
         <Route path="/restaurant-verification" element={<RequireAdmin><RestaurantVerification /></RequireAdmin>} />
-        <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />
+        {/* Dev-only: the page seeds fake drivers, so production builds don't route to it. */}
+        {DevDrivers && <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />}
         <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
         <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />
         <Route path="/payments" element={<RequireAdmin><Payments /></RequireAdmin>} />

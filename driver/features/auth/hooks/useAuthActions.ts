@@ -6,8 +6,6 @@ import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { useRouteAfterAuth } from "./useRouteAfterAuth";
 
-const MOCK_OTP = "123456";
-
 // Must match the backend's verify-otp rule; the app used to accept 6.
 const MIN_PASSWORD_LENGTH = 8;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -159,5 +157,5 @@ export function useAuthActions({
     }
   };
 
-  return { loading, handleSignIn, handleSendOTP, handleVerifyOTP, MOCK_OTP };
+  return { loading, handleSignIn, handleSendOTP, handleVerifyOTP };
 }

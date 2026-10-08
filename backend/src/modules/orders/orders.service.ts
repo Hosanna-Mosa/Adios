@@ -47,7 +47,8 @@ export class OrdersService {
    * Pure calculation: nothing is saved.
    */
   async priceOrder(stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, metadata?: any) {
-    const startPos = { 
+    stopsData = await this.pinPickupToOutlet(stopsData, vendorId);
+    const startPos = {
       latitude: stopsData[0].latitude || stopsData[0].lat, 
       longitude: stopsData[0].longitude || stopsData[0].lng 
     };
@@ -155,6 +156,34 @@ export class OrdersService {
       startPos, optimizationResult, effectiveType, isRide, surgeMultiplier,
       couponDiscount, appliedCouponCode, appliedCouponId, totalPrice: totalPrice!, priceBreakdown,
     };
+  }
+
+  /**
+   * A restaurant / meat-centre order is picked up at the outlet, wherever the client
+   * thought it was: the pickup stop takes the outlet's stored location (and address).
+   * The customer app never knew it and used to send a point beside the customer.
+   * Orders without an outlet, or an outlet with no usable location, pass unchanged.
+   */
+  private async pinPickupToOutlet(stopsData: any[], vendorId?: string) {
+    if (!vendorId || !mongoose.Types.ObjectId.isValid(String(vendorId))) return stopsData;
+    const outlet: any =
+      (await Vendor.findById(vendorId).select("location address").lean()) ||
+      (await MeatCenter.findById(vendorId).select("location address").lean());
+    const [lng, lat] = outlet?.location?.coordinates ?? [];
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) return stopsData;
+
+    return stopsData.map((stop) =>
+      String(stop?.type || "").toLowerCase() === "pickup"
+        ? {
+            ...stop,
+            latitude: lat,
+            longitude: lng,
+            lat,
+            lng,
+            address: typeof outlet.address === "string" && outlet.address.trim() ? outlet.address : stop.address,
+          }
+        : stop
+    );
   }
 
   /**

@@ -59,16 +59,20 @@ export function CartBillSummary({
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.couponTitle}>{appliedPromo ? t("app.food.codeApplied", { code: appliedPromo.code, defaultValue: "{{code}} applied" }) : t("app.food.haveAPromoCode")}</Text>
-          <Text style={styles.couponSub}>
-            {appliedPromo ? t("app.food.youSaved", { amount: Math.round(discount), defaultValue: "You saved ₹{{amount}}" }) : t("app.food.tapToAddItAtCheckout")}
-          </Text>
+          {appliedPromo && (
+            <Text style={styles.couponSub}>
+              {t("app.food.youSaved", { amount: Math.round(discount), defaultValue: "You saved ₹{{amount}}" })}
+            </Text>
+          )}
         </View>
         <Text style={styles.couponAction}>{appliedPromo ? t("app.food.remove") : t("app.food.apply")}</Text>
       </TouchableOpacity>
 
       {showPromoInput && !appliedPromo && (
         <View style={styles.promoInputRow}>
+          {/* Opened by "Apply", so it takes focus and raises the keyboard straight away. */}
           <TextInput
+            autoFocus
             style={styles.promoInput}
             placeholder={t("app.food.enterCode")}
             placeholderTextColor={tokens.muted}

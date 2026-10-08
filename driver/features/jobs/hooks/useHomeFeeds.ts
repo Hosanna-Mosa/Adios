@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import type { Hotspot } from "../components/HighDemandAreas";
+import { fetchHighDemandAreas } from "./useHighDemandAreas";
 
 /** The three background feeds behind the home screen: high-demand hotspots,
  * scheduled rides and driver ads. Each refreshes on its own interval.
@@ -86,16 +87,7 @@ export function useHomeFeeds({
 
     setIsLoadingHotspots(true);
     try {
-      const response = await fetch(`${apiUrl}/drivers/high-demand-areas?limit=5`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to load high demand areas");
-
-      const areas = await response.json();
-      setHotspots(Array.isArray(areas) ? areas : []);
+      setHotspots(await fetchHighDemandAreas(token, 5));
     } catch (error) {
       console.warn("High demand area fetch failed:", error);
       setHotspots([]);

@@ -1,6 +1,5 @@
 import { router } from "expo-router";
 import React from "react";
-import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
@@ -14,6 +13,7 @@ import {
   StopsDivider,
   UnreadBadge,
 } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { Box } from "@/components/ui/Box";
 
 export function RideAcceptedStage() {
@@ -43,9 +43,7 @@ export function RideAcceptedStage() {
               </RoundCommButton>
               <RoundCommButton
                 icon="call"
-                onPress={() =>
-                  Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)
-                }
+                onPress={() => callPhone(currentOrder.customerPhone, "customer")}
               />
               <RoundCommButton icon="location" onPress={openRideNavigation} />
             </ContactActions>

@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Transaction } from "../paymentsTypes";
+import { adminOrderStatusLabel } from "../adminOrderStatus";
 
 interface TransactionDetailsDialogProps {
   open: boolean;
@@ -46,7 +47,7 @@ export function TransactionDetailsDialog({ open, onOpenChange, transaction }: Tr
             </div>
             <div className="flex justify-between border-b pb-2 border-border">
               <span className="font-semibold text-muted-foreground">{t("orders.invoiceStatusColon")}</span>
-              <span className="font-bold uppercase text-success">{transaction.status}</span>
+              <span className={`font-bold uppercase ${transaction.status === "SETTLED" ? "text-success" : "text-warning"}`}>{adminOrderStatusLabel(transaction.status, t)}</span>
             </div>
           </div>
         )}

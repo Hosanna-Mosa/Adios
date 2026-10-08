@@ -21,7 +21,7 @@ interface DriverZoneTabProps {
   zonesList: AdminZone[];
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  getAvatarUrl: (name: string) => string;
+  getAvatarUrl: (driver: AdminDriver) => string;
   getVehicleString: (driver: AdminDriver) => string;
   onAssignClick: () => void;
   onEditClick: (driverId: string, currentZoneId: string) => void;
@@ -59,7 +59,7 @@ export function DriverZoneTab({
       cell: (d) => (
         <div className="flex items-center gap-3">
           <LazyImage
-            src={getAvatarUrl(d.user?.name || "")}
+            src={getAvatarUrl(d)}
             alt={d.user?.name}
             className="h-10 w-10 rounded-full object-cover border border-border"
             wrapperClassName="h-10 w-10 rounded-full shrink-0"

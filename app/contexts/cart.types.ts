@@ -22,6 +22,7 @@ export interface PendingCartConflict {
   item: FoodItem;
   vendorId: string;
   vendorName?: string;
+  vendorImage?: string;
 }
 
 /** A correction the server made after checking the cart against the outlet's live menu. */
@@ -41,6 +42,8 @@ export interface CartState {
   items: CartItem[];
   vendorId: string | null;
   vendorName: string | null;
+  /** The outlet's photo, for the cart stripe. Only known when added from its menu. */
+  vendorImage: string | null;
   isHoveringSearch: boolean;
   /** The account this cart belongs to. A different account never inherits these items. */
   ownerId: string | null;
@@ -50,9 +53,9 @@ export interface CartState {
   syncNotices: CartSyncNotice[];
   clearSyncNotices: () => void;
   setIsHoveringSearch: (hovering: boolean) => void;
-  addItem: (item: FoodItem, vendorId: string, vendorName?: string) => void;
+  addItem: (item: FoodItem, vendorId: string, vendorName?: string, vendorImage?: string) => void;
   /** Returns 'added' when the item went in, 'conflict' when a dialog is now pending. */
-  requestAddItem: (item: FoodItem, vendorId: string, vendorName?: string) => "added" | "conflict";
+  requestAddItem: (item: FoodItem, vendorId: string, vendorName?: string, vendorImage?: string) => "added" | "conflict";
   /** 'clear' empties the cart then adds the pending item. 'keep' discards the pending item. */
   resolveConflict: (choice: "clear" | "keep") => void;
   removeItem: (itemId: string) => void;

@@ -74,10 +74,7 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
     socketService.on("order_cancelled", onOrderCancelled);
     socketService.on("helper_status_update", onHelperStatusUpdate);
 
-    const timer = setInterval(() => setEta((prev: any) => Math.max(1, prev - 1)), 30000);
-
     return () => {
-      clearInterval(timer);
       socketService.off("order_accepted", onOrderAccepted);
       socketService.off("driver_location_update", onLocationUpdate);
       socketService.off("order_status_update", onStatusUpdate);

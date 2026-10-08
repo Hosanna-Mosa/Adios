@@ -61,7 +61,10 @@ export const createOnlineSlice = (
     // Connect to real-time order broadcasts regardless of token
     import("../../utils/socketService").then(({ socketService }) => {
       socketService.connect();
-      socketService.join(finalDriverId || "mock_driver_123", "DRIVER");
+      // Dispatch reaches a driver through the room named after their id. With no
+      // real id there is no room to join (this used to join a shared
+      // "mock_driver_123" room instead).
+      if (finalDriverId) socketService.join(finalDriverId, "DRIVER");
       registerOrderSocketHandlers(socketService, set, get);
     });
   },

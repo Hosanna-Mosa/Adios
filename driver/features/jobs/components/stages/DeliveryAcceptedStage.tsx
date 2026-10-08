@@ -1,6 +1,5 @@
 import { router } from "expo-router";
 import React from "react";
-import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
@@ -15,6 +14,7 @@ import {
   StopsPanel,
   UnreadBadge,
 } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { PickupNavButton } from "./PickupNavButton";
 import { Box } from "@/components/ui/Box";
@@ -41,7 +41,7 @@ export function DeliveryAcceptedStage() {
             </RoundCommButton>
             <RoundCommButton
               icon="call"
-              onPress={() => Linking.openURL(`tel:${currentOrder.vendorPhone || "1234567890"}`)}
+              onPress={() => callPhone(currentOrder.vendorPhone, "restaurant")}
             />
             <PickupNavButton pickupStop={pickupStop} />
           </ContactActions>

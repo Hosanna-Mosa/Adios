@@ -513,30 +513,12 @@ export const searchFoodItems = async (req: Request, res: Response) => {
   }
 };
 
+/** The ₹149 store lists dishes whose menu price is at most this. */
+const STORE_149_MAX_PRICE = 149;
+
 export const getStore149Items = async (req: Request, res: Response) => {
   try {
     const { lat, lng } = req.query;
-    
-    // Function to get distinct Unsplash image based on name
-    const getMatchingImage = (name: string): string => {
-      const n = name.toLowerCase();
-      
-      // Verified Indian Food Unsplash IDs
-      if (n.includes("onion") || n.includes("rava")) return "https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400";
-      if (n.includes("mysore")) return "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400";
-      if (n.includes("paper") || n.includes("ghee")) return "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400";
-      if (n.includes("dosa") || n.includes("pesarattu") || n.includes("appam")) return "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400";
-      
-      if (n.includes("idli")) return "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400";
-      if (n.includes("vada") || n.includes("wada") || n.includes("gari") || n.includes("garry")) return "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400";
-      if (n.includes("uttapam") || n.includes("uthappam")) return "https://images.unsplash.com/photo-1633383718081-22ac93e3db65?w=400";
-      if (n.includes("upma") || n.includes("pongal") || n.includes("poha")) return "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=400";
-      if (n.includes("rice") || n.includes("pulao") || n.includes("biryani")) return "https://images.unsplash.com/photo-1633383718081-22ac93e3db65?w=400";
-      if (n.includes("naan") || n.includes("roti") || n.includes("paratha") || n.includes("thepla") || n.includes("sandwich")) return "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400";
-      if (n.includes("momos") || n.includes("manchurian") || n.includes("noodles") || n.includes("roll")) return "https://images.unsplash.com/photo-1625938146369-adc83368bda7?w=400";
-      if (n.includes("sweet") || n.includes("chocolate") || n.includes("gulab") || n.includes("jamun") || n.includes("halwa")) return "https://images.unsplash.com/photo-1605197584547-c91ffaba2dc1?w=400";
-      return "https://images.unsplash.com/photo-1631452180519-c014fe946bc0?w=400"; // fallback paneer/curry
-    };
     
     // We will search for nearby vendors within active zone if lat/lng are provided
     let vendors: any[] = [];
@@ -583,7 +565,13 @@ export const getStore149Items = async (req: Request, res: Response) => {
     const vendorIds = vendors.map(v => v._id);
     // Was .limit(15): with $in across 10 vendors the whole page could come from the
     // farthest one, so nothing about the result was actually "nearby".
-    const foodItems = await FoodItem.find({ vendorId: { $in: vendorIds }, isAvailable: true }).limit(150).lean();
+    // Only dishes whose real menu price is within ₹149: the cart and checkout re-price every
+    // line from FoodItem.price (cart.catalog.ts), so the price shown here must be that price.
+    const foodItems = await FoodItem.find({
+      vendorId: { $in: vendorIds },
+      isAvailable: true,
+      price: { $gt: 0, $lte: STORE_149_MAX_PRICE },
+    }).limit(150).lean();
 
     if (foodItems.length === 0) {
       return res.json([]);
@@ -605,13 +593,12 @@ export const getStore149Items = async (req: Request, res: Response) => {
         perVendorCount.set(vendorKey, used + 1);
         return true;
       })
-      .map((item, idx) => {
+      .map((item) => {
         const vendor = vendorMap.get(item.vendorId.toString());
-        const originalPrice = item.price > 149 ? item.price : 199;
 
-        // Use realistic rating and review count from vendor or defaults
-        const itemRating = vendor?.rating || parseFloat((4.0 + (idx % 10) * 0.1).toFixed(1));
-        const itemReviews = vendor?.reviews ? parseInt(vendor.reviews.replace(/\D/g, '')) || 45 : 45;
+        // The outlet's real rating and review count — 0 when it has none yet.
+        const itemRating = Number(vendor?.rating) || 0;
+        const itemReviews = parseInt(String(vendor?.reviews ?? "").replace(/\D/g, ""), 10) || 0;
 
         // $geoNear stamped the vendor with a metre distance — carry it through so the
         // screen can show where each dish is coming from.
@@ -623,9 +610,10 @@ export const getStore149Items = async (req: Request, res: Response) => {
           vendorId: item.vendorId,
           name: item.name,
           description: item.description || "",
-          price: 149,
-          originalPrice,
-          images: [getMatchingImage(item.name)],
+          price: item.price,
+          // FoodItem has no MRP / "was" price, so there is no strikethrough price to show.
+          originalPrice: null,
+          images: item.images || [],
           isVeg: item.isVeg,
           category: item.category,
           rating: itemRating,

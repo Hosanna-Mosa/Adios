@@ -3,6 +3,6 @@ export interface LiveOrder {
   status: string;
   createdAt: string;
   user?: { name?: string };
-  driver?: { user?: { name?: string } };
+  driver?: { user?: { name?: string }; rating?: number };
   stops?: unknown[];
 }

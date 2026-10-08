@@ -58,7 +58,7 @@ export function PromoCarousel({
         >
           <View>
             <Text style={[styles.promoEyebrow, { color: index === 0 ? accent.accent : tokens.sec }]}>{promo.eyebrow}</Text>
-            <Text style={styles.promoHeadline}>{promo.headline}</Text>
+            <Text style={styles.promoHeadline} numberOfLines={2}>{promo.headline}</Text>
           </View>
           {!!promo.caption && <Text style={styles.promoCaption}>{promo.caption}</Text>}
         </Pressable>

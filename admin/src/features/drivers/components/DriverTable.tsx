@@ -16,7 +16,7 @@ const CELL_CLASS = "px-6 py-4";
 interface DriverTableProps {
   drivers: AdminDriver[];
   isLoading: boolean;
-  getAvatarUrl: (name: string) => string;
+  getAvatarUrl: (driver: AdminDriver) => string;
   getLocationDetails: (driver: AdminDriver) => { main: string; sub: string };
   getVehicleString: (driver: AdminDriver) => string;
   getDriverMtdEarnings: (driverId: string) => number;
@@ -56,7 +56,7 @@ export function DriverTable({
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
             <LazyImage
-              src={getAvatarUrl(d.user?.name || "")}
+              src={getAvatarUrl(d)}
               alt={d.user?.name}
               className="h-10 w-10 rounded-full object-cover border border-border"
               wrapperClassName="h-10 w-10 rounded-full shrink-0"
@@ -85,7 +85,7 @@ export function DriverTable({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">{d.user?.phone || "+91 00000 00000"}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-none">{d.user?.phone || "—"}</p>
             <p className="text-[10px] font-medium text-muted-foreground mt-1 leading-none uppercase">{getVehicleString(d)}</p>
           </div>
         </div>

@@ -1,11 +1,11 @@
 import { router } from "expo-router";
 import React from "react";
-import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { CustomerRow, OrderStage, RoundCommButton, StageActionButton, StageSpacer } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
@@ -21,14 +21,10 @@ export function DeliveryEnRouteStage() {
         name={currentOrder.customerName || t("jobs.customer")}
         trailing={
           <Box style={styles.communicationBtns}>
+            {/* Used to only show a "Connecting call to …" alert and never dial. */}
             <RoundCommButton
               icon="call"
-              onPress={() =>
-                Alert.alert(
-                  t("jobs.callingCustomer"),
-                  t("jobs.connectingCallTo", { value: currentOrder.customerPhone, defaultValue: "Connecting call to {{value}}..." }),
-                )
-              }
+              onPress={() => callPhone(currentOrder.customerPhone, "customer")}
             />
             <RoundCommButton
               icon="chatbubble-ellipses"

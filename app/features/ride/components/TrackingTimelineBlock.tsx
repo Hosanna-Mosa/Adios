@@ -10,7 +10,7 @@ import { type TrackingStyles } from "@/features/ride/tracking.styles";
 interface Props {
   formatClock: any;
   accent: ServiceTokens;
-  eta: number;
+  eta: number | null;
   helperStatus: any;
   isHelper: boolean;
   orderCreatedAt: any;
@@ -53,7 +53,7 @@ export function TrackingTimelineBlock({
           <View style={{ paddingBottom: 14 }}>
             <Text style={[styles.stepLabel, { color: step.current ? accent.accent : step.done ? tokens.text : tokens.muted }]}>{step.label}</Text>
             {i === 0 && orderCreatedAt && <Text style={styles.stepSub}>{formatClock(orderCreatedAt)}</Text>}
-            {step.current && !isHelper && i < timeline.length - 1 && <Text style={styles.stepSub}>{eta} {t("app.ride.minAway")}</Text>}
+            {step.current && !isHelper && eta != null && i < timeline.length - 1 && <Text style={styles.stepSub}>{eta} {t("app.ride.minAway")}</Text>}
             {step.current && isHelper && helperStatus ? <Text style={styles.stepSub}>{helperStatus}</Text> : null}
           </View>
         </View>

@@ -40,12 +40,16 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     nameRow: { flexDirection: "row", alignItems: "center", gap: 4 },
     name: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
     metaLine: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 5 },
-    ratingPill: { backgroundColor: tokens.success, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, alignItems: "center" },
+    ratingPill: {
+      flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0,
+      backgroundColor: tokens.success, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7,
+    },
     ratingPillValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: "#fff" },
-    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: "#fff", opacity: 0.9, marginTop: 1 },
+    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: "#fff", opacity: 0.9 },
 
-    vegRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 18 },
-    vegLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
+    // Toggle + "Veg only" sit together on the right edge, above the search bar.
+    vegRow: { flexDirection: "row", alignItems: "center", alignSelf: "flex-end", gap: 10, marginTop: 18 },
+    vegLeft: { flexDirection: "row", alignItems: "center", gap: 7 },
     vegIconBox: { width: 16, height: 16, borderWidth: 1.5, borderColor: tokens.veg, borderRadius: 3, alignItems: "center", justifyContent: "center" },
     vegDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: tokens.veg },
     vegLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
@@ -59,16 +63,32 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text },
 
-    tabsScrollContent: { paddingHorizontal: 16, gap: 20, alignItems: "center" },
-    tabItem: { paddingVertical: 12, alignItems: "center" },
+    // Category strip (CategoryTabs): a sunken track with a frosted-glass bubble
+    // that slides under the active tab.
+    tabsScrollContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4, alignItems: "center" },
+    tabsTrack: {
+      flexDirection: "row", alignItems: "center", padding: 4, borderRadius: 999,
+      backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border,
+    },
+    tabItem: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, alignItems: "center", justifyContent: "center" },
     tabText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
     tabTextActive: { fontFamily: fontFamilies.body.bold, color: tokens.text },
-    tabActiveMark: { marginTop: 6, width: 18, height: 2.5, borderRadius: 999, backgroundColor: accent.accent },
+    tabBubble: { position: "absolute", left: 0, top: 4, bottom: 4, borderRadius: 999 },
+    tabBubbleLight: {
+      backgroundColor: "rgba(255,255,255,0.55)",
+      shadowColor: "#14101E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 2,
+    },
+    tabBubbleDark: { backgroundColor: "rgba(255,255,255,0.06)" },
+    tabBubbleGlass: { ...StyleSheet.absoluteFillObject, borderRadius: 999, overflow: "hidden", borderWidth: 1 },
+    tabBubbleGlassLight: { borderColor: "rgba(255,255,255,0.95)" },
+    tabBubbleGlassDark: { borderColor: "rgba(255,255,255,0.22)" },
 
     emptyMenu: { marginTop: 80, alignItems: "center", gap: 10 },
     emptyText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
 
     categorySection: { paddingHorizontal: 16, paddingTop: 22 },
+    // The first category sits right under the tab strip, not a full section gap below it.
+    categorySectionFirst: { paddingTop: 10 },
     categoryHeadRow: { flexDirection: "row", alignItems: "baseline", gap: 8, marginBottom: 14 },
     categoryTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },
     categoryCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
