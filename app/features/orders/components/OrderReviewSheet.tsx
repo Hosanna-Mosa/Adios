@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";

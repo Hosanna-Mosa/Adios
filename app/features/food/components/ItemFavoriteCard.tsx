@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { DishPrice } from "@/components/shared/DishPrice";
 import { useTranslation } from "react-i18next";

@@ -178,7 +178,7 @@ export class DriversController {
 
   async updateLocation(req: AuthRequest, res: Response) {
     try {
-      const { latitude, longitude } = req.body;
+      const { latitude, longitude, heading } = req.body;
       const { userId } = req.user!;
       
       console.log(`[REST] Driver Location update attempt. User: ${userId}, Lat: ${latitude}, Lng: ${longitude}`);
@@ -190,7 +190,7 @@ export class DriversController {
         return res.status(404).json({ message: "Driver profile not found" });
       }
 
-      await driverService.updateLocation((driver._id as any).toString(), latitude, longitude);
+      await driverService.updateLocation((driver._id as any).toString(), latitude, longitude, heading);
       console.log(`[REST] Successfully updated location for driver: ${driver._id}`);
       return res.json({ message: "Location updated" });
     } catch (error) {

@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { router } from "expo-router";

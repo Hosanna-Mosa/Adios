@@ -12,6 +12,8 @@ import {
   cashCollectedSchema,
   vendorOrdersQuerySchema,
   restaurantAcceptSchema,
+  sendChatMessageSchema,
+  helperStatusSchema,
 } from "./orders.validation";
 
 const router = Router();
@@ -26,6 +28,8 @@ router.get("/scheduled-delivery/vendor/:vendorId", authenticateToken, ordersCont
 router.get("/scheduled-delivery/:requestId/status", authenticateToken, ordersController.getScheduledDeliveryStatus.bind(ordersController));
 router.patch("/scheduled-delivery/:requestId/respond", authenticateToken, validateRequest(respondScheduledDeliverySchema), ordersController.respondScheduledDelivery.bind(ordersController));
 router.get("/driver/scheduled", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.getDriverScheduledOrders.bind(ordersController));
+// The offer this driver holds (sequential first, then food broadcast) — polled by the driver app.
+router.get("/driver/offer", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.currentOffer.bind(ordersController));
 router.get("/driver/food-offer", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.currentFoodOffer.bind(ordersController));
 // The job a driver is on — the app restores it after a restart. Before /:id so "driver" isn't read as an id.
 router.get("/driver/active", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverActiveOrder.bind(ordersController));
@@ -34,6 +38,9 @@ router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSche
 router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQuerySchema), ordersController.getVendorOrders.bind(ordersController));
 router.get("/:id", authenticateToken, ordersController.getOrder.bind(ordersController));
 router.get("/:id/chat", authenticateToken, ordersController.getChatHistory.bind(ordersController));
+router.post("/:id/chat", authenticateToken, validateRequest(sendChatMessageSchema), ordersController.sendChatMessage.bind(ordersController));
+router.post("/:id/helper/confirm-task", authenticateToken, ordersController.confirmHelperTask.bind(ordersController));
+router.post("/:id/helper/status", authenticateToken, validateRequest(helperStatusSchema), ordersController.updateHelperStatus.bind(ordersController));
 router.get("/:id/invoice", authenticateToken, ordersController.getInvoice.bind(ordersController));
 router.patch("/:id/schedule", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(scheduleDecisionSchema), ordersController.respondToOrderSchedule.bind(ordersController));
 router.post("/:id/reorder", authenticateToken, ordersController.reorder.bind(ordersController));

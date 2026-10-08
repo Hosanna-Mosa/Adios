@@ -15,14 +15,14 @@ export { getSupportCategories } from "./useSupportChat.shared";
 
 export function useSupportChat() {
   const { insets, tokens, accent, styles, viewMode, setViewMode, loading, allTickets, setAllTickets, ticket, setTicket, inputText, setInputText, submittingReply, setSubmittingReply, newCategory, setNewCategory, newTitle, setNewTitle, newMessage, setNewMessage, creatingTicket, setCreatingTicket, flatListRef, fetchTickets } = useSupportChatInsets();
-  const { handleCreateTicket } = useSupportChatHandleCreateTicket(setViewMode, setAllTickets, ticket, setTicket, newCategory, newTitle, setNewTitle, newMessage, setNewMessage, setCreatingTicket, flatListRef, fetchTickets);
+  const { handleCreateTicket, refresh, refreshing } = useSupportChatHandleCreateTicket(setViewMode, setAllTickets, ticket, setTicket, newCategory, newTitle, setNewTitle, newMessage, setNewMessage, setCreatingTicket, flatListRef, fetchTickets);
   const { handleSendMessage, handleResolve, handleReopen } = useSupportChatHandleSendMessage(setViewMode, setAllTickets, ticket, setTicket, inputText, setInputText, setSubmittingReply, fetchTickets);
 
   return {
   insets, tokens, accent, styles, viewMode, setViewMode, loading, allTickets, ticket, setTicket,
   inputText, setInputText, submittingReply, newCategory, setNewCategory, newTitle, setNewTitle,
   newMessage, setNewMessage, creatingTicket, flatListRef, handleCreateTicket, handleSendMessage,
-  handleResolve, handleReopen
+  handleResolve, handleReopen, refresh, refreshing
   };
 }
 

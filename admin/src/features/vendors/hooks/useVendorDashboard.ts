@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
-import { socketService } from "@/lib/socketService";
-import { playNewOrderChime } from "@/lib/notificationSound";
+import { VENDOR_LIVE_REFRESH_MS } from "./useVendorLiveAlerts";
+import type { ScheduledRequest } from "../vendorScheduledOrdersTypes";
 import { needsAcceptance, type ScheduledDeliveryRequest, type StatusDisplay, type VendorData, type VendorOrder } from "../vendorDashboardTypes";
 
-/** All state/query/socket logic for VendorDashboard.tsx (work queue item #7). */
+/** All state/query/polling logic for VendorDashboard.tsx (work queue item #7). */
 export function useVendorDashboard() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -19,10 +19,32 @@ export function useVendorDashboard() {
   const [scheduledRequest, setScheduledRequest] = useState<ScheduledDeliveryRequest | null>(null);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
-  const { data: orders, isLoading: ordersLoading } = useQuery({
+  const {
+    data: orders,
+    isLoading: ordersLoading,
+    isFetching: ordersFetching,
+    refetch: refetchOrders,
+  } = useQuery({
     queryKey: ["vendor-orders", vendorData._id],
     queryFn: () => adminFetch<VendorOrder[]>(`/orders/vendor/${vendorData._id}`),
     enabled: !!vendorData._id,
+    refetchInterval: VENDOR_LIVE_REFRESH_MS,
+    refetchIntervalInBackground: false,
+  });
+
+  // Same key/endpoint as useVendorScheduledOrders and VendorLayout's
+  // useVendorLiveAlerts (which owns the chime + toast for a new request);
+  // this page additionally pops the accept/reject dialog for it.
+  const {
+    data: scheduledRequests,
+    isFetching: scheduledFetching,
+    refetch: refetchScheduled,
+  } = useQuery({
+    queryKey: ["vendor-scheduled-orders", vendorData._id],
+    queryFn: () => adminFetch<ScheduledRequest[]>(`/orders/scheduled-delivery/vendor/${vendorData._id}`),
+    enabled: !!vendorData._id,
+    refetchInterval: VENDOR_LIVE_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
 
   const { data: menu } = useQuery({
@@ -61,51 +83,49 @@ export function useVendorDashboard() {
     respondMutation.mutate({ requestId: scheduledRequest.requestId, accepted });
   };
 
+  // Keep the open order dialog in step with each refreshed list — what the
+  // order_status_update_vendor socket event used to patch in.
   useEffect(() => {
-    if (!vendorData._id) return;
+    if (!orders) return;
+    setSelectedOrder((prev) => {
+      if (!prev) return prev;
+      const latest = orders.find((o) => o._id === prev._id);
+      if (!latest) return prev;
+      if (latest.status === prev.status && (latest.cancelReason ?? null) === (prev.cancelReason ?? null)) return prev;
+      return { ...prev, status: latest.status, cancelReason: latest.cancelReason };
+    });
+  }, [orders]);
 
-    // Connect and Join — VendorLayout (mounted for every /vendor/* page, this
-    // one included) already does this and owns the new_order_vendor sound/toast
-    // globally, so this page only needs its own status-update and
-    // scheduled-delivery handling.
-    socketService.connect();
-    socketService.join(vendorData._id, "VENDOR");
+  // Open the accept/reject dialog for a pending request not seen on the
+  // previous read. The first read only seeds what has been seen, so opening
+  // the dashboard doesn't pop a dialog for requests that were already there.
+  const seenRequestIds = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!scheduledRequests) return;
+    if (!seenRequestIds.current) {
+      seenRequestIds.current = new Set(scheduledRequests.map((r) => r.requestId));
+      return;
+    }
+    const seen = seenRequestIds.current;
+    const fresh = scheduledRequests.filter((r) => !seen.has(r.requestId));
+    fresh.forEach((r) => seen.add(r.requestId));
+    const newest = fresh
+      .filter((r) => r.status === "pending")
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    if (!newest) return;
+    setScheduledRequest({
+      requestId: newest.requestId,
+      customerName: newest.customerName,
+      customerPhone: newest.customerPhone,
+      scheduledFor: newest.scheduledFor,
+    });
+    setIsScheduleModalOpen(true);
+  }, [scheduledRequests]);
 
-    // Listen for order status updates
-    const handleStatusUpdate = (data: { orderId: string; status: string; reason?: string }) => {
-      console.log("[SOCKET] Order status updated:", data);
-      queryClient.invalidateQueries({ queryKey: ["vendor-orders", vendorData._id] });
-
-      // If the currently open modal's order is updated, we fetch it or update local state
-      if (selectedOrder && selectedOrder._id === data.orderId) {
-        setSelectedOrder((prev) =>
-          prev ? { ...prev, status: data.status, ...(data.reason ? { cancelReason: data.reason } : {}) } : null,
-        );
-      }
-    };
-
-    const handleScheduledDeliveryRequest = (data: ScheduledDeliveryRequest) => {
-      playNewOrderChime();
-      setScheduledRequest(data);
-      setIsScheduleModalOpen(true);
-      queryClient.invalidateQueries({ queryKey: ["vendor-scheduled-orders", vendorData._id] });
-      toast.info(
-        t("vendorDashboard.newScheduledDeliveryRequestFor", {
-          when: new Date(data.scheduledFor).toLocaleString(),
-          defaultValue: "New scheduled delivery request for {{when}}",
-        }),
-        { duration: 8000 },
-      );
-    };
-
-    socketService.on("order_status_update_vendor", handleStatusUpdate);
-    socketService.on("scheduled_delivery_request", handleScheduledDeliveryRequest);
-
-    return () => {
-      socketService.off("order_status_update_vendor", handleStatusUpdate);
-      socketService.off("scheduled_delivery_request", handleScheduledDeliveryRequest);
-    };
-  }, [vendorData._id, selectedOrder, queryClient, t]);
+  const refresh = () => {
+    refetchOrders();
+    refetchScheduled();
+  };
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
@@ -203,6 +223,8 @@ export function useVendorDashboard() {
     isMeatVendor,
     orders,
     ordersLoading,
+    refresh,
+    isRefreshing: ordersFetching || scheduledFetching,
     menuCount: menu?.length,
     totalRevenue,
     rating: typeof profile?.rating === "number" ? profile.rating : null,

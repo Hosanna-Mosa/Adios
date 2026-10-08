@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { Header } from "@/components/ui/Header";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { CustomerCard } from "@/features/orders/components/CustomerCard";
 import { DriverCard } from "@/features/orders/components/DriverCard";
@@ -16,7 +17,13 @@ export default function OrderDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const d = useOrderDetail(String(id ?? ""));
-  const header = <Header title={t("orderDetail.title")} onBack={() => router.back()} />;
+  const header = (
+    <Header
+      title={t("orderDetail.title")}
+      onBack={() => router.back()}
+      right={<IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={d.refresh} loading={d.refreshing} />}
+    />
+  );
 
   if (d.loading || !d.order) {
     return (
@@ -58,7 +65,7 @@ export default function OrderDetailScreen() {
       style={{ paddingTop: d.insets.top + 8 }}
       scroll
       refreshing={d.refreshing}
-      onRefresh={() => d.refetch()}
+      onRefresh={d.refresh}
       header={header}
       contentStyle={[d.styles.content, { paddingBottom: 24 + (footer ? 0 : d.insets.bottom) }]}
       footer={footer}

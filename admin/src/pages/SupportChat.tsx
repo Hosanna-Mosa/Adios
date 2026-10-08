@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { useSupportChat } from "@/features/support/hooks/useSupportChat";
 import { SupportChatSidebar } from "@/features/support/components/SupportChatSidebar";
 import { SupportChatWindow } from "@/features/support/components/SupportChatWindow";
@@ -12,6 +13,8 @@ export default function SupportChat() {
     navigateToChat,
     activeTickets,
     isLoading,
+    isFetching,
+    refetch,
     selectedTicket,
     messagesEndRef,
     typedMessage,
@@ -29,10 +32,11 @@ export default function SupportChat() {
           <button onClick={navigateToIssues} className="p-2 hover:bg-muted rounded-xl transition-colors border border-border bg-card shadow-sm" title={t("support.backToSupportCases")}>
             <ArrowLeft className="h-5 w-5 text-foreground" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="page-header">{t("support.activeChats")}</h1>
             <p className="page-subtitle">{t("support.realTimeChatPortalDesc")}</p>
           </div>
+          <RefreshButton onRefresh={() => refetch()} isRefreshing={isFetching} label={t("common.refresh")} />
         </div>
 
         {/* Fills what's left of the window below the top bar, page padding and title

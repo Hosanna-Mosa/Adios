@@ -18,8 +18,8 @@ export type Step = "compose" | "bidding" | "searching" | "assigned";
 /** Backend statuses meaning a helper has taken the task, in both casings the API uses. */
 export const ASSIGNED_STATUSES = ["DRIVER_ASSIGNED", "driver_assigned", "accepted", "ACCEPTED"];
 
-/** Backend statuses meaning the helper has begun the work. */
-export const STARTED_STATUSES = ["IN_PROGRESS", "in_progress", "EN_ROUTE_DELIVERY", "en_route_delivery"];
+/** Backend statuses meaning the helper has begun the work (shared with the order chat). */
+export { STARTED_STATUSES } from "@/components/shared/helperTaskStatus";
 
 /** Backend statuses meaning the task ended before anyone started it. */
 export const DEAD_STATUSES = ["CANCELLED", "cancelled", "REJECTED", "rejected"];

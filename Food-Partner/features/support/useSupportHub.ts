@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,19 +20,29 @@ export function useSupportHub() {
   const { data: orders } = useVendorOrders();
   // Before today's first order, the latest one is in history.
   const { data: history } = useOrderHistory();
-  const { data: tickets } = useSupportTickets();
+  // Polled while this screen is open, so the open-cases count follows replies.
+  const tickets = useSupportTickets(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await tickets.refetch().catch(() => {});
+    setRefreshing(false);
+  };
 
   return {
     insets,
     tokens,
     styles,
     recentOrder: mergeOrders(orders, history?.pages[0])[0],
-    openCases: (tickets ?? []).filter((ticket) => ticket.status !== "RESOLVED").length,
+    openCases: (tickets.data ?? []).filter((ticket) => ticket.status !== "RESOLVED").length,
     faqs: FAQ_KEYS.map((key) => ({ title: t(`support.faqs.${key}.q`), body: t(`support.faqs.${key}.a`) })),
     // Contact rows only show when the number / address is configured in .env.
     phone: env.supportPhone,
     email: env.supportEmail,
     call: () => Linking.openURL(`tel:${env.supportPhone.replace(/\s/g, "")}`).catch(() => {}),
+    refreshing,
+    refresh,
     sendEmail: () => Linking.openURL(`mailto:${env.supportEmail}`).catch(() => {}),
   };
 }

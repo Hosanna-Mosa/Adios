@@ -22,7 +22,8 @@
     "tryAgain": "Try again",
     "goBack": "Go back",
     "goHome": "Go to home",
-    "later": "Later"
+    "later": "Later",
+    "refresh": "Refresh"
   },
   "common": {
     "customer": "Customer",
@@ -73,7 +74,7 @@
     "signInFailed": "Couldn't sign in",
     "invalidCredentials": "Invalid email/phone or password.",
     "welcomeBack": "Welcome back, {{name}}",
-    "newPartner": "Want to list your restaurant on Flavour?",
+    "newPartner": "Want to list your restaurant on Adios?",
     "applyOnWebsite": "Become a partner",
     "secureNote": "Your session is encrypted and stays on this device",
     "documentsNeededTitle": "Documents needed",
@@ -320,10 +321,10 @@
     "amountTooHigh": "You can withdraw up to {{amount}}",
     "sentToast": "Payout sent to your bank",
     "processingToast": "Payout is on its way to your bank",
-    "requestedToast": "Payout requested — the Flavour team will process it shortly",
+    "requestedToast": "Payout requested — the Adios team will process it shortly",
     "requestFailed": "Couldn't request the payout. Please try again.",
-    "unavailableTitle": "Payouts are handled by the Flavour team",
-    "unavailableHint": "Your account's payouts are settled by the Flavour team. Contact support for any payout question."
+    "unavailableTitle": "Payouts are handled by the Adios team",
+    "unavailableHint": "Your account's payouts are settled by the Adios team. Contact support for any payout question."
   },
   "menu": {
     "title": "Menu",
@@ -423,9 +424,9 @@
     "priceFailed": "Couldn't update the price. Please try again.",
     "availabilityUpdated": "Availability updated",
     "emptyTitle": "No items yet",
-    "emptySubtitle": "Items are added by the Flavour team. Contact support if something is missing.",
+    "emptySubtitle": "Items are added by the Adios team. Contact support if something is missing.",
     "dailyControlsTitle": "Your daily controls:",
-    "dailyControlsBody": "turn items on or off as stock runs out and set your own selling price. New items and categories are managed by the Flavour team."
+    "dailyControlsBody": "turn items on or off as stock runs out and set your own selling price. New items and categories are managed by the Adios team."
   },
   "account": {
     "title": "Account",
@@ -452,7 +453,7 @@
     "signOut": "Sign out",
     "signOutTitle": "Sign out?",
     "signOutMessage": "You'll stop receiving new order alerts on this device until you sign in again.",
-    "version": "Flavour Partner · v{{version}}",
+    "version": "Adios Partner · v{{version}}",
     "payouts": "Payouts",
     "payoutsHint": "Balance, bank account and payout history",
     "branchCode": "Branch code: {{code}}",

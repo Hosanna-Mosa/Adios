@@ -615,10 +615,13 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
     // (name, address, bank account) and, by sending portalPassword, reset their
     // portal password and sign in as them.
     const existing = await Vendor.findOne(matchQuery)
-      .select("onboardingStatus password")
+      .select("onboardingStatus onboardingSource password")
       .lean();
 
-    if (existing && existing.onboardingStatus && existing.onboardingStatus !== "draft") {
+    // Only a draft this form started can be resumed. Admin-created vendors keep
+    // the default "draft" status while live, so the status check alone would
+    // still let anyone overwrite them; onboardingSource marks the form's own records.
+    if (existing && (existing.onboardingStatus !== "draft" || existing.onboardingSource !== "partner_website")) {
       return res.status(409).json({
         message:
           "An account already exists for this phone number or email. Please sign in to the partner portal, or contact support to update your details.",

@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
 import { toggleChipKeys } from "../useOrders.shared";
 

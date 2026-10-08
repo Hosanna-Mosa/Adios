@@ -12,7 +12,7 @@ export default function FindingDriverScreen() {
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
-  CANCEL_REASONS, foodStage, isRide
+  CANCEL_REASONS, foodStage, isRide, refresh, refreshing
   } = useFindingDriver();
 
   if (bookingConfirmed && confirmedDriver) {
@@ -36,6 +36,8 @@ export default function FindingDriverScreen() {
         onPress={() => setShowCancelSheet(true)}
         styles={styles}
         tokens={tokens}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
 
       <FindingDriverSheet

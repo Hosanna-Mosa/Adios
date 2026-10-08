@@ -19,12 +19,15 @@ interface Props {
   /** "4.3", or null when the outlet has no ratings yet. */
   rating: string | null;
   reviewCount: number;
+  /** Re-reads orders, profile, menu and scheduled requests; `refreshing` while it runs. */
+  onRefresh: () => void;
+  refreshing: boolean;
   styles: DashboardStyles;
   tokens: ThemeTokens;
 }
 
 /** Greeting, outlet photo and name, outlet type, open/closed state and rating — all from the database. */
-export function DashboardHeader({ name, image, isMeat, status, rating, reviewCount, styles, tokens }: Props) {
+export function DashboardHeader({ name, image, isMeat, status, rating, reviewCount, onRefresh, refreshing, styles, tokens }: Props) {
   const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInDown(0)} style={styles.header}>
@@ -46,6 +49,7 @@ export function DashboardHeader({ name, image, isMeat, status, rating, reviewCou
           {rating ? <Badge label={t("dashboard.rating", { rating, count: reviewCount })} tone="warning" icon="star" /> : null}
         </View>
       </View>
+      <IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={onRefresh} loading={refreshing} />
       <IconButton icon="headset-outline" accessibilityLabel={t("support.title")} onPress={() => router.push("/support")} />
     </Animated.View>
   );

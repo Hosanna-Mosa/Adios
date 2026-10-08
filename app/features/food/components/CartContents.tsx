@@ -1,7 +1,8 @@
 import { Image } from "expo-image";
 import { DishPrice } from "@/components/shared/DishPrice";
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";

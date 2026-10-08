@@ -4,10 +4,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RIDE_TYPES, createStyles, toChatMessage } from "./useChat.shared";
-import { getOrder, getOrderChat } from "@/services/orders.service";
+import { confirmHelperTask, getOrder, getOrderChat } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
+import i18n from "@/i18n";
 
 // Split out of useChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -41,9 +42,18 @@ export function useChatCurrentOrderId() {
   const [taskAssigned, setTaskAssigned] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
-  const handleAssignTask = () => {
-    socketService.emit("assign_task_confirmed", { orderId: currentOrderId });
+  // Hidden at once; shown again if the server did not take the confirmation.
+  const handleAssignTask = async () => {
+    const id = params.orderId || currentOrderId;
+    if (!id) return;
     setTaskAssigned(true);
+    try {
+      await confirmHelperTask(id);
+    } catch (err) {
+      console.error("[Chat] Failed to confirm task:", err);
+      setTaskAssigned(false);
+      showAlert(i18n.t("actions.error"), i18n.t("app.chat.couldNotConfirmTask"));
+    }
   };
 
   // The screen is reached two ways: pushed from tracking (the store already knows
@@ -72,6 +82,7 @@ export function useChatCurrentOrderId() {
       .then((order) => {
         if (cancelled || !order) return;
         if (order.serviceType) setServiceType(order.serviceType);
+        if (order.helperTaskConfirmedAt) setTaskAssigned(true);
         if (order.driver) {
           setDriver({
             id: order.driver._id,
@@ -89,8 +100,8 @@ export function useChatCurrentOrderId() {
       .then((history) => {
         if (cancelled) return;
         const stored = (history || []).map(toChatMessage);
-        // Anything that arrived over the socket while this was in flight stays:
-        // merged by id, which the server now persists as `clientId`.
+        // Anything sent or polled while this was in flight stays: merged by id,
+        // which the server returns as the sender's clientId.
         const live = useDeliveryStore.getState().activeChat;
         const seen = new Set(stored.map((m) => m.id));
         setChatMessages([...stored, ...live.filter((m: any) => !seen.has(m.id))]);

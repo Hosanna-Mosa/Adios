@@ -2,7 +2,7 @@ import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import type MapView from "react-native-maps";
 
-import { socketService } from "@/utils/socketService";
+import { LOCATION_FAST_INTERVAL_MS, syncDriverLocation } from "@/utils/locationSync";
 import { fitMapToCoords, stopCoords, type LatLng } from "../mapFit";
 
 /** Live GPS + compass for the driver marker, plus the initial map framing. */
@@ -81,7 +81,7 @@ export function useDriverTracking(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrder]);
 
-  // Throttle broadcasting compass heading changes.
+  // Report position + heading during the job (the shared helper throttles).
   const lastHeadingSent = useRef<number>(0);
   const lastHeadingTime = useRef<number>(Date.now());
   useEffect(() => {
@@ -93,15 +93,11 @@ export function useDriverTracking(
     ) {
       lastHeadingSent.current = driverHeading;
       lastHeadingTime.current = now;
-      socketService.emit("driver_location_update", {
-        driverId: driverPhone || "driver-123",
-        lat: driverLocation.lat,
-        lng: driverLocation.lng,
-        heading: driverHeading,
-        orderId: currentOrder.id,
+      syncDriverLocation(driverLocation.lat, driverLocation.lng, driverHeading, {
+        minIntervalMs: LOCATION_FAST_INTERVAL_MS,
       });
     }
-  }, [driverHeading, driverLocation, currentOrder, driverPhone]);
+  }, [driverHeading, driverLocation, currentOrder]);
 
   return { driverLocation, setDriverLocation, driverHeading, setDriverHeading, mapRef };
 }

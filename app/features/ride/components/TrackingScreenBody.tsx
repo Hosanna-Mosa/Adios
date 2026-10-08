@@ -19,7 +19,7 @@ import { TrackingBottomSheet } from "./TrackingBottomSheet";
 export function TrackingScreenBody(props: Props) {
   const {
   accent, bannerText, driver, driverLocation, eta, insets, mapRef, radius, route, status, stops,
-  styles, tokens, userLocCoords, outletOrder, rideOrder
+  styles, tokens, userLocCoords, outletOrder, rideOrder, onRefresh, refreshing
   } = props;
   return (
     <>
@@ -45,6 +45,8 @@ export function TrackingScreenBody(props: Props) {
       status={status}
       styles={styles}
       tokens={tokens}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     />
 
     <TrackingBottomSheet {...props} />

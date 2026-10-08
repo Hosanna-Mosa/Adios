@@ -203,6 +203,37 @@ export class OrdersController {
     }
   }
 
+  /** POST /orders/:id/chat — same as the socket's send_message, for clients without a socket. */
+  async sendChatMessage(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { text, clientId } = req.body;
+      const message = await ordersService.sendChatMessage(String(req.params.id), req.user, text, clientId);
+      return res.status(201).json({ message });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/confirm-task — the customer confirms the helper's task. */
+  async confirmHelperTask(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.confirmHelperTask(String(req.params.id), req.user);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/status — the assigned helper's progress note for the customer. */
+  async updateHelperStatus(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.updateHelperStatus(String(req.params.id), req.user, req.body.text);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getInvoice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -547,6 +578,18 @@ export class OrdersController {
         if (outlet) json.vendor = { _id: String(vendorId), ...outlet };
       }
       return res.json({ order: json });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET /orders/driver/offer — the sequential offer this driver holds, else its food offer, else null. */
+  async currentOffer(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const offer = await ordersService.getDriverOffer(userId);
+      return res.json({ offer });
     } catch (error) {
       next(error);
     }

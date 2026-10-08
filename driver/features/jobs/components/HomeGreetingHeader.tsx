@@ -2,7 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { gradients } from "@/constants/colors";
+import { Colors, gradients } from "@/constants/colors";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { styles } from "../home.styles";
 import { AppImage } from "@/components/ui/AppImage";
 import { Box } from "@/components/ui/Box";
@@ -21,10 +22,14 @@ export function HomeGreetingHeader({
   driverName,
   isOnline,
   paddingTop,
+  onRefresh,
+  refreshing = false,
 }: {
   driverName?: string | null;
   isOnline: boolean;
   paddingTop: number;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -42,6 +47,7 @@ export function HomeGreetingHeader({
               {isOnline ? t("jobs.youreOnlineAndReceivingOrders") : t("jobs.readyToStartEarning")}
             </AppText>
           </Box>
+          {onRefresh && <RefreshButton onPress={onRefresh} refreshing={refreshing} color={Colors.white} />}
         </Box>
       </Box>
     </LinearGradient>

@@ -10,7 +10,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 interface Props {
   /** Tile size in dp before scaling. */
   size?: number;
-  /** Shows "Flavour" + the caption under the tile. */
+  /** Shows "Adios" + the caption under the tile. */
   wordmark?: boolean;
   caption?: string;
   icon?: keyof typeof Ionicons.glyphMap;
@@ -31,7 +31,7 @@ export function BrandMark({ size = 72, wordmark = false, caption, icon = "restau
       </View>
       {wordmark ? (
         <View style={styles.words}>
-          <Text style={styles.wordmark}>Flavour</Text>
+          <Text style={styles.wordmark}>Adios</Text>
           {caption ? <Text style={styles.caption}>{caption}</Text> : null}
         </View>
       ) : null}

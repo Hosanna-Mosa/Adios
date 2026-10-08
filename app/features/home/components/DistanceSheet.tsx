@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Modal, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";

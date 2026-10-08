@@ -43,7 +43,7 @@ import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
 import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
+import { GlobalOrderPoller } from "@/components/GlobalOrderPoller";
 import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -199,7 +199,7 @@ export default function RootLayout() {
             <KeyboardProvider>
               <ToastProvider>
                 <RootLayoutNav />
-                <GlobalSocketHandler />
+                <GlobalOrderPoller />
                 <OfflineBanner />
                 <UpdateModal
                   visible={showUpdate}

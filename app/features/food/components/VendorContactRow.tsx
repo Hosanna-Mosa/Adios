@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";

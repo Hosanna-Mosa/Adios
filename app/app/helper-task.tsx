@@ -5,6 +5,7 @@ import { TaskAssignedPanel } from "@/features/delivery/components/TaskAssignedPa
 import { View, ScrollView, Linking } from "react-native";
 import { router, Stack } from "expo-router";
 import { Header } from "@/components/ui/Header";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { fadeIn } from "@/motion/presets";
 import { HelperTaskSection } from "@/features/delivery/components/HelperTaskSection";
 import { HelperTaskOfferBlock } from "@/features/delivery/components/HelperTaskOfferBlock";
@@ -21,7 +22,7 @@ export default function HelperTaskScreen() {
   startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, suggestedLow,
   suggestedHigh, handleUseCurrentLocation,
   handleSearch, selectResult, handleIncreasePrice, handleCancel, goToBidding, createTask,
-  isProceedDisabled, activeDriver
+  isProceedDisabled, activeDriver, refresh, refreshing
   } = useHelperTask();
   const { t } = useTranslation();
 
@@ -33,6 +34,14 @@ export default function HelperTaskScreen() {
         onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
+        right={step === "searching" || step === "assigned" ? (
+          <RefreshButton
+            style={{ marginLeft: "auto" }}
+            onPress={refresh}
+            refreshing={refreshing}
+            accessibilityLabel={t("actions.refresh")}
+          />
+        ) : null}
       />
 
       {step === "compose" && (

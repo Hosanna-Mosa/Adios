@@ -1,4 +1,7 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { goHomeFromTracking } from "../useTrackingHandleBack";
@@ -17,6 +20,8 @@ interface Props {
   status: string;
   styles: TrackingStyles;
   tokens: ThemeTokens;
+  onRefresh: () => void;
+  refreshing: boolean;
 }
 
 export function TrackingTopBar({
@@ -27,7 +32,10 @@ export function TrackingTopBar({
   status,
   styles,
   tokens,
+  onRefresh,
+  refreshing,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
       <TouchableOpacity style={styles.backBtn} onPress={goHomeFromTracking}>
@@ -36,7 +44,7 @@ export function TrackingTopBar({
       <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>
         <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${eta} min`}</Text>
       </View>
-      <View style={{ width: moderateScale(40) }} />
+      <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
     </View>
   );
 }

@@ -1,4 +1,7 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -20,6 +23,8 @@ interface Props {
   status: string;
   styles: ChatStyles;
   tokens: ThemeTokens;
+  onRefresh: () => void;
+  refreshing: boolean;
 }
 
 export function ChatHeader({
@@ -32,7 +37,10 @@ export function ChatHeader({
   status,
   styles,
   tokens,
+  onRefresh,
+  refreshing,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
@@ -47,6 +55,12 @@ export function ChatHeader({
           {partnerLabel}{status && STATUS_LABEL[status] ? ` · ${STATUS_LABEL[status]}` : ""}
         </Text>
       </View>
+      <RefreshButton
+        style={styles.backBtn}
+        onPress={onRefresh}
+        refreshing={refreshing}
+        accessibilityLabel={t("actions.refresh")}
+      />
       <TouchableOpacity style={[styles.callBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver?.phone || ""}`)}>
         <Ionicons name="call" size={17} color={accent.on} />
       </TouchableOpacity>

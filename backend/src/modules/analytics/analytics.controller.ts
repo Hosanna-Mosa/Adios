@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { AnalyticsService } from "./analytics.service";
+import { AnalyticsService, ItemStatsQuery } from "./analytics.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 
 const analyticsService = new AnalyticsService();
@@ -27,6 +27,34 @@ export class AnalyticsController {
     try {
       const minutes = req.query.minutes ? Number(req.query.minutes) : undefined;
       return res.json(await analyticsService.getLiveActivity(minutes));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getTopItems(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const days = req.query.days ? Number(req.query.days) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      return res.json(await analyticsService.getTopItems(days, limit));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getItemStats(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const q = req.query;
+      const query: ItemStatsQuery = {
+        days: q.days ? Number(q.days) : undefined,
+        vendorId: typeof q.vendorId === "string" && q.vendorId ? q.vendorId : undefined,
+        search: typeof q.search === "string" ? q.search : undefined,
+        sort: q.sort as ItemStatsQuery["sort"],
+        order: q.order === "asc" ? "asc" : q.order === "desc" ? "desc" : undefined,
+        page: q.page ? Number(q.page) : undefined,
+        limit: q.limit ? Number(q.limit) : undefined,
+      };
+      return res.json(await analyticsService.getItemStats(query));
     } catch (error) {
       next(error);
     }

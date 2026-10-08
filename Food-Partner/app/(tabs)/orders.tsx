@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ScreenTitle } from "@/components/ui/ScreenTitle";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
@@ -12,7 +13,10 @@ export default function OrdersScreen() {
 
   return (
     <ScreenShell style={{ paddingTop: insets.top + 12 }}>
-      <ScreenTitle title={t("orders.title")} />
+      <ScreenTitle
+        title={t("orders.title")}
+        right={<IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={refresh} loading={refreshing} />}
+      />
       <SegmentedControl<OrdersFilter>
         value={filter}
         onChange={setFilter}

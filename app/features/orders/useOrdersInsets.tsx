@@ -7,10 +7,13 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 import { resolveServiceKey } from "./useOrders.shared";
 import { getOrders } from "@/services/orders.service";
-import { socketService } from "@/utils/socketService";
+import { usePolling } from "@/utils/usePolling";
 
 // Split out of useOrders so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
+
+/** Silent re-fetch while the tab is on screen, so finished orders drop their Track button. */
+const POLL_MS = 15000;
 
 export function useOrdersInsets() {
   const insets = useSafeAreaInsets();
@@ -46,25 +49,16 @@ export function useOrdersInsets() {
     }
   }, []);
 
+  const [focused, setFocused] = useState(false);
   useFocusEffect(
     React.useCallback(() => {
       fetchOrders();
+      setFocused(true);
+      return () => setFocused(false);
     }, [fetchOrders])
   );
 
-  // A status change fires this into the customer's own socket room regardless
-  // of which order it's for (see orders.service.ts#updateOrderStatus) — unlike
-  // "order_status_update", which is scoped to whichever single order the
-  // tracking screen currently has joined. Without this, a ride that finished
-  // while the customer was already sitting on this tab kept its "Track order"
-  // button until the next time the tab regained focus — nothing here told the
-  // already-fetched list that anything had changed.
-  React.useEffect(() => {
-    socketService.connect();
-    const onOrderListUpdate = () => fetchOrders({ silent: true });
-    socketService.on("customer_order_list_update", onOrderListUpdate);
-    return () => socketService.off("customer_order_list_update", onOrderListUpdate);
-  }, [fetchOrders]);
+  usePolling(() => fetchOrders({ silent: true }), POLL_MS, { enabled: focused, immediate: false });
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

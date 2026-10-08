@@ -3,9 +3,9 @@ import {
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";

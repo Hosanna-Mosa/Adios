@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";

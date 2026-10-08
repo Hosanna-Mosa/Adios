@@ -24,7 +24,13 @@ export interface ActiveDispatchSession {
 export class DispatchManagerService {
   private static instance: DispatchManagerService;
   private activeDispatches: Map<string, ActiveDispatchSession> = new Map();
-  private OFFER_TIMEOUT_MS = 16000; // 16 seconds (15s UI timer + 1s grace period)
+  // 25s UI timer + 1s grace. Drivers poll GET /orders/driver/offer every ~3s rather than
+  // holding a socket, so the window has to absorb that poll latency.
+  private OFFER_TIMEOUT_MS = 26000;
+  private OFFER_TIMEOUT_SECONDS = 25;
+  // A driver without a socket still counts as reachable if their app reported a
+  // location this recently (background tracking posts over REST).
+  private LIVE_LOCATION_WINDOW_MS = 10 * 60 * 1000;
 
   private constructor() {}
 
@@ -48,9 +54,16 @@ export class DispatchManagerService {
 
     if (!sortedCandidates || sortedCandidates.length === 0) {
       console.warn(`[DISPATCH MANAGER] No candidate drivers provided for order ${orderId}`);
+      await this.markExhausted(orderId);
       this.notifyNoDriversAvailable(orderId, orderPayload?.customerUserId);
       return false;
     }
+
+    // A fresh search (first dispatch, or an increasePrice re-dispatch) clears the
+    // "no drivers" mark a polling customer app would otherwise keep showing.
+    await Order.updateOne({ _id: orderId }, { $unset: { dispatchExhaustedAt: 1, currentOffer: 1 } }).catch((err: any) =>
+      console.warn(`[DISPATCH MANAGER] Failed to reset dispatch state for ${orderId}:`, err.message)
+    );
 
     console.log(`[DISPATCH MANAGER] Starting sequential dispatch for order ${orderId} with ${sortedCandidates.length} sorted candidates:`);
     sortedCandidates.forEach((c, idx) => {
@@ -109,6 +122,7 @@ export class DispatchManagerService {
       }
 
       // Check if driver is still online and available in DB
+      let lastLocationAt: Date | undefined;
       try {
         const driverDoc = await Driver.findOne({ user: candidate.driverUserId });
         if (!driverDoc || driverDoc.status !== DriverStatus.ONLINE || driverDoc.isAvailable === false) {
@@ -116,6 +130,7 @@ export class DispatchManagerService {
           session.currentIndex++;
           continue;
         }
+        lastLocationAt = driverDoc.lastLocationAt;
       } catch (dErr) {
         session.currentIndex++;
         continue;
@@ -131,8 +146,14 @@ export class DispatchManagerService {
       // driver" when it happens to the first candidate or two. Skip immediately
       // instead, and self-heal the DB so later searches (this ride's remaining
       // candidates, and every future ride) stop tripping over the same stale entry.
-      if (!socketManager.isUserConnected(candidate.driverUserId)) {
-        console.log(`[DISPATCH MANAGER] Skipping candidate driverUser ${candidate.driverUserId} — no live socket connection (app likely closed/backgrounded).`);
+      //
+      // A minimised app usually has no socket but keeps posting its location over
+      // REST, and still gets the offer by push — so a recent location ping counts
+      // as alive. The socket check covers every server instance, not just this one.
+      const pingedRecently =
+        lastLocationAt !== undefined && Date.now() - new Date(lastLocationAt).getTime() < this.LIVE_LOCATION_WINDOW_MS;
+      if (!pingedRecently && !(await socketManager.isUserConnectedAnywhere(candidate.driverUserId))) {
+        console.log(`[DISPATCH MANAGER] Skipping candidate driverUser ${candidate.driverUserId} — no live socket and no recent location (app likely closed).`);
         Driver.updateOne({ user: candidate.driverUserId }, { isAvailable: false }).catch((err: any) =>
           console.warn(`[DISPATCH MANAGER] Failed to mark disconnected driver ${candidate.driverUserId} unavailable:`, err.message)
         );
@@ -147,6 +168,7 @@ export class DispatchManagerService {
     // If candidate index exhausted, attempt fallback / notify no drivers
     if (session.currentIndex >= session.candidates.length) {
       console.log(`⚠️ [DISPATCH MANAGER] All ${session.candidates.length} candidate drivers declined or were unavailable for order ${orderId}`);
+      await this.markExhausted(orderId);
       this.notifyNoDriversAvailable(orderId, session.orderPayload?.customerUserId);
       this.activeDispatches.delete(orderId);
       return;
@@ -159,12 +181,36 @@ export class DispatchManagerService {
     );
 
     // 1. Emit Socket event to this specific driver
+    const offeredAt = new Date();
+    const expiresAt = new Date(offeredAt.getTime() + this.OFFER_TIMEOUT_MS);
     const payloadWithTimer = {
       ...session.orderPayload,
-      offerTimeoutSeconds: 15,
+      offerTimeoutSeconds: this.OFFER_TIMEOUT_SECONDS,
+      expiresAt: expiresAt.toISOString(),
       candidateSequenceIndex: session.currentIndex + 1,
       totalCandidateDrivers: session.candidates.length,
     };
+
+    // Persisted so a driver app polling GET /orders/driver/offer sees the same offer the
+    // socket carries. Only while still searching, so a late write can't revive a taken order.
+    try {
+      await Order.updateOne(
+        { _id: orderId, status: OrderStatus.SEARCHING_DRIVER },
+        {
+          $set: {
+            currentOffer: {
+              driverUserId: currentCandidate.driverUserId,
+              driverId: currentCandidate.driverId,
+              offeredAt,
+              expiresAt,
+              payload: payloadWithTimer,
+            },
+          },
+        }
+      );
+    } catch (err: any) {
+      console.warn(`[DISPATCH MANAGER] Failed to persist offer for order ${orderId}:`, err.message);
+    }
 
     socketManager.emitToDriver(currentCandidate.driverUserId, "new_order", payloadWithTimer, "DispatchManager.offerNextDriver");
 
@@ -187,9 +233,10 @@ export class DispatchManagerService {
       }
     })();
 
-    // 3. Set fallback 16s server timer for timeout cascade
+    // 3. Set fallback server timer (OFFER_TIMEOUT_MS) for timeout cascade
     session.timer = setTimeout(async () => {
-      console.log(`⏰ [DISPATCH TIMEOUT] Driver ${currentCandidate.driverUserId} did not accept order ${orderId} within 15s.`);
+      console.log(`⏰ [DISPATCH TIMEOUT] Driver ${currentCandidate.driverUserId} did not accept order ${orderId} within ${this.OFFER_TIMEOUT_SECONDS}s.`);
+      await this.clearOffer(orderId, currentCandidate.driverUserId);
 
       // Revoke offer from driver screen via socket
       socketManager.emitToDriver(currentCandidate.driverUserId, "order_offer_expired", { orderId }, "DispatchManager.timeout");
@@ -208,6 +255,8 @@ export class DispatchManagerService {
    * Handle when a driver accepts the order
    */
   public handleDriverAccept(orderId: string, driverUserId: string): boolean {
+    // Even with no in-memory session (another instance, or a restart), the persisted offer goes.
+    void this.clearOffer(orderId);
     const session = this.activeDispatches.get(orderId);
     if (!session) return true; // Order may not be tracked in active dispatch
 
@@ -230,6 +279,8 @@ export class DispatchManagerService {
    * Handle when a driver declines the order
    */
   public async handleDriverDecline(orderId: string, driverUserId: string): Promise<boolean> {
+    // Withdrawn even without a session here, so the decliner's next poll doesn't show it again.
+    await this.clearOffer(orderId, driverUserId);
     const session = this.activeDispatches.get(orderId);
     if (!session) return false;
 
@@ -257,6 +308,7 @@ export class DispatchManagerService {
    * Handle when customer cancels order while dispatching
    */
   public handleCustomerCancel(orderId: string): void {
+    void this.clearOffer(orderId);
     const session = this.activeDispatches.get(orderId);
     if (!session) return;
 
@@ -308,6 +360,29 @@ export class DispatchManagerService {
     if (session) {
       if (session.timer) clearTimeout(session.timer);
       this.activeDispatches.delete(orderId);
+    }
+  }
+
+  /**
+   * Withdraw the persisted offer. With a driverUserId, only that driver's offer is
+   * removed, so a slow write can't wipe the next driver's freshly made offer.
+   */
+  private async clearOffer(orderId: string, driverUserId?: string) {
+    const filter: any = { _id: orderId };
+    if (driverUserId) filter["currentOffer.driverUserId"] = driverUserId;
+    try {
+      await Order.updateOne(filter, { $unset: { currentOffer: 1 } });
+    } catch (err: any) {
+      console.warn(`[DISPATCH MANAGER] Failed to clear offer for order ${orderId}:`, err.message);
+    }
+  }
+
+  /** The search found nobody: recorded so a polling customer app can show it. */
+  private async markExhausted(orderId: string) {
+    try {
+      await Order.updateOne({ _id: orderId }, { $set: { dispatchExhaustedAt: new Date() }, $unset: { currentOffer: 1 } });
+    } catch (err: any) {
+      console.warn(`[DISPATCH MANAGER] Failed to mark dispatch exhausted for order ${orderId}:`, err.message);
     }
   }
 

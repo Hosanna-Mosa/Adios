@@ -36,6 +36,7 @@ import {
   MessageSquare,
   ShieldCheck,
   BadgeCheck,
+  UtensilsCrossed,
   BadgePercent,
 } from "lucide-react";
 
@@ -61,6 +62,8 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.zones"), url: "/zones", icon: Map },
     { title: t("sidebar.payments"), url: "/payments", icon: CreditCard },
     { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
+    { title: t("sidebar.liveActivity"), url: "/live-activity", icon: Activity },
+    { title: t("sidebar.itemInsights"), url: "/item-insights", icon: UtensilsCrossed },
     { title: t("sidebar.support"), url: "/support", icon: Headphones },
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },

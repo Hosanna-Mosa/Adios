@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: 'Flavour Driver',
+    name: 'Adios Driver',
     slug: 'flavour-driver',
     version: '1.0.0',
     orientation: 'portrait',
@@ -16,6 +16,7 @@ export default {
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'com.flavour.driver',
+      googleServicesFile: './GoogleService-Info.plist',
       config: {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
@@ -66,7 +67,10 @@ export default {
       ],
       'expo-font',
       'expo-web-browser',
-      './plugins/withFirebaseAndroidOnly',
+      // Firebase (Analytics) on Android and iOS. CocoaPods rather than Swift
+      // Package Manager, with static frameworks, which Firebase's iOS pods need.
+      ['@react-native-firebase/app', { ios: { disableSPM: true } }],
+      ['expo-build-properties', { ios: { useFrameworks: 'static' } }],
       [
         'expo-notifications',
         {

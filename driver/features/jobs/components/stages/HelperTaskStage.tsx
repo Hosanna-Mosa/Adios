@@ -4,7 +4,8 @@ import { Alert, Linking, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import Colors from "@/constants/colors";
-import { socketService } from "@/utils/socketService";
+import { useDriverStore } from "@/store/driverStore";
+import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { styles } from "../../active-order.styles";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { formatClock } from "../../orderStops";
@@ -49,9 +50,22 @@ export function HelperTaskStage() {
     if (url) Linking.openURL(url);
   };
 
-  const sendHelperUpdate = (text: string) => {
-    socketService.emit("helper_status_update", { orderId: currentOrder.id, text });
-    Alert.alert(t("jobs.updateSent"), t("jobs.sentToCustomer", { value: text, defaultValue: 'Sent "{{value}}" to the customer.' }));
+  const sendHelperUpdate = async (text: string) => {
+    const token = useDriverStore.getState().token;
+    try {
+      const res = await fetch(`${apiUrl}/orders/${currentOrder.id}/helper/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || t("jobs.connectionFailedPleaseTryAgain"));
+      }
+      Alert.alert(t("jobs.updateSent"), t("jobs.sentToCustomer", { value: text, defaultValue: 'Sent "{{value}}" to the customer.' }));
+    } catch (err: any) {
+      Alert.alert(t("jobs.updateNotSent"), err?.message || t("jobs.connectionFailedPleaseTryAgain"));
+    }
   };
 
   return (

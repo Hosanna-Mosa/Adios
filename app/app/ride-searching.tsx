@@ -12,7 +12,7 @@ export default function RideSearchingScreen() {
   setTripDetailsVisible, cancelReasonVisible, setCancelReasonVisible, cancelConfirmVisible,
   selectedCancelReason, onlineDrivers, pickupCoords, dropCoords, fare, pickupTitle, dropTitle,
   cancelUsesDrop, cancelLocationTitle, cancelLocationAddress, cancelLocationLabel, fitTripMarkers,
-  showTripDetails, showCancelReasons, selectCancelReason, keepSearching, cancelRide
+  showTripDetails, showCancelReasons, selectCancelReason, keepSearching, cancelRide, refresh, refreshing
   } = useRideSearching();
   const { t } = useTranslation();
 
@@ -48,6 +48,8 @@ export default function RideSearchingScreen() {
         progressBarStyle={progressBarStyle}
         showTripDetails={showTripDetails}
         styles={styles}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
 
       {tripDetailsVisible && (

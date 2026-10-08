@@ -7,6 +7,7 @@ import { cartKey, toWire } from "@/contexts/cart.wire";
 import { createHydrate } from "@/contexts/cart.hydrate";
 import { effectivePrice } from "@/utils/pricing";
 import { createRefresh } from "@/contexts/cart.refresh";
+import { trackEvent } from "@/utils/analytics";
 export type { CartItem, CartState, CartStatus, CartSyncNotice, FoodItem, PendingCartConflict } from "@/contexts/cart.types";
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null;
@@ -47,6 +48,26 @@ export function runSync(owner?: string, token?: string | null) {
       // Offline or a failed request: the local cart is untouched and the mirror
       // above still survives a restart. The next successful write wins.
     }
+  });
+}
+
+/** add_to_cart / remove_from_cart, one unit at a time, with the item and outlet. */
+function trackCartChange(
+  name: "add_to_cart" | "remove_from_cart",
+  item: Pick<CartItem, "_id" | "name" | "price" | "category" | "isVeg">,
+  quantity: number,
+  vendorId: string | null,
+  vendorName: string | null | undefined,
+) {
+  trackEvent(name, {
+    item_id: item._id,
+    item_name: item.name,
+    item_category: item.category,
+    price: item.price,
+    is_veg: item.isVeg,
+    quantity,
+    vendor_id: vendorId ?? undefined,
+    vendor_name: vendorName ?? undefined,
   });
 }
 
@@ -114,6 +135,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         vendorImage: vendorImage || keptImage,
       });
     }
+    trackCartChange("add_to_cart", item, 1, vendorId, vendorName ?? get().vendorName);
     scheduleSync();
     return "added";
   },
@@ -132,10 +154,13 @@ export const useCartStore = create<CartState>((set, get) => ({
       vendorImage: pending.vendorImage ?? null,
       pendingConflict: null,
     });
+    trackCartChange("add_to_cart", pending.item, 1, pending.vendorId, pending.vendorName);
     scheduleSync();
   },
 
   removeItem: (itemId) => {
+    const removed = get().items.find((i) => i._id === itemId);
+    if (removed) trackCartChange("remove_from_cart", removed, removed.quantity, get().vendorId, get().vendorName);
     set((state) => {
       const newItems = state.items.filter((i) => i._id !== itemId);
       return {
@@ -152,6 +177,16 @@ export const useCartStore = create<CartState>((set, get) => ({
     if (quantity <= 0) {
       get().removeItem(itemId);
       return;
+    }
+    const current = get().items.find((i) => i._id === itemId);
+    if (current && quantity !== current.quantity) {
+      trackCartChange(
+        quantity > current.quantity ? "add_to_cart" : "remove_from_cart",
+        current,
+        Math.abs(quantity - current.quantity),
+        get().vendorId,
+        get().vendorName,
+      );
     }
     set((state) => ({
       items: state.items.map((i) => (i._id === itemId ? { ...i, quantity } : i)),

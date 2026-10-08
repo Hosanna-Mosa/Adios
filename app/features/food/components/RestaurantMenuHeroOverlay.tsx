@@ -1,4 +1,5 @@
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";

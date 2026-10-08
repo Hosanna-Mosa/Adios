@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Accordion } from "@/components/ui/Accordion";
 import { Header } from "@/components/ui/Header";
+import { IconButton } from "@/components/ui/IconButton";
 import { ListGroup } from "@/components/ui/ListGroup";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ScreenTitle } from "@/components/ui/ScreenTitle";
@@ -12,12 +13,18 @@ import { useSupportHub } from "@/features/support/useSupportHub";
 /** Help & support — the customer app's support screen, for partners. */
 export default function SupportScreen() {
   const { t } = useTranslation();
-  const { insets, tokens, styles, recentOrder, openCases, faqs, phone, email, call, sendEmail } = useSupportHub();
+  const { insets, tokens, styles, recentOrder, openCases, faqs, phone, email, call, sendEmail, refreshing, refresh } = useSupportHub();
 
   return (
     <ScreenShell
       style={{ paddingTop: insets.top + 8 }}
-      header={<Header title={t("support.title")} onBack={() => router.back()} />}
+      header={
+        <Header
+          title={t("support.title")}
+          onBack={() => router.back()}
+          right={<IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={refresh} loading={refreshing} />}
+        />
+      }
       scroll
       contentStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}
     >

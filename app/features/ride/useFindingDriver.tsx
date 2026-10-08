@@ -8,14 +8,14 @@ import { useFindingDriverShowCancelSheet } from "./useFindingDriverShowCancelShe
 // useFindingDriverShowCancelSheet() instead, since its labels call t().
 
 export function useFindingDriver() {
-  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide } = useFindingDriverInsets();
+  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, refresh, refreshing } = useFindingDriverInsets();
   const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary);
 
   return {
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
-  CANCEL_REASONS, foodStage, isRide
+  CANCEL_REASONS, foodStage, isRide, refresh, refreshing
   };
 }
 

@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { router } from "expo-router";
 import { type ThemeTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";

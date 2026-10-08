@@ -7,7 +7,7 @@ import { FadeIn } from "@/components/motion/FadeIn";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { ActivityApp, DailyRow, LiveActivity, MinuteRow, RecentEvent, TopEvent, TopScreen } from "../types";
+import type { ActivityApp, DailyRow, LiveActivity, MinuteRow, RecentEvent, TopClickedItem, TopEvent, TopOrderedItem, TopScreen } from "../types";
 
 // Same two hues everywhere on the page so "customer" and "driver" read the
 // same in every chart, list and badge.
@@ -230,5 +230,80 @@ export function RecentEventsTable({ events }: { events: RecentEvent[] }) {
         </div>
       )}
     </FadeIn>
+  );
+}
+
+/** One ranked list of food items: name, restaurant, a bar and the figure. */
+function ItemRanking<T extends { itemId: string; name?: string; vendorName?: string }>({ title, subtitle, items, value, detail, color, empty, isLoading }: {
+  title: string;
+  subtitle: string;
+  items: T[];
+  value: (item: T) => number;
+  detail: (item: T) => string;
+  color: string;
+  empty: string;
+  isLoading: boolean;
+}) {
+  const max = Math.max(1, ...items.map(value));
+  return (
+    <FadeIn delay={0.05} className="section-card p-6">
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+      <p className="text-xs text-muted-foreground mb-4">{subtitle}</p>
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{empty}</p>
+      ) : (
+        <ol className="space-y-3">
+          {items.map((item, i) => (
+            <li key={`${item.itemId}-${i}`}>
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="w-5 shrink-0 text-xs font-semibold text-muted-foreground tabular-nums">{i + 1}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-foreground">{item.name || "(unnamed item)"}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{item.vendorName || "Unknown restaurant"} · {detail(item)}</span>
+                  </span>
+                </span>
+                <span className="font-semibold tabular-nums text-foreground">{value(item).toLocaleString()}</span>
+              </div>
+              <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${(value(item) / max) * 100}%`, background: color }} />
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </FadeIn>
+  );
+}
+
+export function TopClickedItemsList({ items, isLoading }: { items: TopClickedItem[]; isLoading: boolean }) {
+  return (
+    <ItemRanking
+      title="Most clicked food items"
+      subtitle="Taps on an item in a restaurant menu"
+      items={items}
+      value={(i) => i.clicks}
+      detail={(i) => `${i.uniqueUsers.toLocaleString()} ${i.uniqueUsers === 1 ? "user" : "users"}`}
+      color={APP_COLORS.customer}
+      empty="No item taps recorded in this period yet."
+      isLoading={isLoading}
+    />
+  );
+}
+
+export function TopOrderedItemsList({ items, isLoading }: { items: TopOrderedItem[]; isLoading: boolean }) {
+  return (
+    <ItemRanking
+      title="Most ordered food items"
+      subtitle="Units ordered, from real orders (cancelled excluded)"
+      items={items}
+      value={(i) => i.quantity}
+      detail={(i) => `${i.orders.toLocaleString()} ${i.orders === 1 ? "order" : "orders"} · ₹${Math.round(i.revenue).toLocaleString()}`}
+      color={APP_COLORS.driver}
+      empty="No food orders in this period yet."
+      isLoading={isLoading}
+    />
   );
 }

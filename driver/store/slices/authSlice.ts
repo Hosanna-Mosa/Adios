@@ -86,8 +86,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
         const serverOnline = String(result.driver?.status || "").toUpperCase() === "ONLINE";
         const { isOnline, activeServices } = get();
         if (serverOnline && !isOnline) {
-          // goOnline, not a bare flag: it also re-establishes the socket the
-          // driver needs to actually receive dispatches.
+          // goOnline, not a bare flag: it also re-sends the driver's
+          // active services, which dispatch needs.
           await get().goOnline(activeServices.length ? activeServices : ["food", "ride"]);
         } else if (!serverOnline && isOnline) {
           set({ isOnline: false });

@@ -21,7 +21,7 @@ export const LocationHandler = () => {
     isCheckingPermissions,
   });
 
-  // AppState Listener to reconnect socket & refresh when app returns to foreground
+  // AppState listener: refresh when the app returns to the foreground
   useEffect(() => {
     const subscription = AppState.addEventListener("change", async (nextAppState: AppStateStatus) => {
       // If returning to active, just log it. (We don't auto-reconnect because they are set offline below)
