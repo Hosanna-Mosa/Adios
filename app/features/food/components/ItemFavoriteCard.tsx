@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
+import { DishPrice } from "@/components/shared/DishPrice";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -38,7 +39,7 @@ export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: 
             <Text style={[styles.serviceTagText, { color: accent.accent }]}>{t("app.serviceMeta.meat")}</Text>
           </View>
         )}
-        <Text style={styles.cardMeta} numberOfLines={1}>₹{item.price}</Text>
+        <DishPrice price={item.price} offerPrice={item.offerPrice} discountPercent={item.discountPercent} priceStyle={styles.cardMeta} hidePercent />
         <TouchableOpacity
           style={[styles.reorderBtn, { backgroundColor: accent.accent }]}
           activeOpacity={0.85}

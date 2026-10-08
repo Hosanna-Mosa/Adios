@@ -12,6 +12,7 @@ import {
   RatingStars,
   StageActionButton,
 } from "../order";
+import { useHighDemandAreas } from "../../hooks/useHighDemandAreas";
 import { DeliveryEarningsBreakdown } from "./DeliveryEarningsBreakdown";
 import { AppTextInput } from "@/components/ui/AppTextInput";
 import { Box } from "@/components/ui/Box";
@@ -19,12 +20,9 @@ import { Box } from "@/components/ui/Box";
 export function DeliveryCompletedStage() {
   const { t } = useTranslation();
   const { verification, handleStatusTransition } = useActiveOrderCtx();
-
-  // Place names are proper nouns and stay untranslated; only "Surge" is.
-  const demandZones = [
-    t("jobs.surgeZoneKoramangala", { defaultValue: "Koramangala 5th Block (Surge 1.8x)" }),
-    t("jobs.surgeZoneIndiranagar", { defaultValue: "Indiranagar 100 Feet Road (Surge 1.5x)" }),
-  ];
+  // Real demand from the backend (the home screen's list); was two fixed
+  // Bengaluru "surge" zones shown to every driver.
+  const demandZones = useHighDemandAreas(2);
 
   return (
     <CompletedScroll>
@@ -48,7 +46,9 @@ export function DeliveryCompletedStage() {
         />
       </Box>
 
-      <HighDemandZones title={t("jobs.highDemandZones")} zones={demandZones} />
+      {demandZones.length > 0 && (
+        <HighDemandZones title={t("jobs.highDemandZones")} zones={demandZones} />
+      )}
 
       <StageActionButton
         label={t("jobs.finishAndReturnToHome")}

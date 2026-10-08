@@ -21,8 +21,9 @@ export function QuickActions({ pendingScheduled, isMeat, styles, tokens }: Props
   return (
     <Animated.View entering={fadeInUp(120)} style={styles.section}>
       <SectionHeader title={t("dashboard.quickActions")} />
-      <View style={styles.row}>
+      <View style={styles.quickRow}>
         <ActionTile
+          plain
           icon="calendar"
           label={t("dashboard.scheduledOrders")}
           color={tokens.info}
@@ -31,11 +32,13 @@ export function QuickActions({ pendingScheduled, isMeat, styles, tokens }: Props
           onPress={() => router.push("/scheduled-orders")}
         />
         <ActionTile
+          plain
           icon={isMeat ? "file-tray-stacked" : "restaurant"}
           label={isMeat ? t("dashboard.manageInventory") : t("dashboard.manageMenu")}
           onPress={() => router.navigate(isMeat ? "/(tabs)/inventory" : "/(tabs)/menu")}
         />
         <ActionTile
+          plain
           icon="wallet"
           label={t("dashboard.payouts")}
           color={tokens.warning}
@@ -43,6 +46,7 @@ export function QuickActions({ pendingScheduled, isMeat, styles, tokens }: Props
           onPress={() => router.push("/payouts")}
         />
         <ActionTile
+          plain
           icon="chatbubbles"
           label={t("dashboard.getHelp")}
           color={tokens.success}

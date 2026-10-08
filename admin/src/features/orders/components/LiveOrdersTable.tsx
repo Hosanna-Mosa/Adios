@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ServiceBadge } from "@/components/shared/ServiceBadge";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Star, GitBranch, MapPin } from "lucide-react";
-import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import type { LiveOrder } from "../liveOrdersTypes";
 import { adminOrderStatusLabel } from "../adminOrderStatus";
@@ -37,6 +37,11 @@ const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string):
     ),
   },
   {
+    key: "service",
+    header: t("service.column"),
+    cell: (o) => <ServiceBadge order={o} />,
+  },
+  {
     key: "stops",
     header: t("orders.stops"),
     cell: (o) => (
@@ -56,10 +61,13 @@ const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string):
     header: t("orders.assignedDriver"),
     cell: (o) => (
       <div className="flex items-center gap-2">
-        <span className={`text-sm ${!o.driver ? "italic text-muted-foreground" : "text-foreground"}`}>{o.driver?.user?.name || t("orders.awaitingAssignmentEllipsis")}</span>
-        {o.driver && (
+        <span className={`text-sm ${!o.driver ? "italic text-muted-foreground" : "text-foreground"}`}>
+          {o.driver ? o.driver.user?.name || t("orders.driver") : t("orders.awaitingAssignmentEllipsis")}
+        </span>
+        {/* The driver's real rating, when they have one (this was a hardcoded 4.8). */}
+        {typeof o.driver?.rating === "number" && o.driver.rating > 0 && (
           <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-            <Star className="h-3 w-3 fill-warning text-warning" /> 4.8
+            <Star className="h-3 w-3 fill-warning text-warning" /> {o.driver.rating.toFixed(1)}
           </span>
         )}
       </div>
@@ -77,7 +85,7 @@ const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string):
   },
 ];
 
-/** The "Ongoing Operations" table (rows + pagination) on LiveOrders.tsx. */
+/** The "Ongoing Operations" table (rows + result count) on LiveOrders.tsx. */
 export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveOrdersTableProps) {
   const { t } = useTranslation();
   const columns = getColumns(t);
@@ -99,22 +107,11 @@ export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveO
         emptyLabel={t("orders.noOrdersFoundMatchingFilter")}
       />
 
+      {/* Every matching order is listed above, so there is nothing to page
+          through: the Previous/Next buttons that only toasted "No previous
+          pages" / "No next pages" were removed. */}
       <div className="flex items-center justify-between px-6 py-4 border-t border-border">
         <p className="text-sm text-muted-foreground">{t("orders.showingNResults", { count: totalCount, defaultValue: "Showing {{count}} results" })}</p>
-        <div className="flex gap-1">
-          <button
-            onClick={() => toast.info(t("orders.noPreviousPages"))}
-            className="px-3 py-1.5 text-sm border border-border rounded-lg text-muted-foreground hover:bg-muted/50"
-          >
-            {t("orders.previous")}
-          </button>
-          <button
-            onClick={() => toast.info(t("orders.noNextPages"))}
-            className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg font-medium"
-          >
-            {t("orders.next")}
-          </button>
-        </div>
       </div>
     </div>
   );

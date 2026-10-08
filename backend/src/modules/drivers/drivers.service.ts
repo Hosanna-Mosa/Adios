@@ -569,6 +569,10 @@ export class DriverService {
       ? await getDriverRating(driver._id)
       : { rating: null, ratingCount: 0 };
 
+    // Worked out from the offers on record (was a flat 98 for every driver); null when the
+    // driver has never answered one, so the app can show "—" instead of a made-up figure.
+    const acceptanceRate = driver ? await this.getAcceptanceRate(driver._id) : null;
+
     return {
       account: {
         id: user._id.toString(),
@@ -638,7 +642,7 @@ export class DriverService {
         completedTrips,
         rating,
         ratingCount,
-        acceptanceRate: 98,
+        acceptanceRate,
       },
     };
   }
@@ -690,8 +694,8 @@ export class DriverService {
       ...allCompletedOrders.map((order: any) => ({
         id: order._id.toString(),
         type: "earning",
-        icon: order.serviceType === "delivery" || order.serviceType === "helper" ? "package" : "car",
-        label: `${this.formatServiceLabel(order.serviceType)} - ${this.getOrderDestination(order)}`,
+        icon: order.serviceType === "delivery" || order.serviceType === "helper" || order.packageDelivery ? "package" : "car",
+        label: `${this.formatServiceLabel(order)} - ${this.getOrderDestination(order)}`,
         amount: Math.round((order.totalPrice || 0) * 0.8),
         paymentMethod: order.paymentMethod,
         cashCollectedAmount: order.cashCollected ? order.cashCollectedAmount : undefined,
@@ -863,6 +867,63 @@ export class DriverService {
     return [OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC];
   }
 
+  /**
+   * Share of the offers this driver answered that they took, as a rounded percentage, or
+   * null when there is nothing on record yet. One pass over the driver's orders:
+   *  - taken: the order is assigned to them, or their food (broadcast) offer is "accepted"
+   *  - passed: they appear in declineReasons (explicit declines and, for sequential
+   *    dispatch, offers that timed out), or their food offer is "declined"/"timeout"
+   * Offers still open, closed because someone else took the order, or withdrawn when the
+   * order was cancelled never reached a decision of theirs, so they don't count either way.
+   */
+  private async getAcceptanceRate(driverId: mongoose.Types.ObjectId): Promise<number | null> {
+    const id = driverId.toString();
+    const [row] = await Order.aggregate<{ taken: number; answered: number }>([
+      {
+        $match: {
+          $or: [{ driver: driverId }, { "declineReasons.driverId": id }, { "dispatch.offers.driverId": id }],
+        },
+      },
+      {
+        $project: {
+          offerOutcomes: {
+            $map: {
+              input: {
+                $filter: {
+                  input: { $ifNull: ["$dispatch.offers", []] },
+                  as: "offer",
+                  cond: { $eq: ["$$offer.driverId", id] },
+                },
+              },
+              as: "offer",
+              in: "$$offer.outcome",
+            },
+          },
+          assigned: { $eq: ["$driver", driverId] },
+          declined: { $in: [id, { $ifNull: ["$declineReasons.driverId", []] }] },
+        },
+      },
+      {
+        $project: {
+          taken: { $or: ["$assigned", { $in: ["accepted", "$offerOutcomes"] }] },
+          passed: {
+            $or: ["$declined", { $in: ["declined", "$offerOutcomes"] }, { $in: ["timeout", "$offerOutcomes"] }],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          taken: { $sum: { $cond: ["$taken", 1, 0] } },
+          answered: { $sum: { $cond: [{ $or: ["$taken", "$passed"] }, 1, 0] } },
+        },
+      },
+    ]);
+
+    if (!row?.answered) return null;
+    return Math.round((row.taken / row.answered) * 100);
+  }
+
   private getCompletedOrdersForDriver(driverId: any, from: Date, to: Date) {
     return Order.find({
       driver: driverId,
@@ -939,8 +1000,9 @@ export class DriverService {
     return weekStart;
   }
 
-  private formatServiceLabel(serviceType: string) {
-    if (serviceType === "delivery" || serviceType === "helper") return "Delivery";
+  private formatServiceLabel(order: any) {
+    if (order.packageDelivery) return "Package delivery";
+    if (order.serviceType === "delivery" || order.serviceType === "helper") return "Delivery";
     return "Ride";
   }
 

@@ -42,4 +42,10 @@ export interface Props {
   store149Items: any[];
   styles: any;
   tokens: any;
+  /** GET /banners has not settled yet: carousel + greeting ad show skeletons. */
+  bannersLoading: boolean;
+  /** The ₹149 rail is still loading. */
+  store149Loading: boolean;
+  /** Cuisine chips derive from the outlet list, which is still loading. */
+  cuisinesLoading: boolean;
 }

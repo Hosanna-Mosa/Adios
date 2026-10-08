@@ -1,4 +1,5 @@
-import { SlidersHorizontal } from "lucide-react";
+import { Layers, SlidersHorizontal } from "lucide-react";
+import { ORDER_SERVICE_KINDS, type OrderServiceKind } from "@/components/shared/orderService";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -10,6 +11,8 @@ import {
 interface LiveOrdersHeaderProps {
   statusFilter: string;
   setStatusFilter: (value: string) => void;
+  serviceFilter: OrderServiceKind | "ALL";
+  setServiceFilter: (value: OrderServiceKind | "ALL") => void;
 }
 
 const STATUS_FILTER_LABEL_KEY: Record<string, string> = {
@@ -22,7 +25,7 @@ const STATUS_FILTER_LABEL_KEY: Record<string, string> = {
 };
 
 /** The title + status filter on LiveOrders.tsx. */
-export function LiveOrdersHeader({ statusFilter, setStatusFilter }: LiveOrdersHeaderProps) {
+export function LiveOrdersHeader({ statusFilter, setStatusFilter, serviceFilter, setServiceFilter }: LiveOrdersHeaderProps) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between">
@@ -31,6 +34,19 @@ export function LiveOrdersHeader({ statusFilter, setStatusFilter }: LiveOrdersHe
         <p className="page-subtitle">{t("orders.realTimeMonitoringShipmentsDesc")}</p>
       </div>
       <div className="flex gap-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+              <Layers className="h-4 w-4" /> {t("service.filterColon", { value: serviceFilter === "ALL" ? t("service.all") : t(`service.${serviceFilter}`) })}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setServiceFilter("ALL")} className="cursor-pointer">{t("service.all")}</DropdownMenuItem>
+            {ORDER_SERVICE_KINDS.map((kind) => (
+              <DropdownMenuItem key={kind} onClick={() => setServiceFilter(kind)} className="cursor-pointer">{t(`service.${kind}`)}</DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">

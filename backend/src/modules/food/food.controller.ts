@@ -6,6 +6,8 @@ import { CloudinaryService } from "../../services/cloudinary.service";
 import { ZonesService } from "../zones/zones.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
+import { bulkFoodRowSchema } from "./food.validation";
+import { getDishOrderCounts, withComputedDishFields } from "./food.service";
 
 const cloudinaryService = new CloudinaryService();
 
@@ -13,6 +15,9 @@ const cloudinaryService = new CloudinaryService();
 // portal / seeds) or, for outlets that came through partner onboarding, inside
 // vendor.operations. Everything customer-facing has to read both — the meat
 // module already does this via buildOnboardedMeatItems().
+const isTruthyFlag = (value: unknown) =>
+  value === true || /^(yes|y|true|1)$/i.test(String(value ?? "").trim());
+
 const parsePrice = (value: unknown) => {
   if (typeof value === "number") return value;
   const parsed = Number(String(value || "").replace(/[^\d.]/g, ""));
@@ -36,6 +41,9 @@ export const buildOnboardedFoodItems = (vendor: any) => {
       category: category.name || "General",
       isAvailable: true,
       isVeg: !!item.isVeg,
+      orderCount: 0,
+      isBestseller: isTruthyFlag(item.isBestseller),
+      discountPercent: null,
     }))
   );
 
@@ -49,6 +57,9 @@ export const buildOnboardedFoodItems = (vendor: any) => {
     category: row.category || "General",
     isAvailable: true,
     isVeg: String(row.type || "").toLowerCase() === "veg",
+    orderCount: 0,
+    isBestseller: isTruthyFlag(row.isBestseller),
+    discountPercent: null,
   }));
 
   return [...manualItems, ...uploadedItems].filter((item) => item.name && item.price > 0);
@@ -106,10 +117,12 @@ export const getVendorMenu = async (req: Request, res: Response) => {
   try {
     const { vendorId } = req.params;
     // Unfiltered on purpose: the app renders isAvailable === false as "Sold out".
-    const [menu, vendor] = await Promise.all([
+    const [storedMenu, vendor, counts] = await Promise.all([
       FoodItem.find({ vendorId }).lean(),
       Vendor.findById(vendorId).lean(),
+      getDishOrderCounts(String(vendorId)),
     ]);
+    const menu = storedMenu.map((item) => withComputedDishFields(item, counts));
     res.json(vendor ? [...menu, ...buildOnboardedFoodItems(vendor)] : menu);
   } catch (error) {
     console.error("Error fetching menu:", error);
@@ -117,12 +130,44 @@ export const getVendorMenu = async (req: Request, res: Response) => {
   }
 };
 
+const EDITABLE_FOOD_FIELDS = [
+  "name",
+  "description",
+  "price",
+  "images",
+  "category",
+  "isAvailable",
+  "isVeg",
+  "offerPrice",
+  "protein",
+  "calories",
+  "bestsellerMinOrders",
+] as const;
+
+/** An offer price, when set, has to undercut the regular price. */
+const offerPriceError = (price: unknown, offerPrice: unknown): string | null => {
+  if (offerPrice === null || offerPrice === undefined) return null;
+  const offer = Number(offerPrice);
+  const regular = Number(price);
+  if (!Number.isFinite(offer) || offer <= 0) return "offerPrice must be greater than 0";
+  if (!Number.isFinite(regular) || offer >= regular) return "offerPrice must be less than price";
+  return null;
+};
+
 export const addFoodItem = async (req: AuthRequest, res: Response) => {
   try {
-    const { vendorId, name, description, price, images, category, isVeg } = req.body;
+    const {
+      vendorId, name, description, price, images, category, isVeg,
+      offerPrice, protein, calories, bestsellerMinOrders,
+    } = req.body;
 
     if (req.user?.role !== UserRole.ADMIN && vendorId !== req.user?.userId) {
       return res.status(403).json({ message: "Access denied" });
+    }
+
+    const offerError = offerPriceError(price, offerPrice);
+    if (offerError) {
+      return res.status(400).json({ message: offerError });
     }
 
     const foodItem = new FoodItem({
@@ -132,13 +177,70 @@ export const addFoodItem = async (req: AuthRequest, res: Response) => {
       price,
       images,
       category,
-      isVeg
+      isVeg,
+      offerPrice: offerPrice ?? null,
+      protein: protein ?? null,
+      calories: calories ?? null,
+      bestsellerMinOrders: bestsellerMinOrders ?? null,
     });
 
     await foodItem.save();
     res.status(201).json(foodItem);
   } catch (error) {
     console.error("Error adding food item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * POST /food/bulk — spreadsheet menu import. Rows are validated one by one: the
+ * valid ones are inserted, the rest come back as { row (1-based), error }.
+ */
+export const bulkAddFoodItems = async (req: AuthRequest, res: Response) => {
+  try {
+    const { vendorId, items } = req.body as { vendorId: string; items: unknown[] };
+
+    if (req.user?.role !== UserRole.ADMIN && vendorId !== req.user?.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const docs: Record<string, unknown>[] = [];
+    const failed: { row: number; error: string }[] = [];
+
+    items.forEach((raw, index) => {
+      const parsed = bulkFoodRowSchema.safeParse(raw ?? {});
+      if (!parsed.success) {
+        const issue = parsed.error.issues[0];
+        failed.push({ row: index + 1, error: issue?.message || "Invalid row" });
+        return;
+      }
+      const row = parsed.data;
+      docs.push({
+        vendorId,
+        name: row.name,
+        category: row.category,
+        price: row.price,
+        description: row.description || "",
+        offerPrice: row.offerPrice ?? null,
+        isVeg: row.isVeg,
+        protein: row.protein ?? null,
+        calories: row.calories ?? null,
+        images: [],
+      });
+    });
+
+    let created = 0;
+    if (docs.length > 0) {
+      const inserted = await FoodItem.insertMany(docs);
+      created = inserted.length;
+    }
+
+    res.json({ created, failed });
+  } catch (error: any) {
+    if (error?.name === "CastError" || error?.name === "ValidationError") {
+      return res.status(400).json({ message: "Invalid vendorId or menu rows" });
+    }
+    console.error("Error bulk adding food items:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -154,7 +256,21 @@ export const updateFoodItem = async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const updatedItem = await FoodItem.findByIdAndUpdate(id, req.body, { new: true });
+    // Allow-list: vendorId / timestamps / _id are never client-editable.
+    const update: Record<string, unknown> = {};
+    for (const field of EDITABLE_FOOD_FIELDS) {
+      if (req.body[field] !== undefined) update[field] = req.body[field];
+    }
+
+    // Validate against the stored price when only one of the two is being sent.
+    const effectivePrice = update.price !== undefined ? update.price : existingItem.price;
+    const effectiveOffer = update.offerPrice !== undefined ? update.offerPrice : existingItem.offerPrice;
+    const offerError = offerPriceError(effectivePrice, effectiveOffer);
+    if (offerError) {
+      return res.status(400).json({ message: offerError });
+    }
+
+    const updatedItem = await FoodItem.findByIdAndUpdate(id, { $set: update }, { new: true });
     res.json(updatedItem);
   } catch (error) {
     console.error("Error updating food item:", error);
@@ -397,30 +513,12 @@ export const searchFoodItems = async (req: Request, res: Response) => {
   }
 };
 
+/** The ₹149 store lists dishes whose menu price is at most this. */
+const STORE_149_MAX_PRICE = 149;
+
 export const getStore149Items = async (req: Request, res: Response) => {
   try {
     const { lat, lng } = req.query;
-    
-    // Function to get distinct Unsplash image based on name
-    const getMatchingImage = (name: string): string => {
-      const n = name.toLowerCase();
-      
-      // Verified Indian Food Unsplash IDs
-      if (n.includes("onion") || n.includes("rava")) return "https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400";
-      if (n.includes("mysore")) return "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400";
-      if (n.includes("paper") || n.includes("ghee")) return "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400";
-      if (n.includes("dosa") || n.includes("pesarattu") || n.includes("appam")) return "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400";
-      
-      if (n.includes("idli")) return "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400";
-      if (n.includes("vada") || n.includes("wada") || n.includes("gari") || n.includes("garry")) return "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400";
-      if (n.includes("uttapam") || n.includes("uthappam")) return "https://images.unsplash.com/photo-1633383718081-22ac93e3db65?w=400";
-      if (n.includes("upma") || n.includes("pongal") || n.includes("poha")) return "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=400";
-      if (n.includes("rice") || n.includes("pulao") || n.includes("biryani")) return "https://images.unsplash.com/photo-1633383718081-22ac93e3db65?w=400";
-      if (n.includes("naan") || n.includes("roti") || n.includes("paratha") || n.includes("thepla") || n.includes("sandwich")) return "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400";
-      if (n.includes("momos") || n.includes("manchurian") || n.includes("noodles") || n.includes("roll")) return "https://images.unsplash.com/photo-1625938146369-adc83368bda7?w=400";
-      if (n.includes("sweet") || n.includes("chocolate") || n.includes("gulab") || n.includes("jamun") || n.includes("halwa")) return "https://images.unsplash.com/photo-1605197584547-c91ffaba2dc1?w=400";
-      return "https://images.unsplash.com/photo-1631452180519-c014fe946bc0?w=400"; // fallback paneer/curry
-    };
     
     // We will search for nearby vendors within active zone if lat/lng are provided
     let vendors: any[] = [];
@@ -467,7 +565,13 @@ export const getStore149Items = async (req: Request, res: Response) => {
     const vendorIds = vendors.map(v => v._id);
     // Was .limit(15): with $in across 10 vendors the whole page could come from the
     // farthest one, so nothing about the result was actually "nearby".
-    const foodItems = await FoodItem.find({ vendorId: { $in: vendorIds }, isAvailable: true }).limit(150).lean();
+    // Only dishes whose real menu price is within ₹149: the cart and checkout re-price every
+    // line from FoodItem.price (cart.catalog.ts), so the price shown here must be that price.
+    const foodItems = await FoodItem.find({
+      vendorId: { $in: vendorIds },
+      isAvailable: true,
+      price: { $gt: 0, $lte: STORE_149_MAX_PRICE },
+    }).limit(150).lean();
 
     if (foodItems.length === 0) {
       return res.json([]);
@@ -489,13 +593,12 @@ export const getStore149Items = async (req: Request, res: Response) => {
         perVendorCount.set(vendorKey, used + 1);
         return true;
       })
-      .map((item, idx) => {
+      .map((item) => {
         const vendor = vendorMap.get(item.vendorId.toString());
-        const originalPrice = item.price > 149 ? item.price : 199;
 
-        // Use realistic rating and review count from vendor or defaults
-        const itemRating = vendor?.rating || parseFloat((4.0 + (idx % 10) * 0.1).toFixed(1));
-        const itemReviews = vendor?.reviews ? parseInt(vendor.reviews.replace(/\D/g, '')) || 45 : 45;
+        // The outlet's real rating and review count — 0 when it has none yet.
+        const itemRating = Number(vendor?.rating) || 0;
+        const itemReviews = parseInt(String(vendor?.reviews ?? "").replace(/\D/g, ""), 10) || 0;
 
         // $geoNear stamped the vendor with a metre distance — carry it through so the
         // screen can show where each dish is coming from.
@@ -507,9 +610,10 @@ export const getStore149Items = async (req: Request, res: Response) => {
           vendorId: item.vendorId,
           name: item.name,
           description: item.description || "",
-          price: 149,
-          originalPrice,
-          images: [getMatchingImage(item.name)],
+          price: item.price,
+          // FoodItem has no MRP / "was" price, so there is no strikethrough price to show.
+          originalPrice: null,
+          images: item.images || [],
           isVeg: item.isVeg,
           category: item.category,
           rating: itemRating,

@@ -63,7 +63,8 @@ export interface ProfileResponse {
     completedTrips: number;
     rating: number | null;
     ratingCount: number;
-    acceptanceRate: number;
+    /** Percent of offers accepted; null when there's nothing to compute it from. */
+    acceptanceRate: number | null;
   };
 }
 

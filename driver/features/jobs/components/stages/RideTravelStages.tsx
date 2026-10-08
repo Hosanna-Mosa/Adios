@@ -1,5 +1,4 @@
 import React from "react";
-import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
@@ -8,11 +7,13 @@ import {
   ContactHeaderRow,
   CustomerRow,
   OrderStage,
+  PackageDeliveryBanner,
   RoundCommButton,
   StageActionButton,
   StageSpacer,
   TripSummary,
 } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { Box } from "@/components/ui/Box";
 import { PickupNavButton } from "./PickupNavButton";
 import { AppText } from "@/components/ui/AppText";
@@ -23,6 +24,7 @@ export function RideEnRoutePickupStage() {
 
   return (
     <OrderStage title={t("jobs.travelToUserPickup")} showPulse={isSimulating}>
+      <PackageDeliveryBanner order={currentOrder} leg="pickup" />
       <ContactHeaderRow
         name={<>{t("jobs.userColon", { value: currentOrder.customerName || t("jobs.customer"), defaultValue: "User: {{value}}" })}</>}
         address={pickupStop?.address}
@@ -30,7 +32,7 @@ export function RideEnRoutePickupStage() {
           <Box style={styles.communicationBtns}>
             <RoundCommButton
               icon="call"
-              onPress={() => Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)}
+              onPress={() => callPhone(currentOrder.customerPhone, "customer")}
             />
             <PickupNavButton pickupStop={pickupStop} />
           </Box>
@@ -56,7 +58,8 @@ export function RideInProgressStage() {
   const { currentOrder, pickupStop, deliveryStop, isSimulating, handleStatusTransition, openRideNavigation } = useActiveOrderCtx();
 
   return (
-    <OrderStage title={t("jobs.tripInProgress")} showPulse={isSimulating}>
+    <OrderStage title={currentOrder.packageDelivery ? t("jobs.packageDeliveryInTransit") : t("jobs.tripInProgress")} showPulse={isSimulating}>
+      <PackageDeliveryBanner order={currentOrder} leg="drop" />
       <CustomerRow
         initial={(currentOrder.customerName || t("jobs.rider")).charAt(0).toUpperCase()}
         name={currentOrder.customerName || t("jobs.rider")}

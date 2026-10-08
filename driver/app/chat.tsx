@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Alert, FlatList, Platform, Linking } from "react-native";
+import { FlatList, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
@@ -13,6 +13,7 @@ import {
   TaskAssignmentBanner,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/chat.styles";
+import { callPhone } from "@/features/jobs/utils/callPhone";
 import { MessageComposer } from "@/components/shared/MessageComposer";
 import { KeyboardView } from "@/components/ui/KeyboardView";
 import { List } from "@/components/ui/List";
@@ -119,11 +120,9 @@ export default function DriverChatScreen() {
           // Was falling back to a hardcoded placeholder number ("1234567890")
           // whenever the customer's phone hadn't loaded yet, so the driver
           // could actually place a call to a fake number without warning.
-          if (!chatOrder?.customerPhone) {
-            Alert.alert(t("jobs.noPhoneNumber"), t("jobs.customerPhoneNotAvailable"));
-            return;
-          }
-          Linking.openURL(`tel:${chatOrder.customerPhone}`);
+          // callPhone also catches the "N/A" the active order holds for a
+          // missing phone, which the plain truthiness check here let through.
+          callPhone(chatOrder?.customerPhone, "customer");
         }}
       />
 

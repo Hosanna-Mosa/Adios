@@ -16,7 +16,7 @@ interface OrderRouteMapProps {
   driver?: OrderDriver;
 }
 
-/** The right-panel route map (Google Map + zoom/type controls + live-tracking card) on OrderDetail.tsx. */
+/** The right-panel route map (Google Map + zoom/type controls + assigned-driver card) on OrderDetail.tsx. */
 export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, setMapType, mapMarkers, polylinePath, driver }: OrderRouteMapProps) {
   const { t } = useTranslation();
   return (
@@ -59,6 +59,13 @@ export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, set
         </div>
       )}
 
+      {/* No stop carries coordinates, so there is nothing to pin. */}
+      {isLoaded && mapMarkers.length === 0 && (
+        <div className="absolute top-6 left-6 z-10 bg-card/95 backdrop-blur rounded-lg shadow-sm px-4 py-2 text-xs font-medium text-muted-foreground">
+          {t("drivers.noLocationReported")}
+        </div>
+      )}
+
       {/* Map Controls */}
       <div className="absolute top-6 right-6 flex flex-col gap-2 z-10">
         <button
@@ -84,7 +91,7 @@ export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, set
       {/* Vehicle Tracker */}
       {driver && (
         <div className="absolute bottom-6 left-6 right-6 bg-card/95 backdrop-blur rounded-xl shadow-lg p-4 z-10">
-          <p className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-2">{t("orders.liveTracking")}</p>
+          <p className="text-[10px] uppercase tracking-wider font-semibold text-primary mb-2">{t("orders.driverAssignedTitle")}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center">
@@ -92,12 +99,8 @@ export function OrderRouteMap({ isLoaded, mapCenter, zoom, setZoom, mapType, set
               </div>
               <div>
                 <p className="text-sm font-bold text-foreground">{driver.user?.name || t("orders.driver")}</p>
-                <p className="text-xs text-muted-foreground">{t("orders.vehicleColon", { value: driver.vehicleNumber || "VAN", defaultValue: "Vehicle: {{value}}" })}</p>
+                <p className="text-xs text-muted-foreground">{t("orders.vehicleColon", { value: driver.vehicleNumber || "—", defaultValue: "Vehicle: {{value}}" })}</p>
               </div>
-            </div>
-            <div className="text-right">
-              <p className="text-3xl font-bold text-foreground">{t("orders.active")} <span className="text-sm font-normal text-muted-foreground">{t("orders.gps")}</span></p>
-              <p className="text-xs text-muted-foreground">{t("orders.steadyVelocity")}</p>
             </div>
           </div>
         </div>

@@ -8,10 +8,17 @@ export default {
     scheme: 'flavour',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
+    // Root view (window) background, applied by expo-system-ui. It is what shows
+    // between the native splash and the first JS frame, so it matches the brand
+    // colour of the JS intro splash (designTokens.light.brand in
+    // constants/colors.ts) instead of flashing white.
+    backgroundColor: '#E8720C',
     splash: {
       image: './assets/images/splash-icon.png',
       resizeMode: 'contain',
-      backgroundColor: '#ffffff',
+      // Same brand colour as the JS intro splash in app/index.tsx, so the
+      // native -> JS splash hand-off is seamless.
+      backgroundColor: '#E8720C',
     },
     ios: {
       supportsTablet: false,

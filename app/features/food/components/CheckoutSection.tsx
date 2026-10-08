@@ -92,7 +92,9 @@ export function CheckoutSection({
 
           {showPromoInput ? (
             <View style={styles.promoInputRow}>
+              {/* Opened by "Add", so it takes focus and raises the keyboard straight away. */}
               <TextInput
+                autoFocus
                 style={styles.promoInput}
                 placeholder={t("app.food.enterPromoCode")}
                 placeholderTextColor={tokens.muted}

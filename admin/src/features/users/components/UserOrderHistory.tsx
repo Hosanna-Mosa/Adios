@@ -3,6 +3,7 @@ import { MessageSquare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
+import { orderServiceLabel } from "@/components/shared/orderService";
 import type { UserOrderItem } from "../userDetailTypes";
 
 const HEADER_CLASS = "table-header-text text-left px-4 py-2.5";
@@ -32,8 +33,8 @@ export function UserOrderHistory({ orders, onViewChat }: UserOrderHistoryProps) 
       key: "serviceType",
       header: t("users.serviceType"),
       headerClassName: HEADER_CLASS,
-      cellClassName: `${CELL_CLASS} uppercase font-medium`,
-      cell: (order) => order.serviceType,
+      cellClassName: `${CELL_CLASS} font-medium whitespace-nowrap`,
+      cell: (order) => orderServiceLabel(order, t),
     },
     {
       key: "fare",

@@ -47,7 +47,7 @@ export function MenuVegOnly({
   const { t } = useTranslation();
   return (
     <>
-    <Image source={{ uri: (image as string) || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=600" }} style={styles.heroImage} contentFit="cover" transition={200} />
+    <Image source={image ? { uri: image as string } : null} style={styles.heroImage} contentFit="cover" transition={200} />
 
     <View style={styles.sheet}>
       <TouchableOpacity
@@ -72,26 +72,24 @@ export function MenuVegOnly({
             <Text style={styles.metaLine} numberOfLines={1}>{metaLine2Parts.join(" · ")}</Text>
           )}
         </View>
+        {/* Rating and review count side by side — one line, never stacked. */}
         <View style={styles.ratingPill}>
-          <Text style={styles.ratingPillValue}>{rating || "—"} ★</Text>
-          {!!reviews && <Text style={styles.ratingPillCount}>{reviews}</Text>}
+          <Text style={styles.ratingPillValue} numberOfLines={1}>{rating || "—"} ★</Text>
+          {!!reviews && <Text style={styles.ratingPillCount} numberOfLines={1}>({reviews})</Text>}
         </View>
       </TouchableOpacity>
 
+      {/* "Veg only" then its toggle, on the right; the label toggles too. */}
       {isMeat !== "true" && (
-        <View style={styles.vegRow}>
+        <TouchableOpacity style={styles.vegRow} activeOpacity={0.8} onPress={() => setVegOnly((v) => !v)}>
           <View style={styles.vegLeft}>
             <View style={styles.vegIconBox}><View style={styles.vegDot} /></View>
             <Text style={styles.vegLabel}>{t("app.home.vegOnly")}</Text>
           </View>
-          <TouchableOpacity
-            style={[styles.vegSwitch, vegOnly && { backgroundColor: tokens.veg }]}
-            activeOpacity={0.8}
-            onPress={() => setVegOnly((v) => !v)}
-          >
+          <View style={[styles.vegSwitch, vegOnly && { backgroundColor: tokens.veg }]}>
             <View style={[styles.vegSwitchKnob, vegOnly && { alignSelf: "flex-end" }]} />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
       )}
 
       <View style={styles.searchRow}>

@@ -5,6 +5,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import type { CartItem, CartState, CartSyncNotice } from "@/contexts/cart.types";
 import { cartKey, toWire } from "@/contexts/cart.wire";
 import { createHydrate } from "@/contexts/cart.hydrate";
+import { effectivePrice } from "@/utils/pricing";
 import { createRefresh } from "@/contexts/cart.refresh";
 import { trackEvent } from "@/utils/analytics";
 export type { CartItem, CartState, CartStatus, CartSyncNotice, FoodItem, PendingCartConflict } from "@/contexts/cart.types";
@@ -89,6 +90,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   vendorId: null,
   vendorName: null,
+  vendorImage: null,
   isHoveringSearch: false,
   ownerId: null,
   status: "idle",
@@ -97,32 +99,40 @@ export const useCartStore = create<CartState>((set, get) => ({
   clearSyncNotices: () => set({ syncNotices: [] }),
   setIsHoveringSearch: (hovering) => set({ isHoveringSearch: hovering }),
 
-  addItem: (item, vendorId, vendorName) => {
-    get().requestAddItem(item, vendorId, vendorName);
+  addItem: (item, vendorId, vendorName, vendorImage) => {
+    get().requestAddItem(item, vendorId, vendorName, vendorImage);
   },
 
-  requestAddItem: (item, vendorId, vendorName) => {
+  requestAddItem: (rawItem, vendorId, vendorName, vendorImage) => {
     const { items, vendorId: currentVendorId } = get();
+    // A dish on offer is charged its offer price: fold it into `price`, which is
+    // what every cart total, the checkout bill and the /cart sync read.
+    // Idempotent — once price === offerPrice there is no valid offer left to apply.
+    const item = { ...rawItem, price: effectivePrice(rawItem) };
 
     // Items from two outlets can't share one cart — surface the choice instead
     // of silently replacing what's already there.
     if (currentVendorId && items.length > 0 && currentVendorId !== vendorId) {
-      set({ pendingConflict: { item, vendorId, vendorName } });
+      set({ pendingConflict: { item, vendorId, vendorName, vendorImage } });
       return "conflict";
     }
 
+    // A photo from another outlet must never sit beside this one's name.
+    const keptImage = currentVendorId === vendorId ? get().vendorImage : null;
     const existingItem = items.find((i) => i._id === item._id);
     if (existingItem) {
       set({
         items: items.map((i) => (i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i)),
         vendorId,
         vendorName: vendorName ?? get().vendorName,
+        vendorImage: vendorImage || keptImage,
       });
     } else {
       set({
         items: [...items, { ...item, quantity: 1 }],
         vendorId,
         vendorName: vendorName ?? get().vendorName,
+        vendorImage: vendorImage || keptImage,
       });
     }
     trackCartChange("add_to_cart", item, 1, vendorId, vendorName ?? get().vendorName);
@@ -141,6 +151,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       items: [{ ...pending.item, quantity: 1 }],
       vendorId: pending.vendorId,
       vendorName: pending.vendorName ?? null,
+      vendorImage: pending.vendorImage ?? null,
       pendingConflict: null,
     });
     trackCartChange("add_to_cart", pending.item, 1, pending.vendorId, pending.vendorName);
@@ -156,6 +167,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         items: newItems,
         vendorId: newItems.length === 0 ? null : state.vendorId,
         vendorName: newItems.length === 0 ? null : state.vendorName,
+        vendorImage: newItems.length === 0 ? null : state.vendorImage,
       };
     });
     scheduleSync();
@@ -183,7 +195,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: () => {
-    set({ items: [], vendorId: null, vendorName: null, pendingConflict: null });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, pendingConflict: null });
     // Order placement navigates away immediately, so this one can't sit on a debounce.
     scheduleSync(true);
   },
@@ -193,6 +205,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       items,
       vendorId: items.length ? vendorId : null,
       vendorName: items.length ? vendorName ?? null : null,
+      vendorImage: items.length && vendorId === get().vendorId ? get().vendorImage : null,
       pendingConflict: null,
     });
     scheduleSync();
@@ -206,7 +219,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       clearTimeout(syncTimer);
       syncTimer = null;
     }
-    set({ items: [], vendorId: null, vendorName: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
   },
 
   getTotalPrice: () => {

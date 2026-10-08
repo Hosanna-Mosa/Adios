@@ -10,6 +10,15 @@ const ADMIN_ORDER_STATUS_LABEL_KEY: Record<string, string> = {
   COMPLETED: "orders.completed",
   PENDING: "orders.pending",
   SETTLED: "orders.settled",
+  // Rides and package deliveries report the driver app's lowercase statuses.
+  ARRIVED_PICKUP: "orderStatus.driverArrived",
+  ON_THE_WAY: "orderStatus.outForDelivery",
+  driver_assigned: "orderStatus.driverAssigned",
+  en_route_pickup: "orderStatus.driverAssigned",
+  arrived_pickup: "orderStatus.driverArrived",
+  en_route_delivery: "orders.inTransit",
+  arrived_delivery: "orderStatus.driverAtCustomer",
+  delivered: "orderStatus.delivered",
 };
 
 export const adminOrderStatusLabel = (status: string, t: (key: string) => string): string => {

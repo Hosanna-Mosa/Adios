@@ -15,6 +15,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { router, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -40,11 +41,13 @@ import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { useVersionGate } from "@/utils/useVersionGate";
 import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
+import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { GlobalOrderPoller } from "@/components/GlobalOrderPoller";
 import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useThemeStore } from "@/contexts/themeStore";
+import { designTokens } from "@/constants/colors";
 
 // The API URL should be retrieved from environment variables or app config
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
@@ -124,6 +127,7 @@ export default function RootLayout() {
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
   const introSplashDone = useIntroSplashStore((s) => s.introSplashDone);
   const segments = useSegments();
+  const brandColor = designTokens[useThemeStore((s) => s.theme)].brand;
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -143,7 +147,7 @@ export default function RootLayout() {
 
   // Once auth/language are initialized and fonts are ready, redirect based on
   // a restored session first, then the language gate, then the rest of the
-  // auth flow. Waits for the existing purple "FLAVOUR" splash inside
+  // auth flow. Waits for the existing brand-coloured "ADIOS" splash inside
   // app/index.tsx to finish first, so app/index.tsx is never replaced
   // mid-animation — see contexts/introSplashStore.ts.
   useEffect(() => {
@@ -183,7 +187,9 @@ export default function RootLayout() {
   useAnalytics();
 
 
-  if (!fontsLoaded && !fontError) return null;
+  // Brand colour rather than nothing: same ground as the native splash and the
+  // JS intro splash, so there is never a white frame between them.
+  if (!fontsLoaded && !fontError) return <View style={{ flex: 1, backgroundColor: brandColor }} />;
 
   return (
     <SafeAreaProvider>
@@ -202,6 +208,7 @@ export default function RootLayout() {
                   onDismiss={handleDismissUpdate}
                 />
                 <CartConflictDialog />
+                <PaymentOutcomeOverlay />
                 <AppAlert />
               </ToastProvider>
             </KeyboardProvider>

@@ -1,6 +1,5 @@
 import { router } from "expo-router";
 import React from "react";
-import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
@@ -8,12 +7,14 @@ import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import {
   ContactActions,
   OrderStage,
+  PackageDeliveryBanner,
   RoundCommButton,
   StageActionButton,
   StopInfoItem,
   StopsDivider,
   UnreadBadge,
 } from "../order";
+import { callPhone } from "../../utils/callPhone";
 import { Box } from "@/components/ui/Box";
 
 export function RideAcceptedStage() {
@@ -24,7 +25,8 @@ export function RideAcceptedStage() {
   } = useActiveOrderCtx();
 
   return (
-    <OrderStage title={t("jobs.rideAccepted")}>
+    <OrderStage title={currentOrder.packageDelivery ? t("jobs.packageDeliveryAccepted") : t("jobs.rideAccepted")}>
+      <PackageDeliveryBanner order={currentOrder} leg="pickup" />
       <Box style={styles.infoBox}>
         <StopInfoItem
           label={t("jobs.pickupLocation")}
@@ -43,9 +45,7 @@ export function RideAcceptedStage() {
               </RoundCommButton>
               <RoundCommButton
                 icon="call"
-                onPress={() =>
-                  Linking.openURL(`tel:${currentOrder.customerPhone || "1234567890"}`)
-                }
+                onPress={() => callPhone(currentOrder.customerPhone, "customer")}
               />
               <RoundCommButton icon="location" onPress={openRideNavigation} />
             </ContactActions>

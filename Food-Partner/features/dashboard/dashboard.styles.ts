@@ -22,6 +22,7 @@ export const createStyles = (tokens: ThemeTokens) =>
 
     statsGrid: { gap: 12, marginTop: 20 },
     row: { flexDirection: "row", gap: 12 },
+    quickRow: { flexDirection: "row", gap: 8, marginTop: 4 },
     banner: { marginTop: 16 },
     list: { gap: 12 },
   });

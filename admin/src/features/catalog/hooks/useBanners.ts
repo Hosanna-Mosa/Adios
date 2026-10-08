@@ -104,9 +104,12 @@ export function useBanners() {
     formDataObj.append("images", e.target.files[0]);
 
     try {
+      // /food/upload sits behind authenticateToken.
+      const token = localStorage.getItem("admin_token");
       const response = await fetch(`${BASE_URL}/food/upload`, {
         method: "POST",
         body: formDataObj,
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 
       const data = await response.json();

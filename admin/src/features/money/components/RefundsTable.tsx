@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { Button } from "@/components/ui/button";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
+import { orderServiceLabel } from "@/components/shared/orderService";
 import { formatDate, orderLabel, refundStatusStyles, rupees, type RefundRow } from "../moneyTypes";
 import { StatusPill } from "./MoneyBits";
 
@@ -43,7 +44,7 @@ const columns = (props: RefundsTableProps, t: TFunction): DataTableColumn<Refund
     cell: (r) => (
       <>
         <Link to={`/live-orders/${r.orderId}`} className="text-sm font-medium text-primary hover:underline">{orderLabel(r.orderId)}</Link>
-        <p className="text-xs text-muted-foreground capitalize">{r.serviceType} · {t("money.cancelledOn", { date: formatDate(r.cancelledAt) })}</p>
+        <p className="text-xs text-muted-foreground">{orderServiceLabel(r, t)} · {t("money.cancelledOn", { date: formatDate(r.cancelledAt) })}</p>
       </>
     ),
   },

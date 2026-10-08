@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 
 import { router } from "expo-router";
 import { Colors } from "@/constants/colors";
+import i18n from "@/i18n";
 import { fadeInUp } from "@/motion/presets";
-import { formatMonthYear } from "../utils/format";
+import { formatAcceptanceRate, formatMonthYear } from "../utils/format";
+import type { Status } from "../types";
 import { styles } from "../profile-tab.styles";
 import { AccountMenuList } from "./AccountMenuList";
 import { CurrentVehicleRow } from "./CurrentVehicleRow";
@@ -15,6 +17,17 @@ import { RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
 import { AppText } from "@/components/ui/AppText";
 import { useDriverStore } from "@/store/driverStore";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
+
+/** Pill text and colours for a document's status as the profile reports it. */
+function documentStatus(status: Status | undefined) {
+  if (status === "valid") {
+    return { status: i18n.t("profile.valid"), tone: Colors.success, toneSurface: Colors.successLight };
+  }
+  if (status === "expired") {
+    return { status: i18n.t("profile.expired"), tone: Colors.error, toneSurface: Colors.errorLight };
+  }
+  return { status: i18n.t("profile.pending"), tone: Colors.warning, toneSurface: Colors.warningLight };
+}
 
 /** Everything on the profile tab above the section sheet. */
 export function ProfileTabBody({
@@ -40,7 +53,8 @@ export function ProfileTabBody({
             <ProfileStatsCard
               stats={[
                 { value: String(profile.stats.completedTrips), label: t("earnings.trips") },
-                { value: `${profile.stats.acceptanceRate}%`, label: t("profile.acceptance") },
+                // Null until the backend has offers to compute it from — never "null%".
+                { value: formatAcceptanceRate(profile.stats.acceptanceRate), label: t("profile.acceptance") },
                 // Was comparing profile.driver?.status (backend enum "ONLINE"/"OFFLINE")
                 // against the lowercase literal "online", which never matched — so this
                 // read OFFLINE even while the driver was online. Reading the live
@@ -50,26 +64,26 @@ export function ProfileTabBody({
               ]}
             />
 
+            {/* Statuses come from the profile; these were a fixed "Expired" licence
+                and "Valid" insurance for every driver. */}
             <AnimatedBox entering={fadeInUp(120)} style={styles.docsRow}>
               <DocumentStatusCard
                 icon="file-text"
                 title={t("profile.drivingLicense")}
-                status={t("profile.expired")}
-                tone={Colors.error}
-                toneSurface={Colors.errorLight}
+                {...documentStatus(profile.verification?.drivingLicense)}
               />
               <DocumentStatusCard
                 icon="shield"
                 title={t("profile.vehicleInsurance")}
-                status={t("profile.valid")}
-                tone={Colors.success}
-                toneSurface={Colors.successLight}
+                {...documentStatus(profile.vehicle?.insuranceStatus)}
               />
             </AnimatedBox>
 
+            {/* The profile has no vehicle number, so only the type is shown (it used
+                to append a made-up "*********4567"). */}
             <CurrentVehicleRow
               label={t("profile.currentVehicle")}
-              detail={`${profile.vehicle.label} • *********4567`}
+              detail={profile.vehicle.label}
               onPress={() => onOpenSection("vehicle")}
             />
 

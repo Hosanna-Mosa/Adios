@@ -1,7 +1,7 @@
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
-import { SlidersHorizontal, Download, Eye, ChevronLeft, ChevronRight } from "lucide-react";
-import { toast } from "sonner";
+import { Pagination } from "@/components/shared/Pagination";
+import { SlidersHorizontal, Download, Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   DropdownMenu,
@@ -14,11 +14,19 @@ import { adminOrderStatusLabel } from "../adminOrderStatus";
 
 interface PaymentsTableProps {
   isLoading: boolean;
-  filteredTxns: Transaction[];
+  /** The current page of rows. */
+  pageTxns: Transaction[];
+  /** Rows matching the status filter, across all pages. */
+  filteredCount: number;
+  /** Every row the API returned, before filtering. */
   totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
   statusFilter: string;
   setStatusFilter: (value: string) => void;
   onViewTxn: (txn: Transaction) => void;
+  onExportCsv: () => void;
 }
 
 function buildColumns(onViewTxn: (txn: Transaction) => void, t: (key: string, opts?: Record<string, unknown>) => string): DataTableColumn<Transaction>[] {
@@ -71,14 +79,26 @@ function buildColumns(onViewTxn: (txn: Transaction) => void, t: (key: string, op
   ];
 }
 
-/** The "Recent Delivery Fees" table (filter/export header, rows, pagination) on Payments. */
 const STATUS_FILTER_LABEL_KEY: Record<string, string> = {
   ALL: "dashboard.allStatuses",
   SETTLED: "orders.settled",
   PENDING: "orders.pending",
 };
 
-export function PaymentsTable({ isLoading, filteredTxns, totalCount, statusFilter, setStatusFilter, onViewTxn }: PaymentsTableProps) {
+/** The "Recent Delivery Fees" table (filter/export header, rows, pagination) on Payments. */
+export function PaymentsTable({
+  isLoading,
+  pageTxns,
+  filteredCount,
+  totalCount,
+  currentPage,
+  totalPages,
+  onPageChange,
+  statusFilter,
+  setStatusFilter,
+  onViewTxn,
+  onExportCsv,
+}: PaymentsTableProps) {
   const { t } = useTranslation();
   return (
     <div className="section-card">
@@ -98,7 +118,7 @@ export function PaymentsTable({ isLoading, filteredTxns, totalCount, statusFilte
             </DropdownMenuContent>
           </DropdownMenu>
           <button
-            onClick={() => toast.success(t("orders.csvStatementDownloaded"))}
+            onClick={onExportCsv}
             className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <Download className="h-4 w-4" /> {t("orders.exportCsv")}
@@ -108,23 +128,21 @@ export function PaymentsTable({ isLoading, filteredTxns, totalCount, statusFilte
 
       <DataTable
         columns={buildColumns(onViewTxn, t)}
-        data={filteredTxns}
+        data={pageTxns}
         rowKey={(txn) => txn.id}
         isLoading={isLoading}
         loadingLabel={t("orders.loadingPayments")}
-        emptyLabel={t("orders.noTransactionsFoundMatchingFilter")}
+        emptyLabel={totalCount === 0 ? t("orders.noTransactionsYet") : t("orders.noTransactionsFoundMatchingFilter")}
       />
 
-      <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">{t("orders.showingXOfYTransactions", { shown: totalCount, total: 285, defaultValue: "Showing {{shown}} of {{total}} transactions" })}</p>
-        <div className="flex items-center gap-1">
-          <button onClick={() => toast.info(t("orders.noPreviousPages"))} className="p-1.5 border border-border rounded text-muted-foreground hover:bg-muted/50 transition-colors"><ChevronLeft className="h-4 w-4" /></button>
-          <button className="h-8 w-8 rounded bg-primary text-primary-foreground text-sm font-medium">1</button>
-          <button onClick={() => toast.info(t("orders.pageNNotSimulated", { n: 2, defaultValue: "Page {{n}} not simulated" }))} className="h-8 w-8 rounded text-sm text-muted-foreground hover:bg-muted/50 transition-colors">2</button>
-          <button onClick={() => toast.info(t("orders.pageNNotSimulated", { n: 3, defaultValue: "Page {{n}} not simulated" }))} className="h-8 w-8 rounded text-sm text-muted-foreground hover:bg-muted/50 transition-colors">3</button>
-          <button onClick={() => toast.info(t("orders.noNextPages"))} className="p-1.5 border border-border rounded text-muted-foreground hover:bg-muted/50 transition-colors"><ChevronRight className="h-4 w-4" /></button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        itemLabel={t("orders.transactionsLower")}
+        shownCount={pageTxns.length}
+        totalCount={filteredCount}
+      />
     </div>
   );
 }

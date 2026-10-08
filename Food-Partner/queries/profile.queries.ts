@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/contexts/authStore";
-import { getMyProfile } from "@/services/auth.service";
+import { getMyProfile, updateMyProfile } from "@/services/auth.service";
 import { setOutletOpen } from "@/services/outlet.service";
-import type { PartnerProfile } from "@/types/models";
+import type { PartnerProfile, ProfileUpdate } from "@/types/models";
 import { queryKeys } from "./keys";
 
 /**
@@ -11,7 +11,8 @@ import { queryKeys } from "./keys";
  * photo, rating and whether it's open right now. Shared by the dashboard
  * header and the Account tab. Until it arrives, the details saved at sign-in
  * stand in, and once it does they're updated so an admin's edit to the outlet
- * shows up without signing out.
+ * shows up without signing out. It refreshes every minute while the app is in
+ * the foreground, because the open state follows the clock (opening hours).
  */
 export function usePartnerProfile() {
   const partner = useAuthStore((s) => s.partner);
@@ -21,6 +22,7 @@ export function usePartnerProfile() {
     queryFn: getMyProfile,
     enabled: !!partner,
     placeholderData: partner ? (partner as PartnerProfile) : undefined,
+    refetchInterval: 60_000,
   });
 
   const fresh = query.isPlaceholderData ? undefined : query.data;
@@ -28,7 +30,7 @@ export function usePartnerProfile() {
     if (fresh) updatePartner({ name: fresh.name, email: fresh.email, phone: fresh.phone });
   }, [fresh, updatePartner]);
 
-  return { profile: query.data ?? (partner as PartnerProfile | null), loaded: !!fresh, refetch: query.refetch };
+  return { profile: query.data ?? (partner as PartnerProfile | null), loaded: !!fresh, failed: query.isError, refetch: query.refetch };
 }
 
 /**
@@ -45,13 +47,40 @@ export function useSetOutletOpen() {
     onMutate: async (isOpen: boolean) => {
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<PartnerProfile>(key);
-      if (previous) queryClient.setQueryData<PartnerProfile>(key, { ...previous, isManuallyClosed: !isOpen });
+      // Pausing closes the outlet whatever the hours say. Resuming depends on
+      // the hours, which only the server knows — so its answer is awaited.
+      if (previous) {
+        queryClient.setQueryData<PartnerProfile>(key, {
+          ...previous,
+          isManuallyClosed: !isOpen,
+          openState: isOpen ? previous.openState : { isOpen: false, label: "Closed", today: previous.openState?.today ?? null },
+          openStatePending: isOpen,
+        });
+      }
       return { previous };
     },
     onError: (_error, _isOpen, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous);
     },
     onSuccess: (profile) => queryClient.setQueryData(key, profile),
+  });
+}
+
+/**
+ * Saves the Edit restaurant details screen. The answer is the fresh profile:
+ * it replaces the cache, and the name and contact details saved at sign-in
+ * follow it, as usePartnerProfile does.
+ */
+export function useUpdateProfile() {
+  const partner = useAuthStore((s) => s.partner);
+  const updatePartner = useAuthStore((s) => s.updatePartner);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (update: ProfileUpdate) => updateMyProfile(update),
+    onSuccess: (profile) => {
+      queryClient.setQueryData(queryKeys.profile(partner?._id ?? ""), profile);
+      updatePartner({ name: profile.name, email: profile.email, phone: profile.phone });
+    },
   });
 }
 

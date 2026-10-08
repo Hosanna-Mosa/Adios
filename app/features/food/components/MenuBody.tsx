@@ -9,6 +9,8 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { MenuVegOnly } from "./MenuVegOnly";
+import { BestsellerBadge, NutritionLine } from "./DishHighlights";
+import { DishPrice } from "@/components/shared/DishPrice";
 import { outletClosedLabel } from "@/components/shared/outletClosed";
 import { trackEvent } from "@/utils/analytics";
 
@@ -23,7 +25,7 @@ export function MenuBody(props: Props) {
   return (
     <ScrollView
       ref={scrollViewRef}
-      contentContainerStyle={{ paddingBottom: tabBarHeight + 120 }}
+      contentContainerStyle={{ paddingBottom: tabBarHeight + 40 }}
       showsVerticalScrollIndicator={false}
       onScroll={handleScroll}
       scrollEventThrottle={16}
@@ -57,10 +59,10 @@ export function MenuBody(props: Props) {
           </Text>
         </View>
       ) : (
-        categoryTabs.map((category) => (
+        categoryTabs.map((category, categoryIndex) => (
           <View
             key={category}
-            style={styles.categorySection}
+            style={[styles.categorySection, categoryIndex === 0 && styles.categorySectionFirst]}
             onLayout={(e) => { categoryPositions.current[category] = e.nativeEvent.layout.y; }}
           >
             <View style={styles.categoryHeadRow}>
@@ -104,8 +106,10 @@ export function MenuBody(props: Props) {
                         <View style={styles.nonvegTriangle} />
                       )}
                     </View>
+                    {item.isBestseller && <BestsellerBadge tokens={tokens} style={{ marginBottom: 4 }} />}
                     <Text style={styles.rowName} numberOfLines={2}>{item.name}</Text>
-                    <Text style={styles.rowPrice}>₹{item.price}</Text>
+                    <DishPrice price={item.price} offerPrice={item.offerPrice} discountPercent={item.discountPercent} priceStyle={styles.rowPrice} />
+                    <NutritionLine calories={item.calories} protein={item.protein} tokens={tokens} style={{ marginTop: 4 }} />
                     {!!item.description && (
                       <Text style={styles.rowDesc} numberOfLines={2}>{item.description}</Text>
                     )}
@@ -113,7 +117,7 @@ export function MenuBody(props: Props) {
 
                   <View style={styles.rowImageCol}>
                     <Image
-                      source={{ uri: item.images?.[0] || "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }}
+                      source={item.images?.[0] ? { uri: item.images[0] } : null}
                       style={styles.rowImage}
                       contentFit="cover"
                       transition={200}

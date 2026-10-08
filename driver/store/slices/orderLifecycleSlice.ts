@@ -15,47 +15,45 @@ export const createOrderLifecycleSlice = (
     const { incomingOrder, token } = get();
     if (!incomingOrder) return false;
     markOfferHandled(incomingOrder.id);
-    const isBroadcast = incomingOrder.dispatchMode === "broadcast";
 
-    let accepted = false;
+    // Only the server can give this driver the job. A failed accept used to fall
+    // through to a fake "Mock Driver" acceptance (and open the job screen anyway),
+    // so it now fails visibly like the food-offer case always did.
+    if (!token) {
+      Alert.alert(i18n.t("jobs.offerAcceptFailedTitle"), i18n.t("auth.pleaseSignInAgain"));
+      return false;
+    }
+
     let orderFromApi: any = null;
-    if (token) {
-      try {
-        const res = await fetch(`${apiUrl}/orders/${incomingOrder.id}/accept`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) {
-          const error = await res.json().catch(() => ({}));
-          console.warn(error.message || "Failed to accept order via API");
-          // A food offer goes to many riders at once, so losing it is normal:
-          // say so and close the card rather than pretend the job is ours.
-          if (isBroadcast) {
-            set({ incomingOrder: null });
-            Alert.alert(i18n.t("jobs.offerGoneTitle"), error.message || i18n.t("jobs.offerGoneMessage"));
-            return false;
-          }
-        } else {
-          accepted = true;
-          orderFromApi = await res.json();
-        }
-      } catch (e) {
-        console.error("Order acceptance API failed:", e);
-        if (isBroadcast) {
-          Alert.alert(i18n.t("jobs.offerAcceptFailedTitle"), i18n.t("jobs.offerAcceptFailedMessage"));
-          return false;
-        }
+    try {
+      const res = await fetch(`${apiUrl}/orders/${incomingOrder.id}/accept`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        console.warn(error.message || "Failed to accept order via API");
+        // The server refused it (a food offer another rider took first, an offer
+        // that expired or was cancelled): say so and close the card rather than
+        // pretend the job is ours.
+        set({ incomingOrder: null });
+        Alert.alert(i18n.t("jobs.offerGoneTitle"), error.message || i18n.t("jobs.offerGoneMessage"));
+        return false;
       }
+      orderFromApi = await res.json().catch(() => null);
+    } catch (e) {
+      // No answer from the server: keep the card so the driver can try again.
+      console.error("Order acceptance API failed:", e);
+      Alert.alert(i18n.t("jobs.offerAcceptFailedTitle"), i18n.t("jobs.offerAcceptFailedMessage"));
+      return false;
     }
 
-    if (accepted) {
-      trackEvent("order_accepted", {
-        service_type: incomingOrder.serviceType,
-        value: incomingOrder.earnings,
-        currency: "INR",
-        reserved: !!incomingOrder.isReserved,
-      });
-    }
+    trackEvent("order_accepted", {
+      service_type: incomingOrder.serviceType,
+      value: incomingOrder.earnings,
+      currency: "INR",
+      reserved: !!incomingOrder.isReserved,
+    });
 
     if (incomingOrder.isReserved) {
       Alert.alert(

@@ -13,10 +13,16 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   mainScrollContent: { paddingBottom: 100 },
 
   topRow: {
-    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 16, paddingTop: 6,
   },
   addressBlock: { flex: 1, minWidth: 0 },
+  // Single-line address: "DELIVERY TO Home · street", chevron after it.
+  addressInlineRow: { flexDirection: "row", alignItems: "center", gap: 4, marginRight: 12 },
+  addressInlineText: { flexShrink: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
+  addressInlineEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.6, color: accent.accent },
+  addressInlineLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
+  addressInlineLine: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
   addressEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: accent.accent },
   addressLabelRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 5 },
   addressLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
@@ -33,10 +39,16 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   // Position only — the pill itself is components/ui/CountBadge.
   notificationBadge: { position: "absolute", top: -moderateScale(6), right: -moderateScale(8) },
 
-  headline: {
+  // Hero headline (HomeIntro): one line at the largest size that fits the width.
+  headlineBox: { marginHorizontal: 16, marginTop: 18 },
+  headlineText: {
     fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,
-    letterSpacing: -0.6, color: tokens.text, paddingHorizontal: 16, marginTop: 18,
+    letterSpacing: -0.6, color: tokens.text,
   },
+  // Invisible copy of the headline in a very wide box: it sizes to its natural
+  // one-line width (alignSelf), which onLayout then reports.
+  headlineMeasure: { position: "absolute", left: 0, top: 0, width: 4000, opacity: 0 },
+  headlineMeasureText: { alignSelf: "flex-start" },
 
   searchBar: {
     flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
@@ -66,8 +78,8 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   promoScrollContent: { paddingHorizontal: 16, gap: CARD_GAP },
   promoCard: { width: CARD_W, height: 140, borderRadius: moderateScale(18), borderWidth: 1, borderColor: tokens.border, padding: 18, justifyContent: "space-between" },
   promoEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase" },
-  promoHeadline: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge, letterSpacing: -0.5, color: tokens.text, marginTop: 8 },
-  promoCaption: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
+  promoHeadline: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, letterSpacing: -0.3, color: tokens.text, marginTop: 6 },
+  promoCaption: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.sec },
   promoDotsRow: { flexDirection: "row", justifyContent: "center", gap: 5, paddingTop: 12 },
   promoDot: { height: 5, borderRadius: 999 },
 

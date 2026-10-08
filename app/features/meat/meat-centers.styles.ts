@@ -33,7 +33,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     searchInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
 
     headline: { paddingHorizontal: 16, paddingTop: 18 },
-    headlineText: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
+    headlineText: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, letterSpacing: -0.3, color: tokens.text },
     headlineSub: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 6 },
 
     typesRow: { paddingHorizontal: 16, paddingVertical: 18, gap: 16 },

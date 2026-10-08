@@ -46,8 +46,8 @@ export function offerTitle({
   return i18n.t("jobs.newDeliveryRequest");
 }
 
-/** reservedAt arrives as an ISO string from the API but as a Date from the
- * mock order helper, so accept both. */
+/** reservedAt arrives as an ISO string from the API, but the Order type
+ * also allows a Date, so accept both. */
 export function formatReservedAt(reservedAt?: string | Date | null) {
   if (!reservedAt) return i18n.t("jobs.notAvailableAbbr");
   return new Date(reservedAt).toLocaleString([], {

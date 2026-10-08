@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
+import { getVendor } from "@/services/catalog.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { foodStageOf } from "@/contexts/foodStage";
@@ -47,11 +48,25 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       landmark: selectedAddress.landmark || "",
       formattedAddress: selectedAddress.addressLine,
     };
-    const dropLat = Number(selectedAddress.coordinates?.lat ?? selectedAddress.location?.coordinates?.[1] ?? 17.0005);
-    const dropLng = Number(selectedAddress.coordinates?.lng ?? selectedAddress.location?.coordinates?.[0] ?? 81.804);
+    // The address's own pin — never a made-up point. One saved without coordinates
+    // has to be re-picked on the map before anything can be delivered to it.
+    const dropLat = Number(selectedAddress.coordinates?.lat ?? selectedAddress.location?.coordinates?.[1]);
+    const dropLng = Number(selectedAddress.coordinates?.lng ?? selectedAddress.location?.coordinates?.[0]);
+    if (!Number.isFinite(dropLat) || !Number.isFinite(dropLng)) {
+      showAlert(i18n.t("app.food.deliveryDetailsNeeded"), i18n.t("app.food.selectADeliveryAddress"));
+      router.push("/delivery/saved-addresses");
+      return;
+    }
 
     setIsPlacingOrder(true);
     try {
+      // Pickup is the restaurant itself. The server pins it to the outlet's stored
+      // location as well (OrdersService.pinPickupToOutlet); the delivery point only
+      // stands in when the outlet's location can't be read here.
+      const outlet: any = await getVendor(vendorId).catch(() => null);
+      const [outletLng, outletLat] = outlet?.location?.coordinates ?? [];
+      const hasOutletPoint = Number.isFinite(outletLat) && Number.isFinite(outletLng);
+
       const orderItems = items.map((item: any) => ({
         id: item._id,
         name: item.name,
@@ -84,10 +99,10 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         stops: [
           {
             id: "vendor-pickup",
-            address: vendorName || i18n.t("app.food.orderFallback.restaurantPickup"),
+            address: outlet?.address || vendorName || i18n.t("app.food.orderFallback.restaurantPickup"),
             storeName: vendorName || i18n.t("app.food.orderFallback.restaurant"),
-            latitude: dropLat + 0.004,
-            longitude: dropLng + 0.004,
+            latitude: hasOutletPoint ? outletLat : dropLat,
+            longitude: hasOutletPoint ? outletLng : dropLng,
             type: "pickup",
             items: [],
           },

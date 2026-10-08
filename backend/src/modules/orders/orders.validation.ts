@@ -24,6 +24,24 @@ const stopInputSchema = z.object({
   longitude: z.number().optional(),
 });
 
+const packageDeliveryContactSchema = z.object({
+  name: z.string().trim().min(1, "Enter the contact's name").max(80),
+  phone: z.string().trim().regex(/^\d{10}$/, "Phone number must be 10 digits"),
+});
+
+/** Bike and auto are the only vehicles package delivery runs on. */
+export const PACKAGE_DELIVERY_SERVICE_TYPES: string[] = [ServiceType.BIKE, ServiceType.AUTO];
+
+/**
+ * The Package delivery flow's extras on a bike/auto order (see IPackageDelivery). Also checked by the
+ * online checkout before charging, since /payments takes orderData unvalidated.
+ */
+export const packageDeliverySchema = z.object({
+  payAt: z.enum(["pickup", "drop"]),
+  pickupContact: packageDeliveryContactSchema,
+  dropContact: packageDeliveryContactSchema,
+});
+
 export const estimateFareSchema = z.object({
   query: z.object({
     pickupLat: z.string().refine((val) => !isNaN(Number(val)), "pickupLat must be a valid number"),
@@ -64,6 +82,10 @@ export const createOrderSchema = z.object({
     scheduledFor: z.string().datetime({ message: "scheduledFor must be a valid ISO date-time" }).optional().or(z.string().optional()),
     // Orders placed here are always cash. Online orders are created by /payments after payment.
     paymentMethod: z.literal("cash", { message: "Online payments go through /payments/create-order" }).optional(),
+    packageDelivery: packageDeliverySchema.optional(),
+  }).refine((body) => !body.packageDelivery || PACKAGE_DELIVERY_SERVICE_TYPES.includes(String(body.serviceType)), {
+    message: "Package delivery is only available by bike or auto",
+    path: ["packageDelivery"],
   }),
 });
 

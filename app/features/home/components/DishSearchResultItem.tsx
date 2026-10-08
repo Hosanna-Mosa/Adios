@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
+import { DishPrice } from "@/components/shared/DishPrice";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -34,7 +35,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
       });
       return;
     }
-    if (vendor?._id) requestAddItem(item, vendor._id, vendor?.name);
+    if (vendor?._id) requestAddItem(item, vendor._id, vendor?.name, vendor?.image || undefined);
   };
 
   const handleNavigateToMenu = () => {
@@ -51,7 +52,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
       });
       router.push({
         pathname: "/restaurant-menu",
-        params: { id: vendor._id, name: vendor.name, image: vendor.image || "", rating: String(vendor.rating || "4.8"), reviews: vendor.reviews || "2k+", isMeat: "false", highlightDishId: item._id },
+        params: { id: vendor._id, name: vendor.name, image: vendor.image || "", rating: vendor.rating ? String(vendor.rating) : "", reviews: vendor.reviews ? String(vendor.reviews) : "", isMeat: "false", highlightDishId: item._id, isOpen: outletClosed ? "false" : "true" },
       });
     }
   };
@@ -65,7 +66,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
           </View>
           <Text style={styles.dishItemName} numberOfLines={1}>{item.name}</Text>
         </View>
-        <Text style={styles.dishItemPrice}>₹{item.price}</Text>
+        <DishPrice price={item.price} offerPrice={item.offerPrice} discountPercent={item.discountPercent} priceStyle={styles.dishItemPrice} />
         <Text style={styles.dishItemDesc} numberOfLines={2}>{item.description}</Text>
         {vendor && (
           <View style={styles.dishVendorRow}>
@@ -77,7 +78,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
 
       <View style={styles.dishItemImageContainer}>
         <TouchableOpacity activeOpacity={0.85} onPress={handleNavigateToMenu}>
-          <Image source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400" }} style={styles.dishItemImage} contentFit="cover" transition={200} />
+          <Image source={item.images?.[0] ? { uri: item.images[0] } : null} style={styles.dishItemImage} contentFit="cover" transition={200} />
         </TouchableOpacity>
         <View style={styles.dishAddButtonOverlay}>
           {soldOut ? (

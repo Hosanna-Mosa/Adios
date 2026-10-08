@@ -69,8 +69,9 @@ export function RestaurantListItem({
 
   const categoryLabel = Array.isArray(categories) ? categories.slice(0, 2).join(", ") : categories;
   // openState is the evaluated verdict; the bare isOpen boolean is the fallback for any payload that predates it. Either way the card always states a status.
+  // A closed outlet just says CLOSED — the "opens Mon 9:00 AM" detail lives on the menu screen.
   const isClosed = openState ? !openState.isOpen : isOpen === false;
-  const statusText = openState?.label || (isClosed ? "Closed" : "Open now");
+  const statusText = isClosed ? t("app.food.closedPill") : openState?.label || "Open now";
   const distanceLabel = typeof distanceKm === "number"
     ? (distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`)
     : distance;
@@ -91,6 +92,8 @@ export function RestaurantListItem({
         time: time || "",
         distance: distanceLabel || "",
         address: address || "",
+        // The card's own verdict, so the menu blocks adds from the first frame.
+        isOpen: isClosed ? "false" : "true",
       },
     });
   };
@@ -112,7 +115,7 @@ export function RestaurantListItem({
           >
             <Ionicons
               name={isFavorite ? "heart" : "heart-outline"}
-              size={moderateScale(15)}
+              size={moderateScale(18)}
               color={isFavorite ? accent.accent : tokens.sec}
             />
           </TouchableOpacity>

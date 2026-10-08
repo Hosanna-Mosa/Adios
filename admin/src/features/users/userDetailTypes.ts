@@ -11,6 +11,8 @@ export interface UserProfile {
 export interface UserOrderItem {
   _id: string;
   serviceType: string;
+  packageDelivery?: unknown;
+  vendor?: unknown;
   totalPrice: number;
   status: string;
   createdAt: string;
@@ -24,6 +26,8 @@ export interface UserDetailResponse {
     deliveryOrders: number;
     ridesOrders: number;
     helperOrders: number;
+    /** Older backends don't send it. */
+    packageDeliveryOrders?: number;
     completedOrders: number;
     cancelledOrders: number;
     totalSpent: number;

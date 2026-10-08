@@ -18,7 +18,6 @@ export default function AuthScreen() {
     switchMode, setStep,
     handleSignIn, handleSendOTP, handleVerifyOTP,
     handleOTPChange, handleKeyPress,
-    MOCK_OTP,
   } = useAuthFlow();
 
   return (
@@ -60,7 +59,6 @@ export default function AuthScreen() {
             phone={phone}
             otp={otp}
             otpRefs={otpRefs}
-            mockOtp={MOCK_OTP}
             loading={loading}
             onOtpChange={handleOTPChange}
             onKeyPress={handleKeyPress}

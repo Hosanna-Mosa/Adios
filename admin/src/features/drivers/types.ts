@@ -4,6 +4,7 @@ export interface AdminDriverUser {
   email?: string;
   phone?: string;
   isBlocked?: boolean;
+  profilePic?: string;
 }
 
 export interface AdminDriverZoneRef {
@@ -29,6 +30,7 @@ export interface AdminDriver {
   dlNumber?: string;
   dlExpiry?: string;
   onboardingStatus?: string;
+  selfieImage?: string;
 }
 
 export interface AdminZone {

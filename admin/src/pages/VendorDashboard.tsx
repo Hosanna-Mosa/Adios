@@ -19,6 +19,7 @@ export default function VendorDashboard() {
     isRefreshing,
     menuCount,
     totalRevenue,
+    rating,
     selectedOrder,
     setSelectedOrder,
     isModalOpen,
@@ -49,7 +50,7 @@ export default function VendorDashboard() {
           <RefreshButton onRefresh={refresh} isRefreshing={isRefreshing} label={t("vendorDashboard.refresh")} />
         </div>
 
-        <VendorStatsRow ordersCount={orders?.length || 0} menuCount={menuCount || 0} isMeatVendor={isMeatVendor} totalRevenue={totalRevenue} />
+        <VendorStatsRow ordersCount={orders?.length || 0} menuCount={menuCount || 0} isMeatVendor={isMeatVendor} totalRevenue={totalRevenue} rating={rating} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <VendorOrderList

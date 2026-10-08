@@ -64,16 +64,6 @@ export const styles = StyleSheet.create({
     lineHeight: typography.lineHeights.medium,
     marginTop: -6,
   },
-  demoHint: {
-    fontSize: typography.sizes.medium,
-    color: Colors.primary,
-    backgroundColor: Colors.primaryLight,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: moderateScale(8),
-    alignSelf: "flex-start",
-    fontWeight: "500",
-  },
   tabRow: {
     flexDirection: "row",
     backgroundColor: Colors.surfaceAlt,

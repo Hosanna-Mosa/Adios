@@ -64,6 +64,5 @@ export function useAuthFlow() {
     handleSendOTP: actions.handleSendOTP,
     handleVerifyOTP: actions.handleVerifyOTP,
     handleOTPChange, handleKeyPress,
-    MOCK_OTP: actions.MOCK_OTP,
   };
 }

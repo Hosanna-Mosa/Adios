@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { foodStageOf, nextDriverLocation, normalizeStatus } from "./useTracking.shared";
 import { getOrder } from "@/services/orders.service";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -10,13 +10,12 @@ const POLL_MS = 3000;
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any, setHelperStatus: any) {
+export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any, setHelperStatus: any, setIsPackageDelivery: (value: boolean) => void) {
   const pickupStop = stops?.find((s: any) => s.type?.toLowerCase() === "pickup" || s.type?.toLowerCase() === "store");
   const setFoodStage = useDeliveryStore((s) => s.setFoodStage);
 
   // The order's duration seeds the ETA once; after that it follows the driver's
   // position (useTrackingHandleBack), which a re-poll must not overwrite.
-  const etaSeededFor = useRef<string | null>(null);
 
   const fetchOrderDetails = useCallback((isCurrent: IsCurrent) => {
     if (!currentOrderId) return Promise.resolve();
@@ -82,17 +81,20 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.radius) setRadius(order.radius);
           if (order.deliveryOtp) setDeliveryOtp(order.deliveryOtp);
           if (order.serviceType) setServiceType(order.serviceType);
-          if (order.restaurantPickupCode) setStartOtp(order.restaurantPickupCode);
+          // A package delivery starts without a PIN, so there is none to show.
+          setIsPackageDelivery(!!order.packageDelivery);
+          if (order.restaurantPickupCode && !order.packageDelivery) setStartOtp(order.restaurantPickupCode);
           if (order.totalPrice != null) setTotalPrice(order.totalPrice);
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));
           if (order.helperStatusText) setHelperStatus(order.helperStatusText);
-          if (order.duration && etaSeededFor.current !== currentOrderId) {
-            etaSeededFor.current = currentOrderId;
-            const durMinutes = parseInt(order.duration.toString().replace(/[^0-9]/g, ""), 10) || 15;
-            setEta(durMinutes);
+          // The route's time is only a first estimate: once the driver's live position
+          // has produced one, this poll must not reset it.
+          if (order.duration) {
+            const durMinutes = parseInt(order.duration.toString().replace(/[^0-9]/g, ""), 10);
+            if (durMinutes > 0) setEta((prev: number | null) => prev ?? durMinutes);
           }
           if (order.polyline) {
-            setRoute({ totalDistance: order.totalDistance || 0, estimatedTime: order.duration || 15, polyline: order.polyline });
+            setRoute({ totalDistance: order.totalDistance || 0, estimatedTime: order.duration || 0, polyline: order.polyline });
           }
         })
         .catch((err) => console.error("Error fetching order in tracking:", err));

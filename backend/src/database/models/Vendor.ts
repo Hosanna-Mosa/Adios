@@ -135,6 +135,13 @@ export interface IVendor extends Document {
   webPushSubscriptions?: IWebPushSubscription[];
   /** Expo push tokens of every device signed in to the partner app (owner's phone, kitchen tablet…). */
   expoPushTokens?: string[];
+  /** Outlet / branch identifier the partner shows on invoices and to support. */
+  branchCode?: string;
+  /**
+   * Where the partner says the outlet currently is. Informational only — it does
+   * NOT move the searchable `location` pin.
+   */
+  currentLocation?: { lat: number; lng: number; address?: string };
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -157,6 +164,17 @@ const openingHoursDefinition = () => ({
   sat: dayHoursDefinition(),
   sun: dayHoursDefinition(),
 });
+
+// The partner's self-reported position (PUT /vendors/me). Kept apart from the
+// GeoJSON `location` the nearby search runs on.
+const currentLocationSchema = new Schema(
+  {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+    address: { type: String, trim: true },
+  },
+  { _id: false }
+);
 
 const VendorSchema: Schema = new Schema(
   {
@@ -313,6 +331,8 @@ const VendorSchema: Schema = new Schema(
     minOrderValue: { type: Number, default: 0 },
     webPushSubscriptions: [webPushSubscriptionSchema],
     expoPushTokens: { type: [String], default: [] },
+    branchCode: { type: String, trim: true },
+    currentLocation: { type: currentLocationSchema, default: undefined },
   },
   { timestamps: true }
 );

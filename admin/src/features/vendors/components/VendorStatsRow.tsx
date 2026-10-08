@@ -1,4 +1,4 @@
-import { Utensils, Star, Clock, IndianRupee, TrendingUp, Drumstick } from "lucide-react";
+import { Utensils, Star, Clock, IndianRupee, Drumstick } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -8,23 +8,25 @@ interface VendorStatsRowProps {
   menuCount: number;
   isMeatVendor: boolean;
   totalRevenue: number;
+  /** The outlet's real rating from GET /vendors/me; null until it has one. */
+  rating: number | null;
 }
 
 /**
  * The 4-card stats row on VendorDashboard. Not built on the shared
  * StatCard: each card here has its own icon background/text color
  * (blue/green/yellow/purple) where StatCard hardcodes one fixed color for
- * every icon, and the badge here is an icon+text pill ("+0%" with a
- * TrendingUp icon) where StatCard's badge is plain text only. Reusing
- * StatCard would drop the per-card color coding and the trend icon, a
- * real visible change, so this stays its own component.
+ * every icon. Reusing StatCard would drop the per-card color coding, a
+ * real visible change, so this stays its own component. The "+0%" trend pill
+ * every card used to carry was decorative (no period-over-period figure
+ * exists behind it) and was removed, as was the hardcoded "4.8" rating.
  */
-export function VendorStatsRow({ ordersCount, menuCount, isMeatVendor, totalRevenue }: VendorStatsRowProps) {
+export function VendorStatsRow({ ordersCount, menuCount, isMeatVendor, totalRevenue, rating }: VendorStatsRowProps) {
   const { t } = useTranslation();
   const stats = [
     { title: t("vendorDashboard.todaysOrders"), value: ordersCount.toString(), icon: Clock, color: "bg-blue-500/10 text-blue-500" },
     { title: isMeatVendor ? t("vendorDashboard.activeMeatItems") : t("vendorDashboard.activeMenuItems"), value: menuCount.toString(), icon: isMeatVendor ? Drumstick : Utensils, color: "bg-green-500/10 text-green-500" },
-    { title: t("vendorDashboard.averageRating"), value: "4.8", icon: Star, color: "bg-yellow-500/10 text-yellow-500" },
+    { title: t("vendorDashboard.averageRating"), value: rating && rating > 0 ? rating.toFixed(1) : "—", icon: Star, color: "bg-yellow-500/10 text-yellow-500" },
     { title: t("vendorDashboard.totalRevenue"), value: `₹${totalRevenue}`, icon: IndianRupee, color: "bg-purple-500/10 text-purple-500" },
   ];
 
@@ -35,10 +37,6 @@ export function VendorStatsRow({ ordersCount, menuCount, isMeatVendor, totalReve
           <div className="flex items-center justify-between mb-4">
             <div className={`h-12 w-12 rounded-2xl ${stat.color} flex items-center justify-center`}>
               <stat.icon className="h-6 w-6" />
-            </div>
-            <div className="flex items-center gap-1 text-xs font-medium text-success">
-              <TrendingUp className="h-3 w-3" />
-              +0%
             </div>
           </div>
           <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>

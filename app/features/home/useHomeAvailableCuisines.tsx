@@ -4,10 +4,18 @@ import { interpolate, useAnimatedStyle, useSharedValue } from "react-native-rean
 import { STRIDE } from "./constants";
 import { DEFAULT_CUISINES, DEFAULT_MEAT_TYPES } from "./useHome.shared";
 
+export interface PromoCard {
+  eyebrow: string;
+  headline: string;
+  caption: string;
+  /** From the source banner; when set, tapping the card opens it instead of /offers. */
+  targetUrl?: string;
+}
+
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nearbyDriversCount: any, loadingDrivers: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any) {
+export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nearbyDriversCount: any, loadingDrivers: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any, bannersLoading = false) {
   const { t } = useTranslation();
 
   // Pure display copy (not compared against anything), safe to translate
@@ -15,11 +23,11 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   // in English since they double as fallback filter-chip values matched
   // against live backend category data (see CuisineStrip.tsx's
   // translateFoodTag() for how those get a translated display instead).
-  const FOOD_PROMOS = useMemo(() => [
+  const FOOD_PROMOS = useMemo<PromoCard[]>(() => [
     { eyebrow: t("app.home.foodPromos.firstOrder.eyebrow"), headline: t("app.home.foodPromos.firstOrder.headline"), caption: t("app.home.foodPromos.firstOrder.caption") },
     { eyebrow: t("app.home.foodPromos.lateNight.eyebrow"), headline: t("app.home.foodPromos.lateNight.headline"), caption: t("app.home.foodPromos.lateNight.caption") },
   ], [t]);
-  const MEAT_PROMOS = useMemo(() => [
+  const MEAT_PROMOS = useMemo<PromoCard[]>(() => [
     { eyebrow: t("app.home.meatPromos.sundaySpecial.eyebrow"), headline: t("app.home.meatPromos.sundaySpecial.headline"), caption: "" },
     { eyebrow: t("app.home.meatPromos.cleanedAndCut.eyebrow"), headline: t("app.home.meatPromos.cleanedAndCut.headline"), caption: "" },
   ], [t]);
@@ -49,13 +57,17 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   );
   const greetingAds = useMemo(() => banners.filter((b: any) => b.itemType === "ad" && b.position === "below_greetings"), [banners]);
 
-  const promoCards = heroBanners.length > 0
-    ? heroBanners.map((b: any) => ({ eyebrow: "Offer", headline: b.title, caption: b.description || "" }))
-    : activeService === "Meat" ? MEAT_PROMOS : FOOD_PROMOS;
+  // While GET /banners is still in flight the carousel shows a skeleton, so the
+  // hardcoded promos only appear once we know there are no hero banners.
+  const promoCards: PromoCard[] = heroBanners.length > 0
+    ? heroBanners.map((b: any) => ({ eyebrow: t("app.home.offerEyebrow"), headline: b.title, caption: b.description || "", targetUrl: b.targetUrl }))
+    : bannersLoading ? [] : activeService === "Meat" ? MEAT_PROMOS : FOOD_PROMOS;
 
   useEffect(() => {
+    if (promoCards.length < 2) return;
     const interval = setInterval(() => {
       let next = bannerIndexRef.current + 1;
+      if (promoCards.length === 0) return;
       if (next >= promoCards.length) next = 0;
       carouselRef.current?.scrollTo({ x: next * STRIDE, animated: true });
       bannerIndexRef.current = next;

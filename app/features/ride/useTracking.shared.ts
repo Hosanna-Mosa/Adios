@@ -97,8 +97,8 @@ export function calculateBearing(lat1: number, lng1: number, lat2: number, lng2:
 export function calculateDynamicETA(
   driverLoc: { lat: number; lng: number } | null,
   targetLoc: { lat: number; lng: number } | null,
-  fallbackEta: number
-): number {
+  fallbackEta: number | null
+): number | null {
   if (!driverLoc || !targetLoc || !driverLoc.lat || !targetLoc.lat) return fallbackEta;
   const R = 6371;
   const rad = Math.PI / 180;

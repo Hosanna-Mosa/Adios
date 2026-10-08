@@ -82,6 +82,6 @@ function buildFoodItem(item: any) {
     price: item.price,
     category: item.category || "149 Store",
     isVeg: item.isVeg,
-    images: item.images && item.images.length > 0 ? item.images : ["https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"],
+    images: item.images && item.images.length > 0 ? item.images : [],
   };
 }

@@ -33,12 +33,6 @@ export function useTrackingHandleBack(status: any, currentOrderId: any, stops: a
     }
   }, [driverLocation?.lat, driverLocation?.lng]);
 
-  useEffect(() => {
-    if (!currentOrderId) return;
-    const timer = setInterval(() => setEta((prev: any) => Math.max(1, prev - 1)), 30000);
-    return () => clearInterval(timer);
-  }, [currentOrderId]);
-
   // Android's hardware back follows the on-screen arrow (iOS swipe-back is off for this screen).
   useFocusEffect(
     useCallback(() => {

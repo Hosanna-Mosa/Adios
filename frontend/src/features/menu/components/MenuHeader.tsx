@@ -19,6 +19,10 @@ type Props = { restaurant: Restaurant };
 
 export function MenuHeader({ restaurant }: Props) {
   const { t } = useTranslation();
+  // Nothing writes a rating for a digital-menu restaurant until it has real reviews, so an
+  // unrated one is labelled "New" instead of showing a made-up score and review count.
+  const rating = Number(restaurant.rating) || 0;
+  const hasRating = rating > 0;
   return (
     <>
       {/* Mobile Top App Bar (Sticky) */}
@@ -90,6 +94,12 @@ export function MenuHeader({ restaurant }: Props) {
                     {t("menu.vegAndNonVeg")}
                   </span>
                 )}
+                {!hasRating && (
+                  <span className="bg-amber-400/20 text-amber-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-amber-400/30 flex items-center gap-1">
+                    <Icon name="star" className="text-xs md:text-sm" />{" "}
+                    {t("menu.new")}
+                  </span>
+                )}
               </div>
 
               <h1 className="text-3xl md:text-5xl font-black tracking-tight">
@@ -118,36 +128,38 @@ export function MenuHeader({ restaurant }: Props) {
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-xl border border-white/10 p-4 md:p-5 rounded-2xl mx-auto md:mx-0 shrink-0"
-            >
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-amber-400">
-                  <Icon
-                    name="star"
-                    className="fill-current text-lg md:text-xl"
-                  />
-                  <span className="text-lg md:text-xl font-black">
-                    {restaurant.rating || "4.0"}
+            {hasRating && (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-xl border border-white/10 p-4 md:p-5 rounded-2xl mx-auto md:mx-0 shrink-0"
+              >
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-amber-400">
+                    <Icon
+                      name="star"
+                      className="fill-current text-lg md:text-xl"
+                    />
+                    <span className="text-lg md:text-xl font-black">
+                      {rating}
+                    </span>
+                  </div>
+                  <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
+                    {t("menu.rating")}
                   </span>
                 </div>
-                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
-                  {t("menu.rating")}
-                </span>
-              </div>
-              <div className="w-[1px] h-10 bg-white/20" />
-              <div className="text-center px-2">
-                <div className="text-lg md:text-xl font-black text-white">
-                  {restaurant.reviews || "100+"}
+                <div className="w-[1px] h-10 bg-white/20" />
+                <div className="text-center px-2">
+                  <div className="text-lg md:text-xl font-black text-white">
+                    {restaurant.reviews || "0"}
+                  </div>
+                  <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
+                    {t("menu.reviews")}
+                  </span>
                 </div>
-                <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
-                  {t("menu.reviews")}
-                </span>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </div>
         </div>
       </motion.div>

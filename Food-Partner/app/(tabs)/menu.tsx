@@ -1,11 +1,11 @@
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/ui/Button";
 import { ChipRow } from "@/components/ui/ChipRow";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ScreenTitle } from "@/components/ui/ScreenTitle";
 import { TextField } from "@/components/ui/TextField";
 import { DishList } from "@/features/menu/components/DishList";
+import { MenuTitleActions } from "@/features/menu/components/MenuTitleActions";
 import { ALL, SOLD_OUT, useFoodMenuScreen } from "@/features/menu/useFoodMenuScreen";
 
 /** Restaurant Menu tab — the web panel's /vendor/menu: search, filter, stock, edit, delete, add. */
@@ -19,7 +19,7 @@ export default function MenuScreen() {
       <ScreenTitle
         title={t("menu.title")}
         subtitle={t("menu.summary", { total: m.menu.length, inStock: m.inStockCount })}
-        right={<Button title={t("menu.addDish")} size="sm" icon={<Ionicons name="add" size={18} color={m.tokens.onBrand} />} onPress={m.addDish} />}
+        right={<MenuTitleActions onAddDish={m.addDish} onBulkUpload={m.bulkUpload} styles={m.styles} tokens={m.tokens} />}
       />
       {hasMenu ? (
         <TextField

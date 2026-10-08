@@ -29,13 +29,14 @@ interface Props {
   isHelper: boolean;
   accent: ServiceTokens;
   styles: TrackingStyles;
-  eta: number;
+  eta: number | null;
   orderCreatedAt: any;
   tripModalVisible: any;
   setTripModalVisible: any;
   helperStatus: any;
   deliveryOtp: any;
   startOtp: any;
+  isPackageDelivery?: boolean;
   totalPrice: number | null;
   handleSOS: () => void;
   handleShareTrip: () => void;
@@ -64,6 +65,7 @@ export function TrackingBottomSheet({
   helperStatus,
   deliveryOtp,
   startOtp,
+  isPackageDelivery,
   totalPrice,
   handleSOS,
   handleShareTrip,
@@ -92,6 +94,7 @@ export function TrackingBottomSheet({
               pickupLabel={pickupLabel}
               setTripModalVisible={setTripModalVisible}
               startOtp={startOtp}
+              isPackageDelivery={isPackageDelivery}
               status={status}
               stops={stops}
               styles={styles}

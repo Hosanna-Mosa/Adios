@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { IconButton } from "@/components/ui/IconButton";
 import type { ThemeTokens } from "@/constants/colors";
 import { fadeInDown } from "@/motion/presets";
@@ -14,8 +14,8 @@ interface Props {
   name: string;
   image?: string;
   isMeat: boolean;
-  /** From the outlet's opening hours and manual-close flag; undefined until the profile loads. */
-  isOpen?: boolean;
+  /** From outletStatus() — the same reading the "Accepting orders" card uses; undefined until the profile loads. */
+  status?: { label: string; tone: BadgeTone } | null;
   /** "4.3", or null when the outlet has no ratings yet. */
   rating: string | null;
   reviewCount: number;
@@ -27,7 +27,7 @@ interface Props {
 }
 
 /** Greeting, outlet photo and name, outlet type, open/closed state and rating — all from the database. */
-export function DashboardHeader({ name, image, isMeat, isOpen, rating, reviewCount, onRefresh, refreshing, styles, tokens }: Props) {
+export function DashboardHeader({ name, image, isMeat, status, rating, reviewCount, onRefresh, refreshing, styles, tokens }: Props) {
   const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInDown(0)} style={styles.header}>
@@ -45,9 +45,7 @@ export function DashboardHeader({ name, image, isMeat, isOpen, rating, reviewCou
         </Text>
         <View style={styles.roleRow}>
           <Badge label={isMeat ? t("roles.meatCenter") : t("roles.restaurant")} tone={isMeat ? "meat" : "brand"} icon={isMeat ? "storefront" : "restaurant"} />
-          {isOpen !== undefined ? (
-            <Badge label={isOpen ? t("dashboard.openNow") : t("dashboard.closedNow")} tone={isOpen ? "success" : "error"} dot />
-          ) : null}
+          {status ? <Badge label={status.label} tone={status.tone} dot /> : null}
           {rating ? <Badge label={t("dashboard.rating", { rating, count: reviewCount })} tone="warning" icon="star" /> : null}
         </View>
       </View>

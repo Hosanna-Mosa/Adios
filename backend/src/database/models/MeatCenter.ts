@@ -23,6 +23,13 @@ export interface IMeatCenter extends Document {
   minOrderValue: number;
   /** Expo push tokens of every device signed in to the partner app. */
   expoPushTokens?: string[];
+  /** Outlet / branch identifier the partner shows on invoices and to support. */
+  branchCode?: string;
+  /**
+   * Where the partner says the outlet currently is. Informational only — it does
+   * NOT move the searchable `location` pin.
+   */
+  currentLocation?: { lat: number; lng: number; address?: string };
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -45,6 +52,17 @@ const openingHoursDefinition = () => ({
   sun: dayHoursDefinition(),
 });
 
+// The partner's self-reported position (PUT /vendors/me). Kept apart from the
+// GeoJSON `location` the nearby search runs on.
+const currentLocationSchema = new Schema(
+  {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+    address: { type: String, trim: true },
+  },
+  { _id: false }
+);
+
 const MeatCenterSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
@@ -66,6 +84,8 @@ const MeatCenterSchema: Schema = new Schema(
     deliveryFee: { type: Number, default: 0 },
     minOrderValue: { type: Number, default: 0 },
     expoPushTokens: { type: [String], default: [] },
+    branchCode: { type: String, trim: true },
+    currentLocation: { type: currentLocationSchema, default: undefined },
   },
   { timestamps: true }
 );

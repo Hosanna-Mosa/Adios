@@ -19,6 +19,8 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
   const [helperStatus, setHelperStatus] = useState<string>("");
   const [deliveryOtp, setDeliveryOtp] = useState<string | null>(null);
   const [startOtp, setStartOtp] = useState<string | null>(null);
+  // A package delivery: no start PIN, and its delivery OTP is shared with the receiver.
+  const [isPackageDelivery, setIsPackageDelivery] = useState(false);
   const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number; heading?: number } | null>(null);
   const [radius, setRadius] = useState<number | null>(null);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
@@ -68,5 +70,5 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
     );
   };
 
-  return { orderCreatedAt, setOrderCreatedAt, deliveredAt, setDeliveredAt, tripModalVisible, setTripModalVisible, helperStatus, setHelperStatus, deliveryOtp, setDeliveryOtp, startOtp, setStartOtp, driverLocation, setDriverLocation, radius, setRadius, totalPrice, setTotalPrice, mapRef, cancellationAlerted, handleOrderCancelledByDriver, handleSOS };
+  return { orderCreatedAt, setOrderCreatedAt, deliveredAt, setDeliveredAt, tripModalVisible, setTripModalVisible, helperStatus, setHelperStatus, deliveryOtp, setDeliveryOtp, startOtp, setStartOtp, isPackageDelivery, setIsPackageDelivery, driverLocation, setDriverLocation, radius, setRadius, totalPrice, setTotalPrice, mapRef, cancellationAlerted, handleOrderCancelledByDriver, handleSOS };
 }

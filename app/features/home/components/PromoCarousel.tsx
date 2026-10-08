@@ -1,16 +1,19 @@
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { router } from "expo-router";
+import { hasLink, openLink } from "@/utils/openLink";
+import { type PromoCard } from "../useHomeAvailableCuisines";
 import Animated from "react-native-reanimated";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import { STRIDE } from "../constants";
 import { PromoDot } from "./PromoDot";
-import { type HomeStyles } from "@/features/home/home.styles";
+import { type HomeStyles } from "../home.styles";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from the
 // screen's scope is now passed in as props.
 
 interface Props {
   styles: HomeStyles;
-  promoCards: { eyebrow: string; headline: string; caption: string }[];
+  promoCards: PromoCard[];
   accent: ServiceTokens;
   tokens: ThemeTokens;
   carouselRef: any;
@@ -45,13 +48,20 @@ export function PromoCarousel({
       scrollEventThrottle={16}
     >
       {promoCards.map((promo, index) => (
-        <View key={index} style={[styles.promoCard, index === 0 ? { backgroundColor: accent.skin } : { backgroundColor: tokens.sunken }]}>
+        <Pressable
+          key={index}
+          style={({ pressed }) => [styles.promoCard, index === 0 ? { backgroundColor: accent.skin } : { backgroundColor: tokens.sunken }, pressed && { opacity: 0.85 }]}
+          // A banner with its own link opens that; every other card leads to the Offers page.
+          onPress={() => (hasLink(promo.targetUrl) ? openLink(promo.targetUrl) : router.push("/offers"))}
+          accessibilityRole="link"
+          accessibilityLabel={promo.headline}
+        >
           <View>
             <Text style={[styles.promoEyebrow, { color: index === 0 ? accent.accent : tokens.sec }]}>{promo.eyebrow}</Text>
-            <Text style={styles.promoHeadline}>{promo.headline}</Text>
+            <Text style={styles.promoHeadline} numberOfLines={2}>{promo.headline}</Text>
           </View>
           {!!promo.caption && <Text style={styles.promoCaption}>{promo.caption}</Text>}
-        </View>
+        </Pressable>
       ))}
     </Animated.ScrollView>
     {promoCards.length > 1 && (

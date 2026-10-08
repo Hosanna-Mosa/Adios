@@ -33,7 +33,8 @@ export function ProfileIdentityCard({
       </Box>
       <Box style={styles.profileInfo}>
         <AppText style={styles.profileName}>{driverName || t("profile.driver")}</AppText>
-        <AppText style={styles.profilePhone}>{driverPhone || "+91 XXXXX XXXXX"}</AppText>
+        {/* No placeholder number when the phone isn't known yet. */}
+        {driverPhone ? <AppText style={styles.profilePhone}>{driverPhone}</AppText> : null}
         <Box
           style={[
             styles.statusBadge,

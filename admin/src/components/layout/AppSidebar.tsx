@@ -37,6 +37,7 @@ import {
   ShieldCheck,
   BadgeCheck,
   UtensilsCrossed,
+  BadgePercent,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
@@ -49,7 +50,9 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.scheduledOrders"), url: "/scheduled-orders", icon: CalendarClock },
     { title: t("sidebar.drivers"), url: "/drivers", icon: Truck },
     { title: t("sidebar.driverVerification"), url: "/driver-verification", icon: ShieldCheck },
-    { title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal },
+    // Seeds fake check1..check10 drivers: a local-development tool only, never
+    // offered in a production build.
+    ...(import.meta.env.DEV ? [{ title: t("sidebar.devDrivers"), url: "/dev-drivers", icon: SlidersHorizontal }] : []),
     { title: t("sidebar.users"), url: "/users", icon: Users },
     { title: t("sidebar.vendors"), url: "/vendors", icon: Store },
     { title: t("sidebar.restaurantVerification"), url: "/restaurant-verification", icon: BadgeCheck },
@@ -65,6 +68,7 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
     { title: t("sidebar.coupons"), url: "/coupons", icon: Ticket },
+    { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
     { title: t("sidebar.banners"), url: "/banners", icon: Image },
   ];

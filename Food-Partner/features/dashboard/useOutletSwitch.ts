@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useSetOutletOpen } from "@/queries/profile.queries";
 import type { PartnerProfile } from "@/types/models";
 import { errorMessage } from "@/utils/errorMessage";
+import { outletStatus } from "./outletStatus";
 
 /**
  * The "Accepting orders" switch. Turning it off during a rush by accident
@@ -13,8 +14,7 @@ export function useOutletSwitch(profile: PartnerProfile | null, loaded: boolean)
   const { t } = useTranslation();
   const toast = useToast();
   const mutation = useSetOutletOpen();
-  const accepting = !profile?.isManuallyClosed;
-  const closedByTeam = profile?.isOpen === false;
+  const status = outletStatus(profile, t);
 
   const apply = (next: boolean) =>
     mutation.mutate(next, {
@@ -38,17 +38,11 @@ export function useOutletSwitch(profile: PartnerProfile | null, loaded: boolean)
     );
   };
 
-  const description = closedByTeam
-    ? t("outlet.closedByTeam")
-    : !accepting
-      ? t("outlet.pausedHint")
-      : profile?.openState?.isOpen === false
-        ? t("outlet.outsideHoursHint")
-        : t("outlet.acceptingHint");
-
   return {
-    accepting: accepting && !closedByTeam,
-    description,
+    accepting: status?.accepting ?? !profile?.isManuallyClosed,
+    description: status?.description ?? t("outlet.acceptingHint"),
+    /** On, but closed by the schedule: the card offers a way to the hours. */
+    outsideHours: status?.kind === "outsideHours",
     // Until the real profile arrives the switch would show a guess, so it waits.
     disabled: !loaded || mutation.isPending,
     toggle,

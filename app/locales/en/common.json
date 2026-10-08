@@ -26,7 +26,8 @@
       "meat": "Meat",
       "ride": "Ride",
       "task": "Task",
-      "delivery": "Delivery"
+      "delivery": "Delivery",
+      "packageDelivery": "Package delivery"
     },
     "reviewTags": {
       "onTime": "⚡ On time",
@@ -262,28 +263,6 @@
       "prawns": "Prawns"
     },
     "home": {
-      "foodPromos": {
-        "firstOrder": {
-          "eyebrow": "First order",
-          "headline": "50% off up to ₹120",
-          "caption": "Code FLAV50 · min ₹199"
-        },
-        "lateNight": {
-          "eyebrow": "Late night",
-          "headline": "Open till 2 AM",
-          "caption": "42 outlets near you"
-        }
-      },
-      "meatPromos": {
-        "sundaySpecial": {
-          "eyebrow": "Sunday special",
-          "headline": "Country chicken ₹399 / kg"
-        },
-        "cleanedAndCut": {
-          "eyebrow": "Cleaned & cut",
-          "headline": "No fee today"
-        }
-      },
       "browseByCuisine": "Browse by cuisine",
       "pleaseEnterYourPhoneNumberOr": "Please enter your phone number or email",
       "pleaseEnterYourPassword": "Please enter your password",
@@ -334,7 +313,7 @@
       "allCaptainsNearbyAreOnTrips": "All riders nearby are on trips right now. It's usually a few minutes before one frees up.",
       "retrySearch": "Retry search",
       "freshMeatDaily": "Fresh Meat Daily!",
-      "cravingSomethingDelicious": "Craving something\ndelicious?",
+      "cravingSomethingDelicious": "Craving something delicious?",
       "searchMuttonCurryCutPrawns": "Search “mutton curry cut”, “prawns”",
       "searchBiryaniBawarchi": "Search “biryani”, “Bawarchi”",
       "show149StorePartners": "Show 149 Store partners",
@@ -372,7 +351,9 @@
       "theLinkYouFollowedDoesnapostExist": "The link you followed doesn't exist any more.",
       "goHome": "Go home",
       "pickAServiceToGetStarted": "Pick a service to get started.",
-      "beta": "Beta"
+      "beta": "Beta",
+      "offerEyebrow": "Offer",
+      "viewOffer": "View offer"
     },
     "profile": {
       "menuItems": {
@@ -440,7 +421,6 @@
       "codeApplied": "{{code}} applied",
       "haveAPromoCode": "Have a promo code?",
       "youSaved": "You saved ₹{{amount}}",
-      "tapToAddItAtCheckout": "Tap to add it at checkout",
       "remove": "Remove",
       "apply": "Apply",
       "enterCode": "Enter code",
@@ -560,7 +540,12 @@
       "closedPill": "Closed",
       "outletClosedMessage": "{{name}} isn't taking orders right now. You can still browse the menu and order once it opens.",
       "outletClosedOpensAtMessage": "{{name}} is closed right now and opens at {{time}}. You can still browse the menu and order then.",
-      "closedBannerHint": "You can browse the menu, but ordering is paused until it opens."
+      "closedBannerHint": "You can browse the menu, but ordering is paused until it opens.",
+      "originalPrice": "Original price {{price}}",
+      "percentOff": "{{percent}}% OFF",
+      "bestseller": "Bestseller",
+      "kcal": "{{value}} kcal",
+      "proteinGrams": "{{value}}g protein"
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -1107,6 +1092,8 @@
       "confirmingHint": "We're waiting for your bank to confirm. Your order will appear in My orders once it does.",
       "invalid": "This payment couldn't be accepted. If money was deducted, it will be refunded.",
       "couldNotStart": "Couldn't start the payment. Please try again.",
+      "successTitle": "Payment successful",
+      "successHint": "Your order is confirmed.",
       "returning": "Finishing your payment…",
       "method": "Pay with",
       "cash": "Cash",
@@ -1173,6 +1160,108 @@
       "thisDish": "this dish",
       "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Adios! {{url}}",
       "checkOutVendor": "Check out {{name}} on Adios! {{url}}"
+    },
+    "offers": {
+      "title": "Offers for you",
+      "percentOffUpTo": "{{value}}% OFF up to {{max}}",
+      "percentOff": "{{value}}% OFF",
+      "flatOff": "{{value}} OFF",
+      "aboveMin": "above {{min}}",
+      "validTill": "Valid till {{date}}",
+      "useCode": "Use code {{code}}",
+      "pureVeg": "Pure veg",
+      "open": "Open now",
+      "closed": "Closed",
+      "errorTitle": "Couldn't load offers",
+      "errorSubtitle": "Check your connection and try again.",
+      "retry": "Retry",
+      "emptyTitle": "No offers right now",
+      "emptySubtitle": "New deals from restaurants near you will show up here."
+    },
+    "packageDelivery": {
+      "back": "Back",
+      "serviceCardHint": "Send packages by bike or auto",
+      "heroEyebrow": "Doorstep pickup and delivery",
+      "heroTitle": "PACKAGE DELIVERY",
+      "pickupFrom": "Pickup from",
+      "pickupFromCurrent": "Pickup from current location",
+      "dropTo": "Drop to",
+      "locating": "Finding your location…",
+      "searchPickup": "Search pickup address",
+      "searchDrop": "Search drop address",
+      "changeAddress": "Change address",
+      "addContact": "Add contact details",
+      "switch": "Switch",
+      "chooseVehicle": "Choose vehicle",
+      "readAbout": "Read about",
+      "prohibitedItems": "prohibited items",
+      "byContinuing": "By continuing, you agree to our",
+      "terms": "T&Cs",
+      "prohibitedTitle": "Prohibited items",
+      "prohibitedBody": "Captains can't carry: alcohol, drugs or tobacco products, weapons or explosives, flammable or hazardous material, cash, jewellery or other valuables, live animals, or anything illegal. The captain may refuse a package that looks unsafe.",
+      "termsTitle": "Package delivery terms",
+      "termsBody": "Pack the package securely and hand it over at the pickup point. Make sure the receiver is reachable on the number you give. The fare covers one pickup and one drop; the captain may wait only a few minutes at each end.",
+      "pickupLocation": "Pickup location",
+      "dropLocation": "Drop location",
+      "clear": "Clear",
+      "useCurrentLocation": "Use current location",
+      "savedAddresses": "Saved addresses",
+      "saved": "Saved address",
+      "noResults": "No places found. Try a different search.",
+      "searchFailed": "Couldn't load places. Check your connection and try again.",
+      "noServiceTitle": "Not available here yet",
+      "noServicePickup": "Package delivery isn't available from this area yet.",
+      "noServiceDrop": "Package delivery isn't available to this area yet.",
+      "placeFailedTitle": "Couldn't use this place",
+      "placeFailedBody": "Please try again or choose another address.",
+      "locationOffTitle": "Location is off",
+      "locationOffBody": "Allow location access to use where you are, or search for the address.",
+      "change": "Change",
+      "houseNo": "House no. / Building (optional)",
+      "senderDetails": "Sender's contact details",
+      "receiverDetails": "Receiver's contact details",
+      "name": "Name*",
+      "phone": "Phone number*",
+      "useMyContact": "Use my contact for this booking",
+      "nameRequired": "Enter a name",
+      "phoneInvalid": "Enter a 10-digit phone number",
+      "addToFavourites": "Add to favourites",
+      "favourite": {
+        "home": "Home",
+        "work": "Work",
+        "gym": "Gym",
+        "college": "College",
+        "hostel": "Hostel",
+        "other": "Add new"
+      },
+      "favouriteName": "Name this place",
+      "confirmPickup": "Confirm pickup details",
+      "confirmDrop": "Confirm drop details",
+      "recenter": "Recenter map",
+      "sheetTitle": "Package delivery",
+      "vehicle": {
+        "bike": "Bike",
+        "bikeHint": "Documents, keys and small packages",
+        "auto": "Auto",
+        "autoHint": "Bigger and heavier packages"
+      },
+      "noCaptains": "No captains nearby right now",
+      "eta": "{{minutes}} mins away",
+      "etaWithDrop": "{{minutes}} mins away · Drop {{time}}",
+      "samePlace": "Pickup and drop are the same place. Change one of them to continue.",
+      "payAt": "Pay at",
+      "payAtPickup": "Pickup",
+      "payAtDrop": "Drop",
+      "payAtPickupHint": "The sender pays the captain in cash at pickup.",
+      "payAtDropHint": "The receiver pays the captain in cash at drop.",
+      "book": "Book package delivery",
+      "loginToBook": "Please log in to book a package delivery.",
+      "bookingFailed": "Booking failed",
+      "tryAgain": "Something went wrong. Please try again.",
+      "deliveryOtpLabel": "Package delivery OTP",
+      "deliveryOtpHint": "Share this with the receiver. The captain needs it to complete the delivery — the receiver should give it only after getting the package.",
+      "shareOtp": "Share OTP with receiver",
+      "shareOtpMessage": "Your package delivery OTP is {{otp}}. Give it to the captain only after you receive the package."
     }
   }
 }

@@ -11,6 +11,8 @@ import AppVersion from "../../database/models/AppVersion";
 import { OrdersService } from "../orders/orders.service";
 import Zone from "../../database/models/Zone";
 import Banner from "../../database/models/Banner";
+import Offer from "../../database/models/Offer";
+import Vendor from "../../database/models/Vendor";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import {
   SUPPORT_CASE_LIMIT,
@@ -43,9 +45,11 @@ function toSupportMemberResponse(member: { _id: unknown; name: string; email?: s
 export class AdminController {
   async getAllOrders(req: Request, res: Response) {
     try {
+      // The driver's name and phone live on its User document — populate it so the
+      // admin tables show the real driver rather than a generic label.
       const orders = await Order.find()
         .populate("user")
-        .populate("driver")
+        .populate({ path: "driver", populate: { path: "user", select: "name phone profilePic" } })
         .sort({ createdAt: -1 });
       return res.json(orders);
     } catch (error) {
@@ -91,13 +95,11 @@ export class AdminController {
             createdAt: { $gte: start, $lt: end }
           });
 
-          // Target is a baseline value (e.g. 10 + random offset, or static)
-          const target = Math.max(15, delivered + 5);
-
+          // The real count only: an empty slot is 0, not a random number, and there is no
+          // invented "target" alongside it.
           return {
             time: timeStr,
-            delivered: delivered || Math.floor(Math.random() * 20 + 20), // fallback if empty
-            target
+            delivered,
           };
         })
       );
@@ -115,12 +117,9 @@ export class AdminController {
             createdAt: { $gte: start, $lt: end }
           });
 
-          const target = Math.max(100, delivered + 40);
-
           return {
             time: `Week ${5 - weekNum}`,
-            delivered: delivered || Math.floor(Math.random() * 150 + 300), // fallback if empty
-            target
+            delivered,
           };
         })
       );
@@ -194,6 +193,10 @@ export class AdminController {
           driver: driverName,
           eta,
           status: o.status,
+          // Enough for the dashboard to name the service (see admin orderService.ts).
+          serviceType: o.serviceType,
+          packageDelivery: !!o.packageDelivery,
+          vendor: !!o.vendor,
           priority: o.stops.length > 2 ? "HIGH" : o.stops.length > 1 ? "EXPRESS" : "STANDARD"
         };
       });
@@ -402,7 +405,10 @@ export class AdminController {
   async getOrderById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const order = await Order.findById(id).populate("user").populate("driver").populate("vendor");
+      const order = await Order.findById(id)
+        .populate("user")
+        .populate({ path: "driver", populate: { path: "user", select: "name phone profilePic" } })
+        .populate("vendor");
       if (!order) return res.status(404).json({ message: "Order not found" });
       return res.json(order);
     } catch (error) {
@@ -445,25 +451,22 @@ export class AdminController {
         status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] }
       }).sort({ createdAt: -1 });
 
-      const payments = orders.map(o => ({
-        id: o._id.startsWith("FLR-") ? o._id.replace("FLR-", "TXN-") : o._id.startsWith("ORD-") ? o._id.replace("ORD-", "TXN-") : `#TXN-${o._id.substring(o._id.length - 6).toUpperCase()}`,
-        date: new Date(o.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }),
-        time: new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        route: o.stops && o.stops.length > 1 ? `${o.stops[0].address || "Pickup"} → ${o.stops[o.stops.length - 1].address || "Dropoff"}` : "Local Delivery",
-        fee: `₹${o.totalPrice || 150}`,
-        status: "SETTLED",
-        statusVariant: "settled" as any
-      }));
+      const payments = orders.map(o => {
+        // The order's own payment state: captured online ("paid") or cash the driver
+        // confirmed receiving ("cash_collected") is settled; anything else is still pending.
+        const settled = o.paymentStatus === "paid" || o.paymentStatus === "cash_collected";
+        return {
+          id: o._id.startsWith("FLR-") ? o._id.replace("FLR-", "TXN-") : o._id.startsWith("ORD-") ? o._id.replace("ORD-", "TXN-") : `#TXN-${o._id.substring(o._id.length - 6).toUpperCase()}`,
+          date: new Date(o.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }),
+          time: new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          route: o.stops && o.stops.length > 1 ? `${o.stops[0].address || "Pickup"} → ${o.stops[o.stops.length - 1].address || "Dropoff"}` : "Local Delivery",
+          fee: `₹${o.totalPrice || 0}`,
+          status: settled ? "SETTLED" : "PENDING",
+          statusVariant: settled ? "settled" : "pending",
+        };
+      });
 
-      // If empty, return a fallback invoice array for gorgeous demonstration
-      if (payments.length === 0) {
-        payments.push(
-          { id: "#TXN-90214", date: "Oct 24, 2023", time: "02:45 PM", route: "Zone A → Downtown Hub", fee: "₹24.50", status: "SETTLED", statusVariant: "settled" as const },
-          { id: "#TXN-90215", date: "Oct 24, 2023", time: "03:12 PM", route: "North Wharf → Storage 04", fee: "₹18.20", status: "SETTLED", statusVariant: "settled" as const },
-          { id: "#TXN-90216", date: "Oct 24, 2023", time: "03:55 PM", route: "Central → Airport Cargo", fee: "₹42.00", status: "PENDING", statusVariant: "pending" as const }
-        );
-      }
-
+      // No transactions yet means an empty list — never invented demo rows.
       return res.json(payments);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
@@ -968,7 +971,9 @@ export class AdminController {
 
       const totalOrders = orders.length;
       const deliveryOrders = orders.filter(o => o.serviceType === "delivery").length;
-      const ridesOrders = orders.filter(o => o.serviceType !== "delivery" && o.serviceType !== "helper").length;
+      // A package delivery is stored as a bike/auto ride; count it on its own, not as a ride.
+      const packageDeliveryOrders = orders.filter(o => !!o.packageDelivery).length;
+      const ridesOrders = orders.filter(o => o.serviceType !== "delivery" && o.serviceType !== "helper" && !o.packageDelivery).length;
       const helperOrders = orders.filter(o => o.serviceType === "helper").length;
 
       // The four counts above only ever said which service a user booked. These
@@ -989,6 +994,7 @@ export class AdminController {
           deliveryOrders,
           ridesOrders,
           helperOrders,
+          packageDeliveryOrders,
           completedOrders: completedOrders.length,
           cancelledOrders: cancelledOrders.length,
           totalSpent: Math.round(totalSpent),
@@ -1359,4 +1365,123 @@ export class AdminController {
       return res.status(500).json({ message: "Internal server error" });
     }
   }
+
+  async getOffers(req: Request, res: Response) {
+    try {
+      const offers = await Offer.find()
+        .sort({ displayOrder: 1, createdAt: -1 })
+        .populate("vendor", "_id name image");
+      return res.json(offers);
+    } catch (error) {
+      console.error("Error getting offers:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async createOffer(req: Request, res: Response) {
+    try {
+      const body = req.body;
+      if (!(await Vendor.exists({ _id: body.vendor }))) {
+        return res.status(400).json({ message: "Restaurant not found" });
+      }
+
+      const offer = new Offer(stripEmptyOfferFields(body));
+      await offer.save();
+      await offer.populate("vendor", "_id name image");
+      return res.status(201).json(offer);
+    } catch (error) {
+      console.error("Error creating offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async updateOffer(req: Request, res: Response) {
+    try {
+      const id = String(req.params.id);
+      if (!Types.ObjectId.isValid(id)) return res.status(404).json({ message: "Offer not found" });
+
+      const body = req.body;
+      if (body.vendor !== undefined && !(await Vendor.exists({ _id: body.vendor }))) {
+        return res.status(400).json({ message: "Restaurant not found" });
+      }
+
+      const existing = await Offer.findById(id).lean();
+      if (!existing) return res.status(404).json({ message: "Offer not found" });
+
+      const $set: Record<string, unknown> = {};
+      const $unset: Record<string, ""> = {};
+      for (const field of OFFER_FIELDS) {
+        const value = body[field];
+        if (value === undefined) continue;
+        if (value === null || value === "") $unset[field] = "";
+        else $set[field] = value;
+      }
+
+      // A partial update still has to leave a valid offer behind.
+      const start = "startDate" in $unset ? null : (($set.startDate as Date | undefined) ?? existing.startDate);
+      const end = "endDate" in $unset ? null : (($set.endDate as Date | undefined) ?? existing.endDate);
+      if (start && end && new Date(end) < new Date(start)) {
+        return res.status(400).json({ message: "End date must be after the start date" });
+      }
+      const discountType = ($set.discountType as string | undefined) ?? existing.discountType;
+      const discountValue = ($set.discountValue as number | undefined) ?? existing.discountValue;
+      if (discountType === "PERCENTAGE" && discountValue > 100) {
+        return res.status(400).json({ message: "A percentage discount cannot exceed 100" });
+      }
+      for (const required of ["title", "vendor", "discountType", "discountValue"]) {
+        if (required in $unset) return res.status(400).json({ message: `${required} cannot be cleared` });
+      }
+
+      const update: Record<string, unknown> = {};
+      if (Object.keys($set).length) update.$set = $set;
+      if (Object.keys($unset).length) update.$unset = $unset;
+      const offer = await Offer.findByIdAndUpdate(id, update, { new: true, runValidators: true }).populate(
+        "vendor",
+        "_id name image"
+      );
+      return res.json(offer);
+    } catch (error) {
+      console.error("Error updating offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async deleteOffer(req: Request, res: Response) {
+    try {
+      const id = String(req.params.id);
+      if (!Types.ObjectId.isValid(id)) return res.status(404).json({ message: "Offer not found" });
+      const offer = await Offer.findByIdAndDelete(id);
+      if (!offer) return res.status(404).json({ message: "Offer not found" });
+      return res.json({ message: "Offer deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting offer:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+}
+
+const OFFER_FIELDS = [
+  "title",
+  "description",
+  "vendor",
+  "discountType",
+  "discountValue",
+  "maxDiscount",
+  "minOrderValue",
+  "couponCode",
+  "imageUrl",
+  "startDate",
+  "endDate",
+  "isActive",
+  "displayOrder",
+] as const;
+
+/** Leaves cleared ("" / null) optional fields out, so they are simply absent on a new offer. */
+function stripEmptyOfferFields(body: Record<string, unknown>) {
+  const doc: Record<string, unknown> = {};
+  for (const field of OFFER_FIELDS) {
+    const value = body[field];
+    if (value !== undefined && value !== null && value !== "") doc[field] = value;
+  }
+  return doc;
 }

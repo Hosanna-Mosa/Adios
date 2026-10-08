@@ -88,6 +88,45 @@ export interface MenuItem {
   image?: string;
   weight?: string;
   vendorId?: Id;
+  /** Discounted price; only meaningful when a number below `price`. */
+  offerPrice?: number | null;
+  /** Server-computed round((price - offerPrice) / price * 100). */
+  discountPercent?: number | null;
+  isBestseller?: boolean;
+  orderCount?: number;
+  /** Grams. */
+  protein?: number | null;
+  /** kcal. */
+  calories?: number | null;
+}
+
+/** An admin-managed restaurant offer from GET /offers. */
+export interface Offer {
+  _id: Id;
+  title: string;
+  description?: string;
+  discountType: "PERCENTAGE" | "FLAT";
+  discountValue: number;
+  maxDiscount?: number;
+  minOrderValue?: number;
+  couponCode?: string;
+  imageUrl?: string;
+  startDate?: string;
+  endDate?: string;
+  isActive?: boolean;
+  displayOrder?: number;
+  vendor: {
+    _id: Id;
+    name: string;
+    image?: string;
+    rating?: number;
+    reviews?: string | number;
+    address?: string;
+    isPureVeg?: boolean;
+    categories?: string[];
+    partnerType?: string;
+    isOpen?: boolean;
+  };
 }
 
 export interface Order {
@@ -127,4 +166,6 @@ export interface Banner {
   position?: string;
   displayOrder?: number;
   isActive?: boolean;
+  /** Where tapping the banner goes: an https URL (opened outside the app) or an in-app path like "/offers". */
+  targetUrl?: string;
 }

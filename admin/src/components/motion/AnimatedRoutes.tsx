@@ -13,7 +13,8 @@ const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const LiveOrders = lazy(() => import("@/pages/LiveOrders"));
 const ScheduledOrders = lazy(() => import("@/pages/ScheduledOrders"));
 const Drivers = lazy(() => import("@/pages/Drivers"));
-const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
+// Dev-only page (seeds fake drivers): not even bundled into production builds.
+const DevDrivers = import.meta.env.DEV ? lazy(() => import("@/pages/DevDrivers")) : null;
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
 const ItemInsights = lazy(() => import("@/pages/ItemInsights"));
@@ -32,6 +33,7 @@ const MeatPricing = lazy(() => import("@/pages/MeatPricing"));
 const Zones = lazy(() => import("@/pages/Zones"));
 const Banners = lazy(() => import("@/pages/Banners"));
 const Coupons = lazy(() => import("@/pages/Coupons"));
+const Offers = lazy(() => import("@/pages/Offers"));
 const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
@@ -75,7 +77,8 @@ export function AnimatedRoutes() {
         <Route path="/drivers" element={<RequireAdmin><Drivers /></RequireAdmin>} />
         <Route path="/driver-verification" element={<RequireAdmin><DriverVerification /></RequireAdmin>} />
         <Route path="/restaurant-verification" element={<RequireAdmin><RestaurantVerification /></RequireAdmin>} />
-        <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />
+        {/* Dev-only: the page seeds fake drivers, so production builds don't route to it. */}
+        {DevDrivers && <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />}
         <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
         <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />
         <Route path="/item-insights" element={<RequireAdmin><ItemInsights /></RequireAdmin>} />
@@ -100,6 +103,7 @@ export function AnimatedRoutes() {
         <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
         <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
         <Route path="/coupons" element={<RequireAdmin><Coupons /></RequireAdmin>} />
+        <Route path="/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
         <Route path="/users/:id" element={<RequireAdmin><UserDetail /></RequireAdmin>} />
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />

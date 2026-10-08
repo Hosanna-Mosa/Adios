@@ -24,6 +24,7 @@ import { getDriverRating } from "../reviews/driver-rating";
 import { mapServiceTypeToDriverVehicleType, driverAcceptsServiceType, FOOD_BROADCAST_CONFIG } from "../../config/dispatch.config";
 import * as foodDispatch from "../../services/foodDispatch.service";
 import { driverPaymentInfo } from "./orders.payment";
+import { resolvePackageDelivery } from "./orders.packageDelivery";
 import { getOutletOrderingState } from "../../utils/outletOrderingState";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
@@ -47,7 +48,8 @@ export class OrdersService {
    * Pure calculation: nothing is saved.
    */
   async priceOrder(stopsData: any[], serviceType?: ServiceType, vendorId?: string, totals?: any, metadata?: any) {
-    const startPos = { 
+    stopsData = await this.pinPickupToOutlet(stopsData, vendorId);
+    const startPos = {
       latitude: stopsData[0].latitude || stopsData[0].lat, 
       longitude: stopsData[0].longitude || stopsData[0].lng 
     };
@@ -158,6 +160,34 @@ export class OrdersService {
   }
 
   /**
+   * A restaurant / meat-centre order is picked up at the outlet, wherever the client
+   * thought it was: the pickup stop takes the outlet's stored location (and address).
+   * The customer app never knew it and used to send a point beside the customer.
+   * Orders without an outlet, or an outlet with no usable location, pass unchanged.
+   */
+  private async pinPickupToOutlet(stopsData: any[], vendorId?: string) {
+    if (!vendorId || !mongoose.Types.ObjectId.isValid(String(vendorId))) return stopsData;
+    const outlet: any =
+      (await Vendor.findById(vendorId).select("location address").lean()) ||
+      (await MeatCenter.findById(vendorId).select("location address").lean());
+    const [lng, lat] = outlet?.location?.coordinates ?? [];
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) return stopsData;
+
+    return stopsData.map((stop) =>
+      String(stop?.type || "").toLowerCase() === "pickup"
+        ? {
+            ...stop,
+            latitude: lat,
+            longitude: lng,
+            lat,
+            lng,
+            address: typeof outlet.address === "string" && outlet.address.trim() ? outlet.address : stop.address,
+          }
+        : stop
+    );
+  }
+
+  /**
    * Refuses a new order for a restaurant / meat centre that isn't taking orders.
    *
    * An order for now needs the outlet open now (its hours, and the partner's
@@ -192,6 +222,7 @@ export class OrdersService {
       startPos, optimizationResult, effectiveType, isRide, surgeMultiplier,
       couponDiscount, appliedCouponCode, appliedCouponId, totalPrice, priceBreakdown,
     } = await this.priceOrder(stopsData, serviceType, vendorId, totals, metadata);
+    const packageDelivery = resolvePackageDelivery(effectiveType, metadata?.packageDelivery);
 
     // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
     // the pre-existing transport (payments/verify already forwards it) and is honoured too.
@@ -308,6 +339,7 @@ export class OrdersService {
       duration,
       customerPrice: metadata?.customerPrice ? Math.round(Number(metadata.customerPrice)) : undefined,
       bookingFor: metadata?.bookingFor,
+      packageDelivery,
       scheduledDelivery: isScheduledOrder
         ? { ...(metadata?.scheduledDelivery || {}), type: "later", requestedAt: scheduledForDate, restaurantAccepted: false }
         : metadata?.scheduledDelivery,
@@ -561,6 +593,8 @@ export class OrdersService {
         // What the driver must know before accepting: prepaid online, or cash to collect.
         ...this.driverPaymentInfo(savedOrder),
         bookingFor: savedOrder.bookingFor,
+        // Who hands over and receives the package, and where its cash fare is collected.
+        packageDelivery: savedOrder.packageDelivery,
         scheduledDelivery: savedOrder.scheduledDelivery,
         customerName: user.name || "Customer",
         customerPhone: user.phone || "N/A",
@@ -1519,6 +1553,7 @@ export class OrdersService {
           customerPrice: newPrice,
           ...this.driverPaymentInfo(order),
           bookingFor: order.bookingFor,
+          packageDelivery: order.packageDelivery,
           scheduledDelivery: order.scheduledDelivery,
           customerName: user?.name || "Customer",
           customerPhone: user?.phone || "N/A",
@@ -1756,7 +1791,8 @@ export class OrdersService {
       try {
         let title = "";
         let body = "";
-        const serviceName = populated.serviceType === ServiceType.DELIVERY ? "delivery" : "ride";
+        const isPackageDelivery = !!populated.packageDelivery;
+        const serviceName = isPackageDelivery ? "package delivery" : populated.serviceType === ServiceType.DELIVERY ? "delivery" : "ride";
 
         switch (status) {
           case OrderStatus.ARRIVED_PICKUP:
@@ -1768,21 +1804,29 @@ export class OrdersService {
               body = "Your rider has reached the restaurant and will pick up your order as soon as it's ready.";
               break;
             }
+            if (isPackageDelivery) {
+              // No start PIN for a package delivery: the captain just collects it.
+              title = "Captain Arrived 📦";
+              body = "Your captain has reached the pickup point to collect the package.";
+              break;
+            }
             title = "Driver Arrived 🚖";
             body = `Your driver has arrived at your location. Give PIN ${populated.restaurantPickupCode || populated.deliveryOtp || ""} to start your ${serviceName} safely.`;
             break;
           case OrderStatus.ON_THE_WAY:
           case OrderStatus.IN_TRANSIT:
           case OrderStatus.EN_ROUTE_DELIVERY:
-            title = populated.serviceType === ServiceType.DELIVERY ? "Out for Delivery 📦" : "Trip Started 📍";
-            body = populated.serviceType === ServiceType.DELIVERY 
+            title = isPackageDelivery ? "Package Picked Up 📦" : populated.serviceType === ServiceType.DELIVERY ? "Out for Delivery 📦" : "Trip Started 📍";
+            body = isPackageDelivery
+              ? `Your package has been picked up and is on the way. Share delivery OTP ${populated.deliveryOtp || ""} with the receiver — the captain needs it to complete the delivery.`
+              : populated.serviceType === ServiceType.DELIVERY
               ? "Your items have been picked up and are on the way!" 
               : "Your ride is now in progress. Enjoy the journey!";
             break;
           case OrderStatus.COMPLETED:
           case OrderStatus.DELIVERED:
           case OrderStatus.DELIVERED_LC:
-            title = populated.serviceType === ServiceType.DELIVERY ? "Order Delivered 🍔" : "Trip Completed 🎉";
+            title = isPackageDelivery ? "Package Delivered 📦" : populated.serviceType === ServiceType.DELIVERY ? "Order Delivered 🍔" : "Trip Completed 🎉";
             body = `Your ${serviceName} is complete. Thank you for choosing us! Please rate your experience.`;
             break;
           case OrderStatus.CANCELLED:
@@ -2148,7 +2192,10 @@ export class OrdersService {
         const driverUser = await User.findById(driver.user);
         const vehicleName = populated.serviceType === ServiceType.CAB ? "cab" : populated.serviceType === ServiceType.BIKE ? "bike" : populated.serviceType === ServiceType.AUTO ? "auto" : "delivery rider";
         const startPin = populated.restaurantPickupCode || populated.deliveryOtp;
-        const pinText = startPin ? `. Share PIN ${startPin} to start your ride safely` : "";
+        // A package delivery has no start PIN; its delivery OTP is for the receiver, at the drop.
+        const pinText = populated.packageDelivery
+          ? (populated.deliveryOtp ? `. Share delivery OTP ${populated.deliveryOtp} with the receiver — the captain needs it at the drop` : "")
+          : startPin ? `. Share PIN ${startPin} to start your ride safely` : "";
         
         await NotificationService.getInstance().sendNotification({
           userId: populated.user._id.toString(),

@@ -62,7 +62,7 @@ export default function UserDetail() {
 
         <UserIdentityCard user={user} />
 
-        <UserDetailStats totalOrders={stats.totalOrders} deliveryOrders={stats.deliveryOrders} ridesOrders={stats.ridesOrders} helperOrders={stats.helperOrders} />
+        <UserDetailStats totalOrders={stats.totalOrders} deliveryOrders={stats.deliveryOrders} ridesOrders={stats.ridesOrders} helperOrders={stats.helperOrders} packageDeliveryOrders={stats.packageDeliveryOrders ?? 0} />
 
         <UserActivityStats
           totalSpent={stats.totalSpent}

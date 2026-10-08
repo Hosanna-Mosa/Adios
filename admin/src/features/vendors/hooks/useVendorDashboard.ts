@@ -53,6 +53,14 @@ export function useVendorDashboard() {
     enabled: !!vendorData._id,
   });
 
+  // The outlet's own profile, for its real rating (the stats card used to show
+  // a hardcoded "4.8"). Vendor tokens carry the Vendor/MeatCenter _id.
+  const { data: profile } = useQuery({
+    queryKey: ["vendor-profile", vendorData._id],
+    queryFn: () => adminFetch<{ rating?: number }>("/vendors/me"),
+    enabled: !!vendorData._id,
+  });
+
   const respondMutation = useMutation({
     mutationFn: ({ requestId, accepted }: { requestId: string; accepted: boolean }) =>
       adminFetch(`/orders/scheduled-delivery/${requestId}/respond`, {
@@ -219,6 +227,7 @@ export function useVendorDashboard() {
     isRefreshing: ordersFetching || scheduledFetching,
     menuCount: menu?.length,
     totalRevenue,
+    rating: typeof profile?.rating === "number" ? profile.rating : null,
     selectedOrder,
     setSelectedOrder,
     isModalOpen,

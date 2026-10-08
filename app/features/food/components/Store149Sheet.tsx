@@ -106,14 +106,14 @@ export function Store149Sheet({
               >
                 <View style={styles.cardImageWrap}>
                   <Image
-                    source={{ uri: item.images && item.images.length > 0 ? item.images[0] : "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" }}
+                    source={item.images?.[0] ? { uri: item.images[0] } : undefined}
                     style={styles.cardImage}
                   />
                 </View>
                 <View style={styles.cardBody}>
                   <View style={styles.cardMetaRow}>
                     <DietMarker isVeg={!!item.isVeg} color={item.isVeg ? tokens.veg : tokens.nonveg} />
-                    <Text style={styles.cardRating}>{item.rating || "4.2"} ★</Text>
+                    {Number(item.rating) > 0 && <Text style={styles.cardRating}>{item.rating} ★</Text>}
                   </View>
                   <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.cardBrand} numberOfLines={1}>
@@ -123,7 +123,7 @@ export function Store149Sheet({
                   <View style={styles.cardPriceRow}>
                     <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
                       <Text style={styles.cardPrice}>₹{item.price}</Text>
-                      {!!item.originalPrice && <Text style={styles.cardOriginalPrice}>₹{item.originalPrice}</Text>}
+                      {Number(item.originalPrice) > Number(item.price) && <Text style={styles.cardOriginalPrice}>₹{item.originalPrice}</Text>}
                     </View>
                     {cartItem ? (
                       <View style={styles.qtyPill}>

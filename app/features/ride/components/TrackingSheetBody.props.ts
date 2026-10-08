@@ -16,6 +16,8 @@ export interface Props {
   pickupLabel: any;
   setTripModalVisible: any;
   startOtp: any;
+  /** Package delivery: show the delivery OTP for the whole trip, to share with the receiver. */
+  isPackageDelivery?: boolean;
   status: any;
   stops: any;
   styles: any;

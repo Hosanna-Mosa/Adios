@@ -4,7 +4,7 @@ import { HomeBody } from "./components/HomeBody";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, loading: any, loadingDrivers: any, store149Items: any, activeService: any, insets: any, searchText: any, searchQuery: any, appliedSearchTerm: any, setIsSearchActive: any, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: any, accent: any, styles: any, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: any, appliedDistanceKm: any, setDistanceRefreshKey: any, isSearchingDishes: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, setActiveFilterTab: any, setIsFilterModalVisible: any, handleServiceSwitch: any, showHomeSkeleton: any, visibleItems: any, filteredAndSortedItems: any, cuisineChips: any, showCategories: any, noRidersNearby: any, greetingAds: any, promoCards: any, areaLabel: any, areaLine: any, activeFilterCount: any) {
+export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, loading: any, loadingDrivers: any, store149Items: any, activeService: any, insets: any, searchText: any, searchQuery: any, appliedSearchTerm: any, setIsSearchActive: any, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: any, accent: any, styles: any, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: any, appliedDistanceKm: any, setDistanceRefreshKey: any, isSearchingDishes: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, setActiveFilterTab: any, setIsFilterModalVisible: any, handleServiceSwitch: any, showHomeSkeleton: any, visibleItems: any, filteredAndSortedItems: any, cuisineChips: any, showCategories: any, noRidersNearby: any, greetingAds: any, promoCards: any, areaLabel: any, areaLine: any, activeFilterCount: any, loadingFlags: { bannersLoading: boolean; store149Loading: boolean; cuisinesLoading: boolean }) {
   // True while the debounce or either search request is still in flight — the
   // window in which the list used to claim "No results found" prematurely.
   const isSearching =
@@ -80,6 +80,9 @@ export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, lo
         store149Items={store149Items}
         styles={styles}
         tokens={tokens}
+        bannersLoading={loadingFlags.bannersLoading}
+        store149Loading={loadingFlags.store149Loading}
+        cuisinesLoading={loadingFlags.cuisinesLoading}
       />
     ) : null;
 

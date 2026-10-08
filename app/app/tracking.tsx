@@ -11,7 +11,7 @@ export default function TrackingScreen() {
   const {
   status, currentOrderId, route, stops, driver, unreadCount, insets, tokens, isRide, isHelper,
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
-  setTripModalVisible, helperStatus, deliveryOtp, startOtp, driverLocation, radius, totalPrice,
+  setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
   handleBack, userLocCoords, bannerText, refresh, refreshing
   } = useTracking();
@@ -54,7 +54,8 @@ export default function TrackingScreen() {
   const pickupLabel = vendorName || pickupStop?.address || stops?.[0]?.address || "Pickup location";
   // A restaurant / meat-shop order: map markers for both ends, and no delivery PIN —
   // the rider hands these over without one. Rides end without one too (they still
-  // start with the start-ride PIN); parcels and helper tasks keep theirs.
+  // start with the start-ride PIN); package deliveries and helper tasks keep theirs.
+  // A package delivery is a bike/auto ride with no start PIN and a mandatory delivery OTP.
   const outletOrder = !isRide && !isHelper && !!vendorName;
 
   return (
@@ -79,8 +80,9 @@ export default function TrackingScreen() {
         tripModalVisible={tripModalVisible}
         setTripModalVisible={setTripModalVisible}
         helperStatus={helperStatus}
-        deliveryOtp={outletOrder || isRide ? null : deliveryOtp}
-        startOtp={startOtp}
+        deliveryOtp={outletOrder || (isRide && !isPackageDelivery) ? null : deliveryOtp}
+        startOtp={isPackageDelivery ? null : startOtp}
+        isPackageDelivery={isPackageDelivery}
         driverLocation={driverLocation}
         radius={radius}
         totalPrice={totalPrice}
