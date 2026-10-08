@@ -1479,5 +1479,40 @@
     "percentageTooHigh": "A percentage discount cannot exceed 100",
     "endBeforeStart": "End date must be after the start date",
     "confirmDeleteOffer": "Delete the offer \"{{title}}\"?"
+  },
+  "service": {
+    "column": "Service",
+    "all": "All services",
+    "filterColon": "Service: {{value}}",
+    "packageDelivery": "Package delivery",
+    "ride": "Ride",
+    "food": "Food order",
+    "courier": "Multi-stop delivery",
+    "helper": "Helper task",
+    "vehicle": {
+      "bike": "Bike",
+      "auto": "Auto",
+      "cab": "Cab",
+      "cab_prime": "Cab Prime"
+    },
+    "payment": "Payment",
+    "paidOnline": "Paid online",
+    "cashCollected": "Cash · collected",
+    "cashPending": "Cash · to be collected",
+    "distance": "Distance",
+    "km": "{{value}} km",
+    "packageDeliveryDetails": "Package delivery details",
+    "sender": "Sender (pickup)",
+    "receiver": "Receiver (drop)",
+    "cashPaidAt": "Cash paid at",
+    "prepaidOnline": "Prepaid online",
+    "payAtPickup": "Pickup (by sender)",
+    "payAtDrop": "Drop (by receiver)",
+    "packageDeliveries": "Package deliveries",
+    "packageCollectedDesc": "Package collected from the sender.",
+    "headingToSenderDesc": "Captain heading to the sender...",
+    "enRouteToSenderLabel": "EN ROUTE TO SENDER",
+    "packageDeliveredDesc": "Package handed over to the receiver.",
+    "onTheWayToReceiverDesc": "On the way to the receiver..."
   }
 }

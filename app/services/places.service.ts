@@ -20,6 +20,10 @@ export const searchPlacesJson = (input: string) =>
 export const getPlaceDetails = <T = PlaceCoords>(placeId: string) =>
   customFetch<T>(`/places/details/${placeId}`);
 
+/** Google's formatted addresses for a point, best match first. */
+export const reverseGeocode = (lat: number, lng: number) =>
+  customFetch<{ id?: string; name?: string; address: string }[]>(`/places/reverse-geocode?lat=${lat}&lng=${lng}`);
+
 /** Answers whether the app operates at this point. */
 export const checkZone = (lat: number | string, lng: number | string) =>
   customFetch<any>(`/zones/check?lat=${lat}&lng=${lng}`);

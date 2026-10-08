@@ -40,6 +40,7 @@ export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
     deliveryOtp: apiOrder.deliveryOtp,
     polyline: apiOrder.polyline,
     ...paymentFields(apiOrder),
+    packageDelivery: apiOrder.packageDelivery ?? fallback?.packageDelivery ?? null,
     hasOutlet: !!apiOrder.vendor || !!fallback?.hasOutlet,
     foodReadyAt: apiOrder.foodReadyAt ?? fallback?.foodReadyAt ?? null,
     vendorName: vendorField(apiOrder, "name") || fallback?.vendorName,

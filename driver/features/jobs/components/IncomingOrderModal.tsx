@@ -47,7 +47,10 @@ export default function IncomingOrderModal() {
   const isHelper = isHelperJob(incomingOrder.serviceType);
   const isRide = isRideJob(incomingOrder.serviceType);
   const foodItems = getFoodItems(incomingOrder);
-  const modalTitle = offerTitle({ isReserved: incomingOrder.isReserved, isRide, isHelper });
+  const packageDelivery = incomingOrder.packageDelivery;
+  const modalTitle = packageDelivery
+    ? t("jobs.newPackageDeliveryRequest")
+    : offerTitle({ isReserved: incomingOrder.isReserved, isRide, isHelper });
   const formattedDate = formatReservedAt(incomingOrder.reservedAt);
   const offerPayment = paymentFields(incomingOrder);
 
@@ -112,7 +115,9 @@ export default function IncomingOrderModal() {
               label={
                 offerPayment.paymentMethod === "online"
                   ? t("jobs.paidOnline")
-                  : t("jobs.cashToCollect", { amount: offerPayment.payableAmount })
+                  : packageDelivery
+                    ? t(packageDelivery.payAt === "drop" ? "jobs.packageDeliveryCashAtDrop" : "jobs.packageDeliveryCashAtPickup", { amount: offerPayment.payableAmount })
+                    : t("jobs.cashToCollect", { amount: offerPayment.payableAmount })
               }
             />
           </ScrollBox>

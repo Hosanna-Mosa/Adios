@@ -1479,5 +1479,40 @@
     "percentageTooHigh": "प्रतिशत छूट 100 से अधिक नहीं हो सकती",
     "endBeforeStart": "समाप्ति तारीख शुरू होने की तारीख के बाद होनी चाहिए",
     "confirmDeleteOffer": "ऑफ़र \"{{title}}\" हटाएँ?"
+  },
+  "service": {
+    "column": "सेवा",
+    "all": "सभी सेवाएँ",
+    "filterColon": "सेवा: {{value}}",
+    "packageDelivery": "पैकेज डिलीवरी",
+    "ride": "राइड",
+    "food": "फ़ूड ऑर्डर",
+    "courier": "मल्टी-स्टॉप डिलीवरी",
+    "helper": "हेल्पर कार्य",
+    "vehicle": {
+      "bike": "बाइक",
+      "auto": "ऑटो",
+      "cab": "कैब",
+      "cab_prime": "कैब प्राइम"
+    },
+    "payment": "भुगतान",
+    "paidOnline": "ऑनलाइन भुगतान हुआ",
+    "cashCollected": "नकद · मिल गया",
+    "cashPending": "नकद · लेना बाकी",
+    "distance": "दूरी",
+    "km": "{{value}} कि.मी.",
+    "packageDeliveryDetails": "पैकेज डिलीवरी विवरण",
+    "sender": "भेजने वाला (पिकअप)",
+    "receiver": "पाने वाला (ड्रॉप)",
+    "cashPaidAt": "नकद भुगतान कहाँ",
+    "prepaidOnline": "पहले ही ऑनलाइन भुगतान",
+    "payAtPickup": "पिकअप (भेजने वाला)",
+    "payAtDrop": "ड्रॉप (पाने वाला)",
+    "packageDeliveries": "पैकेज डिलीवरी",
+    "packageCollectedDesc": "भेजने वाले से पैकेज ले लिया गया।",
+    "headingToSenderDesc": "कैप्टन भेजने वाले के पास जा रहे हैं...",
+    "enRouteToSenderLabel": "भेजने वाले के पास जा रहे हैं",
+    "packageDeliveredDesc": "पैकेज पाने वाले को सौंप दिया गया।",
+    "onTheWayToReceiverDesc": "पाने वाले के पास जा रहे हैं..."
   }
 }

@@ -11,6 +11,7 @@ features:
 | `food`     | restaurant-details, restaurant-menu, 149-store, favorites, cart, checkout, payment, payment-result |
 | `ride`     | ride-searching, ride-confirmation, finding-driver, pickup-confirmation, drop-location, tracking |
 | `delivery` | delivery/*, helper-task, map-picker |
+| `package-delivery` | package-delivery, package-delivery/search, package-delivery/details, package-delivery/confirm (booked as a bike/auto ride; finding-driver and tracking take over after) |
 | `support`  | support, support-chat, chat |
 | `profile`  | (tabs)/profile, notifications |
 | `meat`     | meat-centers |

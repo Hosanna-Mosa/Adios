@@ -17,6 +17,8 @@ export function serviceIcon(serviceKey: string): keyof typeof Ionicons.glyphMap 
       return "car-sport-outline";
     case "helper":
       return "construct-outline";
+    case "packageDelivery":
+      return "cube-outline";
     default:
       return "cube-outline";
   }

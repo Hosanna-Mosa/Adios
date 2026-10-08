@@ -1,4 +1,4 @@
-import { Briefcase, ShoppingBag, ArrowLeft, Truck } from "lucide-react";
+import { Briefcase, ShoppingBag, ArrowLeft, Truck, Package } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { StaggerList } from "@/components/motion/StaggerList";
 import { StaggerItem } from "@/components/motion/StaggerItem";
@@ -8,13 +8,14 @@ interface UserDetailStatsProps {
   deliveryOrders: number;
   ridesOrders: number;
   helperOrders: number;
+  packageDeliveryOrders: number;
 }
 
-/** The 4-card order stats row on UserDetail. */
-export function UserDetailStats({ totalOrders, deliveryOrders, ridesOrders, helperOrders }: UserDetailStatsProps) {
+/** The order stats row on UserDetail: one card per service. */
+export function UserDetailStats({ totalOrders, deliveryOrders, ridesOrders, helperOrders, packageDeliveryOrders }: UserDetailStatsProps) {
   const { t } = useTranslation();
   return (
-    <StaggerList className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <StaggerList className="grid grid-cols-2 md:grid-cols-5 gap-4">
       <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
         <ShoppingBag className="h-5 w-5 text-blue-500 mx-auto" />
         <p className="text-2xl font-bold text-foreground">{totalOrders}</p>
@@ -29,6 +30,11 @@ export function UserDetailStats({ totalOrders, deliveryOrders, ridesOrders, help
         <ArrowLeft className="h-5 w-5 rotate-135 text-green-500 mx-auto" />
         <p className="text-2xl font-bold text-foreground">{ridesOrders}</p>
         <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("users.ridesHired")}</p>
+      </StaggerItem>
+      <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
+        <Package className="h-5 w-5 text-amber-500 mx-auto" />
+        <p className="text-2xl font-bold text-foreground">{packageDeliveryOrders}</p>
+        <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{t("service.packageDeliveries")}</p>
       </StaggerItem>
       <StaggerItem className="bg-card border border-border p-5 rounded-3xl text-center space-y-1 shadow-sm">
         <Briefcase className="h-5 w-5 text-orange-500 mx-auto" />

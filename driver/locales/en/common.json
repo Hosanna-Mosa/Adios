@@ -503,7 +503,23 @@
     "youAreMinAway": "you are {{value}} min away",
     "firstToAcceptGetsIt": "Sent to nearby drivers — the first to accept gets it",
     "restaurantNotReadyYet": "Waiting for the restaurant to mark this order ready. You can enter the pickup code once they do.",
-    "completeDelivery": "Complete Delivery"
+    "completeDelivery": "Complete Delivery",
+    "newPackageDeliveryRequest": "New Package Delivery Request!",
+    "packageDeliveryAccepted": "Package Delivery Accepted",
+    "packageDeliveryInTransit": "Delivering Package",
+    "confirmPackageDelivery": "Confirm Package Delivery",
+    "packageDeliveryCollectFrom": "Package delivery · collect from",
+    "packageDeliveryDeliverTo": "Package delivery · deliver to",
+    "packageDeliveryPaidOnline": "Paid online — no cash to collect",
+    "packageDeliveryCashAtPickup": "Collect ₹{{amount}} cash from the sender at pickup",
+    "packageDeliveryCashAtDrop": "Collect ₹{{amount}} cash from the receiver at drop",
+    "receiver": "Receiver",
+    "packageDeliveryAtPickup": "You've reached the pickup point. Collect the package and start the trip — no OTP needed.",
+    "packageDeliveryStartTrip": "Package collected — start trip",
+    "packageDeliveryEnterOtp": "Enter the delivery OTP from the receiver",
+    "packageDeliveryOtpPlaceholder": "4-digit OTP",
+    "packageDeliveryInvalidOtp": "Wrong OTP. Ask the receiver for the 4-digit code the sender shared with them.",
+    "packageDeliveryComplete": "Complete package delivery"
   },
   "onboarding": {
     "sections": {

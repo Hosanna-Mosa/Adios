@@ -52,6 +52,22 @@ export interface IStop {
   items?: any;
 }
 
+export interface IPackageDeliveryContact {
+  name?: string;
+  phone?: string;
+}
+
+/**
+ * A package sent by bike or auto (package delivery). The order itself is an ordinary bike/auto ride
+ * (serviceType, fare, dispatch and tracking are unchanged); this records who hands
+ * the package over, who receives it, and where a cash fare is collected.
+ */
+export interface IPackageDelivery {
+  payAt: "pickup" | "drop";
+  pickupContact?: IPackageDeliveryContact;
+  dropContact?: IPackageDeliveryContact;
+}
+
 /** How a rider is found. "broadcast" = restaurant food orders (services/foodDispatch.service.ts). */
 export type DispatchMode = "sequential" | "broadcast";
 
@@ -105,6 +121,8 @@ export interface IOrder extends Omit<Document, "_id"> {
     type: "myself" | "someone_else";
     contactNumber?: string;
   };
+  /** Set only on bike/auto orders booked from the customer app's Package delivery flow. */
+  packageDelivery?: IPackageDelivery;
   scheduledDelivery?: {
     type: "now" | "later";
     requestedAt?: Date;
@@ -208,6 +226,23 @@ const FoodOfferSchema: Schema = new Schema(
   { _id: false }
 );
 
+const PackageDeliveryContactSchema: Schema = new Schema(
+  {
+    name: { type: String },
+    phone: { type: String },
+  },
+  { _id: false }
+);
+
+const PackageDeliverySchema: Schema = new Schema(
+  {
+    payAt: { type: String, enum: ["pickup", "drop"], default: "pickup" },
+    pickupContact: { type: PackageDeliveryContactSchema },
+    dropContact: { type: PackageDeliveryContactSchema },
+  },
+  { _id: false }
+);
+
 const FoodDispatchSchema: Schema = new Schema(
   {
     state: { type: String, enum: ["idle", "searching", "assigned", "unassigned"], default: "idle" },
@@ -266,6 +301,8 @@ const OrderSchema: Schema = new Schema(
       },
       contactNumber: { type: String },
     },
+    // Left unset (not defaulted) on everything but package delivery orders.
+    packageDelivery: { type: PackageDeliverySchema, default: undefined },
     scheduledDelivery: {
       type: {
         type: String,

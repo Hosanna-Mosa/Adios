@@ -192,6 +192,10 @@ export class AdminController {
           driver: driverName,
           eta,
           status: o.status,
+          // Enough for the dashboard to name the service (see admin orderService.ts).
+          serviceType: o.serviceType,
+          packageDelivery: !!o.packageDelivery,
+          vendor: !!o.vendor,
           priority: o.stops.length > 2 ? "HIGH" : o.stops.length > 1 ? "EXPRESS" : "STANDARD"
         };
       });
@@ -948,7 +952,9 @@ export class AdminController {
 
       const totalOrders = orders.length;
       const deliveryOrders = orders.filter(o => o.serviceType === "delivery").length;
-      const ridesOrders = orders.filter(o => o.serviceType !== "delivery" && o.serviceType !== "helper").length;
+      // A package delivery is stored as a bike/auto ride; count it on its own, not as a ride.
+      const packageDeliveryOrders = orders.filter(o => !!o.packageDelivery).length;
+      const ridesOrders = orders.filter(o => o.serviceType !== "delivery" && o.serviceType !== "helper" && !o.packageDelivery).length;
       const helperOrders = orders.filter(o => o.serviceType === "helper").length;
 
       // The four counts above only ever said which service a user booked. These
@@ -969,6 +975,7 @@ export class AdminController {
           deliveryOrders,
           ridesOrders,
           helperOrders,
+          packageDeliveryOrders,
           completedOrders: completedOrders.length,
           cancelledOrders: cancelledOrders.length,
           totalSpent: Math.round(totalSpent),

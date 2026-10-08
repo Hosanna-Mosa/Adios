@@ -7,7 +7,7 @@ import { type OrdersStyles } from "../orders.styles";
 
 interface Props {
   order: any;
-  /** Shown when the order has no outlet photo (rides, tasks, parcels) or it fails to load. */
+  /** Shown when the order has no outlet photo (rides, tasks, package deliveries) or it fails to load. */
   icon: keyof typeof Ionicons.glyphMap;
   background: string;
   color: string;

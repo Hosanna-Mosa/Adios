@@ -3,6 +3,7 @@ import { Ban, Eye, MoreVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { fadeIn } from "@/components/motion/variants";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ServiceBadge } from "@/components/shared/ServiceBadge";
 import type { ManifestItem } from "../types";
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -66,6 +67,7 @@ export function ActiveManifestsTable({ manifests, totalCount, isLoading = false,
         <thead>
           <tr className="border-t border-border">
             <th className="table-header-text text-left px-6 py-3">{t("dashboard.orderId")}</th>
+            <th className="table-header-text text-left px-6 py-3">{t("service.column")}</th>
             <th className="table-header-text text-left px-6 py-3">{t("dashboard.destination")}</th>
             <th className="table-header-text text-left px-6 py-3">{t("dashboard.driver")}</th>
             <th className="table-header-text text-left px-6 py-3">{t("dashboard.estimatedDelivery")}</th>
@@ -78,6 +80,7 @@ export function ActiveManifestsTable({ manifests, totalCount, isLoading = false,
             {manifests.map((m) => (
               <motion.tr key={m.orderId || m.id} layout variants={fadeIn} initial="hidden" animate="visible" exit={{ opacity: 0 }} className="border-t border-border hover:bg-muted/30 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-primary">{m.id}</td>
+                <td className="px-6 py-4">{m.serviceType ? <ServiceBadge order={m} /> : "—"}</td>
                 <td className="px-6 py-4 text-sm text-foreground">{m.dest || "—"}</td>
                 <td className="px-6 py-4">
                   {m.driver ? (

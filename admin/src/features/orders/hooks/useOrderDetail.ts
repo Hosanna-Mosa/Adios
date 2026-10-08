@@ -10,6 +10,13 @@ import type { Order, MapMarker, TimelineStep } from "../orderDetailTypes";
 // no pin is ever placed here.
 const DEFAULT_MAP_CENTER = { lat: 17.0005, lng: 81.8040 };
 
+// Statuses after the pickup is done / after the order is finished. Rides and package
+// deliveries report the lowercase driver-app statuses (en_route_delivery, ...); food uses
+// the uppercase ones. Both are read, so the timeline moves on for every flow.
+const PAST_PICKUP = ["PICKED_UP", "ON_THE_WAY", "IN_TRANSIT", "en_route_delivery", "arrived_delivery"];
+const FINISHED = ["DELIVERED", "COMPLETED", "delivered", "completed"];
+const HEADING_TO_PICKUP = ["DRIVER_ASSIGNED", "ARRIVED_PICKUP", "driver_assigned", "en_route_pickup", "arrived_pickup", "PICKING_ITEMS", "picking_items"];
+
 const formatTime = (value?: string | null) => {
   if (!value) return "";
   const date = new Date(value);
@@ -52,6 +59,11 @@ export function useOrderDetail() {
     // (food orders). The other steps used to all print order.updatedAt, which is
     // just the last time anything on the order changed.
     const driverAcceptedAt = order.dispatch?.offers?.find((o) => o.outcome === "accepted")?.respondedAt;
+    const finished = FINISHED.includes(order.status);
+    const pickedUp = finished || PAST_PICKUP.includes(order.status);
+    const headingToPickup = HEADING_TO_PICKUP.includes(order.status);
+    // A package delivery is collected from a sender and handed to a receiver, not a merchant.
+    const isPackage = !!order.packageDelivery;
     timelineSteps = [
       {
         time: formatTime(order.createdAt),
@@ -69,16 +81,20 @@ export function useOrderDetail() {
       {
         time: "",
         title: t("orders.pickedUp"),
-        desc: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? t("orders.itemsCollectedDesc") : t("orders.driverHeadingToMerchant"),
-        status: ["PICKED_UP", "DELIVERED", "COMPLETED"].includes(order.status) ? "completed" : order.status === "DRIVER_ASSIGNED" ? "in_progress" : "pending",
-        label: order.status === "DRIVER_ASSIGNED" ? t("orders.enRouteToMerchantLabel") : undefined
+        desc: pickedUp
+          ? t(isPackage ? "service.packageCollectedDesc" : "orders.itemsCollectedDesc")
+          : t(isPackage ? "service.headingToSenderDesc" : "orders.driverHeadingToMerchant"),
+        status: pickedUp ? "completed" : headingToPickup ? "in_progress" : "pending",
+        label: headingToPickup ? t(isPackage ? "service.enRouteToSenderLabel" : "orders.enRouteToMerchantLabel") : undefined
       },
       {
         time: "",
         title: t("orderStatus.delivered"),
-        desc: ["DELIVERED", "COMPLETED"].includes(order.status) ? t("orders.finalSignatureDeliveryDesc") : t("orders.inTransitToDestination"),
-        status: ["DELIVERED", "COMPLETED"].includes(order.status) ? "completed" : order.status === "PICKED_UP" ? "in_progress" : "pending",
-        label: order.status === "PICKED_UP" ? t("orders.inTransitCapsLabel") : undefined
+        desc: finished
+          ? t(isPackage ? "service.packageDeliveredDesc" : "orders.finalSignatureDeliveryDesc")
+          : t(isPackage ? "service.onTheWayToReceiverDesc" : "orders.inTransitToDestination"),
+        status: finished ? "completed" : pickedUp ? "in_progress" : "pending",
+        label: pickedUp && !finished ? t("orders.inTransitCapsLabel") : undefined
       }
     ];
 

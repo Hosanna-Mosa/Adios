@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useOrderDetail } from "@/features/orders/hooks/useOrderDetail";
 import { OrderDetailHeader } from "@/features/orders/components/OrderDetailHeader";
+import { OrderServiceCard } from "@/features/orders/components/OrderServiceCard";
 import { OrderTimeline } from "@/features/orders/components/OrderTimeline";
 import { RouteInventoryList } from "@/features/orders/components/RouteInventoryList";
 import { OrderRouteMap } from "@/features/orders/components/OrderRouteMap";
@@ -54,8 +55,9 @@ export default function OrderDetail() {
         {/* Left Panel */}
         <div className="p-6 overflow-auto">
           <OrderDetailHeader order={order} driverPhone={driverPhone} />
+          <OrderServiceCard order={order} />
           <OrderTimeline timelineSteps={timelineSteps} />
-          <RouteInventoryList stops={order.stops} />
+          <RouteInventoryList stops={order.stops} packageDelivery={order.packageDelivery} />
         </div>
 
         {/* Right Panel - Map */}

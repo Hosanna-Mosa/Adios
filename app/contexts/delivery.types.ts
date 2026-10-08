@@ -79,7 +79,7 @@ export interface DeliveryState {
   /** Who cancelled the current order (backend `cancelReason`), once it is cancelled. */
   cancelReason: string | null;
   scheduling: "asap" | "scheduled";
-  loadType: "parcel" | "grocery" | "fragile" | "mixed";
+  loadType: "package" | "grocery" | "fragile" | "mixed";
   paymentMethod: string;
   currentLocation: string;
   currentCoords: { lat: number; lng: number } | null;
@@ -108,7 +108,7 @@ export interface DeliveryState {
   removeItemFromStop: (stopId: string, itemId: string) => void;
   updateStop: (stopId: string, data: Partial<DeliveryStop>) => void;
   setScheduling: (s: "asap" | "scheduled") => void;
-  setLoadType: (t: "parcel" | "grocery" | "fragile" | "mixed") => void;
+  setLoadType: (t: "package" | "grocery" | "fragile" | "mixed") => void;
   calculateRoute: () => void;
   calculatePrice: () => void;
   setStatus: (status: OrderStatus) => void;

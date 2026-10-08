@@ -1479,5 +1479,40 @@
     "percentageTooHigh": "శాతం తగ్గింపు 100 మించకూడదు",
     "endBeforeStart": "ముగింపు తేదీ ప్రారంభ తేదీ తర్వాత ఉండాలి",
     "confirmDeleteOffer": "\"{{title}}\" ఆఫర్‌ను తొలగించాలా?"
+  },
+  "service": {
+    "column": "సేవ",
+    "all": "అన్ని సేవలు",
+    "filterColon": "సేవ: {{value}}",
+    "packageDelivery": "ప్యాకేజీ డెలివరీ",
+    "ride": "రైడ్",
+    "food": "ఫుడ్ ఆర్డర్",
+    "courier": "మల్టీ-స్టాప్ డెలివరీ",
+    "helper": "హెల్పర్ పని",
+    "vehicle": {
+      "bike": "బైక్",
+      "auto": "ఆటో",
+      "cab": "క్యాబ్",
+      "cab_prime": "క్యాబ్ ప్రైమ్"
+    },
+    "payment": "చెల్లింపు",
+    "paidOnline": "ఆన్‌లైన్‌లో చెల్లించారు",
+    "cashCollected": "నగదు · వసూలైంది",
+    "cashPending": "నగదు · వసూలు చేయాలి",
+    "distance": "దూరం",
+    "km": "{{value}} కి.మీ",
+    "packageDeliveryDetails": "ప్యాకేజీ డెలివరీ వివరాలు",
+    "sender": "పంపేవారు (పికప్)",
+    "receiver": "అందుకునేవారు (డ్రాప్)",
+    "cashPaidAt": "నగదు చెల్లించే చోటు",
+    "prepaidOnline": "ముందే ఆన్‌లైన్‌లో చెల్లించారు",
+    "payAtPickup": "పికప్ (పంపేవారు)",
+    "payAtDrop": "డ్రాప్ (అందుకునేవారు)",
+    "packageDeliveries": "ప్యాకేజీ డెలివరీలు",
+    "packageCollectedDesc": "పంపేవారి నుండి ప్యాకేజీ తీసుకున్నారు.",
+    "headingToSenderDesc": "కెప్టెన్ పంపేవారి వద్దకు వెళ్తున్నారు...",
+    "enRouteToSenderLabel": "పంపేవారి వద్దకు వెళ్తున్నారు",
+    "packageDeliveredDesc": "ప్యాకేజీ అందుకునేవారికి అందించారు.",
+    "onTheWayToReceiverDesc": "అందుకునేవారి వద్దకు వెళ్తున్నారు..."
   }
 }

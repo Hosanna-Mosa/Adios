@@ -23,7 +23,7 @@ export function ActiveTasksSection({
       <SectionHeading title={t("jobs.activeTasks")} />
       {currentOrder ? (
         <ActiveTaskCard
-          // Rides say "Next ride"; food, parcel and helper jobs "Next delivery".
+          // Rides say "Next ride"; food, package delivery and helper jobs "Next delivery".
           mode={isRideOrder(currentOrder) ? "ride" : "delivery"}
           time={
             currentOrder.timestamp
