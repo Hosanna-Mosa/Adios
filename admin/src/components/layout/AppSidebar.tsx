@@ -37,6 +37,7 @@ import {
   ShieldCheck,
   BadgeCheck,
   BadgePercent,
+  HandHelping,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
@@ -59,6 +60,7 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.meatCenters"), url: "/meat-centers", icon: Drumstick },
     { title: t("sidebar.meatPricing"), url: "/meat-pricing", icon: IndianRupee },
     { title: t("sidebar.zones"), url: "/zones", icon: Map },
+    { title: t("sidebar.helperPricing"), url: "/helper-pricing", icon: HandHelping },
     { title: t("sidebar.payments"), url: "/payments", icon: CreditCard },
     { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
     { title: t("sidebar.support"), url: "/support", icon: Headphones },

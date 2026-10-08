@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createStyles } from "./helper-task.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { Step, getDistanceFromLatLonInKm } from "./useHelperTask.shared";
+import { Step } from "./useHelperTask.shared";
+import { useHelperTaskQuote } from "./useHelperTaskQuote";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -16,10 +16,7 @@ export function useHelperTaskInsets() {
   const tokens = designTokens[theme];
   const accent = tokens.services.task;
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
-  const { radius } = useLocalSearchParams<{ radius?: string }>();
   const driver = useDeliveryStore((s) => s.driver);
-  const currentCoords = useDeliveryStore((s) => s.currentCoords);
-  const currentLocation = useDeliveryStore((s) => s.currentLocation);
   const setOrderId = useDeliveryStore((s) => s.setOrderId);
   const setDriver = useDeliveryStore((s) => s.setDriver);
   const setServiceType = useDeliveryStore((s) => s.setServiceType);
@@ -44,35 +41,47 @@ export function useHelperTaskInsets() {
   const [isCreating, setIsCreating] = useState(false);
 
   const [localOrderId, setLocalOrderId] = useState<string | null>(null);
+  // How the task was paid: an online-paid task raises its price with a top-up payment.
+  const [orderPaymentMethod, setOrderPaymentMethod] = useState<"cash" | "online" | null>(null);
   const [isIncreasingPrice, setIsIncreasingPrice] = useState<number | null>(null);
   const [currentTaskPrice, setCurrentTaskPrice] = useState<number | null>(null);
   const [rejectedCount, setRejectedCount] = useState(0);
   const [totalContacted, setTotalContacted] = useState(0);
   const [startOtp, setStartOtp] = useState<string | null>(null);
   const [assignedDriver, setAssignedDriver] = useState<any>(null);
-  // Set when the dispatcher has run out of helpers to offer the task to — the
-  // screen used to keep spinning with no way to tell that nothing more was coming.
+  // Mirrors the order's searchExhaustedAt: every helper offered has passed, and the
+  // server cancels the task after a while unless the price is raised.
   const [searchExhausted, setSearchExhausted] = useState(false);
   const [searchStartedAt, setSearchStartedAt] = useState<number | null>(null);
+  // Opened with ?orderId= (resume): the order is loading and no step is known yet.
+  const [isResuming, setIsResuming] = useState(false);
 
   const totalHours = durationMode === "1hr" ? 1 : durationMode === "2hr" ? 2 : customHours + customMinutes / 60 || 1;
 
-  // Same client-computed formula as before this pass — flagged, not
-  // changed, in the review notes: the backend trusts totals.total verbatim
-  // for helper orders with no server-side recalculation.
-  const calculatedFare = useMemo(() => {
-    if (!pickupCoords) return 0;
-    const baseFare = 40;
-    const platformFee = 5;
-    let distanceCharge = 0;
-    if (dropoffCoords) {
-      const distanceKm = getDistanceFromLatLonInKm(pickupCoords.lat, pickupCoords.lng, dropoffCoords.lat, dropoffCoords.lng);
-      distanceCharge = Math.round(Math.max(0, distanceKm - 2) * 15);
-    }
-    const durationCharge = Math.round(totalHours * 80);
-    const subtotal = baseFare + distanceCharge + durationCharge + platformFee;
-    return subtotal + Math.round(subtotal * 0.05);
-  }, [pickupCoords, dropoffCoords, totalHours]);
+  // The drop-off only counts once a place was picked — the same rule createTask uses.
+  const { quote, isQuoting, quoteError } = useHelperTaskQuote(pickupCoords, isDropoffValid ? dropoffCoords : null, totalHours);
+  const calculatedFare = quote?.total ?? 0;
 
-  return { insets, tokens, accent, styles, radius, driver, currentCoords, setOrderId, setDriver, setServiceType, setStatus, step, setStep, pickupLocation, setPickupLocation, dropoffLocation, setDropoffLocation, pickupCoords, setPickupCoords, dropoffCoords, setDropoffCoords, activeField, setActiveField, searchResults, setSearchResults, isPickupValid, setIsPickupValid, isDropoffValid, setIsDropoffValid, durationMode, setDurationMode, customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription, offer, setOffer, isCreating, setIsCreating, localOrderId, setLocalOrderId, isIncreasingPrice, setIsIncreasingPrice, currentTaskPrice, setCurrentTaskPrice, rejectedCount, setRejectedCount, totalContacted, setTotalContacted, startOtp, setStartOtp, assignedDriver, setAssignedDriver, searchExhausted, setSearchExhausted, searchStartedAt, setSearchStartedAt, totalHours, calculatedFare };
+  // A new quote (different place or hours) resets the offer to its total, so an
+  // offer picked for the old inputs can't carry over outside the new range.
+  useEffect(() => {
+    setOffer(null);
+  }, [quote?.total, quote?.minOffer, quote?.maxOffer]);
+
+  // Back to an empty search after the task ended (cancelled here or by the server).
+  // The form keeps what was typed, so posting it again is one tap away.
+  const clearTask = useCallback(() => {
+    setStep("compose");
+    setSearchExhausted(false);
+    setAssignedDriver(null);
+    setLocalOrderId(null);
+    setOrderPaymentMethod(null);
+    setCurrentTaskPrice(null);
+    setStartOtp(null);
+    setRejectedCount(0);
+    setTotalContacted(0);
+    setOrderId(null);
+  }, [setOrderId]);
+
+  return { clearTask, insets, tokens, accent, styles, driver, setOrderId, setDriver, setServiceType, setStatus, step, setStep, pickupLocation, setPickupLocation, dropoffLocation, setDropoffLocation, pickupCoords, setPickupCoords, dropoffCoords, setDropoffCoords, activeField, setActiveField, searchResults, setSearchResults, isPickupValid, setIsPickupValid, isDropoffValid, setIsDropoffValid, durationMode, setDurationMode, customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription, offer, setOffer, isCreating, setIsCreating, localOrderId, setLocalOrderId, orderPaymentMethod, setOrderPaymentMethod, isIncreasingPrice, setIsIncreasingPrice, currentTaskPrice, setCurrentTaskPrice, rejectedCount, setRejectedCount, totalContacted, setTotalContacted, startOtp, setStartOtp, assignedDriver, setAssignedDriver, searchExhausted, setSearchExhausted, searchStartedAt, setSearchStartedAt, isResuming, setIsResuming, totalHours, quote, isQuoting, quoteError, calculatedFare };
 }

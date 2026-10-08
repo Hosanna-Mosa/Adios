@@ -1282,6 +1282,8 @@ export class InvoiceService {
     const distance = order.totalDistance || 0;
     // Hours as booked on the order; "—" when none was recorded rather than a made-up 2.5.
     const hoursText = order.duration ? `${Number(order.duration).toFixed(1)} hrs` : "—";
+    // Time actually worked (start OTP → completion PIN). Overtime isn't billed, so this is shown, not charged.
+    const workedText = this.taskWorkedText(order) ?? hoursText;
 
     // Platform Fee: Fixed ₹7.00 for tasks > 15, otherwise ₹3.00
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
@@ -1373,7 +1375,7 @@ export class InvoiceService {
         <img src="${staticMapUrl}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px; position: absolute; top: 0; left: 0;" alt="" />
       </div>
       <div class="metrics-col">
-        <div class="metric-value">${hoursText}</div>
+        <div class="metric-value">${workedText}</div>
         <div class="metric-label">Total Hours Taken</div>
         
         <div class="metric-value">${Number(distance).toFixed(2)} km</div>
@@ -1588,6 +1590,17 @@ export class InvoiceService {
   /**
    * Generates email body HTML matching the Task trip confirmation layout (Indigo accents)
    */
+  /** "1 hr 25 min" between a helper task's start and finish, or null when either is missing. */
+  private taskWorkedText(order: any): string | null {
+    const start = order.taskStartedAt ? new Date(order.taskStartedAt).getTime() : NaN;
+    const end = order.taskCompletedAt ? new Date(order.taskCompletedAt).getTime() : NaN;
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return null;
+    const minutes = Math.max(1, Math.round((end - start) / 60000));
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return h ? `${h} hr${h > 1 ? "s" : ""}${m ? ` ${m} min` : ""}` : `${m} min`;
+  }
+
   public generateTaskEmailHtml(order: any): string {
     const orderId = order._id || "";
     const staticMapUrl = this.getStaticMapUrl(order);
@@ -1600,7 +1613,7 @@ export class InvoiceService {
     const dropAddress = order.stops[1]?.address || "";
     
     const distance = order.totalDistance || 0;
-    const hoursText = order.duration ? `${Number(order.duration).toFixed(1)} hrs` : "—";
+    const hoursText = this.taskWorkedText(order) ?? (order.duration ? `${Number(order.duration).toFixed(1)} hrs` : "—");
 
     const platformFee = totalPrice > 15 ? 7.00 : 3.00;
     const taskCharge = totalPrice - platformFee;

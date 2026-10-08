@@ -1,10 +1,14 @@
 import { useEffect } from "react";
+import { router } from "expo-router";
 import { foodStageOf, nextDriverLocation, normalizeStatus } from "./useTracking.shared";
 import { getOrder } from "@/services/orders.service";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
+
+/** A helper task before the helper starts is shown on the helper screen, not here. */
+const HELPER_PRE_START = ["CREATED", "SEARCHING_DRIVER", "DRIVER_ASSIGNED"];
 
 export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setServiceType: any, setRoute: any, stops: any, setStops: any, setDriver: any, setVendorName: any, setVendorPartnerType: any, setEta: any, setOrderCreatedAt: any, setDeliveredAt: any, setDeliveryOtp: any, setStartOtp: any, setDriverLocation: any, setRadius: any, setTotalPrice: any, handleOrderCancelledByDriver: any) {
   const pickupStop = stops?.find((s: any) => s.type?.toLowerCase() === "pickup" || s.type?.toLowerCase() === "store");
@@ -21,6 +25,12 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
             const statusStr = String(order.status).toLowerCase();
             if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
               handleOrderCancelledByDriver(order.cancelReason);
+              return;
+            }
+            // Reached from a notification or an old link: the helper screen is where a
+            // task waiting for (or assigned to) a helper is raised, cancelled or started.
+            if (order.serviceType === "helper" && HELPER_PRE_START.includes(String(order.status).toUpperCase())) {
+              router.replace({ pathname: "/helper-task", params: { orderId: currentOrderId } });
               return;
             }
             const normalized = normalizeStatus(order.status);
@@ -81,7 +91,8 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));
           // The route's time is only a first estimate: once the driver's live position
           // has produced one, this 7-second poll must not reset it.
-          if (order.duration) {
+          // A helper task's `duration` is its booked hours, not a travel time.
+          if (order.duration && order.serviceType !== "helper") {
             const durMinutes = parseInt(order.duration.toString().replace(/[^0-9]/g, ""), 10);
             if (durMinutes > 0) setEta((prev: number | null) => prev ?? durMinutes);
           }

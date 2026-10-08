@@ -20,15 +20,24 @@ export function paymentFields(apiOrder: any): Pick<Order, "paymentMethod" | "pay
   };
 }
 
+/** "1 hr" / "2.5 hrs" for a helper task's booked hours. */
+export function formatBookedHours(hours?: number | null) {
+  const value = Number(hours) || 0;
+  return value === 1 ? i18n.t("jobs.oneHour") : i18n.t("jobs.hoursShortN", { value });
+}
+
 /**
  * Shapes a backend order document into the client `Order`. The three call
  * sites differ only in what they fall back to for the customer/vendor fields.
  */
 export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
+  // A helper task's `duration` is the hours the customer booked; for everything else it's minutes.
+  const isHelper = apiOrder.serviceType?.toLowerCase() === "helper";
+  const bookedHours = isHelper ? Number(apiOrder.duration) || fallback?.bookedHours || 0 : undefined;
   return {
     id: apiOrder._id || apiOrder.id,
     distance: `${apiOrder.totalDistance || 0} km`,
-    duration: `${apiOrder.duration || 0} min`,
+    duration: isHelper ? formatBookedHours(bookedHours) : `${apiOrder.duration || 0} min`,
     earnings: Math.round(apiOrder.totalPrice * 0.8),
     status: apiOrder.status,
     customerName: apiOrder.user?.name || fallback?.customerName || i18n.t("jobs.customer"),
@@ -36,8 +45,19 @@ export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
     timestamp: new Date(apiOrder.createdAt),
     serviceType: apiOrder.serviceType,
     radius: apiOrder.radius,
+    // Never sent for helper tasks: the helper types the customer's codes and the server checks them.
     restaurantPickupCode: apiOrder.restaurantPickupCode,
     deliveryOtp: apiOrder.deliveryOtp,
+    ...(isHelper
+      ? {
+          bookedHours,
+          taskDescription:
+            apiOrder.stops?.[0]?.items?.instructions || fallback?.taskDescription || "",
+          assignConfirmedAt: apiOrder.assignConfirmedAt ?? fallback?.assignConfirmedAt ?? null,
+          taskStartedAt: apiOrder.taskStartedAt ?? null,
+          taskCompletedAt: apiOrder.taskCompletedAt ?? null,
+        }
+      : {}),
     polyline: apiOrder.polyline,
     ...paymentFields(apiOrder),
     hasOutlet: !!apiOrder.vendor || !!fallback?.hasOutlet,

@@ -33,10 +33,9 @@ export default function DriverChatScreen() {
   ];
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderId?: string }>();
-  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive, token, setChatMessages, updateOrderStatus } = useDriverStore();
+  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive, token, setChatMessages } = useDriverStore();
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
-  const [canStartTask, setCanStartTask] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [fetchedOrder, setFetchedOrder] = useState<{ id: string; customerName: string; customerPhone: string; serviceType?: string } | null>(null);
 
@@ -73,21 +72,13 @@ export default function DriverChatScreen() {
   // The "discuss & start task" banner only makes sense for the driver's actual,
   // currently active job — not when viewing an older conversation.
   const isActiveJob = currentOrder?.id === chatOrderId;
+  const taskStarted =
+    !!currentOrder?.taskStartedAt || currentOrder?.status?.toLowerCase() === "in_progress";
 
-  // Starting the task has to move the order, not just fire a socket event: the
-  // customer's tracking screen reads the order status, so a socket-only start left
-  // their timeline stuck on "Helper assigned" for the whole job — and was lost
-  // entirely if their chat screen happened to be closed.
-  const handleStartTask = async () => {
-    if (!currentOrder?.id) return;
-    try {
-      await updateOrderStatus?.("IN_PROGRESS" as any);
-    } catch (err: any) {
-      console.warn("[Chat] Failed to mark task in progress:", err?.message);
-    }
-    socketService.emit("task_started", { orderId: currentOrder.id });
-    router.push("/active-order");
-  };
+  // A task only starts with the customer's start OTP, which the server checks — that
+  // entry lives on the task screen. (The server tells the customer once it has started.)
+  // dismissTo goes back to the task screen when chat was opened from it, rather than stacking a second one.
+  const handleStartTask = () => router.dismissTo("/active-order");
 
   // The conversation lives on the server; the store only holds what arrived over
   // the socket this session. Without this the driver opened chat on an order they
@@ -138,16 +129,10 @@ export default function DriverChatScreen() {
       }
     };
 
-    const handleAssignTaskConfirmed = () => {
-      setCanStartTask(true);
-    };
-
     socketService.on("receive_message", handleReceiveMessage);
-    socketService.on("assign_task_confirmed", handleAssignTaskConfirmed);
 
     return () => {
       socketService.off("receive_message", handleReceiveMessage);
-      socketService.off("assign_task_confirmed", handleAssignTaskConfirmed);
       setIsChatActive?.(false);
     };
   }, [chatOrderId]);
@@ -193,8 +178,12 @@ export default function DriverChatScreen() {
         }}
       />
 
-      {isHelper && isActiveJob && (
-        <TaskAssignmentBanner canStartTask={canStartTask} onStartTask={handleStartTask} />
+      {/* Whether the customer confirmed comes from the order (and the global socket handler). */}
+      {isHelper && isActiveJob && !taskStarted && (
+        <TaskAssignmentBanner
+          customerConfirmed={!!currentOrder?.assignConfirmedAt}
+          onStartTask={handleStartTask}
+        />
       )}
 
       <List

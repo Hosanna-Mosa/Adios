@@ -503,7 +503,23 @@
     "youAreMinAway": "you are {{value}} min away",
     "firstToAcceptGetsIt": "Sent to nearby drivers — the first to accept gets it",
     "restaurantNotReadyYet": "Waiting for the restaurant to mark this order ready. You can enter the pickup code once they do.",
-    "completeDelivery": "Complete Delivery"
+    "completeDelivery": "Complete Delivery",
+    "oneHour": "1 hr",
+    "hoursShortN": "{{value}} hrs",
+    "helperTaskBookedFor": "Helper task · {{value}} booked",
+    "taskDetails": "Task details",
+    "noTaskDescription": "The customer didn't describe the task. Ask them in chat.",
+    "taskLocation": "Task location",
+    "taskAssigned": "Task assigned",
+    "taskInProgress": "Task in progress",
+    "customerConfirmedTask": "The customer has confirmed the task in chat.",
+    "customerNotConfirmedTaskYet": "The customer hasn't confirmed the task in chat yet. You can still start once they give you their start OTP.",
+    "chatWithCustomer": "Chat with customer",
+    "enterCustomerStartOtp": "Enter the customer's start OTP",
+    "enterStartOtpFromCustomer": "Enter the start OTP shown on the customer's screen.",
+    "overtimeByMin": "+{{value}} min over",
+    "customerConfirmedAskStartOtp": "The customer confirmed the task. Ask for their start OTP to begin.",
+    "agreeTaskThenAskStartOtp": "Agree on the task here, then ask the customer for their start OTP."
   },
   "onboarding": {
     "sections": {

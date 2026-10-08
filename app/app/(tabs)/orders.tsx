@@ -142,8 +142,12 @@ function activeStatusCaption(order: any, serviceKey: string): string {
     return i18n.t("app.chat.statusLabel.confirmed", "Order confirmed");
   }
   if (serviceKey === "helper") {
-    if (["EN_ROUTE_PICKUP", "DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.orders.helperOnTheWay", "Helper on the way");
-    return i18n.t("app.orders.matchingAHelper", "Matching a helper");
+    // A helper task's own statuses: SEARCHING_DRIVER → DRIVER_ASSIGNED → IN_PROGRESS → DELIVERED.
+    if (status === "DRIVER_ASSIGNED") return i18n.t("app.orders.helperAssigned", "Helper assigned");
+    if (status === "IN_PROGRESS") return i18n.t("app.orders.taskInProgress", "Task in progress");
+    if (["DELIVERED", "COMPLETED"].includes(status)) return i18n.t("app.orders.taskCompleted", "Task completed");
+    if (status === "CANCELLED") return i18n.t("app.orders.cancelled", "Cancelled");
+    return i18n.t("app.orders.findingAHelper", "Finding a helper");
   }
   if (serviceKey === "delivery") return i18n.t("app.orders.riderOnTheRoute", "Rider on the route");
   if (["DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.tracking.rideLabels.captainAssigned", "Rider assigned");

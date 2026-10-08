@@ -72,7 +72,8 @@
       "safetyBanner": "సంభాషణను Flavour లోనే ఉంచండి. {{context}} ప్రారంభమయ్యే ముందు మీ పిన్‌ను {{partner}}తో పంచుకోవద్దు.",
       "contextTask": "పని",
       "contextRide": "రైడ్",
-      "contextOrder": "ఆర్డర్"
+      "contextOrder": "ఆర్డర్",
+      "couldNotConfirmTask": "పనిని నిర్ధారించలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి."
     },
     "taskTypes": {
       "shifting": "షిఫ్టింగ్",
@@ -195,7 +196,20 @@
       "restaurantPin": "రెస్టారెంట్",
       "deliveryLocationPin": "మీ డెలివరీ లొకేషన్",
       "pickupPin": "పికప్",
-      "dropPin": "డ్రాప్"
+      "dropPin": "డ్రాప్",
+      "banner": {
+        "riderArrived": "రైడర్ చేరుకున్నారు",
+        "helperArrived": "హెల్పర్ చేరుకున్నారు",
+        "arrivedAtStore": "స్టోర్‌కు చేరుకున్నారు",
+        "tripInProgress": "ప్రయాణం జరుగుతోంది",
+        "taskInProgress": "పని జరుగుతోంది",
+        "outForDelivery": "డెలివరీకి బయలుదేరింది",
+        "arrivedAtDestination": "గమ్యస్థానానికి చేరుకున్నారు",
+        "arrivedAtYourLocation": "మీ లొకేషన్‌కు చేరుకున్నారు",
+        "helperOnTheWay": "హెల్పర్ దారిలో ఉన్నారు",
+        "riderOnTheWay": "రైడర్ దారిలో ఉన్నారు",
+        "headingToPickup": "పికప్‌కు వెళ్తున్నారు"
+      }
     },
     "orderStatusTimeline": {
       "steps": {
@@ -321,7 +335,7 @@
       "pickARideToSeeLive": "మీ ప్రయాణానికి లైవ్ ఛార్జీలు చూడటానికి రైడ్‌ను ఎంచుకోండి.",
       "alsoOnFlavour": "Flavourలో మరిన్ని సేవలు",
       "hireAHelper": "సహాయకుడిని నియమించుకోండి",
-      "from120Hour": "గంటకు ₹120 నుండి",
+      "from80Hour": "గంటకు ₹80 నుండి",
       "multistopCourierFrom39": "బహుళ-స్టాప్ కొరియర్ · ₹39 నుండి",
       "allServices": "అన్ని సేవలు",
       "searching": "శోధిస్తోంది…",
@@ -550,8 +564,6 @@
       "refundInProgress": "₹{{amount}} రీఫండ్ ప్రాసెస్ అవుతోంది · సాధారణంగా 5–7 పని దినాలు",
       "refundBeingArranged": "మీ ₹{{amount}} రీఫండ్ ఏర్పాటు చేయబడుతోంది. అవసరమైతే మా బృందం మిమ్మల్ని సంప్రదిస్తుంది.",
       "preparingYourOrder": "మీ ఆర్డర్‌ను సిద్ధం చేస్తున్నారు",
-      "helperOnTheWay": "హెల్పర్ దారిలో ఉన్నారు",
-      "matchingAHelper": "హెల్పర్‌ను వెతుకుతున్నాము",
       "riderOnTheRoute": "రైడర్ మార్గంలో ఉన్నారు",
       "findingYourCaptain": "మీ రైడర్‌ను వెతుకుతున్నాము",
       "past": "గత",
@@ -596,12 +608,16 @@
       "placedAt": "{{time}}కి ఆర్డర్ చేశారు",
       "deliveringTo": "డెలివరీ చిరునామా",
       "dropAt": "డ్రాప్",
-      "taskLocation": "పని జరిగే చోటు"
+      "taskLocation": "పని జరిగే చోటు",
+      "findingAHelper": "హెల్పర్‌ను వెతుకుతోంది",
+      "helperAssigned": "హెల్పర్ కేటాయించబడ్డారు",
+      "taskInProgress": "పని జరుగుతోంది",
+      "taskCompleted": "పని పూర్తయింది"
     },
     "helperTask": {
       "title": {
         "compose": "హెల్పర్‌ను నియమించండి",
-        "bidding": "మీ ఆఫర్",
+        "offer": "మీ ఆఫర్ సెట్ చేయండి",
         "searching": "హెల్పర్‌ను వెతుకుతోంది",
         "assigned": "పని కేటాయించబడింది",
         "noHelpersYet": "ఇంకా హెల్పర్లు లేరు"
@@ -764,7 +780,6 @@
       "minutes": "నిమిషాలు",
       "taskDescription": "పని వివరణ",
       "twoPeopleToCarryA3seater": "4వ అంతస్తు నుండి 3-సీటర్ సోఫా మరియు 4 కార్టన్‌లను దించడానికి ఇద్దరు వ్యక్తులు కావాలి. రాత్రి 8 తర్వాత లిఫ్ట్ లేదు.",
-      "helpersSeeThisBeforeTheyBid": "హెల్పర్‌లు బిడ్ చేసే ముందు దీన్ని చూస్తారు. మెట్లు, బరువు మరియు భారీగా ఉన్న దేనినైనా ప్రస్తావించండి.",
       "whereTheWorkStarts": "పని ఎక్కడ ప్రారంభమవుతుంది",
       "pickupLocation": "పికప్ లొకేషన్",
       "whereItEnds": "అది ఎక్కడ ముగుస్తుంది",
@@ -823,7 +838,6 @@
       "helpersNotified": "హెల్పర్‌లకు తెలియజేయబడింది",
       "waitingForTheFirstAcceptance": "మొదటి అంగీకారం కోసం వేచి ఉంది",
       "currentOffer": "ప్రస్తుత ఆఫర్",
-      "mAbout": "ని · సుమారు ₹",
       "20Steps": "₹20 దశలు",
       "findingAHelper": "హెల్పర్‌ను వెతుకుతోంది",
       "dragToAdjust": "సర్దుబాటు చేయడానికి లాగండి",
@@ -832,10 +846,7 @@
       "near": "సమీపంలో",
       "recent": "ఇటీవలివి",
       "save": "సేవ్ చేయండి",
-      "yourOfferIsVisibleToNearby": "మీరు హెల్పర్‌ను కనుగొనండి నొక్కిన తర్వాత మీ ఆఫర్ సమీప హెల్పర్‌లకు కనిపిస్తుంది.",
       "findAHelper": "హెల్పర్‌ను కనుగొనండి · ₹",
-      "outOfRange": "పరిధి దాటింది",
-      "thisLocationIsOutsideYourSelected": "ఈ లొకేషన్ మీరు ఎంచుకున్న {{value}}కి.మీ పరిధి బయట ఉంది.",
       "deleteAddress": "చిరునామాను తొలగించండి",
       "areYouSureRemoveAddress": "మీరు ఖచ్చితంగా ఈ చిరునామాను తీసివేయాలనుకుంటున్నారా?",
       "deleteWord": "తొలగించండి",
@@ -852,7 +863,24 @@
       "offeredToHelpersSomePassed_one": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌కు ఆఫర్ చేశాము, {{passed}} మంది తిరస్కరించారు. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
       "offeredToHelpersSomePassed_other": "దీన్ని సమీపంలోని {{count}} హెల్పర్‌లకు ఆఫర్ చేశాము, {{passed}} మంది తిరస్కరించారు. ఆఫర్ పెంచితే సాధారణంగా కొన్ని నిమిషాల్లో ఎవరో ఒకరు దొరుకుతారు.",
       "nobodyOnShiftNearYou": "ప్రస్తుతం మీ దగ్గర ఎవరూ డ్యూటీలో లేరు. ఆఫర్ పెంచడం లేదా కాసేపట్లో మళ్లీ ప్రయత్నించడం సాధారణంగా సహాయపడుతుంది.",
-      "raising": "పెంచుతున్నాం…"
+      "raising": "పెంచుతున్నాం…",
+      "couldNotGetPrice": "ఈ పనికి ధర పొందలేకపోయాం. స్థలాలను సరిచూసి మళ్లీ ప్రయత్నించండి.",
+      "priceNotReady": "ధర ఇంకా సిద్ధంగా లేదు",
+      "calculatingPrice": "ధర లెక్కిస్తోంది…",
+      "estimatedPrice": "అంచనా ధర",
+      "couldNotCancelTask": "పనిని రద్దు చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.",
+      "cancelThisRequest": "ఈ అభ్యర్థనను రద్దు చేయాలా?",
+      "cancelThisRequestHint": "మీ పని ఇంకా యాక్టివ్‌గా ఉంది. దాన్ని అలాగే కొనసాగించి నా ఆర్డర్ల నుండి మళ్లీ తెరవవచ్చు, లేదా ఇప్పుడే రద్దు చేయవచ్చు.",
+      "keepIt": "అలాగే ఉంచండి",
+      "cancelRequest": "అభ్యర్థనను రద్దు చేయండి",
+      "couldNotLoadTask": "ఈ పనిని లోడ్ చేయలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి.",
+      "offerGoesToHelpersOneAtATime": "సమీపంలోని హెల్పర్లకు మీ పని ఈ ధరకే, ఒక్కొక్కరికి ఒకసారి అందించబడుతుంది.",
+      "helpersSeeThisBeforeTheyAccept": "హెల్పర్లు అంగీకరించే ముందు ఇది చదువుతారు. మెట్లు, బరువు, ఏవైనా బరువైన వస్తువుల గురించి తెలపండి.",
+      "offerRange": "మీరు ₹{{min}} – ₹{{max}} మధ్య ఆఫర్ చేయవచ్చు",
+      "yourOffer": "మీ ఆఫర్",
+      "offerForDuration": "{{hours}}గం {{minutes}}ని కోసం · గంటకు సుమారు ₹{{perHour}}",
+      "recommendedPrice": "సిఫార్సు చేసిన ధర · ₹{{amount}}",
+      "taskCancelsAutomatically": "రాబోయే కొన్ని నిమిషాల్లో ఎవరూ తీసుకోకపోతే, మేము ఈ పనిని ఆటోమేటిక్‌గా రద్దు చేస్తాము."
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",
@@ -1023,7 +1051,9 @@
       "riderCancelledOrder": "మీ రైడర్ రద్దు చేయాల్సి వచ్చింది, కాబట్టి ఈ ఆర్డర్ రద్దు చేయబడింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది.",
       "cancelledByAdios": "Adios ద్వారా ఆర్డర్ రద్దు చేయబడింది",
       "adiosCancelledOrder": "Adios బృందం ఈ ఆర్డర్‌ను రద్దు చేసింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది. ప్రశ్నలు ఉంటే సపోర్ట్‌ను సంప్రదించండి.",
-      "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు."
+      "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు.",
+      "noHelperAvailable": "హెల్పర్ ఎవరూ అందుబాటులో లేరు",
+      "noHelperWasAvailableCancelled": "మీ పనికి హెల్పర్ ఎవరూ అందుబాటులో లేరు, అందుకే దాన్ని రద్దు చేశాము."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -1096,7 +1126,9 @@
       "cashHint": "డ్రైవర్‌కు చెల్లించండి",
       "online": "ఆన్‌లైన్",
       "onlineHint": "UPI, కార్డులు, నెట్‌బ్యాంకింగ్",
-      "paySecurely": "సురక్షితంగా చెల్లించండి"
+      "paySecurely": "సురక్షితంగా చెల్లించండి",
+      "topupRefundedTitle": "చెల్లింపు తిరిగి ఇవ్వబడుతోంది",
+      "topupRefunded": "మీ పనిని ఇప్పటికే ఒకరు తీసుకున్నారు, కాబట్టి ఈ చెల్లింపు మీకు తిరిగి ఇవ్వబడుతోంది."
     },
     "personaldetails": {
       "couldntSave": "సేవ్ చేయలేకపోయాము",

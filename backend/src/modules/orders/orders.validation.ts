@@ -34,6 +34,23 @@ export const estimateFareSchema = z.object({
   }),
 });
 
+const numberString = (name: string) => z.string().refine((val) => val.trim() !== "" && !isNaN(Number(val)), `${name} must be a valid number`);
+
+// GET /orders/helper-quote — the drop-off is optional (a task at one place).
+export const helperQuoteSchema = z.object({
+  query: z
+    .object({
+      pickupLat: numberString("pickupLat"),
+      pickupLng: numberString("pickupLng"),
+      dropLat: numberString("dropLat").optional(),
+      dropLng: numberString("dropLng").optional(),
+      hours: numberString("hours").optional(),
+    })
+    .refine((q) => (q.dropLat === undefined) === (q.dropLng === undefined), {
+      message: "dropLat and dropLng must be sent together",
+    }),
+});
+
 export const createOrderSchema = z.object({
   body: z.object({
     stops: z.array(stopInputSchema).min(1, "At least one stop is required"),

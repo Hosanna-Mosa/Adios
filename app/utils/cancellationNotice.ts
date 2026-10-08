@@ -9,7 +9,8 @@ export type CancelReason =
   | "restaurant_timeout"
   | "driver_cancelled"
   | "admin_cancelled"
-  | "customer_cancelled";
+  | "customer_cancelled"
+  | "no_helpers";
 
 /**
  * What to tell the customer about a cancelled order, by who cancelled it.
@@ -28,6 +29,9 @@ export function cancellationNotice(reason?: string | null): { title: string; mes
       return { title: i18n.t("app.ride.cancelledByAdios"), message: i18n.t("app.ride.adiosCancelledOrder") };
     case "customer_cancelled":
       return { title: i18n.t("app.ride.orderCancelled"), message: i18n.t("app.ride.youCancelledThisOrder") };
+    // A helper task nobody took before the server's expiry ran out.
+    case "no_helpers":
+      return { title: i18n.t("app.ride.noHelperAvailable"), message: i18n.t("app.ride.noHelperWasAvailableCancelled") };
     default:
       return { title: i18n.t("app.ride.orderCancelled"), message: i18n.t("app.ride.wereSorryThisOrderCouldNot") };
   }

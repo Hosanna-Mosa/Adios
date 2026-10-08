@@ -268,7 +268,8 @@
     "needHelp": "Need Help?",
     "contactSupportForAssistance": "Contact support for assistance.",
     "contactSupport": "Contact Support",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "helperPricing": "Helper Pricing"
   },
   "notifications": {
     "justNow": "Just now",
@@ -1479,5 +1480,92 @@
     "percentageTooHigh": "A percentage discount cannot exceed 100",
     "endBeforeStart": "End date must be after the start date",
     "confirmDeleteOffer": "Delete the offer \"{{title}}\"?"
+  },
+  "helperPricing": {
+    "title": "Helper Pricing",
+    "description": "Set the fare, offer limits, booking hours and search timeout for helper tasks. Changes apply to new tasks right after you save.",
+    "save": "Save Pricing",
+    "reset": "Discard Changes",
+    "loading": "Loading helper pricing...",
+    "loadFailed": "Could not load helper pricing. Refresh the page to try again.",
+    "saved": "Helper pricing saved.",
+    "saveFailed": "Failed to save helper pricing",
+    "fixErrors": "Fix the highlighted fields before saving.",
+    "errors": {
+      "required": "Enter a number.",
+      "wholeNumber": "Enter a whole number.",
+      "range": "Must be between {{min}} and {{max}}.",
+      "maxHoursBelowMin": "Must be at least the minimum hours."
+    },
+    "groups": {
+      "fare": {
+        "title": "Fare",
+        "desc": "What the customer is quoted for a task, before zone surge."
+      },
+      "offers": {
+        "title": "Offer Limits",
+        "desc": "How far below or above the quoted fare a customer may offer."
+      },
+      "booking": {
+        "title": "Booking",
+        "desc": "The shortest and longest task a customer can book."
+      },
+      "search": {
+        "title": "Search",
+        "desc": "What happens when no helper accepts a task."
+      }
+    },
+    "fields": {
+      "baseFare": "Base fare",
+      "perHourRate": "Per hour rate",
+      "perKmRate": "Per km rate",
+      "freeKm": "Free distance",
+      "platformFee": "Platform fee",
+      "taxPercent": "Tax",
+      "minOfferPercent": "Minimum offer",
+      "maxOfferPercent": "Maximum offer",
+      "minHours": "Minimum hours",
+      "maxHours": "Maximum hours",
+      "expiryMinutes": "Cancel after"
+    },
+    "units": {
+      "baseFare": "₹",
+      "perHourRate": "₹ / hour",
+      "perKmRate": "₹ / km",
+      "freeKm": "km",
+      "platformFee": "₹",
+      "taxPercent": "%",
+      "minOfferPercent": "% of fare",
+      "maxOfferPercent": "% of fare",
+      "minHours": "hours",
+      "maxHours": "hours",
+      "expiryMinutes": "minutes"
+    },
+    "hints": {
+      "baseFare": "Flat amount added to every task (0–10000).",
+      "perHourRate": "Charged for each booked hour (0–10000).",
+      "perKmRate": "Charged for each km beyond the free distance (0–1000).",
+      "freeKm": "Distance included in the fare at no extra cost (0–100).",
+      "platformFee": "Added after surge is applied (0–1000).",
+      "taxPercent": "Applied to the fare including the platform fee (0–50).",
+      "minOfferPercent": "Lowest offer allowed, as a share of the fare (10–100).",
+      "maxOfferPercent": "Highest offer allowed, as a share of the fare (100–1000).",
+      "minHours": "Shortest task a customer can book (0.25–24).",
+      "maxHours": "Longest task a customer can book (0.25–24).",
+      "expiryMinutes": "Once the search ends, a task nobody accepted is cancelled and refunded after this many minutes (1–240)."
+    },
+    "preview": {
+      "title": "Example Fare",
+      "trip": "{{hours}} hours, {{km}} km, surge ×{{surge}}",
+      "baseFare": "Base fare",
+      "timeFare": "Time ({{hours}} h)",
+      "distanceFare": "Distance ({{km}} km charged)",
+      "platformFee": "Platform fee",
+      "tax": "Tax ({{percent}}%)",
+      "total": "Customer pays",
+      "offerRange": "Customer can offer between {{min}} and {{max}}.",
+      "invalid": "Fix the highlighted fields to see the example fare.",
+      "formula": "Fare = round((base + hours × per hour + km past free distance × per km) × zone surge) + platform fee, then tax is added."
+    }
   }
 }

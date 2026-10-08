@@ -1,5 +1,5 @@
 import Order from "../../database/models/Order";
-import Payment from "../../database/models/Payment";
+import Payment, { PaymentStatus } from "../../database/models/Payment";
 import { NotificationService } from "../../services/notification.service";
 import { razorpayClient } from "./payment.service";
 
@@ -106,12 +106,69 @@ export class RefundService {
   }
 
   /**
+   * Refunds one helper-task top-up (a price raise paid online). Tracked on the top-up's own
+   * Payment, never on the order's refund fields, which belong to the order's first payment.
+   * Safe to call repeatedly: only the first call refunds.
+   */
+  async refundTopup(paymentId: any, reason: string): Promise<"pending" | "processed" | "failed" | "skipped"> {
+    const claimed = await Payment.findOneAndUpdate(
+      { _id: paymentId, purpose: "topup", status: PaymentStatus.CAPTURED, topupRefundStatus: { $exists: false } },
+      { $set: { topupRefundStatus: "pending" } },
+      { new: true },
+    );
+    if (!claimed?.razorpayPaymentId) return "skipped";
+
+    try {
+      const refund: any = await razorpayClient.payments.refund(claimed.razorpayPaymentId, {
+        amount: claimed.amount,
+        receipt: `rft_${claimed._id}`.slice(0, 40),
+        // No orderId note: the refund webhook would otherwise match it to the order's own refund.
+        notes: { topupPaymentId: String(claimed._id), reason: reason.slice(0, 200) },
+      } as any);
+      const status = mapRazorpayRefundStatus(refund?.status);
+      await Payment.updateOne({ _id: claimed._id }, { $set: { topupRefundStatus: status, topupRazorpayRefundId: refund.id } });
+      if (status === "failed") console.error(`[refunds] ALERT top-up refund ${refund.id} (payment ${claimed._id}) failed`);
+      return status;
+    } catch (error: any) {
+      const description = error?.error?.description || error?.message || "Razorpay refund request failed";
+      const statusCode = error?.statusCode ?? error?.error?.statusCode;
+      const definitive = typeof statusCode === "number" && statusCode >= 400 && statusCode < 500;
+      // An unknown outcome stays "pending" (never re-called blindly); the webhook settles it.
+      if (definitive) await Payment.updateOne({ _id: claimed._id }, { $set: { topupRefundStatus: "failed", lastError: description } });
+      console.error(`[refunds] ALERT top-up refund for payment ${claimed._id} ${definitive ? "rejected" : "outcome unknown"}: ${description}`);
+      return definitive ? "failed" : "pending";
+    }
+  }
+
+  /** Every top-up paid on an order, refunded (a cancelled helper task). */
+  async refundOrderTopups(orderId: string, reason: string) {
+    const topups = await Payment.find({ purpose: "topup", order: String(orderId), status: PaymentStatus.CAPTURED })
+      .select("_id")
+      .lean();
+    for (const topup of topups) {
+      await this.refundTopup(topup._id, reason);
+    }
+    return topups.length;
+  }
+
+  /**
    * Refund webhook events (refund.processed / refund.failed / refund.created). The event only
    * says which refund; its state is fetched from Razorpay before anything changes.
    */
   async handleRefundEvent(event: any) {
     const entity = event?.payload?.refund?.entity;
     if (!entity?.id || !entity?.payment_id) return;
+
+    // A helper top-up's refund updates the top-up's own Payment.
+    const topup = await Payment.findOne({ purpose: "topup", razorpayPaymentId: entity.payment_id });
+    if (topup) {
+      const refund: any = await razorpayClient.payments.fetchRefund(entity.payment_id, entity.id);
+      await Payment.updateOne(
+        { _id: topup._id, topupRefundStatus: { $ne: "processed" } },
+        { $set: { topupRefundStatus: mapRazorpayRefundStatus(refund?.status), topupRazorpayRefundId: refund.id } },
+      );
+      return;
+    }
 
     const order =
       (await Order.findOne({ razorpayRefundId: entity.id })) ||

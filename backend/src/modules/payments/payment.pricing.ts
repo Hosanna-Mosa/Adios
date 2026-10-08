@@ -52,7 +52,8 @@ export class OnlinePriceService {
       serviceType,
       rest.vendorId,
       rest.totals,
-      { couponCode: rest.couponCode, scheduledDelivery: rest.scheduledDelivery },
+      // duration: a helper task's booked hours, which its price depends on.
+      { couponCode: rest.couponCode, scheduledDelivery: rest.scheduledDelivery, duration: rest.duration },
     );
     return { amount: round2(priced.totalPrice), orderData: rest };
   }

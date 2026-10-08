@@ -36,6 +36,7 @@ const Offers = lazy(() => import("@/pages/Offers"));
 const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
+const HelperPricing = lazy(() => import("@/pages/HelperPricing"));
 const DriverVerification = lazy(() => import("@/pages/DriverVerification"));
 const RestaurantVerification = lazy(() => import("@/pages/RestaurantVerification"));
 
@@ -105,6 +106,7 @@ export function AnimatedRoutes() {
         <Route path="/users/:id" element={<RequireAdmin><UserDetail /></RequireAdmin>} />
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
+        <Route path="/helper-pricing" element={<RequireAdmin><HelperPricing /></RequireAdmin>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

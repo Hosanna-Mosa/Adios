@@ -12,6 +12,10 @@ import * as foodDispatch from "../../services/foodDispatch.service";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
 import mongoose from "mongoose";
+import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
+import { helperStopsDistanceKm } from "../pricing/helper.pricing";
+import { PricingService } from "../pricing/pricing.service";
+import { ZonesService } from "../zones/zones.service";
 
 /**
  * The outlet behind a food / meat order, by the id in `order.vendor` (a Vendor, or a
@@ -27,6 +31,8 @@ async function outletSummary(vendorRef: unknown): Promise<{ name: string; partne
 }
 
 const ordersService = new OrdersService();
+const pricingService = new PricingService();
+const zonesService = new ZonesService();
 const couponsService = new CouponsService();
 
 // Delivery and pickup codes are 4-digit strings minted per order in
@@ -133,9 +139,42 @@ export class OrdersController {
     }
   }
 
+  /** GET /orders/helper-quote — the fare and the offer range for a helper task. */
+  async helperQuote(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { pickupLat, pickupLng, dropLat, dropLng, hours } = req.query as Record<string, string | undefined>;
+      const pickup = { lat: Number(pickupLat), lng: Number(pickupLng) };
+      const stops: any[] = [pickup];
+      if (dropLat !== undefined && dropLng !== undefined) stops.push({ lat: Number(dropLat), lng: Number(dropLng) });
+
+      let surgeMultiplier = 1;
+      if ((await mongoose.model("Zone").countDocuments({ isActive: true })) > 0) {
+        const zone = await zonesService.getZoneForCoordinates(pickup.lat, pickup.lng, ServiceType.HELPER);
+        if (zone) surgeMultiplier = zone.pricingMultiplier;
+      }
+      const quote = await pricingService.quoteHelper({ hours, distanceKm: helperStopsDistanceKm(stops), surgeMultiplier });
+      return res.json(quote);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/confirm-assign — the customer confirms the task to the helper in chat. */
+  async confirmAssign(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      return res.json(await ordersService.confirmHelperAssign(String(req.params.id), userId));
+    } catch (error: any) {
+      if (error.message === "Order not found") return next(new NotFoundError(error.message));
+      next(error);
+    }
+  }
+
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, customerPrice, bookingFor, scheduledDelivery, scheduledFor, couponCode } = req.body;
+      // customerPrice is not taken from the app: it used to set any order's fare outright.
+      const { stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, bookingFor, scheduledDelivery, scheduledFor, couponCode } = req.body;
       const userId = req.user?.userId;
 
       if (!userId) {
@@ -143,7 +182,6 @@ export class OrdersController {
       }
 
       const order = await ordersService.createOrder(userId, stops, serviceType, vendorId, totals, radius, duration, isReserved, reservedAt, {
-        customerPrice,
         bookingFor,
         scheduledDelivery,
         scheduledFor,
@@ -160,7 +198,7 @@ export class OrdersController {
     try {
       const { id } = req.params;
       // Only the order's customer, assigned driver, vendor, or staff (otherwise "not found").
-      const { order } = await ordersService.getOrderForActor(id as string, req.user);
+      const { order, relation } = await ordersService.getOrderForActor(id as string, req.user);
       // The tracking screen reads the assigned driver's name, phone and vehicle off
       // this payload, so the driver (and its user) has to be populated here.
       await order.populate({ path: "driver", populate: { path: "user", select: "name phone" } });
@@ -173,7 +211,9 @@ export class OrdersController {
 
       // The driver's star rating lives in the Review collection, not on the Driver
       // document, so it has to be attached here for the tracking screen to show it.
-      const json: any = { ...order.toJSON(), items: ordersService.extractOrderItems(order) };
+      let json: any = { ...order.toJSON(), items: ordersService.extractOrderItems(order) };
+      // A helper enters the customer's start OTP and completion PIN; they are never sent to them.
+      if (relation === "driver") json = withoutCustomerCodes(json);
       if (json.driver?._id) {
         json.driver = { ...json.driver, ...(await getDriverRating(json.driver._id)) };
       }
@@ -449,10 +489,21 @@ export class OrdersController {
         }
       }
 
+      // A helper task starts only with the customer's start OTP (shown on their screen).
+      if (isHelperOrder(current) && isHelperStart(status) && relation !== "staff") {
+        if (relation !== "driver") throw new ForbiddenError("Only the assigned helper can start this task.");
+        if ((current as any).restaurantPickupCode && !verificationCodeMatches(otp, (current as any).restaurantPickupCode)) {
+          throw new ValidationError("Invalid start OTP. Please ask the customer for the code on their screen.");
+        }
+      }
+
       // Every cancellation records who made it, so the customer is told who
       // cancelled (the restaurant, the rider, the Adios team) — not a generic notice.
-      const order = await ordersService.updateOrderStatus(id as string, status, isCancel ? CANCEL_BY[relation] : {});
-      return res.json(order);
+      const order: any = await ordersService.updateOrderStatus(id as string, status, {
+        ...(isCancel ? CANCEL_BY[relation] : {}),
+        actor: relation,
+      });
+      return res.json(relation === "driver" ? withoutCustomerCodes(order?.toJSON?.() ?? order) : order);
     } catch (error: any) {
       if (error.message === "Order not found") {
         return next(new NotFoundError(error.message));
@@ -481,8 +532,8 @@ export class OrdersController {
         throw new UnauthorizedError("User is not authenticated");
       }
 
-      const order = await ordersService.acceptOrder(id as string, userId);
-      return res.json(order);
+      const order: any = await ordersService.acceptOrder(id as string, userId);
+      return res.json(withoutCustomerCodes(order?.toJSON?.() ?? order));
     } catch (error: any) {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
@@ -525,7 +576,7 @@ export class OrdersController {
       const order: any = await ordersService.getDriverActiveOrder(userId);
       if (!order) return res.json({ order: null });
 
-      const json: any = order.toJSON();
+      const json: any = withoutCustomerCodes(order.toJSON());
       // A legacy meat centre isn't a Vendor document, so populate leaves `vendor`
       // empty; put its id and name back so the app still treats it as an outlet order.
       const vendorId = order.populated?.("vendor");

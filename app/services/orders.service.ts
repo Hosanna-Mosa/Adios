@@ -54,3 +54,33 @@ export const reorder = <T = { vendorId: string | null; items: any[] }>(orderId: 
   customFetch<T>(`/orders/${orderId}/reorder`, { method: "POST" });
 
 export const getOrderChat = (id: string) => customFetch<any[]>(`/orders/${id}/chat`);
+
+/** GET /orders/helper-quote — the server's fare for a helper task and the offers it accepts. */
+export type HelperQuote = {
+  hours: number;
+  distanceKm: number;
+  baseFare: number;
+  timeFare: number;
+  distanceFare: number;
+  platformFee: number;
+  tax: number;
+  surgeMultiplier: number;
+  total: number;
+  suggestedLow: number;
+  suggestedHigh: number;
+  minOffer: number;
+  maxOffer: number;
+};
+
+export const getHelperQuote = (q: { pickupLat: number; pickupLng: number; dropLat?: number; dropLng?: number; hours: number }) => {
+  const params = new URLSearchParams({ pickupLat: String(q.pickupLat), pickupLng: String(q.pickupLng), hours: String(q.hours) });
+  if (q.dropLat != null && q.dropLng != null) {
+    params.set("dropLat", String(q.dropLat));
+    params.set("dropLng", String(q.dropLng));
+  }
+  return customFetch<HelperQuote>(`/orders/helper-quote?${params}`, { responseType: "json" });
+};
+
+/** The customer confirms the task to the helper from the chat. Idempotent. */
+export const confirmHelperAssign = (id: string) =>
+  customFetch<{ orderId: string; assignConfirmedAt: string }>(`/orders/${id}/confirm-assign`, { method: "POST" });

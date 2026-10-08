@@ -31,10 +31,13 @@ export function TaskTimerDisplay({
 export function TaskProgressBar({
   progress,
   isOvertime,
+  overtimeMinutes,
   hoursBooked,
 }: {
   progress: number;
   isOvertime: boolean;
+  /** Minutes past the booked hours, shown as "+15 min over". */
+  overtimeMinutes?: number;
   hoursBooked: string | number;
 }) {
   const { t } = useTranslation();
@@ -50,7 +53,11 @@ export function TaskProgressBar({
         <Box style={[{ flex: Math.max(0, 100 - Math.round(progress)) }, styles.progressRest]} />
       </Box>
       <Box style={styles.progressLabels}>
-        <AppText style={styles.progressLabel}>{isOvertime ? t("jobs.overtime") : t("jobs.elapsed")}</AppText>
+        <AppText style={styles.progressLabel}>{isOvertime
+            ? overtimeMinutes && overtimeMinutes > 0
+              ? t("jobs.overtimeByMin", { value: overtimeMinutes })
+              : t("jobs.overtime")
+            : t("jobs.elapsed")}</AppText>
         <AppText style={styles.progressLabel}>{t("jobs.hoursBookedN", { value: hoursBooked, defaultValue: "{{value}} Hours Booked" })}</AppText>
       </Box>
     </>

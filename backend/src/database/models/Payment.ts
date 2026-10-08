@@ -14,7 +14,9 @@ export enum PaymentStatus {
 
 export interface IPayment extends Document {
   user: mongoose.Types.ObjectId;
-  purpose: "order";
+  // "order": pays for a new order (orderData). "topup": pays a helper task's raised price
+  // (order + topupAmount), applied to that order once captured.
+  purpose: "order" | "topup";
   amount: number; // paise
   currency: string;
   status: PaymentStatus;
@@ -22,6 +24,11 @@ export interface IPayment extends Document {
   razorpayPaymentId?: string;
   orderData?: any;
   order?: string; // Order ids are custom strings (e.g. "F240926725404"), not ObjectIds
+  /** Top-ups only: the rupees added to the order's price. */
+  topupAmount?: number;
+  /** Top-ups only: refunded on its own (the order's refund fields cover its first payment). */
+  topupRefundStatus?: "pending" | "processed" | "failed";
+  topupRazorpayRefundId?: string;
   returnUrl?: string;
   language?: string;
   lockExpiresAt?: Date;
@@ -35,7 +42,7 @@ export interface IPayment extends Document {
 const PaymentSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    purpose: { type: String, enum: ["order"], default: "order" },
+    purpose: { type: String, enum: ["order", "topup"], default: "order" },
     amount: { type: Number, required: true },
     currency: { type: String, default: "INR" },
     status: {
@@ -48,6 +55,9 @@ const PaymentSchema = new Schema(
     razorpayPaymentId: { type: String, unique: true, sparse: true },
     orderData: { type: Schema.Types.Mixed },
     order: { type: String, ref: "Order" },
+    topupAmount: { type: Number },
+    topupRefundStatus: { type: String, enum: ["pending", "processed", "failed"] },
+    topupRazorpayRefundId: { type: String },
     returnUrl: { type: String },
     language: { type: String },
     lockExpiresAt: { type: Date },

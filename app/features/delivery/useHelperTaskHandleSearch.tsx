@@ -1,13 +1,13 @@
-import { useTranslation } from "react-i18next";
-import { getDistanceFromLatLonInKm } from "./useHelperTask.shared";
 import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
-import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
+//
+// There is no distance limit here: the screen was never opened with the `radius`
+// it used to check against, so that check could not run. Whether helpers work at
+// a place is the server's call (zones, dispatch), not the app's.
 
-export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPickupLocation: any, setDropoffLocation: any, setPickupCoords: any, setDropoffCoords: any, activeField: any, setActiveField: any, setSearchResults: any, setIsPickupValid: any, setIsDropoffValid: any) {
-  const { t } = useTranslation();
+export function useHelperTaskHandleSearch(setPickupLocation: any, setDropoffLocation: any, setPickupCoords: any, setDropoffCoords: any, activeField: any, setActiveField: any, setSearchResults: any, setIsPickupValid: any, setIsDropoffValid: any) {
   const handleSearch = async (text: string, type: "pickup" | "dropoff") => {
     if (type === "pickup") { setPickupLocation(text); setIsPickupValid(false); }
     else { setDropoffLocation(text); setIsDropoffValid(false); }
@@ -32,17 +32,8 @@ export function useHelperTaskHandleSearch(radius: any, currentCoords: any, setPi
         const details = await getPlaceDetails(result.id);
         if (details?.lat) { lat = details.lat; lng = details.lng; }
       }
-      if (currentCoords && radius && lat !== null && lng !== null) {
-        const distance = getDistanceFromLatLonInKm(currentCoords.lat, currentCoords.lng, lat, lng);
-        if (distance > parseFloat(radius)) {
-          showAlert(t("app.delivery.outOfRange"), t("app.delivery.thisLocationIsOutsideYourSelected", { value: radius }));
-          setSearchResults([]);
-          setActiveField(null);
-          return;
-        }
-      }
     } catch (e) {
-      console.error("Failed to fetch/validate place details:", e);
+      console.error("Failed to fetch place details:", e);
     }
     const address = result.description || result.name || result.address || "";
     if (activeField === "pickup") {

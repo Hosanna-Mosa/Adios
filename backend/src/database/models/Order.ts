@@ -152,6 +152,15 @@ export interface IOrder extends Omit<Document, "_id"> {
   review?: mongoose.Types.ObjectId;
   declineReasons?: { driverId: string; reason: string }[];
   totalCandidatesCount?: number;
+  // Helper tasks. assignConfirmedAt: the customer confirmed the task to the helper in chat
+  // (unlocks Start). taskStartedAt / taskCompletedAt: the start OTP and completion PIN were
+  // verified. searchExhaustedAt: every helper offered passed; the task expires after a while.
+  assignConfirmedAt?: Date | null;
+  taskStartedAt?: Date | null;
+  taskCompletedAt?: Date | null;
+  searchExhaustedAt?: Date | null;
+  /** Online helper tasks: extra Razorpay payments made by raising the price while searching. */
+  topupPayments?: mongoose.Types.ObjectId[];
   // Food (restaurant) orders only. Unset on every other order, which keeps the sequential dispatcher.
   dispatchMode?: DispatchMode;
   /** Food orders: the restaurant must accept before this, or the order is cancelled. */
@@ -258,6 +267,11 @@ const OrderSchema: Schema = new Schema(
     duration: { type: Number },
     customerPrice: { type: Number },
     totalCandidatesCount: { type: Number, default: 0 },
+    assignConfirmedAt: { type: Date, default: null },
+    taskStartedAt: { type: Date, default: null },
+    taskCompletedAt: { type: Date, default: null },
+    searchExhaustedAt: { type: Date, default: null },
+    topupPayments: { type: [{ type: Schema.Types.ObjectId, ref: "Payment" }], default: undefined },
     bookingFor: {
       type: {
         type: String,
@@ -350,6 +364,11 @@ OrderSchema.index({ "dispatch.offers.driverUserId": 1, "dispatch.state": 1 }, { 
 OrderSchema.index(
   { restaurantAcceptBy: 1 },
   { partialFilterExpression: { dispatchMode: "broadcast", status: "CREATED" } },
+);
+// Helper tasks still searching — the expiry sweep reads only these.
+OrderSchema.index(
+  { searchExhaustedAt: 1 },
+  { partialFilterExpression: { serviceType: "helper", status: "SEARCHING_DRIVER" } },
 );
 
 export default mongoose.model<IOrder>("Order", OrderSchema);

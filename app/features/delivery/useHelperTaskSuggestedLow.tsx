@@ -1,115 +1,20 @@
-import React from "react";
 import { useTranslation } from "react-i18next";
-import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
-import { getOrder } from "@/services/orders.service";
 import { showAlert } from "@/components/ui/AppAlert";
-import { router } from "expo-router";
-import { ASSIGNED_STATUSES, DEAD_STATUSES, STARTED_STATUSES } from "./useHelperTask.shared";
+import type { HelperQuote } from "@/services/orders.service";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
+//
+// The suggested range is the server's (helper-quote), not a guess around a
+// client-side fare. The searching/assigned sockets and polls live in
+// useHelperTaskLiveStatus.
 
-export function useHelperTaskSuggestedLow(setDriver: any, setServiceType: any, step: any, setStep: any, setPickupLocation: any, setPickupCoords: any, setIsPickupValid: any, localOrderId: any, setCurrentTaskPrice: any, setRejectedCount: any, setTotalContacted: any, setStartOtp: any, setAssignedDriver: any, setSearchExhausted: any, calculatedFare: any) {
+export function useHelperTaskSuggestedLow(quote: HelperQuote | null, setPickupLocation: any, setPickupCoords: any, setIsPickupValid: any) {
   const { t } = useTranslation();
-  const suggestedLow = Math.round(calculatedFare * 0.85 / 5) * 5;
-  const suggestedHigh = Math.round(calculatedFare * 1.15 / 5) * 5;
-
-  const goToAssigned = React.useCallback((driverInfo: any) => {
-    if (driverInfo) {
-      setDriver(driverInfo);
-      setAssignedDriver(driverInfo);
-    }
-    setServiceType("helper");
-    setSearchExhausted(false);
-    setStep("assigned");
-  }, [setDriver, setAssignedDriver, setServiceType, setSearchExhausted, setStep]);
-
-  React.useEffect(() => {
-    if (step !== "searching" || !localOrderId) return;
-
-    let cancelled = false;
-
-    const fetchStatus = async () => {
-      try {
-        const orderData = await getOrder(localOrderId);
-        if (!orderData || cancelled) return;
-
-        setRejectedCount(orderData.declineReasons ? orderData.declineReasons.length : 0);
-        setTotalContacted(orderData.totalCandidatesCount || 0);
-        if (orderData.customerPrice) setCurrentTaskPrice(orderData.customerPrice);
-        else if (orderData.totalPrice) setCurrentTaskPrice(orderData.totalPrice);
-        if (orderData.restaurantPickupCode) setStartOtp(orderData.restaurantPickupCode);
-
-        // Both casings: the API writes DRIVER_ASSIGNED and driver_assigned for the
-        // same transition, and only the uppercase one used to move the screen on.
-        if (ASSIGNED_STATUSES.includes(orderData.status) && orderData.driver) {
-          goToAssigned(orderData.driver);
-        } else if (DEAD_STATUSES.includes(orderData.status)) {
-          setSearchExhausted(true);
-        }
-      } catch (err) {
-        console.warn("Error polling order status:", err);
-      }
-    };
-
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 3000);
-
-    // Sockets carry the same transitions instantly; the poll above is the safety
-    // net. These listeners live with the searching step, so they come down with
-    // it — createTask used to attach them and never unsubscribe.
-    socketService.trackOrder(localOrderId);
-    const onAccepted = (data: any) => goToAssigned(data?.driver);
-    const onStatus = (data: any) => {
-      if (ASSIGNED_STATUSES.includes(data?.status)) goToAssigned(data?.driver);
-      else if (DEAD_STATUSES.includes(data?.status)) setSearchExhausted(true);
-    };
-    // Emitted by the dispatcher once every candidate has declined or timed out.
-    const onNoDrivers = () => setSearchExhausted(true);
-
-    socketService.on("order_accepted", onAccepted);
-    socketService.on("order_status_update", onStatus);
-    socketService.on("no_drivers_available", onNoDrivers);
-
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-      socketService.off("order_accepted", onAccepted);
-      socketService.off("order_status_update", onStatus);
-      socketService.off("no_drivers_available", onNoDrivers);
-    };
-  }, [step, localOrderId, goToAssigned]);
-
-  React.useEffect(() => {
-    if (step !== "assigned" || !localOrderId) return;
-
-    const goToTracking = () => router.push("/tracking");
-    const onStatus = (data: any) => {
-      if (STARTED_STATUSES.includes(data?.status)) goToTracking();
-    };
-
-    socketService.on("task_started", goToTracking);
-    socketService.on("order_status_update", onStatus);
-
-    // Polled too, so a customer who had the app backgrounded when the helper
-    // started still lands on tracking rather than on a stale panel.
-    const interval = setInterval(async () => {
-      try {
-        const orderData = await getOrder(localOrderId);
-        if (orderData && STARTED_STATUSES.includes(orderData.status)) goToTracking();
-      } catch {
-        // A failed poll is not worth surfacing; the socket is the primary path.
-      }
-    }, 5000);
-
-    return () => {
-      clearInterval(interval);
-      socketService.off("task_started", goToTracking);
-      socketService.off("order_status_update", onStatus);
-    };
-  }, [step, localOrderId]);
+  const suggestedLow = quote?.suggestedLow ?? 0;
+  const suggestedHigh = quote?.suggestedHigh ?? 0;
 
   const handleUseCurrentLocation = async () => {
     try {

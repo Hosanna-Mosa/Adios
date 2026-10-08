@@ -13,6 +13,8 @@ export const globalErrorHandler = (
     return res.status(err.statusCode).json({
       success: false,
       message: err.message,
+      // A stable code the apps branch on (e.g. TOPUP_REQUIRED), when the error has one.
+      ...(typeof (err as any).code === "string" ? { code: (err as any).code } : {}),
       ...(err.statusCode === 400 && (err as any).errors ? { errors: (err as any).errors } : {}),
       stack: isDev ? err.stack : undefined,
     });

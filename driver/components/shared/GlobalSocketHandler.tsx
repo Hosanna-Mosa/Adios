@@ -58,9 +58,37 @@ export function GlobalSocketHandler() {
 
     socketService.on("order_status_update", handleStatusUpdate);
 
+    // Helper tasks. The customer confirmed the task in chat — shown to the helper as info
+    // only; Start needs just the customer's start OTP.
+    const handleAssignConfirmed = (data: any) => {
+      const current = useDriverStore.getState().currentOrder;
+      if (!current || String(current.id) !== String(data?.orderId)) return;
+      useDriverStore.setState({
+        currentOrder: {
+          ...current,
+          assignConfirmedAt: data.assignConfirmedAt || new Date().toISOString(),
+        },
+      });
+    };
+
+    // The server accepted the start OTP (the PATCH that did it usually lands first).
+    const handleTaskStarted = (data: any) => {
+      const current = useDriverStore.getState().currentOrder;
+      if (!current || String(current.id) !== String(data?.orderId)) return;
+      if (current.taskStartedAt || !data.taskStartedAt) return;
+      useDriverStore.setState({
+        currentOrder: { ...current, status: "IN_PROGRESS", taskStartedAt: data.taskStartedAt },
+      });
+    };
+
+    socketService.on("assign_task_confirmed", handleAssignConfirmed);
+    socketService.on("task_started", handleTaskStarted);
+
     return () => {
       socketService.off("receive_message", handleReceiveMessage);
       socketService.off("order_status_update", handleStatusUpdate);
+      socketService.off("assign_task_confirmed", handleAssignConfirmed);
+      socketService.off("task_started", handleTaskStarted);
     };
   }, [currentOrderId, t]);
 

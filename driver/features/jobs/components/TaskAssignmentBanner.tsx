@@ -6,13 +6,14 @@ import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 
-/** Helper-service banner in the customer chat: tells the driver whether the
- * customer has assigned the task yet, and starts it once they have. */
+/** Helper-service banner in the customer chat, until the task starts: whether the
+ * customer has confirmed the task (info only), and a way to the task screen, where
+ * it starts with the customer's start OTP. */
 export function TaskAssignmentBanner({
-  canStartTask,
+  customerConfirmed,
   onStartTask,
 }: {
-  canStartTask: boolean;
+  customerConfirmed: boolean;
   onStartTask: () => void;
 }) {
   const { t } = useTranslation();
@@ -21,16 +22,12 @@ export function TaskAssignmentBanner({
       <Box style={styles.copy}>
         <AppText style={styles.title}>{t("jobs.discussTaskDetails")}</AppText>
         <AppText style={styles.subtitle}>
-          {canStartTask
-            ? t("jobs.customerHasAssignedTheTask")
-            : t("jobs.waitForCustomerToAssignTask")}
+          {customerConfirmed
+            ? t("jobs.customerConfirmedAskStartOtp")
+            : t("jobs.agreeTaskThenAskStartOtp")}
         </AppText>
       </Box>
-      <Touchable
-        style={[styles.button, canStartTask ? styles.buttonEnabled : styles.buttonDisabled]}
-        disabled={!canStartTask}
-        onPress={onStartTask}
-      >
+      <Touchable style={[styles.button, styles.buttonEnabled]} onPress={onStartTask}>
         <AppText style={styles.buttonText}>{t("jobs.startTask")}</AppText>
       </Touchable>
     </Box>

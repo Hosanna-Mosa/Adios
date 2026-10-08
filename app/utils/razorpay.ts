@@ -2,7 +2,13 @@ import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import i18n from "@/i18n";
 import { ApiError } from "@/utils/api/custom-fetch";
-import { createPaymentOrder, getCheckoutStatus, verifyPayment } from "@/services/payments.service";
+import {
+  createPaymentOrder,
+  createTopupPayment,
+  getCheckoutStatus,
+  verifyPayment,
+  type CreatePaymentOrderResponse,
+} from "@/services/payments.service";
 import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
 
 // Razorpay checkout in the phone's browser (Chrome Custom Tab on Android, an in-app Safari
@@ -70,7 +76,21 @@ export const RazorpayIntegration = {
  * the payment was confirmed. Throws PaymentFlowError / ApiError — see describePaymentError.
  */
 export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown): Promise<T> {
-  const checkout = await createPaymentOrder(amount, orderData);
+  return checkoutAndVerify<T>(await createPaymentOrder(amount, orderData));
+}
+
+/**
+ * Raises the price of a helper task that was paid online: the customer pays `amount` (the
+ * difference) through the same browser checkout, and the server raises the offer once the
+ * money is confirmed. Returns the updated order. A task that was taken or cancelled while
+ * paying throws ApiError code TOPUP_REFUNDED (the money goes back automatically).
+ */
+export async function payOnlineTopup<T = any>(orderId: string, amount: number): Promise<T> {
+  return checkoutAndVerify<T>(await createTopupPayment(orderId, amount));
+}
+
+/** Opens a checkout the server created and returns the order /payments/verify settles it into. */
+async function checkoutAndVerify<T>(checkout: CreatePaymentOrderResponse): Promise<T> {
   let result: CheckoutResult;
   try {
     result = await RazorpayIntegration.open({
@@ -138,6 +158,8 @@ export function describePaymentError(error: unknown): { title: string; message: 
       case "INVALID_PAYMENT":
       case "INVALID_SIGNATURE":
         return { title: i18n.t("app.food.paymentFailed"), message: i18n.t("app.payment.invalid") };
+      case "TOPUP_REFUNDED":
+        return { title: i18n.t("app.payment.topupRefundedTitle"), message: i18n.t("app.payment.topupRefunded") };
       case "PRICES_CHANGED":
         return { title: i18n.t("app.payment.pricesChangedTitle"), message: i18n.t("app.payment.pricesChanged") };
       case "RAZORPAY_UNAVAILABLE":

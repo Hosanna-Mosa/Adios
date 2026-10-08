@@ -86,13 +86,16 @@ export function GlobalSocketHandler() {
     // refreshed while tracking.tsx itself was mounted, so it went stale the
     // moment the customer navigated back to Home, and a since-finished order
     // could keep showing as "in progress" indefinitely.
+    // order_accepted also reaches the customer's user room, for any of their orders.
+    const isOther = (data: any) => data?.orderId != null && String(data.orderId) !== String(currentOrderId);
     const onOrderAccepted = (data: any) => {
+      if (isOther(data)) return;
       if (data?.driver) setDriver(data.driver);
       setStatus("driver_assigned");
       useDeliveryStore.getState().setFoodStage(null);
     };
     const onOrderStatusUpdate = (data: any) => {
-      if (!data?.status) return;
+      if (!data?.status || isOther(data)) return;
       const statusStr = String(data.status).toLowerCase();
       if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
         // Before the status: screens reacting to "cancelled" read who did it from here.

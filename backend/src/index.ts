@@ -170,6 +170,17 @@ connectDB().then(async () => {
     const ordersService = new OrdersService();
     startFoodDispatchSweeper({ onRestaurantTimeout: (id) => ordersService.cancelUnacceptedFoodOrder(id) });
 
+    // Helper tasks: cancel (and refund) ones nobody took once their search has been over for a while
+    let helperSweepRunning = false;
+    setInterval(() => {
+      if (helperSweepRunning) return;
+      helperSweepRunning = true;
+      ordersService
+        .expireStaleHelperSearches()
+        .catch((err) => console.error("[helper expiry] sweep failed:", err?.message))
+        .finally(() => { helperSweepRunning = false; });
+    }, 60 * 1000);
+
     // Report which DigiLocker backend is active (sandbox vs live)
     logDigilockerConfig();
   });

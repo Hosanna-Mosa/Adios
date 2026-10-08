@@ -107,6 +107,79 @@ export class CheckoutService {
     };
   }
 
+  /**
+   * A helper task paid online, still searching, gets a higher price: the customer pays the
+   * difference through the same browser checkout. The raise is applied (and the search
+   * restarted) by `settle` once Razorpay confirms it — or refunded if the task was taken
+   * or cancelled in the meantime.
+   */
+  async createTopupCheckout(input: {
+    userId: string;
+    orderId: string;
+    amount: number; // rupees added to the price
+    returnUrl?: string;
+    language?: string;
+    baseUrl: string;
+  }) {
+    const order = await Order.findOne({ _id: input.orderId });
+    if (!order || order.user.toString() !== input.userId) throw new PaymentError(404, "NOT_FOUND", "Order not found");
+    if (order.serviceType !== ServiceType.HELPER) {
+      throw new PaymentError(400, "TOPUP_NOT_ALLOWED", "Only a helper task's price can be raised");
+    }
+    if (order.paymentMethod !== "online" || order.paymentStatus !== "paid") {
+      throw new PaymentError(400, "TOPUP_NOT_ALLOWED", "This task is paid in cash; raise the price directly");
+    }
+    this.ordersService.assertPriceCanRise(order);
+    const amount = Math.round(Number(input.amount));
+    await this.ordersService.assertRaiseWithinRange(order, amount);
+    const amountPaise = amount * 100;
+    if (amountPaise < MIN_AMOUNT_PAISE) throw new PaymentError(400, "AMOUNT_TOO_LOW", "Amount must be at least ₹1");
+
+    const returnUrl = input.returnUrl && isAllowedReturnUrl(input.returnUrl) ? input.returnUrl : "flavour://payment-result";
+    const user = await User.findById(input.userId).select("name email phone").lean();
+    if (!user) throw new PaymentError(404, "NOT_FOUND", "User not found");
+
+    let rzpOrder: any;
+    try {
+      rzpOrder = await razorpayClient.orders.create({
+        amount: amountPaise,
+        currency: "INR",
+        receipt: `t_${order._id}_${Date.now()}`.slice(0, 40),
+        notes: { userId: input.userId, purpose: "topup", orderId: String(order._id) },
+      });
+    } catch (error) {
+      console.error("[checkout] Razorpay top-up order creation failed:", error);
+      throw new PaymentError(502, "RAZORPAY_UNAVAILABLE", "Could not start the payment. Please try again.");
+    }
+
+    const payment = await Payment.create({
+      user: input.userId,
+      purpose: "topup",
+      amount: amountPaise,
+      currency: "INR",
+      razorpayOrderId: rzpOrder.id,
+      order: String(order._id),
+      topupAmount: amount,
+      returnUrl,
+      language: input.language,
+    });
+
+    const token = jwt.sign({ pid: payment._id.toString(), purpose: "rzp_checkout" }, getJwtSecret(), {
+      expiresIn: CHECKOUT_TOKEN_TTL,
+    });
+
+    return {
+      id: rzpOrder.id,
+      amount: amountPaise,
+      currency: "INR",
+      key: process.env.RAZORPAY_KEY_ID,
+      name: "Flavour",
+      prefill: { name: user.name, email: user.email, contact: user.phone },
+      checkoutUrl: `${input.baseUrl}/api/v1/payments/checkout/${payment._id}?t=${encodeURIComponent(token)}`,
+      returnUrl,
+    };
+  }
+
   /** Resolves the signed link the browser opens. Never trusts the payment id on its own. */
   async getPaymentForCheckoutToken(paymentId: string, token: string) {
     let payload: any;
@@ -145,6 +218,7 @@ export class CheckoutService {
    * Safe to call any number of times, from any entry point.
    */
   async settle(payment: IPayment, razorpayPaymentId?: string) {
+    if (payment.purpose === "topup") return this.settleTopup(payment, razorpayPaymentId);
     if (payment.status === PaymentStatus.CAPTURED && payment.order) {
       return { payment, order: await this.loadOrder(payment) };
     }
@@ -268,6 +342,79 @@ export class CheckoutService {
       console.error(`[checkout] ALERT could not mark payment ${leased._id} captured for order ${order._id}:`, error);
     }
     return { payment: captured ?? leased, order };
+  }
+
+  /**
+   * `settle` for a top-up: the same Razorpay checks, then the raise is applied to the order
+   * exactly once. A task taken or cancelled while the customer was paying gets the money back.
+   */
+  private async settleTopup(payment: IPayment, razorpayPaymentId?: string) {
+    if (payment.status === PaymentStatus.CAPTURED) return this.settledTopup(payment);
+    if (payment.status === PaymentStatus.FLAGGED) {
+      throw new PaymentError(400, "INVALID_PAYMENT", "This payment could not be accepted");
+    }
+    const rzpPayment = await this.fetchCapturedPayment(payment, razorpayPaymentId);
+    if (rzpPayment.order_id !== payment.razorpayOrderId) {
+      console.error(`[checkout] ALERT top-up payment ${rzpPayment.id} does not belong to Razorpay order ${payment.razorpayOrderId}`);
+      throw new PaymentError(400, "INVALID_PAYMENT", "This payment could not be accepted");
+    }
+    if (Number(rzpPayment.amount) !== payment.amount || rzpPayment.currency !== payment.currency) {
+      await Payment.updateOne(
+        { _id: payment._id, status: { $in: [PaymentStatus.CREATED, PaymentStatus.PROCESSING] } },
+        { status: PaymentStatus.FLAGGED, flagReason: "amount_currency_or_order_mismatch", razorpayPaymentId: rzpPayment.id },
+      );
+      console.error(`[checkout] ALERT mismatch on top-up ${payment._id}: razorpay ${rzpPayment.id}`);
+      throw new PaymentError(400, "INVALID_PAYMENT", "This payment could not be accepted");
+    }
+
+    // Take the lease, so only one run applies it (the callback and the app's verify race).
+    const now = new Date();
+    const leased = await Payment.findOneAndUpdate(
+      {
+        _id: payment._id,
+        $or: [
+          { status: PaymentStatus.CREATED },
+          { status: PaymentStatus.PROCESSING, lockExpiresAt: { $lt: now } },
+        ],
+      },
+      { status: PaymentStatus.PROCESSING, lockExpiresAt: new Date(now.getTime() + LEASE_MS), razorpayPaymentId: rzpPayment.id },
+      { new: true },
+    );
+    if (!leased) {
+      const current = await Payment.findById(payment._id);
+      if (current?.status === PaymentStatus.CAPTURED) return this.settledTopup(current);
+      throw new PaymentError(409, "CONFIRMING", "Your payment is being confirmed");
+    }
+
+    // Idempotent per payment: a run after a crash finds the raise already on the order.
+    const amount = Number(leased.topupAmount) || leased.amount / 100;
+    let order: any = await this.ordersService.applyPriceIncrease(String(leased.order), amount, { topupPaymentId: leased._id });
+    if (!order) {
+      const current: any = await Order.findOne({ _id: leased.order });
+      if ((current?.topupPayments || []).some((id: any) => String(id) === String(leased._id))) order = current;
+    }
+
+    const captured = await Payment.findOneAndUpdate(
+      { _id: leased._id, status: PaymentStatus.PROCESSING },
+      { status: PaymentStatus.CAPTURED, paidAt: new Date(), $unset: { lockExpiresAt: 1, lastError: 1 } },
+      { new: true },
+    );
+    if (!order) {
+      // Taken or cancelled while paying: the raise can't apply, so the money goes straight back.
+      console.warn(`[checkout] Top-up ${leased._id} arrived after order ${leased.order} stopped searching — refunding`);
+      const { RefundService } = await import("./refund.service");
+      await new RefundService().refundTopup(leased._id, "topup_after_search_ended");
+      throw new PaymentError(409, "TOPUP_REFUNDED", "Your task was already taken, so this payment is being refunded.");
+    }
+    return { payment: captured ?? leased, order };
+  }
+
+  /** A top-up an earlier run already settled: its order, or the refund it got instead. */
+  private async settledTopup(payment: IPayment) {
+    if (payment.topupRefundStatus) {
+      throw new PaymentError(409, "TOPUP_REFUNDED", "Your task was already taken, so this payment is being refunded.");
+    }
+    return { payment, order: await this.loadOrder(payment) };
   }
 
   /** Webhook entry (§6.6.1): the payload is only a hint; `settle` fetches the truth. */
