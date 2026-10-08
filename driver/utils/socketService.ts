@@ -5,6 +5,9 @@ import { SOCKET_ORIGIN } from "./apiUrl";
 // as a namespace — so use the origin the shared resolver derives.
 const BASE_SOCKET_URL = SOCKET_ORIGIN;
 
+// Live updates now come from REST polling; the socket stays off unless opted in.
+const SOCKETS_ENABLED = process.env.EXPO_PUBLIC_ENABLE_SOCKETS === "true";
+
 class SocketService {
   private socket: Socket | null = null;
   private static instance: SocketService;
@@ -22,7 +25,7 @@ class SocketService {
   }
 
   public connect() {
-    if (this.socket) return;
+    if (!SOCKETS_ENABLED || this.socket) return;
 
     let token = "";
     try {
@@ -61,6 +64,7 @@ class SocketService {
   }
 
   public join(userId: string, role: string = "DRIVER") {
+    if (!SOCKETS_ENABLED) return;
     this.userId = userId;
     this.role = role;
     if (!this.socket) {
@@ -71,6 +75,7 @@ class SocketService {
   }
 
   public trackOrder(orderId: string) {
+    if (!SOCKETS_ENABLED) return;
     this.orderId = orderId;
     if (!this.socket) {
       this.connect();
@@ -80,11 +85,13 @@ class SocketService {
   }
 
   public on(event: string, callback: (data: any) => void) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
 
   public emit(event: string, data: any) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.emit(event, data);
   }

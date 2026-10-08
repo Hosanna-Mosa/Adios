@@ -22,7 +22,7 @@ import {
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/home.styles";
 import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
-import { useFoodOfferPoll } from "@/features/jobs/hooks/useFoodOfferPoll";
+import { useOfferPoll } from "@/features/jobs/hooks/useOfferPoll";
 import { useOnlineActions } from "@/features/jobs/hooks/useOnlineActions";
 import { useScooterAnimation } from "@/features/jobs/hooks/useScooterAnimation";
 import { formatCurrency } from "@/utils/format";
@@ -56,13 +56,22 @@ export default function HomeScreen() {
 
   const scooterAnimatedStyle = useScooterAnimation(isOnline);
 
-  const { scheduledRides } = useHomeFeeds({
+  const { scheduledRides, refreshFeeds } = useHomeFeeds({
     hotspots,
     setHotspots,
     setIsLoadingHotspots,
   });
 
-  useFoodOfferPoll();
+  const { refresh: refreshOffer } = useOfferPoll();
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([refreshOffer(), restoreActiveOrder(), refreshFeeds()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshOffer, restoreActiveOrder, refreshFeeds]);
 
   const {
     showOnlineModal,
@@ -84,6 +93,8 @@ export default function HomeScreen() {
           driverName={driverName}
           isOnline={isOnline}
           paddingTop={insets.top + 16}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
         />
 
         <Box style={styles.content}>

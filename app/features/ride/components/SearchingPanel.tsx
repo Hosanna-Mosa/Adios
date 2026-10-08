@@ -1,4 +1,6 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -15,6 +17,8 @@ interface Props {
   progressBarStyle: any;
   showTripDetails: any;
   styles: RideSearchingStyles;
+  onRefresh: () => void;
+  refreshing: boolean;
 }
 
 export function SearchingPanel({
@@ -24,6 +28,8 @@ export function SearchingPanel({
   progressBarStyle,
   showTripDetails,
   styles,
+  onRefresh,
+  refreshing,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -35,6 +41,12 @@ export function SearchingPanel({
           <View style={styles.statusDotRow}>
             <Animated.View style={[styles.pulseDot, dotStyle, { backgroundColor: colors.success }]} />
             <Text style={styles.title}>{t("app.ride.findingYourCaptain")}...</Text>
+            <RefreshButton
+              style={{ marginLeft: "auto" }}
+              onPress={onRefresh}
+              refreshing={refreshing}
+              accessibilityLabel={t("actions.refresh")}
+            />
           </View>
           <Text style={styles.subtitle}>{t("app.ride.connectingWithNearbyDriversInYour")}</Text>
         </View>

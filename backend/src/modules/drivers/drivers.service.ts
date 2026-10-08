@@ -308,7 +308,7 @@ export class DriverService {
     return results;
   }
 
-  async updateLocation(driverId: string, lat: number, lng: number) {
+  async updateLocation(driverId: string, lat: number, lng: number, heading?: number) {
     const driver = await Driver.findById(driverId);
     if (!driver) throw new Error("Driver not found");
 
@@ -316,6 +316,10 @@ export class DriverService {
       type: "Point",
       coordinates: [lng, lat],
     };
+    driver.lastLocationAt = new Date();
+    if (typeof heading === "number" && Number.isFinite(heading)) {
+      driver.heading = heading;
+    }
 
     if (driver.status === DriverStatus.ONLINE) {
       driver.isAvailable = true;
@@ -334,11 +338,11 @@ export class DriverService {
 
     const savedDriver = await driver.save();
 
-    // Sync Redis if online
+    // Sync Redis if online — getNearbyDrivers searches `drivers:locations` before Mongo,
+    // so a REST-only driver app must land there too.
     try {
-      const { socketManager } = require("../../sockets/socket.manager");
-      const redisClient = socketManager ? socketManager.redisClient : null;
-      if (redisClient && redisClient.isReady && driver.status === DriverStatus.ONLINE) {
+      const redisClient = SocketManager.getInstance()?.getRedisClient();
+      if (redisClient && driver.status === DriverStatus.ONLINE) {
         await redisClient.geoAdd("drivers:locations", {
           longitude: Number(lng),
           latitude: Number(lat),
@@ -369,7 +373,22 @@ export class DriverService {
         driver.activeServices = activeServices;
       }
     }
-    return driver.save();
+    const saved = await driver.save();
+
+    // An offline driver's last Redis point would otherwise keep matching nearby searches
+    // (Redis is searched before Mongo) until it ages out.
+    if (status === DriverStatus.OFFLINE) {
+      try {
+        const redisClient = SocketManager.getInstance()?.getRedisClient();
+        if (redisClient) {
+          await redisClient.zRem("drivers:locations", driver._id.toString());
+          await redisClient.del(`driver_status:${driver._id.toString()}`);
+        }
+      } catch (redisErr: any) {
+        console.warn("[DRIVER STATUS] Failed to drop offline driver from Redis:", redisErr.message);
+      }
+    }
+    return saved;
   }
 
   async updateHomeMode(driverId: string, homeMode: boolean) {

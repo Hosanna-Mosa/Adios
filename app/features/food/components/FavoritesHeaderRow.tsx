@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInDown } from "@/motion/presets";

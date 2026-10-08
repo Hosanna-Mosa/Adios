@@ -9,7 +9,7 @@ import { useTicketActions } from "./useTicketActions";
 import { useTicketLiveUpdates } from "./useTicketLiveUpdates";
 
 /** Support tickets: listing them, opening one, creating a new one, and
- * sending replies. Also keeps an open ticket live over the socket.
+ * sending replies. Also keeps an open ticket live by polling.
  *
  * Lifted out of app/support-chat.tsx unchanged. */
 export function useSupportChat() {
@@ -104,8 +104,6 @@ export function useSupportChat() {
     }
   };
 
-  // Poll for new messages/updates + listen to live socket events
-
   // Scroll to bottom when ticket messages update
   useEffect(() => {
     if (ticket && ticket.messages.length > 0) {
@@ -115,7 +113,7 @@ export function useSupportChat() {
     }
   }, [ticket?.messages?.length]);
 
-  useTicketLiveUpdates({ ticket, setTicket, setAllTickets, fetchTickets, flatListRef });
+  const { refresh: refreshTickets, refreshing: refreshingTickets } = useTicketLiveUpdates(fetchTickets);
 
   const { creatingTicket, submittingReply, handleCreateTicket, handleSendMessage } =
     useTicketActions({
@@ -132,5 +130,6 @@ export function useSupportChat() {
     newMessage, setNewMessage, creatingTicket,
     flatListRef, supportFetch, fetchTickets,
     handleCreateTicket, handleSendMessage,
+    refreshTickets, refreshingTickets,
   };
 }

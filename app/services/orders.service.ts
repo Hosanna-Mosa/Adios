@@ -24,6 +24,7 @@ export const createOrder = async <T = { _id: string }>(body: unknown) => {
     service_type: b?.serviceType,
     value: b?.totals?.total,
     currency: "INR",
+    payment: "cash",
     scheduled: !!b?.isReserved,
   });
   return order;
@@ -54,3 +55,14 @@ export const reorder = <T = { vendorId: string | null; items: any[] }>(orderId: 
   customFetch<T>(`/orders/${orderId}/reorder`, { method: "POST" });
 
 export const getOrderChat = (id: string) => customFetch<any[]>(`/orders/${id}/chat`);
+
+/** Sends a chat line; `clientId` is the optimistic message's id, echoed back as `id`. */
+export const sendOrderChatMessage = (id: string, text: string, clientId: string) =>
+  customFetch<{ message: { id: string; text: string; from: string; time: string; senderId: string; createdAt: string } }>(
+    `/orders/${id}/chat`,
+    { method: "POST", body: JSON.stringify({ text, clientId }) },
+  );
+
+/** Customer confirms the helper task from chat. */
+export const confirmHelperTask = (id: string) =>
+  customFetch<{ helperTaskConfirmedAt: string }>(`/orders/${id}/helper/confirm-task`, { method: "POST" });

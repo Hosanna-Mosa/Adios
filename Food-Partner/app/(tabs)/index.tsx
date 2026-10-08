@@ -29,6 +29,8 @@ export default function DashboardScreen() {
         isOpen={profile?.openState?.isOpen}
         rating={rating}
         reviewCount={reviewCount}
+        onRefresh={refresh}
+        refreshing={refreshing}
         styles={styles}
         tokens={tokens}
       />

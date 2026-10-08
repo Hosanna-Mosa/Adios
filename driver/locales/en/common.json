@@ -16,7 +16,8 @@
     "confirm": "Confirm",
     "logout": "Logout",
     "update": "Update",
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "refresh": "Refresh"
   },
   "tabs": {
     "home": "Home",
@@ -25,7 +26,8 @@
   },
   "chat": {
     "typeAMessage": "Type a message...",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "messageNotSent": "Message not sent"
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
@@ -36,7 +38,7 @@
     "errorLabel": "Error",
     "stackTrace": "Stack Trace",
     "newDriverAppVersion": "New Driver App Version!",
-    "updateFlavourDriverToContinue": "Update the FLAVOUR Driver app to continue receiving orders smoothly.",
+    "updateFlavourDriverToContinue": "Update the ADIOS Driver app to continue receiving orders smoothly.",
     "updateMandatoryToContinueOnlineDuties": "This update is mandatory to continue online duties.",
     "updateNow": "Update Now",
     "maybeLater": "Maybe Later"
@@ -73,7 +75,7 @@
     "creatingAccount": "Creating account...",
     "verifyAndCreateAccount": "Verify & Create Account",
     "resendOtp": "Resend OTP",
-    "flavourDriver": "Flavour Driver",
+    "flavourDriver": "Adios Driver",
     "driverPartnerApp": "Driver Partner App",
     "invalidPhone": "Invalid Phone",
     "pleaseEnterAValid10DigitPhone": "Please enter a valid 10-digit phone number",
@@ -500,7 +502,7 @@
     "scheduledRideStartsIn15Minutes": "Your scheduled ride for {{value}} starts in 15 minutes! Please prepare to travel.",
     "startTravel": "Start Travel",
     "upcomingReservedRide": "Upcoming Reserved Ride!",
-    "flavourDriverActive": "Flavour Driver Active",
+    "flavourDriverActive": "Adios Driver Active",
     "trackingLocationForOrderDispatches": "Tracking location for order dispatches in background...",
     "noHighDemandAreas": "No high-demand areas right now",
     "backgroundLocationOffNowOffline": "Background location isn't enabled, so you're offline while the app is minimised.",
@@ -518,7 +520,8 @@
     "youAreMinAway": "you are {{value}} min away",
     "firstToAcceptGetsIt": "Sent to nearby drivers — the first to accept gets it",
     "restaurantNotReadyYet": "Waiting for the restaurant to mark this order ready. You can enter the pickup code once they do.",
-    "completeDelivery": "Complete Delivery"
+    "completeDelivery": "Complete Delivery",
+    "updateNotSent": "Update not sent"
   },
   "onboarding": {
     "sections": {
@@ -814,7 +817,7 @@
     "assuranceLast4": "We store only the last 4 digits of your Aadhaar — never the full number.",
     "assuranceOwnScreen": "You sign in on DigiLocker's own screen. We never see your DigiLocker password.",
     "assuranceRemoveAnytime": "You can remove this access at any time from your profile.",
-    "consentNote": "By continuing, you allow Flavour Driver to read the documents listed above from your DigiLocker account for driver verification.",
+    "consentNote": "By continuing, you allow Adios Driver to read the documents listed above from your DigiLocker account for driver verification.",
     "identityVerified": "Identity verified",
     "verifiedForName": "Verified against government records for {{name}}.",
     "verifiedGeneric": "Your details were confirmed against government records.",

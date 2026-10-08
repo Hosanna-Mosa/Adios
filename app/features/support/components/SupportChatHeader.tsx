@@ -1,4 +1,7 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 
@@ -21,9 +24,13 @@ interface Props {
     headerStatus: object;
   };
   tokens: { text: string };
+  /** Shows a refresh control at the trailing edge. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
-export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tokens }: Props) {
+export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tokens, onRefresh, refreshing }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={onBack}>
@@ -37,6 +44,14 @@ export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tok
       ) : (
         <Text style={styles.headerName}>{title}</Text>
       )}
+      {onRefresh ? (
+        <RefreshButton
+          style={[styles.backBtn, { marginLeft: "auto" }]}
+          onPress={onRefresh}
+          refreshing={refreshing}
+          accessibilityLabel={t("actions.refresh")}
+        />
+      ) : null}
     </View>
   );
 }

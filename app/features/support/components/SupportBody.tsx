@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -9,6 +10,7 @@ import { SupportFaqCard } from "./SupportFaqCard";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type SupportStyles } from "@/features/support/support.styles";
+import { trackEvent } from "@/utils/analytics";
 
 // Moved out of app/support.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -82,7 +84,10 @@ export function SupportBody({
           iconColor={tokens.brand}
           label={t("app.support.liveChat")}
           description={t("app.support.messageOurSupportTeam")}
-          onPress={() => router.push("/support-chat")}
+          onPress={() => {
+            trackEvent("support_opened", { action: "live_chat" });
+            router.push("/support-chat");
+          }}
           styles={styles}
           tokens={tokens}
         />

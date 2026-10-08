@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { Alert } from "react-native";
 import { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { useLocalSearchParams, router } from "expo-router";
@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createStyles } from "./finding-driver.styles";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { buildFindingDriverInsetsEffect } from "./useFindingDriverInsets.effects";
 
@@ -42,7 +41,21 @@ export function useFindingDriverInsets() {
     transform: [{ rotate: `${sweep.value * 360}deg` }],
   }));
 
-  useEffect(buildFindingDriverInsetsEffect(orderId, isReserved, setBookingConfirmed, setConfirmedDriver, setStops, setOrderSummary), [orderId, isReserved, dateTimeStr]);
+  const refreshRef = useRef<(() => Promise<void>) | null>(null);
+  useEffect(buildFindingDriverInsetsEffect(orderId, isReserved, setBookingConfirmed, setConfirmedDriver, setStops, setOrderSummary, refreshRef), [orderId, isReserved, dateTimeStr]);
 
-  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide };
+  const [refreshing, setRefreshing] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => () => { mounted.current = false; }, []);
+  const refresh = useCallback(async () => {
+    if (!refreshRef.current) return;
+    setRefreshing(true);
+    try {
+      await refreshRef.current();
+    } finally {
+      if (mounted.current) setRefreshing(false);
+    }
+  }, []);
+
+  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, refresh, refreshing };
 }

@@ -12,7 +12,7 @@ import { SocketManager } from "../../sockets/socket.manager";
 import { QueueManager } from "../../services/queue.service";
 import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
-import { ConflictError, NotFoundError, ValidationError } from "../../utils/errors";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
 import { CouponsService } from "../coupons/coupons.service";
 import { CartService } from "../cart/cart.service";
@@ -1327,7 +1327,142 @@ export class OrdersService {
     const isParty = order.user?.toString() === requestingUserId || driverUserId === requestingUserId;
     if (!isParty) throw new Error("Unauthorized to view this chat");
 
-    return ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 });
+    const messages = await ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 }).lean();
+    // `id` is what the live message carried (the sender's clientId), so a client polling
+    // this list can match it against the optimistic copy it already shows.
+    return messages.map((m: any) => ({ ...m, id: m.clientId || m._id.toString(), from: m.role }));
+  }
+
+  /**
+   * Post a chat message on an order: saved, relayed to the order's socket room and pushed
+   * to the other party. Used by POST /orders/:id/chat and the socket `send_message` event.
+   * Who may post, and the role stored with the message, come from the caller's verified
+   * relation to the order — never from what the client says it is.
+   */
+  async sendChatMessage(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string, clientId?: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    // Support may read an order but not speak in its chat (same as SocketManager.canActOnOrder).
+    if (relation === "staff" && actor?.role === "SUPPORT") {
+      throw new ForbiddenError("Support can view orders but not post in their chat.");
+    }
+
+    const body = String(text ?? "").trim();
+    if (!body) throw new ValidationError("Message text is required");
+    if (body.length > 2000) throw new ValidationError("Message is too long");
+
+    // Stored roles predate this method: the customer app sent "user", the driver app "driver".
+    const from = relation === "driver" ? "driver" : relation === "customer" ? "user" : relation === "vendor" ? "vendor" : "admin";
+    const canonicalOrderId = order._id.toString();
+
+    let driverUserId: string | undefined;
+    if (order.driver) {
+      const drv = await Driver.findById(order.driver).select("user").lean();
+      driverUserId = drv?.user?.toString();
+    }
+
+    // A vendor / admin token's subject is already an ObjectId; this only guards odd tokens.
+    let senderId = actor!.userId!;
+    if (!mongoose.Types.ObjectId.isValid(senderId)) {
+      senderId = (relation === "driver" ? driverUserId : order.user?.toString()) || "";
+    }
+    if (!mongoose.Types.ObjectId.isValid(senderId)) throw new ValidationError("Could not resolve the message sender");
+
+    const _id = new mongoose.Types.ObjectId();
+    const id = clientId || _id.toString();
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const saved = await ChatMessage.create({ _id, orderId: canonicalOrderId, clientId: id, senderId, role: from, text: body, time });
+
+    const payload = { id, text: body, from, time, senderId };
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "receive_message", payload, "OrdersService.sendChatMessage");
+
+    // Push the other party so an out-of-app message isn't missed (fire-and-forget).
+    const recipientUserId = from === "driver" ? order.user?.toString() : driverUserId;
+    if (recipientUserId && recipientUserId !== actor?.userId) {
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: recipientUserId,
+          title: "New message 💬",
+          body: body.length > 120 ? `${body.slice(0, 117)}...` : body,
+          type: "transactional",
+          category: "chat",
+          data: { orderId: canonicalOrderId, deepLink: { screen: "/chat", params: { orderId: canonicalOrderId } } },
+        })
+        .catch((err: any) => console.error("[CHAT] Failed to send chat push notification:", err));
+    }
+
+    return { ...payload, createdAt: saved.createdAt };
+  }
+
+  /**
+   * The sequential offer this driver holds right now, else the food broadcast offer, else
+   * null. Polled by the driver app in place of the socket's `new_order`.
+   */
+  async getDriverOffer(driverUserId: string) {
+    const now = new Date();
+    const order: any = await Order.findOne({
+      "currentOffer.driverUserId": driverUserId,
+      "currentOffer.expiresAt": { $gt: now },
+      status: OrderStatus.SEARCHING_DRIVER,
+      driver: null,
+    })
+      .sort({ "currentOffer.offeredAt": -1 })
+      .select("currentOffer")
+      .lean();
+
+    if (order?.currentOffer) {
+      const expiresAt = new Date(order.currentOffer.expiresAt);
+      return {
+        ...(order.currentOffer.payload || {}),
+        expiresAt: expiresAt.toISOString(),
+        secondsLeft: Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / 1000)),
+      };
+    }
+
+    return foodDispatch.currentOfferFor(driverUserId);
+  }
+
+  /** Helper task: the customer confirms the task they assigned. Idempotent. */
+  async confirmHelperTask(orderId: string, actor: { userId?: string; role?: string } | undefined) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "customer") throw new ForbiddenError("Only the customer can confirm this task.");
+    if (order.helperTaskConfirmedAt) return { helperTaskConfirmedAt: order.helperTaskConfirmedAt };
+
+    const helperTaskConfirmedAt = new Date();
+    await Order.updateOne({ _id: order._id, helperTaskConfirmedAt: { $exists: false } }, { $set: { helperTaskConfirmedAt } });
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "assign_task_confirmed", { orderId: canonicalOrderId }, "OrdersService.confirmHelperTask");
+    return { helperTaskConfirmedAt };
+  }
+
+  /** Helper task: the assigned helper posts a short progress note for the customer. */
+  async updateHelperStatus(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "driver") throw new ForbiddenError("Only the assigned helper can post task updates.");
+
+    const helperStatusText = String(text ?? "").trim();
+    if (!helperStatusText) throw new ValidationError("Status text is required");
+    const helperStatusAt = new Date();
+    await Order.updateOne({ _id: order._id }, { $set: { helperStatusText, helperStatusAt } });
+
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "helper_status_update", { orderId: canonicalOrderId, text: helperStatusText }, "OrdersService.updateHelperStatus");
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: order.user.toString(),
+        title: "Task update",
+        body: helperStatusText,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          kind: "helper_status",
+          orderId: canonicalOrderId,
+          deepLink: { screen: "/tracking", params: { orderId: canonicalOrderId } },
+        },
+      })
+      .catch((err: any) => console.error("[orders.service] Failed to push a helper status update:", err));
+
+    return { helperStatusText, helperStatusAt };
   }
 
   async increaseOrderPrice(orderId: string, amount: number, userId: string) {
@@ -1560,6 +1695,11 @@ export class OrdersService {
 
     // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
     if (status === OrderStatus.CANCELLED) {
+      // Stop any running driver search and withdraw the offer on screen now,
+      // rather than leaving it up until the offer timer runs out.
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      dispatchManager.handleCustomerCancel(order._id.toString());
+
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
       if (order.dispatchMode === "broadcast") await foodDispatch.cancelDispatch(order._id.toString());
     }
@@ -1717,7 +1857,8 @@ export class OrdersService {
   }
 
   async getUserOrders(userId: string) {
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    // lean() skips toJSON, so drop the driver-side offer here (see the Order transform).
+    const orders = await Order.find({ user: userId }).select("-currentOffer").sort({ createdAt: -1 }).lean();
     const outlets = await this.outletSummaries(orders.map((order: any) => order.vendor));
     return orders.map((order: any) => ({
       ...order,

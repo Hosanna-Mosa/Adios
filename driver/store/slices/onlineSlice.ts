@@ -4,7 +4,6 @@ import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { trackEvent } from "@/utils/analytics";
 import { decodeJwtPayload } from "../decodeJwt";
-import { registerOrderSocketHandlers } from "../socketHandlers";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
 
 const patchDriver = (token: string, path: string, body: Record<string, any>) =>
@@ -25,13 +24,13 @@ export const createOnlineSlice = (
     if (token) {
       try {
         // activeServices was previously kept purely client-side (see the
-        // "new_order" handler in socketHandlers) — the backend had no idea it
+        // offer filter in useOfferPoll) — the backend had no idea it
         // existed, so dispatch could offer a food order to a ride-only driver
         // whose app would then silently drop it. Sending it here lets the
         // backend skip that driver as a candidate instead of wasting the offer.
         const res = await patchDriver(token, "status", { status: "ONLINE", activeServices: services });
         // Refused because an admin hasn't approved this driver (yet): stay
-        // offline and don't open the dispatch socket.
+        // offline.
         if (res.status === 403) {
           const body = await res.json().catch(() => ({}));
           if (body?.code === "DRIVER_NOT_APPROVED") {
@@ -57,13 +56,7 @@ export const createOnlineSlice = (
         set({ driverUserId: finalDriverId }); // Self-heal store
       }
     }
-
-    // Connect to real-time order broadcasts regardless of token
-    import("../../utils/socketService").then(({ socketService }) => {
-      socketService.connect();
-      socketService.join(finalDriverId || "mock_driver_123", "DRIVER");
-      registerOrderSocketHandlers(socketService, set, get);
-    });
+    // Offers arrive via the offer poll (useOfferPoll) while online.
   },
 
   goOffline: async () => {
@@ -77,14 +70,6 @@ export const createOnlineSlice = (
         console.error("Failed to set offline status:", e);
       }
     }
-
-    import("../../utils/socketService").then(({ socketService }) => {
-      socketService.off("new_order", () => {}); // Remove listener
-      socketService.off("order_offer_expired", () => {}); // Remove listener
-      socketService.off("order_cancelled", () => {}); // Remove listener
-      socketService.off("upcoming_reserved_ride", () => {}); // Remove listener
-      socketService.disconnect();
-    });
   },
 
   toggleHomeMode: async () => {

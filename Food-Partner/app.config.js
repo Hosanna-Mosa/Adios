@@ -7,7 +7,7 @@ const usesCleartextTraffic = /^http:\/\//i.test(process.env.EXPO_PUBLIC_API_URL 
 
 export default {
   expo: {
-    name: 'Flavour Partner',
+    name: 'Adios Partner',
     slug: 'flavour-partner',
     version: '1.0.0',
     orientation: 'portrait',
@@ -80,7 +80,9 @@ export default {
       supportPhone: process.env.EXPO_PUBLIC_SUPPORT_PHONE,
       supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL,
       partnerWebUrl: process.env.EXPO_PUBLIC_PARTNER_WEB_URL,
-      ...(process.env.EAS_PROJECT_ID ? { eas: { projectId: process.env.EAS_PROJECT_ID } } : {}),
+      // @hosanna4190/flavour-partner. Written here like app/ and driver/ do, since
+      // eas-cli does not read .env; EAS_PROJECT_ID still overrides it.
+      eas: { projectId: process.env.EAS_PROJECT_ID || 'c76ed939-2b2e-4118-a48d-2c1ac3facbf3' },
     },
   },
 };

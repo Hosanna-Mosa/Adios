@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { VendorLayout } from "@/components/layout/VendorLayout";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { useVendorDashboard } from "@/features/vendors/hooks/useVendorDashboard";
 import { VendorStatsRow } from "@/features/vendors/components/VendorStatsRow";
 import { VendorOrderList } from "@/features/vendors/components/VendorOrderList";
@@ -14,6 +15,8 @@ export default function VendorDashboard() {
     isMeatVendor,
     orders,
     ordersLoading,
+    refresh,
+    isRefreshing,
     menuCount,
     totalRevenue,
     selectedOrder,
@@ -38,9 +41,12 @@ export default function VendorDashboard() {
   return (
     <VendorLayout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("vendorDashboard.welcomeName", { name: vendorData.name, defaultValue: "Welcome, {{name}}" })}</h1>
-          <p className="text-muted-foreground">{isMeatVendor ? t("vendorDashboard.meatCenterTodaySummary") : t("vendorDashboard.restaurantTodaySummary")}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">{t("vendorDashboard.welcomeName", { name: vendorData.name, defaultValue: "Welcome, {{name}}" })}</h1>
+            <p className="text-muted-foreground">{isMeatVendor ? t("vendorDashboard.meatCenterTodaySummary") : t("vendorDashboard.restaurantTodaySummary")}</p>
+          </div>
+          <RefreshButton onRefresh={refresh} isRefreshing={isRefreshing} label={t("vendorDashboard.refresh")} />
         </div>
 
         <VendorStatsRow ordersCount={orders?.length || 0} menuCount={menuCount || 0} isMeatVendor={isMeatVendor} totalRevenue={totalRevenue} />

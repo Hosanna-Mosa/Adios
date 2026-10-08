@@ -1,5 +1,10 @@
 import { io } from "socket.io-client";
-import { socketService } from "@/utils/socketService";
+
+// Sockets are off unless EXPO_PUBLIC_ENABLE_SOCKETS is "true", read when the
+// module loads — so it is set before the module is required, not imported.
+process.env.EXPO_PUBLIC_ENABLE_SOCKETS = "true";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { socketService } = require("@/utils/socketService") as typeof import("@/utils/socketService");
 
 type Handler = (...args: unknown[]) => void;
 
@@ -72,5 +77,20 @@ describe("socketService", () => {
     socketService.connect("jwt-2");
     fire("connect");
     expect(latest().emit).not.toHaveBeenCalled();
+  });
+});
+
+describe("socketService with sockets disabled", () => {
+  it("never opens a connection or emits a join", () => {
+    process.env.EXPO_PUBLIC_ENABLE_SOCKETS = "";
+    jest.isolateModules(() => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { socketService: disabled } = require("@/utils/socketService") as typeof import("@/utils/socketService");
+      disabled.connect("jwt-1");
+      disabled.join("v1", "VENDOR");
+      disabled.on("new_order_vendor", jest.fn());
+    });
+    process.env.EXPO_PUBLIC_ENABLE_SOCKETS = "true";
+    expect(io).not.toHaveBeenCalled();
   });
 });

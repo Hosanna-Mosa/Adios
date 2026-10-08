@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -7,6 +8,7 @@ import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "@/contexts/cartStore";
 import { showOutletClosedAlert } from "@/components/shared/outletClosed";
+import { trackEvent } from "@/utils/analytics";
 
 // Moved out of app/(tabs)/index.tsx unchanged. Home-only for now: promote to
 // components/ui/ or components/shared/ if a second feature ever needs it.
@@ -37,6 +39,16 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
 
   const handleNavigateToMenu = () => {
     if (vendor?._id) {
+      trackEvent("select_item", {
+        item_id: item._id,
+        item_name: item.name,
+        item_category: item.category,
+        price: item.price,
+        is_veg: item.isVeg,
+        vendor_id: vendor._id,
+        vendor_name: vendor.name,
+        source: "search",
+      });
       router.push({
         pathname: "/restaurant-menu",
         params: { id: vendor._id, name: vendor.name, image: vendor.image || "", rating: String(vendor.rating || "4.8"), reviews: vendor.reviews || "2k+", isMeat: "false", highlightDishId: item._id },

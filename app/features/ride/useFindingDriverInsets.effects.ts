@@ -1,5 +1,5 @@
+import { AppState } from "react-native";
 import { router } from "expo-router";
-import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { foodStageOf } from "@/contexts/foodStage";
 import i18n from "@/i18n";
@@ -8,7 +8,11 @@ import { showAlert } from "@/components/ui/AppAlert";
 import { cancellationNotice } from "@/utils/cancellationNotice";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
-export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
+/** Polls the order this often until a driver is assigned or it is cancelled. */
+const POLL_MS = 2000;
+
+// `refreshRef` receives a function that checks the order immediately (Refresh button).
+export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any, refreshRef: { current: (() => Promise<void>) | null }) => () => {
     if (!orderId) {
       router.push("/(tabs)");
       return;
@@ -17,11 +21,10 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     const isReservedVal = isReserved === "true";
     useDeliveryStore.getState().setOrderId(orderId);
 
-    socketService.connect();
-    socketService.trackOrder(orderId);
-
     let pollIntervalId: any;
+    let timeoutTimer: any;
     let isTransitioned = false;
+    let inFlight: Promise<void> | null = null;
 
     const handleTransition = (driverData: any) => {
       if (isTransitioned) return;
@@ -73,7 +76,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       }, 500);
     };
 
-    const checkOrderStatus = async () => {
+    const fetchOrderStatus = async () => {
       if (isTransitioned) return;
       try {
         const orderData = await getOrderJson(orderId);
@@ -109,55 +112,60 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
           }
           if (orderData.status && orderData.status.toUpperCase() === "DRIVER_ASSIGNED") {
             handleTransition(orderData.driver);
+            return;
           }
+          // Sequential dispatch ran out of drivers: same outcome as the reserved-ride timeout.
+          if (orderData.dispatchExhaustedAt) handleNoCaptain(isReservedVal ? undefined : "app.ride.noRidersAvailableNow");
         }
       } catch (err) {
         console.error("Error checking order status:", err);
       }
     };
 
+    // One request at a time; a tick (or a Refresh tap) during one joins it.
+    const checkOrderStatus = () => {
+      if (!inFlight) inFlight = fetchOrderStatus().finally(() => { inFlight = null; });
+      return inFlight;
+    };
+    refreshRef.current = checkOrderStatus;
+
     checkOrderStatus();
-    pollIntervalId = setInterval(checkOrderStatus, 2000);
+    pollIntervalId = setInterval(() => {
+      if (AppState.currentState === "active") checkOrderStatus();
+    }, POLL_MS);
+    const appStateSub = AppState.addEventListener("change", (next) => {
+      if (next === "active") checkOrderStatus();
+    });
 
-    const handleOrderAccepted = (data: any) => {
-      if (data && String(data.orderId) === String(orderId)) handleTransition(data.driver);
-    };
-    const handleStatusUpdate = (data: any) => {
-      if (data && String(data.orderId) === String(orderId) && data.status?.toUpperCase() === "CANCELLED") handleOrderCancelled(data.reason);
-    };
-
-    socketService.on("order_accepted", handleOrderAccepted);
-    socketService.on("order_status_update", handleStatusUpdate);
-
-    let timeoutTimer: any;
-    if (isReservedVal) {
-      timeoutTimer = setTimeout(async () => {
-        if (isTransitioned) return;
-        isTransitioned = true;
-        if (pollIntervalId) clearInterval(pollIntervalId);
-        showAlert(
-          i18n.t("app.ride.noCaptainFound"),
-          i18n.t("app.ride.sorryNoCaptainsAreAvailableTo"),
-          [{
-            text: i18n.t("app.ride.ok"),
-            onPress: async () => {
-              router.replace("/(tabs)");
-              if (orderId) {
-                try {
-                  await cancelOrder(orderId);
-                } catch (error) {
-                  console.error("Failed to cancel order on backend:", error);
-                }
+    function handleNoCaptain(messageKey = "app.ride.sorryNoCaptainsAreAvailableTo") {
+      if (isTransitioned) return;
+      isTransitioned = true;
+      if (pollIntervalId) clearInterval(pollIntervalId);
+      if (timeoutTimer) clearTimeout(timeoutTimer);
+      showAlert(
+        i18n.t("app.ride.noCaptainFound"),
+        i18n.t(messageKey),
+        [{
+          text: i18n.t("app.ride.ok"),
+          onPress: async () => {
+            router.replace("/(tabs)");
+            if (orderId) {
+              try {
+                await cancelOrder(orderId);
+              } catch (error) {
+                console.error("Failed to cancel order on backend:", error);
               }
-            },
-          }]
-        );
-      }, 60000);
+            }
+          },
+        }]
+      );
     }
+    if (isReservedVal) timeoutTimer = setTimeout(() => handleNoCaptain(), 60000);
 
     return () => {
-      socketService.off("order_accepted", handleOrderAccepted);
-      socketService.off("order_status_update", handleStatusUpdate);
+      isTransitioned = true;
+      refreshRef.current = null;
+      appStateSub.remove();
       if (timeoutTimer) clearTimeout(timeoutTimer);
       if (pollIntervalId) clearInterval(pollIntervalId);
     };

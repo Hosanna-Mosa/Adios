@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import type { ScheduledRequestAlert } from "@/types/models";
 
-// Live alerts — from the socket, or from a push that arrives while the app is
-// open — held here so the banner/sheet that shows them can sit at the app root
+// Live alerts — from polling (LiveOrderWatcher), or from a push that arrives
+// while the app is open — held here so the banner/sheet that shows them can sit at the app root
 // and appear over whichever screen is open. The web panel does the same from
 // VendorLayout, which wraps every vendor page.
 
@@ -16,7 +16,7 @@ export interface NewOrderAlert {
 interface OrderAlertState {
   newOrder: NewOrderAlert | null;
   scheduledRequest: ScheduledRequestAlert | null;
-  /** Ids already alerted, so the socket event and the push for one order ring once. */
+  /** Ids already alerted, so the poll and the push for one order ring once. */
   seen: string[];
   /** False when this order was already alerted. */
   showNewOrder: (alert: NewOrderAlert) => boolean;

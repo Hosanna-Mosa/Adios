@@ -28,8 +28,8 @@ export function useTrackingOrderCreatedAt(currentOrderId: any, resetDelivery: an
   const { show: showToast } = useToast();
 
   // `reason` is who cancelled the order (cancelReason on the backend Order), so the
-  // customer is told who. When the status arrived first through the global socket
-  // handler (no reason passed here), the reason it stored is used instead.
+  // customer is told who. When the status arrived first through the global order
+  // poller (no reason passed here), the reason it stored is used instead.
   const handleOrderCancelledByDriver = (reason?: string | null) => {
     if (cancellationAlerted.current) return;
     cancellationAlerted.current = true;

@@ -74,7 +74,7 @@ export interface ScheduledRequest {
   createdAt: string;
 }
 
-/** Pushed over the socket when a customer asks for a scheduled delivery. */
+/** A new scheduled-delivery request, as the alert sheet shows it — built from a polled request or a push. */
 export interface ScheduledRequestAlert {
   requestId: string;
   customerName?: string;

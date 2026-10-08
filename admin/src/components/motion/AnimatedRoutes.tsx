@@ -16,6 +16,7 @@ const Drivers = lazy(() => import("@/pages/Drivers"));
 const DevDrivers = lazy(() => import("@/pages/DevDrivers"));
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
+const ItemInsights = lazy(() => import("@/pages/ItemInsights"));
 const Payments = lazy(() => import("@/pages/Payments"));
 const Refunds = lazy(() => import("@/pages/Refunds"));
 const Payouts = lazy(() => import("@/pages/Payouts"));
@@ -77,6 +78,7 @@ export function AnimatedRoutes() {
         <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />
         <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
         <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />
+        <Route path="/item-insights" element={<RequireAdmin><ItemInsights /></RequireAdmin>} />
         <Route path="/payments" element={<RequireAdmin><Payments /></RequireAdmin>} />
         <Route path="/refunds" element={<RequireAdmin><Refunds /></RequireAdmin>} />
         <Route path="/payouts" element={<RequireAdmin><Payouts /></RequireAdmin>} />

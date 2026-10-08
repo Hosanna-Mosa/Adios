@@ -36,7 +36,7 @@ export function useSupportUnreadReplies(allTickets: SupportTicket[], openTicket:
   }, []);
 
   // While a case's chat is on screen, everything in it has been seen — including
-  // replies that arrive live over the socket.
+  // replies that arrive while it is open.
   const openId = isChatOpen ? openTicket?._id : undefined;
   const openLength = openTicket?.messages.length ?? 0;
   useEffect(() => {

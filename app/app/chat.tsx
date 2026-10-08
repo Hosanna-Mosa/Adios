@@ -17,7 +17,7 @@ export default function ChatScreen() {
   const {
   driver, activeChat, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles,
   inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem,
-  loadingHistory
+  loadingHistory, refresh, refreshing
   } = useChat();
   const { t } = useTranslation();
 
@@ -51,6 +51,8 @@ export default function ChatScreen() {
         status={status}
         styles={styles}
         tokens={tokens}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
 
       <ChatSafetyBanner

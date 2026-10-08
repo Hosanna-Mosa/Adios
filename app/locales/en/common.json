@@ -12,7 +12,8 @@
     "loading": "Loading...",
     "error": "Error",
     "continue": "Continue",
-    "ok": "OK"
+    "ok": "OK",
+    "refresh": "Refresh"
   },
   "app": {
     "schedulePill": {
@@ -69,10 +70,11 @@
         "arrivedDelivery": "Arrived",
         "delivered": "Completed"
       },
-      "safetyBanner": "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+      "safetyBanner": "Keep the conversation in Adios. Don't share your PIN with the {{partner}} before the {{context}} starts.",
       "contextTask": "task",
       "contextRide": "ride",
-      "contextOrder": "order"
+      "contextOrder": "order",
+      "couldNotConfirmTask": "Could not confirm the task. Please try again."
     },
     "taskTypes": {
       "shifting": "Shifting",
@@ -123,7 +125,7 @@
         },
         "pinSafety": {
           "question": "Is my PIN safe to share?",
-          "answer": "Only hand it over once your items are physically in hand, or once your rider has arrived for a ride. Nobody from Flavour will ever ask for it over a call."
+          "answer": "Only hand it over once your items are physically in hand, or once your rider has arrived for a ride. Nobody from Adios will ever ask for it over a call."
         }
       },
       "categories": {
@@ -157,7 +159,7 @@
       "assignTask": "Assign task",
       "messagesWithVarWillShowUpHere": "Messages with your {{value}} will show up here.",
       "messageVar": "Message {{value}}…",
-      "flavourSupport": "Flavour Support",
+      "flavourSupport": "Adios Support",
       "case": "Case #",
       "yourCases": "Your cases",
       "loadingYourCases": "Loading your cases…",
@@ -341,7 +343,7 @@
       "freeDeliverySpecialOffers": "Free delivery / special offers",
       "goingSomewhere": "Going somewhere?",
       "pickARideToSeeLive": "Pick a ride to see live fares for your trip.",
-      "alsoOnFlavour": "Also on Flavour",
+      "alsoOnFlavour": "Also on Adios",
       "hireAHelper": "Hire a helper",
       "from120Hour": "From ₹120 / hour",
       "multistopCourierFrom39": "Multi-stop courier · from ₹39",
@@ -538,7 +540,7 @@
       "searchInVar": "Search in {{value}}",
       "paying": "Paying",
       "upiCardsWalletsAndNetBanking": "UPI, cards, wallets and net banking — choose on the next step",
-      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.",
+      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Adios never sees or stores your card, UPI PIN or bank credentials.",
       "address": "Address",
       "navigateInGoogleMaps": "Navigate in Google Maps",
       "offers": "Offers",
@@ -806,7 +808,7 @@
       "contactedHelpersHavePassedSoFar": "contacted helpers have passed so far — consider raising your offer.",
       "attractHelpersFaster": "Attract helpers faster",
       "noSavedPlaces": "No saved places",
-      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Flavour gets one tap shorter.",
+      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Adios gets one tap shorter.",
       "addYourFirstAddress": "Add your first address",
       "whatDoYouNeed": "What do you need?",
       "suggestedOffer": "Suggested offer",
@@ -1039,14 +1041,15 @@
       "riderCancelledOrder": "Your rider had to cancel, so this order has been cancelled. Any online payment will be refunded.",
       "cancelledByAdios": "Order cancelled by Adios",
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
-      "youCancelledThisOrder": "You cancelled this order."
+      "youCancelledThisOrder": "You cancelled this order.",
+      "noRidersAvailableNow": "Sorry, no riders are available right now. Please try again in a few minutes."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
       "updateRequired": "Update required",
       "newVersionAvailable": "New version available",
-      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Flavour.",
-      "updateFlavourToGetTheLatest": "Update Flavour to get the latest features and improvements.",
+      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Adios.",
+      "updateFlavourToGetTheLatest": "Update Adios to get the latest features and improvements.",
       "updateNow": "Update now",
       "noDismissRequiredRelease": "No dismiss — required release",
       "maybeLater": "Maybe later"
@@ -1128,11 +1131,6 @@
     },
     "mapPickingIsnapostAvailableOnWeb": "Map picking isn't available on web — use the mobile app.",
     "mapViewIsnapostAvailableOnWeb": "Map view isn't available on web — use the mobile app.",
-    "GlobalSocketHandler": {
-      "upcomingReservedRide": "Upcoming Reserved Ride!",
-      "yourReservedRideWithVarStarts": "Your reserved ride with {{value}} starts in 15 minutes!",
-      "trackDriver": "Track Driver"
-    },
     "OfflineBanner": {
       "youaposreOffline": "You're offline",
       "checking": "Checking…",
@@ -1173,8 +1171,8 @@
       "couldntShare": "Couldn't share",
       "shareSheetDidntOpen": "The share sheet didn't open. Please try again.",
       "thisDish": "this dish",
-      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Flavour! {{url}}",
-      "checkOutVendor": "Check out {{name}} on Flavour! {{url}}"
+      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Adios! {{url}}",
+      "checkOutVendor": "Check out {{name}} on Adios! {{url}}"
     }
   }
 }

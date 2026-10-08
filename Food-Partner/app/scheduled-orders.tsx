@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/Header";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { ScheduledList } from "@/features/scheduled/components/ScheduledList";
@@ -15,7 +16,14 @@ export default function ScheduledOrdersScreen() {
   return (
     <ScreenShell
       style={{ paddingTop: s.insets.top + 8 }}
-      header={<Header title={t("scheduled.title")} subtitle={t("scheduled.subtitle")} onBack={() => router.back()} />}
+      header={
+        <Header
+          title={t("scheduled.title")}
+          subtitle={t("scheduled.subtitle")}
+          onBack={() => router.back()}
+          right={<IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={s.refresh} loading={s.refreshing} />}
+        />
+      }
     >
       <SegmentedControl<ScheduledRequestStatus>
         value={s.filter}

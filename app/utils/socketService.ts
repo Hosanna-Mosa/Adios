@@ -4,6 +4,9 @@ import Constants from "expo-constants";
 const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "";
 // Extract the base URL to prevent Socket.io from using the API path as a namespace
 const BASE_SOCKET_URL = SOCKET_URL.split("/api")[0] || SOCKET_URL;
+// Off by default: screens poll the REST API instead. Kept so sockets can be
+// switched back on with EXPO_PUBLIC_ENABLE_SOCKETS=true.
+const SOCKETS_ENABLED = process.env.EXPO_PUBLIC_ENABLE_SOCKETS === "true";
 
 class SocketService {
   private socket: Socket | null = null;
@@ -20,7 +23,7 @@ class SocketService {
   }
 
   public connect() {
-    if (this.socket) return;
+    if (!SOCKETS_ENABLED || this.socket) return;
 
     let token = "";
     try {
@@ -50,6 +53,7 @@ class SocketService {
   }
 
   public trackOrder(orderId: string) {
+    if (!SOCKETS_ENABLED) return;
     this.trackedOrderId = orderId;
     if (!this.socket) {
       this.connect();
@@ -59,6 +63,7 @@ class SocketService {
   }
 
   public on(event: string, callback: (data: any) => void) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
@@ -68,6 +73,7 @@ class SocketService {
   }
 
   public emit(event: string, data: any) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.emit(event, data);
   }

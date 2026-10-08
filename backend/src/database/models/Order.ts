@@ -69,6 +69,19 @@ export interface IFoodOffer {
   reason?: string;
 }
 
+/**
+ * The sequential dispatcher's open offer (rides / helper / meat / package), persisted so a
+ * driver app that polls instead of holding a socket can still see it. `payload` is the exact
+ * object emitted as `new_order`.
+ */
+export interface ISequentialOffer {
+  driverUserId: string;
+  driverId?: string;
+  offeredAt: Date;
+  expiresAt: Date;
+  payload: any;
+}
+
 /** The rider search for a broadcast (food) order. Runs alongside `status`, which stays the order's main track. */
 export interface IFoodDispatch {
   state: FoodDispatchState;
@@ -165,6 +178,14 @@ export interface IOrder extends Omit<Document, "_id"> {
   prepMinutes?: number | null;
   foodReadyAt?: Date | null;
   dispatch?: IFoodDispatch;
+  /** Sequential orders only: the offer currently held by one driver. Unset between offers. */
+  currentOffer?: ISequentialOffer;
+  /** Set when the sequential search ran out of drivers; cleared when a new search starts. */
+  dispatchExhaustedAt?: Date;
+  // Helper tasks: what used to be socket-only relays between customer and helper.
+  helperTaskConfirmedAt?: Date;
+  helperStatusText?: string;
+  helperStatusAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -322,6 +343,23 @@ const OrderSchema: Schema = new Schema(
     foodReadyAt: { type: Date, default: null },
     // Left unset (not defaulted) on everything but broadcast orders.
     dispatch: { type: FoodDispatchSchema, default: undefined },
+    currentOffer: {
+      type: new Schema(
+        {
+          driverUserId: { type: String, required: true },
+          driverId: { type: String },
+          offeredAt: { type: Date, required: true },
+          expiresAt: { type: Date, required: true },
+          payload: { type: Schema.Types.Mixed },
+        },
+        { _id: false }
+      ),
+      default: undefined,
+    },
+    dispatchExhaustedAt: { type: Date },
+    helperTaskConfirmedAt: { type: Date },
+    helperStatusText: { type: String },
+    helperStatusAt: { type: Date },
   },
   {
     timestamps: true,
@@ -334,6 +372,9 @@ const OrderSchema: Schema = new Schema(
           ret.dispatch = { ...ret.dispatch, offerCount: ret.dispatch.offers.length };
           delete ret.dispatch.offers;
         }
+        // Same for the sequential offer: only the offered driver reads it, through
+        // GET /orders/driver/offer, which goes to the document directly.
+        delete ret.currentOffer;
         return ret;
       },
     },
@@ -346,6 +387,8 @@ OrderSchema.index({ vendor: 1, createdAt: -1 });
 // The food dispatcher's backstop sweep, and a rider's open-offer lookup.
 OrderSchema.index({ "dispatch.state": 1 }, { sparse: true });
 OrderSchema.index({ "dispatch.offers.driverUserId": 1, "dispatch.state": 1 }, { sparse: true });
+// A driver's poll for the sequential offer it holds.
+OrderSchema.index({ "currentOffer.driverUserId": 1 }, { sparse: true });
 // Food orders still waiting for the restaurant — the accept-timeout backstop reads only these.
 OrderSchema.index(
   { restaurantAcceptBy: 1 },

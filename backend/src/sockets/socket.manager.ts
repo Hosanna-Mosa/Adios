@@ -8,7 +8,6 @@ import User, { UserRole } from "../database/models/User";
 import RevokedToken from "../database/models/RevokedToken";
 import Order from "../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../database/models/Driver";
-import ChatMessage from "../database/models/ChatMessage";
 import { getJwtSecret } from "../utils/jwtSecret";
 
 // Order._id is a custom string like "ADSF120926123456" (see
@@ -51,6 +50,11 @@ export class SocketManager {
 
   public getIo(): Server {
     return this.io;
+  }
+
+  /** The location-tracking Redis client, or null when Redis is down. */
+  public getRedisClient(): any {
+    return this.redisClient && this.redisClient.isReady ? this.redisClient : null;
   }
 
   private async setupRedis() {
@@ -340,6 +344,11 @@ export class SocketManager {
               type: "Point",
               coordinates: [Number(data.lng), Number(data.lat)]
             };
+            resolvedDriver.lastLocationAt = new Date();
+            const heading = Number(data.heading);
+            if (Number.isFinite(heading) && heading >= 0 && heading <= 360) {
+              resolvedDriver.heading = heading;
+            }
             // A location ping must not put an unapproved driver on the road —
             // PATCH /drivers/status refuses them too.
             if (resolvedDriver.onboardingStatus === OnboardingStatus.COMPLETED) {
@@ -519,112 +528,28 @@ export class SocketManager {
         socket.to(data.orderId).emit("helper_status_update", data);
       });
 
-      // CHAT MESSAGES: Forward messages within the order room
+      // CHAT MESSAGES: saved, relayed to the order room and pushed by OrdersService.sendChatMessage,
+      // the same path POST /orders/:id/chat takes. Access and the stored role come from the
+      // verified token's relation to the order; data.role / data.senderId are not trusted.
       socket.on("send_message", async (data: { orderId: string; senderId: string; role: string; text: string; id?: string }) => {
         if (!authUser) return;
-        
-        const from = data.role?.toLowerCase();
-        const payload = {
-          id: data.id || Date.now().toString(),
-          text: data.text,
-          from,
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          senderId: data.senderId,
-        };
+        if (!data?.orderId) {
+          console.warn(`[CHAT][DROP] Missing orderId for message id=${data?.id}`);
+          return;
+        }
 
         console.log(
           `[CHAT][SEND] socket=${socket.id} authUser=${authUser.userId} authRole=${authUser.role} ` +
-          `order=${data.orderId || "missing"} senderId=${data.senderId} role=${data.role} roomSize=${data.orderId ? this.getRoomSize(data.orderId) : 0} text="${data.text}"`
+          `order=${data.orderId} role=${data.role} roomSize=${this.getRoomSize(data.orderId)}`
         );
 
-        if (!data.orderId) {
-          console.warn(`[CHAT][DROP] Missing orderId for message id=${payload.id}`);
-          return;
-        }
-
-        // Only the order's customer, assigned driver, vendor or an admin may post in its chat.
-        if (!(await this.canActOnOrder(data.orderId, authUser))) {
-          console.warn(`[SOCKET SECURITY] send_message rejected from ${authUser.userId} for order ${data.orderId}`);
-          return;
-        }
-
-        // Save to DB
         try {
-          let realSenderId = authUser?.userId;
-          
-          if (!realSenderId || !mongoose.Types.ObjectId.isValid(realSenderId)) {
-            if (data.senderId && mongoose.Types.ObjectId.isValid(data.senderId)) {
-              realSenderId = data.senderId;
-            } else {
-              const orderDoc = await findOrderById(data.orderId);
-              if (orderDoc) {
-                if (from === "driver") {
-                  if (orderDoc.driver) {
-                    const drv = await Driver.findById(orderDoc.driver);
-                    if (drv) realSenderId = drv.user.toString();
-                  }
-                } else {
-                  realSenderId = orderDoc.user.toString();
-                }
-              }
-            }
-          }
-
-          if (realSenderId && mongoose.Types.ObjectId.isValid(realSenderId)) {
-            const chatMsg = new ChatMessage({
-              orderId: data.orderId,
-              clientId: payload.id,
-              senderId: realSenderId,
-              role: from,
-              text: data.text,
-              time: payload.time
-            });
-            await chatMsg.save();
-          } else {
-            console.warn(`[CHAT] Could not resolve a valid senderId for message orderId=${data.orderId}`);
-          }
-        } catch (error) {
-          console.error("Error saving chat message to database:", error);
+          const { OrdersService } = await import("../modules/orders/orders.service");
+          const clientId = typeof data.id === "string" && data.id.length <= 100 ? data.id : undefined;
+          await new OrdersService().sendChatMessage(data.orderId, authUser, data.text, clientId);
+        } catch (error: any) {
+          console.warn(`[SOCKET SECURITY] send_message rejected from ${authUser.userId} for order ${data.orderId}: ${error?.message}`);
         }
-
-        this.io.to(data.orderId).emit("receive_message", payload);
-        console.log(`[CHAT][EMIT] order=${data.orderId} from=${from} id=${payload.id} recipients=${this.getRoomSize(data.orderId)}`);
-
-        // Push-notify the other party so an out-of-app message isn't missed (fire-and-forget).
-        (async () => {
-          try {
-            const orderDoc = await findOrderById(data.orderId);
-            if (!orderDoc) return;
-
-            let recipientUserId: string | undefined;
-            let recipientDeepLink: { screen: string; params?: Record<string, string> };
-            if (from === "driver") {
-              recipientUserId = orderDoc.user?.toString();
-              recipientDeepLink = { screen: "/chat", params: { orderId: data.orderId } };
-            } else {
-              if (orderDoc.driver) {
-                const drv = await Driver.findById(orderDoc.driver);
-                recipientUserId = drv?.user?.toString();
-              }
-              recipientDeepLink = { screen: "/chat", params: { orderId: data.orderId } };
-            }
-
-            // Don't notify the sender, and skip if we couldn't resolve a recipient.
-            if (!recipientUserId || recipientUserId === authUser?.userId) return;
-
-            const { NotificationService } = require("../services/notification.service");
-            await NotificationService.getInstance().sendNotification({
-              userId: recipientUserId,
-              title: "New message 💬",
-              body: data.text?.length > 120 ? `${data.text.slice(0, 117)}...` : data.text,
-              type: "transactional",
-              category: "chat",
-              data: { orderId: data.orderId, deepLink: recipientDeepLink },
-            });
-          } catch (err) {
-            console.error("[CHAT] Failed to send chat push notification:", err);
-          }
-        })();
       });
 
       socket.on("disconnect", async () => {
@@ -669,6 +594,20 @@ export class SocketManager {
   // driver explicitly going offline (see the disconnect handler above).
   public isUserConnected(userId: string): boolean {
     return this.getUserSocketStatus(userId).online;
+  }
+
+  /**
+   * Like isUserConnected, but also counts sockets held by other server
+   * instances: with the Redis adapter a user's socket may live on another node,
+   * where this process's connectedUsers map can't see it.
+   */
+  public async isUserConnectedAnywhere(userId: string): Promise<boolean> {
+    if (this.isUserConnected(userId)) return true;
+    try {
+      return (await this.io.in(userId).fetchSockets()).length > 0;
+    } catch {
+      return false;
+    }
   }
 
   public emitToDriver(driverId: string, event: string, data: any, source = "service") {

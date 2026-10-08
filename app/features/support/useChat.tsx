@@ -8,13 +8,13 @@ import { useChatRenderItem } from "./useChatRenderItem";
 
 export function useChat() {
   const { currentOrderId, driver, activeChat, addChatMessage, setUnreadCount, setIsChatActive, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles, inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, loadingHistory } = useChatCurrentOrderId();
-  const { sendMessage } = useChatSendMessage(currentOrderId, driver, addChatMessage, setUnreadCount, setIsChatActive, setInputText, flatListRef);
+  const { sendMessage, refresh, refreshing } = useChatSendMessage(currentOrderId, driver, addChatMessage, setUnreadCount, setIsChatActive, setInputText, flatListRef, isHelper);
   const { renderItem } = useChatRenderItem(tokens, accent, styles);
 
   return {
   driver, activeChat, status, insets, tokens, isRide, isHelper, accent, partnerLabel, styles,
   inputText, setInputText, flatListRef, taskAssigned, handleAssignTask, sendMessage, renderItem,
-  loadingHistory
+  loadingHistory, refresh, refreshing
   };
 }
 

@@ -4,14 +4,8 @@ import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { trackEvent } from "@/utils/analytics";
 import { mapApiOrder } from "../orderMapper";
+import { markOfferHandled } from "../offerTracker";
 import type { DriverState, GetDriverState, Order, SetDriverState } from "../types";
-
-const MOCK_DRIVER = {
-  id: "mock_driver_123",
-  name: "Mock Driver",
-  phone: "+1 (555) 987-6543",
-  vehicle: "Mock Vehicle",
-};
 
 export const createOrderLifecycleSlice = (
   set: SetDriverState,
@@ -20,6 +14,7 @@ export const createOrderLifecycleSlice = (
   acceptOrder: async () => {
     const { incomingOrder, token } = get();
     if (!incomingOrder) return false;
+    markOfferHandled(incomingOrder.id);
     const isBroadcast = incomingOrder.dispatchMode === "broadcast";
 
     let accepted = false;
@@ -51,16 +46,6 @@ export const createOrderLifecycleSlice = (
           return false;
         }
       }
-    }
-
-    if (!accepted) {
-      // Fallback for unauthenticated testing or API failure
-      import("../../utils/socketService").then(({ socketService }) => {
-        socketService.emit("driver_accepted_order", {
-          orderId: incomingOrder.id,
-          driverInfo: MOCK_DRIVER,
-        });
-      });
     }
 
     if (accepted) {
@@ -114,8 +99,9 @@ export const createOrderLifecycleSlice = (
     }
   },
 
-  rejectOrder: async (reason?: string) => {
+  rejectOrder: async (reason?: string, options?: { timedOut?: boolean }) => {
     const { incomingOrder, token } = get();
+    if (incomingOrder) markOfferHandled(incomingOrder.id);
     if (incomingOrder && token) {
       // The backend requires a non-empty reason (see orders.controller.ts)
       // and uses this call to end the dispatch offer early rather than let
@@ -135,7 +121,12 @@ export const createOrderLifecycleSlice = (
       }
     }
     if (incomingOrder) {
-      trackEvent("order_declined", { service_type: incomingOrder.serviceType, reason });
+      // A countdown running out isn't a decline the driver chose, so it is
+      // reported as "timeout" and can be filtered out of decline counts.
+      trackEvent("order_declined", {
+        service_type: incomingOrder.serviceType,
+        reason: reason || (options?.timedOut ? "timeout" : "dismissed"),
+      });
     }
     set({ incomingOrder: null });
   },

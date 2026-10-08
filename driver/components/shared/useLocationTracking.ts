@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as Location from "expo-location";
 import { useDriverStore } from "@/store/driverStore";
-import { socketService } from "@/utils/socketService";
+import { LOCATION_HEARTBEAT_MS, msSinceLastLocationSync, syncDriverLocation } from "@/utils/locationSync";
 import { requestTrackingPermissions } from "./locationPermissions";
 import { syncBackgroundTracking } from "./backgroundTracking";
 
@@ -93,21 +93,24 @@ export function useLocationTracking({
     const updateAndBroadcast = (lat: number, lng: number, heading?: number) => {
       updateLocalOnly(lat, lng);
 
-      if (isOnline) {
-        socketService.emit("driver_location_update", {
-          driverId: driverPhone || driverUserId || "driver-123",
-          lat: lat,
-          lng: lng,
-          heading: heading || 0,
-          orderId: currentOrder?.id,
-        });
-      }
+      if (isOnline) syncDriverLocation(lat, lng, heading);
     };
 
     setupTracking();
 
+    // The watcher only fires on movement, so a parked driver still pings now and then.
+    const heartbeat = isOnline
+      ? setInterval(() => {
+          const loc = useDriverStore.getState().driverLocation;
+          if (loc && msSinceLastLocationSync() >= LOCATION_HEARTBEAT_MS) {
+            syncDriverLocation(loc.lat, loc.lng);
+          }
+        }, 15 * 1000)
+      : null;
+
     return () => {
       isMounted = false;
+      if (heartbeat) clearInterval(heartbeat);
       if (watcher.current) {
         watcher.current.remove();
         watcher.current = null;

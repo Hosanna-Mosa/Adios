@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp, staggerListItem } from "@/motion/presets";

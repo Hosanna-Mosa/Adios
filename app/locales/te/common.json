@@ -12,7 +12,8 @@
     "loading": "లోడ్ అవుతోంది...",
     "error": "పొరపాటు",
     "continue": "కొనసాగించండి",
-    "ok": "సరే"
+    "ok": "సరే",
+    "refresh": "రిఫ్రెష్ చేయండి"
   },
   "app": {
     "schedulePill": {
@@ -69,10 +70,11 @@
         "arrivedDelivery": "చేరుకున్నారు",
         "delivered": "పూర్తయింది"
       },
-      "safetyBanner": "సంభాషణను Flavour లోనే ఉంచండి. {{context}} ప్రారంభమయ్యే ముందు మీ పిన్‌ను {{partner}}తో పంచుకోవద్దు.",
+      "safetyBanner": "సంభాషణను Adios లోనే ఉంచండి. {{context}} ప్రారంభమయ్యే ముందు మీ పిన్‌ను {{partner}}తో పంచుకోవద్దు.",
       "contextTask": "పని",
       "contextRide": "రైడ్",
-      "contextOrder": "ఆర్డర్"
+      "contextOrder": "ఆర్డర్",
+      "couldNotConfirmTask": "టాస్క్‌ను నిర్ధారించలేకపోయాం. దయచేసి మళ్లీ ప్రయత్నించండి."
     },
     "taskTypes": {
       "shifting": "షిఫ్టింగ్",
@@ -123,7 +125,7 @@
         },
         "pinSafety": {
           "question": "నా పిన్ షేర్ చేయడం సురక్షితమేనా?",
-          "answer": "మీ వస్తువులు భౌతికంగా మీ చేతికి వచ్చిన తర్వాత, లేదా రైడ్ కోసం మీ రైడర్ చేరుకున్న తర్వాత మాత్రమే దానిని ఇవ్వండి. Flavour నుండి ఎవరూ దానిని కాల్‌లో అడగరు."
+          "answer": "మీ వస్తువులు భౌతికంగా మీ చేతికి వచ్చిన తర్వాత, లేదా రైడ్ కోసం మీ రైడర్ చేరుకున్న తర్వాత మాత్రమే దానిని ఇవ్వండి. Adios నుండి ఎవరూ దానిని కాల్‌లో అడగరు."
         }
       },
       "categories": {
@@ -157,7 +159,7 @@
       "assignTask": "టాస్క్‌ను కేటాయించండి",
       "messagesWithVarWillShowUpHere": "మీ {{value}}తో సందేశాలు ఇక్కడ కనిపిస్తాయి.",
       "messageVar": "{{value}}కి సందేశం…",
-      "flavourSupport": "Flavour సపోర్ట్",
+      "flavourSupport": "Adios సపోర్ట్",
       "case": "కేసు #",
       "yourCases": "మీ కేసులు",
       "loadingYourCases": "మీ కేసులను లోడ్ చేస్తోంది…",
@@ -341,7 +343,7 @@
       "freeDeliverySpecialOffers": "ఉచిత డెలివరీ / ప్రత్యేక ఆఫర్‌లు",
       "goingSomewhere": "ఎక్కడికైనా వెళ్తున్నారా?",
       "pickARideToSeeLive": "మీ ప్రయాణానికి లైవ్ ఛార్జీలు చూడటానికి రైడ్‌ను ఎంచుకోండి.",
-      "alsoOnFlavour": "Flavourలో మరిన్ని సేవలు",
+      "alsoOnFlavour": "Adiosలో మరిన్ని సేవలు",
       "hireAHelper": "సహాయకుడిని నియమించుకోండి",
       "from120Hour": "గంటకు ₹120 నుండి",
       "multistopCourierFrom39": "బహుళ-స్టాప్ కొరియర్ · ₹39 నుండి",
@@ -538,7 +540,7 @@
       "searchInVar": "{{value}}లో శోధించండి",
       "paying": "చెల్లిస్తున్నారు",
       "upiCardsWalletsAndNetBanking": "UPI, కార్డులు, వాలెట్‌లు మరియు నెట్ బ్యాంకింగ్ — తదుపరి దశలో ఎంచుకోండి",
-      "encryptedAndSecureTransactionFlavourNever": "గుప్తీకరించిన మరియు సురక్షితమైన లావాదేవీ. Flavour మీ కార్డు, UPI PIN లేదా బ్యాంక్ వివరాలను ఎప్పుడూ చూడదు లేదా నిల్వ చేయదు.",
+      "encryptedAndSecureTransactionFlavourNever": "గుప్తీకరించిన మరియు సురక్షితమైన లావాదేవీ. Adios మీ కార్డు, UPI PIN లేదా బ్యాంక్ వివరాలను ఎప్పుడూ చూడదు లేదా నిల్వ చేయదు.",
       "address": "చిరునామా",
       "navigateInGoogleMaps": "గూగుల్ మ్యాప్స్‌లో నావిగేట్ చేయండి",
       "offers": "ఆఫర్‌లు",
@@ -806,7 +808,7 @@
       "contactedHelpersHavePassedSoFar": "సంప్రదించిన హెల్పర్‌లు ఇప్పటివరకు తప్పించుకున్నారు — మీ ఆఫర్‌ను పెంచడాన్ని పరిగణించండి.",
       "attractHelpersFaster": "హెల్పర్‌లను వేగంగా ఆకర్షించండి",
       "noSavedPlaces": "సేవ్ చేసిన ప్రదేశాలు లేవు",
-      "saveTheAddressesYouUseOften": "మీరు తరచుగా ఉపయోగించే చిరునామాలను సేవ్ చేయండి — ఇల్లు, ఆఫీసు, మీ తల్లిదండ్రుల ఇల్లు — Flavourలో ప్రతి ప్రవాహం ఒక టాప్ తగ్గుతుంది.",
+      "saveTheAddressesYouUseOften": "మీరు తరచుగా ఉపయోగించే చిరునామాలను సేవ్ చేయండి — ఇల్లు, ఆఫీసు, మీ తల్లిదండ్రుల ఇల్లు — Adiosలో ప్రతి ప్రవాహం ఒక టాప్ తగ్గుతుంది.",
       "addYourFirstAddress": "మీ మొదటి చిరునామాను జోడించండి",
       "whatDoYouNeed": "మీకు ఏమి కావాలి?",
       "suggestedOffer": "సూచించిన ఆఫర్",
@@ -1039,14 +1041,15 @@
       "riderCancelledOrder": "మీ రైడర్ రద్దు చేయాల్సి వచ్చింది, కాబట్టి ఈ ఆర్డర్ రద్దు చేయబడింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది.",
       "cancelledByAdios": "Adios ద్వారా ఆర్డర్ రద్దు చేయబడింది",
       "adiosCancelledOrder": "Adios బృందం ఈ ఆర్డర్‌ను రద్దు చేసింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది. ప్రశ్నలు ఉంటే సపోర్ట్‌ను సంప్రదించండి.",
-      "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు."
+      "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు.",
+      "noRidersAvailableNow": "క్షమించండి, ప్రస్తుతం రైడర్లు ఎవరూ అందుబాటులో లేరు. దయచేసి కొన్ని నిమిషాల తర్వాత మళ్లీ ప్రయత్నించండి."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
       "updateRequired": "అప్‌డేట్ అవసరం",
       "newVersionAvailable": "కొత్త వెర్షన్ అందుబాటులో ఉంది",
-      "thisUpdateChangesHowYourAccount": "ఈ అప్‌డేట్ మీ ఖాతా భద్రత విధానాన్ని మారుస్తుంది. Flavourను ఉపయోగించడం కొనసాగించడానికి ఇది అవసరం.",
-      "updateFlavourToGetTheLatest": "తాజా ఫీచర్లు మరియు మెరుగుదలల కోసం Flavourను అప్‌డేట్ చేయండి.",
+      "thisUpdateChangesHowYourAccount": "ఈ అప్‌డేట్ మీ ఖాతా భద్రత విధానాన్ని మారుస్తుంది. Adiosను ఉపయోగించడం కొనసాగించడానికి ఇది అవసరం.",
+      "updateFlavourToGetTheLatest": "తాజా ఫీచర్లు మరియు మెరుగుదలల కోసం Adiosను అప్‌డేట్ చేయండి.",
       "updateNow": "ఇప్పుడే అప్‌డేట్ చేయండి",
       "noDismissRequiredRelease": "మూసివేయలేరు — తప్పనిసరి అప్‌డేట్",
       "maybeLater": "తర్వాత చూద్దాం"
@@ -1128,11 +1131,6 @@
     },
     "mapPickingIsnapostAvailableOnWeb": "వెబ్‌లో మ్యాప్ ఎంపిక అందుబాటులో లేదు — మొబైల్ యాప్‌ను ఉపయోగించండి.",
     "mapViewIsnapostAvailableOnWeb": "వెబ్‌లో మ్యాప్ వీక్షణ అందుబాటులో లేదు — మొబైల్ యాప్‌ను ఉపయోగించండి.",
-    "GlobalSocketHandler": {
-      "upcomingReservedRide": "రాబోయే రిజర్వ్ చేసిన రైడ్!",
-      "yourReservedRideWithVarStarts": "{{value}}తో మీ రిజర్వ్ చేసిన రైడ్ 15 నిమిషాల్లో ప్రారంభమవుతుంది!",
-      "trackDriver": "డ్రైవర్‌ను ట్రాక్ చేయండి"
-    },
     "OfflineBanner": {
       "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
       "checking": "తనిఖీ చేస్తోంది…",
@@ -1173,8 +1171,8 @@
       "couldntShare": "షేర్ చేయలేకపోయాము",
       "shareSheetDidntOpen": "షేర్ షీట్ తెరవలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
       "thisDish": "ఈ వంటకం",
-      "checkOutItemAtVendor": "Flavour లో {{name}} వద్ద {{item}} చూడండి! {{url}}",
-      "checkOutVendor": "Flavour లో {{name}} చూడండి! {{url}}"
+      "checkOutItemAtVendor": "Adios లో {{name}} వద్ద {{item}} చూడండి! {{url}}",
+      "checkOutVendor": "Adios లో {{name}} చూడండి! {{url}}"
     }
   }
 }

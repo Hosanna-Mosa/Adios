@@ -12,7 +12,7 @@ import { configureNotificationChannels, getPushTokenAsync, installForegroundHand
 import { alertNewOrder, alertScheduledRequest } from "./liveAlerts";
 
 // Order alerts for when the partner isn't looking at the app. Mounted once at
-// the root next to GlobalSocketHandler: it registers this device for the
+// the root next to LiveOrderWatcher: it registers this device for the
 // signed-in outlet's pushes, turns a push received while the app is open into
 // the in-app alert, and opens the order (or scheduled requests) a tapped push
 // is about.

@@ -2,11 +2,11 @@ import React from "react";
 import {
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";

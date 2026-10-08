@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type MapView from "react-native-maps";
 
-import { socketService } from "@/utils/socketService";
+import { LOCATION_FAST_INTERVAL_MS, syncDriverLocation } from "@/utils/locationSync";
 import { calculateBearing, fitMapToCoords, stopCoords, type LatLng } from "../mapFit";
 
 const TOTAL_STEPS = 10;
@@ -41,7 +41,7 @@ export function useGpsSimulator(args: Args) {
   const startGPSSimulator = useCallback(
     (targetLat: number, targetLng: number) => {
       const {
-        currentOrder, driverPhone, pickupStop, deliveryStop,
+        currentOrder, pickupStop, deliveryStop,
         driverLocation, driverHeading, setDriverLocation, setDriverHeading,
         mapRef, onArrived,
       } = args;
@@ -83,12 +83,8 @@ export function useGpsSimulator(args: Args) {
         setSimETA(Math.round(initialDuration * remainRatio));
         setSimSpeed(Math.floor(30 + Math.random() * 15));
 
-        socketService.emit("driver_location_update", {
-          driverId: driverPhone || "driver-123",
-          lat: curLat,
-          lng: curLng,
-          heading: calculatedBearing || driverHeading || 0,
-          orderId: currentOrder.id,
+        syncDriverLocation(curLat, curLng, calculatedBearing || driverHeading || 0, {
+          minIntervalMs: LOCATION_FAST_INTERVAL_MS,
         });
 
         const coords: LatLng[] = [{ latitude: curLat, longitude: curLng }];

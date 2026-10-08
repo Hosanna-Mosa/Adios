@@ -1,4 +1,5 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";

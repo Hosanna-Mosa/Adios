@@ -229,6 +229,7 @@
     "failedToChangePassword": "पासवर्ड बदलने में विफल"
   },
   "common": {
+    "refresh": "रीफ्रेश करें",
     "cancel": "रद्द करें",
     "confirm": "पुष्टि करें",
     "savingEllipsis": "सेव हो रहा है...",
@@ -257,6 +258,8 @@
     "zones": "ज़ोन",
     "payments": "भुगतान",
     "analytics": "एनालिटिक्स",
+    "liveActivity": "लाइव गतिविधि",
+    "itemInsights": "आइटम इनसाइट्स",
     "support": "सपोर्ट",
     "supportCases": "सपोर्ट केस",
     "activeChats": "सक्रिय चैट",

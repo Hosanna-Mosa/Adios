@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";

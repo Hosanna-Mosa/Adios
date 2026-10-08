@@ -43,9 +43,8 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setDriver:
       // on the tab bar the moment it's created.
       setStatus("pending");
       setCurrentTaskPrice(order.customerPrice || order.totalPrice || finalOffer);
-      // The searching step owns the socket subscription and the status poll from
-      // here on (see useHelperTaskSuggestedLow), so they are torn down with the
-      // screen — the listeners attached here were never unsubscribed.
+      // The searching step owns the status poll from here on (see
+      // useHelperTaskSuggestedLow), so it is torn down with the screen.
     } catch (error: any) {
       const described = describePaymentError(error);
       showAlert(described?.title ?? i18n.t("actions.error"), described?.message ?? (error.message || i18n.t("app.delivery.failedToCreateTask")));

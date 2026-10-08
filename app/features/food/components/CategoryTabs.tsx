@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 
 // Moved out of app/restaurant-menu.tsx unchanged. Single-feature for now: promote to
 // components/ui/ or components/shared/ if a second feature needs it.

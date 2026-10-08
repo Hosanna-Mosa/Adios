@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, Platform } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,6 +14,7 @@ import {
 } from "@/features/jobs/components";
 import { ActiveOrderStage } from "@/features/jobs/components/stages";
 import { KeyboardView } from "@/components/ui/KeyboardView";
+import { syncActiveOrder } from "@/store/activeOrderSync";
 
 const { height } = Dimensions.get("window");
 
@@ -28,6 +29,23 @@ export default function ActiveOrderScreen() {
     currentOrder, isRide, isHelper, status,
     mapRef, pickupStop, deliveryStop, driverLocation, driverHeading, handleSOS,
   } = order;
+
+  // Status is polled by ActiveOrderPoller; this pulls it now.
+  const [refreshing, setRefreshing] = useState(false);
+  const mounted = useRef(true);
+  useEffect(() => () => {
+    mounted.current = false;
+  }, []);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await syncActiveOrder();
+    } catch (err) {
+      console.warn("[ActiveOrder] Refresh failed:", err);
+    } finally {
+      if (mounted.current) setRefreshing(false);
+    }
+  }, []);
 
   if (!currentOrder) return null;
 
@@ -52,6 +70,8 @@ export default function ActiveOrderScreen() {
           title={title}
           onBack={() => router.push("/(tabs)")}
           onSOS={handleSOS}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
         />
 
         <ActiveOrderMap

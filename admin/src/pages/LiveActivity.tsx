@@ -1,12 +1,14 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DAY_OPTIONS, WINDOW_OPTIONS, useLiveActivity } from "@/features/activity/hooks/useLiveActivity";
+import { DAY_OPTIONS, ITEM_DAY_OPTIONS, WINDOW_OPTIONS, useLiveActivity } from "@/features/activity/hooks/useLiveActivity";
 import {
   ActiveUsersChart,
   ActivityStatsRow,
   DailyTrendChart,
   RecentEventsTable,
+  TopClickedItemsList,
   TopEventsList,
+  TopOrderedItemsList,
   TopScreensList,
 } from "@/features/activity/components/ActivityPanels";
 
@@ -17,7 +19,7 @@ import {
  * is the live view and Firebase is the long-term one.
  */
 export default function LiveActivity() {
-  const { minutes, setMinutes, days, setDays, live, summary } = useLiveActivity();
+  const { minutes, setMinutes, days, setDays, live, summary, itemDays, setItemDays, topItems } = useLiveActivity();
   const data = live.data;
 
   return (
@@ -66,6 +68,29 @@ export default function LiveActivity() {
             dayOptions={DAY_OPTIONS}
             onDaysChange={setDays}
           />
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold text-foreground">Food items</h2>
+            <Select value={String(itemDays)} onValueChange={(v) => setItemDays(Number(v))}>
+              <SelectTrigger className="w-[130px] h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {ITEM_DAY_OPTIONS.map((d) => (
+                  <SelectItem key={d} value={String(d)}>Last {d} days</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {topItems.isError && (
+            <div className="section-card p-4 text-sm text-destructive">
+              Could not load food item rankings: {(topItems.error as Error)?.message}
+            </div>
+          )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <TopClickedItemsList items={topItems.data?.clicked ?? []} isLoading={topItems.isLoading} />
+            <TopOrderedItemsList items={topItems.data?.ordered ?? []} isLoading={topItems.isLoading} />
+          </div>
         </div>
 
         <RecentEventsTable events={data?.recent ?? []} />

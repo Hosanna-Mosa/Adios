@@ -60,6 +60,8 @@ export default function OrdersScreen() {
         openFilterSheet={openFilterSheet}
         styles={styles}
         tokens={tokens}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
       />
 
       <OrdersScreenBody

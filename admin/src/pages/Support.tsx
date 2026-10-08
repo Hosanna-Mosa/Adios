@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Headphones, UserPlus, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { useSupportTickets } from "@/features/support/hooks/useSupportTickets";
 import { TicketStatusTabs } from "@/features/support/components/TicketStatusTabs";
 import { TicketList } from "@/features/support/components/TicketList";
@@ -18,6 +19,8 @@ export default function Support() {
     ticketsList,
     filteredTickets,
     isLoading,
+    isFetching,
+    refetch,
     selectedTicket,
     setActiveTicketId,
     typedMessage,
@@ -38,7 +41,8 @@ export default function Support() {
             <h1 className="page-header">{t("support.supportResolution")}</h1>
             <p className="page-subtitle">{t("support.manageCustomerQueriesDesc")}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <RefreshButton onRefresh={() => refetch()} isRefreshing={isFetching} label={t("common.refresh")} />
             {isAdmin && (
               <button
                 onClick={() => setIsAddMemberOpen(true)}

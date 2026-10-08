@@ -8,14 +8,13 @@ export function isCustomerChatMessage(data: any): boolean {
 }
 
 /**
- * One stored ChatMessage document as the chat list renders it. `clientId` is the
- * id the sender's socket payload carried, so a history refetch lines up with the
- * live messages already on screen instead of duplicating them.
+ * One stored ChatMessage document as the chat list renders it. `id` (the sender's
+ * clientId) lines up a history refetch with the optimistic messages on screen.
  */
 export function formatStoredChatMessage(m: any): ChatMessage | null {
   if (!m?.text) return null;
   return {
-    id: String(m.clientId || m._id),
+    id: String(m.id || m.clientId || m._id),
     text: String(m.text),
     from: m.role === "driver" ? "driver" : "user",
     time: m.time || "",

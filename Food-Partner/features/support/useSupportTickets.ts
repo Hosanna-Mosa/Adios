@@ -4,9 +4,9 @@ import { queryKeys } from "@/queries/keys";
 import { createSupportTicket, getSupportTickets, resolveTicket, sendTicketMessage } from "@/services/support.service";
 import type { SupportTicket } from "@/types/models";
 
-// The partner's support cases. Replies arrive over the socket (ticket_updated,
-// handled in GlobalSocketHandler); the poll only covers a missed event, like
-// the customer app's 4 s interval but gentler.
+// The partner's support cases. With sockets off, replies arrive by polling:
+// every 8 s while a support screen (the hub or the chat) is open, like the
+// customer app's 4 s interval but gentler. Other readers just use the cache.
 
 export function useSupportTickets(polling = false) {
   const partner = usePartner();
