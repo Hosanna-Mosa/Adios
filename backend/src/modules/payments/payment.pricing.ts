@@ -4,6 +4,7 @@ import { OrdersService } from "../orders/orders.service";
 import { CouponsService } from "../coupons/coupons.service";
 import { resolveCatalog, verifyItems } from "../cart/cart.catalog";
 import { PaymentError } from "./payment.checkout.service";
+import { resolvePackageDelivery } from "../orders/orders.packageDelivery";
 
 // The amount an online payment charges is decided here, never by the app
 // (RAZORPAY_INTEGRATION.md §2 principle 1). The app only says WHAT is being bought; the
@@ -43,6 +44,9 @@ export class OnlinePriceService {
     const isMenuOrder = serviceType === ServiceType.DELIVERY && !!orderData.vendorId && itemLines.length > 0;
 
     if (isMenuOrder) return this.quoteMenuOrder(orderData, itemLines);
+
+    // Bad package delivery details would only fail once the order is placed — after the money is taken.
+    resolvePackageDelivery(serviceType, orderData.packageDelivery);
 
     // Rides, package delivery and helper tasks: the same price createOrder records. A
     // customerPrice is not accepted from an online checkout (it would set the fare).

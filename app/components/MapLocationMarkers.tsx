@@ -34,7 +34,8 @@ export function MapLocationMarkers({ stops, userLocation, driverLocation, driver
   // Eased, so the live marker turns smoothly rather than spinning on every update.
   const heading = useSmoothedHeading((driverLocation as any)?.heading);
   facing.current = riderFacing(heading, facing.current);
-  const driverLook = driverMarkerLook(driverVehicleType || selectedService, { heading, facing: facing.current, rotateWithHeading: true });
+  // The food box only on restaurant / meat-shop orders; rides, helpers and package deliveries get the captain.
+  const driverLook = driverMarkerLook(driverVehicleType || selectedService, { heading, facing: facing.current, rotateWithHeading: true, food: !!outletOrder });
 
   return (
     <>

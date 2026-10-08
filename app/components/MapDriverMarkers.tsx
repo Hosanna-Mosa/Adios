@@ -9,9 +9,11 @@ import { driverMarkerLook } from "@/components/mapBackground.utils";
 interface Props {
   driverMarkers: any[];
   selectedService: string | null;
+  /** A restaurant / meat-shop order: bike riders carry the food box. */
+  food?: boolean;
 }
 
-export function MapDriverMarkers({ driverMarkers, selectedService }: Props) {
+export function MapDriverMarkers({ driverMarkers, selectedService, food }: Props) {
   return (
     <>
               {driverMarkers.map((driver) => {
@@ -34,7 +36,7 @@ export function MapDriverMarkers({ driverMarkers, selectedService }: Props) {
           }
 
           // image prop, not an <Image> child: see vehicleMarkerIcon (Android hardware-bitmap crash).
-          const look = driverMarkerLook(vehicleType, { heading: driver.heading });
+          const look = driverMarkerLook(vehicleType, { heading: driver.heading, food });
           return (
             <Marker
               key={driver.id || driver._id}

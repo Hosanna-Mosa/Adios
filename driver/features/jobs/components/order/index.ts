@@ -16,3 +16,4 @@ export { TripSummary } from "./TripSummary";
 export { QuickUpdateChips, TaskProgressBar, TaskTimerDisplay } from "./HelperTaskPanel";
 export { StopInfoItem } from "./StopInfoItem";
 export { CashCollectionPanel } from "./CashCollectionPanel";
+export { PackageDeliveryBanner } from "./PackageDeliveryBanner";

@@ -15,6 +15,10 @@ const MARKER_CAB = require("@/assets/images/markers/marker_cab.png");
 // The 3D delivery rider seen from above, facing up (north) so the map can turn it
 // to the heading; 48x48 dp, centred. Same palette as the rider sticker below.
 const MARKER_RIDER_TOP = require("@/assets/images/markers/marker_rider_top.png");
+// The same top view with no delivery box: a captain on a bike, for rides, helper tasks
+// and package deliveries. 48x48 dp, centred, facing up. Source:
+// assets/images/markers/source/captain_top.svg, rendered at 1x/2x/3x in a browser.
+const MARKER_CAPTAIN_TOP = require("@/assets/images/markers/marker_captain_top.png");
 
 // Food / meat orders: the outlet as a 3D restaurant and the delivery address as a
 // 3D home (same artwork as the driver app). 168x192 px @3x; both stand on their
@@ -47,18 +51,24 @@ export function rideStopMarker(kind: "pickup" | "drop") {
   return RIDE_STOP_BUBBLES[kind][lang] ?? RIDE_STOP_BUBBLES[kind].en;
 }
 
-// Bike riders on the customer's map. "topview" draws the 3D delivery rider from
-// above, turning with the heading like the other top-down vehicles; "sticker" is
+// Bike riders on the customer's map. "topview" draws them from above, turning with
+// the heading like the other top-down vehicles — the delivery rider with the food box
+// on food orders, the captain without one everywhere else; "sticker" is
 // the same rider from the side, upright and facing the way they travel; "classic"
 // is the old top-down blue scooter. Autos and cabs keep their own icons.
 export const RIDER_MARKER_STYLE: "topview" | "sticker" | "classic" = "topview";
 
-/** Map-marker icon for a vehicle/service name, e.g. "auto", "cab_prime". */
-export const vehicleMarkerIcon = (vehicleType?: string | null) => {
+/**
+ * Map-marker icon for a vehicle/service name, e.g. "auto", "cab_prime". `food` picks the
+ * bike rider with the delivery box (restaurant / meat-shop orders); every other bike —
+ * rides, helper tasks, package deliveries — is the captain without one.
+ */
+export const vehicleMarkerIcon = (vehicleType?: string | null, food = false) => {
   const type = (vehicleType || "bike").toLowerCase();
   if (type.includes("auto") || type.includes("rickshaw")) return MARKER_AUTO;
   if (type.includes("cab") || type.includes("car") || type.includes("prime")) return MARKER_CAB;
-  return RIDER_MARKER_STYLE === "topview" ? MARKER_RIDER_TOP : MARKER_BIKE;
+  if (RIDER_MARKER_STYLE !== "topview") return MARKER_BIKE;
+  return food ? MARKER_RIDER_TOP : MARKER_CAPTAIN_TOP;
 };
 
 // 56x52 dp (168x156 px @3x). The rider stands on the ground under the wheels,
@@ -96,7 +106,13 @@ export function riderFacing(heading: number | null | undefined, previous: RiderF
  */
 export function driverMarkerLook(
   vehicleType: string | null | undefined,
-  opts: { heading?: number | null; facing?: RiderFacing; rotateWithHeading?: boolean } = {},
+  opts: {
+    heading?: number | null;
+    facing?: RiderFacing;
+    rotateWithHeading?: boolean;
+    /** A restaurant / meat-shop order: the bike rider carries the food box. */
+    food?: boolean;
+  } = {},
 ) {
   if (RIDER_MARKER_STYLE === "sticker" && isTwoWheeler(vehicleType)) {
     const facing = opts.facing ?? riderFacing(opts.heading);
@@ -106,7 +122,7 @@ export function driverMarkerLook(
     !!opts.rotateWithHeading ||
     (RIDER_MARKER_STYLE === "topview" && isTwoWheeler(vehicleType) && opts.heading != null);
   return {
-    image: vehicleMarkerIcon(vehicleType),
+    image: vehicleMarkerIcon(vehicleType, opts.food),
     anchor: { x: 0.5, y: 0.5 },
     flat: turn,
     rotation: turn ? Number(opts.heading) || 0 : 0,

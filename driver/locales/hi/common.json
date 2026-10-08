@@ -503,7 +503,23 @@
     "youAreMinAway": "आप {{value}} मिनट दूर हैं",
     "firstToAcceptGetsIt": "पास के ड्राइवरों को भेजा गया — जो पहले स्वीकार करेगा उसे मिलेगा",
     "restaurantNotReadyYet": "रेस्टोरेंट के इस ऑर्डर को तैयार मार्क करने का इंतज़ार है। उसके बाद आप पिकअप कोड डाल सकते हैं।",
-    "completeDelivery": "डिलीवरी पूरी करें"
+    "completeDelivery": "डिलीवरी पूरी करें",
+    "newPackageDeliveryRequest": "नया पैकेज डिलीवरी अनुरोध!",
+    "packageDeliveryAccepted": "पैकेज डिलीवरी स्वीकार की गई",
+    "packageDeliveryInTransit": "पैकेज पहुँचा रहे हैं",
+    "confirmPackageDelivery": "पैकेज डिलीवरी पक्की करें",
+    "packageDeliveryCollectFrom": "पैकेज डिलीवरी · इनसे लें",
+    "packageDeliveryDeliverTo": "पैकेज डिलीवरी · इन्हें दें",
+    "packageDeliveryPaidOnline": "ऑनलाइन भुगतान हो चुका — नकद नहीं लेना है",
+    "packageDeliveryCashAtPickup": "पिकअप पर भेजने वाले से ₹{{amount}} नकद लें",
+    "packageDeliveryCashAtDrop": "ड्रॉप पर पाने वाले से ₹{{amount}} नकद लें",
+    "receiver": "पाने वाला",
+    "packageDeliveryAtPickup": "आप पिकअप पॉइंट पर पहुँच गए हैं। पैकेज लें और ट्रिप शुरू करें — OTP की ज़रूरत नहीं।",
+    "packageDeliveryStartTrip": "पैकेज ले लिया — ट्रिप शुरू करें",
+    "packageDeliveryEnterOtp": "पाने वाले से डिलीवरी OTP दर्ज करें",
+    "packageDeliveryOtpPlaceholder": "4 अंकों का OTP",
+    "packageDeliveryInvalidOtp": "गलत OTP। पाने वाले से वह 4 अंकों का कोड पूछें जो भेजने वाले ने उन्हें भेजा है।",
+    "packageDeliveryComplete": "पैकेज डिलीवरी पूरी करें"
   },
   "onboarding": {
     "sections": {

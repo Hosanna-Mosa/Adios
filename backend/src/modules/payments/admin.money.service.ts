@@ -46,6 +46,10 @@ export class AdminMoneyService {
     return orders.map((o: any) => ({
       orderId: String(o._id),
       serviceType: o.serviceType,
+      // So the admin can label the row: a package delivery is stored as a bike/auto ride,
+      // and a food order is a "delivery" with an outlet.
+      packageDelivery: !!o.packageDelivery,
+      vendor: !!o.vendor,
       customerName: o.user?.name || "Customer",
       customerPhone: o.user?.phone || "",
       amount: o.refundAmount ?? o.totalPrice,

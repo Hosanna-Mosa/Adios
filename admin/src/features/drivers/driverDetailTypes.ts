@@ -33,6 +33,8 @@ export interface DriverProfile {
 export interface DriverOrderItem {
   _id: string;
   serviceType: string;
+  packageDelivery?: unknown;
+  vendor?: unknown;
   totalPrice: number;
   status: string;
   createdAt: string;

@@ -7,6 +7,7 @@ import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import {
   ContactActions,
   OrderStage,
+  PackageDeliveryBanner,
   RoundCommButton,
   StageActionButton,
   StopInfoItem,
@@ -24,7 +25,8 @@ export function RideAcceptedStage() {
   } = useActiveOrderCtx();
 
   return (
-    <OrderStage title={t("jobs.rideAccepted")}>
+    <OrderStage title={currentOrder.packageDelivery ? t("jobs.packageDeliveryAccepted") : t("jobs.rideAccepted")}>
+      <PackageDeliveryBanner order={currentOrder} leg="pickup" />
       <Box style={styles.infoBox}>
         <StopInfoItem
           label={t("jobs.pickupLocation")}

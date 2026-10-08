@@ -1,3 +1,5 @@
+import type { OrderServiceFields } from "@/components/shared/orderService";
+
 /** One delivery-performance bar: completed deliveries in that slot (0 when none). */
 export interface BarDatum {
   time: string;
@@ -12,7 +14,7 @@ export interface ActivityLogItem {
   time?: string | null;
 }
 
-export interface ManifestItem {
+export interface ManifestItem extends OrderServiceFields {
   /** Display id (e.g. "#ORD-1234"). */
   id: string;
   /** The underlying order's _id, used for navigation and cancel. */

@@ -74,9 +74,11 @@ export default function AllServicesScreen() {
       id: "package-delivery",
       name: t("app.delivery.packageDelivery"),
       icon: "package-variant-closed",
-      description: t("app.home.multistopCourierFrom39"),
+      description: t("app.packageDelivery.serviceCardHint"),
       accent: tokens.services.delivery,
-      onPress: () => router.push("/delivery/entry"),
+      // Pickup → drop by bike or auto (app/package-delivery). The older multi-stop courier at
+      // /delivery/entry is still reached from "Reorder" on past delivery orders.
+      onPress: () => router.push("/package-delivery"),
     },
   ];
 

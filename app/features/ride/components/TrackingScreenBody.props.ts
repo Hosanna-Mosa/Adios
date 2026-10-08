@@ -24,6 +24,8 @@ export interface Props {
   helperStatus: any;
   deliveryOtp: any;
   startOtp: any;
+  /** Package delivery: show the delivery OTP for the whole trip, to share with the receiver. */
+  isPackageDelivery?: boolean;
   driverLocation: any;
   radius: any;
   totalPrice: any;

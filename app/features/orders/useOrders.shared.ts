@@ -23,6 +23,7 @@ export const SERVICE_CHIPS: { label: string; labelKey: string; accent: ServiceKe
   { label: "Food", labelKey: "app.serviceMeta.food", accent: "food", keys: ["food"] },
   { label: "Meat", labelKey: "app.serviceMeta.meat", accent: "meat", keys: ["meat"] },
   { label: "Ride", labelKey: "app.serviceMeta.ride", accent: "ride", keys: RIDE_TYPES },
+  { label: "Package delivery", labelKey: "app.serviceMeta.packageDelivery", accent: "delivery", keys: ["packageDelivery"] },
   { label: "Task", labelKey: "app.serviceMeta.task", accent: "task", keys: ["helper"] },
   { label: "Delivery", labelKey: "app.serviceMeta.delivery", accent: "delivery", keys: ["delivery"] },
 ];
@@ -80,6 +81,9 @@ export function toCartItem(line: any) {
 }
 
 export function resolveServiceKey(order: any): string {
+  // A package delivery is stored as a bike/auto ride, but the customer sent a package: it
+  // gets its own key (and filter chip), never "Ride".
+  if (order.packageDelivery) return "packageDelivery";
   if (order.serviceType === "delivery" && order.vendor) {
     // GET /api/v1/orders sends the outlet as { _id, name, image, partnerType }.
     // An older backend sent a bare id, with nothing to tell food from meat, so

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ServiceBadge } from "@/components/shared/ServiceBadge";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Star, GitBranch, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +35,11 @@ const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string):
         <span className="text-sm text-foreground">{o.user?.name || t("orders.unknownUser")}</span>
       </div>
     ),
+  },
+  {
+    key: "service",
+    header: t("service.column"),
+    cell: (o) => <ServiceBadge order={o} />,
   },
   {
     key: "stops",
