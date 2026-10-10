@@ -73,7 +73,8 @@
       "safetyBanner": "बातचीत Flavour में ही रखें. {{context}} शुरू होने से पहले अपना पिन {{partner}} के साथ साझा न करें.",
       "contextTask": "टास्क",
       "contextRide": "राइड",
-      "contextOrder": "ऑर्डर"
+      "contextOrder": "ऑर्डर",
+      "couldNotConfirmTask": "टास्क की पुष्टि नहीं हो सकी। कृपया फिर से कोशिश करें।"
     },
     "taskTypes": {
       "shifting": "शिफ्टिंग",
@@ -196,7 +197,20 @@
       "restaurantPin": "रेस्टोरेंट",
       "deliveryLocationPin": "आपकी डिलीवरी लोकेशन",
       "pickupPin": "पिकअप",
-      "dropPin": "ड्रॉप"
+      "dropPin": "ड्रॉप",
+      "banner": {
+        "riderArrived": "राइडर पहुँच गया है",
+        "helperArrived": "हेल्पर पहुँच गया है",
+        "arrivedAtStore": "स्टोर पर पहुँच गया",
+        "tripInProgress": "यात्रा जारी है",
+        "taskInProgress": "काम जारी है",
+        "outForDelivery": "डिलीवरी के लिए निकला",
+        "arrivedAtDestination": "मंज़िल पर पहुँच गए",
+        "arrivedAtYourLocation": "आपकी लोकेशन पर पहुँच गया",
+        "helperOnTheWay": "हेल्पर रास्ते में है",
+        "riderOnTheWay": "राइडर रास्ते में है",
+        "headingToPickup": "पिकअप की ओर जा रहे हैं"
+      }
     },
     "orderStatusTimeline": {
       "steps": {
@@ -322,7 +336,7 @@
       "pickARideToSeeLive": "अपनी यात्रा के लिए लाइव किराया देखने हेतु राइड चुनें।",
       "alsoOnFlavour": "Flavour पर और भी सेवाएँ",
       "hireAHelper": "एक हेल्पर बुक करें",
-      "from120Hour": "₹120 / घंटे से शुरू",
+      "from80Hour": "₹80 / घंटे से शुरू",
       "multistopCourierFrom39": "मल्टी-स्टॉप कूरियर · ₹39 से शुरू",
       "allServices": "सभी सेवाएँ",
       "searching": "खोज रहे हैं…",
@@ -551,8 +565,6 @@
       "refundInProgress": "₹{{amount}} का रिफ़ंड प्रोसेस हो रहा है · आमतौर पर 5–7 कार्य दिवस",
       "refundBeingArranged": "आपके ₹{{amount}} के रिफ़ंड की व्यवस्था की जा रही है। ज़रूरत होने पर हमारी टीम आपसे संपर्क करेगी।",
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
-      "helperOnTheWay": "हेल्पर रास्ते में है",
-      "matchingAHelper": "हेल्पर खोजा जा रहा है",
       "riderOnTheRoute": "राइडर रास्ते में है",
       "findingYourCaptain": "आपका राइडर खोजा जा रहा है",
       "past": "पिछले",
@@ -597,12 +609,16 @@
       "placedAt": "{{time}} बजे ऑर्डर किया",
       "deliveringTo": "डिलीवरी पता",
       "dropAt": "ड्रॉप",
-      "taskLocation": "काम की जगह"
+      "taskLocation": "काम की जगह",
+      "findingAHelper": "हेल्पर खोजा जा रहा है",
+      "helperAssigned": "हेल्पर असाइन हुआ",
+      "taskInProgress": "काम जारी है",
+      "taskCompleted": "काम पूरा हुआ"
     },
     "helperTask": {
       "title": {
         "compose": "हेल्पर बुक करें",
-        "bidding": "आपका ऑफ़र",
+        "offer": "अपना ऑफ़र तय करें",
         "searching": "हेल्पर खोजा जा रहा है",
         "assigned": "टास्क असाइन हुआ",
         "noHelpersYet": "अभी कोई हेल्पर नहीं"
@@ -765,7 +781,6 @@
       "minutes": "मिनट",
       "taskDescription": "टास्क विवरण",
       "twoPeopleToCarryA3seater": "चौथी मंज़िल से 3-सीटर सोफ़ा और 4 कार्टन नीचे लाने के लिए दो लोग चाहिए. रात 8 बजे के बाद लिफ़्ट नहीं है.",
-      "helpersSeeThisBeforeTheyBid": "हेल्पर बोली लगाने से पहले यह देखते हैं. सीढ़ियां, वज़न और भारी चीज़ों का ज़िक्र करें.",
       "whereTheWorkStarts": "काम कहाँ से शुरू होता है",
       "pickupLocation": "पिकअप लोकेशन",
       "whereItEnds": "यह कहाँ खत्म होता है",
@@ -824,7 +839,6 @@
       "helpersNotified": "हेल्पर को सूचित किया गया",
       "waitingForTheFirstAcceptance": "पहली स्वीकृति का इंतज़ार",
       "currentOffer": "मौजूदा ऑफ़र",
-      "mAbout": "मि · लगभग ₹",
       "20Steps": "₹20 के चरण",
       "findingAHelper": "हेल्पर खोजा जा रहा है",
       "dragToAdjust": "समायोजित करने के लिए खींचें",
@@ -833,10 +847,7 @@
       "near": "पास",
       "recent": "हाल के",
       "save": "सेव करें",
-      "yourOfferIsVisibleToNearby": "हेल्पर खोजें दबाते ही आपका ऑफ़र पास के हेल्पर को दिखेगा.",
       "findAHelper": "हेल्पर खोजें · ₹",
-      "outOfRange": "सीमा से बाहर",
-      "thisLocationIsOutsideYourSelected": "यह लोकेशन आपके चुने गए {{value}}किमी दायरे से बाहर है.",
       "deleteAddress": "पता हटाएं",
       "areYouSureRemoveAddress": "क्या आप वाकई इस पते को हटाना चाहते हैं?",
       "deleteWord": "हटाएं",
@@ -853,7 +864,24 @@
       "offeredToHelpersSomePassed_one": "हमने इसे पास के {{count}} हेल्पर को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
       "offeredToHelpersSomePassed_other": "हमने इसे पास के {{count}} हेल्पर्स को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
       "nobodyOnShiftNearYou": "अभी आपके पास कोई ड्यूटी पर नहीं है। ऑफ़र बढ़ाने या थोड़ी देर में फिर कोशिश करने से आमतौर पर मदद मिलती है।",
-      "raising": "बढ़ा रहे हैं…"
+      "raising": "बढ़ा रहे हैं…",
+      "couldNotGetPrice": "इस टास्क की कीमत नहीं मिल सकी। जगहें जाँचें और फिर से कोशिश करें।",
+      "priceNotReady": "कीमत अभी तैयार नहीं है",
+      "calculatingPrice": "कीमत निकाली जा रही है…",
+      "estimatedPrice": "अनुमानित कीमत",
+      "couldNotCancelTask": "टास्क रद्द नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "cancelThisRequest": "यह अनुरोध रद्द करें?",
+      "cancelThisRequestHint": "आपका टास्क अभी चालू है। इसे चलने दें और मेरे ऑर्डर से वापस खोलें, या अभी रद्द करें।",
+      "keepIt": "रहने दें",
+      "cancelRequest": "अनुरोध रद्द करें",
+      "couldNotLoadTask": "यह टास्क लोड नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "offerGoesToHelpersOneAtATime": "आपका टास्क इसी कीमत पर पास के हेल्पर्स को एक-एक करके भेजा जाता है।",
+      "helpersSeeThisBeforeTheyAccept": "हेल्पर स्वीकार करने से पहले इसे पढ़ते हैं। सीढ़ियाँ, वज़न और कोई भी भारी सामान बताएँ।",
+      "offerRange": "आप ₹{{min}} – ₹{{max}} तक का ऑफ़र दे सकते हैं",
+      "yourOffer": "आपका ऑफ़र",
+      "offerForDuration": "{{hours}} घं {{minutes}} मि के लिए · लगभग ₹{{perHour}}/घंटा",
+      "recommendedPrice": "सुझाई गई कीमत · ₹{{amount}}",
+      "taskCancelsAutomatically": "अगर अगले कुछ मिनटों में कोई इसे नहीं लेता, तो हम टास्क अपने-आप रद्द कर देंगे।"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -1024,7 +1052,9 @@
       "riderCancelledOrder": "आपके राइडर को रद्द करना पड़ा, इसलिए यह ऑर्डर रद्द कर दिया गया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा।",
       "cancelledByAdios": "Adios द्वारा ऑर्डर रद्द किया गया",
       "adiosCancelledOrder": "Adios टीम ने यह ऑर्डर रद्द कर दिया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा। कोई सवाल हो तो सपोर्ट से संपर्क करें।",
-      "youCancelledThisOrder": "आपने यह ऑर्डर रद्द किया।"
+      "youCancelledThisOrder": "आपने यह ऑर्डर रद्द किया।",
+      "noHelperAvailable": "कोई हेल्पर उपलब्ध नहीं था",
+      "noHelperWasAvailableCancelled": "आपके टास्क के लिए कोई हेल्पर उपलब्ध नहीं था, इसलिए हमने इसे रद्द कर दिया है।"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -1097,7 +1127,9 @@
       "cashHint": "ड्राइवर को भुगतान करें",
       "online": "ऑनलाइन",
       "onlineHint": "UPI, कार्ड, नेटबैंकिंग",
-      "paySecurely": "सुरक्षित रूप से भुगतान करें"
+      "paySecurely": "सुरक्षित रूप से भुगतान करें",
+      "topupRefundedTitle": "भुगतान वापस किया जा रहा है",
+      "topupRefunded": "आपका टास्क पहले ही किसी ने ले लिया है, इसलिए यह भुगतान वापस किया जा रहा है।"
     },
     "personaldetails": {
       "couldntSave": "सेव नहीं हो सका",

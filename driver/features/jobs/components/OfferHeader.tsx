@@ -16,12 +16,15 @@ export function OfferHeader({
   isReserved,
   scheduledFor,
   isHelper,
+  bookedHoursLabel,
 }: {
   title: string;
   earnings: React.ReactNode;
   isReserved?: boolean;
   scheduledFor: string;
   isHelper: boolean;
+  /** Helper offers: "2 hrs", from the booked hours. */
+  bookedHoursLabel?: string | null;
 }) {
   const { t } = useTranslation();
   return (
@@ -33,7 +36,13 @@ export function OfferHeader({
             {t("jobs.scheduledColon", { value: scheduledFor, defaultValue: "Scheduled: {{value}}" })}
           </AppText>
         ) : (
-          isHelper && <AppText style={styles.subtitle}>{t("jobs.hoursBookTaskSpecialist")}</AppText>
+          isHelper && (
+            <AppText style={styles.subtitle}>
+              {bookedHoursLabel
+                ? t("jobs.helperTaskBookedFor", { value: bookedHoursLabel })
+                : t("jobs.hoursBookTaskSpecialist")}
+            </AppText>
+          )
         )}
       </Box>
       <AppText style={styles.earnings}>₹{earnings}</AppText>

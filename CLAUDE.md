@@ -26,7 +26,7 @@ npm run dev     # nodemon + ts-node, watches src/, entry: src/index.ts
 npm run build    # rimraf dist && tsc
 npm start        # node dist/index.js (run build first)
 ```
-`npm run lint` runs eslint (`eslint.config.js`, plain Node/TS config — no test suite yet, `npm test` just exits with an error). Needs MongoDB + Redis running locally, and a `.env` populated from `.env.example` (PORT, DATABASE_URL, JWT_SECRET, Google Maps, Razorpay, Cloudinary, Surepass, SMTP, DigiLocker, Gemini keys — note the code reads `DATABASE_URL`, not `MONGODB_URI`, despite older docs). On boot the server calls `seedDatabase()` before mounting routes.
+`npm run lint` runs eslint (`eslint.config.js`, plain Node/TS config). `npm test` runs the small `node:test` suite (helper-task pricing and status rules, `*.test.ts` listed in the script) through ts-node — no database needed. Needs MongoDB + Redis running locally, and a `.env` populated from `.env.example` (PORT, DATABASE_URL, JWT_SECRET, Google Maps, Razorpay, Cloudinary, Surepass, SMTP, DigiLocker, Gemini keys — note the code reads `DATABASE_URL`, not `MONGODB_URI`, despite older docs). On boot the server calls `seedDatabase()` before mounting routes.
 
 ### admin (port 8080)
 ```
@@ -96,6 +96,7 @@ Modules: `auth, users, drivers, orders, admin, places, routing, payments, vendor
 Cross-cutting pieces:
 - `backend/src/database/models/` — Mongoose models (User, Driver, Order, Vendor, FoodItem, MeatItem/MeatCenter, Zone, Coupon, Review, SupportTicket, Notification, etc.)
 - `backend/src/services/dispatch.manager.ts` + `queue.service.ts` (BullMQ) — driver matching/dispatch logic; this is the most stateful, complex part of the backend
+- Helper tasks (`serviceType: "helper"`): fares come from `modules/pricing/helper.pricing.ts` (rates in `SystemConfig.global_settings.value.helperRates`, admin → Helper pricing; the app shows `GET /orders/helper-quote`), and the status path, start OTP / completion PIN rules and the hiding of those codes from the helper live in `modules/orders/helper.flow.ts`. Online price raises are separate Razorpay `topup` payments (`POST /payments/create-topup`), refunded with the order. Searches nobody takes are cancelled by the expiry sweep started in `index.ts`.
 - `backend/src/sockets/socket.manager.ts` — Socket.IO setup for live order/driver tracking and chat
 - `backend/src/middleware/auth.middleware.ts` — JWT auth (`authenticateToken`) and role gating (`authorizeRole([...])`); tokens carry `{ userId, role }` (also accepts `id` as an alias for `userId`)
 - `backend/src/services/invoice.service.ts` + `puppeteer-core` — server-side PDF invoice generation from the `compiled_*_invoice.html` templates at the backend root

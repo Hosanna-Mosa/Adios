@@ -4,7 +4,7 @@ import type { AuthRequest } from "./auth.middleware";
 // Brute-force / OTP-spam protection for login and credential-recovery endpoints.
 export const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: process.env.NODE_ENV === "production" ? 10 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many attempts, please try again later" },

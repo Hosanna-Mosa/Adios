@@ -31,6 +31,22 @@ export const createPaymentOrder = <T = CreatePaymentOrderResponse>(amount: numbe
     }),
   });
 
+/**
+ * Starts a checkout for raising the price of a helper task that was paid online: the
+ * customer pays only the difference. Same response as createPaymentOrder, settled by
+ * /payments/verify the same way.
+ */
+export const createTopupPayment = <T = CreatePaymentOrderResponse>(orderId: string, amount: number) =>
+  customFetch<T>("/payments/create-topup", {
+    method: "POST",
+    body: JSON.stringify({
+      orderId,
+      amount,
+      returnUrl: Linking.createURL("payment-result"),
+      language: i18n.language,
+    }),
+  });
+
 /** `body` is what RazorpayIntegration.open resolved with; the server re-checks it with Razorpay. */
 export const verifyPayment = <T = any>(body: unknown) =>
   customFetch<T>("/payments/verify", { method: "POST", body: JSON.stringify(body) });

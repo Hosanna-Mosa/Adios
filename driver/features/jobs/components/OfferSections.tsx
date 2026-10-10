@@ -65,6 +65,21 @@ export function OfferRoute({ stops }: { stops?: any[] }) {
   );
 }
 
+/** Helper offers: what the customer wants done, in their words. */
+export function OfferTask({ description }: { description?: string | null }) {
+  const { t } = useTranslation();
+  return (
+    <Box style={styles.infoSection}>
+      <AppText style={styles.sectionTitle}>{t("jobs.taskDetails")}</AppText>
+      <Box style={styles.itemsRestaurantBlock}>
+        <AppText style={styles.itemRowText}>
+          {description?.trim() || t("jobs.noTaskDescription")}
+        </AppText>
+      </Box>
+    </Box>
+  );
+}
+
 /** What the driver collects from the restaurant. */
 export function OfferItems({
   vendorName,

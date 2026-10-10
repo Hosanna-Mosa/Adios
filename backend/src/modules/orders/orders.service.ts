@@ -26,6 +26,9 @@ import * as foodDispatch from "../../services/foodDispatch.service";
 import { driverPaymentInfo } from "./orders.payment";
 import { resolvePackageDelivery } from "./orders.packageDelivery";
 import { getOutletOrderingState } from "../../utils/outletOrderingState";
+import { clampHelperHours, haversineKm, helperStopsDistanceKm } from "../pricing/helper.pricing";
+import { assertHelperTransition, helperPushText, isHelperDone, isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
+import { DriverStatus } from "../../database/models/Driver";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -102,22 +105,27 @@ export class OrdersService {
     let totalPrice: number;
     let priceBreakdown: any;
 
-    if (metadata?.customerPrice && Number(metadata.customerPrice) > 0) {
-      totalPrice = Math.round(Number(metadata.customerPrice));
+    if (effectiveType === ServiceType.HELPER) {
+      // The customer names their offer, but only within the range the server quotes for
+      // these hours and this distance (see helper.pricing.ts). No offer: the quoted fare.
+      const quote = await this.pricingService.quoteHelper({
+        hours: metadata?.duration,
+        distanceKm: helperStopsDistanceKm(stopsData),
+        surgeMultiplier,
+      });
+      const offer = Math.round(Number(totals?.total) || 0);
+      totalPrice = offer > 0 ? offer : quote.total;
+      if (totalPrice < quote.minOffer) {
+        throw new ValidationError(`The lowest offer for this task is ₹${quote.minOffer}.`);
+      }
+      if (totalPrice > quote.maxOffer) {
+        throw new ValidationError(`The highest offer for this task is ₹${quote.maxOffer}.`);
+      }
       priceBreakdown = {
-        baseFare: totalPrice,
-        distanceFare: 0,
-        timeFare: 0,
-        surgeMultiplier: 1,
-        total: totalPrice,
-      };
-    } else if (effectiveType === ServiceType.HELPER && totals?.total && Number(totals.total) > 0) {
-      totalPrice = Math.round(Number(totals.total));
-      priceBreakdown = {
-        baseFare: totalPrice,
-        distanceFare: 0,
-        timeFare: 0,
-        surgeMultiplier: 1,
+        baseFare: quote.baseFare,
+        distanceFare: quote.distanceFare,
+        timeFare: quote.timeFare,
+        surgeMultiplier,
         total: totalPrice,
       };
     } else if (isRide) {
@@ -218,11 +226,17 @@ export class OrdersService {
     const user = await User.findById(userId);
     if (!user) throw new Error("User not found");
 
+    // A helper task's booked hours set its price; stored clamped to what can be booked.
+    if (serviceType === ServiceType.HELPER) {
+      duration = clampHelperHours(duration, await this.pricingService.getHelperRates());
+    }
+
     const {
       startPos, optimizationResult, effectiveType, isRide, surgeMultiplier,
       couponDiscount, appliedCouponCode, appliedCouponId, totalPrice, priceBreakdown,
-    } = await this.priceOrder(stopsData, serviceType, vendorId, totals, metadata);
+    } = await this.priceOrder(stopsData, serviceType, vendorId, totals, { ...metadata, duration });
     const packageDelivery = resolvePackageDelivery(effectiveType, metadata?.packageDelivery);
+
 
     // Scheduled orders. `scheduledFor` is the contract field; scheduledDelivery.requestedAt is
     // the pre-existing transport (payments/verify already forwards it) and is honoured too.
@@ -337,7 +351,8 @@ export class OrdersService {
       stops: orderStops,
       radius,
       duration,
-      customerPrice: metadata?.customerPrice ? Math.round(Number(metadata.customerPrice)) : undefined,
+      // A helper task's price is the customer's offer; raising it moves both.
+      customerPrice: effectiveType === ServiceType.HELPER ? totalPrice : undefined,
       bookingFor: metadata?.bookingFor,
       packageDelivery,
       scheduledDelivery: isScheduledOrder
@@ -582,76 +597,15 @@ export class OrdersService {
       console.log("============================================================\n");
 
       // 3. Emit real-time WebSocket events specifically to the matched/filtered drivers
-      const orderPayload = {
-        id: savedOrder._id,
-        serviceType: effectiveType,
+           const orderPayload = this.buildDriverOfferPayload(savedOrder, user, {
         distance: `${optimizationResult.totalDistance} km`,
         duration: duration ? `${duration} hrs` : `${optimizationResult.estimatedTime} min`,
-        radius: radius,
-        earnings: Math.round(savedOrder.totalPrice * 0.8),
-        customerPrice: savedOrder.customerPrice,
-        // What the driver must know before accepting: prepaid online, or cash to collect.
-        ...this.driverPaymentInfo(savedOrder),
-        bookingFor: savedOrder.bookingFor,
-        // Who hands over and receives the package, and where its cash fare is collected.
-        packageDelivery: savedOrder.packageDelivery,
-        scheduledDelivery: savedOrder.scheduledDelivery,
-        customerName: user.name || "Customer",
-        customerPhone: user.phone || "N/A",
         vendorName,
         vendorPhone,
-        status: "pending",
-        timestamp: new Date(),
-        restaurantPickupCode: savedOrder.restaurantPickupCode,
-        isReserved: savedOrder.isReserved,
-        reservedAt: savedOrder.reservedAt,
-        stops: savedOrder.stops.map(s => ({
-          id: (s as any)._id,
-          type: s.type.toLowerCase(),
-          locationName: s.address?.split(',')[0],
-          address: s.address,
-          lat: s.location.coordinates[1],
-          lng: s.location.coordinates[0],
-          items: s.items,
-        }))
-      };
-
-      // Calculate exact distance to pickup and sort drivers nearest-first
-      const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-        const R = 6371000;
-        const dLat = ((lat2 - lat1) * Math.PI) / 180;
-        const dLon = ((lon2 - lon1) * Math.PI) / 180;
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos((lat1 * Math.PI) / 180) *
-            Math.cos((lat2 * Math.PI) / 180) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-      };
-
-      const candidatesWithDistance = driversToNotify.map((d: any) => {
-        let dist = 0;
-        const coords = d.currentLocation?.coordinates;
-        if (coords && coords.length >= 2) {
-          dist = calculateDistance(startPos.latitude, startPos.longitude, coords[1], coords[0]);
-        }
-        return { driver: d, distanceMeters: dist };
       });
 
-      // Sort nearest first (ascending distance)
-      candidatesWithDistance.sort((a, b) => a.distanceMeters - b.distanceMeters);
 
-      const sortedCandidateInfos = candidatesWithDistance
-        .filter((item) => item.driver?.user?._id)
-        .map((item) => ({
-          driverId: item.driver._id.toString(),
-          driverUserId: item.driver.user._id.toString(),
-          distanceMeters: item.distanceMeters,
-          driverName: (item.driver.user as any)?.name,
-          driverPhone: (item.driver.user as any)?.phone,
-        }));
+      const sortedCandidateInfos = this.sortCandidatesNearestFirst(driversToNotify, startPos.latitude, startPos.longitude);
 
       console.log(`[SEQUENTIAL DISPATCH] Sorted ${sortedCandidateInfos.length} candidate drivers by distance for order ${savedOrder._id}`);
 
@@ -676,6 +630,75 @@ export class OrdersService {
     }
 
     return result;
+  }
+
+  /**
+   * What a driver is offered (the `new_order` socket event), for a new order and for a
+   * re-dispatch after a price raise. A helper task carries its description and booked hours,
+   * and none of the customer's codes.
+   */
+  private buildDriverOfferPayload(
+    order: any,
+    user: any,
+    extra: { distance: string; duration: string; vendorName?: string; vendorPhone?: string },
+  ) {
+    const helper = isHelperOrder(order);
+    const price = order.customerPrice || order.totalPrice;
+    return {
+      id: order._id,
+      serviceType: order.serviceType,
+      distance: extra.distance,
+      duration: extra.duration,
+      radius: order.radius,
+      earnings: Math.round(price * 0.8),
+      customerPrice: order.customerPrice,
+      // What the driver must know before accepting: prepaid online, or cash to collect.
+      ...this.driverPaymentInfo(order),
+      bookingFor: order.bookingFor,
+      scheduledDelivery: order.scheduledDelivery,
+      customerName: user?.name || "Customer",
+      customerPhone: user?.phone || "N/A",
+      vendorName: extra.vendorName ?? "Restaurant",
+      vendorPhone: extra.vendorPhone ?? "",
+      status: "pending",
+      timestamp: new Date(),
+      ...(helper
+        ? {
+            bookedHours: order.duration,
+            taskDescription: order.stops?.[0]?.items?.instructions || "",
+          }
+        : { restaurantPickupCode: order.restaurantPickupCode }),
+      isReserved: order.isReserved,
+      reservedAt: order.reservedAt,
+      stops: order.stops.map((s: any) => ({
+        id: s._id,
+        type: s.type.toLowerCase(),
+        locationName: s.address?.split(',')[0],
+        address: s.address,
+        lat: s.location.coordinates[1],
+        lng: s.location.coordinates[0],
+        items: s.items,
+        instructions: s.items?.instructions,
+      })),
+    };
+  }
+
+  /** Candidate drivers for the sequential dispatcher, nearest to (lat, lng) first. */
+  private sortCandidatesNearestFirst(drivers: any[], lat: number, lng: number) {
+    return drivers
+      .filter((d: any) => d?.user?._id)
+      .map((d: any) => {
+        const coords = d.currentLocation?.coordinates;
+        const distanceMeters = coords && coords.length >= 2 ? haversineKm(lat, lng, coords[1], coords[0]) * 1000 : 0;
+        return {
+          driverId: d._id.toString(),
+          driverUserId: d.user._id.toString(),
+          distanceMeters,
+          driverName: (d.user as any)?.name,
+          driverPhone: (d.user as any)?.phone,
+        };
+      })
+      .sort((a, b) => a.distanceMeters - b.distanceMeters);
   }
 
   private emitNewOrderToVendor(savedOrder: any, user: any, effectiveType: ServiceType) {
@@ -1201,6 +1224,10 @@ export class OrdersService {
    */
   private async refundIfPaidOnline(orderId: string, reason: string) {
     try {
+      // A helper task's online price raises were separate payments; they go back too.
+      await this.refundService.refundOrderTopups(orderId, reason).catch((error) =>
+        console.error(`[orders.service] ALERT top-up refunds for order ${orderId} threw:`, error),
+      );
       return await this.refundService.refundCancelledOrder(orderId, reason);
     } catch (error) {
       console.error(`[orders.service] ALERT refund attempt for order ${orderId} threw:`, error);
@@ -1333,7 +1360,7 @@ export class OrdersService {
           const candidateUserIds = session.candidates.map((c: any) => c.driverUserId);
           const onlineCount = await Driver.countDocuments({
             user: { $in: candidateUserIds },
-            status: "online",
+            status: DriverStatus.ONLINE,
             isAvailable: true
           });
           order.totalCandidatesCount = onlineCount;
@@ -1371,180 +1398,162 @@ export class OrdersService {
     if (order.user.toString() !== userId) {
       throw new Error("Unauthorized to modify this order");
     }
+    this.assertPriceCanRise(order);
+    // Money already taken online: the extra is paid through POST /payments/create-topup, which
+    // applies it here (applyPriceIncrease) once Razorpay confirms it.
+    if (order.paymentMethod === "online" && order.paymentStatus === "paid") {
+      throw new ConflictError("Pay the extra amount online to raise the price of this task.", "TOPUP_REQUIRED");
+    }
+    await this.assertRaiseWithinRange(order, amount);
+    return this.applyPriceIncrease(order._id.toString(), amount);
+  }
 
+  /** Only a task still looking for someone can have its price raised. */
+  assertPriceCanRise(order: any) {
     if (order.status !== OrderStatus.SEARCHING_DRIVER && order.status !== OrderStatus.CREATED) {
-      throw new Error("Cannot increase price for a non-pending order");
+      throw new ConflictError("The price can only be raised while we're still looking for someone.");
     }
     // Re-dispatching below is the sequential dispatcher's; it would hijack a food order's search.
     if (order.dispatchMode === "broadcast") {
       throw new ValidationError("The price of a food order can't be raised.");
     }
+  }
 
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const currentPrice = order.customerPrice || order.totalPrice;
-      const newPrice = currentPrice + amount;
-
-      order.customerPrice = newPrice;
-      order.totalPrice = newPrice;
-      
-      if (order.priceBreakdown) {
-        const bd = order.priceBreakdown as any;
-        bd.baseFare = (bd.baseFare || bd.total) + amount;
-        bd.total = newPrice;
-        order.priceBreakdown = bd;
-      }
-
-      await order.save({ session });
-      await session.commitTransaction();
-
-      await order.populate("user");
-      await order.populate("vendor");
-
-      const vendor = order.vendor as any;
-      const user = order.user as any;
-
-      // Emit to drivers so they see the new price popup again
-      const socketManager = SocketManager.getInstance();
-      if (socketManager) {
-        const payload = {
-          id: order._id,
-          serviceType: order.serviceType,
-          distance: "Updated Price",
-          duration: "ASAP",
-          radius: 5000,
-          earnings: Math.round(newPrice * 0.8),
-          customerPrice: newPrice,
-          ...this.driverPaymentInfo(order),
-          bookingFor: order.bookingFor,
-          packageDelivery: order.packageDelivery,
-          scheduledDelivery: order.scheduledDelivery,
-          customerName: user?.name || "Customer",
-          customerPhone: user?.phone || "N/A",
-          vendorName: vendor?.name || "Restaurant",
-          vendorPhone: vendor?.phone || "",
-          status: "pending",
-          timestamp: new Date(),
-          restaurantPickupCode: (order as any).restaurantPickupCode,
-          isReserved: order.isReserved,
-          reservedAt: order.reservedAt,
-          stops: order.stops.map((s: any) => ({
-            id: s._id,
-            type: s.type.toLowerCase(),
-            locationName: s.address?.split(',')[0],
-            address: s.address,
-            lat: s.location.coordinates[1],
-            lng: s.location.coordinates[0],
-            items: s.items,
-          }))
-        };
-        // Restart the sequential cascade at the new price rather than broadcasting
-        // to every driver. A blanket broadcast bypassed the dispatch session, so two
-        // drivers could be looking at the same task, and the cascade carried on
-        // offering the OLD price behind it. Starting a fresh session also gives
-        // drivers who passed at the lower price another look, which is the point of
-        // raising it.
-        (async () => {
-          try {
-            const { DriverService } = require("../drivers/drivers.service");
-            const driversService = new DriverService();
-            const [lng, lat] = order.stops[0].location.coordinates;
-
-            let candidates = await driversService.getNearbyDrivers(lat, lng, undefined, order.serviceType, true);
-            if (candidates.length === 0) {
-              const fallbackQuery: any = { status: "ONLINE", isAvailable: true };
-              // Mapped, not raw — see mapServiceTypeToDriverVehicleType's comment:
-              // Driver.vehicleType has no "cab"/"cab_prime" value.
-              const fallbackVehicleType = mapServiceTypeToDriverVehicleType(order.serviceType);
-              if (fallbackVehicleType) {
-                fallbackQuery.vehicleType = fallbackVehicleType;
-              }
-              candidates = await Driver.find(fallbackQuery).populate("user");
-              // Same staleness rule as everywhere else this pattern appears — see
-              // filterDriversWithLiveLocation's comment in drivers.service.ts.
-              candidates = driversService.filterDriversWithLiveLocation(candidates, "increasePrice fallback");
-              // Same for the service-toggle check — see driverAcceptsServiceType's comment.
-              candidates = candidates.filter((d: any) => driverAcceptsServiceType(d.activeServices, order.serviceType));
-            }
-
-            const sorted = candidates
-              .filter((d: any) => d?.user?._id)
-              .map((d: any) => ({
-                driverId: d._id.toString(),
-                driverUserId: d.user._id.toString(),
-                distanceMeters: 0,
-                driverName: d.user?.name,
-                driverPhone: d.user?.phone,
-              }));
-
-            const { dispatchManager } = require("../../services/dispatch.manager");
-            await dispatchManager.startDispatch(order._id.toString(), sorted, {
-              ...payload,
-              customerUserId: (user?._id || order.user)?.toString(),
-            });
-          } catch (err) {
-            console.error("[orders.increasePrice] Failed to re-dispatch at the new price:", err);
-          }
-        })();
-      }
-
-      // Send push notifications to notify them of the price bump
-      (async () => {
-        try {
-          const { DriverService } = require("../drivers/drivers.service");
-          const driversService = new DriverService();
-          const startPos = order.stops[0].location.coordinates; // [lng, lat]
-          const nearbyDrivers = await driversService.getNearbyDrivers(
-            startPos[1], // lat
-            startPos[0], // lng
-            5000,
-            order.serviceType,
-            true
-          );
-
-          let driversToNotify = [...nearbyDrivers];
-          if (driversToNotify.length === 0) {
-            driversToNotify = await Driver.find({ status: "online", activeServices: order.serviceType }).populate("user");
-          }
-
-          const notificationService = NotificationService.getInstance();
-          for (const d of driversToNotify) {
-            if (d.user && (d.user as any).expoPushToken) {
-              await notificationService.sendPushNotification(
-                (d.user as any).expoPushToken,
-                "Task Price Increased! 💰",
-                `Customer added a tip! New task price: ₹${newPrice}`,
-                {
-                  type: "new_order",
-                  orderId: order._id.toString(),
-                  deepLink: { screen: "/(tabs)", params: { orderId: order._id.toString() } },
-                }
-              );
-            }
-          }
-        } catch (err) {
-          console.error("Error sending push notifications for price increase:", err);
-        }
-      })();
-
-      return order;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+  /** A helper task's raised price must stay under the quote's ceiling. */
+  async assertRaiseWithinRange(order: any, amount: number) {
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 1000) {
+      throw new ValidationError("Invalid amount to increase");
     }
+    if (!isHelperOrder(order)) return;
+    const quote = await this.pricingService.quoteHelper({
+      hours: order.duration,
+      distanceKm: helperStopsDistanceKm(order.stops),
+      surgeMultiplier: order.priceBreakdown?.surgeMultiplier,
+    });
+    const current = order.customerPrice || order.totalPrice;
+    if (current + amount > quote.maxOffer) {
+      throw new ValidationError(`The highest offer for this task is ₹${quote.maxOffer}.`);
+    }
+  }
+
+  /**
+   * Raises the price and starts a fresh search round at it: everyone nearby — including the
+   * helpers who passed at the lower price — is offered it again, nearest first. Used by a
+   * cash raise and by a paid online top-up. Returns null when the order can no longer be
+   * raised (it was taken or cancelled meanwhile), so a top-up can be refunded.
+   */
+  async applyPriceIncrease(orderId: string, amount: number, opts: { topupPaymentId?: any } = {}) {
+    const raise = Math.round(amount);
+    // Atomic, so a raise that races an accept or a cancel doesn't land on a taken order.
+    const order = await Order.findOneAndUpdate(
+      {
+        ...this.getOrderQuery(orderId),
+        status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.CREATED] },
+        dispatchMode: { $ne: "broadcast" },
+        // A top-up is applied once, however many times its payment is settled.
+        ...(opts.topupPaymentId ? { topupPayments: { $ne: opts.topupPaymentId } } : {}),
+      },
+      [
+        {
+          $set: {
+            customerPrice: { $add: [{ $ifNull: ["$customerPrice", "$totalPrice"] }, raise] },
+            totalPrice: { $add: [{ $ifNull: ["$customerPrice", "$totalPrice"] }, raise] },
+            "priceBreakdown.total": { $add: [{ $ifNull: ["$customerPrice", "$totalPrice"] }, raise] },
+            // A new search round: its own passes, its own candidate count, no expiry yet.
+            declineReasons: [],
+            searchExhaustedAt: null,
+            ...(opts.topupPaymentId
+              ? { topupPayments: { $concatArrays: [{ $ifNull: ["$topupPayments", []] }, [opts.topupPaymentId]] } }
+              : {}),
+          },
+        },
+      ],
+      { new: true, updatePipeline: true },
+    ).populate("user").populate("vendor");
+    if (!order) return null;
+
+    const newPrice = order.customerPrice || order.totalPrice;
+    const user = order.user as any;
+    const vendor = order.vendor as any;
+
+    if (order.status === OrderStatus.SEARCHING_DRIVER) {
+      // Restart the sequential cascade at the new price rather than broadcasting to every
+      // driver: a blanket broadcast bypassed the dispatch session, so two drivers could be
+      // looking at the same task while the cascade carried on offering the OLD price.
+      this.redispatch(order, user, vendor).catch((err) =>
+        console.error("[orders.increasePrice] Failed to re-dispatch at the new price:", err),
+      );
+    }
+
+    SocketManager.getInstance()?.emitToOrderRoom(order._id.toString(), "order_price_update", {
+      orderId: order._id.toString(),
+      price: newPrice,
+    });
+
+    return order;
+  }
+
+  /** A new sequential search for an order, with the real distances and the order's own details. */
+  private async redispatch(order: any, user: any, vendor: any) {
+    const { DriverService } = require("../drivers/drivers.service");
+    const driversService = new DriverService();
+    const [lng, lat] = order.stops[0].location.coordinates;
+
+    let candidates = await driversService.getNearbyDrivers(lat, lng, undefined, order.serviceType, true);
+    if (candidates.length === 0) {
+      const fallbackQuery: any = { status: DriverStatus.ONLINE, isAvailable: true };
+      // Mapped, not raw — see mapServiceTypeToDriverVehicleType's comment:
+      // Driver.vehicleType has no "cab"/"cab_prime" value.
+      const fallbackVehicleType = mapServiceTypeToDriverVehicleType(order.serviceType);
+      if (fallbackVehicleType) {
+        fallbackQuery.vehicleType = fallbackVehicleType;
+      }
+      candidates = await Driver.find(fallbackQuery).populate("user");
+      // Same staleness rule as everywhere else this pattern appears — see
+      // filterDriversWithLiveLocation's comment in drivers.service.ts.
+      candidates = driversService.filterDriversWithLiveLocation(candidates, "increasePrice fallback");
+      // Same for the service-toggle check — see driverAcceptsServiceType's comment.
+      candidates = candidates.filter((d: any) => driverAcceptsServiceType(d.activeServices, order.serviceType));
+    }
+
+    const sorted = this.sortCandidatesNearestFirst(candidates, lat, lng);
+    await Order.updateOne({ _id: order._id }, { totalCandidatesCount: sorted.length });
+
+    const payload = this.buildDriverOfferPayload(order, user, {
+      distance: `${order.totalDistance || 0} km`,
+      duration: order.duration ? `${order.duration} hrs` : "ASAP",
+      vendorName: vendor?.name,
+      vendorPhone: vendor?.phone,
+    });
+
+    const { dispatchManager } = require("../../services/dispatch.manager");
+    await dispatchManager.startDispatch(order._id.toString(), sorted, {
+      ...payload,
+      customerUserId: (user?._id || order.user)?.toString(),
+    });
   }
 
   /**
    * `opts.reason` / `opts.customerMessage`: why the system cancelled it (food orders),
    * sent to the apps and used as the customer's notification text.
    */
-  async updateOrderStatus(orderId: string, status: OrderStatus, opts: { reason?: string; customerMessage?: string } = {}) {
+  async updateOrderStatus(
+    orderId: string,
+    status: OrderStatus,
+    opts: { reason?: string; customerMessage?: string; actor?: string } = {},
+  ) {
     const order = await Order.findOne(this.getOrderQuery(orderId));
     if (!order) throw new Error("Order not found");
     if (opts.reason && status === OrderStatus.CANCELLED) order.cancelReason = opts.reason;
+
+    // Helper tasks follow one path (helper.flow.ts). Server-side callers (sweeps, admin tools)
+    // pass no actor and act as staff.
+    const helper = isHelperOrder(order);
+    if (helper) {
+      assertHelperTransition(order.status, status, opts.actor ?? "staff");
+      if (isHelperStart(status) && !order.taskStartedAt) order.taskStartedAt = new Date();
+      if (isHelperDone(status) && !order.taskCompletedAt) order.taskCompletedAt = new Date();
+    }
 
     // Food orders: "ready" needs the restaurant's accept first, happens once, and
     // before a rider is assigned it doesn't touch the status at all.
@@ -1597,6 +1606,11 @@ export class OrdersService {
     if (status === OrderStatus.CANCELLED) {
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
       if (order.dispatchMode === "broadcast") await foodDispatch.cancelDispatch(order._id.toString());
+      else {
+        // Stop the sequential search and take the offer off the screen of whoever holds it.
+        const { dispatchManager } = await import("../../services/dispatch.manager");
+        dispatchManager.handleCustomerCancel(order._id.toString());
+      }
     }
 
     const savedOrder = await Order.findOne(this.getOrderQuery(orderId));
@@ -1642,6 +1656,14 @@ export class OrdersService {
           orderId: orderId.toString(),
         });
       }
+
+      // The customer's helper screen moves on to tracking when the task starts.
+      if (helper && isHelperStart(status)) {
+        socketManager.emitToOrderRoom(orderId.toString(), "task_started", {
+          orderId: orderId.toString(),
+          taskStartedAt: order.taskStartedAt,
+        });
+      }
     }
 
     const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
@@ -1652,9 +1674,12 @@ export class OrdersService {
         let title = "";
         let body = "";
         const isPackageDelivery = !!populated.packageDelivery;
-        const serviceName = isPackageDelivery ? "package delivery" : populated.serviceType === ServiceType.DELIVERY ? "delivery" : "ride";
+        const serviceName = isPackageDelivery ? "package delivery" : populated.serviceType === ServiceType.DELIVERY ? "delivery" : helper ? "task" : "ride";
 
-        switch (status) {
+
+        if (helper && status !== OrderStatus.CANCELLED) {
+          ({ title, body } = helperPushText(status));
+        } else switch (status) {
           case OrderStatus.ARRIVED_PICKUP:
           case OrderStatus.ARRIVED_PICKUP_LC:
             if (populated.vendor) {
@@ -1951,6 +1976,81 @@ export class OrdersService {
       .populate("vendor");
   }
 
+  /**
+   * The customer confirms the task to the helper who accepted it (the "assign task" row in
+   * chat). Saved, so the helper's Start button unlocks even if their chat wasn't open.
+   */
+  async confirmHelperAssign(orderId: string, customerUserId: string) {
+    const order = await Order.findOne(this.getOrderQuery(orderId));
+    if (!order) throw new Error("Order not found");
+    if (order.user.toString() !== customerUserId) throw new Error("Order not found");
+    if (!isHelperOrder(order)) throw new ConflictError("Only a helper task is assigned in chat.");
+    if (order.status !== OrderStatus.DRIVER_ASSIGNED && order.status !== OrderStatus.IN_PROGRESS) {
+      throw new ConflictError("This task has no helper to assign it to.");
+    }
+    if (!order.assignConfirmedAt) {
+      order.assignConfirmedAt = new Date();
+      await order.save();
+    }
+
+    const payload = { orderId: order._id.toString(), assignConfirmedAt: order.assignConfirmedAt };
+    const socketManager = SocketManager.getInstance();
+    socketManager?.emitToOrderRoom(order._id.toString(), "assign_task_confirmed", payload);
+    const driver = order.driver ? await Driver.findById(order.driver).select("user").lean() : null;
+    if (driver?.user) socketManager?.emitToDriver(driver.user.toString(), "assign_task_confirmed", payload, "orders.confirmHelperAssign");
+    return payload;
+  }
+
+  /**
+   * The dispatcher offered a helper task to everyone and nobody took it. The customer can still
+   * raise the price; if they don't, the expiry sweep cancels it after `expiryMinutes`.
+   */
+  async markHelperSearchExhausted(orderId: string) {
+    await Order.updateOne(
+      { _id: orderId, serviceType: ServiceType.HELPER, status: OrderStatus.SEARCHING_DRIVER, searchExhaustedAt: null },
+      { $set: { searchExhaustedAt: new Date() } },
+    );
+  }
+
+  /**
+   * Cancels (and refunds) helper tasks nobody took: those whose search ran out more than
+   * `expiryMinutes` ago, and those this process lost track of after a restart (still searching,
+   * no dispatch session, not touched for a while).
+   */
+  async expireStaleHelperSearches() {
+    const { expiryMinutes } = await this.pricingService.getHelperRates();
+    const now = Date.now();
+    const expiryMs = Math.max(1, expiryMinutes) * 60 * 1000;
+    const { dispatchManager } = await import("../../services/dispatch.manager");
+
+    const searching: any[] = await Order.find({ serviceType: ServiceType.HELPER, status: OrderStatus.SEARCHING_DRIVER })
+      .select("_id searchExhaustedAt updatedAt")
+      .limit(200)
+      .lean();
+
+    for (const row of searching) {
+      const id = String(row._id);
+      const exhaustedAt = row.searchExhaustedAt ? new Date(row.searchExhaustedAt).getTime() : null;
+      const orphaned = !exhaustedAt && !dispatchManager.isDispatching(id) && now - new Date(row.updatedAt).getTime() > expiryMs;
+      if (orphaned) {
+        // Lost on a restart: give the customer the same window to raise the price as a search that ran out.
+        await this.markHelperSearchExhausted(id);
+        SocketManager.getInstance()?.emitToOrderRoom(id, "no_drivers_available", { orderId: id, message: "No helpers available right now." });
+        continue;
+      }
+      if (exhaustedAt && now - exhaustedAt >= expiryMs) {
+        try {
+          await this.updateOrderStatus(id, OrderStatus.CANCELLED, {
+            reason: "no_helpers",
+            customerMessage: "No helper was available for your task, so we've cancelled it.",
+          });
+        } catch (err: any) {
+          console.error(`[orders.service] Failed to expire helper task ${id}:`, err?.message);
+        }
+      }
+    }
+  }
+
   async acceptOrder(orderId: string, driverUserId: string) {
     if (!orderId) {
       throw new Error("Invalid order ID");
@@ -2055,11 +2155,13 @@ export class OrdersService {
         const pinText = populated.packageDelivery
           ? (populated.deliveryOtp ? `. Share delivery OTP ${populated.deliveryOtp} with the receiver — the captain needs it at the drop` : "")
           : startPin ? `. Share PIN ${startPin} to start your ride safely` : "";
-        
+        const helperText = isHelperOrder(populated) ? helperPushText(OrderStatus.DRIVER_ASSIGNED, driverUser?.name) : null;
+
+
         await NotificationService.getInstance().sendNotification({
           userId: populated.user._id.toString(),
-          title: "Driver Assigned 🚖",
-          body: `${driverUser?.name || "A driver"} has accepted your request. Your ${vehicleName} is arriving${pinText}.`,
+          title: helperText?.title || "Driver Assigned 🚖",
+          body: helperText?.body || `${driverUser?.name || "A driver"} has accepted your request. Your ${vehicleName} is arriving${pinText}.`,
           type: "transactional",
           category: "order_status",
           data: {

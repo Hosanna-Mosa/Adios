@@ -7,21 +7,22 @@ import { HelperTaskFooter } from "./HelperTaskFooter";
 import { HelperTaskTitleRow } from "./HelperTaskTitleRow";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { type HelperTaskStyles } from "../helper-task.styles";
 import { HelperTaskNoHelpers } from "./HelperTaskNoHelpers";
 
-// Moved out of app/helper-task.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// The searching step: progress, and raising the offer to reach more helpers.
 
 interface Props {
   accent: ServiceTokens;
   calculatedFare: number;
   currentTaskPrice: number | null;
   handleCancel: () => void;
-  handleIncreasePrice: any;
+  handleIncreasePrice: (amount: number) => void;
   insets: EdgeInsets;
-  isIncreasingPrice: any;
-  offer: any;
+  isIncreasingPrice: number | null;
+  /** The highest offer the server accepts; raises past it are not offered. */
+  maxOffer: number | null;
+  offer: number | null;
   rejectedCount: number;
   searchExhausted: boolean;
   searchStartedAt: number | null;
@@ -38,6 +39,7 @@ export function HelperTaskBody({
   handleIncreasePrice,
   insets,
   isIncreasingPrice,
+  maxOffer,
   offer,
   rejectedCount,
   searchExhausted,
@@ -47,6 +49,8 @@ export function HelperTaskBody({
   totalContacted,
 }: Props) {
   const { t } = useTranslation();
+  const price = currentTaskPrice ?? offer ?? calculatedFare;
+  const canRaise = (amount: number) => maxOffer == null || price + amount <= maxOffer;
   if (searchExhausted) {
     return (
       <HelperTaskNoHelpers
@@ -55,6 +59,7 @@ export function HelperTaskBody({
         handleCancel={handleCancel}
         handleIncreasePrice={handleIncreasePrice}
         isIncreasingPrice={isIncreasingPrice}
+        canRaise={canRaise}
         rejectedCount={rejectedCount}
         styles={styles}
         tokens={tokens}
@@ -80,7 +85,7 @@ export function HelperTaskBody({
         <View style={{ gap: 12, marginTop: 18 }}>
           <HelperTaskCheckRow
             state="done"
-            label={`${t("app.delivery.taskPublished")}${currentTaskPrice ?? offer ?? calculatedFare}`}
+            label={`${t("app.delivery.taskPublished")}${price}`}
             delay={60}
             accent={accent}
             styles={styles}
@@ -115,11 +120,11 @@ export function HelperTaskBody({
             {[10, 20, 30, 40, 50].map((amount, i) => (
               <Animated.View key={amount} entering={staggerListItem(i, 30)}>
                 <TouchableOpacity
-                  style={styles.raiseChip}
+                  style={[styles.raiseChip, !canRaise(amount) && { opacity: 0.4 }]}
                   onPress={() => handleIncreasePrice(amount)}
-                  disabled={isIncreasingPrice === amount}
+                  disabled={isIncreasingPrice != null || !canRaise(amount)}
                 >
-                  <Text style={styles.raiseChipText}>+₹{amount}</Text>
+                  <Text style={styles.raiseChipText}>{isIncreasingPrice === amount ? t("app.delivery.raising") : `+₹${amount}`}</Text>
                 </TouchableOpacity>
               </Animated.View>
             ))}

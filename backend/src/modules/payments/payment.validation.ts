@@ -12,6 +12,16 @@ export const createRazorpayOrderSchema = z.object({
   }),
 });
 
+// A helper task's price raise, paid online (the task itself was paid online).
+export const createTopupSchema = z.object({
+  body: z.object({
+    orderId: z.string().min(1, "orderId is required"),
+    amount: z.coerce.number().int("Amount must be in whole rupees").positive().max(1000),
+    returnUrl: z.string().max(500).optional(),
+    language: z.enum(["en", "te", "hi"]).optional(),
+  }),
+});
+
 export const verifyPaymentSchema = z.object({
   body: z
     .object({

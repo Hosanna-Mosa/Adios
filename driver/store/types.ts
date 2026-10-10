@@ -26,6 +26,7 @@ export type OrderStatus =
   | "picked_up"
   | "en_route_delivery"
   | "arrived_delivery"
+  | "IN_PROGRESS"
   | "delivered"
   | "completed"
   | "CANCELLED";
@@ -77,6 +78,15 @@ export interface Order {
   /** Broadcast offers only: this rider's distance to the restaurant and the ride there. */
   distanceToPickupMeters?: number;
   etaMinutes?: number;
+  /** Helper tasks only: hours the customer booked (the server's `duration`). */
+  bookedHours?: number;
+  /** Helper tasks only: what the customer wants done (stops[0].items.instructions). */
+  taskDescription?: string;
+  /** Helper tasks only: when the customer confirmed the task in chat (ISO). Info only; Start doesn't wait for it. */
+  assignConfirmedAt?: string | null;
+  /** Helper tasks only: set by the server when the start OTP / completion PIN was accepted (ISO). */
+  taskStartedAt?: string | null;
+  taskCompletedAt?: string | null;
 }
 
 export interface CompletedOrder {

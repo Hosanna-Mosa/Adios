@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { resolveHelperRates } from "../pricing/helper.pricing";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
 import { Types } from "mongoose";
@@ -842,7 +843,8 @@ export class AdminController {
         });
         await config.save();
       }
-      return res.json(config.value);
+      // Helper rates always come back complete (defaults for anything never saved).
+      return res.json({ ...config.value, helperRates: resolveHelperRates(config.value?.helperRates) });
     } catch (error) {
       console.error("Error getting system config:", error);
       return res.status(500).json({ message: "Internal server error" });
@@ -851,16 +853,19 @@ export class AdminController {
 
   async updateSystemConfig(req: Request, res: Response) {
     try {
-      const { rates, platformFee, surgeMultiplier } = req.body;
+      const { rates, platformFee, surgeMultiplier, helperRates } = req.body;
       let config = await SystemConfig.findOne({ key: "global_settings" });
       if (!config) {
         config = new SystemConfig({ key: "global_settings", value: {} });
       }
 
+      // Merged, so saving one section keeps the others (helper rates are saved on their own page).
       config.value = {
+        ...config.value,
         rates: rates || config.value.rates,
         platformFee: platformFee !== undefined ? platformFee : config.value.platformFee,
-        surgeMultiplier: surgeMultiplier !== undefined ? surgeMultiplier : config.value.surgeMultiplier
+        surgeMultiplier: surgeMultiplier !== undefined ? surgeMultiplier : config.value.surgeMultiplier,
+        helperRates: helperRates ? resolveHelperRates({ ...config.value.helperRates, ...helperRates }) : config.value.helperRates,
       };
 
       config.markModified("value");

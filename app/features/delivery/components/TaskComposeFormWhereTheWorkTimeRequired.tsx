@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type ThemeTokens } from "@/constants/colors";
-import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { type HelperTaskStyles } from "../helper-task.styles";
 
 // Section of TaskComposeFormWhereTheWork, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -79,7 +79,7 @@ export function TaskComposeFormWhereTheWorkTimeRequired({
           onChangeText={setDescription}
         />
       </View>
-      <Text style={styles.descHint}>{t("app.delivery.helpersSeeThisBeforeTheyBid")}</Text>
+      <Text style={styles.descHint}>{t("app.delivery.helpersSeeThisBeforeTheyAccept")}</Text>
     </Animated.View>
     </>
   );

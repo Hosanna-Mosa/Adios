@@ -14,6 +14,8 @@ export function useChatSendMessage(currentOrderId: any, driver: any, addChatMess
     socketService.trackOrder(currentOrderId);
 
     const onMessage = (msg: any) => {
+      // The server's payload has no orderId today; checked for when it does.
+      if (msg?.orderId && String(msg.orderId) !== String(currentOrderId)) return;
       const formattedMsg: any = {
         id: msg.id,
         text: msg.text,
@@ -27,7 +29,12 @@ export function useChatSendMessage(currentOrderId: any, driver: any, addChatMess
       }
     };
 
-    const onTaskStarted = () => router.push("/tracking");
+    // Sent by the server once the helper's start OTP is accepted — for this order only.
+    const onTaskStarted = (data: any) => {
+      if (data?.orderId && String(data.orderId) === String(currentOrderId)) {
+        router.push({ pathname: "/tracking", params: { orderId: currentOrderId } });
+      }
+    };
 
     socketService.on("receive_message", onMessage);
     socketService.on("task_started", onTaskStarted);

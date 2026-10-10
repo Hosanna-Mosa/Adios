@@ -28,8 +28,12 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
     socketService.connect();
     socketService.trackOrder(currentOrderId);
     const { setFoodStage } = useDeliveryStore.getState();
+    // Events for the customer's other orders reach the same socket; payloads that
+    // name an order are only applied to this one.
+    const isOther = (data: any) => data?.orderId != null && String(data.orderId) !== String(currentOrderId);
 
     const onOrderAccepted = (data: any) => {
+      if (isOther(data)) return;
       setDriver(data.driver);
       setStatus("driver_assigned");
       setFoodStage(null);
@@ -51,7 +55,7 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
     };
 
     const onStatusUpdate = (data: any) => {
-      if (!data.status) return;
+      if (!data?.status || isOther(data)) return;
       const statusStr = String(data.status).toLowerCase();
       if (statusStr === "cancelled" || statusStr === "cancelled_by_driver") {
         handleOrderCancelledByDriver(data.reason);
@@ -63,9 +67,11 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
       if (normalized === "delivered") setDeliveredAt((prev: any) => prev || new Date());
     };
 
-    const onOrderCancelled = () => handleOrderCancelledByDriver();
-    const onHelperStatusUpdate = (data: { text: string }) => {
-      if (data.text) setHelperStatus(data.text);
+    const onOrderCancelled = (data: any) => {
+      if (!isOther(data)) handleOrderCancelledByDriver();
+    };
+    const onHelperStatusUpdate = (data: { orderId?: string; text: string }) => {
+      if (data?.text && !isOther(data)) setHelperStatus(data.text);
     };
 
     socketService.on("order_accepted", onOrderAccepted);
@@ -108,12 +114,12 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
       : foodStage === "preparing"
       ? i18n.t("app.tracking.restaurantPreparing")
       : status === "arrived_pickup"
-      ? (isRide ? "Rider has arrived" : isHelper ? "Helper has arrived" : "Arrived at the store")
+      ? i18n.t(isRide ? "app.tracking.banner.riderArrived" : isHelper ? "app.tracking.banner.helperArrived" : "app.tracking.banner.arrivedAtStore")
       : status === "en_route_delivery"
-      ? (isRide ? "Trip in progress" : isHelper ? "Task in progress" : "Out for delivery")
+      ? i18n.t(isRide ? "app.tracking.banner.tripInProgress" : isHelper ? "app.tracking.banner.taskInProgress" : "app.tracking.banner.outForDelivery")
       : status === "arrived_delivery"
-      ? (isRide ? "Arrived at destination" : "Arrived at your location")
-      : (isHelper ? "Helper is on the way" : isRide ? "Rider on the way" : "Heading to pickup");
+      ? i18n.t(isRide ? "app.tracking.banner.arrivedAtDestination" : "app.tracking.banner.arrivedAtYourLocation")
+      : i18n.t(isHelper ? "app.tracking.banner.helperOnTheWay" : isRide ? "app.tracking.banner.riderOnTheWay" : "app.tracking.banner.headingToPickup");
 
   return { handleBack, userLocCoords, bannerText };
 }

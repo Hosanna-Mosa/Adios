@@ -73,7 +73,8 @@
       "safetyBanner": "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
       "contextTask": "task",
       "contextRide": "ride",
-      "contextOrder": "order"
+      "contextOrder": "order",
+      "couldNotConfirmTask": "Couldn't confirm the task. Please try again."
     },
     "taskTypes": {
       "shifting": "Shifting",
@@ -196,7 +197,20 @@
       "restaurantPin": "Restaurant",
       "deliveryLocationPin": "Your delivery location",
       "pickupPin": "Pickup",
-      "dropPin": "Drop"
+      "dropPin": "Drop",
+      "banner": {
+        "riderArrived": "Rider has arrived",
+        "helperArrived": "Helper has arrived",
+        "arrivedAtStore": "Arrived at the store",
+        "tripInProgress": "Trip in progress",
+        "taskInProgress": "Task in progress",
+        "outForDelivery": "Out for delivery",
+        "arrivedAtDestination": "Arrived at destination",
+        "arrivedAtYourLocation": "Arrived at your location",
+        "helperOnTheWay": "Helper is on the way",
+        "riderOnTheWay": "Rider on the way",
+        "headingToPickup": "Heading to pickup"
+      }
     },
     "orderStatusTimeline": {
       "steps": {
@@ -322,7 +336,7 @@
       "pickARideToSeeLive": "Pick a ride to see live fares for your trip.",
       "alsoOnFlavour": "Also on Flavour",
       "hireAHelper": "Hire a helper",
-      "from120Hour": "From ₹120 / hour",
+      "from80Hour": "From ₹80 / hour",
       "multistopCourierFrom39": "Multi-stop courier · from ₹39",
       "allServices": "All services",
       "searching": "Searching…",
@@ -551,8 +565,6 @@
       "refundInProgress": "Refund of ₹{{amount}} in progress · usually 5–7 working days",
       "refundBeingArranged": "Your refund of ₹{{amount}} is being arranged. Our team will contact you if needed.",
       "preparingYourOrder": "Preparing your order",
-      "helperOnTheWay": "Helper on the way",
-      "matchingAHelper": "Matching a helper",
       "riderOnTheRoute": "Rider on the route",
       "findingYourCaptain": "Finding your rider",
       "past": "Past",
@@ -597,12 +609,16 @@
       "placedAt": "Placed {{time}}",
       "deliveringTo": "Delivering to",
       "dropAt": "Drop",
-      "taskLocation": "Task location"
+      "taskLocation": "Task location",
+      "findingAHelper": "Finding a helper",
+      "helperAssigned": "Helper assigned",
+      "taskInProgress": "Task in progress",
+      "taskCompleted": "Task completed"
     },
     "helperTask": {
       "title": {
         "compose": "Hire a helper",
-        "bidding": "Your offer",
+        "offer": "Set your offer",
         "searching": "Finding a helper",
         "assigned": "Task assigned",
         "noHelpersYet": "No helpers yet"
@@ -765,7 +781,6 @@
       "minutes": "minutes",
       "taskDescription": "Task description",
       "twoPeopleToCarryA3seater": "Two people to carry a 3-seater sofa and 4 cartons down from the 4th floor. No lift after 8 PM.",
-      "helpersSeeThisBeforeTheyBid": "Helpers see this before they bid. Mention stairs, weight and anything heavy.",
       "whereTheWorkStarts": "Where the work starts",
       "pickupLocation": "Pickup location",
       "whereItEnds": "Where it ends",
@@ -824,7 +839,6 @@
       "helpersNotified": "helpers notified",
       "waitingForTheFirstAcceptance": "Waiting for the first acceptance",
       "currentOffer": "Current offer",
-      "mAbout": "m · about ₹",
       "20Steps": "₹20 steps",
       "findingAHelper": "Finding a helper",
       "dragToAdjust": "Drag to adjust",
@@ -833,10 +847,7 @@
       "near": "Near",
       "recent": "Recent",
       "save": "Save",
-      "yourOfferIsVisibleToNearby": "Your offer is visible to nearby helpers once you tap Find a helper.",
       "findAHelper": "Find a helper · ₹",
-      "outOfRange": "Out of range",
-      "thisLocationIsOutsideYourSelected": "This location is outside your selected {{value}}km radius.",
       "deleteAddress": "Delete address",
       "areYouSureRemoveAddress": "Are you sure you want to remove this address?",
       "deleteWord": "Delete",
@@ -853,7 +864,24 @@
       "offeredToHelpersSomePassed_one": "We offered it to {{count}} helper nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
       "offeredToHelpersSomePassed_other": "We offered it to {{count}} helpers nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
       "nobodyOnShiftNearYou": "Nobody is on shift near you right now. Raising your offer, or trying again shortly, usually helps.",
-      "raising": "Raising…"
+      "raising": "Raising…",
+      "couldNotGetPrice": "Couldn't get a price for this task. Check the places and try again.",
+      "priceNotReady": "Price not ready",
+      "calculatingPrice": "Calculating price…",
+      "estimatedPrice": "Estimated price",
+      "couldNotCancelTask": "Couldn't cancel the task. Please try again.",
+      "cancelThisRequest": "Cancel this request?",
+      "cancelThisRequestHint": "Your task is still live. Keep it running and come back to it from My Orders, or cancel it now.",
+      "keepIt": "Keep it",
+      "cancelRequest": "Cancel request",
+      "couldNotLoadTask": "Couldn't load this task. Please try again.",
+      "offerGoesToHelpersOneAtATime": "Nearby helpers are offered your task one at a time, at this price.",
+      "helpersSeeThisBeforeTheyAccept": "Helpers read this before they accept. Mention stairs, weight and anything heavy.",
+      "offerRange": "You can offer ₹{{min}} – ₹{{max}}",
+      "yourOffer": "Your offer",
+      "offerForDuration": "for {{hours}}h {{minutes}}m · about ₹{{perHour}}/hour",
+      "recommendedPrice": "Recommended price · ₹{{amount}}",
+      "taskCancelsAutomatically": "If no one takes it in the next few minutes, we'll cancel the task automatically."
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -1024,7 +1052,9 @@
       "riderCancelledOrder": "Your rider had to cancel, so this order has been cancelled. Any online payment will be refunded.",
       "cancelledByAdios": "Order cancelled by Adios",
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
-      "youCancelledThisOrder": "You cancelled this order."
+      "youCancelledThisOrder": "You cancelled this order.",
+      "noHelperAvailable": "No helper was available",
+      "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -1097,7 +1127,9 @@
       "cashHint": "Pay the driver",
       "online": "Online",
       "onlineHint": "UPI, cards, netbanking",
-      "paySecurely": "Pay securely"
+      "paySecurely": "Pay securely",
+      "topupRefundedTitle": "Payment refunded",
+      "topupRefunded": "Your task was already taken, so this payment is being refunded."
     },
     "personaldetails": {
       "couldntSave": "Couldn't save",

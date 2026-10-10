@@ -6,15 +6,17 @@ import { moderateScale } from "react-native-size-matters";
 import { fadeInUp } from "@/motion/presets";
 
 // What the searching step shows once the dispatcher has offered the task to every
-// nearby helper and run out. Before this the screen just kept spinning, with no
-// way to tell that nothing further was coming.
+// nearby helper and run out (the order's searchExhausted). Unless the price is
+// raised, the server cancels the task a few minutes later.
 
 interface Props {
   accent: any;
   currentTaskPrice: any;
   handleCancel: any;
   handleIncreasePrice: any;
-  isIncreasingPrice: any;
+  isIncreasingPrice: number | null;
+  /** False for a raise that would pass the highest offer the server accepts. */
+  canRaise: (amount: number) => boolean;
   rejectedCount: any;
   styles: any;
   tokens: any;
@@ -27,6 +29,7 @@ export function HelperTaskNoHelpers({
   handleCancel,
   handleIncreasePrice,
   isIncreasingPrice,
+  canRaise,
   rejectedCount,
   styles,
   tokens,
@@ -47,15 +50,17 @@ export function HelperTaskNoHelpers({
           : t("app.delivery.nobodyOnShiftNearYou")}
       </Text>
 
+      <Text style={styles.noHelpersSubtitle}>{t("app.delivery.taskCancelsAutomatically")}</Text>
+
       <Text style={styles.noHelpersPrice}>{t("app.delivery.currentOffer")} · ₹{currentTaskPrice ?? 0}</Text>
 
       <View style={styles.noHelpersRaiseRow}>
         {[20, 50, 100].map((amount) => (
           <TouchableOpacity
             key={amount}
-            style={[styles.noHelpersRaiseBtn, { borderColor: accent.accent }]}
+            style={[styles.noHelpersRaiseBtn, { borderColor: accent.accent }, !canRaise(amount) && { opacity: 0.4 }]}
             onPress={() => handleIncreasePrice(amount)}
-            disabled={isIncreasingPrice === amount}
+            disabled={isIncreasingPrice != null || !canRaise(amount)}
           >
             <Text style={[styles.noHelpersRaiseText, { color: accent.accent }]}>
               {isIncreasingPrice === amount ? t("app.delivery.raising") : `+₹${amount}`}

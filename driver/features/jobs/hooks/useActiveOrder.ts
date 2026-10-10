@@ -49,7 +49,12 @@ export function useActiveOrder() {
     onArrived: useCallback(() => transitionRef.current(), []),
   });
 
-  const timers = useOrderTimers(status, isHelper);
+  const timers = useOrderTimers(
+    status,
+    isHelper,
+    currentOrder?.taskStartedAt,
+    currentOrder?.taskCompletedAt,
+  );
   const verification = useOrderVerification();
 
   const handleStatusTransition = useStatusTransition({

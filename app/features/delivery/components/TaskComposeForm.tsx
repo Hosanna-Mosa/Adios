@@ -14,7 +14,7 @@ import { moderateScale } from "react-native-size-matters";
 import { TaskComposeFormWhereTheWork } from "./TaskComposeFormWhereTheWork";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { type HelperTaskStyles } from "../helper-task.styles";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -28,13 +28,14 @@ interface Props {
   description: any;
   dropoffLocation: any;
   durationMode: any;
-  goToBidding: any;
+  goToOffer: () => void;
   handleSearch: any;
   handleUseCurrentLocation: () => void;
   insets: EdgeInsets;
   isProceedDisabled: boolean;
-  offer: any;
+  isQuoting: boolean;
   pickupLocation: any;
+  quoteError: string | null;
   searchResults: any[];
   selectResult: any;
   setActiveField: React.Dispatch<React.SetStateAction<any>>;

@@ -66,7 +66,7 @@ export default function AllServicesScreen() {
       id: "helper",
       name: t("app.home.hireAHelper"),
       icon: "hammer-wrench",
-      description: t("app.home.from120Hour"),
+      description: t("app.home.from80Hour"),
       accent: tokens.services.task,
       onPress: () => router.push("/helper-task"),
     },

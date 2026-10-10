@@ -1,9 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { TaskComposeForm } from "@/features/delivery/components/TaskComposeForm";
-import { TaskBiddingPanel } from "@/features/delivery/components/TaskBiddingPanel";
+import { TaskOfferPanel } from "@/features/delivery/components/TaskOfferPanel";
 import { TaskAssignedPanel } from "@/features/delivery/components/TaskAssignedPanel";
 import { View, ScrollView, Linking } from "react-native";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { Header } from "@/components/ui/Header";
 import { fadeIn } from "@/motion/presets";
 import { HelperTaskSection } from "@/features/delivery/components/HelperTaskSection";
@@ -11,31 +11,35 @@ import { HelperTaskOfferBlock } from "@/features/delivery/components/HelperTaskO
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { HelperTaskBody } from "@/features/delivery/components/HelperTaskBody";
 import { useHelperTask } from "@/features/delivery/useHelperTask";
+import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 
 export default function HelperTaskScreen() {
   const {
-  insets, tokens, accent, styles, step, setStep, pickupLocation,
+  insets, tokens, accent, styles, step, pickupLocation,
   dropoffLocation, activeField, setActiveField, searchResults, durationMode, setDurationMode,
   customHours, setCustomHours, customMinutes, setCustomMinutes, description, setDescription,
   offer, setOffer, isCreating, isIncreasingPrice, currentTaskPrice, rejectedCount, totalContacted,
-  startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, suggestedLow,
-  suggestedHigh, handleUseCurrentLocation,
-  handleSearch, selectResult, handleIncreasePrice, handleCancel, goToBidding, createTask,
+  startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, quote, isQuoting, quoteError,
+  suggestedLow, suggestedHigh, handleUseCurrentLocation, isResuming, localOrderId,
+  handleSearch, selectResult, handleIncreasePrice, handleCancel, handleBack, goToOffer, createTask,
   isProceedDisabled, activeDriver
   } = useHelperTask();
   const { t } = useTranslation();
 
   return (
     <ScreenShell>
-      <Stack.Screen options={{ headerShown: false }} />
+      {/* Swipe-back would leave a posted task without asking; the header arrow asks. */}
+      <Stack.Screen options={{ headerShown: false, gestureEnabled: step === "compose" || step === "offer" }} />
       <Header
-        title={step === "compose" ? t("app.helperTask.title.compose") : step === "bidding" ? t("app.helperTask.title.bidding") : step === "searching" ? (searchExhausted ? t("app.helperTask.title.noHelpersYet") : t("app.helperTask.title.searching")) : t("app.helperTask.title.assigned")}
-        onBack={() => (step === "compose" ? router.back() : setStep("compose"))}
+        title={step === "compose" ? t("app.helperTask.title.compose") : step === "offer" ? t("app.helperTask.title.offer") : step === "searching" ? (searchExhausted ? t("app.helperTask.title.noHelpersYet") : t("app.helperTask.title.searching")) : t("app.helperTask.title.assigned")}
+        onBack={handleBack}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
       />
 
-      {step === "compose" && (
+      {isResuming && <FullScreenLoader color={accent.accent} style={{ flex: 1 }} />}
+
+      {!isResuming && step === "compose" && (
         <TaskComposeForm
           accent={accent}
           activeField={activeField}
@@ -45,13 +49,14 @@ export default function HelperTaskScreen() {
           description={description}
           dropoffLocation={dropoffLocation}
           durationMode={durationMode}
-          goToBidding={goToBidding}
+          goToOffer={goToOffer}
           handleSearch={handleSearch}
           handleUseCurrentLocation={handleUseCurrentLocation}
           insets={insets}
           isProceedDisabled={isProceedDisabled}
-          offer={offer}
+          isQuoting={isQuoting}
           pickupLocation={pickupLocation}
+          quoteError={quoteError}
           searchResults={searchResults}
           selectResult={selectResult}
           setActiveField={setActiveField}
@@ -66,12 +71,13 @@ export default function HelperTaskScreen() {
         />
       )}
 
-      {step === "bidding" && (
+      {!isResuming && step === "offer" && (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
             <HelperTaskOfferBlock
               calculatedFare={calculatedFare}
               offer={offer}
+              quote={quote}
               styles={styles}
               totalHours={totalHours}
             />
@@ -79,12 +85,14 @@ export default function HelperTaskScreen() {
             <HelperTaskSection
               accent={accent}
               calculatedFare={calculatedFare}
+              offer={offer}
+              quote={quote}
               setOffer={setOffer}
               styles={styles}
             />
           </ScrollView>
 
-          <TaskBiddingPanel
+          <TaskOfferPanel
             accent={accent}
             calculatedFare={calculatedFare}
             createTask={createTask}
@@ -96,7 +104,7 @@ export default function HelperTaskScreen() {
         </View>
       )}
 
-      {step === "searching" && (
+      {!isResuming && step === "searching" && (
         <HelperTaskBody
           accent={accent}
           calculatedFare={calculatedFare}
@@ -105,6 +113,7 @@ export default function HelperTaskScreen() {
           handleIncreasePrice={handleIncreasePrice}
           insets={insets}
           isIncreasingPrice={isIncreasingPrice}
+          maxOffer={quote?.maxOffer ?? null}
           offer={offer}
           rejectedCount={rejectedCount}
           searchExhausted={searchExhausted}
@@ -115,7 +124,7 @@ export default function HelperTaskScreen() {
         />
       )}
 
-      {step === "assigned" && activeDriver && (
+      {!isResuming && step === "assigned" && activeDriver && (
         <TaskAssignedPanel
           Linking={Linking}
           activeDriver={activeDriver}
@@ -124,6 +133,7 @@ export default function HelperTaskScreen() {
           handleCancel={handleCancel}
           insets={insets}
           offer={offer}
+          orderId={localOrderId}
           pickupLocation={pickupLocation}
           startOtp={startOtp}
           styles={styles}

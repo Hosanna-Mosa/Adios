@@ -438,31 +438,6 @@ export class SocketManager {
         }
       });
 
-      // DRIVER ORDER ACCEPTANCE: Forward driver info to the customer
-      socket.on("driver_accepted_order", async (data: { orderId: string; driverInfo: any }) => {
-        if (!authUser || authUser.role !== "DRIVER") return;
-        // Only the driver the server actually assigned (via POST /orders/:id/accept) may join
-        // the room and announce acceptance to the customer.
-        if ((await this.orderRelation(data?.orderId, authUser)) !== "driver") {
-          console.warn(`[SOCKET SECURITY] driver_accepted_order rejected: user ${authUser.userId} is not the assigned driver of ${data?.orderId}`);
-          return;
-        }
-
-        console.log(`[SOCKET][ORDER_ACCEPTED] driverUser=${authUser.userId} order=${data.orderId}`, data.driverInfo);
-        if (data.orderId) {
-          socket.join(data.orderId);
-          console.log(`[SOCKET][ORDER_ACCEPTED][JOINED] socket=${socket.id} order=${data.orderId} roomSize=${this.getRoomSize(data.orderId)}`);
-          this.io.to(data.orderId).emit("order_accepted", {
-            orderId: data.orderId,
-            driver: data.driverInfo,
-          });
-          console.log(
-            `[SOCKET][EMIT] source=driver_accepted_order target=order_room event=order_accepted ` +
-            `order=${data.orderId} recipients=${this.getRoomSize(data.orderId)} driverUser=${authUser.userId}`
-          );
-        }
-      });
-
       // ORDER STATUS UPDATE: Broadcast to all in the order room
       socket.on("order_status_update", async (data: { orderId: string; status: string }) => {
         // Relayed only from someone who is part of this order (the real change goes through
@@ -504,15 +479,20 @@ export class SocketManager {
       });
 
       // HELPER TASK EVENTS
+      // Older customer apps confirm over the socket; newer ones call POST /orders/:id/confirm-assign.
+      // Either way it is saved and sent on by OrdersService.confirmHelperAssign.
       socket.on("assign_task_confirmed", async (data: { orderId: string }) => {
-        if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;
-        socket.to(data.orderId).emit("assign_task_confirmed", data);
+        if (!data?.orderId || (await this.canActOnOrder(data.orderId, authUser)) !== "customer") return;
+        try {
+          const { OrdersService } = await import("../modules/orders/orders.service");
+          await new OrdersService().confirmHelperAssign(data.orderId, authUser.userId);
+        } catch (error: any) {
+          console.warn(`[SOCKET] assign_task_confirmed for ${data.orderId} failed:`, error?.message);
+        }
       });
 
-      socket.on("task_started", async (data: { orderId: string }) => {
-        if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;
-        socket.to(data.orderId).emit("task_started", data);
-      });
+      // "task_started" is sent by the server once the start OTP is verified (PATCH /orders/:id/status);
+      // a client's own copy is no longer relayed.
 
       socket.on("helper_status_update", async (data: { orderId: string, text: string }) => {
         if (!data?.orderId || !(await this.canActOnOrder(data.orderId, authUser))) return;

@@ -1,17 +1,32 @@
 import { useEffect, useState } from "react";
 
-/** The helper task clock. (The restaurant prep countdown and the waiting fee it
- * counted on the phone were removed — neither came from the server.) */
-export function useOrderTimers(status: string | undefined, isHelper: boolean) {
-  const [taskTimerSeconds, setTaskTimerSeconds] = useState(0);
+const toMs = (iso?: string | null) => (iso ? new Date(iso).getTime() : NaN);
+
+/** The helper task clock. It counts from the server's taskStartedAt (so it survives an app
+ * restart) and stops at taskCompletedAt; before the start OTP is accepted it reads 0.
+ * (The restaurant prep countdown and the waiting fee it counted on the phone were
+ * removed — neither came from the server.) */
+export function useOrderTimers(
+  status: string | undefined,
+  isHelper: boolean,
+  taskStartedAt?: string | null,
+  taskCompletedAt?: string | null,
+) {
+  const [now, setNow] = useState(() => Date.now());
+  const startMs = toMs(taskStartedAt);
+  const endMs = toMs(taskCompletedAt);
+  const done = status === "delivered" || status === "completed";
+  const running = isHelper && !Number.isNaN(startMs) && !done && Number.isNaN(endMs);
 
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-    if (isHelper && status !== "delivered" && status !== "completed") {
-      timer = setInterval(() => setTaskTimerSeconds((prev) => prev + 1), 1000);
-    }
+    if (!running) return;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
-  }, [status, isHelper]);
+  }, [running]);
+
+  const until = Number.isNaN(endMs) ? now : endMs;
+  const taskTimerSeconds =
+    isHelper && !Number.isNaN(startMs) ? Math.max(0, Math.floor((until - startMs) / 1000)) : 0;
 
   return { taskTimerSeconds };
 }

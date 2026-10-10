@@ -5,7 +5,7 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
-import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { type HelperTaskStyles } from "../helper-task.styles";
 
 // Section of TaskComposeFormWhereTheWork, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.

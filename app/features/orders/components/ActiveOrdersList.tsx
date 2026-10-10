@@ -21,11 +21,14 @@ interface Props {
 
 const RIDE_KEYS = ["bike", "auto", "cab", "cab_prime"];
 
+/** A helper task nobody has started yet lives on the helper screen (raise the price, cancel, start OTP). */
+const HELPER_PRE_START = ["CREATED", "SEARCHING_DRIVER", "DRIVER_ASSIGNED"];
+
 /**
  * One card per live order, read top to bottom: what it is (outlet or service,
  * items, when it was placed, price), where it stands (live caption over the same
  * checklist the tracking screen shows), and where it's going, with Track beside it.
- * The whole card opens tracking.
+ * The whole card opens tracking — or, for a helper task that hasn't started, the helper screen.
  */
 export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, styles, tokens }: Props) {
   const { t } = useTranslation();
@@ -37,7 +40,9 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
         const meta = SERVICE_META[key];
         const accent = tokens.services[meta?.accent || "ride"];
         const isOutlet = key === "food" || key === "meat";
-        const openTracking = () => router.push({ pathname: "/tracking", params: { orderId: order._id } });
+        const opensHelperScreen = key === "helper" && HELPER_PRE_START.includes(String(order.status || "").toUpperCase());
+        const openTracking = () =>
+          router.push({ pathname: opensHelperScreen ? "/helper-task" : "/tracking", params: { orderId: order._id } });
 
         const count = isOutlet ? itemCount(order) : 0;
         const placed = clockTime(order.createdAt);
