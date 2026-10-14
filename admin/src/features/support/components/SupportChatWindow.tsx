@@ -1,10 +1,11 @@
 import type { RefObject } from "react";
-import { MessageSquare } from "lucide-react";
+import { Bot, MessageSquare } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { SupportChatHeader } from "./SupportChatHeader";
 import { SupportChatMessages } from "./SupportChatMessages";
 import { SupportChatComposer } from "./SupportChatComposer";
+import { SupportCancelOrder } from "./SupportCancelOrder";
 import type { Ticket } from "../types";
 
 interface SupportChatWindowProps {
@@ -26,6 +27,18 @@ export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onType
       {ticket ? (
         <FadeIn key={ticket._id} className="flex flex-col flex-1 min-h-0">
           <SupportChatHeader ticket={ticket} onResolve={onResolve} onReopen={onReopen} />
+          {ticket.botQuery && (
+            <div className="mx-4 mt-3 rounded-xl border border-border bg-muted/40 p-3 text-xs space-y-1">
+              <p className="flex items-center gap-1.5 font-semibold text-foreground">
+                <Bot className="h-3.5 w-3.5 text-primary" /> {t("support.fromSupportBot")}
+                {ticket.botQuery.helpful === false && <span className="text-destructive font-normal">· {t("support.botNotHelpful")}</span>}
+              </p>
+              <p><span className="text-muted-foreground">{t("support.botAsked")}:</span> {ticket.botQuery.question}</p>
+              {ticket.botQuery.answer && <p><span className="text-muted-foreground">{t("support.botAnswered")}:</span> {ticket.botQuery.answer}</p>}
+              {ticket.orderId && <p><span className="text-muted-foreground">{t("support.botOrder")}:</span> #{ticket.orderId}</p>}
+            </div>
+          )}
+          {ticket.orderId && <SupportCancelOrder orderId={ticket.orderId} />}
           <SupportChatMessages messages={ticket.messages} messagesEndRef={messagesEndRef} />
           <SupportChatComposer value={typedMessage} onChange={onTypedMessageChange} onKeyDown={onKeyDown} onSend={onSend} placeholderName={ticket.user} />
         </FadeIn>

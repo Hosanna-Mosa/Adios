@@ -5,7 +5,7 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { SupportContactRow } from "./SupportContactRow";
-import { SupportFaqCard } from "./SupportFaqCard";
+import { SupportBotSection } from "./SupportBotSection";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type SupportStyles } from "@/features/support/support.styles";
@@ -16,32 +16,26 @@ import { type SupportStyles } from "@/features/support/support.styles";
 interface Props {
   formatRelativeDate: any;
   Linking: any;
-  FAQS: any;
   accent: ServiceTokens;
-  expandedFAQ: any;
   insets: EdgeInsets;
   isActive: boolean;
   meta: any;
   recentOrder: any;
   recentTitle: string;
   styles: SupportStyles;
-  toggleFAQ: any;
   tokens: ThemeTokens;
 }
 
 export function SupportBody({
   formatRelativeDate,
   Linking,
-  FAQS,
   accent,
-  expandedFAQ,
   insets,
   isActive,
   meta,
   recentOrder,
   recentTitle,
   styles,
-  toggleFAQ,
   tokens,
 }: Props) {
   const { t } = useTranslation();
@@ -113,14 +107,7 @@ export function SupportBody({
       </Animated.View>
 
       <Text style={[styles.sectionLabel, { marginTop: 22 }]}>{t("app.support.commonQuestions")}</Text>
-      <SupportFaqCard
-        FAQS={FAQS}
-        accent={accent}
-        expandedFAQ={expandedFAQ}
-        styles={styles}
-        toggleFAQ={toggleFAQ}
-        tokens={tokens}
-      />
+      <SupportBotSection tokens={tokens} />
     </ScrollView>
     </>
   );
