@@ -164,9 +164,9 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  console.log(`[NETWORK] ${method} ${input}`);
+  if (__DEV__) console.log(`[NETWORK] ${method} ${input}`);
   const response = await fetch(input, { ...init, method, headers });
-  console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
+  if (__DEV__) console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
 
   if (!response.ok) {
     if (response.status === 401 && _unauthorizedHandler) {

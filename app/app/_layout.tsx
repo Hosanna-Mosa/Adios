@@ -51,7 +51,7 @@ import { designTokens } from "@/constants/colors";
 
 // The API URL should be retrieved from environment variables or app config
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
-console.log("[DEBUG] API URL:", apiUrl);
+if (__DEV__) console.log("[DEBUG] API URL:", apiUrl);
 
 // QA knob: makes the update gate report this version instead of the built one,
 // so every band can be exercised without building an old APK. Inlined by Metro

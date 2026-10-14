@@ -72,7 +72,7 @@ export async function registerForPushNotificationsAsync() {
       projectId,
     });
     const expoPushToken = tokenResponse.data;
-    console.log("[PushNotifications] Retrieved token:", expoPushToken);
+    if (__DEV__) console.log("[PushNotifications] Retrieved token:", expoPushToken);
 
     // Call backend API via customFetch
     await customFetch("/users/push-token", {
@@ -80,7 +80,7 @@ export async function registerForPushNotificationsAsync() {
       body: JSON.stringify({ expoPushToken }),
     });
 
-    console.log("[PushNotifications] Registered token on backend successfully!");
+    if (__DEV__) console.log("[PushNotifications] Registered token on backend successfully!");
     return expoPushToken;
   } catch (error) {
     console.error("[PushNotifications] Error during registration:", error);
