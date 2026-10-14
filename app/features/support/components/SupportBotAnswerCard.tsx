@@ -91,7 +91,6 @@ export function SupportBotAnswerCard({ bot, styles, tokens }: Props) {
           variant={feedback === false || failed ? "primary" : "ghost"}
           size="sm"
           loading={bot.escalating}
-          disabled={!bot.result && failed}
           onPress={bot.talkToAgent}
         />
       )}
