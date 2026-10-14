@@ -96,7 +96,9 @@ export class SocketManager {
       console.warn("⚠️  Redis server not found or connection failed. Socket tracking (location updates) and clustering will be disabled.");
       try {
         await client.disconnect();
-      } catch (_) {}
+      } catch (disconnectErr: any) {
+        console.warn("⚠️  Redis client disconnect during cleanup failed:", disconnectErr?.message || disconnectErr);
+      }
       this.redisClient = null;
     }
   }
