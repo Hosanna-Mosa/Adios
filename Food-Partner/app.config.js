@@ -7,7 +7,7 @@ const usesCleartextTraffic = /^http:\/\//i.test(process.env.EXPO_PUBLIC_API_URL 
 
 export default {
   expo: {
-    name: 'Flavour Partner',
+    name: 'Adios Partner',
     slug: 'flavour-partner',
     version: '1.0.0',
     orientation: 'portrait',

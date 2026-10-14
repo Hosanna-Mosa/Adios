@@ -1,6 +1,6 @@
 export default {
   expo: {
-    name: 'Flavour',
+    name: 'Adios',
     slug: 'flavour',
     version: '1.0.0',
     orientation: 'portrait',
