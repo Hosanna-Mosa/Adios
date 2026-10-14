@@ -24,6 +24,9 @@ export interface Ticket {
   messages: TicketMessage[];
   /** The support member who owns the case (populated with their name by GET /admin/tickets). */
   assignedTo?: { _id: string; name: string } | null;
+  /** Set when the customer escalated from the support bot (populated by GET /admin/tickets). */
+  botQuery?: { _id: string; question: string; answer: string; intentKey: string; helpful: boolean | null } | null;
+  orderId?: string | null;
 }
 
 export interface NewTicketForm {

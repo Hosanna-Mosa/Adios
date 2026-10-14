@@ -269,7 +269,8 @@
     "contactSupportForAssistance": "సహాయం కోసం సపోర్ట్‌ను సంప్రదించండి.",
     "contactSupport": "సపోర్ట్‌ను సంప్రదించండి",
     "signOut": "సైన్ అవుట్",
-    "helperPricing": "హెల్పర్ ధరలు"
+    "helperPricing": "హెల్పర్ ధరలు",
+    "supportBot": "సపోర్ట్ బాట్"
   },
   "notifications": {
     "justNow": "ఇప్పుడే",
@@ -1323,7 +1324,16 @@
     "viewChat": "చాట్ చూడండి",
     "replyToName": "{{name}}కు జవాబు ఇవ్వండి",
     "send": "పంపండి",
-    "typeResponsePressEnter": "మీ ప్రతిస్పందనను టైప్ చేసి, పంపడానికి Enter నొక్కండి..."
+    "typeResponsePressEnter": "మీ ప్రతిస్పందనను టైప్ చేసి, పంపడానికి Enter నొక్కండి...",
+    "fromSupportBot": "సపోర్ట్ బాట్ నుండి",
+    "botNotHelpful": "సహాయపడలేదని గుర్తించారు",
+    "botAsked": "అడిగింది",
+    "botAnswered": "బాట్ సమాధానం",
+    "botOrder": "ఆర్డర్",
+    "cancelOrder": "ఆర్డర్ రద్దు చేయండి",
+    "orderCancelled": "ఆర్డర్ రద్దు చేయబడింది",
+    "orderCancelFailed": "ఆర్డర్‌ను రద్దు చేయలేకపోయాం",
+    "confirmCancelOrder": "ఆర్డర్ #{{id}} రద్దు చేయాలా? Adios బృందం రద్దు చేసిందని కస్టమర్‌కు తెలియజేయబడుతుంది."
   },
   "system": {
     "appStoreUrl": "యాప్ స్టోర్ URL",
@@ -1602,5 +1612,44 @@
     "enRouteToSenderLabel": "పంపేవారి వద్దకు వెళ్తున్నారు",
     "packageDeliveredDesc": "ప్యాకేజీ అందుకునేవారికి అందించారు.",
     "onTheWayToReceiverDesc": "అందుకునేవారి వద్దకు వెళ్తున్నారు..."
+  },
+  "supportBot": {
+    "title": "సపోర్ట్ బాట్",
+    "description": "ఏజెంట్‌ను చేరే ముందు కస్టమర్లు అడగగల ముందే నిర్ణయించిన ప్రశ్నలు. సమాధానాలు కస్టమర్ లైవ్ డేటా నుండి తయారవుతాయి.",
+    "newQuestion": "కొత్త ప్రశ్న",
+    "editQuestion": "ప్రశ్నను సవరించండి",
+    "question": "ప్రశ్న",
+    "questionIn": "ప్రశ్న ({{lang}})",
+    "answerIn": "సమాధానం ({{lang}})",
+    "key": "కీ (ప్రత్యేకం, తర్వాత మార్చలేరు)",
+    "category": "వర్గం",
+    "resolver": "సమాధాన మూలం",
+    "sortOrder": "క్రమం",
+    "needsOrder": "ఆర్డర్ అవసరం",
+    "enabled": "ఆన్",
+    "helped": "సహాయపడింది / సమాధానాలు",
+    "missingTranslation": "తెలుగు/హిందీ లేదు",
+    "loading": "ప్రశ్నలు లోడ్ అవుతున్నాయి...",
+    "empty": "ఇంకా ప్రశ్నలు లేవు.",
+    "edit": "సవరించు",
+    "delete": "తొలగించు",
+    "save": "సేవ్",
+    "saved": "సేవ్ అయింది",
+    "deleted": "ప్రశ్న తొలగించబడింది",
+    "saveFailed": "సేవ్ చేయలేకపోయాం",
+    "confirmDelete": "\"{{question}}\" తొలగించాలా?",
+    "limitTitle": "ఏజెంట్ ముందు గరిష్ట సహాయపడని సమాధానాలు",
+    "limitDescription": "24 గంటల్లో ఇన్ని \"కాదు\" సమాధానాల తర్వాత కస్టమర్ ఏజెంట్‌తో మాత్రమే మాట్లాడగలరు.",
+    "limitInvalid": "1 నుండి 20 వరకు పూర్ణ సంఖ్య ఇవ్వండి",
+    "limitSaved": "పరిమితి సేవ్ అయింది",
+    "categories": {
+      "ride": "రైడ్",
+      "food": "ఫుడ్",
+      "meat": "మాంసం",
+      "package": "పార్సిల్",
+      "helper": "హెల్పర్",
+      "payment": "చెల్లింపులు",
+      "general": "సాధారణం"
+    }
   }
 }

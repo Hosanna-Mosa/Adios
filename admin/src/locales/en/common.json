@@ -269,7 +269,8 @@
     "contactSupportForAssistance": "Contact support for assistance.",
     "contactSupport": "Contact Support",
     "signOut": "Sign Out",
-    "helperPricing": "Helper Pricing"
+    "helperPricing": "Helper Pricing",
+    "supportBot": "Support Bot"
   },
   "notifications": {
     "justNow": "Just now",
@@ -1323,7 +1324,16 @@
     "viewChat": "View Chat",
     "replyToName": "Reply to {{name}}",
     "send": "Send",
-    "typeResponsePressEnter": "Type your response, then press Enter to send..."
+    "typeResponsePressEnter": "Type your response, then press Enter to send...",
+    "fromSupportBot": "From support bot",
+    "botNotHelpful": "marked not helpful",
+    "botAsked": "Asked",
+    "botAnswered": "Bot answered",
+    "botOrder": "Order",
+    "cancelOrder": "Cancel order",
+    "orderCancelled": "Order cancelled",
+    "orderCancelFailed": "Couldn't cancel the order",
+    "confirmCancelOrder": "Cancel order #{{id}}? The customer will be told the Adios team cancelled it."
   },
   "system": {
     "appStoreUrl": "App Store URL",
@@ -1567,7 +1577,7 @@
       "invalid": "Fix the highlighted fields to see the example fare.",
       "formula": "Fare = round((base + hours × per hour + km past free distance × per km) × zone surge) + platform fee, then tax is added."
     }
-    },
+  },
   "service": {
     "column": "Service",
     "all": "All services",
@@ -1602,5 +1612,44 @@
     "enRouteToSenderLabel": "EN ROUTE TO SENDER",
     "packageDeliveredDesc": "Package handed over to the receiver.",
     "onTheWayToReceiverDesc": "On the way to the receiver..."
+  },
+  "supportBot": {
+    "title": "Support Bot",
+    "description": "Predefined questions customers can ask before reaching an agent. Answers are built from the customer's live data.",
+    "newQuestion": "New question",
+    "editQuestion": "Edit question",
+    "question": "Question",
+    "questionIn": "Question ({{lang}})",
+    "answerIn": "Answer ({{lang}})",
+    "key": "Key (unique, cannot change later)",
+    "category": "Category",
+    "resolver": "Answer source",
+    "sortOrder": "Sort order",
+    "needsOrder": "Needs an order",
+    "enabled": "Enabled",
+    "helped": "Helped / answered",
+    "missingTranslation": "missing Telugu/Hindi",
+    "loading": "Loading questions...",
+    "empty": "No questions yet.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saved": "Saved",
+    "deleted": "Question deleted",
+    "saveFailed": "Could not save",
+    "confirmDelete": "Delete \"{{question}}\"?",
+    "limitTitle": "Max unhelpful answers before agent",
+    "limitDescription": "After this many \"No\" answers in 24 hours a customer can only talk to an agent.",
+    "limitInvalid": "Enter a whole number from 1 to 20",
+    "limitSaved": "Limit saved",
+    "categories": {
+      "ride": "Ride",
+      "food": "Food",
+      "meat": "Meat",
+      "package": "Package",
+      "helper": "Helper",
+      "payment": "Payments",
+      "general": "General"
+    }
   }
 }

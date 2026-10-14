@@ -110,24 +110,6 @@
       }
     },
     "support": {
-      "faqs": {
-        "lateOrder": {
-          "question": "My order is late. What now?",
-          "answer": "Check the live map on the Track screen first — most delays are traffic on the partner's leg. If it's running well past the estimate, open Live chat with the order in mind and we'll look into it."
-        },
-        "refunds": {
-          "question": "How do refunds work?",
-          "answer": "If a payment needs to be refunded, our support team reviews it and processes the refund back to your original payment method through Razorpay. Raise it via Live chat or a ticket and we'll confirm once it's done."
-        },
-        "cancelOrder": {
-          "question": "Can I cancel my order?",
-          "answer": "Yes — cancel anytime from the Orders or Track screen before it's completed. If a partner has already started on it, a quick message in chat helps them stop before making an unnecessary trip."
-        },
-        "pinSafety": {
-          "question": "Is my PIN safe to share?",
-          "answer": "Only hand it over once your items are physically in hand, or once your rider has arrived for a ride. Nobody from Flavour will ever ask for it over a call."
-        }
-      },
       "categories": {
         "operationalIssue": "Operational issue",
         "delayedDelivery": "Delayed delivery",
@@ -1296,6 +1278,33 @@
       "deliveryOtpHint": "Share this with the receiver. The captain needs it to complete the delivery — the receiver should give it only after getting the package.",
       "shareOtp": "Share OTP with receiver",
       "shareOtpMessage": "Your package delivery OTP is {{otp}}. Give it to the captain only after you receive the package."
+    },
+    "supportBot": {
+      "allQuestions": "All questions",
+      "helpedPeople_one": "Helped {{count}} person",
+      "helpedPeople_other": "Helped {{count}} people",
+      "didThisHelp": "Did this help?",
+      "yes": "Yes",
+      "no": "No",
+      "glad": "Glad we could help!",
+      "talkToAgent": "Talk to an agent",
+      "aboutOrder": "About order #{{id}}",
+      "change": "Change",
+      "noOrders": "No recent orders found.",
+      "timeout": "This is taking longer than usual. You can try again or talk to an agent.",
+      "error": "Something went wrong. Please try again.",
+      "tryAgain": "Try again",
+      "limitReached": "We couldn't solve this with quick answers. Please talk to an agent and we'll sort it out.",
+      "noQuestions": "No quick answers available right now.",
+      "categories": {
+        "ride": "Ride",
+        "food": "Food",
+        "meat": "Meat",
+        "package": "Package",
+        "helper": "Helper",
+        "payment": "Payments",
+        "general": "General"
+      }
     }
   }
 }

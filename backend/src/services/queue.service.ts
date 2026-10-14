@@ -6,7 +6,7 @@ import { NotificationService } from "./notification.service";
 // Parse Redis URL securely
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
 const parsedUrl = new URL(redisUrl);
-const connection = {
+export const connection = {
   host: parsedUrl.hostname || "127.0.0.1",
   port: parsedUrl.port ? Number(parsedUrl.port) : 6379,
   username: parsedUrl.username || undefined,

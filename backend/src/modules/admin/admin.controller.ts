@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { resolveHelperRates } from "../pricing/helper.pricing";
+import { getMaxUnhelpful } from "../supportBot/supportBot.service";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
 import { Types } from "mongoose";
@@ -569,7 +570,7 @@ export class AdminController {
     try {
       // Support members only ever see the cases assigned to them; admins see all.
       const filter = req.user?.role === UserRole.SUPPORT ? { assignedTo: req.user.userId } : {};
-      const tickets = await SupportTicket.find(filter).populate("assignedTo", "name").sort({ createdAt: -1 });
+      const tickets = await SupportTicket.find(filter).populate("assignedTo", "name").populate("botQuery", "question answer intentKey helpful").sort({ createdAt: -1 });
       return res.json(tickets);
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
@@ -844,7 +845,11 @@ export class AdminController {
         await config.save();
       }
       // Helper rates always come back complete (defaults for anything never saved).
-      return res.json({ ...config.value, helperRates: resolveHelperRates(config.value?.helperRates) });
+      return res.json({
+        ...config.value,
+        helperRates: resolveHelperRates(config.value?.helperRates),
+        supportBot: { maxUnhelpfulAnswers: await getMaxUnhelpful() },
+      });
     } catch (error) {
       console.error("Error getting system config:", error);
       return res.status(500).json({ message: "Internal server error" });
@@ -853,7 +858,7 @@ export class AdminController {
 
   async updateSystemConfig(req: Request, res: Response) {
     try {
-      const { rates, platformFee, surgeMultiplier, helperRates } = req.body;
+      const { rates, platformFee, surgeMultiplier, helperRates, supportBot } = req.body;
       let config = await SystemConfig.findOne({ key: "global_settings" });
       if (!config) {
         config = new SystemConfig({ key: "global_settings", value: {} });
@@ -866,6 +871,7 @@ export class AdminController {
         platformFee: platformFee !== undefined ? platformFee : config.value.platformFee,
         surgeMultiplier: surgeMultiplier !== undefined ? surgeMultiplier : config.value.surgeMultiplier,
         helperRates: helperRates ? resolveHelperRates({ ...config.value.helperRates, ...helperRates }) : config.value.helperRates,
+        supportBot: supportBot ? { ...config.value.supportBot, ...supportBot } : config.value.supportBot,
       };
 
       config.markModified("value");

@@ -13,7 +13,7 @@ import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
 import { getOrders } from "@/services/orders.service";
 
-// SERVICE_META and FAQS moved inside SupportScreen() as useMemo values — see
+// SERVICE_META moved inside SupportScreen() as useMemo values — see
 // ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
 // Same resolution rule used on the Orders screen: the list endpoint never
@@ -40,11 +40,6 @@ function formatRelativeDate(iso: string): string {
   return d.toLocaleDateString([], { day: "numeric", month: "short" });
 }
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
@@ -64,15 +59,7 @@ export default function SupportScreen() {
     packageDelivery: { label: t("app.serviceMeta.packageDelivery"), accent: "delivery" },
   }), [t]);
 
-  const FAQS: FAQItem[] = useMemo(() => [
-    { question: t("app.support.faqs.lateOrder.question"), answer: t("app.support.faqs.lateOrder.answer") },
-    { question: t("app.support.faqs.refunds.question"), answer: t("app.support.faqs.refunds.answer") },
-    { question: t("app.support.faqs.cancelOrder.question"), answer: t("app.support.faqs.cancelOrder.answer") },
-    { question: t("app.support.faqs.pinSafety.question"), answer: t("app.support.faqs.pinSafety.answer") },
-  ], [t]);
-
   const [recentOrder, setRecentOrder] = useState<any | null>(null);
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -92,25 +79,20 @@ export default function SupportScreen() {
       : recentOrder.stops?.[0]?.address || "Order"
     : "";
 
-  const toggleFAQ = (index: number) => setExpandedFAQ(expandedFAQ === index ? null : index);
-
   return (
     <ScreenShell style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }}>
       <Header title="Help & support" onBack={() => router.back()} />
 
       <SupportBody
-        FAQS={FAQS}
         Linking={Linking}
         formatRelativeDate={formatRelativeDate}
         accent={accent}
-        expandedFAQ={expandedFAQ}
         insets={insets}
         isActive={isActive}
         meta={meta}
         recentOrder={recentOrder}
         recentTitle={recentTitle}
         styles={styles}
-        toggleFAQ={toggleFAQ}
         tokens={tokens}
       />
     </ScreenShell>

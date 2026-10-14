@@ -32,6 +32,7 @@ const MeatPricing = lazy(() => import("@/pages/MeatPricing"));
 const Zones = lazy(() => import("@/pages/Zones"));
 const Banners = lazy(() => import("@/pages/Banners"));
 const Coupons = lazy(() => import("@/pages/Coupons"));
+const SupportBot = lazy(() => import("@/pages/SupportBot"));
 const Offers = lazy(() => import("@/pages/Offers"));
 const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
@@ -102,6 +103,7 @@ export function AnimatedRoutes() {
         <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
         <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
         <Route path="/coupons" element={<RequireAdmin><Coupons /></RequireAdmin>} />
+        <Route path="/support-bot" element={<RequireAdmin><SupportBot /></RequireAdmin>} />
         <Route path="/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
         <Route path="/users/:id" element={<RequireAdmin><UserDetail /></RequireAdmin>} />
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />

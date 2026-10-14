@@ -3,6 +3,8 @@ import { AdminController } from "./admin.controller";
 import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { validateRequest } from "../../middleware/validation.middleware";
+import * as supportBotController from "../supportBot/supportBot.controller";
+import { createIntentSchema, updateIntentSchema, deleteIntentSchema } from "../supportBot/supportBot.validation";
 import {
   idParamSchema,
   orderIdParamSchema,
@@ -54,6 +56,13 @@ router.get("/support-members", authenticateToken, authorizeRole([UserRole.ADMIN]
 router.post("/support-members", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createSupportMemberSchema), adminController.createSupportMember.bind(adminController));
 router.put("/support-members/:id/password", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(resetSupportMemberPasswordSchema), adminController.resetSupportMemberPassword.bind(adminController));
 router.delete("/support-members/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.deleteSupportMember.bind(adminController));
+
+// Support bot questions
+router.get("/support-intents", authenticateToken, authorizeRole([UserRole.ADMIN]), supportBotController.adminListIntents);
+router.get("/support-intents/resolvers", authenticateToken, authorizeRole([UserRole.ADMIN]), supportBotController.adminListResolvers);
+router.post("/support-intents", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createIntentSchema), supportBotController.adminCreateIntent);
+router.put("/support-intents/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(updateIntentSchema), supportBotController.adminUpdateIntent);
+router.delete("/support-intents/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(deleteIntentSchema), supportBotController.adminDeleteIntent);
 
 // Settings and Coupons routes
 router.get("/config", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getSystemConfig.bind(adminController));
