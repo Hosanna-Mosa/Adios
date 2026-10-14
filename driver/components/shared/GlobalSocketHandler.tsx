@@ -34,12 +34,13 @@ export function GlobalSocketHandler() {
     socketService.on("receive_message", handleReceiveMessage);
 
     const handleStatusUpdate = (data: any) => {
-      console.log("[GlobalSocketHandler] Order status update received:", data);
-      const { orderId, status } = data;
-      
+      if (__DEV__) console.log("[GlobalSocketHandler] Order status update received:", data);
+      const { orderId, status: rawStatus } = data;
+      const status = typeof rawStatus === "string" ? rawStatus.toLowerCase() : rawStatus;
+
       const store = useDriverStore.getState();
       const current = store.currentOrder;
-      
+
       if (current && (current.id === orderId || current.id.toString() === orderId.toString())) {
         if (current.status !== status) {
           useDriverStore.setState({
