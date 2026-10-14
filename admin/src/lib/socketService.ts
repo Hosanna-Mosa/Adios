@@ -63,17 +63,17 @@ class SocketService {
     console.log(`[Vendor Socket] Join room requested: userId=${userId}, role=${role}`);
   }
 
-  public on(event: string, callback: (data: any) => void) {
+  public on(event: string, callback: (data: unknown) => void) {
     if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
 
-  public emit(event: string, data: any) {
+  public emit(event: string, data: unknown) {
     if (!this.socket) this.connect();
     this.socket?.emit(event, data);
   }
 
-  public off(event: string, callback: (data: any) => void) {
+  public off(event: string, callback: (data: unknown) => void) {
     this.socket?.off(event, callback);
   }
 
