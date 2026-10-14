@@ -140,6 +140,11 @@ export const updateSystemConfigSchema = z.object({
       })
       .partial()
       .optional(),
+    // Admin → Support bot. How many "not helpful" answers a customer gets (per 24h) before only "Talk to an agent" is left.
+    supportBot: z
+      .object({ maxUnhelpfulAnswers: z.coerce.number().int().min(1).max(20) })
+      .partial()
+      .optional(),
   }),
 });
 

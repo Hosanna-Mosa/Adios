@@ -269,7 +269,8 @@
     "contactSupportForAssistance": "सहायता के लिए सपोर्ट से संपर्क करें।",
     "contactSupport": "सपोर्ट से संपर्क करें",
     "signOut": "साइन आउट",
-    "helperPricing": "हेल्पर मूल्य निर्धारण"
+    "helperPricing": "हेल्पर मूल्य निर्धारण",
+    "supportBot": "सपोर्ट बॉट"
   },
   "notifications": {
     "justNow": "अभी अभी",
@@ -1323,7 +1324,16 @@
     "viewChat": "चैट देखें",
     "replyToName": "{{name}} को जवाब दें",
     "send": "भेजें",
-    "typeResponsePressEnter": "अपना जवाब लिखें, फिर भेजने के लिए Enter दबाएँ..."
+    "typeResponsePressEnter": "अपना जवाब लिखें, फिर भेजने के लिए Enter दबाएँ...",
+    "fromSupportBot": "सपोर्ट बॉट से",
+    "botNotHelpful": "उपयोगी नहीं बताया",
+    "botAsked": "पूछा",
+    "botAnswered": "बॉट का उत्तर",
+    "botOrder": "ऑर्डर",
+    "cancelOrder": "ऑर्डर रद्द करें",
+    "orderCancelled": "ऑर्डर रद्द हो गया",
+    "orderCancelFailed": "ऑर्डर रद्द नहीं हो सका",
+    "confirmCancelOrder": "ऑर्डर #{{id}} रद्द करें? ग्राहक को बताया जाएगा कि Adios टीम ने इसे रद्द किया।"
   },
   "system": {
     "appStoreUrl": "ऐप स्टोर URL",
@@ -1602,5 +1612,44 @@
     "enRouteToSenderLabel": "भेजने वाले के पास जा रहे हैं",
     "packageDeliveredDesc": "पैकेज पाने वाले को सौंप दिया गया।",
     "onTheWayToReceiverDesc": "पाने वाले के पास जा रहे हैं..."
+  },
+  "supportBot": {
+    "title": "सपोर्ट बॉट",
+    "description": "एजेंट तक पहुँचने से पहले ग्राहक जो पहले से तय प्रश्न पूछ सकते हैं। उत्तर ग्राहक के लाइव डेटा से बनते हैं।",
+    "newQuestion": "नया प्रश्न",
+    "editQuestion": "प्रश्न संपादित करें",
+    "question": "प्रश्न",
+    "questionIn": "प्रश्न ({{lang}})",
+    "answerIn": "उत्तर ({{lang}})",
+    "key": "कुंजी (अद्वितीय, बाद में बदली नहीं जा सकती)",
+    "category": "श्रेणी",
+    "resolver": "उत्तर का स्रोत",
+    "sortOrder": "क्रम",
+    "needsOrder": "ऑर्डर ज़रूरी",
+    "enabled": "चालू",
+    "helped": "मदद मिली / उत्तर",
+    "missingTranslation": "तेलुगु/हिंदी अनुपलब्ध",
+    "loading": "प्रश्न लोड हो रहे हैं...",
+    "empty": "अभी कोई प्रश्न नहीं।",
+    "edit": "संपादित करें",
+    "delete": "हटाएँ",
+    "save": "सहेजें",
+    "saved": "सहेजा गया",
+    "deleted": "प्रश्न हटाया गया",
+    "saveFailed": "सहेज नहीं सके",
+    "confirmDelete": "\"{{question}}\" हटाएँ?",
+    "limitTitle": "एजेंट से पहले अधिकतम अनुपयोगी उत्तर",
+    "limitDescription": "24 घंटे में इतने \"नहीं\" उत्तरों के बाद ग्राहक केवल एजेंट से बात कर सकेगा।",
+    "limitInvalid": "1 से 20 तक पूर्ण संख्या दें",
+    "limitSaved": "सीमा सहेजी गई",
+    "categories": {
+      "ride": "राइड",
+      "food": "फ़ूड",
+      "meat": "मीट",
+      "package": "पैकेज",
+      "helper": "हेल्पर",
+      "payment": "भुगतान",
+      "general": "सामान्य"
+    }
   }
 }

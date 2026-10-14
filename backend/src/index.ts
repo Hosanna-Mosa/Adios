@@ -13,6 +13,7 @@ import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
 import { QueueManager } from "./services/queue.service";
+import { SupportBotQueue } from "./services/supportBot.queue";
 import { SchedulerService } from "./services/scheduler.service";
 import { startFoodDispatchSweeper } from "./services/foodDispatch.service";
 import { OrdersService } from "./modules/orders/orders.service";
@@ -36,6 +37,7 @@ import onboardingRoutes from "./modules/onboarding/onboarding.routes";
 import zonesRoutes from "./modules/zones/zones.routes";
 import notificationsRoutes from "./modules/notifications/notifications.routes";
 import supportRoutes from "./modules/support/support.routes";
+import supportBotRoutes from "./modules/supportBot/supportBot.routes";
 import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
 import cartRoutes from "./modules/cart/cart.routes";
@@ -144,6 +146,7 @@ connectDB().then(async () => {
   app.use("/api/v1/onboarding", onboardingRoutes);
   app.use("/api/v1/zones", zonesRoutes);
   app.use("/api/v1/notifications", notificationsRoutes);
+  app.use("/api/v1/support/bot", supportBotRoutes);
   app.use("/api/v1/support", supportRoutes);
   app.use("/api/v1/reviews", reviewRoutes);
   app.use("/api/v1/banners", bannersRoutes);
@@ -161,6 +164,7 @@ connectDB().then(async () => {
     
     // Initialize BullMQ worker
     QueueManager.getInstance().startWorker();
+    SupportBotQueue.getInstance().startWorker();
 
     // Initialize periodic scheduler
     SchedulerService.getInstance().startScheduler();

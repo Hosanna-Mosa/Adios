@@ -432,11 +432,11 @@ export class OrdersController {
 
       // Who may move this order, and where to. Strangers get "not found".
       const { order: current, relation } = await ordersService.getOrderForActor(id as string, req.user);
-      // Support staff can look orders up to help customers, but only admins change them.
-      if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
-        throw new ForbiddenError("Support can view orders but not change them.");
-      }
       const isCancel = String(status).toUpperCase() === OrderStatus.CANCELLED;
+      // Support staff can look orders up and cancel them for a customer; every other change is admin-only.
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT && !isCancel) {
+        throw new ForbiddenError("Support can view and cancel orders but not make other changes.");
+      }
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");
       }

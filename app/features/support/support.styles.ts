@@ -26,10 +26,6 @@ export const createStyles = (tokens: ThemeTokens) =>
     contactLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
     contactDesc: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
 
-    faqCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, overflow: "hidden", marginHorizontal: 16 },
-    faqRow: { padding: 14 },
-    faqQuestion: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
-    faqAnswer: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10 },
   });
 
 /** Exact shape of this screen's stylesheet, for components that take it as a prop. */
