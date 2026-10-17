@@ -1,30 +1,37 @@
+import React from "react";
 import { ScrollView, View } from "react-native";
+import { moderateScale } from "react-native-size-matters";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
 
-// Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; every value it used to read
-// from the screen's scope is now a prop of the same name.
+// The orders loading state. It mirrors the real list — the same 20-radius card, row
+// padding and 44pt icon tile — and shimmers through the shared Skeleton, so nothing
+// jumps when the orders arrive. It used to be static cards with a 52px thumbnail at
+// a 14 radius.
 
 interface Props {
   styles: OrdersStyles;
 }
 
-export function OrdersBody({
-  styles,
-}: Props) {
+const ROWS = [0, 1, 2];
+
+export function OrdersBody({ styles }: Props) {
   return (
-    <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 4, gap: 12 }}>
-      {[0, 1].map((i) => (
-        <View key={i} style={styles.skeletonCard}>
-          <View style={[styles.skeletonBar, { width: "22%", height: 11, marginBottom: 12 }]} />
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            <View style={[styles.skeletonBar, { width: 52, height: 52, borderRadius: 8 }]} />
-            <View style={{ flex: 1, justifyContent: "center", gap: 8 }}>
-              <View style={[styles.skeletonBar, { width: "56%", height: 14 }]} />
-              <View style={[styles.skeletonBar, { width: "74%", height: 12 }]} />
+    <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 4 }}>
+      <View style={styles.listCard}>
+        {ROWS.map((i) => (
+          <React.Fragment key={i}>
+            <View style={styles.row}>
+              <Skeleton width={moderateScale(44)} height={moderateScale(44)} radius={moderateScale(14)} />
+              <View style={{ flex: 1, gap: 8, paddingTop: 4 }}>
+                <Skeleton width="56%" height={14} />
+                <Skeleton width="74%" height={12} />
+              </View>
             </View>
-          </View>
-        </View>
-      ))}
+            {i < ROWS.length - 1 && <View style={styles.rowDivider} />}
+          </React.Fragment>
+        ))}
+      </View>
     </ScrollView>
   );
 }

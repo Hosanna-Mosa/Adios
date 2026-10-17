@@ -7,5 +7,6 @@ export { EarningsStatsRow } from "./EarningsStatsRow";
 export { PerformanceCard } from "./PerformanceCard";
 export type { PerformanceRange } from "./PerformanceCard";
 export { RecentActivityList } from "./RecentActivityList";
+export { StatementSection } from "./StatementSection";
 export type { EarningsTransaction } from "./RecentActivityList";
 export { TransactionItem } from "./TransactionItem";

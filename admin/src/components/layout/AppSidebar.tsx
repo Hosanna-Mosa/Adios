@@ -39,10 +39,11 @@ import {
   BadgePercent,
   HandHelping,
   Bot,
+  PackageSearch,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
-const SUPPORT_NAV_URLS = new Set(["/support", "/support-cases", "/support/chats"]);
+const SUPPORT_NAV_URLS = new Set(["/support", "/support-cases", "/support/chats", "/support/orders"]);
 
 function getNavItems(t: (key: string) => string) {
   return [
@@ -67,6 +68,7 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.support"), url: "/support", icon: Headphones },
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
+    { title: t("sidebar.supportOrders"), url: "/support/orders", icon: PackageSearch },
     { title: t("sidebar.supportBot"), url: "/support-bot", icon: Bot },
     { title: t("sidebar.coupons"), url: "/coupons", icon: Ticket },
     { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },

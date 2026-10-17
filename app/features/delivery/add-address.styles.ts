@@ -54,7 +54,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
 
     mapPreview: { height: 160, borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: tokens.border, marginHorizontal: 16, marginTop: 4, position: "relative" },
-    mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
+    mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: tokens.surface },
     mapPreviewPill: { position: "absolute", bottom: 10, alignSelf: "center", backgroundColor: tokens.surface, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: tokens.border, maxWidth: "82%" },
     mapPreviewPillText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text },
     mapPreviewCoords: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, textAlign: "center", marginTop: 6, marginHorizontal: 16 },

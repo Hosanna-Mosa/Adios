@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Transaction } from "../paymentsTypes";
-import { adminOrderStatusLabel } from "../adminOrderStatus";
+import { adminOrderStatusLabel } from "@/components/shared/adminOrderStatus";
 
 interface PaymentsTableProps {
   isLoading: boolean;

@@ -105,7 +105,7 @@ export function CartContents(props: Props) {
                   <Feather name="plus" size={14} color={accent.accent} />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.itemLinePrice}>₹{item.price * item.quantity}</Text>
+              <Text style={styles.itemLinePrice} numberOfLines={1}>₹{item.price * item.quantity}</Text>
             </Animated.View>
           ))}
           <TouchableOpacity style={styles.addMoreRow} onPress={() => router.back()}>
@@ -120,11 +120,25 @@ export function CartContents(props: Props) {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
             {complements.slice(0, 8).map((comp, idx) => (
               <Animated.View key={comp._id} entering={staggerListItem(idx)} style={styles.complementCard}>
-                <Image source={{ uri: comp.images?.[0] }} style={styles.complementImage} contentFit="cover" transition={200} />
+                {/* Same placeholder as the cart rows above when the dish has no photo (it was a blank box). */}
+                {comp.images?.[0] ? (
+                  <Image source={{ uri: comp.images[0] }} style={styles.complementImage} contentFit="cover" transition={200} />
+                ) : (
+                  <View style={[styles.complementImage, styles.itemThumbFallback]}>
+                    <Ionicons name="restaurant-outline" size={moderateScale(20)} color={tokens.muted} />
+                  </View>
+                )}
                 <Text style={styles.complementName} numberOfLines={1}>{comp.name}</Text>
                 <View style={styles.complementFooter}>
                   <DishPrice price={comp.price} offerPrice={comp.offerPrice} discountPercent={comp.discountPercent} priceStyle={styles.complementPrice} hidePercent />
-                  <TouchableOpacity style={styles.complementAddBtn} onPress={() => addItem(comp, vendorId!)}>
+                  <TouchableOpacity
+                    style={styles.complementAddBtn}
+                    onPress={() => addItem(comp, vendorId!)}
+                    // 28pt button: hitSlop takes the touch target to 44pt.
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("app.a11y.addItem", { name: comp.name })}
+                  >
                     <Ionicons name="add" size={16} color={accent.accent} />
                   </TouchableOpacity>
                 </View>

@@ -63,8 +63,6 @@ export const createStyles = (tokens: ThemeTokens) =>
     refundText: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small },
     rejectionReason: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.error, marginTop: 6 },
 
-    skeletonCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 14 },
-    skeletonBar: { backgroundColor: tokens.sunken, borderRadius: 6 },
 
     emptyWrap: { flex: 1, alignItems: "center", paddingTop: 100, paddingHorizontal: 32 },
     emptyIconCircle: { width: 72, height: 72, borderRadius: 24, backgroundColor: tokens.brandSkin, alignItems: "center", justifyContent: "center", marginBottom: 18 },
@@ -74,7 +72,7 @@ export const createStyles = (tokens: ThemeTokens) =>
     primaryBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 
     sheetOverlay: { flex: 1, justifyContent: "flex-end" },
-    sheetScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.5)" },
+    sheetScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: tokens.overlay },
     sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 18 },
     filterSheet: { backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12, paddingHorizontal: 20, paddingBottom: 24 },
     filterSheetTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text, marginBottom: 18 },
@@ -82,21 +80,13 @@ export const createStyles = (tokens: ThemeTokens) =>
     checkbox: { width: 20, height: 20, borderRadius: 6, borderWidth: 2, borderColor: tokens.borderStrong, alignItems: "center", justifyContent: "center" },
     filterOptionLabel: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
     filterOptionCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
-    clearBtn: { flex: 1, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    clearBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
-    showBtn: { flex: 1, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
-    showBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 
-    reviewOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 20 },
+    reviewOverlay: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "center", alignItems: "center", padding: 20 },
     reviewCard: { width: "100%", borderRadius: 18, borderWidth: 1, borderColor: tokens.border, backgroundColor: tokens.surface, padding: 20 },
     reviewTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     reviewTagChip: { borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
     reviewTagText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.text },
     reviewInput: { borderWidth: 1, borderColor: tokens.border, borderRadius: 12, padding: 12, minHeight: 60, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text, textAlignVertical: "top" },
-    reviewCancelBtn: { flex: 1, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 12, paddingVertical: 13, alignItems: "center" },
-    reviewCancelBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
-    reviewSubmitBtn: { flex: 1, borderRadius: 12, paddingVertical: 13, alignItems: "center" },
-    reviewSubmitBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
   });
 
 /** Exact shape of this feature's stylesheet, for components that take it as a prop. */

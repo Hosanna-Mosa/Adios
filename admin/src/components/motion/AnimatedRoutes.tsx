@@ -23,6 +23,8 @@ const Payouts = lazy(() => import("@/pages/Payouts"));
 const Support = lazy(() => import("@/pages/Support"));
 const SupportIssues = lazy(() => import("@/pages/SupportIssues"));
 const SupportChat = lazy(() => import("@/pages/SupportChat"));
+const SupportOrders = lazy(() => import("@/pages/SupportOrders"));
+const SupportOrderDetail = lazy(() => import("@/pages/SupportOrderDetail"));
 const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
 const Users = lazy(() => import("@/pages/Users"));
 const Vendors = lazy(() => import("@/pages/Vendors"));
@@ -89,6 +91,8 @@ export function AnimatedRoutes() {
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
         <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />
         <Route path="/support/chats/:id" element={<RequireAuth><SupportChat /></RequireAuth>} />
+        <Route path="/support/orders" element={<RequireAuth><SupportOrders /></RequireAuth>} />
+        <Route path="/support/orders/:id" element={<RequireAuth><SupportOrderDetail /></RequireAuth>} />
         <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
         <Route path="/vendors" element={<RequireAdmin><Vendors /></RequireAdmin>} />
         <Route path="/restaurant-menu" element={<RequireAdmin><RestaurantMenu /></RequireAdmin>} />

@@ -124,7 +124,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     closedBannerTitle: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.error },
     closedBannerText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
-    modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+    modalBackdrop: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "flex-end" },
     modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden" },
     modalImage: { width: "100%", height: 240, backgroundColor: tokens.sunken },
     modalCloseBtn: {

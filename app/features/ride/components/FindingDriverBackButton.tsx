@@ -1,6 +1,4 @@
-import { TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
+import { MapBackButton } from "@/components/ui/MapBackButton";
 import type { ThemeTokens } from "@/constants/colors";
 import type { FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 
@@ -14,10 +12,6 @@ interface Props {
   tokens: ThemeTokens;
 }
 
-export function FindingDriverBackButton({ insets, onPress, styles, tokens }: Props) {
-  return (
-    <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={onPress}>
-      <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-    </TouchableOpacity>
-  );
+export function FindingDriverBackButton({ onPress }: Props) {
+  return <MapBackButton absolute onPress={onPress} />;
 }

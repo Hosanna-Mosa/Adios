@@ -319,7 +319,13 @@ export class AdminController {
       if (gender !== undefined) driver.gender = gender;
       if (onboardingStatus !== undefined) driver.onboardingStatus = onboardingStatus;
       if (aadhaarVerified !== undefined) driver.aadhaarVerified = aadhaarVerified;
-      if (bankVerified !== undefined) driver.bankVerified = bankVerified;
+      if (bankVerified !== undefined) {
+        driver.bankVerified = bankVerified;
+        // Keep the matching saved account's badge in step with the payout account.
+        for (const account of driver.bankAccounts || []) {
+          if (account.accountNumber === driver.bankAccountNumber) account.verified = bankVerified;
+        }
+      }
       if (preferredZone !== undefined) {
         driver.preferredZone = preferredZone ? preferredZone : undefined;
       }
@@ -612,11 +618,21 @@ export class AdminController {
   async updateSupportTicket(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status, replyText } = req.body;
+      const { status, replyText, orderId } = req.body;
       const ticket = await SupportTicket.findById(id);
       // Another member's case answers exactly like a missing one.
       const isForeignCase = req.user?.role === UserRole.SUPPORT && ticket?.assignedTo?.toString() !== req.user.userId;
       if (!ticket || isForeignCase) return res.status(404).json({ message: "Ticket not found" });
+
+      if (orderId !== undefined) {
+        if (orderId === null) {
+          ticket.orderId = null;
+        } else {
+          const order = await Order.findById(orderId).select("_id").lean();
+          if (!order) return res.status(404).json({ message: "Order not found" });
+          ticket.orderId = String(order._id);
+        }
+      }
 
       if (status !== undefined) {
         if (status === "RESOLVED") {

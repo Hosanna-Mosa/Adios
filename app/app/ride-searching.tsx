@@ -48,6 +48,7 @@ export default function RideSearchingScreen() {
         progressBarStyle={progressBarStyle}
         showTripDetails={showTripDetails}
         styles={styles}
+        serviceId={params.serviceId}
       />
 
       {tripDetailsVisible && (

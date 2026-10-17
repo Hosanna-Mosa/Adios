@@ -152,7 +152,12 @@
       "careflavourinWithin24Hours": "care@flavour.in · 24 గంటల్లో",
       "raiseANewTicket": "కొత్త టికెట్‌ను లేవనెత్తండి",
       "addATitleAndAShort": "ముందుగా ఒక శీర్షిక మరియు చిన్న వివరణను జోడించండి.",
-      "messageNotSent": "సందేశం పంపబడలేదు"
+      "messageNotSent": "సందేశం పంపబడలేదు",
+      "caseClosedOn": "{{date}}న మూసివేయబడింది",
+      "caseMeta_one": "{{count}} సందేశం · {{date}}న అప్‌డేట్",
+      "caseMeta_other": "{{count}} సందేశాలు · {{date}}న అప్‌డేట్",
+      "noMessagesYet": "ఇంకా సందేశాలు లేవు",
+      "send": "పంపండి"
     },
     "tracking": {
       "rideLabels": {
@@ -347,7 +352,16 @@
       "pickAServiceToGetStarted": "ప్రారంభించడానికి ఒక సేవను ఎంచుకోండి.",
       "beta": "బీటా",
       "offerEyebrow": "ఆఫర్",
-      "viewOffer": "ఆఫర్ చూడండి"
+      "viewOffer": "ఆఫర్ చూడండి",
+      "kmUnit": "కి.మీ.",
+      "suggest": {
+        "chickenCurryCut": "చికెన్ కర్రీ కట్",
+        "mutton": "మటన్",
+        "prawns": "రొయ్యలు",
+        "biryani": "బిర్యానీ",
+        "pizza": "పిజ్జా",
+        "meals149": "₹149 మీల్స్"
+      }
     },
     "profile": {
       "menuItems": {
@@ -390,7 +404,8 @@
       "changePhoto": "ఫోటో మార్చండి",
       "uploadPhoto": "ఫోటో అప్‌లోడ్ చేయండి",
       "removePhoto": "ఫోటో తీసివేయండి",
-      "failedToRemovePhoto": "ఫోటో తీసివేయడం విఫలమైంది"
+      "failedToRemovePhoto": "ఫోటో తీసివేయడం విఫలమైంది",
+      "yourNameFallback": "మీ పేరు"
     },
     "food": {
       "orderFallback": {
@@ -539,7 +554,10 @@
       "percentOff": "{{percent}}% తగ్గింపు",
       "bestseller": "బెస్ట్‌సెల్లర్",
       "kcal": "{{value}} kcal",
-      "proteinGrams": "{{value}}గ్రా ప్రోటీన్"
+      "proteinGrams": "{{value}}గ్రా ప్రోటీన్",
+      "restaurantFallback": "రెస్టారెంట్",
+      "kmAway": "{{km}} కి.మీ. దూరం",
+      "deliveryFeeAmount": "₹{{amount}} డెలివరీ"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} మీ అసలు చెల్లింపు విధానానికి తిరిగి ఇవ్వబడింది · {{date}}",
@@ -595,7 +613,11 @@
       "findingAHelper": "హెల్పర్‌ను వెతుకుతోంది",
       "helperAssigned": "హెల్పర్ కేటాయించబడ్డారు",
       "taskInProgress": "పని జరుగుతోంది",
-      "taskCompleted": "పని పూర్తయింది"
+      "taskCompleted": "పని పూర్తయింది",
+      "all": "అన్నీ",
+      "slotRejectedFallback": "అభ్యర్థించిన సమయంలో రెస్టారెంట్ ఈ ఆర్డర్‌ను తీసుకోలేకపోయింది.",
+      "invoice": "ఇన్‌వాయిస్",
+      "invoiceUnavailable": "ఇన్‌వాయిస్ అందుబాటులో లేదు"
     },
     "helperTask": {
       "title": {
@@ -651,9 +673,6 @@
       "supportLinkText": "సపోర్ట్",
       "toChangeItThereapossNoSelfserve": "దీన్ని మార్చడానికి — కొత్త నంబర్‌ను స్వయంగా మళ్లీ ధృవీకరించే మార్గం ఇంకా లేదు.",
       "updateProfile": "ప్రొఫైల్‌ను అప్‌డేట్ చేయండి",
-      "iAgreeToThe": "నేను దీనికి అంగీకరిస్తున్నాను",
-      "terms": "నిబంధనలు",
-      "privacyPolicy": "గోప్యతా విధానం",
       "createAccount": "ఖాతాను సృష్టించండి",
       "alreadyHaveOne": "ఇప్పటికే ఖాతా ఉందా?",
       "signIn": "సైన్ ఇన్",
@@ -673,11 +692,17 @@
       "verifyYourNumber": "మీ నంబర్‌ను ధృవీకరించండి",
       "weSentA6digitCodeTo": "మేము 6-అంకెల కోడ్‌ను పంపాము",
       "change": "మార్చండి",
-      "resendCodeIn0": "0: లో కోడ్‌ను మళ్లీ పంపండి",
       "resend": "మళ్లీ పంపండి",
       "verified": "ధృవీకరించబడింది",
       "createYourAccount": "మీ ఖాతాను సృష్టించండి",
-      "takesAboutAMinuteWeaposllVerify": "సుమారు ఒక నిమిషం పడుతుంది. మేము OTPతో మీ ఫోన్‌ను ధృవీకరిస్తాము."
+      "takesAboutAMinuteWeaposllVerify": "సుమారు ఒక నిమిషం పడుతుంది. మేము OTPతో మీ ఫోన్‌ను ధృవీకరిస్తాము.",
+      "strength": {
+        "weak": "బలహీనం",
+        "fair": "పర్వాలేదు",
+        "good": "బాగుంది"
+      },
+      "agreeToTermsAndPrivacy": "నేను <terms>నిబంధనలు</terms> మరియు <privacy>గోప్యతా విధానం</privacy>కు అంగీకరిస్తున్నాను.",
+      "resendCodeIn": "{{time}}లో కోడ్ మళ్ళీ పంపండి"
     },
     "delivery": {
       "streetAddress": "వీధి చిరునామా",
@@ -703,7 +728,6 @@
       "stopCount_other": "{{count}} స్టాప్‌లు",
       "addPickupLocation": "+ పికప్ లొకేషన్‌ను జోడించండి",
       "calculatingRoute": "మార్గాన్ని లెక్కిస్తోంది…",
-      "kmAbout": "కి.మీ · సుమారు",
       "addAPickupToSeeDistance": "దూరాన్ని చూడటానికి పికప్‌ను జోడించండి",
       "deliveryLower": "డెలివరీ",
       "reviewRoute": "మార్గాన్ని సమీక్షించండి",
@@ -828,7 +852,6 @@
       "saved": "సేవ్ చేయబడింది",
       "near": "సమీపంలో",
       "recent": "ఇటీవలివి",
-      "save": "సేవ్ చేయండి",
       "findAHelper": "హెల్పర్‌ను కనుగొనండి · ₹",
       "deleteAddress": "చిరునామాను తొలగించండి",
       "areYouSureRemoveAddress": "మీరు ఖచ్చితంగా ఈ చిరునామాను తీసివేయాలనుకుంటున్నారా?",
@@ -863,7 +886,10 @@
       "yourOffer": "మీ ఆఫర్",
       "offerForDuration": "{{hours}}గం {{minutes}}ని కోసం · గంటకు సుమారు ₹{{perHour}}",
       "recommendedPrice": "సిఫార్సు చేసిన ధర · ₹{{amount}}",
-      "taskCancelsAutomatically": "రాబోయే కొన్ని నిమిషాల్లో ఎవరూ తీసుకోకపోతే, మేము ఈ పనిని ఆటోమేటిక్‌గా రద్దు చేస్తాము."
+      "taskCancelsAutomatically": "రాబోయే కొన్ని నిమిషాల్లో ఎవరూ తీసుకోకపోతే, మేము ఈ పనిని ఆటోమేటిక్‌గా రద్దు చేస్తాము.",
+      "distanceKm": "{{km}} కి.మీ.",
+      "aboutMinutes": "సుమారు {{min}} ని.",
+      "multiStopDelivery": "మల్టీ-స్టాప్ డెలివరీ"
     },
     "ride": {
       "whyDoYouWantToCancel": "మీరు ఎందుకు రద్దు చేయాలనుకుంటున్నారు?",
@@ -1036,7 +1062,8 @@
       "adiosCancelledOrder": "Adios బృందం ఈ ఆర్డర్‌ను రద్దు చేసింది. ఆన్‌లైన్‌లో చెల్లించిన మొత్తం తిరిగి ఇవ్వబడుతుంది. ప్రశ్నలు ఉంటే సపోర్ట్‌ను సంప్రదించండి.",
       "youCancelledThisOrder": "మీరు ఈ ఆర్డర్‌ను రద్దు చేశారు.",
       "noHelperAvailable": "హెల్పర్ ఎవరూ అందుబాటులో లేరు",
-      "noHelperWasAvailableCancelled": "మీ పనికి హెల్పర్ ఎవరూ అందుబాటులో లేరు, అందుకే దాన్ని రద్దు చేశాము."
+      "noHelperWasAvailableCancelled": "మీ పనికి హెల్పర్ ఎవరూ అందుబాటులో లేరు, అందుకే దాన్ని రద్దు చేశాము.",
+      "etaMinutes": "{{min}} ని."
     },
     "UpdateModal": {
       "couldntOpenTheStore": "స్టోర్‌ను తెరవలేకపోయాము",
@@ -1061,13 +1088,11 @@
     },
     "CartConflictDialog": {
       "startANewCart": "కొత్త కార్ట్‌ను ప్రారంభించాలా?",
-      "yourCartHasItemsFrom": "మీ కార్ట్‌లో వస్తువులు ఉన్నాయి",
-      "adding": ". జోడిస్తున్నారు",
-      "willEmptyIt": "దీన్ని ఖాళీ చేస్తుంది.",
       "clearCart": "కార్ట్‌ను ఖాళీ చేయండి",
       "keepMyCart": "నా కార్ట్‌ను అలాగే ఉంచండి",
       "anotherOutlet": "వేరే అవుట్‌లెట్",
-      "thisOutlet": "ఈ అవుట్‌లెట్"
+      "thisOutlet": "ఈ అవుట్‌లెట్",
+      "body": "మీ కార్ట్‌లో {{from}} నుండి వస్తువులు ఉన్నాయి. {{to}} నుండి {{item}} జోడిస్తే కార్ట్ ఖాళీ అవుతుంది."
     },
     "checkout": {
       "checkout": "చెక్అవుట్",
@@ -1137,7 +1162,9 @@
     "OfflineBanner": {
       "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
       "checking": "తనిఖీ చేస్తోంది…",
-      "retry": "మళ్లీ ప్రయత్నించండి"
+      "retry": "మళ్లీ ప్రయత్నించండి",
+      "lastSyncedMinutesAgo_one": "{{count}} ని. క్రితం సింక్ అయింది",
+      "lastSyncedMinutesAgo_other": "{{count}} ని. క్రితం సింక్ అయింది"
     },
     "RestaurantListItem": {
       "pureVeg": "ప్యూర్ వెజ్"
@@ -1305,6 +1332,26 @@
         "payment": "చెల్లింపులు",
         "general": "సాధారణం"
       }
+    },
+    "a11y": {
+      "goBack": "వెనుకకు వెళ్ళండి",
+      "unreadCount_one": "{{label}} చదవనివి",
+      "unreadCount_other": "{{label}} చదవనివి",
+      "cartWithItems_one": "కార్ట్, {{count}} ఐటమ్",
+      "cartWithItems_other": "కార్ట్, {{count}} ఐటమ్‌లు",
+      "showPassword": "పాస్‌వర్డ్ చూపించు",
+      "hidePassword": "పాస్‌వర్డ్ దాచు",
+      "callName": "{{name}}కి కాల్ చేయండి",
+      "addItem": "{{name}} జోడించండి",
+      "removeFromFavorites": "{{name}}ను ఇష్టమైనవాటి నుండి తీసివేయండి",
+      "removeStop": "స్టాప్ {{name}} తీసివేయండి",
+      "moreOptionsFor": "{{name}} కోసం మరిన్ని ఎంపికలు",
+      "close": "మూసివేయండి",
+      "changePhoto": "ఫోటో మార్చండి"
+    },
+    "language": {
+      "chooseYourLanguage": "మీ భాషను ఎంచుకోండి",
+      "youCanChangeThisLater": "దీన్ని తర్వాత మీ ప్రొఫైల్ నుండి మార్చుకోవచ్చు."
     }
   }
 }

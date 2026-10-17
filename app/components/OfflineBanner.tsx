@@ -3,13 +3,17 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Constants from "expo-constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { designTokens, type ThemeTokens } from "@/constants/colors";
+import { designTokens, elevation, radius, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
 const CHECK_INTERVAL_MS = 15000;
 const PING_TIMEOUT_MS = 6000;
+// Room left for a screen header (40pt back chip + its padding) above the banner.
+// The banner used to sit right on top of the header and covered the back button
+// exactly when an offline user most needed to leave the screen.
+const HEADER_CLEARANCE = 60;
 
 /**
  * There's no NetInfo (or any native connectivity module) installed in this
@@ -66,13 +70,13 @@ export function OfflineBanner() {
   const minsAgo = lastOnlineAt ? Math.max(0, Math.round((Date.now() - lastOnlineAt.getTime()) / 60000)) : null;
 
   return (
-    <View style={[styles.wrap, { top: insets.top + 8 }]} pointerEvents="box-none">
+    <View style={[styles.wrap, { top: insets.top + HEADER_CLEARANCE }]} pointerEvents="box-none">
       <View style={styles.toast}>
         <View style={styles.dot} />
         <Text style={styles.text} numberOfLines={1}>
-          {t("app.OfflineBanner.youaposreOffline")}{minsAgo != null ? ` · last synced ${minsAgo}m ago` : ""}
+          {t("app.OfflineBanner.youaposreOffline")}{minsAgo != null ? ` · ${t("app.OfflineBanner.lastSyncedMinutesAgo", { count: minsAgo })}` : ""}
         </Text>
-        <TouchableOpacity onPress={ping} disabled={checking}>
+        <TouchableOpacity onPress={ping} disabled={checking} hitSlop={12} accessibilityRole="button">
           <Text style={styles.retry}>{checking ? t("app.OfflineBanner.checking") : t("app.OfflineBanner.retry")}</Text>
         </TouchableOpacity>
       </View>
@@ -84,9 +88,9 @@ const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     wrap: { position: "absolute", left: 12, right: 12, zIndex: 999 },
     toast: {
-      flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.text, borderRadius: 12,
+      flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.text, borderRadius: radius.sm,
       paddingHorizontal: 13, paddingVertical: 11,
-      shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 6,
+      ...elevation.md,
     },
     dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.warning, flexShrink: 0 },
     text: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.bg },

@@ -2,7 +2,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Order } from "../orderDetailTypes";
-import { adminOrderStatusLabel } from "../adminOrderStatus";
+import { adminOrderStatusLabel } from "@/components/shared/adminOrderStatus";
 
 interface OrderDetailHeaderProps {
   order: Order;

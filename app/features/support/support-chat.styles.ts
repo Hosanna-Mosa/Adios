@@ -66,7 +66,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     reopenBtn: { borderWidth: 1.5, borderColor: accent.accent, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 9 },
     reopenBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 
-    resolveOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center", padding: 32 },
+    resolveOverlay: { flex: 1, backgroundColor: tokens.overlay, alignItems: "center", justifyContent: "center", padding: 32 },
     resolveCard: { backgroundColor: tokens.surface, borderRadius: 20, padding: 22, width: "100%" },
     resolveTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge, letterSpacing: -0.3, color: tokens.text },
     resolveSub: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10, marginBottom: 20 },

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
+import { rideVehicleIcon } from "../useRideSearching.shared";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -15,6 +16,8 @@ interface Props {
   progressBarStyle: any;
   showTripDetails: any;
   styles: RideSearchingStyles;
+  /** The booked service ("bike", "bike-lite", "auto", "cab"…) — picks the fare card's icon. */
+  serviceId?: string;
 }
 
 export function SearchingPanel({
@@ -24,6 +27,7 @@ export function SearchingPanel({
   progressBarStyle,
   showTripDetails,
   styles,
+  serviceId,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -45,7 +49,7 @@ export function SearchingPanel({
 
         <View style={[styles.fareCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight }]}>
           <View style={[styles.bikeBadge, { backgroundColor: colors.surface }]}>
-            <MaterialCommunityIcons name="motorbike" size={24} color={colors.text} />
+            <MaterialCommunityIcons name={rideVehicleIcon(serviceId)} size={24} color={colors.text} />
           </View>
           <View style={styles.fareTextGroup}>
             <Text style={[styles.fareLabel, { color: colors.textSecondary }]}>{t("app.ride.totalFare")}</Text>

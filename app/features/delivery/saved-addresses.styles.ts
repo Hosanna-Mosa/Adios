@@ -33,7 +33,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     recentRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
     recentIcon: { width: 36, height: 36, borderRadius: 999, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", flexShrink: 0 },
     recentName: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
-    recentSave: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
 
     emptyWrap: { alignItems: "center", paddingTop: 76, paddingHorizontal: 32 },
     emptyIconCircle: { width: 76, height: 76, borderRadius: 24, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginBottom: 20 },

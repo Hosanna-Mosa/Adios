@@ -59,7 +59,14 @@ export function DistanceSheet({
                 <Text style={styles.distanceTitle}>{t("app.home.customizeDistance")}</Text>
                 <Text style={styles.distanceSubtitle}>{appliedDistanceKm ? t("app.home.filteringWithinKm", { km: appliedDistanceKm, defaultValue: "Filtering within {{km}} km" }) : t("app.home.showingAllNearbyOptions")}</Text>
               </View>
-              <TouchableOpacity style={styles.distanceCloseBtn} onPress={() => setIsDistanceSheetOpen(false)}>
+              {/* 34pt button: hitSlop takes the touch target past 44pt. */}
+              <TouchableOpacity
+                style={styles.distanceCloseBtn}
+                onPress={() => setIsDistanceSheetOpen(false)}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={t("app.a11y.close")}
+              >
                 <Ionicons name="close" size={moderateScale(18)} color={tokens.text} />
               </TouchableOpacity>
             </View>
@@ -76,7 +83,7 @@ export function DistanceSheet({
                   keyboardType="decimal-pad"
                   autoFocus
                 />
-                <Text style={styles.distanceInputUnit}>km</Text>
+                <Text style={styles.distanceInputUnit}>{t("app.home.kmUnit")}</Text>
               </View>
             )}
 
@@ -87,7 +94,7 @@ export function DistanceSheet({
                   style={[styles.distanceChip, distanceOption === option && styles.distanceChipActive]}
                   onPress={() => { setDistanceOption(option); setCustomDistance(""); }}
                 >
-                  <Text style={[styles.distanceChipText, distanceOption === option && styles.distanceChipTextActive]}>{option} km</Text>
+                  <Text style={[styles.distanceChipText, distanceOption === option && styles.distanceChipTextActive]}>{t("app.delivery.distanceKm", { km: option })}</Text>
                 </TouchableOpacity>
               ))}
               <TouchableOpacity style={[styles.distanceChip, distanceOption === "custom" && styles.distanceChipActive]} onPress={() => setDistanceOption("custom")}>

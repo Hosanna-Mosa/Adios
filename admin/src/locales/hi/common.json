@@ -270,7 +270,8 @@
     "contactSupport": "सपोर्ट से संपर्क करें",
     "signOut": "साइन आउट",
     "helperPricing": "हेल्पर मूल्य निर्धारण",
-    "supportBot": "सपोर्ट बॉट"
+    "supportBot": "सपोर्ट बॉट",
+    "supportOrders": "ऑर्डर"
   },
   "notifications": {
     "justNow": "अभी अभी",
@@ -1329,11 +1330,7 @@
     "botNotHelpful": "उपयोगी नहीं बताया",
     "botAsked": "पूछा",
     "botAnswered": "बॉट का उत्तर",
-    "botOrder": "ऑर्डर",
-    "cancelOrder": "ऑर्डर रद्द करें",
-    "orderCancelled": "ऑर्डर रद्द हो गया",
-    "orderCancelFailed": "ऑर्डर रद्द नहीं हो सका",
-    "confirmCancelOrder": "ऑर्डर #{{id}} रद्द करें? ग्राहक को बताया जाएगा कि Adios टीम ने इसे रद्द किया।"
+    "botOrder": "ऑर्डर"
   },
   "system": {
     "appStoreUrl": "ऐप स्टोर URL",
@@ -1651,5 +1648,119 @@
       "payment": "भुगतान",
       "general": "सामान्य"
     }
+  },
+  "supportOrders": {
+    "title": "ऑर्डर",
+    "subtitle": "ग्राहक की मदद के लिए कोई भी ऑर्डर देखें। केवल देखने के लिए — यहाँ से ऑर्डर नहीं बदलता।",
+    "searchPlaceholder": "ऑर्डर ID, फ़ोन नंबर या नाम से खोजें…",
+    "allStatuses": "सभी स्थितियाँ",
+    "statusGroup": {
+      "active": "जारी",
+      "completed": "पूरा हुआ",
+      "cancelled": "रद्द"
+    },
+    "orderId": "ऑर्डर ID",
+    "customer": "ग्राहक",
+    "driver": "ड्राइवर",
+    "helper": "हेल्पर",
+    "driverOrOutlet": "आउटलेट / ड्राइवर",
+    "status": "स्थिति",
+    "total": "कुल",
+    "placed": "ऑर्डर का समय",
+    "loading": "ऑर्डर लोड हो रहे हैं…",
+    "noOrders": "अभी कोई ऑर्डर नहीं।",
+    "noMatches": "“{{q}}” से कोई ऑर्डर नहीं मिला।",
+    "searchFailed": "ऑर्डर लोड नहीं हो सके। फिर से कोशिश करें।",
+    "resultCount_one": "{{count}} ऑर्डर",
+    "resultCount_other": "{{count}} ऑर्डर",
+    "updating": "अपडेट हो रहा है…",
+    "previous": "पिछला",
+    "next": "अगला",
+    "pageOf": "पेज {{page}} / {{pages}}",
+    "back": "वापस",
+    "backToSearch": "ऑर्डर खोज पर वापस",
+    "orderDetails": "ऑर्डर विवरण",
+    "viewOnlyNotice": "केवल देखने के लिए। फ़ोन नंबर छिपे हैं और डिलीवरी कोड नहीं दिखाए जाते।",
+    "loadingOrder": "ऑर्डर लोड हो रहा है…",
+    "cancelledBecause": "रद्द",
+    "cancelReason": {
+      "restaurant_rejected": "रेस्टोरेंट ने ऑर्डर अस्वीकार किया",
+      "restaurant_timeout": "रेस्टोरेंट ने समय पर स्वीकार नहीं किया",
+      "driver_cancelled": "ड्राइवर ने रद्द किया",
+      "admin_cancelled": "Adios टीम ने रद्द किया",
+      "customer_cancelled": "ग्राहक ने रद्द किया"
+    },
+    "name": "नाम",
+    "phone": "फ़ोन",
+    "address": "पता",
+    "vehicle": "वाहन",
+    "unknown": "अज्ञात",
+    "bookedForSomeoneElse": "किसी और के लिए बुक किया",
+    "noneAssigned": "अभी असाइन नहीं हुआ",
+    "dispatchSummary": "खोज: {{state}} · {{attempts}} प्रयास · {{candidates}} पास में",
+    "restaurant": "रेस्टोरेंट",
+    "meatShop": "मीट शॉप",
+    "paymentAndPrice": "भुगतान और कीमत",
+    "discount": "छूट",
+    "method": "तरीका",
+    "paymentStatusLabel": "भुगतान स्थिति",
+    "paymentMethod": {
+      "cash": "नकद",
+      "online": "ऑनलाइन"
+    },
+    "paymentStatus": {
+      "pending": "अभी भुगतान नहीं हुआ",
+      "paid": "ऑनलाइन भुगतान हुआ",
+      "cash_collected": "नकद लिया गया"
+    },
+    "cashCollectedAmount": "लिया गया नकद",
+    "distance": "दूरी",
+    "refund": "रिफ़ंड",
+    "refundAmount": "रिफ़ंड राशि",
+    "refundReference": "संदर्भ",
+    "refundFailure": "विफलता का कारण",
+    "refundStatus": {
+      "pending": "जारी",
+      "processed": "रिफ़ंड हो गया",
+      "failed": "विफल"
+    },
+    "scheduled": "शेड्यूल्ड ऑर्डर",
+    "scheduledFor": "शेड्यूल समय",
+    "scheduleStatus": "शेड्यूल स्थिति",
+    "rejectionReason": "अस्वीकृति का कारण",
+    "route": "रूट",
+    "noAddress": "कोई पता दर्ज नहीं",
+    "stopType": {
+      "pickup": "पिकअप",
+      "drop": "ड्रॉप",
+      "stop": "स्टॉप"
+    },
+    "items": "आइटम",
+    "timeline": "टाइमलाइन",
+    "event": {
+      "placed": "ऑर्डर दिया गया",
+      "outletAccepted": "आउटलेट ने स्वीकार किया",
+      "outletAcceptedPrep": "आउटलेट ने स्वीकार किया · {{minutes}} मिनट तैयारी",
+      "foodReady": "खाना तैयार",
+      "driverAccepted": "{{role}} ने स्वीकार किया",
+      "taskConfirmed": "चैट में काम की पुष्टि",
+      "taskStarted": "काम शुरू",
+      "taskCompleted": "काम पूरा",
+      "searchExhausted": "किसी {{role}} ने स्वीकार नहीं किया",
+      "cashCollected": "नकद लिया गया",
+      "refundRequested": "रिफ़ंड शुरू",
+      "refundCompleted": "रिफ़ंड पूरा",
+      "current": "अभी: {{status}}"
+    },
+    "chatBetween": "ग्राहक और {{role}} की चैट",
+    "loadingChat": "चैट लोड हो रही है…",
+    "chatLoadFailed": "चैट लोड नहीं हो सकी।",
+    "noChat": "इस ऑर्डर पर कोई संदेश नहीं।",
+    "recentOrdersOf": "{{name}} के हाल के ऑर्डर",
+    "openFullOrder": "पूरा ऑर्डर खोलें",
+    "unlink": "ऑर्डर हटाएँ",
+    "linkToTicket": "जोड़ें",
+    "linked": "ऑर्डर इस केस से जोड़ा गया",
+    "unlinked": "ऑर्डर हटाया गया"
   }
 }

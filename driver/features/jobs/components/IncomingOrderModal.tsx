@@ -25,7 +25,9 @@ import {
   isHelperJob,
   isRideJob,
   offerTitle,
+  pickupApproach,
 } from "../utils/offer";
+import { outletKey } from "../orderStops";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Box } from "@/components/ui/Box";
 import { ModalBox } from "@/components/ui/ModalBox";
@@ -35,6 +37,7 @@ export default function IncomingOrderModal() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { incomingOrder, acceptOrder, rejectOrder } = useDriverStore();
+  const driverLocation = useDriverStore((s) => s.driverLocation);
   const {
     isBroadcast,
     secondsLeft,
@@ -80,6 +83,8 @@ export default function IncomingOrderModal() {
             scheduledFor={formattedDate}
             isHelper={isHelper}
             bookedHoursLabel={bookedHoursLabel}
+            paymentMethod={incomingOrder.paymentMethod}
+            payableAmount={incomingOrder.payableAmount}
           />
 
           {isBroadcast ? (
@@ -104,17 +109,17 @@ export default function IncomingOrderModal() {
                 showsVerticalScrollIndicator={false}
               >
             <OfferMetrics
-              distance={incomingOrder.distance}
-              radius={incomingOrder.radius}
-              duration={bookedHoursLabel || incomingOrder.duration}
+              approach={pickupApproach(driverLocation, incomingOrder.stops)}
+              tripDistance={incomingOrder.distance}
+              tripDuration={bookedHoursLabel || incomingOrder.duration}
             />
 
             {isHelper && <OfferTask description={incomingOrder.taskDescription} />}
 
-            <OfferRoute stops={incomingOrder.stops} />
+            <OfferRoute stops={incomingOrder.stops} pickupLabel={t(outletKey(incomingOrder, "jobs.restaurant"))} />
 
             {!isHelper && !isRide && (
-              <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} />
+              <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} outletLabel={t(outletKey(incomingOrder, "jobs.restaurant"))} />
             )}
 
             <OfferPaymentMode

@@ -42,7 +42,7 @@ export const createStrengthLabelStyles = (tokens: ThemeTokens, accent: ServiceTo
   },
   legalHighlight: {
     fontFamily: fontFamilies.body.semibold,
-    color: accent.accent,
+    color: tokens.text,
   },
   signUpBtn: {
     marginTop: 14,

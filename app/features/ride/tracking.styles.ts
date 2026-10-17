@@ -11,11 +11,6 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
     topBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", zIndex: 10, paddingHorizontal: 16 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-      shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10, elevation: 5,
-    },
     etaChip: { borderRadius: 12, paddingHorizontal: 14, paddingVertical: 9, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 5 },
     etaChipText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 

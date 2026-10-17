@@ -20,13 +20,24 @@ function greetingFor(t: (key: string, opts?: any) => string, name?: string | nul
 export function HomeGreetingHeader({
   driverName,
   isOnline,
+  activeServices = [],
   paddingTop,
 }: {
   driverName?: string | null;
   isOnline: boolean;
+  activeServices?: ("food" | "ride")[];
   paddingTop: number;
 }) {
   const { t } = useTranslation();
+  // Rides only → "receiving rides"; food only → "receiving orders"; both → both.
+  const rides = activeServices.includes("ride");
+  const food = activeServices.includes("food");
+  const onlineLine =
+    rides && !food
+      ? t("jobs.youreOnlineAndReceivingRides")
+      : rides && food
+        ? t("jobs.youreOnlineAndReceivingRidesAndOrders")
+        : t("jobs.youreOnlineAndReceivingOrders");
   return (
     <LinearGradient colors={gradients.brand} style={[styles.headerGradient, { paddingTop }]}>
       <AppImage
@@ -39,7 +50,7 @@ export function HomeGreetingHeader({
           <Box style={styles.headerCopy}>
             <AppText style={styles.greeting}>{greetingFor(t, driverName)} 👋</AppText>
             <AppText style={styles.subGreeting} numberOfLines={1}>
-              {isOnline ? t("jobs.youreOnlineAndReceivingOrders") : t("jobs.readyToStartEarning")}
+              {isOnline ? onlineLine : t("jobs.readyToStartEarning")}
             </AppText>
           </Box>
         </Box>

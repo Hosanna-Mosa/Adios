@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import { moderateScale } from "react-native-size-matters";
+import { useTranslation } from "react-i18next";
 import { designTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -22,6 +23,7 @@ interface CountBadgeProps {
  * extra font padding is turned off so the digits sit vertically centred.
  */
 export function CountBadge({ count, max = 99, style, ringColor }: CountBadgeProps) {
+  const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   if (count <= 0) return null;
@@ -32,9 +34,10 @@ export function CountBadge({ count, max = 99, style, ringColor }: CountBadgeProp
     <View
       style={[styles.badge, { backgroundColor: tokens.error, borderColor: ringColor ?? tokens.bg }, style]}
       accessibilityRole="text"
-      accessibilityLabel={`${label} unread`}
+      accessibilityLabel={t("app.a11y.unreadCount", { count, label })}
     >
-      <Text style={styles.label} numberOfLines={1} allowFontScaling={false}>
+      {/* onBrand, not white: dark mode's error red is a light salmon, and white on it is ~2.3:1. */}
+      <Text style={[styles.label, { color: tokens.onBrand }]} numberOfLines={1} allowFontScaling={false}>
         {label}
       </Text>
     </View>
@@ -57,7 +60,6 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.body.bold,
     fontSize: typography.sizes.small,
     lineHeight: typography.lineHeights.small,
-    color: "#fff",
     textAlign: "center",
     includeFontPadding: false,
     textAlignVertical: "center",

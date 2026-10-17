@@ -29,11 +29,15 @@ export function NearbySuggestionsList({
   const { t } = useTranslation();
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>{t("app.delivery.nearbySuggestions")}</Text>
+      {/* 10pt under the label, as on the other screens; it sat right on the first card. */}
+      <Text style={[styles.sectionLabel, { marginBottom: 10 }]}>{t("app.delivery.nearbySuggestions")}</Text>
       <View style={{ gap: 8 }}>
         {nearbySuggestions.map((item, i) => (
-          <TouchableOpacity key={i} style={styles.suggestionRow} onPress={() => handleSelectSuggestion(item)} activeOpacity={0.85}>
-            <View style={styles.suggestionThumb} />
+          <TouchableOpacity key={i} style={styles.suggestionRow} onPress={() => handleSelectSuggestion(item)} activeOpacity={0.85} accessibilityRole="button">
+            {/* Was an empty grey square. */}
+            <View style={styles.suggestionThumb}>
+              <Ionicons name="location-outline" size={16} color={accent.accent} />
+            </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.suggestionName} numberOfLines={1}>{item.name}</Text>
               {currentCoords && item.lat != null && item.lng != null && (

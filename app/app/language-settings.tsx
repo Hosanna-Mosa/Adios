@@ -14,6 +14,7 @@ import { router } from "expo-router";
 export default function LanguageSettingsScreen() {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
+  const language = useLanguageStore((s) => s.language);
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
   const handleSelect = (code: SupportedLanguage) => {
@@ -23,7 +24,8 @@ export default function LanguageSettingsScreen() {
 
   return (
     <ScreenShell style={{ justifyContent: "center" }}>
-      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} />
+      {/* The current language is marked, so the user sees what they'd be changing from. */}
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
     </ScreenShell>
   );
 }

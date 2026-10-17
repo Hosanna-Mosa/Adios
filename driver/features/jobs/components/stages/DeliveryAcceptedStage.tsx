@@ -3,6 +3,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { styles } from "../../active-order.styles";
+import { outletKey } from "../../orderStops";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import {
   ContactActions,
@@ -50,7 +51,7 @@ export function DeliveryAcceptedStage() {
       <StopsPanel>
         <StopInfoItem
           label={t("jobs.pickupFrom")}
-          name={currentOrder.vendorName || pickupStop?.locationName || t("jobs.restaurant")}
+          name={currentOrder.vendorName || pickupStop?.locationName || t(outletKey(currentOrder, "jobs.restaurant"))}
           address={pickupStop?.address}
           layout="row"
         />
@@ -62,7 +63,7 @@ export function DeliveryAcceptedStage() {
         />
       </StopsPanel>
 
-      <StageActionButton label={t("jobs.startTravelToRestaurant")} onPress={handleStatusTransition} />
+      <StageActionButton label={t(outletKey(currentOrder, "jobs.startTravelToRestaurant"))} onPress={handleStatusTransition} />
       <CancelDeliveryButton />
     </Box>
   );

@@ -21,7 +21,8 @@ export function ResolveTicketPrompt({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <Modal visible={ticket.status === "PENDING_RESOLVE"} transparent animationType="fade">
+    // Android back answers "Not yet" — it used to do nothing while this was open.
+    <Modal visible={ticket.status === "PENDING_RESOLVE"} transparent animationType="fade" onRequestClose={() => handleResolve(false)}>
       <View style={styles.resolveOverlay}>
         <View style={styles.resolveCard}>
           <Text style={styles.resolveTitle}>{t("app.support.markThisCaseResolved")}</Text>
