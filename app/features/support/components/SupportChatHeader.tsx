@@ -1,6 +1,7 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { WEB_TOP_OFFSET } from "@/constants/layout";
 
 // The support-chat header. Replaces SupportChatHeader{,2}: the same bar with a
 // different back action and title block.
@@ -25,7 +26,7 @@ interface Props {
 
 export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tokens }: Props) {
   return (
-    <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
+    <View style={[styles.header, { paddingTop: insets.top + WEB_TOP_OFFSET + 12 }]}>
       <TouchableOpacity style={styles.backBtn} onPress={onBack}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>

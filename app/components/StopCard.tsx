@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function StopCard({ stop, index, onRemove, onPress }: Props) {
+  const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = tokens.services.delivery;
@@ -31,10 +33,16 @@ export function StopCard({ stop, index, onRemove, onPress }: Props) {
         {stop.storeName && <Text style={styles.storeName} numberOfLines={1}>{stop.storeName}</Text>}
         <Text style={styles.address} numberOfLines={1}>{stop.address}</Text>
         {stop.items && stop.items.length > 0 && (
-          <Text style={styles.itemCount}>{stop.items.length} item{stop.items.length !== 1 ? "s" : ""}</Text>
+          <Text style={styles.itemCount}>{t("app.food.itemCount", { count: stop.items.length })}</Text>
         )}
       </View>
-      <TouchableOpacity style={styles.removeBtn} onPress={() => onRemove(stop.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+      <TouchableOpacity
+        style={styles.removeBtn}
+        onPress={() => onRemove(stop.id)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.a11y.removeStop", { name: stop.storeName || stop.address })}
+      >
         <Ionicons name="close" size={13} color={tokens.sec} />
       </TouchableOpacity>
     </TouchableOpacity>

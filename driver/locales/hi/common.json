@@ -137,7 +137,6 @@
     "failedToSaveBankDetails": "बैंक विवरण सहेजने में विफल",
     "minimumBalanceRequired": "न्यूनतम शेष राशि आवश्यक है",
     "needAtLeast100ToCashOut": "कैश आउट करने के लिए आपको कम से कम ₹100 चाहिए। आपका वर्तमान उपलब्ध शेष {{value}} है।",
-    "payoutAccountSetUpCanCashOut": "आपका भुगतान खाता सेट हो गया है। अब आप अपनी कमाई कैश आउट कर सकते हैं।",
     "payoutSetup": "भुगतान सेटअप",
     "saveBankDetails": "बैंक विवरण सहेजें",
     "dayMon": "सोम",
@@ -147,7 +146,12 @@
     "dayFri": "शुक्र",
     "daySat": "शनि",
     "daySun": "रवि",
-    "today": "आज"
+    "today": "आज",
+    "payoutAccountSavedAwaitingVerification": "आपका भुगतान खाता सेव हो गया है। हमारी टीम के सत्यापन के बाद आप कैश आउट कर सकते हैं।",
+    "monthlyStatement": "मासिक विवरण",
+    "monthlyStatementHint": "टैक्स / ITR रिकॉर्ड के लिए PDF के रूप में सेव करने योग्य विवरण खोलता है।",
+    "statementUnavailable": "विवरण उपलब्ध नहीं",
+    "statementTryAgain": "विवरण नहीं खुल सका। कृपया फिर से कोशिश करें।"
   },
   "support": {
     "liveChat": "लाइव चैट",
@@ -535,7 +539,30 @@
     "packageDeliveryEnterOtp": "पाने वाले से डिलीवरी OTP दर्ज करें",
     "packageDeliveryOtpPlaceholder": "4 अंकों का OTP",
     "packageDeliveryInvalidOtp": "गलत OTP। पाने वाले से वह 4 अंकों का कोड पूछें जो भेजने वाले ने उन्हें भेजा है।",
-    "packageDeliveryComplete": "पैकेज डिलीवरी पूरी करें"
+    "packageDeliveryComplete": "पैकेज डिलीवरी पूरी करें",
+    "youEarn": "आपकी कमाई",
+    "activeOrderCancelledByRestaurant": "चालू ऑर्डर रेस्टोरेंट ने रद्द कर दिया है।",
+    "activeOrderCancelledByTeam": "चालू ऑर्डर Adios टीम ने रद्द कर दिया है।",
+    "incomingOrderCancelledByRestaurant": "यह आने वाला ऑर्डर रेस्टोरेंट ने रद्द कर दिया।",
+    "incomingOrderCancelledByTeam": "यह आने वाला ऑर्डर Adios टीम ने रद्द कर दिया।",
+    "meatShop": "मीट शॉप",
+    "startTravelToMeatShop": "मीट शॉप की ओर चलें",
+    "travelToMeatShop": "मीट शॉप की ओर जाएँ",
+    "arrivedAtMeatShop": "मीट शॉप पहुँच गए",
+    "within20MetersOfMeatShop": "आप मीट शॉप से 20 मीटर के भीतर हैं।",
+    "enterPickupCodeFromMeatShop": "पिकअप की पुष्टि करने और आगे बढ़ने के लिए मीट शॉप द्वारा दिया गया पिकअप कोड डालें।",
+    "meatShopNotReadyYet": "मीट शॉप के ऑर्डर तैयार करने का इंतज़ार है। तैयार होते ही आप पिकअप कोड डाल सकते हैं।",
+    "waitingForMeatShop": "मीट शॉप का इंतज़ार...",
+    "meatShopPickupCode": "मीट शॉप पिकअप कोड",
+    "invalidCodeAskMeatShopForPickupCode": "गलत कोड। कृपया मीट शॉप से सही पिकअप कोड पूछें।",
+    "packageDeliveryActiveTask": "पैकेज डिलीवरी सक्रिय कार्य",
+    "youreOnlineAndReceivingRides": "आप ऑनलाइन हैं और राइड प्राप्त कर रहे हैं",
+    "youreOnlineAndReceivingRidesAndOrders": "आप ऑनलाइन हैं और राइड व ऑर्डर प्राप्त कर रहे हैं",
+    "licenseExpiredTitle": "ड्राइविंग लाइसेंस की अवधि समाप्त",
+    "licenseExpiredBody": "आपके ड्राइविंग लाइसेंस की अवधि समाप्त हो गई है। फिर से ऑनलाइन होने के लिए अपना नवीनीकृत लाइसेंस अपलोड करें।",
+    "toPickup": "पिकअप तक",
+    "toPickupDistance": "पिकअप तक: {{km}} कि.मी. · ~{{minutes}} मिनट",
+    "tripDistance": "यात्रा: {{distance}} · {{duration}}"
   },
   "onboarding": {
     "sections": {
@@ -619,8 +646,6 @@
     "reEnterAccountNumber": "खाता नंबर फिर से दर्ज करें",
     "accountNumbersDontMatch": "खाता नंबर मेल नहीं खाते",
     "ifscCode": "IFSC कोड",
-    "verifyBankAccount": "बैंक खाता सत्यापित करें",
-    "bankAccountVerifiedPayoutsWillBeSentHere": "बैंक खाता सत्यापित हो गया! भुगतान यहां भेजे जाएंगे।",
     "drivingLicenseNumber": "ड्राइविंग लाइसेंस नंबर",
     "validLicenseNumberFormat": "मान्य लाइसेंस नंबर प्रारूप",
     "dlFormatHint": "अमान्य प्रारूप। 2 अक्षर (राज्य कोड) + 2 अंक (RTO) + 4 अंक (वर्ष) + 7 अंक (सीरियल) अपेक्षित है।",
@@ -653,7 +678,12 @@
     "allowCameraForSelfie": "अपनी प्रोफ़ाइल सेल्फ़ी लेने के लिए कृपया कैमरा एक्सेस की अनुमति दें।",
     "uploadFailed": "अपलोड विफल रहा",
     "couldNotUploadSelfie": "आपकी सेल्फ़ी अपलोड नहीं हो सकी। कृपया फिर से प्रयास करें।",
-    "retakePhoto": "फ़ोटो दोबारा लें"
+    "retakePhoto": "फ़ोटो दोबारा लें",
+    "signInAgainToVerify": "आपका सत्र समाप्त हो गया है। जारी रखने के लिए फिर से साइन इन करें।",
+    "verificationFailed": "सत्यापन विफल",
+    "verificationFailedTryAgain": "अभी इसे सत्यापित नहीं कर सके। नंबर जांचें और फिर से कोशिश करें।",
+    "saveBankAccount": "बैंक खाता सेव करें",
+    "bankAccountSavedTeamWillVerify": "बैंक खाता सेव हो गया। पहले भुगतान से पहले हमारी टीम इसे सत्यापित करेगी।"
   },
   "profile": {
     "personalInfo": "व्यक्तिगत जानकारी",
@@ -869,5 +899,31 @@
     "fastest": "सबसे तेज़",
     "promptSubtitleDefault": "सरकारी रिकॉर्ड से सीधे अपना आधार और पैन प्राप्त करें — टाइपिंग की ज़रूरत नहीं।",
     "orEnterManually": "या मैन्युअल रूप से दर्ज करें"
+  },
+  "verification": {
+    "notApprovedTitle": "सत्यापन लंबित",
+    "notApprovedBody": "एडमिन के आपके दस्तावेज़ स्वीकृत करने के बाद आप ऑनलाइन हो सकते हैं।",
+    "pendingTitle": "सत्यापन जारी है",
+    "pendingBody": "ऑनबोर्डिंग पूरी करने के लिए धन्यवाद। हमारी टीम आपके दस्तावेज़ सत्यापित कर रही है — स्वीकृति मिलते ही आपको सूचना मिलेगी और आप ऑनलाइन हो सकेंगे।",
+    "resubmitTitle": "दस्तावेज़ चाहिए",
+    "resubmitBody": "हमारी टीम आपके कुछ दस्तावेज़ सत्यापित नहीं कर सकी। कृपया उन्हें फिर से अपलोड करके दोबारा जमा करें।",
+    "rejectedTitle": "आवेदन स्वीकृत नहीं हुआ",
+    "rejectedBody": "हम आपका आवेदन स्वीकृत नहीं कर सके। आप अपनी जानकारी अपडेट करके दोबारा जमा कर सकते हैं, या सहायता से संपर्क करें।",
+    "noteFromTeam": "हमारी टीम का नोट",
+    "requestedDocuments": "फिर से अपलोड करें",
+    "nothingRequested": "कोई दस्तावेज़ नहीं मांगा गया है। वापस जाएँ और रीफ़्रेश करने के लिए स्थिति जाँचें पर टैप करें।",
+    "submitForReview": "समीक्षा के लिए जमा करें",
+    "submitFailedTitle": "जमा नहीं हो सका",
+    "submitFailedBody": "कृपया फिर से कोशिश करें।",
+    "updateDocuments": "दस्तावेज़ अपडेट करें",
+    "checkStatus": "स्थिति जाँचें",
+    "signOut": "साइन आउट",
+    "docs": {
+      "aadhaar": "आधार",
+      "pan": "पैन कार्ड",
+      "license": "ड्राइविंग लाइसेंस",
+      "bank": "बैंक खाता",
+      "selfie": "सेल्फ़ी"
+    }
   }
 }

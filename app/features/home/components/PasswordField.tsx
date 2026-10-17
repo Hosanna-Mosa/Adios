@@ -1,4 +1,5 @@
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
@@ -24,9 +25,10 @@ export function PasswordField({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.fieldWrapper}>
-      <Text style={styles.fieldLabel}>Password</Text>
+      <Text style={styles.fieldLabel}>{t("app.auth.password")}</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -42,6 +44,9 @@ export function PasswordField({
           onPress={() => setIsPasswordVisible(!isPasswordVisible)}
           style={styles.eyeBtn}
           activeOpacity={0.7}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={isPasswordVisible ? t("app.a11y.hidePassword") : t("app.a11y.showPassword")}
         >
           <Ionicons
             name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}

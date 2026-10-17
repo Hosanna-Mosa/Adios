@@ -32,7 +32,6 @@ export function useProfileBank(onSaved: () => void) {
         body: JSON.stringify({
           bankAccountNumber: newBankAccount,
           bankIfsc: newBankIfsc,
-          bankVerified: false,
         }),
       });
 

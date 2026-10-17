@@ -12,24 +12,8 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
     },
     mapArea: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: "#eef1f4",
-    },
-    screenBackButton: {
-      position: "absolute",
-      top: insets.top + 12,
-      left: 16,
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      backgroundColor: colors.surface,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.18,
-      shadowRadius: 8,
-      elevation: 8,
-      zIndex: 8,
+      // Theme background, not a fixed light grey that flashed before tiles loaded in dark mode.
+      backgroundColor: colors.background,
     },
     pickupMarkerWrap: {
       alignItems: "center",

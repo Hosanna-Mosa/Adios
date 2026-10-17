@@ -247,7 +247,8 @@
     "prepTimeQuoted_other": "Prep time {{count}} min",
     "acceptToFindDriver": "Accept the order to start finding a delivery partner. Nearby drivers who can reach you before the food is ready are all asked at once.",
     "acceptWithin": "Accept within {{time}} or this order is cancelled",
-    "acceptTimeUp": "Time's up — this order is being cancelled"
+    "acceptTimeUp": "Time's up — this order is being cancelled",
+    "getHelp": "Get help with this order"
   },
   "vehicle": {
     "bike": "Bike",
@@ -543,7 +544,10 @@
     "markResolvedTitle": "Mark this case resolved?",
     "markResolvedSubtitle": "Support thinks your issue is sorted. You can reopen it any time by sending a message.",
     "notYet": "Not yet",
-    "yesResolved": "Yes, resolved"
+    "yesResolved": "Yes, resolved",
+    "aboutOrder": "Which order is this about?",
+    "notAboutOrder": "Not about an order",
+    "orderRef": "Order {{id}}"
   },
   "dishPreview": {
     "title": "Preview",

@@ -62,6 +62,12 @@ export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
     ...paymentFields(apiOrder),
     packageDelivery: apiOrder.packageDelivery ?? fallback?.packageDelivery ?? null,
     hasOutlet: !!apiOrder.vendor || !!fallback?.hasOutlet,
+    // The offer says it outright; a restored job carries the outlet's partnerType instead.
+    outletKind:
+      apiOrder.outletKind ??
+      (apiOrder.vendor?.partnerType ? (apiOrder.vendor.partnerType === "meat" ? "meat" : "food") : undefined) ??
+      fallback?.outletKind ??
+      null,
     foodReadyAt: apiOrder.foodReadyAt ?? fallback?.foodReadyAt ?? null,
     vendorName: vendorField(apiOrder, "name") || fallback?.vendorName,
     vendorPhone: vendorField(apiOrder, "phone") || fallback?.vendorPhone,

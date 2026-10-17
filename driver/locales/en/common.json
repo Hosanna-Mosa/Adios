@@ -137,7 +137,6 @@
     "failedToSaveBankDetails": "Failed to save bank details",
     "minimumBalanceRequired": "Minimum balance required",
     "needAtLeast100ToCashOut": "You need at least Rs.100 to cash out. Your current available balance is {{value}}.",
-    "payoutAccountSetUpCanCashOut": "Your payout account has been set up. You can now cash out your earnings.",
     "payoutSetup": "Payout Setup",
     "saveBankDetails": "Save Bank Details",
     "dayMon": "Mon",
@@ -147,7 +146,12 @@
     "dayFri": "Fri",
     "daySat": "Sat",
     "daySun": "Sun",
-    "today": "Today"
+    "today": "Today",
+    "payoutAccountSavedAwaitingVerification": "Your payout account is saved. You can cash out once our team has verified it.",
+    "monthlyStatement": "Monthly statement",
+    "monthlyStatementHint": "Opens a statement you can save as a PDF for tax / ITR records.",
+    "statementUnavailable": "Statement not available",
+    "statementTryAgain": "We couldn't open the statement. Please try again."
   },
   "support": {
     "liveChat": "Live Chat",
@@ -535,7 +539,30 @@
     "packageDeliveryEnterOtp": "Enter the delivery OTP from the receiver",
     "packageDeliveryOtpPlaceholder": "4-digit OTP",
     "packageDeliveryInvalidOtp": "Wrong OTP. Ask the receiver for the 4-digit code the sender shared with them.",
-    "packageDeliveryComplete": "Complete package delivery"
+    "packageDeliveryComplete": "Complete package delivery",
+    "youEarn": "You earn",
+    "activeOrderCancelledByRestaurant": "The active order has been cancelled by the restaurant.",
+    "activeOrderCancelledByTeam": "The active order has been cancelled by the Adios team.",
+    "incomingOrderCancelledByRestaurant": "This incoming order was cancelled by the restaurant.",
+    "incomingOrderCancelledByTeam": "This incoming order was cancelled by the Adios team.",
+    "meatShop": "Meat shop",
+    "startTravelToMeatShop": "Start Travel to Meat Shop",
+    "travelToMeatShop": "Travel to Meat Shop",
+    "arrivedAtMeatShop": "Arrived at Meat Shop",
+    "within20MetersOfMeatShop": "You are within 20 meters of the meat shop.",
+    "enterPickupCodeFromMeatShop": "Enter the pickup code provided by the meat shop to confirm pickup and proceed.",
+    "meatShopNotReadyYet": "Waiting for the meat shop to mark this order ready. You can enter the pickup code once they do.",
+    "waitingForMeatShop": "Waiting for Meat Shop...",
+    "meatShopPickupCode": "MEAT SHOP PICKUP CODE",
+    "invalidCodeAskMeatShopForPickupCode": "Invalid code. Please ask the meat shop for the correct pickup code.",
+    "packageDeliveryActiveTask": "Package Delivery Active Task",
+    "youreOnlineAndReceivingRides": "You're online and receiving rides",
+    "youreOnlineAndReceivingRidesAndOrders": "You're online and receiving rides and orders",
+    "licenseExpiredTitle": "Driving licence expired",
+    "licenseExpiredBody": "Your driving licence has expired. Upload your renewed licence to go online again.",
+    "toPickup": "To pickup",
+    "toPickupDistance": "To pickup: {{km}} km · ~{{minutes}} min",
+    "tripDistance": "Trip: {{distance}} · {{duration}}"
   },
   "onboarding": {
     "sections": {
@@ -619,8 +646,6 @@
     "reEnterAccountNumber": "Re-enter account number",
     "accountNumbersDontMatch": "Account numbers don't match",
     "ifscCode": "IFSC Code",
-    "verifyBankAccount": "Verify Bank Account",
-    "bankAccountVerifiedPayoutsWillBeSentHere": "Bank account verified! Payouts will be sent here.",
     "drivingLicenseNumber": "Driving License Number",
     "validLicenseNumberFormat": "Valid license number format",
     "dlFormatHint": "Invalid format. Expected 2 letters (state code) + 2 digits (RTO) + 4 digits (year) + 7 digits (serial).",
@@ -653,7 +678,12 @@
     "allowCameraForSelfie": "Please allow camera access to take your profile selfie.",
     "uploadFailed": "Upload failed",
     "couldNotUploadSelfie": "Couldn't upload your selfie. Please try again.",
-    "retakePhoto": "Retake photo"
+    "retakePhoto": "Retake photo",
+    "signInAgainToVerify": "Your session has ended. Please sign in again to continue.",
+    "verificationFailed": "Verification failed",
+    "verificationFailedTryAgain": "We couldn't verify this right now. Check the number and try again.",
+    "saveBankAccount": "Save Bank Account",
+    "bankAccountSavedTeamWillVerify": "Bank account saved. Our team will verify it before your first payout."
   },
   "profile": {
     "personalInfo": "Personal Info",
@@ -869,5 +899,31 @@
     "fastest": "FASTEST",
     "promptSubtitleDefault": "Pull your Aadhaar and PAN straight from government records — no typing.",
     "orEnterManually": "or enter manually"
+  },
+  "verification": {
+    "notApprovedTitle": "Verification pending",
+    "notApprovedBody": "You can go online once an admin approves your documents.",
+    "pendingTitle": "Verification in progress",
+    "pendingBody": "Thanks for completing your onboarding. Our team is verifying your documents — you'll be notified and can go online as soon as you're approved.",
+    "resubmitTitle": "Documents needed",
+    "resubmitBody": "Our team couldn't verify some of your documents. Please upload them again and resubmit.",
+    "rejectedTitle": "Application not approved",
+    "rejectedBody": "We couldn't approve your application. You can update your details and resubmit, or contact support.",
+    "noteFromTeam": "Note from our team",
+    "requestedDocuments": "Upload again",
+    "nothingRequested": "No documents have been requested. Go back and tap Check status to refresh.",
+    "submitForReview": "Submit for review",
+    "submitFailedTitle": "Couldn't submit",
+    "submitFailedBody": "Please try again.",
+    "updateDocuments": "Update documents",
+    "checkStatus": "Check status",
+    "signOut": "Sign out",
+    "docs": {
+      "aadhaar": "Aadhaar",
+      "pan": "PAN card",
+      "license": "Driving licence",
+      "bank": "Bank account",
+      "selfie": "Selfie"
+    }
   }
 }

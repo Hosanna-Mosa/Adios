@@ -1,4 +1,5 @@
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -104,9 +105,12 @@ export function Store149Sheet({
                 onPress={() => { setSelectedItem(item); setIsSheetVisible(true); }}
               >
                 <View style={styles.cardImageWrap}>
+                  {/* expo-image like the rest of the app: cached, and fades in instead of popping. */}
                   <Image
                     source={item.images?.[0] ? { uri: item.images[0] } : undefined}
                     style={styles.cardImage}
+                    contentFit="cover"
+                    transition={200}
                   />
                 </View>
                 <View style={styles.cardBody}>
@@ -116,8 +120,8 @@ export function Store149Sheet({
                   </View>
                   <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.cardBrand} numberOfLines={1}>
-                    {item.brand || "Restaurant"}
-                    {typeof item.distanceKm === "number" ? ` · ${item.distanceKm} km away` : ""}
+                    {item.brand || t("app.food.restaurantFallback")}
+                    {typeof item.distanceKm === "number" ? ` · ${t("app.food.kmAway", { km: item.distanceKm })}` : ""}
                   </Text>
                   <View style={styles.cardPriceRow}>
                     <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>

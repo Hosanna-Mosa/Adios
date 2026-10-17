@@ -6,9 +6,16 @@ import { adminFetch } from "@/lib/api-client";
 import { useJsApiLoader } from "@react-google-maps/api";
 import type { Order, MapMarker, TimelineStep } from "../orderDetailTypes";
 
+// Every page that loads the map must pass identical options: the loader is shared
+// by id and throws if a second caller asks for different ones.
+export const GOOGLE_MAPS_LOADER_OPTIONS = {
+  id: "google-map-script",
+  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
+};
+
 // Where the map opens when no stop has coordinates. Only the initial viewport:
 // no pin is ever placed here.
-const DEFAULT_MAP_CENTER = { lat: 17.0005, lng: 81.8040 };
+export const DEFAULT_MAP_CENTER = { lat: 17.0005, lng: 81.8040 };
 
 // Statuses after the pickup is done / after the order is finished. Rides and package
 // deliveries report the lowercase driver-app statuses (en_route_delivery, ...); food uses
@@ -24,7 +31,7 @@ const formatTime = (value?: string | null) => {
 };
 
 // Missing values and the [0, 0] GeoJSON default both mean "no location recorded".
-const isRealCoordinate = (lat: unknown, lng: unknown) => {
+export const isRealCoordinate = (lat: unknown, lng: unknown) => {
   const la = Number(lat);
   const ln = Number(lng);
   return lat != null && lng != null && Number.isFinite(la) && Number.isFinite(ln) && !(la === 0 && ln === 0);
@@ -37,10 +44,7 @@ export function useOrderDetail() {
   const [zoom, setZoom] = useState(13);
   const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
-  });
+  const { isLoaded } = useJsApiLoader(GOOGLE_MAPS_LOADER_OPTIONS);
 
   const { data: order, isLoading } = useQuery({
     queryKey: ["admin", "order", id],

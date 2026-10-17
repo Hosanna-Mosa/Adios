@@ -6,7 +6,7 @@ import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { GpsVerifiedBox, OrderStage, StageActionButton, WaitNotification } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
 import { RestaurantOtpEntry } from "./RestaurantOtpEntry";
-import { isOutletOrder } from "../../orderStops";
+import { isOutletOrder, outletKey } from "../../orderStops";
 import { useRestaurantReadyPoll } from "../../hooks/useRestaurantReadyPoll";
 
 export function DeliveryArrivedPickupStage() {
@@ -19,22 +19,22 @@ export function DeliveryArrivedPickupStage() {
   const hasCode = ready && !!verification.restaurantOTP.trim();
 
   return (
-    <OrderStage title={t("jobs.arrivedAtRestaurant")}>
+    <OrderStage title={t(outletKey(currentOrder, "jobs.arrivedAtRestaurant"))}>
       <GpsVerifiedBox
         title={t("jobs.gpsCheckVerified")}
-        description={t("jobs.within20MetersOfRestaurant")}
+        description={t(outletKey(currentOrder, "jobs.within20MetersOfRestaurant"))}
       />
 
       <WaitNotification
         message={
-          <>{ready ? t("jobs.enterPickupCodeFromRestaurant") : t("jobs.restaurantNotReadyYet")}</>
+          <>{ready ? t(outletKey(currentOrder, "jobs.enterPickupCodeFromRestaurant")) : t(outletKey(currentOrder, "jobs.restaurantNotReadyYet"))}</>
         }
       />
 
       {ready ? <RestaurantOtpEntry /> : null}
 
       <StageActionButton
-        label={hasCode ? t("jobs.verifyAndPickUp") : t("jobs.waitingForRestaurant")}
+        label={hasCode ? t("jobs.verifyAndPickUp") : t(outletKey(currentOrder, "jobs.waitingForRestaurant"))}
         onPress={handleStatusTransition}
         disabled={!hasCode}
         style={{ backgroundColor: hasCode ? Colors.brand : Colors.textMuted }}

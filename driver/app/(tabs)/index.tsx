@@ -17,7 +17,7 @@ import {
   IncomingOrderModal,
   OnlineStatusCard,
   ScheduledRidesSection,
-  ServiceToggle,
+  ServiceIndicator,
 } from "@/features/jobs/components";
 import { styles } from "@/features/jobs/home.styles";
 import { useHomeFeeds } from "@/features/jobs/hooks/useHomeFeeds";
@@ -32,7 +32,6 @@ export default function HomeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const tabBarHeight = useDriverTabBarHeight();
-  const [mode, setMode] = useState<"ride" | "delivery">("ride");
   const overlapMargin = -30;
   const [performanceRange, setPerformanceRange] = useState<PerformanceRange>("week");
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
@@ -69,7 +68,7 @@ export default function HomeScreen() {
     openDemandAreaInMaps,
     handleToggleOnline,
     handleGoOnline,
-  } = useOnlineActions({ onServicesChosen: setMode });
+  } = useOnlineActions();
 
   return (
     <Box style={styles.safe}>
@@ -82,6 +81,7 @@ export default function HomeScreen() {
         <HomeGreetingHeader
           driverName={driverName}
           isOnline={isOnline}
+          activeServices={activeServices}
           paddingTop={insets.top + 16}
         />
 
@@ -99,7 +99,7 @@ export default function HomeScreen() {
           {isOnline && <HeadHomeToggle homeMode={homeMode} onToggle={toggleHomeMode} />}
 
           {/* Service Toggle */}
-          <ServiceToggle active={mode} onToggle={setMode} />
+          <ServiceIndicator isOnline={isOnline} activeServices={activeServices} />
 
           {/* Today's Performance — the "This Week" pill used to be a dead control
               (no onPress at all), so it always showed the same fixed set of

@@ -2,13 +2,13 @@ import { Feather, Ionicons } from "@expo/vector-icons";
 import { reloadAppAsync } from "expo";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { createSupportTicket } from "@/services/support.service";
+import { Button } from "@/components/ui/Button";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -90,13 +90,16 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
         <Text style={styles.title}>{t("app.ErrorFallback.somethingBroke")}</Text>
         <Text style={styles.message}>{t("app.ErrorFallback.thisScreenCrashedYourCartAnd")}</Text>
 
-        <Pressable onPress={handleRestart} style={({ pressed }) => [styles.button, { opacity: pressed ? 0.9 : 1 }]}>
-          <Text style={styles.buttonText}>{t("app.ErrorFallback.reloadScreen")}</Text>
-        </Pressable>
-
-        <TouchableOpacity onPress={handleReport} disabled={reporting || reported} style={styles.reportButton} activeOpacity={0.8}>
-          <Text style={styles.reportButtonText}>{reported ? t("app.ErrorFallback.reportedThankYou") : reporting ? t("app.ErrorFallback.sending") : t("app.ErrorFallback.reportThis")}</Text>
-        </TouchableOpacity>
+        {/* The shared Button (primary + secondary): the hand-built ones had their own corners and pressed states. */}
+        <Button title={t("app.ErrorFallback.reloadScreen")} onPress={handleRestart} fullWidth />
+        <Button
+          title={reported ? t("app.ErrorFallback.reportedThankYou") : reporting ? t("app.ErrorFallback.sending") : t("app.ErrorFallback.reportThis")}
+          variant="secondary"
+          onPress={handleReport}
+          disabled={reporting || reported}
+          fullWidth
+          style={{ marginTop: 10 }}
+        />
 
         <Text style={styles.refText}>ref {crashRef}</Text>
       </View>
@@ -132,13 +135,9 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },
     message: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 20 },
     topButton: { position: "absolute", right: 16, width: 44, height: 44, borderRadius: 8, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", zIndex: 10 },
-    button: { width: "100%", minHeight: moderateScale(48), borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    buttonText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
-    reportButton: { width: "100%", minHeight: moderateScale(44), borderRadius: 14, borderWidth: 1, borderColor: tokens.borderStrong, alignItems: "center", justifyContent: "center", marginTop: 8 },
-    reportButtonText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
     refText: { fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }), fontSize: typography.sizes.small, color: tokens.muted, marginTop: 12 },
 
-    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
+    modalOverlay: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "flex-end" },
     modalContainer: { width: "100%", height: "90%", backgroundColor: tokens.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
     modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: tokens.border },
     modalTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },

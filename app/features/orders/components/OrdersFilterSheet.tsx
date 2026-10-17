@@ -2,6 +2,8 @@ import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Button } from "@/components/ui/Button";
 import { type ThemeTokens } from "@/constants/colors";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
 import type { Order } from "@/types/models";
@@ -38,11 +40,13 @@ export function OrdersFilterSheet({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   return (
     <Modal visible={showFilterSheet} transparent animationType="slide" onRequestClose={() => setShowFilterSheet(false)}>
       <View style={styles.sheetOverlay}>
         <TouchableOpacity style={styles.sheetScrim} activeOpacity={1} onPress={() => setShowFilterSheet(false)} />
-        <View style={styles.filterSheet}>
+        {/* Clear of the home indicator: the bottom padding was a fixed 24. */}
+        <View style={[styles.filterSheet, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.filterSheetTitle}>{t("app.orders.filterOrders")}</Text>
           <Text style={styles.sectionLabel}>{t("app.orders.service")}</Text>
@@ -68,12 +72,8 @@ export function OrdersFilterSheet({
             })}
           </View>
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity style={styles.clearBtn} onPress={() => setPendingServiceFilters(new Set())}>
-              <Text style={styles.clearBtnText}>{t("app.orders.clearAll")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.showBtn, { backgroundColor: tokens.brand }]} onPress={applyFilters}>
-              <Text style={[styles.showBtnText, { color: tokens.onBrand }]}>{t("app.orders.showOrdersCount", { count: pendingCount })}</Text>
-            </TouchableOpacity>
+            <Button title={t("app.orders.clearAll")} variant="secondary" onPress={() => setPendingServiceFilters(new Set())} style={{ flex: 1 }} />
+            <Button title={t("app.orders.showOrdersCount", { count: pendingCount })} onPress={applyFilters} style={{ flex: 1 }} />
           </View>
         </View>
       </View>

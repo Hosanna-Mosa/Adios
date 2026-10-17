@@ -1,5 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
@@ -22,12 +23,16 @@ export function OtpHeaderRow({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
       <TouchableOpacity
         style={styles.backBtn}
         onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}
         activeOpacity={0.7}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.a11y.goBack")}
       >
         <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
       </TouchableOpacity>

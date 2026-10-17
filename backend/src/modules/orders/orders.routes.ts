@@ -37,6 +37,10 @@ router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQ
 router.get("/:id", authenticateToken, ordersController.getOrder.bind(ordersController));
 router.get("/:id/chat", authenticateToken, ordersController.getChatHistory.bind(ordersController));
 router.get("/:id/invoice", authenticateToken, ordersController.getInvoice.bind(ordersController));
+// Invoice links for the phone's browser: the link is minted with the session, the page
+// itself is reached with the link's 10-minute, single-order token instead.
+router.post("/:id/invoice-link", authenticateToken, ordersController.invoiceLink.bind(ordersController));
+router.get("/:id/invoice/view", ordersController.viewInvoice.bind(ordersController));
 router.patch("/:id/schedule", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(scheduleDecisionSchema), ordersController.respondToOrderSchedule.bind(ordersController));
 router.post("/:id/reorder", authenticateToken, ordersController.reorder.bind(ordersController));
 router.patch("/:id/increase-price", authenticateToken, ordersController.increasePrice.bind(ordersController));

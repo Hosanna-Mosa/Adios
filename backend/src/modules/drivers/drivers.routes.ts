@@ -22,6 +22,10 @@ router.patch("/location", authenticateToken, authorizeRole([UserRole.DRIVER]), v
 router.get("/profile", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.profile.bind(driversController));
 router.patch("/profile", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(updateProfileSchema), driversController.updateProfile.bind(driversController));
 router.get("/earnings", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.earnings.bind(driversController));
+// Monthly earnings statement: the link is minted with the session; the page opens with
+// the link's 10-minute token in the phone's browser.
+router.post("/earnings-statement-link", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.earningsStatementLink.bind(driversController));
+router.get("/earnings-statement/view", driversController.viewEarningsStatement.bind(driversController));
 router.post("/cash-out", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(cashOutSchema), driversController.cashOut.bind(driversController));
 router.get("/high-demand-areas", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(highDemandAreasSchema), driversController.highDemandAreas.bind(driversController));
 router.get("/nearby", authenticateToken, validateRequest(nearbyDriversSchema), driversController.nearby.bind(driversController));
