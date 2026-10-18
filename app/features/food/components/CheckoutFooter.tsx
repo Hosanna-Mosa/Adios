@@ -7,6 +7,7 @@ import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CheckoutStyles } from "@/features/food/checkout.styles";
 import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
+import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -66,7 +67,7 @@ export function CheckoutFooter({
         ) : (
           <>
             <Text style={styles.placeOrderBtnText}>{scheduledFor ? t("app.food.scheduleOrder") : t("app.food.placeOrder")}</Text>
-            <Text style={styles.placeOrderBtnPrice}>· ₹{total}</Text>
+            <Text style={styles.placeOrderBtnPrice}>· ₹{formatINR(total)}</Text>
           </>
         )}
       </TouchableOpacity>

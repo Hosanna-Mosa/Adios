@@ -74,8 +74,8 @@ export function CheckoutSection({
                   <Text style={styles.couponDesc}>{offer.title}</Text>
                   <Text style={styles.couponSaving}>
                     {locked
-                      ? `Add ₹${Math.max(0, Math.round(offer.amountToUnlock ?? offer.minOrder - subtotal))} more to use this`
-                      : `Saves ₹${offer.discountAmount} on this order`}
+                      ? t("app.food.addMoreToUnlock", { amount: Math.max(0, Math.round(offer.amountToUnlock ?? offer.minOrder - subtotal)) })
+                      : t("app.food.savesOnOrder", { amount: offer.discountAmount })}
                   </Text>
                 </View>
                 <TouchableOpacity disabled={locked || isApplyingPromo} onPress={() => applyCode(offer.code)}>

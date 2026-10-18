@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { type ThemeTokens } from "@/constants/colors";
 import { type PaymentStyles } from "@/features/food/usePayment.shared";
+import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -30,12 +31,12 @@ export function PaymentBillCard({
     <View style={styles.billCard}>
       <View style={styles.billRow}>
         <Text style={styles.billLabel}>Item total</Text>
-        <Text style={styles.billValue}>₹{subtotal}</Text>
+        <Text style={styles.billValue}>₹{formatINR(subtotal)}</Text>
       </View>
       {deliveryFee != null ? (
         <View style={styles.billRow}>
           <Text style={styles.billLabel}>Delivery fee</Text>
-          <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
+          <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${formatINR(deliveryFee)}`}</Text>
         </View>
       ) : (
         <Text style={styles.billNote}>Delivery fee is confirmed with your order.</Text>
@@ -43,19 +44,19 @@ export function PaymentBillCard({
       {tip > 0 && (
         <View style={styles.billRow}>
           <Text style={styles.billLabel}>Delivery tip</Text>
-          <Text style={styles.billValue}>₹{tip}</Text>
+          <Text style={styles.billValue}>₹{formatINR(tip)}</Text>
         </View>
       )}
       {discount > 0 && (
         <View style={styles.billRow}>
           <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {couponCode}</Text>
-          <Text style={[styles.billValue, { color: tokens.success }]}>−₹{discount}</Text>
+          <Text style={[styles.billValue, { color: tokens.success }]}>−₹{formatINR(discount)}</Text>
         </View>
       )}
       <View style={styles.billDivider} />
       <View style={styles.billRow}>
         <Text style={styles.billTotalLabel}>To pay</Text>
-        <Text style={styles.billTotalValue}>₹{total}</Text>
+        <Text style={styles.billTotalValue}>₹{formatINR(total)}</Text>
       </View>
     </View>
   );

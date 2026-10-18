@@ -1,4 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -30,16 +31,32 @@ export function RestaurantMenuHeroOverlay({
   styles,
   toggleFavorite,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.heroOverlay, { top: insets.top + 10 }]}>
-      <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.circleBtn}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color="#fff" />
       </TouchableOpacity>
       <View style={{ flexDirection: "row", gap: 8 }}>
-        <TouchableOpacity style={styles.circleBtn} onPress={() => toggleFavorite(id as string)}>
+        <TouchableOpacity
+          style={styles.circleBtn}
+          onPress={() => toggleFavorite(id as string)}
+          accessibilityRole="button"
+          accessibilityLabel={isFavorite ? t("app.food.removeFromFavorites") : t("app.food.addToFavorites")}
+        >
           <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={moderateScale(18)} color={isFavorite ? accent.accent : "#fff"} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.circleBtn} onPress={() => setScrolledPast(true)}>
+        <TouchableOpacity
+          style={styles.circleBtn}
+          onPress={() => setScrolledPast(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.food.search")}
+        >
           <Ionicons name="search" size={moderateScale(18)} color="#fff" />
         </TouchableOpacity>
       </View>

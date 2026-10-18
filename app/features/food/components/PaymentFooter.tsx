@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type PaymentStyles } from "@/features/food/usePayment.shared";
+import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -33,7 +34,7 @@ export function PaymentFooter({
         ) : (
           <>
             <Text style={styles.payBtnText}>{t("app.payment.paySecurely")}</Text>
-            <Text style={styles.payBtnPrice}>· ₹{total}</Text>
+            <Text style={styles.payBtnPrice}>· ₹{formatINR(total)}</Text>
           </>
         )}
       </TouchableOpacity>

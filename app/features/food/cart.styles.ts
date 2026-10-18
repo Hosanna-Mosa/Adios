@@ -18,7 +18,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     headerEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
     headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text, marginTop: 2 },
-    headerTitleSolo: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
 
     section: { paddingHorizontal: 16, paddingTop: 18 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },

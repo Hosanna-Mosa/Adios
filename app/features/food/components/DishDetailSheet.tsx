@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -63,16 +63,23 @@ export function DishDetailSheet({
               imageStyle={styles.modalImage}
               activeColor={accent.accent}
             />
-            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setSelectedDishDetail(null)}>
+            <TouchableOpacity
+              style={styles.modalCloseBtn}
+              onPress={() => setSelectedDishDetail(null)}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.support.closeModal")}
+            >
               <Ionicons name="close" size={22} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalCloseBtn, { right: undefined, left: 16 }]}
               onPress={() => shareRestaurant(id as string, name as string, selectedDishDetail._id, selectedDishDetail.name)}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.food.share")}
             >
               <Ionicons name="share-outline" size={20} color="#fff" />
             </TouchableOpacity>
-            <View style={[styles.modalContent, { paddingBottom: insets.bottom + 20 }]}>
+            <ScrollView style={styles.modalScrollBody} contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator={false}>
               <View style={styles.modalHeadRow}>
                 <View style={[styles.dietIcon, { borderColor: selectedDishDetail.isVeg ? tokens.veg : tokens.nonveg }]}>
                   {selectedDishDetail.isVeg ? (
@@ -96,6 +103,8 @@ export function DishDetailSheet({
                   style={styles.modalFavoriteBtn}
                   onPress={() => toggleFavoriteItem(selectedDishDetail._id)}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={isDishFavorite(selectedDishDetail._id) ? t("app.food.removeFromFavorites") : t("app.food.addToFavorites")}
                 >
                   <Ionicons
                     name={isDishFavorite(selectedDishDetail._id) ? "heart" : "heart-outline"}
@@ -105,7 +114,8 @@ export function DishDetailSheet({
                 </TouchableOpacity>
               </View>
               <Text style={styles.modalDesc}>{selectedDishDetail.description}</Text>
-
+            </ScrollView>
+            <View style={[styles.modalFooter, { paddingBottom: insets.bottom + 20 }]}>
               {selectedDishDetail.isAvailable === false ? (
                 <View style={styles.modalSoldOut}><Text style={styles.soldOutText}>{t("app.food.currentlySoldOut")}</Text></View>
               ) : outletClosed && !items.find((i) => i._id === selectedDishDetail._id) ? (
@@ -115,11 +125,20 @@ export function DishDetailSheet({
                   <TouchableOpacity
                     style={styles.modalQtyBtn}
                     onPress={() => handleUpdateQuantity(selectedDishDetail._id, (items.find((i) => i._id === selectedDishDetail._id)?.quantity || 1) - 1)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("app.food.decreaseQuantity")}
                   >
                     <Feather name="minus" size={16} color={accent.accent} />
                   </TouchableOpacity>
                   <Text style={styles.modalQtyText}>{items.find((i) => i._id === selectedDishDetail._id)?.quantity}</Text>
-                  <TouchableOpacity style={[styles.modalQtyBtn, outletClosed && { opacity: 0.35 }]} onPress={() => handleAddToCart(selectedDishDetail)}>
+                  <TouchableOpacity
+                    style={[styles.modalQtyBtn, outletClosed && { opacity: 0.35 }]}
+                    onPress={() => handleAddToCart(selectedDishDetail)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("app.food.increaseQuantity")}
+                  >
                     <Feather name="plus" size={16} color={accent.accent} />
                   </TouchableOpacity>
                 </View>

@@ -19,11 +19,7 @@ export default function FavoritesScreen() {
 
   return (
     <ScreenShell>
-      <FavoritesHeaderRow
-        insets={insets}
-        styles={styles}
-        tokens={tokens}
-      />
+      <FavoritesHeaderRow insets={insets} />
 
       <FavoritesSegmentWrap
         activeFavoriteItems={activeFavoriteItems}

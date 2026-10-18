@@ -28,14 +28,24 @@ export function CartVendorHeader({
   const { t } = useTranslation();
   return (
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.iconBtn}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.headerEyebrow}>{t("app.food.yourCartFrom")}</Text>
         <Text style={styles.headerTitle} numberOfLines={1}>{displayVendorName}</Text>
       </View>
-      <TouchableOpacity style={styles.iconBtn} onPress={confirmClearCart}>
+      <TouchableOpacity
+        style={styles.iconBtn}
+        onPress={confirmClearCart}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.food.clearCartAction")}
+      >
         <Feather name="trash-2" size={moderateScale(17)} color={tokens.sec} />
       </TouchableOpacity>
     </View>

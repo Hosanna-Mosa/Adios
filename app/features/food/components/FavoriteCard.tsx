@@ -37,7 +37,7 @@ export function FavoriteCard({ item, index, tokens, styles }: { item: any; index
           </View>
         )}
         <Text style={styles.cardMeta} numberOfLines={1}>
-          {categoryLabel}{item.deliveryFee != null ? ` · ₹${item.deliveryFee} delivery` : ""}
+          {categoryLabel}{item.deliveryFee != null ? ` · ${t("app.food.deliveryAmount", { amount: item.deliveryFee })}` : ""}
         </Text>
         <TouchableOpacity
           style={[styles.reorderBtn, { backgroundColor: accent.accent }]}

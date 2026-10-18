@@ -5,6 +5,7 @@ import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { type ServiceTokens } from "@/constants/colors";
 import { type CheckoutStyles } from "@/features/food/checkout.styles";
+import { formatINR } from "@/utils/pricing";
 
 // Section of CheckoutBody, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -44,7 +45,7 @@ export function CheckoutDeliveryTime({
         {items.map((item) => (
           <View key={item._id} style={styles.orderLine}>
             <Text style={styles.orderLineLabel} numberOfLines={1}>{item.quantity} × {item.name}</Text>
-            <Text style={styles.orderLineValue}>₹{item.price * item.quantity}</Text>
+            <Text style={styles.orderLineValue}>₹{formatINR(item.price * item.quantity)}</Text>
           </View>
         ))}
       </View>
