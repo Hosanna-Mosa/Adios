@@ -1,4 +1,5 @@
 import { Dimensions, Linking, ScrollView, StyleSheet, View } from "react-native";
+import { useSharedValue } from "react-native-reanimated";
 import { MapBackground } from "@/components/MapBackground";
 import { BottomSheet } from "@/components/BottomSheet";
 import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
@@ -22,10 +23,13 @@ export function TrackingScreenBody(props: Props) {
   styles, tokens, userLocCoords, outletOrder, rideOrder
   } = props;
   // TrackingBottomSheet's own BottomSheet sits at this same resting height
-  // (its `defaultHeight`) until the user drags it — that drag is a reanimated
-  // transform, not a layout change, so onLayout can't see it; its settled
-  // height is the one reliable number to clear the zoom controls by.
+  // (its `defaultHeight`) until the user drags it. That drag is a reanimated
+  // transform, not a layout change, so onLayout can't see it -- this shared
+  // value is kept in sync with the sheet's live visible height instead
+  // (BottomSheet's heightValue prop), so the zoom controls track it as the
+  // user drags, not just at rest.
   const sheetRestingHeight = Dimensions.get("window").height * 0.5;
+  const sheetHeightValue = useSharedValue(sheetRestingHeight);
   return (
     <>
     <MapBackground
@@ -40,6 +44,7 @@ export function TrackingScreenBody(props: Props) {
       radiusCenter={stops?.[0]?.lat !== undefined && stops?.[0]?.lng !== undefined ? { lat: stops[0].lat, lng: stops[0].lng } : null}
       radiusMeters={radius ? radius * 1000 : undefined}
       sheetHeight={sheetRestingHeight}
+      sheetHeightValue={sheetHeightValue}
       style={StyleSheet.absoluteFill}
     />
 
@@ -53,7 +58,7 @@ export function TrackingScreenBody(props: Props) {
       tokens={tokens}
     />
 
-    <TrackingBottomSheet {...props} />
+    <TrackingBottomSheet {...props} sheetHeightValue={sheetHeightValue} />
     </>
   );
 }
