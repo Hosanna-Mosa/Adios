@@ -152,7 +152,14 @@
       "careflavourinWithin24Hours": "care@flavour.in · within 24 hours",
       "raiseANewTicket": "Raise a new ticket",
       "addATitleAndAShort": "Add a title and a short description first.",
-      "messageNotSent": "Message not sent"
+      "messageNotSent": "Message not sent",
+      "todayAt": "Today, {{time}}",
+      "yesterdayAt": "Yesterday, {{time}}",
+      "yesterday": "Yesterday",
+      "send": "Send",
+      "back": "Back",
+      "call": "Call",
+      "closeModal": "Close"
     },
     "tracking": {
       "rideLabels": {
@@ -277,6 +284,10 @@
       "fastDelivery": "Fast delivery",
       "ratings40": "Ratings 4.0+",
       "openNow": "Open now",
+      "deliveryAddressAccessibilityLabel": "Delivery address, {{area}}. Tap to change.",
+      "deliveryRadiusAccessibilityLabel": "Delivery search radius",
+      "notificationsAccessibilityLabel": "Notifications",
+      "notificationsUnreadAccessibilityLabel": "Notifications, {{count}} unread",
       "offers": "Offers",
       "under300": "Under ₹300",
       "pureVeg": "Pure Veg",
@@ -348,6 +359,10 @@
       "beta": "Beta",
       "offerEyebrow": "Offer",
       "viewOffer": "View offer"
+    },
+    "language": {
+      "chooseYourLanguage": "Choose your language",
+      "youCanChangeThisLaterFromYourProfile": "You can change this later from your profile."
     },
     "profile": {
       "menuItems": {
@@ -479,6 +494,22 @@
       "veg": "Veg",
       "nonveg": "Non-veg",
       "add": "Add",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity",
+      "addToFavorites": "Add to favorites",
+      "removeFromFavorites": "Remove from favorites",
+      "search": "Search",
+      "closeSearch": "Close search",
+      "clearSearch": "Clear search",
+      "share": "Share",
+      "deliveryAmount": "₹{{amount}} delivery",
+      "soldOut": "SOLD OUT",
+      "fromVendor": "from {{vendor}}",
+      "minOrderFromPerKg": "from ₹{{amount}} / kg",
+      "costForTwo": "₹{{amount}} for two",
+      "addMoreToUnlock": "Add ₹{{amount}} more to use this",
+      "savesOnOrder": "Saves ₹{{amount}} on this order",
+      "noAddressSelected": "No address selected",
       "ratings": "ratings)",
       "hygieneAmpSafety": "Hygiene & safety",
       "kitchenAuditedByFssaiLicence": "Kitchen audited by FSSAI · licence",
@@ -565,6 +596,10 @@
       "showOrdersCount_one": "Show {{count}} order",
       "showOrdersCount_other": "Show {{count}} orders",
       "rateYourOrder": "Rate your order",
+      "starRating_one": "{{count}} star",
+      "starRating_other": "{{count}} stars",
+      "filtersAccessibilityLabel": "Filters",
+      "filtersActiveAccessibilityLabel": "Filters, active",
       "addFeedbackOptional": "Add feedback (optional)",
       "cancel": "Cancel",
       "submit": "Submit",
@@ -735,6 +770,8 @@
       "addingThisStop": "Adding this stop:",
       "deliveryGoes": ", delivery goes ₹",
       "addStopToRoute": "Add stop to route",
+      "addItem": "Add item",
+      "removeItem": "Remove item",
       "storeNameOptional": "Store name · optional",
       "egKarachiBakery": "e.g. Karachi Bakery",
       "pickupAddress": "Pickup address",
@@ -1006,6 +1043,26 @@
       "deliveryPin": "Delivery PIN",
       "onlyGiveThisCodeWhenYour": "Only give this code when your items are safely received.",
       "minAway": "min away",
+      "etaSummary": "{{km}} km · about {{min}} min",
+      "minutesAway": "{{min}} min away",
+      "pickupLabel": "Pickup",
+      "dropLabel": "Drop",
+      "pickupLocationPlaceholder": "Pickup location",
+      "pickupPointFallback": "Pickup point",
+      "rideCompletedHeadline": "Ride completed",
+      "taskCompleteHeadline": "Task complete",
+      "orderDeliveredHeadline": "Order delivered",
+      "arrivedSafelyWithName": "You arrived safely with {{name}}.",
+      "arrivedSafelyNoName": "You arrived safely.",
+      "helperFinishedWithTime": "{{name}} finished the task in {{time}}.",
+      "helperFinishedNoTime": "{{name}} finished the task.",
+      "deliveredByWithTime": "Delivered by {{name}} in {{time}}.",
+      "deliveredByNoTime": "Delivered by {{name}}.",
+      "yourHelperFallback": "Your helper",
+      "assignedPartnerFallback": "Assigned partner",
+      "deliveryPartnerFallback": "Delivery partner",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
       "chooseATrip": "Choose a trip",
       "bookUpTo7DaysAhead": "Book up to 7 days ahead",
       "book": "Book",
@@ -1137,7 +1194,14 @@
     "OfflineBanner": {
       "youaposreOffline": "You're offline",
       "checking": "Checking…",
-      "retry": "Retry"
+      "retry": "Retry",
+      "lastSyncedMinAgo": "last synced {{mins}}m ago"
+    },
+    "notifications": {
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "today": "Today"
     },
     "RestaurantListItem": {
       "pureVeg": "Pure veg"

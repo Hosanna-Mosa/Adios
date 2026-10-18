@@ -152,7 +152,14 @@
       "careflavourinWithin24Hours": "care@flavour.in · 24 గంటల్లో",
       "raiseANewTicket": "కొత్త టికెట్‌ను లేవనెత్తండి",
       "addATitleAndAShort": "ముందుగా ఒక శీర్షిక మరియు చిన్న వివరణను జోడించండి.",
-      "messageNotSent": "సందేశం పంపబడలేదు"
+      "messageNotSent": "సందేశం పంపబడలేదు",
+      "todayAt": "ఈరోజు, {{time}}",
+      "yesterdayAt": "నిన్న, {{time}}",
+      "yesterday": "నిన్న",
+      "send": "పంపండి",
+      "back": "వెనుకకు",
+      "call": "కాల్ చేయండి",
+      "closeModal": "మూసివేయండి"
     },
     "tracking": {
       "rideLabels": {
@@ -277,6 +284,10 @@
       "fastDelivery": "వేగవంతమైన డెలివరీ",
       "ratings40": "రేటింగ్‌లు 4.0+",
       "openNow": "ఇప్పుడు తెరిచి ఉంది",
+      "deliveryAddressAccessibilityLabel": "డెలివరీ చిరునామా, {{area}}. మార్చడానికి నొక్కండి.",
+      "deliveryRadiusAccessibilityLabel": "డెలివరీ శోధన వ్యాసార్థం",
+      "notificationsAccessibilityLabel": "నోటిఫికేషన్‌లు",
+      "notificationsUnreadAccessibilityLabel": "నోటిఫికేషన్‌లు, {{count}} చదవనివి",
       "offers": "ఆఫర్‌లు",
       "under300": "₹300 లోపు",
       "pureVeg": "ప్యూర్ వెజ్",
@@ -348,6 +359,10 @@
       "beta": "బీటా",
       "offerEyebrow": "ఆఫర్",
       "viewOffer": "ఆఫర్ చూడండి"
+    },
+    "language": {
+      "chooseYourLanguage": "మీ భాషను ఎంచుకోండి",
+      "youCanChangeThisLaterFromYourProfile": "దీన్ని తర్వాత మీ ప్రొఫైల్ నుండి మార్చుకోవచ్చు."
     },
     "profile": {
       "menuItems": {
@@ -479,6 +494,22 @@
       "veg": "వెజ్",
       "nonveg": "నాన్-వెజ్",
       "add": "జోడించండి",
+      "decreaseQuantity": "పరిమాణం తగ్గించండి",
+      "increaseQuantity": "పరిమాణం పెంచండి",
+      "addToFavorites": "ఫేవరెట్లకు జోడించండి",
+      "removeFromFavorites": "ఫేవరెట్ల నుండి తీసివేయండి",
+      "search": "శోధించండి",
+      "closeSearch": "శోధనను మూసివేయండి",
+      "clearSearch": "శోధనను తొలగించండి",
+      "share": "షేర్ చేయండి",
+      "deliveryAmount": "₹{{amount}} డెలివరీ",
+      "soldOut": "అయిపోయింది",
+      "fromVendor": "{{vendor}} నుండి",
+      "minOrderFromPerKg": "₹{{amount}} / kg నుండి",
+      "costForTwo": "ఇద్దరికి ₹{{amount}}",
+      "addMoreToUnlock": "దీన్ని ఉపయోగించడానికి మరో ₹{{amount}} జోడించండి",
+      "savesOnOrder": "ఈ ఆర్డర్‌పై ₹{{amount}} ఆదా చేస్తుంది",
+      "noAddressSelected": "చిరునామా ఎంచుకోలేదు",
       "ratings": "రేటింగ్‌లు)",
       "hygieneAmpSafety": "పరిశుభ్రత & భద్రత",
       "kitchenAuditedByFssaiLicence": "కిచెన్ FSSAI ద్వారా ఆడిట్ చేయబడింది · లైసెన్స్",
@@ -565,6 +596,10 @@
       "showOrdersCount_one": "{{count}} ఆర్డర్‌ను చూపించు",
       "showOrdersCount_other": "{{count}} ఆర్డర్‌లను చూపించు",
       "rateYourOrder": "మీ ఆర్డర్‌ను రేట్ చేయండి",
+      "starRating_one": "{{count}} నక్షత్రం",
+      "starRating_other": "{{count}} నక్షత్రాలు",
+      "filtersAccessibilityLabel": "ఫిల్టర్‌లు",
+      "filtersActiveAccessibilityLabel": "ఫిల్టర్‌లు, యాక్టివ్",
       "addFeedbackOptional": "అభిప్రాయాన్ని జోడించండి (ఐచ్ఛికం)",
       "cancel": "రద్దు చేయండి",
       "submit": "సమర్పించండి",
@@ -735,6 +770,8 @@
       "addingThisStop": "ఈ స్టాప్‌ను జోడిస్తోంది:",
       "deliveryGoes": ", డెలివరీ ఛార్జీ ₹",
       "addStopToRoute": "మార్గానికి స్టాప్‌ను జోడించండి",
+      "addItem": "వస్తువును జోడించండి",
+      "removeItem": "వస్తువును తీసివేయండి",
       "storeNameOptional": "స్టోర్ పేరు · ఐచ్ఛికం",
       "egKarachiBakery": "ఉదా. కరాచీ బేకరీ",
       "pickupAddress": "పికప్ చిరునామా",
@@ -1006,6 +1043,26 @@
       "deliveryPin": "డెలివరీ PIN",
       "onlyGiveThisCodeWhenYour": "మీ వస్తువులు సురక్షితంగా అందిన తర్వాతే ఈ కోడ్‌ను ఇవ్వండి.",
       "minAway": "నిమిషాల దూరంలో",
+      "etaSummary": "{{km}} కి.మీ · సుమారు {{min}} నిమిషాలు",
+      "minutesAway": "{{min}} నిమిషాల దూరంలో",
+      "pickupLabel": "పికప్",
+      "dropLabel": "డ్రాప్",
+      "pickupLocationPlaceholder": "పికప్ స్థానం",
+      "pickupPointFallback": "పికప్ పాయింట్",
+      "rideCompletedHeadline": "రైడ్ పూర్తయింది",
+      "taskCompleteHeadline": "పని పూర్తయింది",
+      "orderDeliveredHeadline": "ఆర్డర్ డెలివరీ అయింది",
+      "arrivedSafelyWithName": "మీరు {{name}}తో సురక్షితంగా చేరుకున్నారు.",
+      "arrivedSafelyNoName": "మీరు సురక్షితంగా చేరుకున్నారు.",
+      "helperFinishedWithTime": "{{name}} {{time}}లో పనిని పూర్తి చేశారు.",
+      "helperFinishedNoTime": "{{name}} పనిని పూర్తి చేశారు.",
+      "deliveredByWithTime": "{{name}} ద్వారా {{time}}లో డెలివరీ చేయబడింది.",
+      "deliveredByNoTime": "{{name}} ద్వారా డెలివరీ చేయబడింది.",
+      "yourHelperFallback": "మీ హెల్పర్",
+      "assignedPartnerFallback": "కేటాయించిన భాగస్వామి",
+      "deliveryPartnerFallback": "డెలివరీ భాగస్వామి",
+      "zoomIn": "జూమ్ ఇన్",
+      "zoomOut": "జూమ్ అవుట్",
       "chooseATrip": "ఒక ప్రయాణాన్ని ఎంచుకోండి",
       "bookUpTo7DaysAhead": "7 రోజుల ముందుగానే బుక్ చేసుకోండి",
       "book": "బుక్ చేయండి",
@@ -1137,7 +1194,14 @@
     "OfflineBanner": {
       "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
       "checking": "తనిఖీ చేస్తోంది…",
-      "retry": "మళ్లీ ప్రయత్నించండి"
+      "retry": "మళ్లీ ప్రయత్నించండి",
+      "lastSyncedMinAgo": "{{mins}} నిమిషాల క్రితం సింక్ అయింది"
+    },
+    "notifications": {
+      "justNow": "ఇప్పుడే",
+      "minutesAgo": "{{count}} ని. క్రితం",
+      "hoursAgo": "{{count}} గం. క్రితం",
+      "today": "ఈరోజు"
     },
     "RestaurantListItem": {
       "pureVeg": "ప్యూర్ వెజ్"
