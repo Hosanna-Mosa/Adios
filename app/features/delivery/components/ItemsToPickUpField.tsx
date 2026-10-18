@@ -45,7 +45,12 @@ export function ItemsToPickUpField({
             <View style={styles.itemQtyBadge}><Text style={styles.itemQtyBadgeText}>{item.quantity}</Text></View>
             <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
             {item.estimatedPrice != null && <Text style={styles.itemPrice}>₹{item.estimatedPrice}</Text>}
-            <TouchableOpacity onPress={() => removeItemFromLocal(item.id)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity
+              onPress={() => removeItemFromLocal(item.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.delivery.removeItem")}
+            >
               <Ionicons name="close" size={15} color={tokens.sec} />
             </TouchableOpacity>
           </View>
@@ -68,7 +73,14 @@ export function ItemsToPickUpField({
             onChangeText={setNewItemPrice}
             keyboardType="numeric"
           />
-          <TouchableOpacity onPress={addItemToLocal} disabled={!newItemName.trim()}>
+          <TouchableOpacity
+            onPress={addItemToLocal}
+            disabled={!newItemName.trim()}
+            hitSlop={{ top: 9, bottom: 9, left: 9, right: 9 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.delivery.addItem")}
+            accessibilityState={{ disabled: !newItemName.trim() }}
+          >
             <Ionicons name="add-circle" size={26} color={newItemName.trim() ? accent.accent : tokens.muted} />
           </TouchableOpacity>
         </View>

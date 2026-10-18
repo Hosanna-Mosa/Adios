@@ -1,5 +1,6 @@
 import { ScrollView } from "react-native";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/Header";
 import { SavedAddressRow } from "@/features/delivery/components/SavedAddressRow";
 import { SavedAddressesList } from "@/features/delivery/components/SavedAddressesList";
@@ -9,6 +10,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useSavedAddresses } from "@/features/delivery/useSavedAddresses";
 
 export default function SavedAddressesScreen() {
+  const { t } = useTranslation();
   const {
   insets, tokens, accent, styles, addresses, loading, selectingId, deletingId, recentLocations,
   recentLoading, currentLocLoading, handleUseCurrentLocation, handleSelectRecentLocation,
@@ -18,7 +20,7 @@ export default function SavedAddressesScreen() {
   return (
     <ScreenShell keyboardAvoiding>
       <Header
-        title="Places"
+        title={t("app.profile.menuItems.places")}
         onBack={() => router.back()}
         backDisabled={selectingId !== null}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
