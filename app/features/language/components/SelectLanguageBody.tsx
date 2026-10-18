@@ -43,10 +43,10 @@ export function SelectLanguageBody({ tokens, theme, onSelect, selectedLanguage, 
   return (
     <View style={styles.content}>
       <Text style={[styles.heading, { color: tokens.text, fontFamily: fontFamilies.heading.bold }]}>
-        Choose your language
+        {t("app.language.chooseYourLanguage")}
       </Text>
       <Text style={[styles.subheading, { color: tokens.sec, fontFamily: fontFamilies.body.regular }]}>
-        You can change this later from your profile.
+        {t("app.language.youCanChangeThisLaterFromYourProfile")}
       </Text>
       <View style={styles.options}>
         {OPTIONS.map((option) => {

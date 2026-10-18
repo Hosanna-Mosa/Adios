@@ -1,17 +1,18 @@
 import { Modal } from "react-native";
 import { ProfileModalOverlay } from "./ProfileModalOverlay";
-import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
 import { type ProfileStyles } from "@/features/profile/profile.styles";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: ServiceTokens;
   changingPassword: any;
   confirmPassword: string;
   currentPassword: any;
   handleChangePassword: () => void;
+  insets: EdgeInsets;
   newPassword: any;
   securityVisible: any;
   setConfirmPassword: any;
@@ -23,11 +24,11 @@ interface Props {
 }
 
 export function SecuritySheet({
-  accent,
   changingPassword,
   confirmPassword,
   currentPassword,
   handleChangePassword,
+  insets,
   newPassword,
   securityVisible,
   setConfirmPassword,
@@ -40,11 +41,11 @@ export function SecuritySheet({
   return (
     <Modal visible={securityVisible} animationType="slide" transparent>
       <ProfileModalOverlay
-        accent={accent}
         changingPassword={changingPassword}
         confirmPassword={confirmPassword}
         currentPassword={currentPassword}
         handleChangePassword={handleChangePassword}
+        insets={insets}
         newPassword={newPassword}
         setConfirmPassword={setConfirmPassword}
         setCurrentPassword={setCurrentPassword}

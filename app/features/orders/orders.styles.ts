@@ -15,6 +15,12 @@ export const createStyles = (tokens: ThemeTokens) =>
     filterBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
+      position: "relative",
+    },
+    filterActiveDot: {
+      position: "absolute", top: moderateScale(6), right: moderateScale(6),
+      width: moderateScale(8), height: moderateScale(8), borderRadius: moderateScale(4),
+      borderWidth: 1, borderColor: tokens.surface,
     },
 
     chipsRow: { paddingHorizontal: 16, gap: 8 },

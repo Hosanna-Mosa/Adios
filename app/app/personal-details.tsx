@@ -103,7 +103,7 @@ export default function PersonalDetailsScreen() {
   return (
     <ScreenShell style={{ paddingTop: insets.top }}>
       <Header
-        title="Personal details"
+        title={t("app.profile.menuItems.personalDetails")}
         onBack={() => router.back()}
         style={{ paddingTop: 12, paddingBottom: 12 }}
         entering={fadeInDown(0)}

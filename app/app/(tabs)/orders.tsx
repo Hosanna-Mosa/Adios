@@ -48,6 +48,7 @@ export default function OrdersScreen() {
   return (
     <ScreenShell>
       <OrdersHeader
+        hasActiveFilters={serviceFilters.size > 0}
         insets={insets}
         summary={
           loading || isEmpty

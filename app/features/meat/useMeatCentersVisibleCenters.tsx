@@ -61,7 +61,11 @@ export function useMeatCentersVisibleCenters(tokens: any, accent: any, styles: a
             autoFocus
           />
           {searchText.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchText("")}>
+            <TouchableOpacity
+              onPress={() => setSearchText("")}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.food.clearSearch")}
+            >
               <Ionicons name="close-circle" size={moderateScale(16)} color={tokens.sec} />
             </TouchableOpacity>
           )}
