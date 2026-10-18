@@ -1,14 +1,16 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { Header } from "@/components/ui/Header";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type ChatStyles } from "@/features/support/useChat.shared";
 import type { Driver } from "@/types/models";
 
-// Moved out of app/chat.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// Moved out of app/chat.tsx. Built from the shared Header (avatar as a leading
+// visual, the call button as `right`) so it matches the Help & Support and
+// support-chat headers instead of carrying its own 38pt/surface-bar chip.
 
 interface Props {
   STATUS_LABEL: any;
@@ -18,7 +20,6 @@ interface Props {
   insets: EdgeInsets;
   partnerLabel: string;
   status: string;
-  styles: ChatStyles;
   tokens: ThemeTokens;
 }
 
@@ -30,26 +31,40 @@ export function ChatHeader({
   insets,
   partnerLabel,
   status,
-  styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
-    <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
-      <View style={styles.headerAvatar}>
-        <Ionicons name="person" size={20} color={tokens.sec} />
-      </View>
-      <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.headerName} numberOfLines={1}>{driver?.name || "Your partner"}</Text>
-        <Text style={[styles.headerStatus, { color: accent.accent }]} numberOfLines={1}>
-          {partnerLabel}{status && STATUS_LABEL[status] ? ` · ${STATUS_LABEL[status]}` : ""}
-        </Text>
-      </View>
-      <TouchableOpacity style={[styles.callBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver?.phone || ""}`)}>
-        <Ionicons name="call" size={17} color={accent.on} />
-      </TouchableOpacity>
-    </View>
+    <Header
+      title={driver?.name || "Your partner"}
+      subtitle={`${partnerLabel}${status && STATUS_LABEL[status] ? ` · ${STATUS_LABEL[status]}` : ""}`}
+      onBack={() => router.back()}
+      backHitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      accessibilityLabel={t("app.support.back")}
+      style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }}
+      avatar={
+        <View style={{
+          width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
+          backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border,
+          alignItems: "center", justifyContent: "center",
+        }}>
+          <Ionicons name="person" size={20} color={tokens.sec} />
+        </View>
+      }
+      right={
+        <TouchableOpacity
+          style={{
+            width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19),
+            backgroundColor: accent.accent, alignItems: "center", justifyContent: "center",
+          }}
+          onPress={() => Linking.openURL(`tel:${driver?.phone || ""}`)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.support.call")}
+        >
+          <Ionicons name="call" size={17} color={accent.on} />
+        </TouchableOpacity>
+      }
+    />
   );
 }

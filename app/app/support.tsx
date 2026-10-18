@@ -28,15 +28,15 @@ function resolveServiceKey(order: any): string {
 
 const ACTIVE_STATUSES = ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "ON_THE_WAY", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP", "PICKING_ITEMS", "EN_ROUTE_DELIVERY", "ARRIVED_DELIVERY", "IN_TRANSIT", "driver_assigned", "confirmed", "pending"];
 
-function formatRelativeDate(iso: string): string {
+function formatRelativeDate(iso: string, t: (key: string, options?: Record<string, unknown>) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const isToday = d.toDateString() === now.toDateString();
-  if (isToday) return `Today, ${time}`;
+  if (isToday) return t("app.support.todayAt", { time });
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`;
+  if (d.toDateString() === yesterday.toDateString()) return t("app.support.yesterdayAt", { time });
   return d.toLocaleDateString([], { day: "numeric", month: "short" });
 }
 
@@ -46,6 +46,7 @@ export default function SupportScreen() {
   const tokens = designTokens[theme];
   const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
   const { t } = useTranslation();
+  const formatRelativeDateT = (iso: string) => formatRelativeDate(iso, t);
 
   const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = useMemo(() => ({
     food: { label: t("app.serviceMeta.food"), accent: "food" },
@@ -76,16 +77,16 @@ export default function SupportScreen() {
   const recentTitle = recentOrder
     ? typeof recentOrder.vendor === "object" && recentOrder.vendor?.name
       ? recentOrder.vendor.name
-      : recentOrder.stops?.[0]?.address || "Order"
+      : recentOrder.stops?.[0]?.address || t("app.orders.orderFallback")
     : "";
 
   return (
     <ScreenShell style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }}>
-      <Header title="Help & support" onBack={() => router.back()} />
+      <Header title={t("app.profile.menuItems.helpSupport")} onBack={() => router.back()} />
 
       <SupportBody
         Linking={Linking}
-        formatRelativeDate={formatRelativeDate}
+        formatRelativeDate={formatRelativeDateT}
         accent={accent}
         insets={insets}
         isActive={isActive}

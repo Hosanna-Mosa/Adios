@@ -8,26 +8,20 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
 /** One stored ChatMessage document as the chat list renders it. `clientId` is the
- * id the sender's socket payload used, so history lines up with live messages. */
+ * id the sender's socket payload used, so history lines up with live messages.
+ * `date` is the server's real `createdAt` (Mongoose timestamps), kept separately
+ * from `timestamp` (a locale time-of-day string with no date in it) so the date
+ * divider can compare real days instead of always reading as today. */
 export const toChatMessage = (m: any) => ({
   id: String(m.clientId || m._id),
   text: m.text,
   sender: (m.role === "driver" ? "driver" : "customer") as "driver" | "customer",
   timestamp: m.time,
+  date: m.createdAt,
 });
 
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    header: {
-      flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingBottom: 14, gap: 12,
-      backgroundColor: tokens.surface, borderBottomWidth: 1, borderBottomColor: tokens.border,
-    },
-    backBtn: { width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19), backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerAvatar: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), backgroundColor: tokens.sunken, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
-    headerStatus: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, marginTop: 2 },
-    callBtn: { width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19), alignItems: "center", justifyContent: "center" },
-
     safetyBanner: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: tokens.warningSkin, marginHorizontal: 16, marginTop: 12, padding: 12, borderRadius: 12 },
     safetyText: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.sec },
 

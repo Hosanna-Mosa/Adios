@@ -75,6 +75,9 @@ export function SupportChatBody({
         style={[styles.sendBtn, { backgroundColor: accent.accent, opacity: inputText.trim() && !submittingReply ? 1 : 0.5 }]}
         onPress={handleSendMessage}
         disabled={!inputText.trim() || submittingReply}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.send")}
+        accessibilityState={{ disabled: !inputText.trim() || submittingReply }}
       >
         <Ionicons name="send" size={17} color={accent.on} />
       </TouchableOpacity>
