@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { designTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
-import { discountPercentOf, validOfferPrice } from "@/utils/pricing";
+import { discountPercentOf, formatINR, validOfferPrice } from "@/utils/pricing";
 
 // A dish's price wherever it is shown. With a valid offer (offerPrice below
 // price) it reads: ~~₹299~~ ₹199, and "33% OFF" underneath in the success
@@ -31,7 +31,7 @@ export function DishPrice({ price, offerPrice, discountPercent, priceStyle, styl
   const percent = discountPercentOf({ price, offerPrice, discountPercent });
 
   if (offer == null) {
-    return <Text style={[priceStyle, style as StyleProp<TextStyle>]}>₹{price}</Text>;
+    return <Text style={[priceStyle, style as StyleProp<TextStyle>]}>₹{formatINR(price)}</Text>;
   }
 
   // The caller's price style may carry spacing (e.g. marginTop: 4); with two
@@ -45,11 +45,11 @@ export function DishPrice({ price, offerPrice, discountPercent, priceStyle, styl
       <View style={styles.row}>
         <Text
           style={[priceStyle, styles.reset, styles.struck, { color: tokens.muted }]}
-          accessibilityLabel={t("app.food.originalPrice", { price: `₹${price}` })}
+          accessibilityLabel={t("app.food.originalPrice", { price: `₹${formatINR(price)}` })}
         >
-          ₹{price}
+          ₹{formatINR(price)}
         </Text>
-        <Text style={[priceStyle, styles.reset, styles.offer, { color: tokens.text }]}>₹{offer}</Text>
+        <Text style={[priceStyle, styles.reset, styles.offer, { color: tokens.text }]}>₹{formatINR(offer)}</Text>
       </View>
       {!hidePercent && percent != null && (
         <Text style={[styles.percent, { color: tokens.success }]}>{t("app.food.percentOff", { percent })}</Text>

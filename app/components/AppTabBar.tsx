@@ -109,60 +109,62 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
       )}
 
       {!hideTabs && (
-        <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
-          <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-          <View
-            style={styles.tabRow}
-            onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
-          >
-            {pillWidth > 0 && (
-              <Animated.View style={[styles.indicator, indicatorStyle]}>
-                <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
-              </Animated.View>
-            )}
-
-            {TABS.map((tab) => {
-              const isActive = tab.key === active;
-              return (
-                <TouchableOpacity
-                  key={tab.key}
-                  style={styles.tabItem}
-                  activeOpacity={0.7}
-                  onPress={() => handleTabPress(tab.key, tab.route)}
-                >
-                  <Ionicons
-                    name={isActive ? tab.activeIcon : tab.icon}
-                    size={moderateScale(21)}
-                    color={isActive ? accentTokens.accent : tokens.muted}
-                  />
-                  <Text style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
-                    {tab.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-
-            <TouchableOpacity
-              style={styles.tabItem}
-              activeOpacity={0.7}
-              onPress={() => handleTabPress("cart", "/cart")}
+        <View style={[styles.tabPillWrap, { bottom: insets.bottom + BOTTOM_GAP }]}>
+          <View style={styles.tabPill}>
+            <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+            <View
+              style={styles.tabRow}
+              onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
             >
-              <View style={styles.cartIconWrap}>
-                <Ionicons
-                  name={active === "cart" ? "bag" : "bag-outline"}
-                  size={moderateScale(21)}
-                  color={active === "cart" ? accentTokens.accent : tokens.muted}
-                />
-                {itemCount > 0 && (
-                  <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText}>{itemCount}</Text>
-                  </View>
-                )}
-              </View>
-              <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
-                {t("tabs.cart")}
-              </Text>
-            </TouchableOpacity>
+              {pillWidth > 0 && (
+                <Animated.View style={[styles.indicator, indicatorStyle]}>
+                  <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
+                </Animated.View>
+              )}
+
+              {TABS.map((tab) => {
+                const isActive = tab.key === active;
+                return (
+                  <TouchableOpacity
+                    key={tab.key}
+                    style={styles.tabItem}
+                    activeOpacity={0.7}
+                    onPress={() => handleTabPress(tab.key, tab.route)}
+                  >
+                    <Ionicons
+                      name={isActive ? tab.activeIcon : tab.icon}
+                      size={moderateScale(21)}
+                      color={isActive ? accentTokens.accent : tokens.muted}
+                    />
+                    <Text style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                      {tab.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+              <TouchableOpacity
+                style={styles.tabItem}
+                activeOpacity={0.7}
+                onPress={() => handleTabPress("cart", "/cart")}
+              >
+                <View style={styles.cartIconWrap}>
+                  <Ionicons
+                    name={active === "cart" ? "bag" : "bag-outline"}
+                    size={moderateScale(21)}
+                    color={active === "cart" ? accentTokens.accent : tokens.muted}
+                  />
+                  {itemCount > 0 && (
+                    <View style={styles.cartBadge}>
+                      <Text style={styles.cartBadgeText}>{itemCount}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                  {t("tabs.cart")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       )}
