@@ -50,7 +50,13 @@ export function HomeTopBar({
   return (
     <View style={[styles.topRow, { paddingTop: insets.top + 6 }]}>
       {/* "Delivery to · Home · <address>" on one line, truncated at the end. */}
-      <TouchableOpacity style={[styles.addressBlock, styles.addressInlineRow]} activeOpacity={0.7} onPress={() => router.push("/delivery/saved-addresses")}>
+      <TouchableOpacity
+        style={[styles.addressBlock, styles.addressInlineRow]}
+        activeOpacity={0.7}
+        onPress={() => router.push("/delivery/saved-addresses")}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.home.deliveryAddressAccessibilityLabel", { area: areaLine })}
+      >
         <Text style={styles.addressInlineText} numberOfLines={1}>
           <Text style={styles.addressInlineEyebrow}>{t("app.home.deliveryTo").toUpperCase()} </Text>
           <Text style={styles.addressInlineLabel}>{areaLabel}</Text>
@@ -60,10 +66,20 @@ export function HomeTopBar({
       </TouchableOpacity>
       <View style={styles.topRowActions}>
         {/* Delivery radius: how far from this address to look for outlets. */}
-        <TouchableOpacity style={styles.iconBtnCircle} onPress={() => setIsDistanceSheetOpen(true)}>
+        <TouchableOpacity
+          style={styles.iconBtnCircle}
+          onPress={() => setIsDistanceSheetOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.home.deliveryRadiusAccessibilityLabel")}
+        >
           <MaterialCommunityIcons name="map-marker-radius-outline" size={moderateScale(24)} color={tokens.sec} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconBtnCircle} onPress={() => router.push("/notifications")}>
+        <TouchableOpacity
+          style={styles.iconBtnCircle}
+          onPress={() => router.push("/notifications")}
+          accessibilityRole="button"
+          accessibilityLabel={unreadCount > 0 ? t("app.home.notificationsUnreadAccessibilityLabel", { count: unreadCount }) : t("app.home.notificationsAccessibilityLabel")}
+        >
           <Ionicons name="notifications-outline" size={moderateScale(24)} color={tokens.sec} />
           <CountBadge count={unreadCount} style={styles.notificationBadge} />
         </TouchableOpacity>

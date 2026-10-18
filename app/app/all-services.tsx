@@ -84,11 +84,7 @@ export default function AllServicesScreen() {
 
   return (
     <ScreenShell>
-      <AllServicesHeaderRow
-        insets={insets}
-        styles={styles}
-        tokens={tokens}
-      />
+      <AllServicesHeaderRow insets={insets} />
 
       <AllServicesBody services={services} styles={styles} tabBarHeight={tabBarHeight} />
 
@@ -99,12 +95,6 @@ export default function AllServicesScreen() {
 
 const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     scrollContent: { paddingHorizontal: 16, paddingBottom: 160 },
     headline: {
       fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,
