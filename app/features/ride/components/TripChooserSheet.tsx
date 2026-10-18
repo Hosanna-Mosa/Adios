@@ -26,6 +26,7 @@ interface Props {
   selectedTier: any;
   setSelectedTier: React.Dispatch<React.SetStateAction<any>>;
   setShowDatePicker: React.Dispatch<React.SetStateAction<any>>;
+  setSheetHeight: React.Dispatch<React.SetStateAction<number>>;
   styles: RideConfirmationStyles;
   tierFares: any;
   tokens: ThemeTokens;
@@ -42,6 +43,7 @@ export function TripChooserSheet({
   selectedFare,
   selectedTier,
   setShowDatePicker,
+  setSheetHeight,
   styles,
   tierFares,
   tokens,
@@ -56,7 +58,11 @@ export function TripChooserSheet({
   const fare = tierFares[selectedTier];
 
   return (
-    <Animated.View style={styles.sheet} entering={modalSlideUp}>
+    <Animated.View
+      style={styles.sheet}
+      entering={modalSlideUp}
+      onLayout={(e) => setSheetHeight(Math.round(e.nativeEvent.layout.height))}
+    >
       <View style={styles.sheetHandle} />
       <View style={styles.sheetHeadRow}>
         <Text style={styles.sheetTitle}>{t("app.ride.yourTrip")}</Text>
@@ -65,14 +71,14 @@ export function TripChooserSheet({
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20 }} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
         <View style={{ gap: 8 }}>
           <View style={[styles.tierRow, styles.tierRowSelected]}>
             <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{tier?.icon}</Text></View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.tierName}>{tier?.name}</Text>
               <Text style={styles.tierMeta}>
-                {tier?.capacity}{fare ? ` · ${fare.estimatedMinutes} min away` : ""}
+                {tier?.capacity}{fare ? ` · ${t("app.ride.minutesAway", { min: fare.estimatedMinutes })}` : ""}
               </Text>
             </View>
             <View style={{ alignItems: "flex-end" }}>

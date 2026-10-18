@@ -1,16 +1,18 @@
 import { StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { typography } from "@/constants/typography";
+import { type ThemeTokens } from "@/constants/colors";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Part of the ride-searching.styles stylesheet, kept under the 150-line file limit.
-// Values are unchanged; ride-searching.styles.ts composes this back together.
+// Migrated from the legacy `Colors` palette + raw fontWeight to `designTokens`
+// + named font families (BUG-098). Sizes/radii/spacing are unchanged.
 
-export const createCurrentAddressLabelStyles = (colors: typeof Colors.light, insets: any) =>
+export const createCurrentAddressLabelStyles = (tokens: ThemeTokens, insets: any) =>
   StyleSheet.create({
     currentAddressLabel: {
+      fontFamily: fontFamilies.body.regular,
       fontSize: typography.sizes.medium,
       lineHeight: typography.lineHeights.medium,
-      color: colors.text,
+      color: tokens.text,
       marginBottom: 10,
     },
     cancelAddressRow: {
@@ -22,9 +24,9 @@ export const createCurrentAddressLabelStyles = (colors: typeof Colors.light, ins
       width: 14,
       height: 14,
       borderRadius: 7,
-      backgroundColor: colors.success,
+      backgroundColor: tokens.success,
       borderWidth: 4,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
       marginHorizontal: 6,
       marginRight: 18,
     },
@@ -32,41 +34,45 @@ export const createCurrentAddressLabelStyles = (colors: typeof Colors.light, ins
       flex: 1,
     },
     cancelAddressTitle: {
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
       lineHeight: typography.lineHeights.medium,
-      fontWeight: "900",
-      color: colors.text,
+      color: tokens.text,
       marginBottom: 1,
     },
     cancelAddressDetail: {
+      fontFamily: fontFamilies.body.regular,
       fontSize: typography.sizes.small,
       lineHeight: typography.lineHeights.small,
-      color: colors.textSecondary,
+      color: tokens.sec,
     },
     cancelMyRideButton: {
       height: 46,
       borderRadius: 23,
-      backgroundColor: colors.error,
+      backgroundColor: tokens.error,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 16,
     },
     cancelMyRideText: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.medium,
-      fontWeight: "700",
+      // No "on error" token exists yet — white is the same deliberate choice
+      // other error-colored surfaces in the app make (e.g. DishDetailSheet's
+      // close icon on its overlay).
       color: "#FFFFFF",
     },
     keepSearchingButton: {
       height: 46,
       borderRadius: 23,
       borderWidth: 1,
-      borderColor: colors.primary,
+      borderColor: tokens.brand,
       alignItems: "center",
       justifyContent: "center",
     },
     keepSearchingText: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.medium,
-      fontWeight: "700",
-      color: colors.primary,
+      color: tokens.brand,
     },
   });

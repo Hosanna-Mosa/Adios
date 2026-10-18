@@ -18,7 +18,7 @@ interface Props {
   cancelReasonVisible: any;
   cancelRide: any;
   cancelUsesDrop: any;
-  colors: any;
+  tokens: any;
   dropTitle: string;
   fare: number;
   keepSearching: any;
@@ -33,7 +33,7 @@ interface Props {
 }
 
 export function BookAgainOverlay(props: Props) {
-  const { CANCEL_REASONS, cancelConfirmVisible, cancelLocationAddress, cancelLocationLabel, cancelLocationTitle, cancelReasonVisible, cancelRide, cancelUsesDrop, colors, keepSearching, selectCancelReason, selectedCancelReason, setCancelReasonVisible, setTripDetailsVisible, styles } = props;
+  const { CANCEL_REASONS, cancelConfirmVisible, cancelLocationAddress, cancelLocationLabel, cancelLocationTitle, cancelReasonVisible, cancelRide, cancelUsesDrop, tokens, keepSearching, selectCancelReason, selectedCancelReason, setCancelReasonVisible, setTripDetailsVisible, styles } = props;
   const { t } = useTranslation();
   return (
     <View style={styles.bookAgainOverlay}>
@@ -51,14 +51,16 @@ export function BookAgainOverlay(props: Props) {
             activeOpacity={1}
             onPress={() => setCancelReasonVisible(false)}
           />
-          <TouchableOpacity
-            style={styles.cancelFlowBackButton}
-            onPress={() => setCancelReasonVisible(false)}
-          >
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-
           <View style={styles.cancelReasonSheet}>
+            <TouchableOpacity
+              style={styles.cancelFlowBackButton}
+              onPress={() => setCancelReasonVisible(false)}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.ride.back")}
+            >
+              <Ionicons name="arrow-back" size={24} color={tokens.text} />
+            </TouchableOpacity>
             <View style={styles.cancelSheetHandle} />
             <Text style={styles.cancelReasonTitle}>{t("app.ride.whyDoYouWantToCancel")}</Text>
             <Text style={styles.cancelReasonSubtitle}>
@@ -73,7 +75,7 @@ export function BookAgainOverlay(props: Props) {
                 onPress={() => selectCancelReason(reason)}
               >
                 <Text style={styles.cancelReasonText}>{reason}</Text>
-                <Ionicons name="chevron-forward" size={22} color={colors.text} />
+                <Ionicons name="chevron-forward" size={22} color={tokens.text} />
               </TouchableOpacity>
             ))}
           </View>
@@ -88,11 +90,16 @@ export function BookAgainOverlay(props: Props) {
             onPress={keepSearching}
           />
 
-          <TouchableOpacity style={styles.cancelConfirmClose} onPress={keepSearching}>
-            <Ionicons name="close" size={28} color={colors.text} />
-          </TouchableOpacity>
-
           <View style={styles.cancelConfirmSheet}>
+            <TouchableOpacity
+              style={styles.cancelConfirmClose}
+              onPress={keepSearching}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.support.closeModal")}
+            >
+              <Ionicons name="close" size={28} color={tokens.text} />
+            </TouchableOpacity>
             <View style={styles.cancelSheetHandle} />
             <Text style={styles.cancelConfirmTitle}>
               {t("app.ride.areYouSureYouWantTo")}{"\n"}{t("app.ride.thisRide")}

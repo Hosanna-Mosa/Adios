@@ -14,6 +14,8 @@ interface Props {
   cancelReason: any;
   handleCancel: () => void;
   insets: EdgeInsets;
+  /** Picks "ride" vs "order" wording on the cancel button, matching FindingDriverSheet. */
+  isRide: boolean;
   setCancelReason: React.Dispatch<React.SetStateAction<any>>;
   setShowCancelSheet: React.Dispatch<React.SetStateAction<any>>;
   showCancelSheet: boolean;
@@ -26,6 +28,7 @@ export function CancelRideSheet({
   cancelReason,
   handleCancel,
   insets,
+  isRide,
   setCancelReason,
   setShowCancelSheet,
   showCancelSheet,
@@ -61,8 +64,16 @@ export function CancelRideSheet({
           </View>
 
           <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity style={styles.cancelSheetCancelBtn} onPress={handleCancel} activeOpacity={0.85}>
-              <Text style={styles.cancelSheetCancelBtnText}>{t("app.ride.cancelMyRide")}</Text>
+            <TouchableOpacity
+              style={[styles.cancelSheetCancelBtn, !cancelReason && { opacity: 0.5 }]}
+              onPress={handleCancel}
+              activeOpacity={0.85}
+              disabled={!cancelReason}
+              accessibilityState={{ disabled: !cancelReason }}
+            >
+              <Text style={styles.cancelSheetCancelBtnText}>
+                {isRide ? t("app.ride.cancelRideLower") : t("app.ride.cancelOrderLower")}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.cancelSheetKeepBtn, { backgroundColor: accent.accent }]} onPress={() => setShowCancelSheet(false)} activeOpacity={0.9}>
               <Text style={[styles.cancelSheetKeepBtnText, { color: accent.on }]}>{t("app.ride.keepSearching")}</Text>

@@ -44,7 +44,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     editBubbleBtn: { width: 22, height: 22, borderRadius: 11, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginLeft: 6 },
 
     sheet: {
-      height: "63%", backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12,
+      maxHeight: "63%", overflow: "hidden", backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12,
       borderTopWidth: 1, borderColor: tokens.border,
     },
     sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 14 },

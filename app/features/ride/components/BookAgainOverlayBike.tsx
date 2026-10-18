@@ -2,12 +2,12 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
+import { vehicleIconFor, vehicleNameKeyFor } from "../rideTierDisplay";
 
 // Section of BookAgainOverlay, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
 
 interface Props {
-  colors: any;
   dropTitle: string;
   fare: number;
   params: any;
@@ -15,10 +15,10 @@ interface Props {
   setTripDetailsVisible: React.Dispatch<React.SetStateAction<any>>;
   showCancelReasons: any;
   styles: RideSearchingStyles;
+  tokens: any;
 }
 
 export function BookAgainOverlayBike({
-  colors,
   dropTitle,
   fare,
   params,
@@ -26,26 +26,28 @@ export function BookAgainOverlayBike({
   setTripDetailsVisible,
   showCancelReasons,
   styles,
+  tokens,
 }: Props) {
   const { t } = useTranslation();
   return (
-    <>
-    <TouchableOpacity
-      style={styles.bookAgainBackFloating}
-      onPress={() => setTripDetailsVisible(false)}
-    >
-      <Ionicons name="arrow-back" size={24} color={colors.text} />
-    </TouchableOpacity>
-
     <View style={styles.bookAgainSheet}>
+      <TouchableOpacity
+        style={styles.bookAgainBackFloating}
+        onPress={() => setTripDetailsVisible(false)}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.ride.back")}
+      >
+        <Ionicons name="arrow-back" size={24} color={tokens.text} />
+      </TouchableOpacity>
+
       <Text style={styles.bookAgainTitle}>{t("app.ride.searchingForBelowServices")}</Text>
 
       <View style={styles.serviceSummaryCard}>
         <View style={styles.serviceLeft}>
           <View style={styles.serviceBikeBadge}>
-            <MaterialCommunityIcons name="motorbike" size={30} color={colors.text} />
+            <MaterialCommunityIcons name={vehicleIconFor(params.serviceId)} size={30} color={tokens.text} />
           </View>
-          <Text style={styles.serviceName}>{t("app.rideTierNames.bike")}</Text>
+          <Text style={styles.serviceName}>{params.rideName || t(vehicleNameKeyFor(params.serviceId))}</Text>
         </View>
         <Text style={styles.serviceFare}>₹{fare}</Text>
       </View>
@@ -85,7 +87,7 @@ export function BookAgainOverlayBike({
       </View>
 
       <View style={styles.paymentRow}>
-        <Ionicons name="cash-outline" size={20} color={colors.textSecondary} />
+        <Ionicons name="cash-outline" size={20} color={tokens.sec} />
         <Text style={styles.paymentText}>{t("app.ride.payingViaCash")}</Text>
       </View>
 
@@ -103,6 +105,5 @@ export function BookAgainOverlayBike({
         <Text style={styles.cancelRideText}>{t("app.ride.cancelRide")}</Text>
       </TouchableOpacity>
     </View>
-    </>
   );
 }

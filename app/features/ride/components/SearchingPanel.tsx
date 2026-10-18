@@ -3,37 +3,40 @@ import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
+import { vehicleIconFor } from "../rideTierDisplay";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
 // have to be touched.
 
 interface Props {
-  colors: any;
   dotStyle: any;
   fare: number;
+  params: { serviceId?: string };
   progressBarStyle: any;
   showTripDetails: any;
   styles: RideSearchingStyles;
+  tokens: any;
 }
 
 export function SearchingPanel({
-  colors,
   dotStyle,
   fare,
+  params,
   progressBarStyle,
   showTripDetails,
   styles,
+  tokens,
 }: Props) {
   const { t } = useTranslation();
   return (
     <View style={styles.panel} pointerEvents="box-none">
-      <View style={[styles.floatingCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={styles.floatingCard}>
         <View style={styles.handle} />
 
         <View style={styles.headerInfo}>
           <View style={styles.statusDotRow}>
-            <Animated.View style={[styles.pulseDot, dotStyle, { backgroundColor: colors.success }]} />
+            <Animated.View style={[styles.pulseDot, dotStyle, { backgroundColor: tokens.success }]} />
             <Text style={styles.title}>{t("app.ride.findingYourCaptain")}...</Text>
           </View>
           <Text style={styles.subtitle}>{t("app.ride.connectingWithNearbyDriversInYour")}</Text>
@@ -43,34 +46,40 @@ export function SearchingPanel({
           <Animated.View style={[styles.progressBarActive, progressBarStyle]} />
         </View>
 
-        <View style={[styles.fareCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight }]}>
-          <View style={[styles.bikeBadge, { backgroundColor: colors.surface }]}>
-            <MaterialCommunityIcons name="motorbike" size={24} color={colors.text} />
+        <View style={styles.fareCard}>
+          <View style={styles.bikeBadge}>
+            <MaterialCommunityIcons name={vehicleIconFor(params.serviceId)} size={24} color={tokens.text} />
           </View>
           <View style={styles.fareTextGroup}>
-            <Text style={[styles.fareLabel, { color: colors.textSecondary }]}>{t("app.ride.totalFare")}</Text>
-            <Text style={[styles.fareValue, { color: colors.text }]}>₹{fare}</Text>
+            <Text style={styles.fareLabel}>{t("app.ride.totalFare")}</Text>
+            <Text style={styles.fareValue}>₹{fare}</Text>
           </View>
-          <TouchableOpacity style={[styles.tripButton, { borderColor: colors.border }]} onPress={showTripDetails}>
-            <Text style={[styles.tripButtonText, { color: colors.text }]}>{t("app.ride.tripDetails")}</Text>
+          <TouchableOpacity
+            style={styles.tripButton}
+            onPress={showTripDetails}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.ride.tripDetails")}
+          >
+            <Text style={styles.tripButtonText}>{t("app.ride.tripDetails")}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.suggestionCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.borderLight }]}>
+        <View style={styles.suggestionCard}>
           <View style={styles.suggestionHeader}>
-            <View style={[styles.avatar, { backgroundColor: colors.surface }]}>
-              <Ionicons name="person" size={20} color={colors.text} />
+            <View style={styles.avatar}>
+              <Ionicons name="person" size={20} color={tokens.text} />
             </View>
-            <Text style={[styles.suggestionTitle, { color: colors.text }]}>
+            <Text style={styles.suggestionTitle}>
               {t("app.ride.captainsArenapostAcceptingAt")}{fare}{t("app.ride.tryAddingMore")}
             </Text>
           </View>
 
           <View style={styles.addFareRow}>
             {["+ ₹10", "+ ₹15", "+ ₹20", "+"].map((label) => (
-              <TouchableOpacity key={label} style={[styles.addFarePill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Text style={[styles.addFareText, { color: colors.text }]}>{label}</Text>
-              </TouchableOpacity>
+              <View key={label} style={styles.addFarePill}>
+                <Text style={styles.addFareText}>{label}</Text>
+              </View>
             ))}
           </View>
         </View>

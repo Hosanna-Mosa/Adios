@@ -1,4 +1,5 @@
 import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { goHomeFromTracking } from "../useTrackingHandleBack";
@@ -28,9 +29,16 @@ export function TrackingTopBar({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
-      <TouchableOpacity style={styles.backBtn} onPress={goHomeFromTracking}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={goHomeFromTracking}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>

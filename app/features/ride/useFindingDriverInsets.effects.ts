@@ -88,6 +88,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
             serviceType: orderData.serviceType,
             // A restaurant / meat-shop order: the map marks the restaurant and the delivery home.
             hasOutlet: !!orderData.vendor,
+            packageDelivery: !!orderData.packageDelivery,
           });
           if (orderData.stops && orderData.stops.length > 0) {
             const mappedStops = orderData.stops.map((s: any) => ({

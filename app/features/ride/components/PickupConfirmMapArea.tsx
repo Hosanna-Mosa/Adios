@@ -63,11 +63,18 @@ export function PickupConfirmMapArea({
       <TouchableOpacity
         style={[styles.backButton, { top: insets.top + 16 }]}
         onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.ride.back")}
       >
         <Ionicons name="arrow-back" size={22} color={tokens.text} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.locateButton} onPress={useCurrentLocation}>
+      <TouchableOpacity
+        style={styles.locateButton}
+        onPress={useCurrentLocation}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.packageDelivery.useCurrentLocation")}
+      >
         <Ionicons name="locate" size={22} color={accent.accent} />
       </TouchableOpacity>
     </View>

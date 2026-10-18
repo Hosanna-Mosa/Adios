@@ -21,6 +21,11 @@ export function TrackingScreenBody(props: Props) {
   accent, bannerText, driver, driverLocation, eta, insets, mapRef, radius, route, status, stops,
   styles, tokens, userLocCoords, outletOrder, rideOrder
   } = props;
+  // TrackingBottomSheet's own BottomSheet sits at this same resting height
+  // (its `defaultHeight`) until the user drags it — that drag is a reanimated
+  // transform, not a layout change, so onLayout can't see it; its settled
+  // height is the one reliable number to clear the zoom controls by.
+  const sheetRestingHeight = Dimensions.get("window").height * 0.5;
   return (
     <>
     <MapBackground
@@ -34,6 +39,7 @@ export function TrackingScreenBody(props: Props) {
       rideOrder={rideOrder}
       radiusCenter={stops?.[0]?.lat !== undefined && stops?.[0]?.lng !== undefined ? { lat: stops[0].lat, lng: stops[0].lng } : null}
       radiusMeters={radius ? radius * 1000 : undefined}
+      sheetHeight={sheetRestingHeight}
       style={StyleSheet.absoluteFill}
     />
 

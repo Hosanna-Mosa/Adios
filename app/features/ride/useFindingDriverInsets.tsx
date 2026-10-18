@@ -25,12 +25,15 @@ export function useFindingDriverInsets() {
   const [confirmedDriver, setConfirmedDriver] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
-  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean }>({});
+  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean; packageDelivery?: boolean }>({});
+  // Measured from FindingDriverSheet's onLayout, so the map's zoom controls can
+  // clear it instead of floating at a guessed position.
+  const [sheetHeight, setSheetHeight] = useState(0);
 
   // Set from each poll of the order (and right after a food order is placed).
   const foodStage = useDeliveryStore((s) => s.foodStage);
   const serviceType = useDeliveryStore((s) => s.serviceType);
-  const isRide = ["bike", "auto", "cab", "cab_prime"].includes(String(orderSummary.serviceType || serviceType || "").toLowerCase());
+  const isRide = !orderSummary.packageDelivery && ["bike", "auto", "cab", "cab_prime"].includes(String(orderSummary.serviceType || serviceType || "").toLowerCase());
 
   const sweep = useSharedValue(0);
 
@@ -44,5 +47,5 @@ export function useFindingDriverInsets() {
 
   useEffect(buildFindingDriverInsetsEffect(orderId, isReserved, setBookingConfirmed, setConfirmedDriver, setStops, setOrderSummary), [orderId, isReserved, dateTimeStr]);
 
-  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide };
+  return { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight };
 }

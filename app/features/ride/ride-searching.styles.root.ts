@@ -1,18 +1,23 @@
 import { StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
+import { type ThemeTokens } from "@/constants/colors";
 
 // Part of the ride-searching.styles stylesheet, kept under the 150-line file limit.
-// Values are unchanged; ride-searching.styles.ts composes this back together.
+// Migrated from the legacy `Colors` palette to `designTokens` (BUG-098) — see
+// ride-searching.styles.ts for the mapping. Pixel sizes/radii/spacing are
+// unchanged; only colors moved to tokens.
 
-export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
+export const createRootStyles = (tokens: ThemeTokens, insets: any) =>
   StyleSheet.create({
     root: {
       flex: 1,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
     },
+    // Visible for a frame before the map tiles paint — was a hardcoded light
+    // grey that stayed light-grey in dark mode. tokens.sunken is the same
+    // neutral-placeholder surface the rest of the app uses under images/maps.
     mapArea: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: "#eef1f4",
+      backgroundColor: tokens.sunken,
     },
     screenBackButton: {
       position: "absolute",
@@ -21,7 +26,7 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -38,9 +43,9 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
       width: 26,
       height: 26,
       borderRadius: 13,
-      backgroundColor: colors.success,
+      backgroundColor: tokens.success,
       borderWidth: 3,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -53,23 +58,23 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
       width: 9,
       height: 9,
       borderRadius: 4.5,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
     },
     pickupStem: {
       width: 3,
       height: 24,
-      backgroundColor: colors.textSecondary,
+      backgroundColor: tokens.sec,
       marginTop: -1,
     },
     dropMarker: {
       width: 28,
       height: 28,
       borderRadius: 14,
-      backgroundColor: colors.error,
+      backgroundColor: tokens.error,
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 2,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.2,
@@ -80,11 +85,11 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: colors.primary,
+      backgroundColor: tokens.brand,
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 2,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
@@ -95,7 +100,7 @@ export const createRootStyles = (colors: typeof Colors.light, insets: any) =>
       width: 9,
       height: 9,
       borderRadius: 4.5,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
     },
     panel: {
       position: "absolute",
