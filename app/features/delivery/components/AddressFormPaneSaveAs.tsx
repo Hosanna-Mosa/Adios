@@ -56,7 +56,7 @@ export function AddressFormPaneSaveAs(props: Props) {
       <Animated.View entering={fadeInUp(60)}>
         <TouchableOpacity style={styles.mapPreview} activeOpacity={0.9} onPress={() => setStep(1)}>
           <MapView provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT} style={StyleSheet.absoluteFill} region={region} scrollEnabled={false} zoomEnabled={false} pitchEnabled={false} rotateEnabled={false} />
-          <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color="#fff" /></View>
+          <View style={styles.mapPreviewPin}><Ionicons name="location" size={18} color={accent.on} /></View>
           <View style={styles.mapPreviewPill}><Text style={styles.mapPreviewPillText} numberOfLines={1}>{isResolvingAddress ? t("app.delivery.confirmingLocation") : shortAddress || t("app.delivery.locationConfirmed")}</Text></View>
         </TouchableOpacity>
         <Text style={styles.mapPreviewCoords}>{t("app.delivery.lat")} {latLabel}  {t("app.delivery.lng")} {lngLabel}</Text>

@@ -35,6 +35,7 @@ export default function LanguageSettingsScreen() {
         onBack={() => router.back()}
         style={{ paddingTop: insets.top + 4 }}
       />
+      {/* The current language is marked, so the user sees what they'd be changing from. */}
       <View style={{ flex: 1, justifyContent: "center" }}>
         <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
       </View>

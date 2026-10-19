@@ -11,7 +11,20 @@ import { staggerListItem } from "@/motion/presets";
 // Moved out of app/favorites.tsx unchanged. Single-feature for now: promote to
 // components/ui/ or components/shared/ if a second feature needs it.
 
-export function FavoriteCard({ item, index, tokens, styles }: { item: any; index: number; tokens: ThemeTokens; styles: any }) {
+export function FavoriteCard({
+  item,
+  index,
+  tokens,
+  styles,
+  onUnfavorite,
+}: {
+  item: any;
+  index: number;
+  tokens: ThemeTokens;
+  styles: any;
+  /** Removes the outlet from favorites — the same toggle the restaurant cards' heart uses. */
+  onUnfavorite: (id: string) => void;
+}) {
   const { t } = useTranslation();
   const isMeat = item.partnerType === "meat";
   const accent = tokens.services[isMeat ? "meat" : "food"];
@@ -29,7 +42,15 @@ export function FavoriteCard({ item, index, tokens, styles }: { item: any; index
       <View style={styles.cardBody}>
         <View style={styles.cardTitleRow}>
           <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-          <Ionicons name="heart" size={moderateScale(16)} color={accent.accent} />
+          {/* A real button now: it looked tappable but did nothing, unlike the heart on restaurant cards. */}
+          <TouchableOpacity
+            onPress={() => onUnfavorite(item._id)}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.a11y.removeFromFavorites", { name: item.name })}
+          >
+            <Ionicons name="heart" size={moderateScale(16)} color={accent.accent} />
+          </TouchableOpacity>
         </View>
         {isMeat && (
           <View style={[styles.serviceTag, { backgroundColor: accent.skin }]}>

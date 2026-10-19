@@ -87,17 +87,29 @@ export function registerOrderSocketHandlers(
     console.log("Order cancelled received:", data);
     const orderId = data.orderId || data.id;
     if (!orderId) return;
+    // The driver's own cancellation is confirmed by the cancel flow itself.
+    if (data.reason === "driver_cancelled") {
+      const current = get().currentOrder;
+      if (current && sameId(current.id, orderId)) set({ currentOrder: null, currentStep: 0 });
+      return;
+    }
+    const byWhom =
+      data.reason === "restaurant_rejected" || data.reason === "restaurant_timeout"
+        ? "Restaurant"
+        : data.reason === "admin_cancelled"
+          ? "Team"
+          : "Customer";
 
     const incoming = get().incomingOrder;
     if (incoming && sameId(incoming.id, orderId)) {
       set({ incomingOrder: null });
-      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t("jobs.incomingOrderCancelledByCustomer"));
+      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t(`jobs.incomingOrderCancelledBy${byWhom}`));
     }
 
     const current = get().currentOrder;
     if (current && sameId(current.id, orderId)) {
       set({ currentOrder: null, currentStep: 0 });
-      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t("jobs.activeOrderCancelledByCustomer"));
+      Alert.alert(i18n.t("jobs.orderCancelled"), i18n.t(`jobs.activeOrderCancelledBy${byWhom}`));
       router.push("/(tabs)");
     }
   });

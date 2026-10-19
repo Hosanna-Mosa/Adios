@@ -46,7 +46,8 @@ export default function CartConflictDialog() {
           </View>
           <Text style={styles.title}>{t("app.CartConflictDialog.startANewCart")}</Text>
           <Text style={styles.subtitle}>
-            {t("app.CartConflictDialog.yourCartHasItemsFrom")} {fromOutlet}{t("app.CartConflictDialog.adding")} {pending.item.name} from {toOutlet} {t("app.CartConflictDialog.willEmptyIt")}
+            {/* One sentence key: the pieces were joined with an English " from ", which broke Hindi/Telugu word order. */}
+            {t("app.CartConflictDialog.body", { from: fromOutlet, item: pending.item.name, to: toOutlet })}
           </Text>
 
           <TouchableOpacity style={styles.clearButton} onPress={() => resolveConflict("clear")} activeOpacity={0.85}>
@@ -64,7 +65,7 @@ export default function CartConflictDialog() {
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 24 },
+    overlay: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "center", alignItems: "center", padding: 24 },
     card: { width: "100%", maxWidth: 340, backgroundColor: tokens.surface, borderRadius: 20, padding: 22, alignItems: "center" },
     iconContainer: { width: 44, height: 44, borderRadius: 14, backgroundColor: tokens.errorSkin, alignItems: "center", justifyContent: "center", marginBottom: 14 },
     title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },

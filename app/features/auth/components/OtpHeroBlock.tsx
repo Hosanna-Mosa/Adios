@@ -22,7 +22,7 @@ export function OtpHeroBlock({
   const { t } = useTranslation();
   return (
     <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
-      <Text style={styles.headline} numberOfLines={1}>{t("app.auth.verifyYourNumber")}</Text>
+      <Text style={styles.headline} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{t("app.auth.verifyYourNumber")}</Text>
       <Text style={styles.subhead}>
         {t("app.auth.weSentA6digitCodeTo")}{" "}
         <Text style={styles.subheadStrong}>+91 {formatPhone(phone || "")}</Text>.{" "}

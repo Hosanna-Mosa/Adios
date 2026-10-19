@@ -114,6 +114,7 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
             <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
             <View
               style={styles.tabRow}
+              accessibilityRole="tablist"
               onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
             >
               {pillWidth > 0 && (
@@ -130,13 +131,22 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
                     style={styles.tabItem}
                     activeOpacity={0.7}
                     onPress={() => handleTabPress(tab.key, tab.route)}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={tab.label}
                   >
                     <Ionicons
                       name={isActive ? tab.activeIcon : tab.icon}
                       size={moderateScale(21)}
                       color={isActive ? accentTokens.accent : tokens.muted}
                     />
-                    <Text style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                    {/* One line that shrinks to fit: long Telugu/Hindi labels wrapped inside the 62pt pill. */}
+                    <Text
+                      style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
                       {tab.label}
                     </Text>
                   </TouchableOpacity>
@@ -147,6 +157,9 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
                 style={styles.tabItem}
                 activeOpacity={0.7}
                 onPress={() => handleTabPress("cart", "/cart")}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active === "cart" }}
+                accessibilityLabel={itemCount > 0 ? t("app.a11y.cartWithItems", { count: itemCount }) : t("tabs.cart")}
               >
                 <View style={styles.cartIconWrap}>
                   <Ionicons
@@ -156,11 +169,16 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
                   />
                   {itemCount > 0 && (
                     <View style={styles.cartBadge}>
-                      <Text style={styles.cartBadgeText}>{itemCount}</Text>
+                      <Text style={styles.cartBadgeText} numberOfLines={1}>{itemCount > 99 ? "99+" : itemCount}</Text>
                     </View>
                   )}
                 </View>
-                <Text style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}>
+                <Text
+                  style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
                   {t("tabs.cart")}
                 </Text>
               </TouchableOpacity>

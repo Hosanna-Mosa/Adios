@@ -48,8 +48,11 @@ export class OnboardingService {
       driver.onboardingStatus = OnboardingStatus.IN_PROGRESS;
     }
 
-    // Handle Aadhaar verification via Surepass
-    if (data.aadhaarNumber && !data.aadhaarVerified) {
+    // Handle Aadhaar verification via Surepass. Decided by the server's own record —
+    // a client-sent `aadhaarVerified` is ignored, so it can't skip the check.
+    const digits = (value: unknown) => String(value ?? "").replace(/\s/g, "");
+    const aadhaarAlreadyVerified = !!driver.aadhaarVerified && digits(driver.aadhaarNumber) === digits(data.aadhaarNumber);
+    if (data.aadhaarNumber && !aadhaarAlreadyVerified) {
       const result = await surepassService.verifyAadhaar(data.aadhaarNumber, true);
       if (result.verified) {
         driver.aadhaarNumber = data.aadhaarNumber;
@@ -64,12 +67,21 @@ export class OnboardingService {
       const result = await surepassService.verifyPAN(data.panNumber, true);
       if (result.verified) {
         driver.panNumber = data.panNumber;
+        driver.panVerified = true;
       } else {
         throw new Error(result.message || "PAN verification failed");
       }
     }
 
-    // Merge other allowed fields
+    // A different payout account than the one on file is unverified until the
+    // Adios team checks it (admin → Verify bank); cash-out waits for that.
+    const bankChanged =
+      (data.bankAccountNumber !== undefined && data.bankAccountNumber !== driver.bankAccountNumber) ||
+      (data.bankIfsc !== undefined && data.bankIfsc !== driver.bankIfsc);
+    if (bankChanged) driver.bankVerified = false;
+
+    // Merge other allowed fields. `bankVerified` is deliberately absent: only an
+    // admin sets it, so a driver can't mark their own account verified.
     const allowedFields = [
       "gender",
       "vehicleType",
@@ -81,7 +93,6 @@ export class OnboardingService {
       "dlBackImage",
       "bankAccountNumber",
       "bankIfsc",
-      "bankVerified",
       "selfieImage",
     ] as const;
 
@@ -102,7 +113,7 @@ export class OnboardingService {
         bankAccounts.push({
           accountNumber: data.bankAccountNumber,
           ifsc: data.bankIfsc,
-          verified: data.bankVerified || false,
+          verified: false,
           isDefault: isFirst,
         });
         driver.bankAccounts = bankAccounts;
@@ -164,6 +175,7 @@ export class OnboardingService {
 
     if (result.verified) {
       driver.panNumber = panNumber;
+      driver.panVerified = true;
       await driver.save();
     }
 

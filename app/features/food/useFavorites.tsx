@@ -64,6 +64,7 @@ export function useFavorites() {
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const user = useAuthStore((s) => s.user);
   const toggleFavoriteItem = useAuthStore((s) => s.toggleFavoriteItem);
+  const toggleFavorite = useAuthStore((s) => s.toggleFavorite);
 
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<any[]>([]);
@@ -119,7 +120,7 @@ export function useFavorites() {
 
 
   return {
-  insets, tabBarHeight, tokens, accent, styles, toggleFavoriteItem, loading, favorites,
+  insets, tabBarHeight, tokens, accent, styles, toggleFavoriteItem, toggleFavorite, loading, favorites,
   itemsLoading, activeTab, setActiveTab, fetchFavorites, fetchFavoriteItems, activeFavorites,
   activeFavoriteItems, popularNearby
   };

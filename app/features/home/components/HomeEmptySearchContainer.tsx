@@ -8,7 +8,8 @@ import { type HomeStyles } from "@/features/home/home.styles";
 // scope is now a prop of the same name.
 
 interface Props {
-  tryInstead: any[];
+  /** `term` is what gets searched (menus are English); `label` is shown, translated. */
+  tryInstead: { term: string; label: string }[];
   hasActiveFilters: boolean;
   activeFilterCount: number;
   clearAllFilters: () => void;
@@ -47,9 +48,9 @@ export function HomeEmptySearchContainer({
       )}
       <Text style={styles.tryInsteadLabel}>{t("app.home.tryInstead")}</Text>
       <View style={styles.tryInsteadRow}>
-        {tryInstead.map((term) => (
-          <TouchableOpacity key={term} style={styles.tryInsteadChip} onPress={() => setSearchText(term)}>
-            <Text style={styles.tryInsteadChipText}>{term}</Text>
+        {tryInstead.map(({ term, label }) => (
+          <TouchableOpacity key={term} style={styles.tryInsteadChip} onPress={() => setSearchText(term)} accessibilityRole="button">
+            <Text style={styles.tryInsteadChipText}>{label}</Text>
           </TouchableOpacity>
         ))}
       </View>

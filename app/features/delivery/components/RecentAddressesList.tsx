@@ -41,10 +41,13 @@ export function RecentAddressesList({
             style={[styles.recentRow, idx < recentLocations.length - 1 && styles.recentRowDivider]}
             onPress={() => handleSelectRecentLocation(item)}
             disabled={selectingId !== null}
+            accessibilityRole="button"
           >
             <View style={styles.recentIcon}><Ionicons name="time-outline" size={16} color={tokens.sec} /></View>
             <Text style={styles.recentName} numberOfLines={1}>{item.name}{item.address ? `, ${item.address}` : ""}</Text>
-            <Text style={styles.recentSave}>{t("app.delivery.save")}</Text>
+            {/* A chevron: the whole row picks the location. A bold "Save" here looked like
+                its own button, yet tapping it just selected the location too. */}
+            <Ionicons name="chevron-forward" size={16} color={tokens.muted} />
           </TouchableOpacity>
           </Animated.View>
         ))

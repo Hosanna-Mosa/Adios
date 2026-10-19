@@ -58,6 +58,8 @@ export interface Order {
   vendorPhone?: string;
   /** Restaurant / meat-shop order (it has a vendor): no delivery OTP, and pickup waits for "ready". */
   hasOutlet?: boolean;
+  /** Which kind of outlet: words the pickup as a restaurant or a meat shop. Null without one. */
+  outletKind?: "food" | "meat" | null;
   /** When the outlet tapped "Mark as ready" (ISO); the pickup code unlocks after it. */
   foodReadyAt?: string | null;
   isReserved?: boolean;

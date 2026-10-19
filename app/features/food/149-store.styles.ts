@@ -52,7 +52,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   emptyStateBtn: { marginTop: 18, backgroundColor: accent.accent, borderRadius: moderateScale(14), paddingHorizontal: 22, paddingVertical: 13 },
   emptyStateBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
 
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
+  modalOverlay: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "flex-end" },
   sheetModal: { backgroundColor: tokens.surface, borderTopLeftRadius: moderateScale(24), borderTopRightRadius: moderateScale(24), paddingBottom: 32 },
   sheetCloseBtn: {
     position: "absolute", top: -22, alignSelf: "center", width: moderateScale(44), height: moderateScale(44), borderRadius: moderateScale(22),

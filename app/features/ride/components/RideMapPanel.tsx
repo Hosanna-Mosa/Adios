@@ -5,7 +5,6 @@ import { fadeIn } from "@/motion/presets";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
 import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 
@@ -15,6 +14,7 @@ import Animated from "react-native-reanimated";
 
 import type { Props } from "./RideMapPanel.props";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
+import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
 
 export function RideMapPanel(props: Props) {
   const { GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
@@ -105,16 +105,8 @@ export function RideMapPanel(props: Props) {
         )}
       </MapView>
 
-      <Animated.View style={[styles.mapOverlay, { top: insets.top + 10 }]} entering={fadeIn(0)}>
-        <TouchableOpacity
-          style={styles.circleBtn}
-          onPress={() => router.back()}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          accessibilityRole="button"
-          accessibilityLabel={t("app.ride.back")}
-        >
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
+      <Animated.View style={[styles.mapOverlay, { top: mapControlTop(insets) }]} entering={fadeIn(0)}>
+        <MapBackButton onPress={() => router.back()} />
         <View style={styles.toolGroup}>
           <TouchableOpacity
             style={styles.toolCircleBtn}

@@ -59,13 +59,19 @@ export function SavedAddressesList({
                   {isSelecting ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={[styles.avatarText, addr.label === "Home" && { color: accent.accent }]}>{(addr.label || "?")[0].toUpperCase()}</Text>}
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={styles.addrLabel}>{addr.label}</Text>
+                  <Text style={styles.addrLabel} numberOfLines={1}>{addr.label}</Text>
                   <Text style={styles.addrLine} numberOfLines={1}>{stripMeta(addr.addressLine)}</Text>
                   {!!addr.landmark && <Text style={styles.addrInstructions} numberOfLines={1}>{t("app.delivery.near")} {addr.landmark}</Text>}
                   {instructions && <Text style={styles.addrInstructions} numberOfLines={1}>{instructions}</Text>}
                   {!!contact && <Text style={styles.addrContact} numberOfLines={1}>{contact}</Text>}
                 </View>
-                <TouchableOpacity onPress={() => handleMoreOptions(addr)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} disabled={selectingId !== null || deletingId !== null}>
+                <TouchableOpacity
+                  onPress={() => handleMoreOptions(addr)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  disabled={selectingId !== null || deletingId !== null}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("app.a11y.moreOptionsFor", { name: addr.label })}
+                >
                   {deletingId === addr._id ? <ActivityIndicator size="small" color={tokens.error} /> : <Ionicons name="ellipsis-horizontal" size={18} color={tokens.muted} />}
                 </TouchableOpacity>
               </TouchableOpacity>

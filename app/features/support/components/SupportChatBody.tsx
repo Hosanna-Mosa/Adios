@@ -1,4 +1,4 @@
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
@@ -77,9 +77,10 @@ export function SupportChatBody({
         disabled={!inputText.trim() || submittingReply}
         accessibilityRole="button"
         accessibilityLabel={t("app.support.send")}
-        accessibilityState={{ disabled: !inputText.trim() || submittingReply }}
+        accessibilityState={{ disabled: !inputText.trim() || submittingReply, busy: submittingReply }}
       >
-        <Ionicons name="send" size={17} color={accent.on} />
+        {/* A spinner while sending: dimming alone looked the same as an empty input. */}
+        {submittingReply ? <ActivityIndicator size="small" color={accent.on} /> : <Ionicons name="send" size={17} color={accent.on} />}
       </TouchableOpacity>
     </View>
   );

@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { Header } from "@/components/ui/Header";
 import { ScreenShell } from "@/components/ui/ScreenShell";
+import { Button } from "@/components/ui/Button";
 import { CustomerCard } from "@/features/orders/components/CustomerCard";
 import { DriverCard } from "@/features/orders/components/DriverCard";
 import { AcceptOrderFooter } from "@/features/orders/components/AcceptOrderFooter";
@@ -37,6 +38,7 @@ export default function OrderDetailScreen() {
     );
   }
 
+  const orderId = d.order._id;
   const footer = d.needsAcceptance ? (
     <AcceptOrderFooter
       acceptBy={d.order.restaurantAcceptBy}
@@ -80,6 +82,12 @@ export default function OrderDetailScreen() {
         vehicleType={d.driver?.vehicleType}
         onCall={d.call}
         tokens={d.tokens}
+      />
+      {/* Opens a support case with this order attached, so the agent sees it straight away. */}
+      <Button
+        title={t("orderDetail.getHelp")}
+        variant="ghost"
+        onPress={() => router.push({ pathname: "/support-chat", params: { orderId } })}
       />
     </ScreenShell>
   );

@@ -159,7 +159,11 @@
       "send": "Send",
       "back": "Back",
       "call": "Call",
-      "closeModal": "Close"
+      "closeModal": "Close",
+      "caseClosedOn": "Closed {{date}}",
+      "caseMeta_one": "{{count}} message · updated {{date}}",
+      "caseMeta_other": "{{count}} messages · updated {{date}}",
+      "noMessagesYet": "No messages yet"
     },
     "tracking": {
       "rideLabels": {
@@ -358,11 +362,16 @@
       "pickAServiceToGetStarted": "Pick a service to get started.",
       "beta": "Beta",
       "offerEyebrow": "Offer",
-      "viewOffer": "View offer"
-    },
-    "language": {
-      "chooseYourLanguage": "Choose your language",
-      "youCanChangeThisLaterFromYourProfile": "You can change this later from your profile."
+      "viewOffer": "View offer",
+      "kmUnit": "km",
+      "suggest": {
+        "chickenCurryCut": "Chicken curry cut",
+        "mutton": "Mutton",
+        "prawns": "Prawns",
+        "biryani": "Biryani",
+        "pizza": "Pizza",
+        "meals149": "₹149 meals"
+      }
     },
     "profile": {
       "menuItems": {
@@ -405,7 +414,8 @@
       "changePhoto": "Change photo",
       "uploadPhoto": "Upload photo",
       "removePhoto": "Remove photo",
-      "failedToRemovePhoto": "Failed to remove photo"
+      "failedToRemovePhoto": "Failed to remove photo",
+      "yourNameFallback": "Your name"
     },
     "food": {
       "orderFallback": {
@@ -570,7 +580,10 @@
       "percentOff": "{{percent}}% OFF",
       "bestseller": "Bestseller",
       "kcal": "{{value}} kcal",
-      "proteinGrams": "{{value}}g protein"
+      "proteinGrams": "{{value}}g protein",
+      "restaurantFallback": "Restaurant",
+      "kmAway": "{{km}} km away",
+      "deliveryFeeAmount": "₹{{amount}} delivery"
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -630,7 +643,11 @@
       "findingAHelper": "Finding a helper",
       "helperAssigned": "Helper assigned",
       "taskInProgress": "Task in progress",
-      "taskCompleted": "Task completed"
+      "taskCompleted": "Task completed",
+      "all": "All",
+      "slotRejectedFallback": "The restaurant could not take this order for the requested slot.",
+      "invoice": "Invoice",
+      "invoiceUnavailable": "Invoice not available"
     },
     "helperTask": {
       "title": {
@@ -686,9 +703,6 @@
       "supportLinkText": "support",
       "toChangeItThereapossNoSelfserve": "to change it — there's no self-serve way to re-verify a new number yet.",
       "updateProfile": "Update profile",
-      "iAgreeToThe": "I agree to the",
-      "terms": "Terms",
-      "privacyPolicy": "Privacy Policy",
       "createAccount": "Create account",
       "alreadyHaveOne": "Already have one?",
       "signIn": "Sign in",
@@ -708,11 +722,17 @@
       "verifyYourNumber": "Verify your number",
       "weSentA6digitCodeTo": "We sent a 6-digit code to",
       "change": "Change",
-      "resendCodeIn0": "Resend code in 0:",
       "resend": "Resend",
       "verified": "Verified",
       "createYourAccount": "Create your account",
-      "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP."
+      "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP.",
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good"
+      },
+      "agreeToTermsAndPrivacy": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+      "resendCodeIn": "Resend code in {{time}}"
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -738,7 +758,6 @@
       "stopCount_other": "{{count}} stops",
       "addPickupLocation": "+ Add pickup location",
       "calculatingRoute": "Calculating route…",
-      "kmAbout": "km · about",
       "addAPickupToSeeDistance": "Add a pickup to see distance",
       "deliveryLower": "delivery",
       "reviewRoute": "Review route",
@@ -865,7 +884,6 @@
       "saved": "Saved",
       "near": "Near",
       "recent": "Recent",
-      "save": "Save",
       "findAHelper": "Find a helper · ₹",
       "deleteAddress": "Delete address",
       "areYouSureRemoveAddress": "Are you sure you want to remove this address?",
@@ -900,7 +918,10 @@
       "yourOffer": "Your offer",
       "offerForDuration": "for {{hours}}h {{minutes}}m · about ₹{{perHour}}/hour",
       "recommendedPrice": "Recommended price · ₹{{amount}}",
-      "taskCancelsAutomatically": "If no one takes it in the next few minutes, we'll cancel the task automatically."
+      "taskCancelsAutomatically": "If no one takes it in the next few minutes, we'll cancel the task automatically.",
+      "distanceKm": "{{km}} km",
+      "aboutMinutes": "about {{min}} min",
+      "multiStopDelivery": "Multi-stop delivery"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -1093,7 +1114,8 @@
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
       "youCancelledThisOrder": "You cancelled this order.",
       "noHelperAvailable": "No helper was available",
-      "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it."
+      "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it.",
+      "etaMinutes": "{{min}} min"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -1118,13 +1140,11 @@
     },
     "CartConflictDialog": {
       "startANewCart": "Start a new cart?",
-      "yourCartHasItemsFrom": "Your cart has items from",
-      "adding": ". Adding",
-      "willEmptyIt": "will empty it.",
       "clearCart": "Clear cart",
       "keepMyCart": "Keep my cart",
       "anotherOutlet": "another outlet",
-      "thisOutlet": "this outlet"
+      "thisOutlet": "this outlet",
+      "body": "Your cart has items from {{from}}. Adding {{item}} from {{to}} will empty it."
     },
     "checkout": {
       "checkout": "Checkout",
@@ -1142,7 +1162,11 @@
       "tomorrow": "Tomorrow"
     },
     "notifications": {
-      "nothingHereYetOrderAndAccount": "Nothing here yet. Order and account updates will show up in this list."
+      "nothingHereYetOrderAndAccount": "Nothing here yet. Order and account updates will show up in this list.",
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "today": "Today"
     },
     "otp": {
       "verifyContinue": "Verify & continue"
@@ -1195,13 +1219,8 @@
       "youaposreOffline": "You're offline",
       "checking": "Checking…",
       "retry": "Retry",
-      "lastSyncedMinAgo": "last synced {{mins}}m ago"
-    },
-    "notifications": {
-      "justNow": "Just now",
-      "minutesAgo": "{{count}}m ago",
-      "hoursAgo": "{{count}}h ago",
-      "today": "Today"
+      "lastSyncedMinutesAgo_one": "last synced {{count}}m ago",
+      "lastSyncedMinutesAgo_other": "last synced {{count}}m ago"
     },
     "RestaurantListItem": {
       "pureVeg": "Pure veg"
@@ -1369,6 +1388,26 @@
         "payment": "Payments",
         "general": "General"
       }
+    },
+    "a11y": {
+      "goBack": "Go back",
+      "unreadCount_one": "{{label}} unread",
+      "unreadCount_other": "{{label}} unread",
+      "cartWithItems_one": "Cart, {{count}} item",
+      "cartWithItems_other": "Cart, {{count}} items",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "callName": "Call {{name}}",
+      "addItem": "Add {{name}}",
+      "removeFromFavorites": "Remove {{name}} from favorites",
+      "removeStop": "Remove stop {{name}}",
+      "moreOptionsFor": "More options for {{name}}",
+      "close": "Close",
+      "changePhoto": "Change photo"
+    },
+    "language": {
+      "chooseYourLanguage": "Choose your language",
+      "youCanChangeThisLater": "You can change this later from your profile."
     }
   }
 }

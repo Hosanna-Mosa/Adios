@@ -1,87 +1,82 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { SafeBlurView } from "@/components/ui/SafeBlurView";
-import { Ionicons } from "@expo/vector-icons";
 import { radius } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import type { ThemeTokens } from "@/constants/colors";
 import type { SupportedLanguage } from "@/contexts/languageStore";
+import { Button } from "@/components/ui/Button";
 
-// Each option is labeled in its own native script — deliberately not run
-// through t() — so a Telugu/Hindi speaker can find their language without
-// first having to read English. See ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md,
-// Section 7 ("First-Launch Language Flow").
-const OPTIONS: { code: SupportedLanguage; nativeLabel: string }[] = [
-  { code: "en", nativeLabel: "English" },
-  { code: "te", nativeLabel: "తెలుగు" },
-  { code: "hi", nativeLabel: "हिन्दी" },
+// Each option leads with its own native script — deliberately not run through t() —
+// so a Telugu/Hindi speaker can find their language without first having to read
+// English; the English name underneath helps everyone else.
+const OPTIONS: { code: SupportedLanguage; nativeLabel: string; englishLabel: string; glyph: string }[] = [
+  { code: "en", nativeLabel: "English", englishLabel: "English", glyph: "A" },
+  { code: "te", nativeLabel: "తెలుగు", englishLabel: "Telugu", glyph: "తె" },
+  { code: "hi", nativeLabel: "हिन्दी", englishLabel: "Hindi", glyph: "हि" },
 ];
 
 interface Props {
   tokens: ThemeTokens;
-  /** Used only to pick the BlurView tint that matches the app's own theme —
-   * the same pattern components/AppTabBar.tsx already uses for its frosted
-   * bars. */
-  theme: "light" | "dark";
+  /** Kept for callers; the cards no longer blur, so the theme isn't read here. */
+  theme?: string;
   onSelect: (code: SupportedLanguage) => void;
-  /** Currently selected language — shows a green checkmark on the matching
-   * option. Omitted by language-settings.tsx, which keeps this component's
-   * original no-checkmark, no-Continue behavior unchanged. */
+  /** The language drawn as chosen. */
   selectedLanguage?: SupportedLanguage | null;
-  /** Present only on the language-gate screen (select-language.tsx). Renders
-   * a Continue row — disabled until a language is selected — instead of
-   * navigating the instant an option is tapped. */
+  /** Present only on the language gate (select-language.tsx): a Continue button,
+   * disabled until a language is chosen. Language settings applies the choice at once. */
   onContinue?: () => void;
 }
 
-export function SelectLanguageBody({ tokens, theme, onSelect, selectedLanguage, onContinue }: Props) {
+/**
+ * Language picker: radio cards with pressed feedback, a radio role and selected state,
+ * marked in the brand accent like the rest of the app (it used success green), and a
+ * real Continue button rather than a fourth option-looking pill.
+ */
+export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onContinue }: Props) {
   const { t } = useTranslation();
-  const blurTint = theme === "dark" ? "dark" : "light";
-  const canContinue = !!selectedLanguage;
 
   return (
     <View style={styles.content}>
-      <Text style={[styles.heading, { color: tokens.text, fontFamily: fontFamilies.heading.bold }]}>
-        {t("app.language.chooseYourLanguage")}
-      </Text>
-      <Text style={[styles.subheading, { color: tokens.sec, fontFamily: fontFamilies.body.regular }]}>
-        {t("app.language.youCanChangeThisLaterFromYourProfile")}
-      </Text>
-      <View style={styles.options}>
+      <Text style={[styles.heading, { color: tokens.text }]}>{t("app.language.chooseYourLanguage")}</Text>
+      <Text style={[styles.subheading, { color: tokens.sec }]}>{t("app.language.youCanChangeThisLater")}</Text>
+
+      <View style={styles.options} accessibilityRole="radiogroup">
         {OPTIONS.map((option) => {
           const isSelected = selectedLanguage === option.code;
           return (
             <Pressable
               key={option.code}
               onPress={() => onSelect(option.code)}
-              style={[styles.card, { borderColor: isSelected ? tokens.success : tokens.border }]}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: isSelected, checked: isSelected }}
+              accessibilityLabel={option.nativeLabel === option.englishLabel ? option.nativeLabel : `${option.nativeLabel}, ${option.englishLabel}`}
+              style={({ pressed }) => [
+                styles.card,
+                { borderColor: tokens.border, backgroundColor: tokens.surface },
+                isSelected && { borderColor: tokens.brand, backgroundColor: tokens.brandSkin },
+                pressed && !isSelected && { backgroundColor: tokens.sunken },
+              ]}
             >
-              <SafeBlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
-              <Text style={[styles.cardLabel, { color: tokens.text, fontFamily: fontFamilies.body.semibold }]}>
-                {option.nativeLabel}
-              </Text>
-              {isSelected && <Ionicons name="checkmark-circle" size={22} color={tokens.success} />}
+              <View style={[styles.glyph, { backgroundColor: isSelected ? tokens.brand : tokens.sunken }]}>
+                <Text style={[styles.glyphText, { color: isSelected ? tokens.onBrand : tokens.text }]}>{option.glyph}</Text>
+              </View>
+              <View style={styles.labels}>
+                <Text style={[styles.cardLabel, { color: tokens.text }]} numberOfLines={1}>{option.nativeLabel}</Text>
+                {option.nativeLabel !== option.englishLabel && (
+                  <Text style={[styles.cardSubLabel, { color: tokens.sec }]} numberOfLines={1}>{option.englishLabel}</Text>
+                )}
+              </View>
+              <View style={[styles.radio, { borderColor: isSelected ? tokens.brand : tokens.borderStrong }]}>
+                {isSelected && <View style={[styles.radioDot, { backgroundColor: tokens.brand }]} />}
+              </View>
             </Pressable>
           );
         })}
       </View>
+
       {onContinue && (
-        <Pressable
-          onPress={canContinue ? onContinue : undefined}
-          disabled={!canContinue}
-          style={[
-            styles.card,
-            styles.continueCard,
-            { borderColor: canContinue ? tokens.success : tokens.border, opacity: canContinue ? 1 : 0.5 },
-          ]}
-        >
-          <SafeBlurView intensity={60} tint={blurTint} style={StyleSheet.absoluteFillObject} />
-          <Text style={[styles.cardLabel, { color: tokens.text, fontFamily: fontFamilies.body.bold }]}>
-            {t("actions.continue")}
-          </Text>
-          {canContinue && <Ionicons name="checkmark-circle" size={22} color={tokens.success} />}
-        </Pressable>
+        <Button title={t("actions.continue")} onPress={onContinue} disabled={!selectedLanguage} fullWidth style={{ marginTop: 28 }} />
       )}
     </View>
   );
@@ -92,34 +87,66 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   heading: {
+    fontFamily: fontFamilies.heading.bold,
     fontSize: typography.sizes.extraLarge,
     lineHeight: typography.lineHeights.extraLarge,
     textAlign: "center",
     marginBottom: 8,
   },
   subheading: {
+    fontFamily: fontFamilies.body.regular,
     fontSize: typography.sizes.medium,
     lineHeight: typography.lineHeights.medium,
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: 28,
   },
   options: {
     gap: 12,
   },
   card: {
-    height: 52,
-    borderRadius: radius.pill,
+    minHeight: 68,
+    borderRadius: radius.md,
     borderWidth: 1.5,
-    overflow: "hidden",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 14,
+  },
+  glyph: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  glyphText: {
+    fontFamily: fontFamilies.body.bold,
+    fontSize: typography.sizes.medium,
+  },
+  labels: {
+    flex: 1,
   },
   cardLabel: {
+    fontFamily: fontFamilies.body.semibold,
     fontSize: typography.sizes.large,
   },
-  continueCard: {
-    marginTop: 20,
+  cardSubLabel: {
+    fontFamily: fontFamilies.body.regular,
+    fontSize: typography.sizes.small,
+    marginTop: 2,
+  },
+  radio: {
+    width: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: radius.pill,
   },
 });

@@ -10,6 +10,7 @@ import { type OrdersStyles } from "../orders.styles";
 import { RefundNote } from "./RefundNote";
 import { OrderThumb } from "./OrderThumb";
 import { orderTitle, serviceIcon, shortDate } from "../orderCardHelpers";
+import { InvoiceAction } from "./InvoiceAction";
 
 interface Props {
   SERVICE_META: Record<string, { label: string; accent: ServiceKey }>;
@@ -87,8 +88,8 @@ export function PastOrdersList({
                   <View style={styles.rowTitleLine}>
                     <Text style={styles.rowTitle} numberOfLines={1}>{orderTitle(order)}</Text>
                     {tag && (
-                      <View style={[styles.statusTag, { backgroundColor: tag.bg }]}>
-                        <Text style={[styles.statusTagText, { color: tag.fg }]}>{tag.label}</Text>
+                      <View style={[styles.statusTag, { backgroundColor: tag.bg, flexShrink: 0 }]}>
+                        <Text style={[styles.statusTagText, { color: tag.fg }]} numberOfLines={1}>{tag.label}</Text>
                       </View>
                     )}
                   </View>
@@ -99,7 +100,7 @@ export function PastOrdersList({
                   <RefundNote order={order} styles={styles} tokens={tokens} />
                   {isRejected && (
                     <Text style={styles.rejectionReason}>
-                      {order.scheduleRejectionReason || "The restaurant could not take this order for the requested slot."}
+                      {order.scheduleRejectionReason || t("app.orders.slotRejectedFallback")}
                     </Text>
                   )}
 
@@ -130,6 +131,7 @@ export function PastOrdersList({
                         <Text style={styles.rowActionText}>{t("app.orders.details")}</Text>
                       </TouchableOpacity>
                     ) : null}
+                    {isDelivered && !isCancelled && <InvoiceAction orderId={order._id} styles={styles} tokens={tokens} />}
                   </View>
                 </View>
               </TouchableOpacity>

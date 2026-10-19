@@ -17,6 +17,7 @@ import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flo
 import { helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { PricingService } from "../pricing/pricing.service";
 import { ZonesService } from "../zones/zones.service";
+import { INVOICE_LINK_TTL_SECONDS, invoiceTokenAllows, isInvoiceable, signInvoiceToken } from "./invoice.link";
 
 /**
  * The outlet behind a food / meat order, by the id in `order.vendor` (a Vendor, or a
@@ -30,6 +31,25 @@ async function outletSummary(vendorRef: unknown): Promise<{ name: string; partne
   const meat: any = await MeatCenter.findById(id).select("name").lean();
   return meat ? { name: meat.name, partnerType: "meat" } : null;
 }
+
+/** The order's invoice page, by service: delivery (food / courier), helper task, or ride. */
+function invoiceHtmlFor(order: any): string {
+  const invoices = InvoiceService.getInstance();
+  if (order.serviceType === ServiceType.DELIVERY) return invoices.generateDeliveryInvoiceHtml(order);
+  if (order.serviceType === ServiceType.HELPER) return invoices.generateTaskInvoiceHtml(order);
+  return invoices.generateRideInvoiceHtml(order);
+}
+
+const loadOrderForInvoice = (id: string) =>
+  Order.findById(id)
+    .populate("user")
+    .populate({ path: "driver", populate: { path: "user" } })
+    .populate("vendor");
+
+// The public URL the phone's browser can reach. Behind a proxy set PUBLIC_API_URL.
+const publicBaseUrl = (req: Request) =>
+  (process.env.PUBLIC_API_URL ||
+    `${(req.headers["x-forwarded-proto"] as string)?.split(",")[0] || req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
 
 const ordersService = new OrdersService();
 const pricingService = new PricingService();
@@ -60,12 +80,14 @@ const refId = (value: any): string | undefined => {
 // An order carries the customer's name and phone, the pickup and drop addresses,
 // and the delivery OTP that completes it. Reading one is therefore limited to the
 // people actually party to it — the customer, the assigned driver, the vendor
-// fulfilling it — plus platform staff. Vendor and meat-centre tokens carry the
+// fulfilling it — plus admins. Vendor and meat-centre tokens carry the
 // Vendor/MeatCenter _id as userId with a role outside UserRole, which is why the
 // vendor arm compares against order.vendor rather than a user id.
+// Support staff read orders through GET /support/orders/:id instead, which masks
+// phone numbers and never includes the OTP / pickup code (modules/support).
 const canReadOrder = (order: any, user?: { userId: string; role: string }): boolean => {
   if (!user?.userId) return false;
-  if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
+  if (user.role === UserRole.ADMIN) return true;
 
   return (
     user.userId === refId(order.user) ||
@@ -75,12 +97,13 @@ const canReadOrder = (order: any, user?: { userId: string; role: string }): bool
 };
 
 // A vendor's order list carries every customer's populated User document, so it
-// is readable only by that vendor and by platform staff. A vendor or meat-centre
+// is readable only by that vendor and by admins (support uses GET /support/orders?vendorId=,
+// which masks the customers' phones). A vendor or meat-centre
 // token carries the Vendor/MeatCenter _id as its subject, which is the same id
 // these routes take in the path — so the two compare directly.
 const canAccessVendorData = (vendorId: string, user?: { userId: string; role: string }): boolean => {
   if (!user?.userId || !vendorId) return false;
-  if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
+  if (user.role === UserRole.ADMIN) return true;
   return user.userId === vendorId;
 };
 
@@ -199,7 +222,8 @@ export class OrdersController {
   async getOrder(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      // Only the order's customer, assigned driver, vendor, or staff (otherwise "not found").
+      // Only the order's customer, assigned driver, vendor, or an admin (otherwise "not found").
+      // getOrderForActor also admits support (as staff); canReadOrder below does not.
       const { order, relation } = await ordersService.getOrderForActor(id as string, req.user);
       // The tracking screen reads the assigned driver's name, phone and vehicle off
       // this payload, so the driver (and its user) has to be populated here.
@@ -249,13 +273,7 @@ export class OrdersController {
       // Same access rule as the order itself.
       await ordersService.getOrderForActor(id as string, req.user);
 
-      const populatedOrder = await Order.findById(id)
-        .populate("user")
-        .populate({
-          path: "driver",
-          populate: { path: "user" }
-        })
-        .populate("vendor");
+      const populatedOrder = await loadOrderForInvoice(id as string);
 
       if (!populatedOrder) {
         throw new NotFoundError("Order not found");
@@ -267,17 +285,52 @@ export class OrdersController {
         throw new NotFoundError("Order not found");
       }
 
-      let invoiceHtml = "";
-      if (populatedOrder.serviceType === ServiceType.DELIVERY) {
-        invoiceHtml = InvoiceService.getInstance().generateDeliveryInvoiceHtml(populatedOrder);
-      } else if (populatedOrder.serviceType === ServiceType.HELPER) {
-        invoiceHtml = InvoiceService.getInstance().generateTaskInvoiceHtml(populatedOrder);
-      } else {
-        invoiceHtml = InvoiceService.getInstance().generateRideInvoiceHtml(populatedOrder);
-      }
-
       res.setHeader("Content-Type", "text/html");
-      return res.send(invoiceHtml);
+      return res.send(invoiceHtmlFor(populatedOrder));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /orders/:id/invoice-link — a link the app opens in the phone's browser, which
+   * can't send the session header. Same parties as GET /orders/:id/invoice; only for a
+   * delivered / completed order. The token in it is good for 10 minutes and this order.
+   */
+  async invoiceLink(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { order } = await ordersService.getOrderForActor(String(req.params.id), req.user);
+      await order.populate({ path: "driver", select: "user" });
+      if (!canReadOrder(order, req.user)) throw new NotFoundError("Order not found");
+      if (!isInvoiceable(order.status)) {
+        throw new ConflictError("The invoice is available once the order is completed.");
+      }
+      const orderId = String(order._id);
+      const token = signInvoiceToken(orderId, String(req.user!.userId));
+      return res.json({
+        url: `${publicBaseUrl(req)}/api/v1/orders/${encodeURIComponent(orderId)}/invoice/view?token=${encodeURIComponent(token)}`,
+        expiresInSeconds: INVOICE_LINK_TTL_SECONDS,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET /orders/:id/invoice/view?token=… — the invoice page behind an invoice link (no session). */
+  async viewInvoice(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = String(req.params.id);
+      // A missing, expired or other-order token answers "not found", like a stranger.
+      if (!invoiceTokenAllows(req.query.token, id)) throw new NotFoundError("Order not found");
+      const order = await loadOrderForInvoice(id);
+      if (!order || !isInvoiceable(order.status)) throw new NotFoundError("Order not found");
+
+      // The token is in the URL: keep the page out of caches, search results and Referer headers.
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("Referrer-Policy", "no-referrer");
+      res.setHeader("X-Robots-Tag", "noindex");
+      res.setHeader("Content-Type", "text/html");
+      return res.send(invoiceHtmlFor(order));
     } catch (error) {
       next(error);
     }
@@ -379,7 +432,7 @@ export class OrdersController {
       const { accepted, reason } = req.body;
       // A vendor answers only for its own outlet: the id comes from the token, never the body.
       // Admins may answer on a vendor's behalf with the vendorId they send. Support
-      // is view-only: canActForVendor lets them read a vendor's requests, not answer them.
+      // may neither answer nor read them here (see canAccessVendorData).
       const role = String(req.user?.role || "");
       if (role === UserRole.SUPPORT) {
         throw new ForbiddenError("Support can view scheduled deliveries but not respond to them.");
@@ -433,9 +486,9 @@ export class OrdersController {
       // Who may move this order, and where to. Strangers get "not found".
       const { order: current, relation } = await ordersService.getOrderForActor(id as string, req.user);
       const isCancel = String(status).toUpperCase() === OrderStatus.CANCELLED;
-      // Support staff can look orders up and cancel them for a customer; every other change is admin-only.
-      if (relation === "staff" && req.user?.role === UserRole.SUPPORT && !isCancel) {
-        throw new ForbiddenError("Support can view and cancel orders but not make other changes.");
+      // Support is view-only (GET /support/orders): they can't cancel or move an order.
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
+        throw new ForbiddenError("Support can view orders but not change them.");
       }
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");
@@ -466,7 +519,11 @@ export class OrdersController {
         // receiver's OTP — that is the only proof the package reached the right person.
         const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        if (orderObj && orderObj.deliveryOtp && !orderObj.vendor && (!isRide || isPackageDelivery)) {
+        // `current.vendor` is the raw outlet id. orderObj's is populated from Vendor only, so a
+        // legacy MeatCenter outlet came back null and its orders were asked for an OTP the
+        // driver app (rightly) never shows for outlet orders.
+        const isOutletOrder = !!current.vendor;
+        if (orderObj && orderObj.deliveryOtp && !isOutletOrder && (!isRide || isPackageDelivery)) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError(
               isPackageDelivery
@@ -489,7 +546,7 @@ export class OrdersController {
         // A rider can't collect an outlet order the kitchen hasn't marked ready
         // ("Mark as ready" in the partner app / vendor panel).
         const markedReady = !!orderObj?.foodReadyAt || String(orderObj?.status).toLowerCase() === OrderStatus.PICKING_ITEMS_LC;
-        if (orderObj?.vendor && relation === "driver" && !markedReady) {
+        if (current.vendor && relation === "driver" && !markedReady) {
           throw new ConflictError("The restaurant hasn't marked this order ready yet. You can pick it up once they tap \"Mark as ready\".");
         }
         // A package delivery starts without a code: the captain collects the package and

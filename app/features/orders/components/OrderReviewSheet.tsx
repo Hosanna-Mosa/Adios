@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Button } from "@/components/ui/Button";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -87,12 +88,10 @@ export function OrderReviewSheet({
           </View>
           <TextInput style={styles.reviewInput} placeholder={t("app.orders.addFeedbackOptional")} placeholderTextColor={tokens.muted} value={reviewComment} onChangeText={setReviewComment} multiline />
           <View style={{ flexDirection: "row", gap: 10, marginTop: 16, width: "100%" }}>
-            <TouchableOpacity style={styles.reviewCancelBtn} onPress={() => setSelectedOrderForReview(null)}>
-              <Text style={styles.reviewCancelBtnText}>{t("app.orders.cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.reviewSubmitBtn, { backgroundColor: tokens.brand }]} onPress={handleSubmitReview} disabled={submittingReview}>
-              {submittingReview ? <ActivityIndicator size="small" color={tokens.onBrand} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.onBrand }]}>{t("app.orders.submit")}</Text>}
-            </TouchableOpacity>
+            {/* The shared Button, like the filter sheet: one radius and height for both
+                modals on this screen, and Submit dims while it's disabled. */}
+            <Button title={t("app.orders.cancel")} variant="secondary" onPress={() => setSelectedOrderForReview(null)} style={{ flex: 1 }} />
+            <Button title={t("app.orders.submit")} onPress={handleSubmitReview} loading={submittingReview} style={{ flex: 1 }} />
           </View>
         </View>
       </KeyboardAvoidingView>

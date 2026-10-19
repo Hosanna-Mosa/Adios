@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
+import { useTranslation } from "react-i18next";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -70,8 +71,9 @@ export function Header({
   right,
   style,
   entering,
-  accessibilityLabel = "Go back",
+  accessibilityLabel,
 }: Props) {
+  const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
@@ -83,9 +85,11 @@ export function Header({
           style={styles.backBtn}
           onPress={onBack}
           disabled={backDisabled}
-          hitSlop={backHitSlop}
+          // The chip is 40pt; hitSlop takes the touch target past 44pt by default,
+          // and a caller can still pass a larger backHitSlop of its own.
+          hitSlop={backHitSlop ?? 8}
           accessibilityRole="button"
-          accessibilityLabel={accessibilityLabel}
+          accessibilityLabel={accessibilityLabel ?? t("app.a11y.goBack")}
         >
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
@@ -97,7 +101,8 @@ export function Header({
           <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text>
         </View>
       ) : (
-        title ? <Text style={styles.title}>{title}</Text> : null
+        // flex + one line: a long or translated title used to wrap or push `right` off screen.
+        title ? <Text style={styles.title} numberOfLines={1}>{title}</Text> : null
       )}
       {right}
     </>
@@ -134,6 +139,7 @@ const createStyles = (tokens: ThemeTokens) =>
       justifyContent: "center",
     },
     title: {
+      flex: 1,
       fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.large,
       color: tokens.text,

@@ -3,6 +3,9 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import SupportTicket from "../../database/models/SupportTicket";
 import { emitTicketUpdate } from "../../services/supportAssignment.service";
 import { createSupportTicket, resolveTicketOwner } from "../../services/supportTicket.service";
+import { OrdersService } from "../orders/orders.service";
+
+const ordersService = new OrdersService();
 
 export class SupportController {
   async getTickets(req: AuthRequest, res: Response) {
@@ -31,7 +34,19 @@ export class SupportController {
         return res.status(400).json({ message: "Title, category and message are required" });
       }
 
-      const ticket = await createSupportTicket({ owner, title, category, message });
+      // A ticket may name the order it is about, so the agent sees it — but only one of
+      // the sender's own orders (as customer, driver or outlet), never anyone else's.
+      let orderId: string | null = null;
+      if (req.body.orderId) {
+        try {
+          const { order } = await ordersService.getOrderForActor(String(req.body.orderId), req.user);
+          orderId = String(order._id);
+        } catch {
+          return res.status(404).json({ message: "Order not found" });
+        }
+      }
+
+      const ticket = await createSupportTicket({ owner, title, category, message, orderId });
 
       return res.status(201).json(ticket);
     } catch (error) {

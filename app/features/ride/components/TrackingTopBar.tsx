@@ -1,7 +1,6 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
+import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
 import { goHomeFromTracking } from "../useTrackingHandleBack";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -31,20 +30,17 @@ export function TrackingTopBar({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]} pointerEvents="box-none">
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={goHomeFromTracking}
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        accessibilityRole="button"
-        accessibilityLabel={t("app.support.back")}
-      >
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
-      <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>
-        <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${eta} min`}</Text>
+    <View style={[styles.topBar, { paddingTop: mapControlTop(insets) }]} pointerEvents="box-none">
+      <MapBackButton onPress={goHomeFromTracking} />
+      {/* Shrinks and stays on one line: long or translated banner text wrapped onto
+          several lines or ran into the back button. "min" was hardcoded English. */}
+      <View style={[styles.etaChip, { backgroundColor: accent.accent, flexShrink: 1, marginHorizontal: 8 }]}>
+        <Text style={[styles.etaChipText, { color: accent.on }]} numberOfLines={1}>
+          {status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${t("app.ride.etaMinutes", { min: eta })}`}
+        </Text>
       </View>
-      <View style={{ width: moderateScale(40) }} />
+      {/* Balances the 44pt back button so the chip stays centred. */}
+      <View style={{ width: 44 }} />
     </View>
   );
 }

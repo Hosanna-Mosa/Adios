@@ -46,7 +46,8 @@ export function useOnboardingHydrate(
             if (d.dlExpiry) docs.setDlExpiry(d.dlExpiry);
             if (d.bankAccountNumber) docs.setBankAccount(d.bankAccountNumber);
             if (d.bankIfsc) docs.setIfsc(d.bankIfsc);
-            if (d.bankVerified) docs.setBankVerified(d.bankVerified);
+            // Saved details are enough to move on; verification is the Adios team's (admin).
+            if (d.bankAccountNumber && d.bankIfsc) docs.setBankVerified(true);
           }
         }
       } catch {

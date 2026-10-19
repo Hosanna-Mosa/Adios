@@ -17,7 +17,7 @@ export function SignupHeroBlock({
   const { t } = useTranslation();
   return (
     <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
-      <Text style={styles.headline} numberOfLines={1}>{t("app.auth.createYourAccount")}</Text>
+      <Text style={styles.headline} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{t("app.auth.createYourAccount")}</Text>
       <Text style={styles.subhead}>
         {t("app.auth.takesAboutAMinuteWeaposllVerify")}
       </Text>

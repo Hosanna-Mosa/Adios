@@ -27,9 +27,19 @@ export function OtpResendRow({
   return (
     <Animated.View style={styles.resendRow} entering={fadeInUp(280)}>
       {secondsLeft > 0 ? (
-        <Text style={styles.resendMuted}>{t("app.auth.resendCodeIn0")}{String(secondsLeft).padStart(2, "0")}</Text>
+        // One interpolated key: gluing a translated prefix to the number broke other word orders.
+        <Text style={styles.resendMuted}>
+          {t("app.auth.resendCodeIn", { time: `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}` })}
+        </Text>
       ) : (
-        <TouchableOpacity onPress={handleResend} disabled={resending} activeOpacity={0.7}>
+        <TouchableOpacity
+          onPress={handleResend}
+          disabled={resending}
+          activeOpacity={0.7}
+          // A text-sized button: hitSlop takes the touch target to 44pt.
+          hitSlop={{ top: 14, bottom: 14, left: 16, right: 16 }}
+          accessibilityRole="button"
+        >
           {resending ? (
             <ActivityIndicator size="small" color={accent.accent} />
           ) : (

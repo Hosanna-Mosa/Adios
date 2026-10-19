@@ -31,15 +31,18 @@ export function DeliveryCheckoutHeader({
   const { t } = useTranslation();
   return (
     <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <View style={{ minWidth: 0 }}>
-        <Text style={styles.headerTitle}>{t("app.delivery.reviewRoute")}</Text>
-        <Text style={styles.headerSub}>
-          {t("app.delivery.stopCount", { count: stops.length })}
-          {route?.totalDistance != null ? ` · ${route.totalDistance} km` : ""}
-          {route?.estimatedTime != null ? ` · about ${route.estimatedTime} min` : ""}
+      {/* flex + one line: a long translated subtitle ran past the screen edge. */}
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.headerTitle} numberOfLines={1}>{t("app.delivery.reviewRoute")}</Text>
+        <Text style={styles.headerSub} numberOfLines={1}>
+          {[
+            t("app.delivery.stopCount", { count: stops.length }),
+            route?.totalDistance != null ? t("app.delivery.distanceKm", { km: route.totalDistance }) : null,
+            route?.estimatedTime != null ? t("app.delivery.aboutMinutes", { min: route.estimatedTime }) : null,
+          ].filter(Boolean).join(" · ")}
         </Text>
       </View>
     </Animated.View>

@@ -11,10 +11,6 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride"], insets: { bottom: number }) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: tokens.bg },
-    backBtn: {
-      position: "absolute", left: 16, zIndex: 10, width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
     sheet: {
       position: "absolute", left: 0, right: 0, bottom: 0,
       // Sizes to its content between these bounds rather than a fixed height:52%.

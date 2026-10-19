@@ -13,10 +13,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     root: { flex: 1, backgroundColor: tokens.bg },
     mapContainer: { flex: 1 },
     mapOverlay: { position: "absolute", left: 16, right: 16, zIndex: 10, flexDirection: "row", justifyContent: "space-between" },
-    circleBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
     toolGroup: { gap: 8 },
     toolCircleBtn: {
       width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19),
