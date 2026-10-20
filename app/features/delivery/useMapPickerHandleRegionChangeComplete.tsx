@@ -50,18 +50,21 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
   };
 
   const handleConfirm = async () => {
-    setLoading(true);
-    try {
-      const checkRes = await checkZone(region.latitude, region.longitude);
-      if (!checkRes || !checkRes.inZone) {
-        const stepLabel = step === "pickup" ? i18n.t("app.delivery.pickupWord") : i18n.t("app.delivery.dropWord");
-        showAlert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));
-        return;
+    // Only the pickup has to be in a service zone: the driver is found near the pickup and
+    // takes the trip to wherever the drop is (the server checks the pickup alone too).
+    if (step === "pickup") {
+      setLoading(true);
+      try {
+        const checkRes = await checkZone(region.latitude, region.longitude);
+        if (!checkRes || !checkRes.inZone) {
+          showAlert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: i18n.t("app.delivery.pickupWord") }));
+          return;
+        }
+      } catch (err) {
+        console.error("Zone check failed:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Zone check failed:", err);
-    } finally {
-      setLoading(false);
     }
 
     const currentData = { name: address, lat: region.latitude, lng: region.longitude };

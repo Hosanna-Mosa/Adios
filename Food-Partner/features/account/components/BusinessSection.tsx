@@ -37,6 +37,24 @@ export function BusinessSection({ isMeat, tokens }: { isMeat: boolean; tokens: T
         divider
       />
       <ListRow
+        icon="stats-chart-outline"
+        iconColor={tokens.info}
+        iconBackground={tokens.infoSkin}
+        label={t("account.analytics")}
+        description={t("account.analyticsHint")}
+        onPress={() => router.push("/analytics")}
+        divider
+      />
+      <ListRow
+        icon="pricetags-outline"
+        iconColor={tokens.warning}
+        iconBackground={tokens.warningSkin}
+        label={t("account.offers")}
+        description={t("account.offersHint")}
+        onPress={() => router.push("/offers")}
+        divider
+      />
+      <ListRow
         icon={isMeat ? "file-tray-stacked-outline" : "restaurant-outline"}
         iconColor={tokens.brand}
         iconBackground={tokens.brandSkin}

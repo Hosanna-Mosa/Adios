@@ -101,7 +101,7 @@ export default function PersonalDetailsScreen() {
   };
 
   return (
-    <ScreenShell style={{ paddingTop: insets.top }}>
+    <ScreenShell keyboardAvoiding style={{ paddingTop: insets.top }}>
       <Header
         title="Personal details"
         onBack={() => router.back()}
@@ -146,7 +146,8 @@ const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food
     phoneHint: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 6 },
     phoneHintLink: { color: accent.accent, fontFamily: fontFamilies.body.semibold },
 
-    footer: { position: "absolute", left: 0, right: 0, bottom: 0, backgroundColor: tokens.surface, borderTopWidth: 1, borderTopColor: tokens.border, paddingHorizontal: 16, paddingTop: 14 },
+    // In the layout flow (not absolute) so it rises with the keyboard.
+    footer: { backgroundColor: tokens.surface, borderTopWidth: 1, borderTopColor: tokens.border, paddingHorizontal: 16, paddingTop: 14 },
     saveBtn: { backgroundColor: accent.accent, borderRadius: 14, minHeight: moderateScale(52), alignItems: "center", justifyContent: "center" },
     saveBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
   });

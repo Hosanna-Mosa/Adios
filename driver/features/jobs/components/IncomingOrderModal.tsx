@@ -9,7 +9,6 @@ import { useDriverStore } from "@/store/driverStore";
 import { formatBookedHours, paymentFields } from "@/store/orderMapper";
 import { Button } from "@/components/ui/Button";
 import { styles } from "./IncomingOrderModal.styles";
-import { DeclineReasonList } from "./DeclineReasonList";
 import { OfferCountdown, OfferHeader, OfferReadyInfo } from "./OfferHeader";
 import {
   OfferItems,
@@ -41,8 +40,6 @@ export default function IncomingOrderModal() {
   const {
     isBroadcast,
     secondsLeft,
-    showDeclineReasons,
-    setShowDeclineReasons,
     sheetAnimatedStyle,
     timerBarAnimatedStyle,
   } = useIncomingOffer();
@@ -93,16 +90,7 @@ export default function IncomingOrderModal() {
             <OfferCountdown secondsLeft={secondsLeft} barStyle={timerBarAnimatedStyle} />
           )}
 
-          {showDeclineReasons ? (
-            <DeclineReasonList
-              onDecline={(reason) => {
-                setShowDeclineReasons(false);
-                rejectOrder(reason);
-              }}
-              onBack={() => setShowDeclineReasons(false)}
-            />
-          ) : (
-            <>
+          <>
               <ScrollBox
                 style={styles.body}
                 contentContainerStyle={styles.bodyContent}
@@ -140,7 +128,8 @@ export default function IncomingOrderModal() {
                 variant="secondary"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setShowDeclineReasons(true);
+                  // Not accepted yet, so there is nothing to explain: just turn the offer down.
+                  rejectOrder("Declined by driver");
                 }}
                 style={{ flex: 1 }}
               />
@@ -159,7 +148,6 @@ export default function IncomingOrderModal() {
               />
             </Box>
           </>
-          )}
         </AnimatedBox>
       </Box>
     </ModalBox>

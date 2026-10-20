@@ -94,7 +94,7 @@ export async function notifyPayoutOwner(kind: PayoutKind, record: any, status: "
         : `Your ₹${amount} payout could not be completed${record.failureReason ? `: ${record.failureReason}` : ""}. The amount is back in your balance.`,
     type: "transactional",
     category: "system",
-    data: { deepLink: { screen: kind === "driver" ? "/(tabs)/earnings" : "/vendor/dashboard" } },
+    data: { ...(kind === "driver" ? {} : { kind: "payout" }), deepLink: { screen: kind === "driver" ? "/(tabs)/earnings" : "/vendor/dashboard" } },
   });
 }
 

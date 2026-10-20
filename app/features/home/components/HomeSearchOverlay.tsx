@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, FlatList, Keyboard, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
@@ -41,6 +41,26 @@ interface Props {
 export function HomeSearchOverlay(props: Props) {
   const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive } = props;
   const inputRef = React.useRef<TextInput>(null);
+  const focusTimers = React.useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const clearFocusTimers = () => {
+    focusTimers.current.forEach(clearTimeout);
+    focusTimers.current = [];
+  };
+
+  // Raise the keyboard as soon as the search sheet is up. On Android the modal's
+  // window can take a moment to become focusable, so one focus() call is sometimes
+  // ignored: try again every 250 ms (up to 5 times) until the keyboard is showing.
+  const focusSearchInput = (attempt = 0) => {
+    if (Keyboard.isVisible()) return;
+    inputRef.current?.focus();
+    if (attempt < 5) focusTimers.current.push(setTimeout(() => focusSearchInput(attempt + 1), 250));
+  };
+
+  React.useEffect(() => {
+    if (!isSearchVisible) clearFocusTimers();
+    return clearFocusTimers;
+  }, [isSearchVisible]);
 
   return (
     <Modal
@@ -55,7 +75,8 @@ export function HomeSearchOverlay(props: Props) {
         // Modal on Android — the window isn't focusable yet when it fires — so the
         // sheet opened and the customer had to tap the field. Focus once the modal
         // window is actually up instead.
-        requestAnimationFrame(() => inputRef.current?.focus());
+        clearFocusTimers();
+        requestAnimationFrame(() => focusSearchInput());
       }}
     >
       <View style={{ flex: 1 }}>

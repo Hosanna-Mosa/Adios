@@ -13,15 +13,17 @@ export default function TrackingScreen() {
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
-  handleBack, userLocCoords, bannerText
+  handleBack, userLocCoords, bannerText, isFoodOrder, canCancelFoodOrder, handleCancelFoodOrder
   } = useTracking();
   const { t } = useTranslation();
 
   if (status === "delivered") {
     const foodItems = deliveryStop?.items || [];
     const elapsed = orderCreatedAt && deliveredAt ? formatDuration(deliveredAt.getTime() - orderCreatedAt.getTime()) : null;
-    const headline = isRide ? "Ride completed" : isHelper ? "Task complete" : "Order delivered";
-    const subline = isRide
+    const headline = isPackageDelivery ? t("app.packageDelivery.done.headline") : isRide ? "Ride completed" : isHelper ? "Task complete" : "Order delivered";
+    const subline = isPackageDelivery
+      ? driver?.name ? t("app.packageDelivery.done.deliveredBy", { name: driver.name }) : t("app.packageDelivery.done.delivered")
+      : isRide
       ? `You arrived safely${driver?.name ? ` with ${driver.name}` : ""}.`
       : isHelper
         ? `${driver?.name || "Your helper"} finished the task${elapsed ? ` in ${elapsed}` : ""}.`
@@ -39,6 +41,7 @@ export default function TrackingScreen() {
         insets={insets}
         isHelper={isHelper}
         isRide={isRide}
+        isPackageDelivery={isPackageDelivery}
         stops={stops}
         styles={styles}
         tokens={tokens}
@@ -50,7 +53,7 @@ export default function TrackingScreen() {
   // --------------------------------------------------------------------- Live tracking state
   // ---------------------------------------------------------------------
 
-  const timeline = buildTimeline(status, isRide, isHelper, t);
+  const timeline = buildTimeline(status, isRide, isHelper, t, isPackageDelivery);
   const pickupLabel = vendorName || pickupStop?.address || stops?.[0]?.address || "Pickup location";
   // A restaurant / meat-shop order: map markers for both ends, and no delivery PIN —
   // the rider hands these over without one. Rides end without one too (they still
@@ -83,6 +86,9 @@ export default function TrackingScreen() {
         deliveryOtp={outletOrder || (isRide && !isPackageDelivery) ? null : deliveryOtp}
         startOtp={isPackageDelivery ? null : startOtp}
         isPackageDelivery={isPackageDelivery}
+        isFoodOrder={isFoodOrder}
+        canCancelFoodOrder={canCancelFoodOrder}
+        handleCancelFoodOrder={handleCancelFoodOrder}
         driverLocation={driverLocation}
         radius={radius}
         totalPrice={totalPrice}
@@ -117,7 +123,7 @@ function formatDuration(ms: number): string {
  * design calls for, per service group. Every "done"/"current" flag below is
  * derived from the real order status — nothing here is a fabricated
  * timestamp or invented sub-step. */
-function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean, t: TFunction): TimelineStep[] {
+function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean, t: TFunction, isPackageDelivery = false): TimelineStep[] {
   const idx = STATUS_ORDER.indexOf(status === "delivered" ? "delivered" : status);
   const at = (s: OrderStatus) => idx >= STATUS_ORDER.indexOf(s);
 
@@ -128,6 +134,12 @@ function buildTimeline(status: OrderStatus, isRide: boolean, isHelper: boolean, 
     return labels.map((label, i) => ({ label, done: done[i], current: i === currentIdx }));
   };
 
+  if (isPackageDelivery) {
+    return steps(
+      [t("app.packageDelivery.steps.partnerAssigned"), t("app.tracking.rideLabels.headingToPickup"), t("app.packageDelivery.steps.inProgress"), t("app.packageDelivery.steps.delivered")],
+      [at("driver_assigned"), at("arrived_pickup"), at("arrived_delivery"), at("delivered")]
+    );
+  }
   if (isRide) {
     return steps(
       [t("app.tracking.rideLabels.captainAssigned"), t("app.tracking.rideLabels.headingToPickup"), t("app.tracking.rideLabels.tripInProgress"), t("app.tracking.rideLabels.tripCompleted")],

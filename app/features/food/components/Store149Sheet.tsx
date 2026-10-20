@@ -10,6 +10,9 @@ import { DietMarker } from "./DietMarker";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type Store149Styles } from "@/features/food/149-store.styles";
 
+// The grid's -/+ buttons are small and sit inside a tappable card; widen their touch area.
+const QTY_HIT_SLOP = { top: 8, bottom: 8, left: 6, right: 6 };
+
 // Moved out of app/149-store.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
@@ -130,11 +133,11 @@ export function Store149Sheet({
                     </View>
                     {cartItem ? (
                       <View style={styles.qtyPill}>
-                        <TouchableOpacity onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)} style={styles.qtyBtn}>
+                        <TouchableOpacity onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)} style={styles.qtyBtn} hitSlop={QTY_HIT_SLOP}>
                           <Feather name="minus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                         <Text style={styles.qtyText}>{cartItem.quantity}</Text>
-                        <TouchableOpacity onPress={handleAdd} style={styles.qtyBtn}>
+                        <TouchableOpacity onPress={handleAdd} style={styles.qtyBtn} hitSlop={QTY_HIT_SLOP}>
                           <Feather name="plus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                       </View>

@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
+import { Button } from "@/components/ui/Button";
 import { ChipRow } from "@/components/ui/ChipRow";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ScreenTitle } from "@/components/ui/ScreenTitle";
@@ -6,14 +8,18 @@ import { MeatList } from "@/features/menu/components/MeatList";
 import { MeatPriceSheet } from "@/features/menu/components/MeatPriceSheet";
 import { ALL_MEAT, useMeatInventoryScreen } from "@/features/menu/useMeatInventoryScreen";
 
-/** Meat centre Inventory tab — the web panel's /vendor/meat-menu: stock on/off and selling prices. */
+/** Meat centre Inventory tab — the web panel's /vendor/meat-menu: stock on/off, prices, and adding, editing or removing items. */
 export default function InventoryScreen() {
   const { t } = useTranslation();
   const m = useMeatInventoryScreen();
 
   return (
     <ScreenShell style={{ paddingTop: m.insets.top + 12 }}>
-      <ScreenTitle title={t("meat.title")} subtitle={t("meat.summary", { total: m.items.length, inStock: m.inStockCount })} />
+      <ScreenTitle
+        title={t("meat.title")}
+        subtitle={t("meat.summary", { total: m.items.length, inStock: m.inStockCount })}
+        right={<Button title={t("meat.addItem")} size="sm" icon={<Ionicons name="add" size={18} color={m.tokens.onBrand} />} onPress={m.addItem} />}
+      />
       {m.categories.length > 1 ? (
         <ChipRow
           topGap={0}
@@ -31,6 +37,7 @@ export default function InventoryScreen() {
         togglingId={m.togglingId}
         toggleAvailability={m.toggleAvailability}
         startEditing={m.startEditing}
+        editItem={m.editItem}
         refreshing={m.refreshing}
         refresh={m.refresh}
         bottomInset={m.tabBarHeight}

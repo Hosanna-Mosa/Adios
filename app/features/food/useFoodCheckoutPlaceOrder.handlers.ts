@@ -1,15 +1,14 @@
 import { router } from "expo-router";
-import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import i18n from "@/i18n";
-import { createOrder } from "@/services/orders.service";
 import { getVendor } from "@/services/catalog.service";
-import { getPaymentMethod } from "@/contexts/paymentMethodStore";
-import { useDeliveryStore } from "@/contexts/deliveryStore";
-import { foodStageOf } from "@/contexts/foodStage";
 import { showAlert } from "@/components/ui/AppAlert";
+import { useFoodPaymentStore } from "./foodPaymentStore";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
+//
+// Checkout's "Proceed to pay": checks the cart, address and slot, builds the order and hands
+// it to the payment screen (app/payment.tsx), where the customer picks cash or Razorpay.
 
 export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vendorId: any, items: any, clearCart: any, user: any, token: any, setOrderId: any, setStatus: any, setServiceType: any, selectedAddress: any, setIsPlacingOrder: any, appliedPromo: any, vendorName: any, scheduledFor: any, setShowScheduleSheet: any, subtotal: any, deliveryFee: any, activeTip: any, discount: any, total: any, receiverName: any, receiverPhone: any, addressIssue: any) =>
   async () => {
@@ -118,32 +117,19 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         ],
       };
 
-      // Online: Razorpay first, and the server places the order once the money is confirmed.
-      // Cash: the order is placed straight away and the driver collects on delivery.
-      const placedOrder: any =
-        getPaymentMethod("food") === "online"
-          ? await payOnlineAndPlaceOrder(total, orderDataPayload)
-          : await createOrder({ ...orderDataPayload, paymentMethod: "cash" });
-      const finalOrderId: string = placedOrder._id || placedOrder.id;
-
-      setOrderId(finalOrderId);
-      // A restaurant order waits for the restaurant before any rider is searched for.
-      useDeliveryStore.getState().setFoodStage(foodStageOf(placedOrder));
-      setServiceType("delivery");
-      setStatus("pending");
-      clearCart();
-
-      if (scheduledFor) {
-        // No driver is dispatched for a slot hours away, so finding-driver would
-        // spin forever — the order waits under Scheduled in My orders instead.
-        router.replace("/(tabs)/orders");
-        return;
-      }
-      router.replace({ pathname: "/finding-driver", params: { orderId: finalOrderId } });
+      useFoodPaymentStore.getState().setPending({
+        orderData: orderDataPayload,
+        total,
+        itemCount: getItemCount(),
+        vendorName: vendorName || i18n.t("app.food.orderFallback.restaurant"),
+        addressLabel: selectedAddress.label || "",
+        addressLine: selectedAddress.addressLine,
+        scheduledFor: scheduledFor ? scheduledFor.toISOString() : null,
+      });
+      router.push("/payment");
     } catch (error: any) {
-      console.error("Place order failed", error);
-      const described = describePaymentError(error);
-      showAlert(described?.title ?? i18n.t("app.food.orderFailed"), described?.message ?? (error?.message || i18n.t("app.food.unableToPlaceYourOrder")));
+      console.error("Proceed to pay failed", error);
+      showAlert(i18n.t("app.food.orderFailed"), error?.message || i18n.t("app.food.unableToPlaceYourOrder"));
     } finally {
       setIsPlacingOrder(false);
     }

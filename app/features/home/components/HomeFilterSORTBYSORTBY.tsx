@@ -44,14 +44,14 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
     <ScrollView style={styles.filterModalRightPane} contentContainerStyle={{ padding: 16 }}>
       {activeFilterTab === "Sort" && (
         <View>
-          <Text style={styles.filterSectionTitle}>SORT BY</Text>
+          <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.sortBy")}</Text>
           {[
-            { id: "relevance", label: "Relevance (Default)" },
-            { id: "distance", label: "Distance: Nearest first" },
-            { id: "time", label: "Delivery Time" },
-            { id: "rating", label: "Rating" },
-            { id: "costLowHigh", label: "Cost: Low to High" },
-            { id: "costHighLow", label: "Cost: High to Low" },
+            { id: "relevance", label: t("app.home.filterModal.sort.relevance") },
+            { id: "distance", label: t("app.home.filterModal.sort.distance") },
+            { id: "time", label: t("app.home.filterModal.sort.time") },
+            { id: "rating", label: t("app.home.filterModal.sort.rating") },
+            { id: "costLowHigh", label: t("app.home.filterModal.sort.costLowHigh") },
+            { id: "costHighLow", label: t("app.home.filterModal.sort.costHighLow") },
           ].map((opt) => (
             <TouchableOpacity key={opt.id} style={styles.filterOptionRow} onPress={() => setSelectedSort(opt.id)}>
               <Ionicons name={selectedSort === opt.id ? "radio-button-on" : "radio-button-off"} size={moderateScale(18)} color={selectedSort === opt.id ? accent.accent : tokens.muted} />
@@ -62,7 +62,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
       )}
       {activeFilterTab === "99store" && (
         <View>
-          <Text style={styles.filterSectionTitle}>149 STORE PARTNERS</Text>
+          <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.store149Partners")}</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilter99Store(!filter99Store)}>
             <Ionicons name={filter99Store ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filter99Store ? accent.accent : tokens.muted} />
             <Text style={[styles.filterOptionLabel, filter99Store && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.show149StorePartners")}</Text>
@@ -71,7 +71,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
       )}
       {activeFilterTab === "15mins" && (
         <View>
-          <Text style={styles.filterSectionTitle}>DELIVERY TIME</Text>
+          <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.deliveryTime")}</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterFastDelivery(!filterFastDelivery)}>
             <Ionicons name={filterFastDelivery ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterFastDelivery ? accent.accent : tokens.muted} />
             <Text style={[styles.filterOptionLabel, filterFastDelivery && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.fastDeliveryUnder30Mins")}</Text>
@@ -80,7 +80,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
       )}
       {activeFilterTab === "OpenNow" && (
         <View>
-          <Text style={styles.filterSectionTitle}>AVAILABILITY</Text>
+          <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.availability")}</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterOpenNow(!filterOpenNow)}>
             <Ionicons name={filterOpenNow ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterOpenNow ? accent.accent : tokens.muted} />
             <Text style={[styles.filterOptionLabel, filterOpenNow && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.openNowOnly")}</Text>
@@ -89,7 +89,7 @@ export function HomeFilterSORTBYSORTBY(props: Props) {
       )}
       {activeFilterTab === "Offers" && (
         <View>
-          <Text style={styles.filterSectionTitle}>OFFERS</Text>
+          <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.offers")}</Text>
           <TouchableOpacity style={styles.filterOptionRow} onPress={() => setFilterOffers(!filterOffers)}>
             <Ionicons name={filterOffers ? "checkbox" : "square-outline"} size={moderateScale(18)} color={filterOffers ? accent.accent : tokens.muted} />
             <Text style={[styles.filterOptionLabel, filterOffers && { color: accent.accent, fontFamily: fontFamilies.body.bold }]}>{t("app.home.freeDeliverySpecialOffers")}</Text>

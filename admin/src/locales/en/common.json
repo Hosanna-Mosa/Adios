@@ -271,6 +271,9 @@
     "signOut": "Sign Out",
     "helperPricing": "Helper Pricing",
     "supportBot": "Support Bot",
+    "broadcasts": "Push broadcast",
+    "reports": "Reports",
+    "auditLog": "Audit log",
     "supportOrders": "Orders"
   },
   "notifications": {

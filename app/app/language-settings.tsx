@@ -5,6 +5,9 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useLanguageStore, type SupportedLanguage } from "@/contexts/languageStore";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Header } from "@/components/ui/Header";
 
 // Settings/Profile language switcher (ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md,
 // Phase 4 / Section 8) — reuses the same SelectLanguageBody built for the
@@ -14,6 +17,8 @@ import { router } from "expo-router";
 export default function LanguageSettingsScreen() {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const language = useLanguageStore((s) => s.language);
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
@@ -23,9 +28,13 @@ export default function LanguageSettingsScreen() {
   };
 
   return (
-    <ScreenShell style={{ justifyContent: "center" }}>
-      {/* The current language is marked, so the user sees what they'd be changing from. */}
-      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
+    <ScreenShell style={{ paddingTop: insets.top }}>
+      <Header
+        title={t("app.profile.menuItems.language")}
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
+        style={{ paddingTop: 12, paddingBottom: 12 }}
+      />
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} showHero={false} />
     </ScreenShell>
   );
 }

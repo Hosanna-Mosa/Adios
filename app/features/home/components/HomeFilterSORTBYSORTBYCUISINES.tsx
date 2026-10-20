@@ -33,7 +33,7 @@ export function HomeFilterSORTBYSORTBYCUISINES({
     <>
     {activeFilterTab === "Cuisines" && (
       <View>
-        <Text style={styles.filterSectionTitle}>CUISINES</Text>
+        <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.cuisines")}</Text>
         {availableCuisines.length === 0 ? (
           <Text style={styles.filterEmptyNote}>{t("app.home.noCuisinesAvailableInCurrentLocation")}</Text>
         ) : (

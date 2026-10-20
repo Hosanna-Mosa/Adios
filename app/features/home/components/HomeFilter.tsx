@@ -5,6 +5,7 @@ import { moderateScale } from "react-native-size-matters";
 import { HomeFilterSORTBY } from "./HomeFilterSORTBY";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { useTranslation } from "react-i18next";
 
 // Section of HomeFilterModal, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -41,10 +42,11 @@ interface Props {
 
 export function HomeFilter(props: Props) {
   const { setIsFilterModalVisible, styles, tokens } = props;
+  const { t } = useTranslation();
   return (
     <View style={styles.filterModalContent}>
       <View style={styles.filterModalHeader}>
-        <Text style={styles.filterModalTitle}>Filter</Text>
+        <Text style={styles.filterModalTitle}>{t("app.home.filter")}</Text>
         <TouchableOpacity onPress={() => setIsFilterModalVisible(false)} style={styles.filterModalCloseBtn}>
           <Ionicons name="close" size={moderateScale(22)} color={tokens.text} />
         </TouchableOpacity>

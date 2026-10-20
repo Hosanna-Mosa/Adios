@@ -1,5 +1,6 @@
 import { useFindingDriverInsets } from "./useFindingDriverInsets";
 import { useFindingDriverShowCancelSheet } from "./useFindingDriverShowCancelSheet";
+import { useFindingDriverRaiseFare } from "./useFindingDriverRaiseFare";
 
 // State, data loading and handlers for app/finding-driver.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -11,7 +12,10 @@ export function useFindingDriver() {
   const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide } = useFindingDriverInsets();
   const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary);
 
+  const { showRaiseFare, raising, raiseFare } = useFindingDriverRaiseFare(orderId, orderSummary, foodStage);
+
   return {
+  showRaiseFare, raising, raiseFare,
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,

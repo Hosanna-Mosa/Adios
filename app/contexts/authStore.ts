@@ -24,8 +24,8 @@ export interface AuthState {
    * produces exactly one sign-out and one redirect.
    */
   handleUnauthorized: () => boolean;
-  requestOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
-  verifyOTP: (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => Promise<{ success: boolean; isNewUser?: boolean }>;
+  /** Customer sign-up (POST /auth/register). Signs the new account in. */
+  register: (name: string, phone: string, email: string, password: string) => Promise<{ success: boolean }>;
   loginWithPassword: (phoneOrEmail: string, password: string, role: string) => Promise<{ success: boolean }>;
   initializeAuth: () => Promise<void>;
   toggleFavorite: (restaurantId: string) => Promise<void>;

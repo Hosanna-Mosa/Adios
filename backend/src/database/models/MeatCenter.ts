@@ -13,6 +13,7 @@ export interface IMeatCenter extends Document {
   };
   address: string;
   image?: string;
+  coverImage?: string;
   rating: number;
   reviews: string;
   categories: string[]; // e.g., ["Chicken", "Mutton", "Fish"]
@@ -75,6 +76,7 @@ const MeatCenterSchema: Schema = new Schema(
     },
     address: { type: String, required: true },
     image: { type: String },
+    coverImage: { type: String },
     rating: { type: Number, default: 0 },
     reviews: { type: String, default: "0" },
     categories: { type: [String], default: [] },

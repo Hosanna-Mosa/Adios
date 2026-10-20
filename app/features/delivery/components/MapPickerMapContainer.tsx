@@ -9,6 +9,7 @@ import AppMapView from "@/components/AppMapView";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type MapPickerStyles } from "@/features/delivery/useMapPicker.shared";
+import { useMapStyle } from "@/components/useMapStyle";
 
 // Moved out of app/map-picker.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -37,6 +38,7 @@ export function MapPickerMapContainer({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const mapStyle = useMapStyle(LIGHT_WARM_MAP_STYLE);
   return (
     <View style={styles.mapContainer}>
       <AppMapView
@@ -44,7 +46,7 @@ export function MapPickerMapContainer({
         style={StyleSheet.absoluteFill}
         initialRegion={region}
         onRegionChangeComplete={handleRegionChangeComplete}
-        customMapStyle={LIGHT_WARM_MAP_STYLE}
+        customMapStyle={mapStyle}
       />
 
       <Animated.View entering={fadeIn(150)} style={styles.centerMarkerContainer} pointerEvents="none">
@@ -61,7 +63,7 @@ export function MapPickerMapContainer({
         </View>
       </Animated.View>
 
-      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()}>
+      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()} hitSlop={4} accessibilityRole="button" accessibilityLabel={t("app.a11y.back")}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
 

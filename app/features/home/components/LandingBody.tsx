@@ -1,4 +1,4 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity } from "react-native";
 import { useTranslation } from "react-i18next";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
@@ -16,7 +16,6 @@ import { type LandingStyles } from "@/features/home/index.styles";
 
 interface Props {
   Reanimated: any;
-  handleContinueWithOtp: () => void;
   handleForgotPassword: () => void;
   handleSignIn: () => void;
   identifier: any;
@@ -24,7 +23,6 @@ interface Props {
   isPasswordVisible: boolean;
   loading: boolean;
   password: string;
-  sendingOtp: any;
   setIdentifier: any;
   setIsPasswordVisible: any;
   setPassword: any;
@@ -34,7 +32,6 @@ interface Props {
 
 export function LandingBody({
   Reanimated,
-  handleContinueWithOtp,
   handleForgotPassword,
   handleSignIn,
   identifier,
@@ -42,7 +39,6 @@ export function LandingBody({
   isPasswordVisible,
   loading,
   password,
-  sendingOtp,
   setIdentifier,
   setIsPasswordVisible,
   setPassword,
@@ -100,24 +96,6 @@ export function LandingBody({
           loading={loading}
           fullWidth
           style={{ marginTop: 4 }}
-        />
-      </Reanimated.View>
-
-      {/* Divider */}
-      <Reanimated.View style={styles.dividerRow} entering={fadeInUp(160)}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>{t("app.home.or")}</Text>
-        <View style={styles.dividerLine} />
-      </Reanimated.View>
-
-      {/* OTP alternative */}
-      <Reanimated.View entering={fadeInUp(200)} style={{ marginTop: 16 }}>
-        <Button
-          title={t("app.home.continueWithOtpInstead")}
-          onPress={handleContinueWithOtp}
-          loading={sendingOtp}
-          variant="secondary"
-          fullWidth
         />
       </Reanimated.View>
 

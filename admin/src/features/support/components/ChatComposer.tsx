@@ -1,5 +1,6 @@
 import { Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CannedRepliesMenu } from "./CannedRepliesMenu";
 
 interface ChatComposerProps {
   value: string;
@@ -23,6 +24,7 @@ export function ChatComposer({ value, onChange, onSend, placeholderName }: ChatC
           <label htmlFor="support-reply" className="text-xs font-semibold text-muted-foreground">
             {t("support.replyToName", { name: placeholderName, defaultValue: "Reply to {{name}}" })}
           </label>
+          <CannedRepliesMenu onPick={(text) => onChange(value.trim() ? `${value.trimEnd()}\n${text}` : text)} customerName={placeholderName} />
           <button
             onClick={onSend}
             disabled={!value.trim()}
