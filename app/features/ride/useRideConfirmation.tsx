@@ -16,8 +16,8 @@ import { getEnabledTiers } from "./useRideConfirmation.shared";
 // can honestly compare fares for.
 
 export function useRideConfirmation() {
-  const { insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares, booking, setBooking, showDatePicker, setShowDatePicker, reserveDate, setReserveDate, reserveHour, setReserveHour, reserveMinute, setReserveMinute, reserveAmpm, setReserveAmpm, confirmedReservation, setConfirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, setUserLocation, nearbyDrivers, setNearbyDrivers, mapReady, setMapReady, routeCoordinates, setRouteCoordinates, mapRef, stops } = useRideConfirmationInsets();
-  const { validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap, initialRegion } = useRideConfirmationValidStops(pickupCoords, dropCoords, mapRef, stops);
+  const { insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares, booking, setBooking, showDatePicker, setShowDatePicker, reserveDate, setReserveDate, reserveHour, setReserveHour, reserveMinute, setReserveMinute, reserveAmpm, setReserveAmpm, confirmedReservation, setConfirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, setUserLocation, nearbyDrivers, setNearbyDrivers, mapReady, setMapReady, routeCoordinates, setRouteCoordinates, mapRef, stops, sheetHeight, setSheetHeight } = useRideConfirmationInsets();
+  const { validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap, initialRegion } = useRideConfirmationValidStops(pickupCoords, dropCoords, mapRef, stops, sheetHeight);
   const {  } = useRideConfirmationMapFit(params, selectedTier, pickupCoords, dropCoords, setNearbyDrivers, mapReady, setRouteCoordinates, stops, validStops, pickupIsValid, dropIsValid, tripCoordinates, fitTripToMap);
   const { getDisplayName, handleShareRoute, handleAddStopFromMap, handleRecenter } = useRideConfirmationGetDisplayName(params, setUserLocation, mapRef, stops, pickupIsValid, dropIsValid, fitTripToMap);
   const { placeOrder } = useRideConfirmationPlaceOrder(params, selectedTier, tierFares, setBooking, setShowDatePicker, setConfirmedReservation, pickupCoords, dropCoords, stops);
@@ -31,7 +31,7 @@ export function useRideConfirmation() {
   confirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, nearbyDrivers,
   setMapReady, routeCoordinates, mapRef, validStops, pickupIsValid, dropIsValid, tripCoordinates,
   fitTripToMap, initialRegion, getDisplayName, handleShareRoute, handleAddStopFromMap,
-  handleRecenter, placeOrder, ENABLED_TIERS
+  handleRecenter, placeOrder, ENABLED_TIERS, sheetHeight, setSheetHeight
   };
 }
 

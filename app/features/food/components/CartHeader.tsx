@@ -1,33 +1,25 @@
-import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
-import { type ThemeTokens } from "@/constants/colors";
+import { Header } from "@/components/ui/Header";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type CartStyles } from "@/features/food/cart.styles";
 
-// Moved out of app/cart.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// Moved out of app/cart.tsx. Rebuilt on the shared Header — its iconBtn/
+// headerTitleSolo styles were a byte-for-byte duplicate of Header's own
+// backBtn/title (same 40pt chip, same body.semibold large title), so this
+// changes nothing on screen.
 
 interface Props {
   insets: EdgeInsets;
-  styles: CartStyles;
-  tokens: ThemeTokens;
 }
 
-export function CartHeader({
-  insets,
-  styles,
-  tokens,
-}: Props) {
+export function CartHeader({ insets }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
-      <Text style={styles.headerTitleSolo}>{t("tabs.cart")}</Text>
-    </View>
+    <Header
+      title={t("tabs.cart")}
+      onBack={() => router.back()}
+      accessibilityLabel={t("app.support.back")}
+      style={{ paddingTop: insets.top + 6, paddingBottom: 12 }}
+    />
   );
 }

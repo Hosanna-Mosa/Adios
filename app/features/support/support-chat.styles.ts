@@ -14,11 +14,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: tokens.bg },
     loadingText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 12 },
 
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 14, backgroundColor: tokens.surface, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    backBtn: { width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19), backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
-    headerStatus: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
-
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginHorizontal: 16, marginTop: 22, marginBottom: 12 },
 
     caseCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderLeftWidth: 3, borderRadius: 14, padding: 14 },

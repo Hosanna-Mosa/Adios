@@ -63,7 +63,10 @@ export function GlobalSocketHandler() {
         id: msg.id || (Date.now().toString() + Math.random().toString()),
         text: msg.text,
         sender: msg.from === "driver" ? ("driver" as const) : ("customer" as const),
-        timestamp: msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        timestamp: msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        // Same reasoning as useChatSendMessage.tsx: the live payload carries no
+        // date, but "now" is the real date this message arrived.
+        date: new Date().toISOString(),
       };
 
       const store = useDeliveryStore.getState();

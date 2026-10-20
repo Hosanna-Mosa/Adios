@@ -36,7 +36,12 @@ export function Store149HeroHeader({
   const { t } = useTranslation();
   return (
     <Animated.View entering={fadeInUp(0)} style={[styles.heroHeader, { paddingTop: insets.top + 4 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={accent.on} />
       </TouchableOpacity>
       <Text style={styles.heroEyebrow}>{t("app.food.cravingAnyDish")}</Text>

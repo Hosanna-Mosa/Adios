@@ -1,10 +1,12 @@
 import MapView, { PROVIDER_GOOGLE } from "@/components/maps";
+import { useTranslation } from "react-i18next";
 import { PickupConfirmPanel } from "@/features/ride/components/PickupConfirmPanel";
 import { PickupConfirmMapArea } from "@/features/ride/components/PickupConfirmMapArea";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { usePickupConfirmation } from "@/features/ride/usePickupConfirmation";
 
 export default function PickupConfirmationScreen() {
+  const { t } = useTranslation();
   const {
   insets, tokens, accent, styles, mapRef, params, pickupCoords, confirmedPickup, estimate,
   loadingEstimate, recenter, updatePickup, useCurrentLocation
@@ -25,7 +27,7 @@ export default function PickupConfirmationScreen() {
       />
 
       <PickupConfirmPanel
-        firstLine={firstLine}
+        firstLine={(value?: string) => firstLine(value, t("app.ride.pickupPointFallback"))}
         confirmedPickup={confirmedPickup}
         estimate={estimate}
         loadingEstimate={loadingEstimate}
@@ -39,7 +41,7 @@ export default function PickupConfirmationScreen() {
   );
 }
 
-const firstLine = (value?: string) => {
-  if (!value) return "Pickup point";
+const firstLine = (value: string | undefined, fallback: string) => {
+  if (!value) return fallback;
   return value.split(",")[0]?.trim() || value;
 };

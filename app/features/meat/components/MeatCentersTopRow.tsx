@@ -31,7 +31,12 @@ export function MeatCentersTopRow({
   const { t } = useTranslation();
   return (
     <View style={[styles.topRow, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.addressBlock} activeOpacity={0.7} onPress={() => router.push("/delivery/saved-addresses")}>
@@ -43,7 +48,12 @@ export function MeatCentersTopRow({
           <Ionicons name="chevron-down" size={moderateScale(12)} color={tokens.sec} />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => setSearchOpen((s) => !s)}>
+      <TouchableOpacity
+        style={styles.iconBtn}
+        onPress={() => setSearchOpen((s) => !s)}
+        accessibilityRole="button"
+        accessibilityLabel={searchOpen ? t("app.food.closeSearch") : t("app.food.search")}
+      >
         <Ionicons name={searchOpen ? "close" : "search"} size={moderateScale(17)} color={tokens.sec} />
       </TouchableOpacity>
     </View>

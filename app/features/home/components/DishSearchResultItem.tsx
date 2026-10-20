@@ -59,7 +59,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
         {vendor && (
           <View style={styles.dishVendorRow}>
             <Ionicons name="storefront-outline" size={moderateScale(13)} color={tokens.sec} />
-            <Text style={styles.dishVendorText} numberOfLines={1}>from {vendor.name}</Text>
+            <Text style={styles.dishVendorText} numberOfLines={1}>{t("app.food.fromVendor", { vendor: vendor.name })}</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -71,7 +71,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
         <View style={styles.dishAddButtonOverlay}>
           {soldOut ? (
             <View style={styles.dishSoldOutPill}>
-              <Text style={styles.dishSoldOutPillText}>SOLD OUT</Text>
+              <Text style={styles.dishSoldOutPillText}>{t("app.food.soldOut")}</Text>
             </View>
           ) : outletClosed && !cartItem ? (
             <TouchableOpacity onPress={handleAdd} style={styles.dishSoldOutPill} activeOpacity={0.7}>
@@ -79,17 +79,29 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
             </TouchableOpacity>
           ) : cartItem ? (
             <View style={styles.dishQuantityPill}>
-              <TouchableOpacity onPress={() => updateQuantity(item._id, cartItem.quantity - 1)} style={styles.dishQtyActionBtn}>
+              <TouchableOpacity
+                onPress={() => updateQuantity(item._id, cartItem.quantity - 1)}
+                style={styles.dishQtyActionBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel={t("app.food.decreaseQuantity")}
+              >
                 <Feather name="minus" size={moderateScale(12)} color={accent.accent} />
               </TouchableOpacity>
               <Text style={styles.dishQtyText}>{cartItem.quantity}</Text>
-              <TouchableOpacity onPress={handleAdd} style={styles.dishQtyActionBtn}>
+              <TouchableOpacity
+                onPress={handleAdd}
+                style={styles.dishQtyActionBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel={t("app.food.increaseQuantity")}
+              >
                 <Feather name="plus" size={moderateScale(12)} color={accent.accent} />
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity onPress={handleAdd} style={styles.dishAddPill} activeOpacity={0.85}>
-              <Text style={styles.dishAddPillText}>ADD</Text>
+              <Text style={styles.dishAddPillText}>{t("app.food.add").toUpperCase()}</Text>
             </TouchableOpacity>
           )}
         </View>

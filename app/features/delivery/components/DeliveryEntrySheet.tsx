@@ -26,6 +26,8 @@ interface Props {
   price: PriceBreakdown | null;
   removeStop: any;
   route: any;
+  /** Reports the sheet's rendered height, so the map's zoom controls can clear it. */
+  setSheetHeight?: (height: number) => void;
   stops: any[];
   styles: DeliveryEntryStyles;
 }
@@ -42,12 +44,17 @@ export function DeliveryEntrySheet({
   price,
   removeStop,
   route,
+  setSheetHeight,
   stops,
   styles,
 }: Props) {
   const { t } = useTranslation();
   return (
-    <Animated.View style={styles.sheet} entering={modalSlideUp}>
+    <Animated.View
+      style={styles.sheet}
+      entering={modalSlideUp}
+      onLayout={(e) => setSheetHeight?.(Math.round(e.nativeEvent.layout.height))}
+    >
       <View style={styles.sheetHandle} />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <Animated.View entering={fadeInUp(60)}>

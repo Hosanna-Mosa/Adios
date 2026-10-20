@@ -34,12 +34,22 @@ import { useThemeStore } from "@/contexts/themeStore";
 
 interface Props {
   title?: string;
+  /** A second line under the title (e.g. a live status). Only when present
+   * does the title move into a flexed column with `numberOfLines={1}` on
+   * both lines — a bare `title` still renders exactly as before. */
+  subtitle?: string;
+  /** A leading visual between the back button and the title, e.g. a round
+   * avatar — for headers that identify a person rather than just a screen. */
+  avatar?: React.ReactNode;
   /** Omit to hide the back button. Pass `() => router.back()` from the screen. */
   onBack?: () => void;
   /** Blocks the back button while an action is in flight. Matches
    * TouchableOpacity's own `disabled`, so the button looks the same at rest
    * and simply stops responding. */
   backDisabled?: boolean;
+  /** Extends the back button's touch target beyond its 40pt chip, without
+   * changing how it looks. Omitted by default, so existing screens are unaffected. */
+  backHitSlop?: { top: number; bottom: number; left: number; right: number };
   /** Trailing action(s), rendered after the title. */
   right?: React.ReactNode;
   /** Per-screen spacing — usually a safe-area `paddingTop` when the screen root
@@ -53,8 +63,11 @@ interface Props {
 
 export function Header({
   title,
+  subtitle,
+  avatar,
   onBack,
   backDisabled,
+  backHitSlop,
   right,
   style,
   entering,
@@ -72,16 +85,25 @@ export function Header({
           style={styles.backBtn}
           onPress={onBack}
           disabled={backDisabled}
-          // The chip is 40pt; hitSlop takes the touch target past 44pt.
-          hitSlop={8}
+          // The chip is 40pt; hitSlop takes the touch target past 44pt by default,
+          // and a caller can still pass a larger backHitSlop of its own.
+          hitSlop={backHitSlop ?? 8}
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel ?? t("app.a11y.goBack")}
         >
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
       ) : null}
-      {/* flex + one line: a long or translated title used to wrap or push `right` off screen. */}
-      {title ? <Text style={styles.title} numberOfLines={1}>{title}</Text> : null}
+      {avatar}
+      {subtitle ? (
+        <View style={styles.titleBlock}>
+          {title ? <Text style={styles.title} numberOfLines={1}>{title}</Text> : null}
+          <Text style={styles.subtitle} numberOfLines={1}>{subtitle}</Text>
+        </View>
+      ) : (
+        // flex + one line: a long or translated title used to wrap or push `right` off screen.
+        title ? <Text style={styles.title} numberOfLines={1}>{title}</Text> : null
+      )}
       {right}
     </>
   );
@@ -121,5 +143,15 @@ const createStyles = (tokens: ThemeTokens) =>
       fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.large,
       color: tokens.text,
+    },
+    titleBlock: {
+      flex: 1,
+      minWidth: 0,
+    },
+    subtitle: {
+      fontFamily: fontFamilies.body.medium,
+      fontSize: typography.sizes.small,
+      color: tokens.sec,
+      marginTop: 2,
     },
   });

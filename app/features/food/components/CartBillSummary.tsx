@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type CartStyles } from "@/features/food/cart.styles";
+import { formatINR } from "@/utils/pricing";
 
 // Section of CartContents, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -93,12 +94,12 @@ export function CartBillSummary({
       <View style={styles.billCard}>
         <View style={styles.billRow}>
           <Text style={styles.billLabel}>{t("app.food.itemTotal")}</Text>
-          <Text style={styles.billValue}>₹{subtotal}</Text>
+          <Text style={styles.billValue}>₹{formatINR(subtotal)}</Text>
         </View>
         {deliveryFee != null ? (
           <View style={styles.billRow}>
             <Text style={styles.billLabel}>{t("app.food.deliveryFee")}</Text>
-            <Text style={styles.billValue}>{deliveryFee === 0 ? t("app.food.free") : `₹${deliveryFee}`}</Text>
+            <Text style={styles.billValue}>{deliveryFee === 0 ? t("app.food.free") : `₹${formatINR(deliveryFee)}`}</Text>
           </View>
         ) : (
           <Text style={styles.billNote}>{t("app.food.deliveryFeeIsConfirmedAtCheckout")}</Text>
@@ -106,13 +107,13 @@ export function CartBillSummary({
         {appliedPromo && (
           <View style={styles.billRow}>
             <Text style={[styles.billLabel, { color: tokens.success }]}>{t("app.food.coupon")} {appliedPromo.code}</Text>
-            <Text style={[styles.billValue, { color: tokens.success }]}>−₹{Math.round(discount)}</Text>
+            <Text style={[styles.billValue, { color: tokens.success }]}>−₹{formatINR(discount)}</Text>
           </View>
         )}
         <View style={styles.billDivider} />
         <View style={styles.billRow}>
           <Text style={styles.billTotalLabel}>{t("app.food.toPay")}</Text>
-          <Text style={styles.billTotalValue}>₹{total}</Text>
+          <Text style={styles.billTotalValue}>₹{formatINR(total)}</Text>
         </View>
       </View>
     </View>

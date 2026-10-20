@@ -115,7 +115,14 @@ export function MenuBody(props: Props) {
                       </TouchableOpacity>
                     ) : cartItem ? (
                       <View style={styles.qtyPill}>
-                        <TouchableOpacity style={styles.qtyBtn} onPress={() => handleUpdateQuantity(item._id, cartItem.quantity - 1)} disabled={loadingItems[item._id]}>
+                        <TouchableOpacity
+                          style={styles.qtyBtn}
+                          onPress={() => handleUpdateQuantity(item._id, cartItem.quantity - 1)}
+                          disabled={loadingItems[item._id]}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.decreaseQuantity")}
+                        >
                           <Feather name="minus" size={14} color={accent.accent} />
                         </TouchableOpacity>
                         {loadingItems[item._id] ? (
@@ -123,13 +130,20 @@ export function MenuBody(props: Props) {
                         ) : (
                           <Text style={styles.qtyText}>{cartItem.quantity}</Text>
                         )}
-                        <TouchableOpacity style={[styles.qtyBtn, outletClosed && { opacity: 0.35 }]} onPress={() => handleAddToCart(item)} disabled={loadingItems[item._id]}>
+                        <TouchableOpacity
+                          style={[styles.qtyBtn, outletClosed && { opacity: 0.35 }]}
+                          onPress={() => handleAddToCart(item)}
+                          disabled={loadingItems[item._id]}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.increaseQuantity")}
+                        >
                           <Feather name="plus" size={14} color={accent.accent} />
                         </TouchableOpacity>
                       </View>
                     ) : (
                       <TouchableOpacity style={styles.addBtn} activeOpacity={0.85} onPress={() => handleAddToCart(item)} disabled={loadingItems[item._id]}>
-                        {loadingItems[item._id] ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={styles.addBtnText}>Add</Text>}
+                        {loadingItems[item._id] ? <ActivityIndicator size="small" color={accent.accent} /> : <Text style={styles.addBtnText}>{t("app.food.add")}</Text>}
                       </TouchableOpacity>
                     )}
                   </View>

@@ -40,7 +40,12 @@ export function Store149ModalOverlay({
     <View style={styles.modalOverlay}>
       <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSheetVisible(false)} />
       <View style={[styles.sheetModal, { paddingBottom: insets.bottom + 32 }]}>
-        <TouchableOpacity style={styles.sheetCloseBtn} onPress={() => setIsSheetVisible(false)}>
+        <TouchableOpacity
+          style={styles.sheetCloseBtn}
+          onPress={() => setIsSheetVisible(false)}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.support.closeModal")}
+        >
           <Ionicons name="close" size={moderateScale(20)} color={tokens.bg} />
         </TouchableOpacity>
 
@@ -61,11 +66,23 @@ export function Store149ModalOverlay({
                   const cartItem = cartItems.find((i) => i._id === selectedItem._id);
                   return cartItem ? (
                     <View style={styles.sheetQtyPill}>
-                      <TouchableOpacity onPress={() => updateCartQuantity(selectedItem._id, cartItem.quantity - 1)} style={styles.qtyBtn}>
+                      <TouchableOpacity
+                        onPress={() => updateCartQuantity(selectedItem._id, cartItem.quantity - 1)}
+                        style={styles.qtyBtn}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("app.food.decreaseQuantity")}
+                      >
                         <Feather name="minus" size={moderateScale(15)} color={accent.accent} />
                       </TouchableOpacity>
                       <Text style={styles.sheetQtyText}>{cartItem.quantity}</Text>
-                      <TouchableOpacity onPress={() => addCartItem(buildFoodItem(selectedItem), selectedItem.vendorId, selectedItem.brand)} style={styles.qtyBtn}>
+                      <TouchableOpacity
+                        onPress={() => addCartItem(buildFoodItem(selectedItem), selectedItem.vendorId, selectedItem.brand)}
+                        style={styles.qtyBtn}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("app.food.increaseQuantity")}
+                      >
                         <Feather name="plus" size={moderateScale(15)} color={accent.accent} />
                       </TouchableOpacity>
                     </View>

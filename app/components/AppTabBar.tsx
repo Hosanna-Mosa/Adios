@@ -109,78 +109,80 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
       )}
 
       {!hideTabs && (
-        <View style={[styles.tabPill, { bottom: insets.bottom + BOTTOM_GAP }]}>
-          <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-          <View
-            style={styles.tabRow}
-            accessibilityRole="tablist"
-            onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
-          >
-            {pillWidth > 0 && (
-              <Animated.View style={[styles.indicator, indicatorStyle]}>
-                <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
-              </Animated.View>
-            )}
-
-            {TABS.map((tab) => {
-              const isActive = tab.key === active;
-              return (
-                <TouchableOpacity
-                  key={tab.key}
-                  style={styles.tabItem}
-                  activeOpacity={0.7}
-                  onPress={() => handleTabPress(tab.key, tab.route)}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: isActive }}
-                  accessibilityLabel={tab.label}
-                >
-                  <Ionicons
-                    name={isActive ? tab.activeIcon : tab.icon}
-                    size={moderateScale(21)}
-                    color={isActive ? accentTokens.accent : tokens.muted}
-                  />
-                  {/* One line that shrinks to fit: long Telugu/Hindi labels wrapped inside the 62pt pill. */}
-                  <Text
-                    style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    minimumFontScale={0.75}
-                  >
-                    {tab.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-
-            <TouchableOpacity
-              style={styles.tabItem}
-              activeOpacity={0.7}
-              onPress={() => handleTabPress("cart", "/cart")}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: active === "cart" }}
-              accessibilityLabel={itemCount > 0 ? t("app.a11y.cartWithItems", { count: itemCount }) : t("tabs.cart")}
+        <View style={[styles.tabPillWrap, { bottom: insets.bottom + BOTTOM_GAP }]}>
+          <View style={styles.tabPill}>
+            <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+            <View
+              style={styles.tabRow}
+              accessibilityRole="tablist"
+              onLayout={(e) => setPillWidth(e.nativeEvent.layout.width)}
             >
-              <View style={styles.cartIconWrap}>
-                <Ionicons
-                  name={active === "cart" ? "bag" : "bag-outline"}
-                  size={moderateScale(21)}
-                  color={active === "cart" ? accentTokens.accent : tokens.muted}
-                />
-                {itemCount > 0 && (
-                  <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText} numberOfLines={1}>{itemCount > 99 ? "99+" : itemCount}</Text>
-                  </View>
-                )}
-              </View>
-              <Text
-                style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.75}
+              {pillWidth > 0 && (
+                <Animated.View style={[styles.indicator, indicatorStyle]}>
+                  <View style={[styles.indicatorPill, { backgroundColor: accentTokens.skin }]} />
+                </Animated.View>
+              )}
+
+              {TABS.map((tab) => {
+                const isActive = tab.key === active;
+                return (
+                  <TouchableOpacity
+                    key={tab.key}
+                    style={styles.tabItem}
+                    activeOpacity={0.7}
+                    onPress={() => handleTabPress(tab.key, tab.route)}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: isActive }}
+                    accessibilityLabel={tab.label}
+                  >
+                    <Ionicons
+                      name={isActive ? tab.activeIcon : tab.icon}
+                      size={moderateScale(21)}
+                      color={isActive ? accentTokens.accent : tokens.muted}
+                    />
+                    {/* One line that shrinks to fit: long Telugu/Hindi labels wrapped inside the 62pt pill. */}
+                    <Text
+                      style={[styles.tabLabel, isActive && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {tab.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+
+              <TouchableOpacity
+                style={styles.tabItem}
+                activeOpacity={0.7}
+                onPress={() => handleTabPress("cart", "/cart")}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active === "cart" }}
+                accessibilityLabel={itemCount > 0 ? t("app.a11y.cartWithItems", { count: itemCount }) : t("tabs.cart")}
               >
-                {t("tabs.cart")}
-              </Text>
-            </TouchableOpacity>
+                <View style={styles.cartIconWrap}>
+                  <Ionicons
+                    name={active === "cart" ? "bag" : "bag-outline"}
+                    size={moderateScale(21)}
+                    color={active === "cart" ? accentTokens.accent : tokens.muted}
+                  />
+                  {itemCount > 0 && (
+                    <View style={styles.cartBadge}>
+                      <Text style={styles.cartBadgeText} numberOfLines={1}>{itemCount > 99 ? "99+" : itemCount}</Text>
+                    </View>
+                  )}
+                </View>
+                <Text
+                  style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
+                  {t("tabs.cart")}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       )}

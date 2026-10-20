@@ -1,6 +1,6 @@
 import {
-  ActivityIndicator,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -10,18 +10,20 @@ import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
-import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { Button } from "@/components/ui/Button";
+import { type ThemeTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
 import { type ProfileStyles } from "@/features/profile/profile.styles";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
 interface Props {
-  accent: ServiceTokens;
   changingPassword: any;
   confirmPassword: string;
   currentPassword: any;
   handleChangePassword: () => void;
+  insets: EdgeInsets;
   newPassword: any;
   setConfirmPassword: any;
   setCurrentPassword: any;
@@ -32,11 +34,11 @@ interface Props {
 }
 
 export function ProfileModalOverlay({
-  accent,
   changingPassword,
   confirmPassword,
   currentPassword,
   handleChangePassword,
+  insets,
   newPassword,
   setConfirmPassword,
   setCurrentPassword,
@@ -46,14 +48,21 @@ export function ProfileModalOverlay({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const closeSheet = () => { setSecurityVisible(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); };
   return (
     // The sheet sits at the bottom of the screen, so without this the keyboard
     // covered all three fields and the Update button (same pattern as DistanceSheet).
     <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
-      <View style={styles.modalBody}>
+      <TouchableOpacity activeOpacity={1} style={StyleSheet.absoluteFillObject} onPress={closeSheet} />
+      <View style={[styles.modalBody, { paddingBottom: insets.bottom + 24 }]}>
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle}>{t("app.profile.changePassword")}</Text>
-          <TouchableOpacity onPress={() => { setSecurityVisible(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}>
+          <TouchableOpacity
+            onPress={closeSheet}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.support.closeModal")}
+          >
             <Ionicons name="close" size={moderateScale(22)} color={tokens.text} />
           </TouchableOpacity>
         </View>
@@ -71,9 +80,7 @@ export function ProfileModalOverlay({
             <TextInput style={styles.textInput} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry placeholder={t("app.profile.confirmNewPassword")} placeholderTextColor={tokens.muted} />
           </View>
         </ScrollView>
-        <TouchableOpacity style={[styles.saveBtn, { opacity: changingPassword ? 0.7 : 1 }]} onPress={handleChangePassword} disabled={changingPassword}>
-          {changingPassword ? <ActivityIndicator color={accent.on} /> : <Text style={styles.saveBtnText}>{t("app.profile.updatePassword")}</Text>}
-        </TouchableOpacity>
+        <Button title={t("app.profile.updatePassword")} onPress={handleChangePassword} loading={changingPassword} fullWidth />
       </View>
     </KeyboardAvoidingView>
   );

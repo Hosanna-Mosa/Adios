@@ -49,7 +49,6 @@ export default function ChatScreen() {
         insets={insets}
         partnerLabel={partnerLabel}
         status={status}
-        styles={styles}
         tokens={tokens}
       />
 

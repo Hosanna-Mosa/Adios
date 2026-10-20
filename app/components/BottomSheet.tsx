@@ -2,9 +2,11 @@ import React from "react";
 import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, {
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  type SharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { designTokens, elevation, radius, type ThemeTokens } from "@/constants/colors";
@@ -18,6 +20,13 @@ interface Props {
   style?: any;
   defaultHeight?: number;
   disableExpand?: boolean;
+  /** Kept in sync with the sheet's live visible height (post-gesture/spring),
+   * so a caller positioning UI above this sheet (e.g. the map's zoom
+   * controls) can track it as the user drags, instead of assuming it always
+   * sits at defaultHeight. The sheet's own layout height never changes --
+   * only its transform does -- so onLayout can't see this; this is the one
+   * live signal available. */
+  heightValue?: SharedValue<number>;
 }
 
 /**
@@ -25,7 +34,7 @@ interface Props {
  * bar. The window size is read live, so it follows rotation and split-screen;
  * it used to read the screen once at load and expand under the status bar.
  */
-export function BottomSheet({ children, style, defaultHeight = 220, disableExpand = false }: Props) {
+export function BottomSheet({ children, style, defaultHeight = 220, disableExpand = false, heightValue }: Props) {
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const theme = useThemeStore((s) => s.theme);
@@ -72,6 +81,14 @@ export function BottomSheet({ children, style, defaultHeight = 220, disableExpan
       transform: [{ translateY: translateY.value }],
     };
   });
+
+  useAnimatedReaction(
+    () => -translateY.value,
+    (visibleHeight) => {
+      if (heightValue) heightValue.value = visibleHeight;
+    },
+    [heightValue]
+  );
 
   return (
     <GestureDetector gesture={gesture}>

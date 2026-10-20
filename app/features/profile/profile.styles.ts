@@ -35,7 +35,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     signOutAllBtn: { marginTop: 10, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
     signOutAllBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
 
-    modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
+    modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: tokens.overlay },
     modalBody: { backgroundColor: tokens.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: "88%" },
     modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 22 },
     modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.large, color: tokens.text },

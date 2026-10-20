@@ -47,7 +47,7 @@ export function PickupConfirmPanel({
       </TouchableOpacity>
 
       <View style={styles.metaRow}>
-        <Text style={styles.metaText}>{params.rideName || "Ride"}</Text>
+        <Text style={styles.metaText}>{params.rideName || t("app.serviceMeta.ride")}</Text>
         <View style={styles.metaValue}>
           {loadingEstimate ? (
             <ActivityIndicator size="small" color={tokens.sec} />

@@ -39,7 +39,7 @@ interface Props {
 }
 
 export function HomeSearchOverlay(props: Props) {
-  const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive } = props;
+  const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive, tokens } = props;
   const inputRef = React.useRef<TextInput>(null);
 
   return (
@@ -59,7 +59,7 @@ export function HomeSearchOverlay(props: Props) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)" }, searchBackdropAnimatedStyle]}>
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: tokens.overlay }, searchBackdropAnimatedStyle]}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSearchActive(false)} />
         </Animated.View>
         <HomeSearchOverlaySearchForDishes {...props} inputRef={inputRef} />

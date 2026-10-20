@@ -8,7 +8,7 @@ import { useRideSearching } from "@/features/ride/useRideSearching";
 
 export default function RideSearchingScreen() {
   const {
-  colors, styles, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible,
+  tokens, styles, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible,
   setTripDetailsVisible, cancelReasonVisible, setCancelReasonVisible, cancelConfirmVisible,
   selectedCancelReason, onlineDrivers, pickupCoords, dropCoords, fare, pickupTitle, dropTitle,
   cancelUsesDrop, cancelLocationTitle, cancelLocationAddress, cancelLocationLabel, fitTripMarkers,
@@ -32,7 +32,7 @@ export default function RideSearchingScreen() {
         VEHICLE_AUTO_3D={VEHICLE_AUTO_3D}
         VEHICLE_BIKE_3D={VEHICLE_BIKE_3D}
         VEHICLE_CAB_3D={VEHICLE_CAB_3D}
-        colors={colors}
+        tokens={tokens}
         dropCoords={dropCoords}
         fitTripMarkers={fitTripMarkers}
         mapRef={mapRef}
@@ -42,13 +42,13 @@ export default function RideSearchingScreen() {
       />
 
       <SearchingPanel
-        colors={colors}
+        tokens={tokens}
         dotStyle={dotStyle}
         fare={fare}
+        params={params}
         progressBarStyle={progressBarStyle}
         showTripDetails={showTripDetails}
         styles={styles}
-        serviceId={params.serviceId}
       />
 
       {tripDetailsVisible && (
@@ -61,7 +61,7 @@ export default function RideSearchingScreen() {
           cancelReasonVisible={cancelReasonVisible}
           cancelRide={cancelRide}
           cancelUsesDrop={cancelUsesDrop}
-          colors={colors}
+          tokens={tokens}
           dropTitle={dropTitle}
           fare={fare}
           keepSearching={keepSearching}

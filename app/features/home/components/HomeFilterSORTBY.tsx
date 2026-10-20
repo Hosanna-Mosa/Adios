@@ -6,6 +6,7 @@ import { moderateScale } from "react-native-size-matters";
 import { HomeFilterSORTBYSORTBY } from "./HomeFilterSORTBYSORTBY";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { type EdgeInsets } from "react-native-safe-area-context";
 
 // Section of HomeFilter, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -23,6 +24,7 @@ interface Props {
   filterOpenNow: boolean;
   filterVegNonVeg: string;
   filteredAndSortedItems: any;
+  insets: EdgeInsets;
   selectedCuisines: any[];
   selectedSort: string;
   setActiveFilterTab: React.Dispatch<React.SetStateAction<any>>;
@@ -41,12 +43,12 @@ interface Props {
 }
 
 export function HomeFilterSORTBY(props: Props) {
-  const { activeFilterTab, clearAllFilters, filter99Store, filterCostRange, filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg, filteredAndSortedItems, selectedCuisines, selectedSort, setActiveFilterTab, setIsFilterModalVisible, styles } = props;
+  const { activeFilterTab, clearAllFilters, filter99Store, filterCostRange, filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg, filteredAndSortedItems, insets, selectedCuisines, selectedSort, setActiveFilterTab, setIsFilterModalVisible, styles } = props;
   const { t } = useTranslation();
   return (
     <>
     <View style={styles.filterModalBody}>
-      <View style={styles.filterModalLeftPane}>
+      <ScrollView style={styles.filterModalLeftPane} showsVerticalScrollIndicator={false}>
         {[
           { id: "Sort", label: "Sort" },
           { id: "99store", label: "149 Store" },
@@ -76,12 +78,12 @@ export function HomeFilterSORTBY(props: Props) {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
 
       <HomeFilterSORTBYSORTBY {...props} />
     </View>
 
-    <View style={styles.filterModalFooter}>
+    <View style={[styles.filterModalFooter, { paddingBottom: 16 + insets.bottom }]}>
       <TouchableOpacity style={styles.filterModalClearBtn} onPress={clearAllFilters}>
         <Text style={styles.filterModalClearText}>{t("app.home.clearFilters")}</Text>
       </TouchableOpacity>

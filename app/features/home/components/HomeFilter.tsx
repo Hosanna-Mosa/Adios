@@ -1,10 +1,12 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
 import { HomeFilterSORTBY } from "./HomeFilterSORTBY";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { type EdgeInsets } from "react-native-safe-area-context";
 
 // Section of HomeFilterModal, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -22,6 +24,7 @@ interface Props {
   filterOpenNow: boolean;
   filterVegNonVeg: string;
   filteredAndSortedItems: any;
+  insets: EdgeInsets;
   selectedCuisines: any[];
   selectedSort: string;
   setActiveFilterTab: React.Dispatch<React.SetStateAction<any>>;
@@ -40,12 +43,19 @@ interface Props {
 }
 
 export function HomeFilter(props: Props) {
+  const { t } = useTranslation();
   const { setIsFilterModalVisible, styles, tokens } = props;
   return (
     <View style={styles.filterModalContent}>
       <View style={styles.filterModalHeader}>
         <Text style={styles.filterModalTitle}>Filter</Text>
-        <TouchableOpacity onPress={() => setIsFilterModalVisible(false)} style={styles.filterModalCloseBtn}>
+        <TouchableOpacity
+          onPress={() => setIsFilterModalVisible(false)}
+          style={styles.filterModalCloseBtn}
+          hitSlop={{ top: 11, bottom: 11, left: 11, right: 11 }}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.support.closeModal")}
+        >
           <Ionicons name="close" size={moderateScale(22)} color={tokens.text} />
         </TouchableOpacity>
       </View>

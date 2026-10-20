@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import {
@@ -24,25 +25,27 @@ const CATEGORY_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   system: "megaphone",
 };
 
-function formatWhen(iso: string): string {
+function formatWhen(iso: string, t: (key: string, options?: Record<string, unknown>) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffMin < 1) return t("app.notifications.justNow");
+  if (diffMin < 60) return t("app.notifications.minutesAgo", { count: diffMin });
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  if (d.toDateString() === now.toDateString()) return "Today";
+  if (diffHr < 24) return t("app.notifications.hoursAgo", { count: diffHr });
+  if (d.toDateString() === now.toDateString()) return t("app.notifications.today");
   return d.toLocaleDateString([], { day: "numeric", month: "short" });
 }
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const accent = { accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand };
   const styles = useMemo(() => createStyles(tokens, accent), [theme, tokens]);
+  const formatWhenT = (iso: string) => formatWhen(iso, t);
 
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +105,7 @@ export default function NotificationsScreen() {
       ) : (
         <NotificationsBody
           CATEGORY_ICON={CATEGORY_ICON}
-          formatWhen={formatWhen}
+          formatWhen={formatWhenT}
           accent={accent}
           handleOpen={handleOpen}
           insets={insets}

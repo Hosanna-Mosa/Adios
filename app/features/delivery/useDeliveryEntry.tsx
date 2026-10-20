@@ -6,12 +6,12 @@ import { useDeliveryEntryHandleStopPress } from "./useDeliveryEntryHandleStopPre
 // still run exactly as they did inline.
 
 export function useDeliveryEntry() {
-  const { stops, route, price, currentLocation, currentCoords, removeStop, setStops, setRoute, calculatePrice, insets, tokens, accent, styles, isCalculating, setIsCalculating, isLocating, mapRef, handleLocationUpdate, handleRecenter } = useDeliveryEntryStops();
+  const { stops, route, price, currentLocation, currentCoords, removeStop, setStops, setRoute, calculatePrice, insets, tokens, accent, styles, isCalculating, setIsCalculating, isLocating, mapRef, handleLocationUpdate, handleRecenter, sheetHeight, setSheetHeight } = useDeliveryEntryStops();
   const { handleStopPress, handleReview } = useDeliveryEntryHandleStopPress(stops, route, price, currentCoords, setStops, setRoute, calculatePrice, setIsCalculating, mapRef);
 
   return {
   stops, route, price, currentLocation, removeStop, insets, tokens, accent, styles, isCalculating,
-  isLocating, mapRef, handleLocationUpdate, handleRecenter, handleStopPress, handleReview
+  isLocating, mapRef, handleLocationUpdate, handleRecenter, handleStopPress, handleReview, sheetHeight, setSheetHeight
   };
 }
 

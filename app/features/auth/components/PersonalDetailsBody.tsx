@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
@@ -49,6 +50,7 @@ export function PersonalDetailsBody({
   username,
 }: Props) {
   const { t } = useTranslation();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
   return (
     <>
     <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
@@ -81,10 +83,19 @@ export function PersonalDetailsBody({
         <Animated.View entering={staggerListItem(2)}>
           <Text style={styles.label}>{t("app.auth.email")}</Text>
           <TextInput
-            style={[styles.field, errors.email ? styles.fieldInvalid : { borderColor: accent.accent, borderWidth: 2 }]}
+            style={[
+              styles.field,
+              errors.email
+                ? styles.fieldInvalid
+                : focusedField === "email" && { borderColor: accent.accent, borderWidth: 2 },
+            ]}
             value={email}
             onChangeText={editField("email", setEmail)}
-            onBlur={blurField("email", email)}
+            onFocus={() => setFocusedField("email")}
+            onBlur={() => {
+              setFocusedField(null);
+              blurField("email", email)();
+            }}
             placeholder={t("app.auth.youremailcom")}
             keyboardType="email-address"
             autoCapitalize="none"

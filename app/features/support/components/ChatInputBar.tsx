@@ -50,6 +50,9 @@ export function ChatInputBar({
         style={[styles.sendBtn, { backgroundColor: accent.accent, opacity: inputText.trim() ? 1 : 0.5 }]}
         onPress={() => sendMessage(inputText)}
         disabled={!inputText.trim()}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.send")}
+        accessibilityState={{ disabled: !inputText.trim() }}
       >
         <Ionicons name="send" size={18} color={accent.on} />
       </TouchableOpacity>

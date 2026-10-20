@@ -6,6 +6,7 @@ import { moderateScale } from "react-native-size-matters";
 import { HomeFilter } from "./HomeFilter";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { type EdgeInsets } from "react-native-safe-area-context";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it
 // used to read from the screen's scope is now a prop of the same name, so
@@ -26,6 +27,7 @@ interface Props {
   filterOpenNow: boolean;
   filterVegNonVeg: string;
   filteredAndSortedItems: any;
+  insets: EdgeInsets;
   isFilterModalVisible: boolean;
   selectedCuisines: any[];
   selectedSort: string;

@@ -9,14 +9,14 @@ import { useRideSearchingKeepSearching } from "./useRideSearchingKeepSearching";
 // still run exactly as they did inline.
 
 export function useRideSearching() {
-  const { colors, styles, currentOrderId, setCurrentOrderId, setGlobalServiceType, setGlobalDriver, setGlobalStatus, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible, setTripDetailsVisible } = useRideSearchingInsets();
+  const { tokens, styles, currentOrderId, setCurrentOrderId, setGlobalServiceType, setGlobalDriver, setGlobalStatus, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible, setTripDetailsVisible } = useRideSearchingInsets();
   const { cancelReasonVisible, setCancelReasonVisible, cancelConfirmVisible, setCancelConfirmVisible, selectedCancelReason, setSelectedCancelReason, onlineDrivers, pickupCoords, dropCoords } = useRideSearchingCancelReasonVisible(params);
   const { fare, pickupTitle, dropTitle, cancelUsesDrop, cancelLocationTitle, cancelLocationAddress, cancelLocationLabel, fitTripMarkers } = useRideSearchingFare(setCurrentOrderId, setGlobalServiceType, mapRef, params, selectedCancelReason, pickupCoords, dropCoords);
   const { showTripDetails, showCancelReasons, selectCancelReason } = useRideSearchingShowTripDetails(currentOrderId, setGlobalDriver, setGlobalStatus, setTripDetailsVisible, setCancelReasonVisible, setCancelConfirmVisible, setSelectedCancelReason);
   const { keepSearching, cancelRide } = useRideSearchingKeepSearching(currentOrderId, setCurrentOrderId, params, setTripDetailsVisible, setCancelReasonVisible, setCancelConfirmVisible, fare);
 
   return {
-  colors, styles, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible,
+  tokens, styles, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible,
   setTripDetailsVisible, cancelReasonVisible, setCancelReasonVisible, cancelConfirmVisible,
   selectedCancelReason, onlineDrivers, pickupCoords, dropCoords, fare, pickupTitle, dropTitle,
   cancelUsesDrop, cancelLocationTitle, cancelLocationAddress, cancelLocationLabel, fitTripMarkers,

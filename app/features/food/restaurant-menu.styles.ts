@@ -42,10 +42,10 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     metaLine: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 5 },
     ratingPill: {
       flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0,
-      backgroundColor: tokens.success, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7,
+      backgroundColor: tokens.successSkin, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7,
     },
-    ratingPillValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: "#fff" },
-    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: "#fff", opacity: 0.9 },
+    ratingPillValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.success },
+    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.success, opacity: 0.9 },
 
     // Toggle + "Veg only" sit together on the right edge, above the search bar.
     vegRow: { flexDirection: "row", alignItems: "center", alignSelf: "flex-end", gap: 10, marginTop: 18 },
@@ -125,13 +125,15 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     closedBannerText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
     modalBackdrop: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "flex-end" },
-    modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden" },
+    modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden", maxHeight: "90%" },
     modalImage: { width: "100%", height: 240, backgroundColor: tokens.sunken },
     modalCloseBtn: {
       position: "absolute", top: 16, right: 16, width: 36, height: 36, borderRadius: 18,
       backgroundColor: "rgba(0,0,0,0.5)", alignItems: "center", justifyContent: "center",
     },
-    modalContent: { padding: 20, paddingBottom: 28 },
+    modalScrollBody: { flexShrink: 1 },
+    modalContent: { padding: 20 },
+    modalFooter: { paddingHorizontal: 20, paddingBottom: 28 },
     modalHeadRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
     modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text },
     modalPrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 4 },

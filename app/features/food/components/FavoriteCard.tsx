@@ -58,7 +58,7 @@ export function FavoriteCard({
           </View>
         )}
         <Text style={styles.cardMeta} numberOfLines={1}>
-          {categoryLabel}{item.deliveryFee != null ? ` · ${t("app.food.deliveryFeeAmount", { amount: item.deliveryFee })}` : ""}
+          {categoryLabel}{item.deliveryFee != null ? ` · ${t("app.food.deliveryAmount", { amount: item.deliveryFee })}` : ""}
         </Text>
         <TouchableOpacity
           style={[styles.reorderBtn, { backgroundColor: accent.accent }]}

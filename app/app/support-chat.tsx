@@ -52,8 +52,6 @@ export default function SupportChatScreen() {
           subtitle={`${t("app.support.case")}${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
           onBack={() => setViewMode("cases")}
           insets={insets}
-          styles={styles}
-          tokens={tokens}
         />
 
         <FlatList
@@ -108,8 +106,6 @@ export default function SupportChatScreen() {
         title={t("app.support.yourCases")}
         onBack={() => router.back()}
         insets={insets}
-        styles={styles}
-        tokens={tokens}
       />
 
       <SupportTicketList

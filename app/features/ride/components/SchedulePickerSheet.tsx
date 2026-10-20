@@ -63,6 +63,7 @@ export function SchedulePickerSheet({
         <TouchableOpacity activeOpacity={1} style={styles.sheetScrim} onPress={() => setShowDatePicker(false)} />
         <View style={[styles.datePickerSheet, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.sheetHandle} />
+          <ScrollView style={{ flexShrink: 1 }} showsVerticalScrollIndicator={false}>
           <Text style={styles.datePickerTitle}>{t("app.ride.scheduleARide")}</Text>
           <Text style={styles.datePickerSub}>{t("app.ride.weaposllAssignACaptain15Minutes")}</Text>
 
@@ -116,6 +117,7 @@ export function SchedulePickerSheet({
               </Text>
             </View>
           </View>
+          </ScrollView>
 
           <PaymentMethodSelector flow="ride" accent={accent} disabled={booking} style={{ marginBottom: 12 }} />
           <TouchableOpacity

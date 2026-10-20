@@ -69,7 +69,7 @@ export function RestaurantListItem({
   // openState is the evaluated verdict; the bare isOpen boolean is the fallback for any payload that predates it. Either way the card always states a status.
   // A closed outlet just says CLOSED — the "opens Mon 9:00 AM" detail lives on the menu screen.
   const isClosed = openState ? !openState.isOpen : isOpen === false;
-  const statusText = isClosed ? t("app.food.closedPill") : openState?.label || "Open now";
+  const statusText = isClosed ? t("app.food.closedPill") : openState?.label || t("app.home.openNow");
   const distanceLabel = typeof distanceKm === "number"
     ? (distanceKm < 1 ? `${Math.round(distanceKm * 1000)} m` : `${distanceKm.toFixed(1)} km`)
     : distance;
@@ -109,6 +109,8 @@ export function RestaurantListItem({
           <TouchableOpacity
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={() => toggleFavorite(_id)}
+            accessibilityRole="button"
+            accessibilityLabel={isFavorite ? t("app.food.removeFromFavorites") : t("app.food.addToFavorites")}
           >
             <Ionicons
               name={isFavorite ? "heart" : "heart-outline"}
@@ -129,7 +131,7 @@ export function RestaurantListItem({
 
         <Text style={styles.metaLine} numberOfLines={1}>
           {categoryLabel}
-          {minOrderValue ? (isMeat ? ` · from ₹${minOrderValue} / kg` : ` · ₹${minOrderValue} for two`) : ""}
+          {minOrderValue ? ` · ${isMeat ? t("app.food.minOrderFromPerKg", { amount: minOrderValue }) : t("app.food.costForTwo", { amount: minOrderValue })}` : ""}
         </Text>
         <Text style={styles.metaLine} numberOfLines={1}>
           {rating} ★ ({reviews}) · {time} · {distanceLabel}

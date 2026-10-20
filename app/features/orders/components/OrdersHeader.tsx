@@ -10,6 +10,7 @@ import type { OrdersStyles } from "@/features/orders/orders.styles";
 // unchanged — same animation, same padding, same styles.
 
 interface Props {
+  hasActiveFilters?: boolean;
   insets: { top: number };
   /** e.g. "2 active · 14 past"; hidden while loading or when there are no orders. */
   summary?: string;
@@ -18,7 +19,7 @@ interface Props {
   tokens: ThemeTokens;
 }
 
-export function OrdersHeader({ insets, summary, openFilterSheet, styles, tokens }: Props) {
+export function OrdersHeader({ hasActiveFilters, insets, summary, openFilterSheet, styles, tokens }: Props) {
   const { t } = useTranslation();
   return (
     <Animated.View style={[styles.header, { paddingTop: insets.top + 14 }]} entering={fadeInDown(0)}>
@@ -26,7 +27,7 @@ export function OrdersHeader({ insets, summary, openFilterSheet, styles, tokens 
         <Text style={styles.headline}>{t("app.profile.menuItems.myOrders")}</Text>
         {!!summary && <Text style={styles.headerSub}>{summary}</Text>}
       </View>
-      <OrdersFilterButton openFilterSheet={openFilterSheet} styles={styles} tokens={tokens} />
+      <OrdersFilterButton hasActiveFilters={hasActiveFilters} openFilterSheet={openFilterSheet} styles={styles} tokens={tokens} />
     </Animated.View>
   );
 }

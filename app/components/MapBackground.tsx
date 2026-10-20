@@ -1,14 +1,18 @@
 import React, { forwardRef } from 'react';
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { useMapCamera } from '@/components/useMapCamera';
 import { useMapEffects } from '@/components/useMapEffects';
 import { MapDriverMarkers } from '@/components/MapDriverMarkers';
 import { MapLocationMarkers } from '@/components/MapLocationMarkers';
 import { StyleSheet, View, ViewStyle, Text, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, Circle } from '@/components/maps';
 import { Feather } from '@expo/vector-icons';
 import { DeliveryStop } from '@/contexts/deliveryStore';
+import { useTranslation } from "react-i18next";
 import { typography } from "@/constants/typography";
-import Colors from "@/constants/colors";
+import Colors, { designTokens } from "@/constants/colors";
+import { useThemeStore } from "@/contexts/themeStore";
 import { styles } from "@/components/MapBackground.styles";
 import { decodePolyline } from "@/components/mapBackground.utils";
 
@@ -35,6 +39,17 @@ interface Props {
   outletOrder?: boolean;
   /** Ride: green "Pickup" / red "Drop" bubbles, and the live blue dot. */
   rideOrder?: boolean;
+  /** The caller's own bottom sheet height (measured, or its known resting
+   * height), so the zoom controls sit just above it instead of at a fixed
+   * position unrelated to what's actually on screen. Omit for a caller with
+   * no bottom sheet — the controls then sit just above the safe area. */
+  sheetHeight?: number;
+  /** Same purpose as sheetHeight, for a caller whose sheet height changes via
+   * gesture/animation rather than layout (e.g. Tracking's draggable
+   * BottomSheet) -- its onLayout height never changes, only its transform
+   * does, so this live value is used instead when provided. Takes priority
+   * over the static sheetHeight while present. */
+  sheetHeightValue?: SharedValue<number>;
 }
 
 export interface MapBackgroundRef {
@@ -63,7 +78,18 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
   radiusMeters,
   outletOrder,
   rideOrder,
+  sheetHeight = 0,
+  sheetHeightValue,
 }, ref) => {
+  const { t } = useTranslation();
+  const theme = useThemeStore((s) => s.theme);
+  const tokens = designTokens[theme];
+  const insets = useSafeAreaInsets();
+
+  const animatedZoomStyle = useAnimatedStyle(() => {
+    if (!sheetHeightValue) return {};
+    return { bottom: insets.bottom + sheetHeightValue.value + 16 };
+  });
   const {
     region, setRegion, autoRoutePolyline, setAutoRoutePolyline,
     selectedService, handleZoom, internalMapRef, locationRef,
@@ -103,8 +129,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
             <Circle
               center={{ latitude: Number(radiusCenter.lat), longitude: Number(radiusCenter.lng) }}
               radius={Number(radiusMeters)}
-              fillColor="rgba(79, 70, 229, 0.15)"
-              strokeColor="rgba(79, 70, 229, 0.6)"
+              fillColor={`${tokens.brand}26`}
+              strokeColor={`${tokens.brand}99`}
               strokeWidth={2}
             />
             <Marker
@@ -165,28 +191,32 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
           <Polyline
             coordinates={decodePolyline(polyline || autoRoutePolyline || "")}
             strokeWidth={4}
-            strokeColor="#16A34A"
+            strokeColor={tokens.brand}
           />
         ) : null}
       </MapView>
 
       {/* Clean Zoom Controls */}
-      <View style={styles.zoomControlsContainer}>
+      <Animated.View style={[styles.zoomControlsContainer, { bottom: insets.bottom + sheetHeight + 16 }, animatedZoomStyle]}>
         <TouchableOpacity
-          style={styles.zoomButton}
+          style={[styles.zoomButton, { backgroundColor: tokens.surface, borderColor: tokens.border }]}
           onPress={() => handleZoom(0.5)}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.ride.zoomIn")}
         >
-          <Feather name="plus" size={18} color="#111827" />
+          <Feather name="plus" size={18} color={tokens.text} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.zoomButton}
+          style={[styles.zoomButton, { backgroundColor: tokens.surface, borderColor: tokens.border }]}
           onPress={() => handleZoom(2.0)}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.ride.zoomOut")}
         >
-          <Feather name="minus" size={18} color="#111827" />
+          <Feather name="minus" size={18} color={tokens.text} />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {children}
     </View>

@@ -63,7 +63,12 @@ export function PickupConfirmMapArea({
 
       <MapBackButton absolute onPress={() => router.back()} />
 
-      <TouchableOpacity style={styles.locateButton} onPress={useCurrentLocation}>
+      <TouchableOpacity
+        style={styles.locateButton}
+        onPress={useCurrentLocation}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.packageDelivery.useCurrentLocation")}
+      >
         <Ionicons name="locate" size={22} color={accent.accent} />
       </TouchableOpacity>
     </View>

@@ -130,16 +130,33 @@ export function Store149Sheet({
                     </View>
                     {cartItem ? (
                       <View style={styles.qtyPill}>
-                        <TouchableOpacity onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)} style={styles.qtyBtn}>
+                        <TouchableOpacity
+                          onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)}
+                          style={styles.qtyBtn}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.decreaseQuantity")}
+                        >
                           <Feather name="minus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                         <Text style={styles.qtyText}>{cartItem.quantity}</Text>
-                        <TouchableOpacity onPress={handleAdd} style={styles.qtyBtn}>
+                        <TouchableOpacity
+                          onPress={handleAdd}
+                          style={styles.qtyBtn}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.increaseQuantity")}
+                        >
                           <Feather name="plus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>
+                      <TouchableOpacity
+                        style={styles.addBtn}
+                        onPress={handleAdd}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("app.food.add")}
+                      >
                         <Feather name="plus" size={moderateScale(16)} color={accent.on} />
                       </TouchableOpacity>
                     )}

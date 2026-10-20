@@ -77,7 +77,7 @@ export function SupportChatBody({
         disabled={!inputText.trim() || submittingReply}
         accessibilityRole="button"
         accessibilityLabel={t("app.support.send")}
-        accessibilityState={{ busy: submittingReply }}
+        accessibilityState={{ disabled: !inputText.trim() || submittingReply, busy: submittingReply }}
       >
         {/* A spinner while sending: dimming alone looked the same as an empty input. */}
         {submittingReply ? <ActivityIndicator size="small" color={accent.on} /> : <Ionicons name="send" size={17} color={accent.on} />}

@@ -101,7 +101,11 @@ export function MenuVegOnly({
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery("")}>
+          <TouchableOpacity
+            onPress={() => setSearchQuery("")}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.food.clearSearch")}
+          >
             <Ionicons name="close-circle" size={moderateScale(15)} color={tokens.sec} />
           </TouchableOpacity>
         )}

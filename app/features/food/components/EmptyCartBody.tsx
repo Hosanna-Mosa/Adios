@@ -59,11 +59,7 @@ export function EmptyCartBody({
   return (
     <>
     <View style={styles.root}>
-      <CartHeader
-        insets={insets}
-        styles={styles}
-        tokens={tokens}
-      />
+      <CartHeader insets={insets} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}>
         <View style={styles.emptyWrap}>

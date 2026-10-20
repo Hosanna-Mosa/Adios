@@ -13,7 +13,7 @@ interface Props {
   VEHICLE_CAB_3D: any;
   VEHICLE_BIKE_3D: any;
   VEHICLE_AUTO_3D: any;
-  colors: any;
+  tokens: any;
   dropCoords: any;
   fitTripMarkers: any;
   mapRef: any;
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function SearchingMap({
-  colors,
+  tokens,
   dropCoords,
   fitTripMarkers,
   mapRef,
@@ -46,18 +46,20 @@ export function SearchingMap({
         showsMyLocationButton={false}
         onMapReady={fitTripMarkers}
       >
+        {/* Same brand+alpha pattern MapBackground.tsx uses for its radius circle,
+            instead of an arbitrary blue unrelated to the app's palette. */}
         <Circle
           center={pickupCoords}
           radius={170}
-          fillColor="rgba(61, 132, 215, 0.12)"
-          strokeColor="rgba(61, 132, 215, 0.08)"
+          fillColor={`${tokens.brand}1F`}
+          strokeColor={`${tokens.brand}14`}
           strokeWidth={1}
         />
         <Circle
           center={pickupCoords}
           radius={86}
-          fillColor="rgba(61, 132, 215, 0.22)"
-          strokeColor="rgba(61, 132, 215, 0.18)"
+          fillColor={`${tokens.brand}38`}
+          strokeColor={`${tokens.brand}2E`}
           strokeWidth={1}
         />
         <Marker coordinate={dropCoords} image={rideStopMarker("drop")} anchor={RIDE_STOP_ANCHOR} zIndex={3} />

@@ -1,32 +1,25 @@
-import { Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { moderateScale } from "react-native-size-matters";
-import { type ThemeTokens } from "@/constants/colors";
+import { Header } from "@/components/ui/Header";
 import { type EdgeInsets } from "react-native-safe-area-context";
 
-// Moved out of app/all-services.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+// Moved out of app/all-services.tsx. Now built from the shared Header
+// (components/ui/Header) instead of a duplicated local copy, so the back
+// chevron, hit target and accessibility label match every other screen.
 
 interface Props {
   insets: EdgeInsets;
-  styles: any;
-  tokens: ThemeTokens;
 }
 
 export function AllServicesHeaderRow({
   insets,
-  styles,
-  tokens,
 }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))} activeOpacity={0.7}>
-        <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
-      </TouchableOpacity>
-      <Text style={styles.headerTitle}>{t("app.home.allServices")}</Text>
-    </View>
+    <Header
+      title={t("app.home.allServices")}
+      onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+      style={{ paddingTop: insets.top + 4 }}
+    />
   );
 }

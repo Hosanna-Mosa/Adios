@@ -1,4 +1,5 @@
 import { Dimensions, Linking, ScrollView, View } from "react-native";
+import { type SharedValue } from "react-native-reanimated";
 import { BottomSheet } from "@/components/BottomSheet";
 import { TrackingAddrCard } from "@/features/ride/components/TrackingAddrCard";
 import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
@@ -44,6 +45,7 @@ interface Props {
   timeline: any;
   pickupLabel: string;
   formatClock: any;
+  sheetHeightValue?: SharedValue<number>;
 }
 
 export function TrackingBottomSheet({
@@ -73,10 +75,11 @@ export function TrackingBottomSheet({
   timeline,
   pickupLabel,
   formatClock,
+  sheetHeightValue,
 }: Props) {
   return (
     <>
-    <BottomSheet style={styles.bottomSheet} defaultHeight={Dimensions.get("window").height * 0.5} disableExpand={false}>
+    <BottomSheet style={styles.bottomSheet} defaultHeight={Dimensions.get("window").height * 0.5} disableExpand={false} heightValue={sheetHeightValue}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <TrackingSheetBody
               accent={accent}

@@ -5,7 +5,7 @@ import { isValidCoordinate } from "./useRideConfirmation.shared";
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useRideConfirmationValidStops(pickupCoords: any, dropCoords: any, mapRef: any, stops: any) {
+export function useRideConfirmationValidStops(pickupCoords: any, dropCoords: any, mapRef: any, stops: any, sheetHeight: number) {
   const validStops = useMemo(
     () =>
       stops
@@ -27,11 +27,11 @@ export function useRideConfirmationValidStops(pickupCoords: any, dropCoords: any
       const pointsToFit = [pickupCoords, ...validStops.map((s: any) => ({ latitude: s.latitude, longitude: s.longitude })), dropCoords];
       if (pointsToFit.length < 2) return;
       mapRef.current.fitToCoordinates(pointsToFit, {
-        edgePadding: { top: Platform.OS === "ios" ? 110 : 90, right: 60, bottom: 60, left: 60 },
+        edgePadding: { top: Platform.OS === "ios" ? 110 : 90, right: 60, bottom: sheetHeight + 20, left: 60 },
         animated,
       });
     },
-    [pickupCoords, dropCoords, validStops, pickupIsValid, dropIsValid]
+    [pickupCoords, dropCoords, validStops, pickupIsValid, dropIsValid, sheetHeight]
   );
 
   const initialRegion = useMemo(() => {

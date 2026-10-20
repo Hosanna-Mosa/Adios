@@ -26,7 +26,7 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
   ], [t]);
 
   const [showCancelSheet, setShowCancelSheet] = useState(false);
-  const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0]);
+  const [cancelReason, setCancelReason] = useState<string | null>(null);
 
   const handleCancel = async () => {
     setShowCancelSheet(false);

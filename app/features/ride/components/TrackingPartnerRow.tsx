@@ -38,7 +38,7 @@ export function TrackingPartnerRow({
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <View style={styles.partnerNameRow}>
-          <Text style={styles.partnerName} numberOfLines={1}>{driver.name || "Assigned partner"}</Text>
+          <Text style={styles.partnerName} numberOfLines={1}>{driver.name || t("app.ride.assignedPartnerFallback")}</Text>
           {/* A driver with no reviews yet reads as "New" — never as a 0-star score. */}
           <View style={styles.partnerRatingPill}>
             <Ionicons name="star" size={moderateScale(11)} color={accent.accent} />
@@ -47,12 +47,24 @@ export function TrackingPartnerRow({
             </Text>
           </View>
         </View>
-        <Text style={styles.partnerMeta}>{driver.vehicle && driver.vehicle !== "unknown" ? driver.vehicle.charAt(0).toUpperCase() + driver.vehicle.slice(1) : isHelper ? "Helper" : "Delivery partner"}</Text>
+        <Text style={styles.partnerMeta}>{driver.vehicle && driver.vehicle !== "unknown" ? driver.vehicle.charAt(0).toUpperCase() + driver.vehicle.slice(1) : isHelper ? t("app.delivery.helper") : t("app.ride.deliveryPartnerFallback")}</Text>
       </View>
-      <TouchableOpacity style={[styles.circleBtn, { backgroundColor: accent.accent }]} onPress={() => Linking.openURL(`tel:${driver.phone || ""}`)}>
+      <TouchableOpacity
+        style={[styles.circleBtn, { backgroundColor: accent.accent }]}
+        onPress={() => Linking.openURL(`tel:${driver.phone || ""}`)}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.delivery.call")}
+      >
         <Ionicons name="call" size={17} color={accent.on} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.circleBtnOutline} onPress={() => router.push("/chat")}>
+      <TouchableOpacity
+        style={styles.circleBtnOutline}
+        onPress={() => router.push("/chat")}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.delivery.message")}
+      >
         <Ionicons name="chatbubble-outline" size={17} color={tokens.text} />
         {unreadCount > 0 && (
           <View style={[styles.badge, { backgroundColor: tokens.error }]}>

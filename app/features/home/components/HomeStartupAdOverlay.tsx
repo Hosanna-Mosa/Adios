@@ -34,7 +34,13 @@ export function HomeStartupAdOverlay({
   return (
     <View style={styles.startupAdOverlay}>
       <View style={styles.startupAdCard}>
-        <TouchableOpacity style={styles.startupAdCloseBtn} onPress={() => setActiveStartupAd(null)}>
+        <TouchableOpacity
+          style={styles.startupAdCloseBtn}
+          onPress={() => setActiveStartupAd(null)}
+          hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.support.closeModal")}
+        >
           <Feather name="x" size={moderateScale(16)} color={tokens.text} />
         </TouchableOpacity>
         <Pressable disabled={!linked} onPress={openAd} accessibilityRole={linked ? "link" : undefined} accessibilityLabel={activeStartupAd.title}>

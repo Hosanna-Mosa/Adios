@@ -29,7 +29,12 @@ export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: 
       <View style={styles.cardBody}>
         <View style={styles.cardTitleRow}>
           <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-          <TouchableOpacity onPress={() => onUnfavorite(item._id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity
+            onPress={() => onUnfavorite(item._id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.food.removeFromFavorites")}
+          >
             <Ionicons name="heart" size={moderateScale(16)} color={accent.accent} />
           </TouchableOpacity>
         </View>

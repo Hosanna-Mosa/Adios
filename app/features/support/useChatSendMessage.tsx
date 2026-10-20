@@ -21,6 +21,10 @@ export function useChatSendMessage(currentOrderId: any, driver: any, addChatMess
         text: msg.text,
         sender: msg.from === "driver" ? "driver" : "customer",
         timestamp: msg.time || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        // The server doesn't echo a date on the live payload (only a locale time
+        // string) — the moment this arrives IS the real date, so stamping it here
+        // is accurate, not invented.
+        date: new Date().toISOString(),
       };
       const currentMessages = useDeliveryStore.getState().activeChat;
       if (!currentMessages.find((m: any) => m.id === formattedMsg.id)) {
@@ -54,6 +58,7 @@ export function useChatSendMessage(currentOrderId: any, driver: any, addChatMess
       text: text.trim(),
       sender: "customer",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      date: new Date().toISOString(),
     };
     addChatMessage(newMsg);
     socketService.emit("send_message", { orderId: currentOrderId, role: "USER", text: text.trim(), id: msgId });

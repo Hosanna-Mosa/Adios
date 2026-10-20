@@ -29,6 +29,15 @@ export function OfflineBanner() {
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
+  // This toast always inverts (its background is `tokens.text`, not `tokens.bg`),
+  // so Retry needs a color tuned for *that* surface, not the current theme's own
+  // brand accent. In light mode the toast sits on a near-black surface, where
+  // light.brand already reads at ~5.8:1. In dark mode the toast sits on a
+  // near-white surface, where dark.brand (built for dark surfaces) drops to
+  // ~1.9:1 — computed via the WCAG relative-luminance formula — so dark mode
+  // borrows light.warning instead, which reads at ~4.9:1 on that same near-white
+  // surface and stays in the same warm/amber family as the dot above it.
+  const retryColor = theme === "dark" ? designTokens.light.warning : tokens.brand;
 
   const [isOffline, setIsOffline] = useState(false);
   const [lastOnlineAt, setLastOnlineAt] = useState<Date | null>(new Date());
@@ -73,11 +82,11 @@ export function OfflineBanner() {
     <View style={[styles.wrap, { top: insets.top + HEADER_CLEARANCE }]} pointerEvents="box-none">
       <View style={styles.toast}>
         <View style={styles.dot} />
-        <Text style={styles.text} numberOfLines={1}>
+        <Text style={styles.text} numberOfLines={2}>
           {t("app.OfflineBanner.youaposreOffline")}{minsAgo != null ? ` · ${t("app.OfflineBanner.lastSyncedMinutesAgo", { count: minsAgo })}` : ""}
         </Text>
         <TouchableOpacity onPress={ping} disabled={checking} hitSlop={12} accessibilityRole="button">
-          <Text style={styles.retry}>{checking ? t("app.OfflineBanner.checking") : t("app.OfflineBanner.retry")}</Text>
+          <Text style={[styles.retry, { color: retryColor }]}>{checking ? t("app.OfflineBanner.checking") : t("app.OfflineBanner.retry")}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -94,5 +103,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: tokens.warning, flexShrink: 0 },
     text: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.bg },
-    retry: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.6, textTransform: "uppercase", color: tokens.brand },
+    // color intentionally omitted — set inline as `retryColor`, since it needs
+    // a value from the *other* theme's tokens, not this one.
+    retry: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 0.6, textTransform: "uppercase" },
   });
