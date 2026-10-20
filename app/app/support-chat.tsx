@@ -9,6 +9,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
+import { SupportThreadEmpty } from "@/features/support/components/SupportThreadEmpty";
 import { getSupportCategories, useSupportChat } from "@/features/support/useSupportChat";
 import { useSupportUnreadReplies } from "@/features/support/useSupportUnreadReplies";
 
@@ -65,6 +66,7 @@ export default function SupportChatScreen() {
           )}
           contentContainerStyle={styles.messagesList}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<SupportThreadEmpty tokens={tokens} />}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
           // Keep the newest bubble in view when a reply or admin message arrives.
           onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}

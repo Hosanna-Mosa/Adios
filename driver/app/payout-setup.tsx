@@ -56,7 +56,6 @@ export default function PayoutSetupScreen() {
         body: JSON.stringify({
           bankAccountNumber: accountNumber,
           bankIfsc: ifsc,
-          bankVerified: true,
         }),
       });
 
@@ -71,7 +70,7 @@ export default function PayoutSetupScreen() {
         throw new Error(errData.message || translate("earnings.failedToSaveBankDetails"));
       }
 
-      Alert.alert(translate("earnings.bankDetailsSaved"), translate("earnings.payoutAccountSetUpCanCashOut"), [
+      Alert.alert(translate("earnings.bankDetailsSaved"), translate("earnings.payoutAccountSavedAwaitingVerification"), [
         { text: translate("actions.ok"), onPress: () => router.back() },
       ]);
     } catch (error: any) {

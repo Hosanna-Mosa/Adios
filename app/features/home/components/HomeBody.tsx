@@ -44,7 +44,7 @@ export function HomeBody(props: Props) {
 
       {hasRidersButNoVendors ? null : (
         <>
-          {bannersLoading ? <PromoCarouselSkeleton tokens={tokens} /> : (
+          {bannersLoading ? <PromoCarouselSkeleton tokens={tokens} /> : promoCards.length === 0 ? null : (
           <PromoCarousel
             styles={styles}
             promoCards={promoCards}

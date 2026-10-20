@@ -254,7 +254,8 @@
     "acceptTimeUp": "Time's up — this order is being cancelled",
     "invoice": "Invoice",
     "invoiceHint": "Open it to print or save as a PDF",
-    "invoiceFailed": "Couldn't open the invoice. Please try again."
+    "invoiceFailed": "Couldn't open the invoice. Please try again.",
+    "getHelp": "Get help with this order"
   },
   "vehicle": {
     "bike": "Bike",
@@ -556,7 +557,10 @@
     "markResolvedTitle": "Mark this case resolved?",
     "markResolvedSubtitle": "Support thinks your issue is sorted. You can reopen it any time by sending a message.",
     "notYet": "Not yet",
-    "yesResolved": "Yes, resolved"
+    "yesResolved": "Yes, resolved",
+    "aboutOrder": "Which order is this about?",
+    "notAboutOrder": "Not about an order",
+    "orderRef": "Order {{id}}"
   },
   "dishPreview": {
     "title": "Preview",

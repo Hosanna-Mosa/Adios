@@ -5,8 +5,8 @@ import { FadeIn } from "@/components/motion/FadeIn";
 import { SupportChatHeader } from "./SupportChatHeader";
 import { SupportChatMessages } from "./SupportChatMessages";
 import { SupportChatComposer } from "./SupportChatComposer";
-import { SupportCancelOrder } from "./SupportCancelOrder";
 import { InternalNotes } from "./InternalNotes";
+import { SupportTicketOrderPanel } from "./orders/SupportTicketOrderPanel";
 import type { Ticket } from "../types";
 
 interface SupportChatWindowProps {
@@ -39,7 +39,7 @@ export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onType
               {ticket.orderId && <p><span className="text-muted-foreground">{t("support.botOrder")}:</span> #{ticket.orderId}</p>}
             </div>
           )}
-          {ticket.orderId && <SupportCancelOrder orderId={ticket.orderId} />}
+          <SupportTicketOrderPanel ticket={ticket} />
           <SupportChatMessages messages={ticket.messages} messagesEndRef={messagesEndRef} />
           <InternalNotes ticketId={ticket._id} notes={ticket.internalNotes} />
           <SupportChatComposer value={typedMessage} onChange={onTypedMessageChange} onKeyDown={onKeyDown} onSend={onSend} placeholderName={ticket.user} />

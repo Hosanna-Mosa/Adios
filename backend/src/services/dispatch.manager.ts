@@ -267,7 +267,17 @@ export class DispatchManagerService {
     const currentCandidate = session.candidates[session.currentIndex];
     if (currentCandidate) {
       const socketManager = SocketManager.getInstance();
-      socketManager.emitToDriver(currentCandidate.driverUserId, "order_cancelled", { orderId }, "DispatchManager.customerCancel");
+      socketManager.emitToDriver(currentCandidate.driverUserId, "order_cancelled", { orderId, reason: "customer_cancelled" }, "DispatchManager.customerCancel");
+      // The offer also went out as a push; a driver who only saw that (app in the
+      // background) was never told it was withdrawn. Follow it with a cancellation push.
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: currentCandidate.driverUserId,
+          title: "Request cancelled",
+          body: "The customer cancelled this request before it was accepted.",
+          data: { orderId, type: "ORDER_OFFER_CANCELLED" },
+        })
+        .catch((err: any) => console.warn(`[DISPATCH MANAGER] Cancellation push failed for ${currentCandidate.driverUserId}:`, err?.message));
     }
 
     this.activeDispatches.delete(orderId);

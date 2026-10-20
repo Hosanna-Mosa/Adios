@@ -137,7 +137,6 @@
     "failedToSaveBankDetails": "బ్యాంక్ వివరాలను సేవ్ చేయడంలో విఫలమైంది",
     "minimumBalanceRequired": "కనీస బ్యాలెన్స్ అవసరం",
     "needAtLeast100ToCashOut": "క్యాష్ అవుట్ చేయడానికి మీకు కనీసం రూ.100 అవసరం. మీ ప్రస్తుత అందుబాటులో ఉన్న బ్యాలెన్స్ {{value}}.",
-    "payoutAccountSetUpCanCashOut": "మీ పేఔట్ ఖాతా సెటప్ చేయబడింది. ఇప్పుడు మీరు మీ సంపాదనను క్యాష్ అవుట్ చేయవచ్చు.",
     "payoutSetup": "పేఔట్ సెటప్",
     "saveBankDetails": "బ్యాంక్ వివరాలను సేవ్ చేయండి",
     "dayMon": "సోమ",
@@ -147,7 +146,12 @@
     "dayFri": "శుక్ర",
     "daySat": "శని",
     "daySun": "ఆది",
-    "today": "ఈరోజు"
+    "today": "ఈరోజు",
+    "payoutAccountSavedAwaitingVerification": "మీ చెల్లింపు ఖాతా సేవ్ అయింది. మా టీమ్ ధృవీకరించిన తర్వాత మీరు క్యాష్ అవుట్ చేయవచ్చు.",
+    "monthlyStatement": "నెలవారీ స్టేట్‌మెంట్",
+    "monthlyStatementHint": "పన్ను / ITR రికార్డుల కోసం PDFగా సేవ్ చేసుకోగల స్టేట్‌మెంట్‌ను తెరుస్తుంది.",
+    "statementUnavailable": "స్టేట్‌మెంట్ అందుబాటులో లేదు",
+    "statementTryAgain": "స్టేట్‌మెంట్‌ను తెరవలేకపోయాం. దయచేసి మళ్ళీ ప్రయత్నించండి."
   },
   "support": {
     "liveChat": "లైవ్ చాట్",
@@ -531,7 +535,29 @@
     "packageDeliveryInvalidOtp": "OTP తప్పు. పంపేవారు పంచుకున్న 4 అంకెల కోడ్‌ను అందుకునేవారిని అడగండి.",
     "packageDeliveryComplete": "ప్యాకేజీ డెలివరీ పూర్తి చేయండి",
     "packageDeliveryActiveTask": "ప్యాకేజీ డెలివరీ పని",
-    "packageDeliveryCompleted": "ప్యాకేజీ డెలివరీ అయింది!"
+    "packageDeliveryCompleted": "ప్యాకేజీ డెలివరీ అయింది!",
+    "youEarn": "మీ సంపాదన",
+    "activeOrderCancelledByRestaurant": "ప్రస్తుత ఆర్డర్‌ను రెస్టారెంట్ రద్దు చేసింది.",
+    "activeOrderCancelledByTeam": "ప్రస్తుత ఆర్డర్‌ను Adios టీమ్ రద్దు చేసింది.",
+    "incomingOrderCancelledByRestaurant": "ఈ కొత్త ఆర్డర్‌ను రెస్టారెంట్ రద్దు చేసింది.",
+    "incomingOrderCancelledByTeam": "ఈ కొత్త ఆర్డర్‌ను Adios టీమ్ రద్దు చేసింది.",
+    "meatShop": "మీట్ షాప్",
+    "startTravelToMeatShop": "మీట్ షాప్‌కు ప్రయాణం ప్రారంభించండి",
+    "travelToMeatShop": "మీట్ షాప్‌కు వెళ్ళండి",
+    "arrivedAtMeatShop": "మీట్ షాప్‌కు చేరుకున్నారు",
+    "within20MetersOfMeatShop": "మీరు మీట్ షాప్‌కు 20 మీటర్ల దూరంలో ఉన్నారు.",
+    "enterPickupCodeFromMeatShop": "పికప్ నిర్ధారించి కొనసాగడానికి మీట్ షాప్ ఇచ్చిన పికప్ కోడ్ నమోదు చేయండి.",
+    "meatShopNotReadyYet": "మీట్ షాప్ ఆర్డర్‌ను సిద్ధంగా గుర్తించే వరకు వేచి ఉండండి. ఆ తర్వాత పికప్ కోడ్ నమోదు చేయవచ్చు.",
+    "waitingForMeatShop": "మీట్ షాప్ కోసం వేచి ఉంది...",
+    "meatShopPickupCode": "మీట్ షాప్ పికప్ కోడ్",
+    "invalidCodeAskMeatShopForPickupCode": "తప్పు కోడ్. దయచేసి సరైన పికప్ కోడ్ కోసం మీట్ షాప్‌ను అడగండి.",
+    "youreOnlineAndReceivingRides": "మీరు ఆన్‌లైన్‌లో ఉన్నారు, రైడ్‌లు అందుకుంటున్నారు",
+    "youreOnlineAndReceivingRidesAndOrders": "మీరు ఆన్‌లైన్‌లో ఉన్నారు, రైడ్‌లు మరియు ఆర్డర్‌లు అందుకుంటున్నారు",
+    "licenseExpiredTitle": "డ్రైవింగ్ లైసెన్స్ గడువు ముగిసింది",
+    "licenseExpiredBody": "మీ డ్రైవింగ్ లైసెన్స్ గడువు ముగిసింది. మళ్ళీ ఆన్‌లైన్ కావడానికి మీ పునరుద్ధరించిన లైసెన్స్‌ను అప్‌లోడ్ చేయండి.",
+    "toPickup": "పికప్ వరకు",
+    "toPickupDistance": "పికప్ వరకు: {{km}} కి.మీ. · ~{{minutes}} ని.",
+    "tripDistance": "ట్రిప్: {{distance}} · {{duration}}"
   },
   "onboarding": {
     "sections": {
@@ -615,8 +641,6 @@
     "reEnterAccountNumber": "ఖాతా నంబర్‌ను మళ్లీ నమోదు చేయండి",
     "accountNumbersDontMatch": "ఖాతా నంబర్‌లు సరిపోలడం లేదు",
     "ifscCode": "IFSC కోడ్",
-    "verifyBankAccount": "బ్యాంక్ ఖాతాను ధృవీకరించండి",
-    "bankAccountVerifiedPayoutsWillBeSentHere": "బ్యాంక్ ఖాతా ధృవీకరించబడింది! చెల్లింపులు ఇక్కడకు పంపబడతాయి.",
     "drivingLicenseNumber": "డ్రైవింగ్ లైసెన్స్ నంబర్",
     "validLicenseNumberFormat": "చెల్లుబాటు అయ్యే లైసెన్స్ నంబర్ ఫార్మాట్",
     "dlFormatHint": "చెల్లని ఫార్మాట్. 2 అక్షరాలు (రాష్ట్ర కోడ్) + 2 అంకెలు (RTO) + 4 అంకెలు (సంవత్సరం) + 7 అంకెలు (సీరియల్) ఆశించబడింది.",
@@ -649,7 +673,12 @@
     "allowCameraForSelfie": "మీ ప్రొఫైల్ సెల్ఫీ తీయడానికి దయచేసి కెమెరా యాక్సెస్‌ను అనుమతించండి.",
     "uploadFailed": "అప్‌లోడ్ విఫలమైంది",
     "couldNotUploadSelfie": "మీ సెల్ఫీని అప్‌లోడ్ చేయలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
-    "retakePhoto": "ఫోటో మళ్లీ తీయండి"
+    "retakePhoto": "ఫోటో మళ్లీ తీయండి",
+    "signInAgainToVerify": "మీ సెషన్ ముగిసింది. కొనసాగించడానికి మళ్ళీ సైన్ ఇన్ చేయండి.",
+    "verificationFailed": "ధృవీకరణ విఫలమైంది",
+    "verificationFailedTryAgain": "ఇప్పుడు దీన్ని ధృవీకరించలేకపోయాం. నంబర్ తనిఖీ చేసి మళ్ళీ ప్రయత్నించండి.",
+    "saveBankAccount": "బ్యాంక్ ఖాతాను సేవ్ చేయండి",
+    "bankAccountSavedTeamWillVerify": "బ్యాంక్ ఖాతా సేవ్ అయింది. మీ మొదటి చెల్లింపుకు ముందు మా టీమ్ దీన్ని ధృవీకరిస్తుంది."
   },
   "profile": {
     "personalInfo": "వ్యక్తిగత సమాచారం",
@@ -865,5 +894,31 @@
     "fastest": "వేగవంతమైనది",
     "promptSubtitleDefault": "ప్రభుత్వ రికార్డుల నుండి నేరుగా మీ ఆధార్ మరియు పాన్‌ను పొందండి — టైప్ చేయాల్సిన అవసరం లేదు.",
     "orEnterManually": "లేదా మాన్యువల్‌గా నమోదు చేయండి"
+  },
+  "verification": {
+    "notApprovedTitle": "ధృవీకరణ పెండింగ్‌లో ఉంది",
+    "notApprovedBody": "అడ్మిన్ మీ పత్రాలను ఆమోదించిన తర్వాత మీరు ఆన్‌లైన్ కావచ్చు.",
+    "pendingTitle": "ధృవీకరణ జరుగుతోంది",
+    "pendingBody": "ఆన్‌బోర్డింగ్ పూర్తి చేసినందుకు ధన్యవాదాలు. మా టీమ్ మీ పత్రాలను ధృవీకరిస్తోంది — ఆమోదం రాగానే మీకు తెలియజేస్తాం, ఆ తర్వాత మీరు ఆన్‌లైన్ కావచ్చు.",
+    "resubmitTitle": "పత్రాలు అవసరం",
+    "resubmitBody": "మా టీమ్ మీ కొన్ని పత్రాలను ధృవీకరించలేకపోయింది. దయచేసి వాటిని మళ్ళీ అప్‌లోడ్ చేసి మళ్ళీ సమర్పించండి.",
+    "rejectedTitle": "దరఖాస్తు ఆమోదించబడలేదు",
+    "rejectedBody": "మీ దరఖాస్తును ఆమోదించలేకపోయాం. మీ వివరాలను అప్‌డేట్ చేసి మళ్ళీ సమర్పించవచ్చు, లేదా సపోర్ట్‌ను సంప్రదించండి.",
+    "noteFromTeam": "మా టీమ్ నుండి గమనిక",
+    "requestedDocuments": "మళ్ళీ అప్‌లోడ్ చేయండి",
+    "nothingRequested": "ఏ పత్రాలూ అడగలేదు. వెనుకకు వెళ్ళి రిఫ్రెష్ చేయడానికి స్థితి తనిఖీ నొక్కండి.",
+    "submitForReview": "సమీక్షకు సమర్పించండి",
+    "submitFailedTitle": "సమర్పించలేకపోయాం",
+    "submitFailedBody": "దయచేసి మళ్ళీ ప్రయత్నించండి.",
+    "updateDocuments": "పత్రాలు అప్‌డేట్ చేయండి",
+    "checkStatus": "స్థితి తనిఖీ",
+    "signOut": "సైన్ అవుట్",
+    "docs": {
+      "aadhaar": "ఆధార్",
+      "pan": "పాన్ కార్డ్",
+      "license": "డ్రైవింగ్ లైసెన్స్",
+      "bank": "బ్యాంక్ ఖాతా",
+      "selfie": "సెల్ఫీ"
+    }
   }
 }

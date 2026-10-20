@@ -1,8 +1,9 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
+import { Button } from "@/components/ui/Button";
 
 // Moved out of app/+not-found.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -22,9 +23,8 @@ export function NotFoundBody({
         <Text style={styles.code}>404</Text>
         <Text style={styles.title}>{t("app.home.thisPageMoved")}</Text>
         <Text style={styles.subtitle}>{t("app.home.theLinkYouFollowedDoesnapostExist")}</Text>
-        <TouchableOpacity style={styles.button} onPress={() => router.replace("/(tabs)")} activeOpacity={0.85}>
-          <Text style={styles.buttonText}>{t("app.home.goHome")}</Text>
-        </TouchableOpacity>
+        {/* The shared Button: same corners and pressed state as everywhere else. */}
+        <Button title={t("app.home.goHome")} onPress={() => router.replace("/(tabs)")} style={{ marginTop: 24 }} />
       </Animated.View>
     </View>
     </>

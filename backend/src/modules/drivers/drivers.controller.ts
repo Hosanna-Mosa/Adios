@@ -1,5 +1,14 @@
 import { Response } from "express";
-import { DriverService } from "./drivers.service";
+import { DriverService, hasUnexpiredLicense } from "./drivers.service";
+import { DOCUMENT_LINK_TTL_SECONDS, readDocumentToken, signDocumentToken } from "../../utils/documentLink";
+import { statementMonthRange } from "./earningsStatement";
+
+const STATEMENT_PURPOSE = "earnings-statement";
+
+// The public URL the phone's browser can reach. Behind a proxy set PUBLIC_API_URL.
+const publicBaseUrl = (req: AuthRequest) =>
+  (process.env.PUBLIC_API_URL ||
+    `${(req.headers["x-forwarded-proto"] as string)?.split(",")[0] || req.protocol}://${req.get("host")}`).replace(/\/+$/, "");
 import { AuthRequest } from "../../middleware/auth.middleware";
 import Driver, { DriverStatus, OnboardingStatus } from "../../database/models/Driver";
 import User from "../../database/models/User";
@@ -22,6 +31,14 @@ export class DriversController {
           code: "DRIVER_NOT_APPROVED",
           onboardingStatus: driver.onboardingStatus,
           message: "Your documents are still being verified. You can go online once an admin approves your account.",
+        });
+      }
+
+      // An expired driving licence (the profile shows it as expired) keeps the driver offline.
+      if (status === DriverStatus.ONLINE && !hasUnexpiredLicense(driver)) {
+        return res.status(403).json({
+          code: "LICENSE_EXPIRED",
+          message: "Your driving licence has expired. Upload your renewed licence to go online again.",
         });
       }
 
@@ -112,6 +129,40 @@ export class DriversController {
     } catch (error: any) {
        const status = error.message === "Driver profile not found" ? 404 : 500;
        return res.status(status).json({ message: error.message || "Internal server error" });
+    }
+  }
+
+  /**
+   * POST /drivers/earnings-statement-link { month: "YYYY-MM" } — a link to that month's
+   * statement for the phone's browser (it can't send the session). 10 minutes, this
+   * driver, this month.
+   */
+  async earningsStatementLink(req: AuthRequest, res: Response) {
+    const month = String(req.body?.month || "");
+    if (!statementMonthRange(month)) return res.status(400).json({ message: "Choose a month up to the current one." });
+    const token = signDocumentToken(STATEMENT_PURPOSE, { sub: req.user!.userId, month });
+    return res.json({
+      url: `${publicBaseUrl(req)}/api/v1/drivers/earnings-statement/view?token=${encodeURIComponent(token)}`,
+      expiresInSeconds: DOCUMENT_LINK_TTL_SECONDS,
+    });
+  }
+
+  /** GET /drivers/earnings-statement/view?token=… — the statement page behind such a link. */
+  async viewEarningsStatement(req: AuthRequest, res: Response) {
+    try {
+      const claims = readDocumentToken(req.query.token, STATEMENT_PURPOSE);
+      if (!claims?.sub || !claims.month) return res.status(404).json({ message: "Statement not found" });
+      const html = await driverService.getMonthlyStatementHtml(String(claims.sub), String(claims.month));
+      if (!html) return res.status(404).json({ message: "Statement not found" });
+      // The token is in the URL: keep the page out of caches, search results and Referer headers.
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("Referrer-Policy", "no-referrer");
+      res.setHeader("X-Robots-Tag", "noindex");
+      res.setHeader("Content-Type", "text/html");
+      return res.send(html);
+    } catch (error: any) {
+      const status = error.message === "Driver profile not found" ? 404 : 500;
+      return res.status(status).json({ message: status === 404 ? "Statement not found" : "Internal server error" });
     }
   }
 

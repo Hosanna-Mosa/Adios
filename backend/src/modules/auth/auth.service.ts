@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User, { UserRole } from "../../database/models/User";
+import Driver, { DriverStatus } from "../../database/models/Driver";
 import RevokedToken from "../../database/models/RevokedToken";
 import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
@@ -56,6 +57,17 @@ const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
 const DUMMY_PASSWORD_HASH = "$2b$10$bPAxJGsgdz.EoM9tuODmYOti.AVMh.XLTXpxeeIkuU5E2yvUwxyrS";
 
 const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, or use a different email.";
+
+/**
+ * A new sign-in starts a driver offline. The app takes the server's shift status
+ * as the truth on startup, so a driver who uninstalled while online (the server
+ * never heard them go offline) came back "online" on the fresh install and kept
+ * getting jobs they hadn't chosen to take.
+ */
+async function startDriverSessionOffline(user: { _id: unknown; role: UserRole }) {
+  if (user.role !== UserRole.DRIVER) return;
+  await Driver.updateOne({ user: String(user._id) }, { $set: { status: DriverStatus.OFFLINE, isAvailable: false } });
+}
 
 export class AuthService {
   async requestOTP(phone: string, email?: string) {
@@ -121,6 +133,7 @@ export class AuthService {
       console.log(`[DUMMY AUTH] New user created: ${name} (${phone}) with password and email ${email || ""}`);
     }
 
+    await startDriverSessionOffline(user);
     const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
     return { user, token, isNewUser: false };
   }
@@ -172,6 +185,7 @@ export class AuthService {
       throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
     }
 
+    await startDriverSessionOffline(user);
     const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
     return { user, token };
   }

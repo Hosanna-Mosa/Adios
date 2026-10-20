@@ -425,6 +425,7 @@ export class OrdersService {
     // Fetch vendor details for broadcast
     let vendorName = "Restaurant";
     let vendorPhone = "";
+    let outletKind: "food" | "meat" | null = null;
     if (vendorId) {
       // Alert the outlet of the new order: in-app history, browser web push for the
       // vendor dashboard, and Expo push for every device signed in to the partner app.
@@ -448,10 +449,11 @@ export class OrdersService {
         .catch((err) => console.error("[orders.service] Failed to send vendor new-order notification:", err));
 
       try {
-        const vendorObj = await Vendor.findById(vendorId);
-        if (vendorObj) {
-          vendorName = vendorObj.name;
-          vendorPhone = vendorObj.phone;
+        const outlet = await this.outletForOffer(vendorId);
+        if (outlet) {
+          vendorName = outlet.name || vendorName;
+          vendorPhone = outlet.phone || vendorPhone;
+          outletKind = outlet.kind;
         }
       } catch (err) {
         console.error("Error fetching vendor for order broadcast:", err);
@@ -602,6 +604,7 @@ export class OrdersService {
         duration: duration ? `${duration} hrs` : `${optimizationResult.estimatedTime} min`,
         vendorName,
         vendorPhone,
+        outletKind,
       });
 
 
@@ -637,10 +640,20 @@ export class OrdersService {
    * re-dispatch after a price raise. A helper task carries its description and booked hours,
    * and none of the customer's codes.
    */
+  /** Name, phone and kind of the outlet behind an order: a Vendor (food or meat) or a legacy MeatCenter. */
+  private async outletForOffer(vendorId: unknown): Promise<{ name?: string; phone?: string; kind: "food" | "meat" } | null> {
+    const id = String((vendorId as any)?._id ?? vendorId ?? "");
+    if (!mongoose.Types.ObjectId.isValid(id)) return null;
+    const vendor: any = await Vendor.findById(id).select("name phone partnerType").lean();
+    if (vendor) return { name: vendor.name, phone: vendor.phone, kind: vendor.partnerType === "meat" ? "meat" : "food" };
+    const meat: any = await MeatCenter.findById(id).select("name phone").lean();
+    return meat ? { name: meat.name, phone: meat.phone, kind: "meat" } : null;
+  }
+
   private buildDriverOfferPayload(
     order: any,
     user: any,
-    extra: { distance: string; duration: string; vendorName?: string; vendorPhone?: string },
+    extra: { distance: string; duration: string; vendorName?: string; vendorPhone?: string; outletKind?: "food" | "meat" | null },
   ) {
     const helper = isHelperOrder(order);
     const price = order.customerPrice || order.totalPrice;
@@ -660,6 +673,10 @@ export class OrdersService {
       customerPhone: user?.phone || "N/A",
       vendorName: extra.vendorName ?? "Restaurant",
       vendorPhone: extra.vendorPhone ?? "",
+      // The driver app words the pickup by these: a meat shop isn't a "Restaurant",
+      // and a package delivery isn't a "Ride".
+      outletKind: extra.outletKind ?? null,
+      packageDelivery: order.packageDelivery ?? null,
       status: "pending",
       timestamp: new Date(),
       ...(helper
@@ -1537,11 +1554,14 @@ export class OrdersService {
     const sorted = this.sortCandidatesNearestFirst(candidates, lat, lng);
     await Order.updateOne({ _id: order._id }, { totalCandidatesCount: sorted.length });
 
+    // `vendor` is populated from Vendor only; a legacy MeatCenter outlet is looked up here.
+    const outlet = order.vendor ? await this.outletForOffer(vendor?._id ?? order.vendor) : null;
     const payload = this.buildDriverOfferPayload(order, user, {
       distance: `${order.totalDistance || 0} km`,
       duration: order.duration ? `${order.duration} hrs` : "ASAP",
-      vendorName: vendor?.name,
-      vendorPhone: vendor?.phone,
+      vendorName: outlet?.name ?? vendor?.name,
+      vendorPhone: outlet?.phone ?? vendor?.phone,
+      outletKind: outlet?.kind ?? null,
     });
 
     const { dispatchManager } = require("../../services/dispatch.manager");
@@ -1670,8 +1690,11 @@ export class OrdersService {
 
       // Broadcast order cancellation to all online drivers
       if (status === OrderStatus.CANCELLED) {
+        // `reason` says who cancelled, so the driver app doesn't blame the customer
+        // for a cancellation the driver, restaurant or Adios team made.
         socketManager.broadcastToDrivers("order_cancelled", {
           orderId: orderId.toString(),
+          reason: order.cancelReason || null,
         });
       }
 
@@ -2268,30 +2291,10 @@ export class OrdersService {
       }
     }
 
-    // 4. Also notify driver if passenger triggers, or passenger if driver triggers
-    const triggeredByPassenger = userId === passengerUser?._id.toString();
-    const receiverUserId = triggeredByPassenger ? driverUser?._id?.toString() : passengerUser?._id?.toString();
-    if (receiverUserId) {
-      try {
-        await notificationService.sendNotification({
-          userId: receiverUserId,
-          title: "Emergency Alert Triggered 🚨",
-          body: "SOS has been triggered for this trip. Emergency contacts and authorities are being notified.",
-          type: "alert",
-          category: "system",
-          data: {
-            orderId,
-            type: "sos",
-            // Receiver is the driver when the passenger triggered SOS, and vice versa.
-            deepLink: triggeredByPassenger
-              ? { screen: "/active-order", params: { orderId: orderId.toString() } }
-              : { screen: "/tracking", params: { orderId: orderId.toString() } },
-          }
-        });
-      } catch (err) {
-        console.error(`[orders.service] SOS peer alert failed:`, err);
-      }
-    }
+    // The other person on the trip is deliberately NOT told. Someone pressing SOS may be
+    // in danger from that very person, and alerting them can make it worse — so the alarm
+    // goes only to the Adios team (the support case and admin alerts above). It used to
+    // push "Emergency Alert Triggered" to the driver whenever the passenger pressed SOS.
 
     return true;
   }

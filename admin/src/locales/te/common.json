@@ -273,7 +273,8 @@
     "supportBot": "సపోర్ట్ బాట్",
     "broadcasts": "పుష్ బ్రాడ్‌కాస్ట్",
     "reports": "రిపోర్టులు",
-    "auditLog": "ఆడిట్ లాగ్"
+    "auditLog": "ఆడిట్ లాగ్",
+    "supportOrders": "ఆర్డర్‌లు"
   },
   "notifications": {
     "justNow": "ఇప్పుడే",
@@ -1332,11 +1333,7 @@
     "botNotHelpful": "సహాయపడలేదని గుర్తించారు",
     "botAsked": "అడిగింది",
     "botAnswered": "బాట్ సమాధానం",
-    "botOrder": "ఆర్డర్",
-    "cancelOrder": "ఆర్డర్ రద్దు చేయండి",
-    "orderCancelled": "ఆర్డర్ రద్దు చేయబడింది",
-    "orderCancelFailed": "ఆర్డర్‌ను రద్దు చేయలేకపోయాం",
-    "confirmCancelOrder": "ఆర్డర్ #{{id}} రద్దు చేయాలా? Adios బృందం రద్దు చేసిందని కస్టమర్‌కు తెలియజేయబడుతుంది."
+    "botOrder": "ఆర్డర్"
   },
   "system": {
     "appStoreUrl": "యాప్ స్టోర్ URL",
@@ -1654,5 +1651,119 @@
       "payment": "చెల్లింపులు",
       "general": "సాధారణం"
     }
+  },
+  "supportOrders": {
+    "title": "ఆర్డర్‌లు",
+    "subtitle": "కస్టమర్‌కు సహాయం చేయడానికి ఏ ఆర్డర్‌నైనా చూడండి. చూడటానికి మాత్రమే — ఇక్కడ నుండి ఆర్డర్ మారదు.",
+    "searchPlaceholder": "ఆర్డర్ ID, ఫోన్ నంబర్ లేదా పేరుతో వెతకండి…",
+    "allStatuses": "అన్ని స్థితులు",
+    "statusGroup": {
+      "active": "జరుగుతోంది",
+      "completed": "పూర్తయింది",
+      "cancelled": "రద్దు"
+    },
+    "orderId": "ఆర్డర్ ID",
+    "customer": "కస్టమర్",
+    "driver": "డ్రైవర్",
+    "helper": "హెల్పర్",
+    "driverOrOutlet": "అవుట్‌లెట్ / డ్రైవర్",
+    "status": "స్థితి",
+    "total": "మొత్తం",
+    "placed": "ఆర్డర్ సమయం",
+    "loading": "ఆర్డర్‌లు లోడ్ అవుతున్నాయి…",
+    "noOrders": "ఇంకా ఆర్డర్‌లు లేవు.",
+    "noMatches": "“{{q}}” కు సరిపోలే ఆర్డర్‌లు లేవు.",
+    "searchFailed": "ఆర్డర్‌లు లోడ్ కాలేదు. మళ్ళీ ప్రయత్నించండి.",
+    "resultCount_one": "{{count}} ఆర్డర్",
+    "resultCount_other": "{{count}} ఆర్డర్‌లు",
+    "updating": "అప్‌డేట్ అవుతోంది…",
+    "previous": "మునుపటి",
+    "next": "తదుపరి",
+    "pageOf": "పేజీ {{page}} / {{pages}}",
+    "back": "వెనుకకు",
+    "backToSearch": "ఆర్డర్ శోధనకు వెనుకకు",
+    "orderDetails": "ఆర్డర్ వివరాలు",
+    "viewOnlyNotice": "చూడటానికి మాత్రమే. ఫోన్ నంబర్‌లు దాచబడ్డాయి, డెలివరీ కోడ్‌లు చూపబడవు.",
+    "loadingOrder": "ఆర్డర్ లోడ్ అవుతోంది…",
+    "cancelledBecause": "రద్దు",
+    "cancelReason": {
+      "restaurant_rejected": "రెస్టారెంట్ ఆర్డర్‌ను తిరస్కరించింది",
+      "restaurant_timeout": "రెస్టారెంట్ సమయానికి అంగీకరించలేదు",
+      "driver_cancelled": "డ్రైవర్ రద్దు చేశారు",
+      "admin_cancelled": "Adios టీమ్ రద్దు చేసింది",
+      "customer_cancelled": "కస్టమర్ రద్దు చేశారు"
+    },
+    "name": "పేరు",
+    "phone": "ఫోన్",
+    "address": "చిరునామా",
+    "vehicle": "వాహనం",
+    "unknown": "తెలియదు",
+    "bookedForSomeoneElse": "వేరొకరి కోసం బుక్ చేశారు",
+    "noneAssigned": "ఇంకా కేటాయించలేదు",
+    "dispatchSummary": "శోధన: {{state}} · {{attempts}} ప్రయత్నాలు · సమీపంలో {{candidates}}",
+    "restaurant": "రెస్టారెంట్",
+    "meatShop": "మీట్ షాప్",
+    "paymentAndPrice": "చెల్లింపు & ధర",
+    "discount": "డిస్కౌంట్",
+    "method": "విధానం",
+    "paymentStatusLabel": "చెల్లింపు స్థితి",
+    "paymentMethod": {
+      "cash": "నగదు",
+      "online": "ఆన్‌లైన్"
+    },
+    "paymentStatus": {
+      "pending": "ఇంకా చెల్లించలేదు",
+      "paid": "ఆన్‌లైన్‌లో చెల్లించారు",
+      "cash_collected": "నగదు తీసుకున్నారు"
+    },
+    "cashCollectedAmount": "తీసుకున్న నగదు",
+    "distance": "దూరం",
+    "refund": "రీఫండ్",
+    "refundAmount": "రీఫండ్ మొత్తం",
+    "refundReference": "రిఫరెన్స్",
+    "refundFailure": "విఫలమైన కారణం",
+    "refundStatus": {
+      "pending": "జరుగుతోంది",
+      "processed": "రీఫండ్ అయింది",
+      "failed": "విఫలమైంది"
+    },
+    "scheduled": "షెడ్యూల్ ఆర్డర్",
+    "scheduledFor": "షెడ్యూల్ సమయం",
+    "scheduleStatus": "షెడ్యూల్ స్థితి",
+    "rejectionReason": "తిరస్కరణ కారణం",
+    "route": "మార్గం",
+    "noAddress": "చిరునామా నమోదు కాలేదు",
+    "stopType": {
+      "pickup": "పికప్",
+      "drop": "డ్రాప్",
+      "stop": "స్టాప్"
+    },
+    "items": "ఐటమ్‌లు",
+    "timeline": "టైమ్‌లైన్",
+    "event": {
+      "placed": "ఆర్డర్ చేశారు",
+      "outletAccepted": "అవుట్‌లెట్ అంగీకరించింది",
+      "outletAcceptedPrep": "అవుట్‌లెట్ అంగీకరించింది · {{minutes}} ని. తయారీ",
+      "foodReady": "ఆహారం సిద్ధం",
+      "driverAccepted": "{{role}} అంగీకరించారు",
+      "taskConfirmed": "చాట్‌లో పని నిర్ధారించారు",
+      "taskStarted": "పని ప్రారంభమైంది",
+      "taskCompleted": "పని పూర్తయింది",
+      "searchExhausted": "ఏ {{role}} అంగీకరించలేదు",
+      "cashCollected": "నగదు తీసుకున్నారు",
+      "refundRequested": "రీఫండ్ ప్రారంభమైంది",
+      "refundCompleted": "రీఫండ్ పూర్తయింది",
+      "current": "ఇప్పుడు: {{status}}"
+    },
+    "chatBetween": "కస్టమర్ మరియు {{role}} చాట్",
+    "loadingChat": "చాట్ లోడ్ అవుతోంది…",
+    "chatLoadFailed": "చాట్ లోడ్ కాలేదు.",
+    "noChat": "ఈ ఆర్డర్‌పై సందేశాలు లేవు.",
+    "recentOrdersOf": "{{name}} ఇటీవలి ఆర్డర్‌లు",
+    "openFullOrder": "పూర్తి ఆర్డర్ తెరవండి",
+    "unlink": "ఆర్డర్ తీసివేయండి",
+    "linkToTicket": "జోడించు",
+    "linked": "ఆర్డర్ ఈ కేసుకు జోడించబడింది",
+    "unlinked": "ఆర్డర్ తీసివేయబడింది"
   }
 }

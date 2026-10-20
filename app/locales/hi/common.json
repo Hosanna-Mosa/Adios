@@ -154,7 +154,12 @@
       "careflavourinWithin24Hours": "care@flavour.in · 24 घंटों में",
       "raiseANewTicket": "नई टिकट दर्ज करें",
       "addATitleAndAShort": "पहले एक शीर्षक और संक्षिप्त विवरण जोड़ें।",
-      "messageNotSent": "संदेश नहीं भेजा गया"
+      "messageNotSent": "संदेश नहीं भेजा गया",
+      "caseClosedOn": "{{date}} को बंद",
+      "caseMeta_one": "{{count}} संदेश · {{date}} को अपडेट",
+      "caseMeta_other": "{{count}} संदेश · {{date}} को अपडेट",
+      "noMessagesYet": "अभी कोई संदेश नहीं",
+      "send": "भेजें"
     },
     "tracking": {
       "rideLabels": {
@@ -417,7 +422,16 @@
       "searchMeatTry": "“चिकन”, “मछली”, “अंडे” आज़माएँ",
       "searchEverything": "खाना, मीट, राइड और बहुत कुछ — सब Adios में",
       "packageShort": "पैकेज",
-      "helperShort": "हेल्पर"
+      "helperShort": "हेल्पर",
+      "kmUnit": "कि.मी.",
+      "suggest": {
+        "chickenCurryCut": "चिकन करी कट",
+        "mutton": "मटन",
+        "prawns": "झींगे",
+        "biryani": "बिरयानी",
+        "pizza": "पिज़्ज़ा",
+        "meals149": "₹149 मील्स"
+      }
     },
     "profile": {
       "menuItems": {
@@ -461,7 +475,8 @@
       "changePhoto": "फ़ोटो बदलें",
       "uploadPhoto": "फ़ोटो अपलोड करें",
       "removePhoto": "फ़ोटो हटाएँ",
-      "failedToRemovePhoto": "फ़ोटो हटाने में विफल"
+      "failedToRemovePhoto": "फ़ोटो हटाने में विफल",
+      "yourNameFallback": "आपका नाम"
     },
     "food": {
       "orderFallback": {
@@ -608,7 +623,10 @@
       "percentOff": "{{percent}}% छूट",
       "bestseller": "बेस्टसेलर",
       "kcal": "{{value}} kcal",
-      "proteinGrams": "{{value}} ग्राम प्रोटीन"
+      "proteinGrams": "{{value}} ग्राम प्रोटीन",
+      "restaurantFallback": "रेस्टोरेंट",
+      "kmAway": "{{km}} कि.मी. दूर",
+      "deliveryFeeAmount": "₹{{amount}} डिलीवरी"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} आपके मूल भुगतान तरीके में वापस कर दिए गए · {{date}}",
@@ -664,7 +682,11 @@
       "findingAHelper": "हेल्पर खोजा जा रहा है",
       "helperAssigned": "हेल्पर असाइन हुआ",
       "taskInProgress": "काम जारी है",
-      "taskCompleted": "काम पूरा हुआ"
+      "taskCompleted": "काम पूरा हुआ",
+      "all": "सभी",
+      "slotRejectedFallback": "रेस्टोरेंट चुने गए समय पर यह ऑर्डर नहीं ले सका।",
+      "invoice": "इनवॉइस",
+      "invoiceUnavailable": "इनवॉइस उपलब्ध नहीं"
     },
     "helperTask": {
       "title": {
@@ -719,9 +741,6 @@
       "supportLinkText": "सपोर्ट",
       "toChangeItThereapossNoSelfserve": "इसे बदलने के लिए — नया नंबर खुद फिर से वेरिफ़ाई करने का कोई तरीका अभी नहीं है.",
       "updateProfile": "प्रोफ़ाइल अपडेट करें",
-      "iAgreeToThe": "मैं सहमत हूं",
-      "terms": "नियम",
-      "privacyPolicy": "गोपनीयता नीति",
       "createAccount": "अकाउंट बनाएं",
       "alreadyHaveOne": "पहले से अकाउंट है?",
       "signIn": "साइन इन करें",
@@ -734,7 +753,14 @@
       "createYourAccount": "अपना अकाउंट बनाएं",
       "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे.",
       "couldntCreateAccount": "अकाउंट नहीं बन सका",
-      "and": "और"
+      "and": "और",
+      "strength": {
+        "weak": "कमज़ोर",
+        "fair": "ठीक",
+        "good": "अच्छा"
+      },
+      "agreeToTermsAndPrivacy": "मैं <terms>शर्तों</terms> और <privacy>गोपनीयता नीति</privacy> से सहमत हूँ।",
+      "resendCodeIn": "{{time}} में कोड फिर से भेजें"
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -760,7 +786,6 @@
       "stopCount_other": "{{count}} स्टॉप",
       "addPickupLocation": "+ पिकअप लोकेशन जोड़ें",
       "calculatingRoute": "रूट की गणना हो रही है…",
-      "kmAbout": "किमी · लगभग",
       "addAPickupToSeeDistance": "दूरी देखने के लिए पिकअप जोड़ें",
       "deliveryLower": "डिलीवरी",
       "reviewRoute": "रूट की समीक्षा करें",
@@ -885,7 +910,6 @@
       "saved": "सेव किए गए",
       "near": "पास",
       "recent": "हाल के",
-      "save": "सेव करें",
       "findAHelper": "हेल्पर खोजें · ₹",
       "deleteAddress": "पता हटाएं",
       "areYouSureRemoveAddress": "क्या आप वाकई इस पते को हटाना चाहते हैं?",
@@ -920,7 +944,10 @@
       "yourOffer": "आपका ऑफ़र",
       "offerForDuration": "{{hours}} घं {{minutes}} मि के लिए · लगभग ₹{{perHour}}/घंटा",
       "recommendedPrice": "सुझाई गई कीमत · ₹{{amount}}",
-      "taskCancelsAutomatically": "अगर अगले कुछ मिनटों में कोई इसे नहीं लेता, तो हम टास्क अपने-आप रद्द कर देंगे।"
+      "taskCancelsAutomatically": "अगर अगले कुछ मिनटों में कोई इसे नहीं लेता, तो हम टास्क अपने-आप रद्द कर देंगे।",
+      "distanceKm": "{{km}} कि.मी.",
+      "aboutMinutes": "लगभग {{min}} मिनट",
+      "multiStopDelivery": "मल्टी-स्टॉप डिलीवरी"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -1093,7 +1120,8 @@
       "adiosCancelledOrder": "Adios टीम ने यह ऑर्डर रद्द कर दिया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा। कोई सवाल हो तो सपोर्ट से संपर्क करें।",
       "youCancelledThisOrder": "आपने यह ऑर्डर रद्द किया।",
       "noHelperAvailable": "कोई हेल्पर उपलब्ध नहीं था",
-      "noHelperWasAvailableCancelled": "आपके टास्क के लिए कोई हेल्पर उपलब्ध नहीं था, इसलिए हमने इसे रद्द कर दिया है।"
+      "noHelperWasAvailableCancelled": "आपके टास्क के लिए कोई हेल्पर उपलब्ध नहीं था, इसलिए हमने इसे रद्द कर दिया है।",
+      "etaMinutes": "{{min}} मिनट"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -1118,13 +1146,11 @@
     },
     "CartConflictDialog": {
       "startANewCart": "नया कार्ट शुरू करें?",
-      "yourCartHasItemsFrom": "आपके कार्ट में सामान है",
-      "adding": ". जोड़ रहे हैं",
-      "willEmptyIt": "यह इसे खाली कर देगा.",
       "clearCart": "कार्ट खाली करें",
       "keepMyCart": "मेरा कार्ट रखें",
       "anotherOutlet": "किसी अन्य आउटलेट",
-      "thisOutlet": "इस आउटलेट"
+      "thisOutlet": "इस आउटलेट",
+      "body": "आपके कार्ट में {{from}} का सामान है। {{to}} से {{item}} जोड़ने पर कार्ट खाली हो जाएगा।"
     },
     "checkout": {
       "checkout": "चेकआउट",
@@ -1202,7 +1228,9 @@
     "OfflineBanner": {
       "youaposreOffline": "आप ऑफ़लाइन हैं",
       "checking": "जांच हो रही है…",
-      "retry": "फिर से प्रयास करें"
+      "retry": "फिर से प्रयास करें",
+      "lastSyncedMinutesAgo_one": "{{count}} मिनट पहले सिंक हुआ",
+      "lastSyncedMinutesAgo_other": "{{count}} मिनट पहले सिंक हुआ"
     },
     "RestaurantListItem": {
       "pureVeg": "शुद्ध शाकाहारी"
@@ -1396,7 +1424,21 @@
       "a11yLabel": "{{vendor}}, {{total}}, {{items}}. कार्ट देखें"
     },
     "a11y": {
-      "back": "वापस जाएँ"
+      "back": "वापस जाएँ",
+      "goBack": "वापस जाएँ",
+      "unreadCount_one": "{{label}} अपठित",
+      "unreadCount_other": "{{label}} अपठित",
+      "cartWithItems_one": "कार्ट, {{count}} आइटम",
+      "cartWithItems_other": "कार्ट, {{count}} आइटम",
+      "showPassword": "पासवर्ड दिखाएँ",
+      "hidePassword": "पासवर्ड छिपाएँ",
+      "callName": "{{name}} को कॉल करें",
+      "addItem": "{{name}} जोड़ें",
+      "removeFromFavorites": "{{name}} को पसंदीदा से हटाएँ",
+      "removeStop": "स्टॉप {{name}} हटाएँ",
+      "moreOptionsFor": "{{name}} के लिए और विकल्प",
+      "close": "बंद करें",
+      "changePhoto": "फ़ोटो बदलें"
     },
     "deleteAccount": {
       "title": "अकाउंट हटाएँ",
@@ -1421,7 +1463,8 @@
     },
     "language": {
       "chooseYourLanguage": "अपनी भाषा चुनें",
-      "changeLater": "आप इसे बाद में अपनी प्रोफ़ाइल से बदल सकते हैं।"
+      "changeLater": "आप इसे बाद में अपनी प्रोफ़ाइल से बदल सकते हैं।",
+      "youCanChangeThisLater": "आप इसे बाद में अपनी प्रोफ़ाइल से बदल सकते हैं।"
     },
     "foodOrder": {
       "cancelOrder": "ऑर्डर रद्द करें",

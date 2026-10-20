@@ -104,6 +104,8 @@ export interface SupportTicket {
   status: TicketStatus;
   message: string;
   messages: ChatMessage[];
+  /** The order the case is about, when the partner (or the support agent) linked one. */
+  orderId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -193,8 +195,3 @@ export interface PayoutRequestResult {
   message: string;
   payout: { id: string; amount: number; status: PayoutStatus };
 }
-
-/** What a push notification's `data` carries — set by backend orders.service.ts. */
-export type PushPayload =
-  | { kind: "new_order"; orderId: string; customerName?: string; totalPrice?: number }
-  | { kind: "scheduled_request"; requestId: string; customerName?: string; customerPhone?: string; scheduledFor?: string };

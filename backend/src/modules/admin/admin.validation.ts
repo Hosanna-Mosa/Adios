@@ -84,6 +84,8 @@ export const updateSupportTicketSchema = z.object({
     priority: z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]).optional(),
     replyText: z.string().optional(),
     sender: z.string().optional(),
+    // Link the case to an order (null unlinks it). The order must exist.
+    orderId: z.string().trim().min(1).max(64).nullable().optional(),
   }),
 });
 

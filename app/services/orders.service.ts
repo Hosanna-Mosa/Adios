@@ -14,6 +14,13 @@ export const getOrders = () => customFetch<Order[]>("/orders");
 export const getOrder = (id: string) => customFetch<any>(`/orders/${id}`);
 
 /** finding-driver polls this and needs the JSON path even on an empty body. */
+/**
+ * A short-lived link to the order's invoice, for the phone's browser (which can't send
+ * the session). Only for delivered / completed orders; the link works for 10 minutes.
+ */
+export const getInvoiceLink = (id: string) =>
+  customFetch<{ url: string; expiresInSeconds: number }>(`/orders/${id}/invoice-link`, { method: "POST", responseType: "json" });
+
 export const getOrderJson = (id: string) =>
   customFetch<any>(`/orders/${id}`, { responseType: "json" });
 

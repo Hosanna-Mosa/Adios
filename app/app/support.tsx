@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Linking, Platform } from "react-native";
+import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,6 +12,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
 import { getOrders } from "@/services/orders.service";
+import { WEB_TOP_OFFSET } from "@/constants/layout";
 
 // SERVICE_META moved inside SupportScreen() as useMemo values — see
 // ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
@@ -80,8 +81,10 @@ export default function SupportScreen() {
     : "";
 
   return (
-    <ScreenShell style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }}>
-      <Header title="Help & support" onBack={() => router.back()} />
+    <ScreenShell style={{ paddingTop: insets.top + WEB_TOP_OFFSET }}>
+      {/* Same 12pt top spacing as the chat headers (Orders uses 14), so the title sits
+          at the same height as on the screens around it. */}
+      <Header title={t("app.profile.menuItems.helpSupport")} onBack={() => router.back()} style={{ paddingTop: 12 }} />
 
       <SupportBody
         Linking={Linking}

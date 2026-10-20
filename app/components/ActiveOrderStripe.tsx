@@ -79,6 +79,8 @@ export function ActiveOrderStripe({ bottom }: Props) {
       <TouchableOpacity
         style={styles.row}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}. ${caption}. ${t("app.activeOrderStripe.track")}`}
         onPress={() =>
           router.push({ pathname: isHelper && HELPER_PRE_START.includes(status) ? "/helper-task" : "/tracking", params: { orderId } })
         }
@@ -90,7 +92,7 @@ export function ActiveOrderStripe({ bottom }: Props) {
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.caption} numberOfLines={1}>{caption}</Text>
         </View>
-        <Text style={styles.cta}>{t("app.activeOrderStripe.track")}</Text>
+        <Text style={styles.cta} numberOfLines={1}>{t("app.activeOrderStripe.track")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -105,7 +107,10 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       position: "absolute",
       left: SIDE_MARGIN,
       right: SIDE_MARGIN,
-      height: ORDER_STRIPE_HEIGHT,
+      // minHeight, not height: at large accessibility font sizes the two text
+      // lines need more room and were clipped. ORDER_STRIPE_HEIGHT stays the
+      // usual height other screens reserve space for.
+      minHeight: ORDER_STRIPE_HEIGHT,
       borderRadius: radius.lg,
       overflow: "hidden",
       backgroundColor: Platform.OS === "android" ? tokens.surface : `${tokens.surface}E6`,
@@ -119,6 +124,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       alignItems: "center",
       gap: 12,
       paddingHorizontal: 14,
+      paddingVertical: 8,
     },
     iconWrap: {
       width: moderateScale(32),
@@ -152,5 +158,8 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       paddingVertical: 9,
       borderRadius: radius.pill,
       overflow: "hidden",
+      // A long translation of "Track" must not squeeze the order info column.
+      flexShrink: 0,
+      maxWidth: "40%",
     },
   });

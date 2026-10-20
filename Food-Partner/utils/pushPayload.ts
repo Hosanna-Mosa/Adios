@@ -1,4 +1,3 @@
-import type { PushPayload } from "@/types/models";
 
 // Reading a push notification's `data`. Kept free of native modules so the
 // rules for what a push means — and where tapping it goes — are unit-tested.
@@ -62,3 +61,8 @@ export function pushTargetFromData(data: unknown): PushTarget | null {
   }
   return null;
 }
+
+/** What a push notification's `data` carries — set by backend orders.service.ts. */
+export type PushPayload =
+  | { kind: "new_order"; orderId: string; customerName?: string; totalPrice?: number }
+  | { kind: "scheduled_request"; requestId: string; customerName?: string; customerPhone?: string; scheduledFor?: string };

@@ -2,7 +2,9 @@
 // Animated.Value instances created in features/home/useIntroSplash.ts.
 import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
+import { designTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
+import { useThemeStore } from "@/contexts/themeStore";
 import { SPLASH_WORD, type IntroSplashAnims } from "@/features/home/useIntroSplash";
 
 const MARK = require("@/assets/images/splash-mark.png");
@@ -16,6 +18,9 @@ interface Props {
 export function LandingLoadingBody({ anims }: Props) {
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
+  // Text on the brand colour uses onBrand, not white: dark mode's brand is a lighter orange (#FF9A4D),
+  // where white letters had too little contrast.
+  const onBrand = designTokens[useThemeStore((st) => st.theme)].onBrand;
   // Same share of the screen width as the native splash image's mark (assets/images/splash-icon.png).
   const markSize = Math.min(width * 0.36, 180);
 
@@ -44,6 +49,7 @@ export function LandingLoadingBody({ anims }: Props) {
             style={[
               styles.wordLetter,
               {
+                color: onBrand,
                 opacity: anims.letters[idx],
                 transform: [{ translateY: anims.letters[idx].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
               },
@@ -54,7 +60,7 @@ export function LandingLoadingBody({ anims }: Props) {
         ))}
       </View>
 
-      <Animated.Text style={[styles.tagline, { opacity: anims.tagline }]} numberOfLines={2}>
+      <Animated.Text style={[styles.tagline, { color: onBrand, opacity: anims.tagline }]} numberOfLines={2}>
         {/* The splash is always English, whichever language the customer has chosen. */}
         {t("app.home.foodMeatRidesHelpersAndCourier", { lng: "en" })}
       </Animated.Text>

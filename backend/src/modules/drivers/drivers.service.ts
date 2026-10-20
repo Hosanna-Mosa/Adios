@@ -12,6 +12,7 @@ import { applyRazorpayXPayout, syncOpenPayouts } from "../payments/payout.status
 import { SocketManager } from "../../sockets/socket.manager";
 import { ZonesService } from "../zones/zones.service";
 import { NotificationService } from "../../services/notification.service";
+import { maskPan, renderStatementHtml, statementMonthRange, type StatementPayout, type StatementTrip } from "./earningsStatement";
 
 export interface HighDemandArea {
   id: string;
@@ -22,6 +23,25 @@ export interface HighDemandArea {
   orderCount: number;
   surgeMultiplier: number;
   surge: string;
+}
+
+/**
+ * A driver whose recorded driving-licence expiry has passed may not take jobs.
+ * Same rule as the profile's "Driving licence: expired" badge (getLicenseStatus).
+ * No expiry on file (older accounts) is allowed, so they aren't locked out.
+ */
+export function hasUnexpiredLicense(driver: { dlExpiry?: Date | string | null } | null | undefined): boolean {
+  if (!driver?.dlExpiry) return true;
+  const expiry = new Date(driver.dlExpiry).getTime();
+  return !Number.isFinite(expiry) || expiry >= Date.now();
+}
+
+/** Drops drivers with an expired licence from a dispatch candidate list. */
+function withoutExpiredLicenses(drivers: any[], source: string): any[] {
+  const allowed = drivers.filter(hasUnexpiredLicense);
+  const dropped = drivers.length - allowed.length;
+  if (dropped > 0) console.log(`🪪 [LICENCE EXPIRED - ${source}] Skipped ${dropped} driver(s) with an expired licence.`);
+  return allowed;
 }
 
 export class DriverService {
@@ -67,7 +87,8 @@ export class DriverService {
     if (dropped > 0) {
       console.log(`🕒 [STALE LOCATION - ${source}] Skipped ${dropped} driver(s) with no recent GPS fix.`);
     }
-    return live;
+    // Every dispatch fallback runs through here, so the licence rule rides along.
+    return withoutExpiredLicenses(live, source);
   }
 
   // A driver whose GPS fix is missing or stale is not reachable, so it must not be
@@ -169,7 +190,7 @@ export class DriverService {
       if (excludedByService > 0) {
         console.log(`🙅 [SERVICE TOGGLE OFF - ${source}] Skipped ${excludedByService} driver(s) not opted into this order's category.`);
       }
-      return reachable;
+      return withoutExpiredLicenses(reachable, source);
     };
 
     let results: any[] = [];
@@ -719,6 +740,50 @@ export class DriverService {
         ifsc: driver.bankIfsc || null,
       },
     };
+  }
+
+  /**
+   * The driver's earnings statement for "YYYY-MM" as an HTML page (see earningsStatement.ts),
+   * with the same per-trip share the earnings screen and wallet use. Null for a bad or
+   * future month.
+   */
+  async getMonthlyStatementHtml(userId: string, month: string): Promise<string | null> {
+    const range = statementMonthRange(month);
+    if (!range) return null;
+    const [driver, user] = await Promise.all([
+      Driver.findOne({ user: userId }).select("_id panNumber"),
+      User.findById(userId).select("name").lean(),
+    ]);
+    if (!driver) throw new Error("Driver profile not found");
+
+    const [orders, payouts] = await Promise.all([
+      this.getCompletedOrdersForDriver(driver._id, range.from, range.to).sort({ updatedAt: 1 }),
+      DriverPayout.find({ driver: driver._id, createdAt: { $gte: range.from, $lt: range.to } }).sort({ createdAt: 1 }).lean(),
+    ]);
+
+    const trips: StatementTrip[] = orders.map((order: any) => ({
+      date: order.updatedAt || order.createdAt,
+      orderId: String(order._id),
+      service: this.formatServiceLabel(order),
+      fare: Math.round(order.totalPrice || 0),
+      earning: Math.round((order.totalPrice || 0) * 0.8),
+      paymentMethod: order.paymentMethod === "online" && order.paymentStatus === "paid" ? "online" : "cash",
+      cashCollected: order.cashCollected ? Math.round(order.cashCollectedAmount || 0) : 0,
+    }));
+    const payoutRows: StatementPayout[] = payouts.map((payout: any) => ({
+      date: payout.processedAt || payout.createdAt,
+      amount: payout.amount,
+      status: payout.status,
+      reference: payout.utr || null,
+    }));
+
+    return renderStatementHtml({
+      driverName: (user as any)?.name || "Driver",
+      panMasked: maskPan(driver.panNumber),
+      monthLabel: range.label,
+      trips,
+      payouts: payoutRows,
+    });
   }
 
   async cashOut(userId: string, password: string, amount?: number) {

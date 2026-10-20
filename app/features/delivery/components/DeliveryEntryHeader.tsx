@@ -26,10 +26,12 @@ export function DeliveryEntryHeader({
   const { t } = useTranslation();
   return (
     <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} hitSlop={4} accessibilityRole="button" accessibilityLabel={t("app.a11y.back")}>
+      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} hitSlop={8} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>{t("app.delivery.packageDelivery")}</Text>
+      {/* "Multi-stop delivery": this screen used to be titled "Package delivery" too — the
+          same name as the separate package-delivery flow. */}
+      <Text style={styles.headerTitle} numberOfLines={1}>{t("app.delivery.multiStopDelivery")}</Text>
       <View style={styles.betaBadge}><Text style={styles.betaBadgeText}>{t("app.delivery.beta")}</Text></View>
     </Animated.View>
   );

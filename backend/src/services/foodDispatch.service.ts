@@ -213,6 +213,8 @@ async function offerPayload(order: any) {
     customerPhone: (user as any)?.phone || "N/A",
     vendorName: (vendor as any)?.name || "Restaurant",
     vendorPhone: (vendor as any)?.phone || "",
+    // Broadcast dispatch is for restaurants only (usesFoodBroadcast excludes meat outlets).
+    outletKind: "food",
     status: "pending",
     timestamp: new Date(),
     restaurantPickupCode: order.restaurantPickupCode,

@@ -25,7 +25,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     billNote: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.muted },
     billDivider: { borderTopWidth: 1, borderTopColor: tokens.borderStrong, borderStyle: "dashed", marginTop: 3, paddingTop: 1 },
     billTotalLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
-    billTotalValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.large, color: tokens.text },
+    // Same as Cart and Checkout, so the "To pay" figure looks the same at every step.
+    billTotalValue: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
 
     addressCard: { flexDirection: "row", alignItems: "flex-start", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 14 },
     addressAvatar: { width: 34, height: 34, borderRadius: 11, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", flexShrink: 0 },

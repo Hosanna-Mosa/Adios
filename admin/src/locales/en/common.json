@@ -273,7 +273,8 @@
     "supportBot": "Support Bot",
     "broadcasts": "Push broadcast",
     "reports": "Reports",
-    "auditLog": "Audit log"
+    "auditLog": "Audit log",
+    "supportOrders": "Orders"
   },
   "notifications": {
     "justNow": "Just now",
@@ -1332,11 +1333,7 @@
     "botNotHelpful": "marked not helpful",
     "botAsked": "Asked",
     "botAnswered": "Bot answered",
-    "botOrder": "Order",
-    "cancelOrder": "Cancel order",
-    "orderCancelled": "Order cancelled",
-    "orderCancelFailed": "Couldn't cancel the order",
-    "confirmCancelOrder": "Cancel order #{{id}}? The customer will be told the Adios team cancelled it."
+    "botOrder": "Order"
   },
   "system": {
     "appStoreUrl": "App Store URL",
@@ -1654,5 +1651,119 @@
       "payment": "Payments",
       "general": "General"
     }
+  },
+  "supportOrders": {
+    "title": "Orders",
+    "subtitle": "Look up any order to help a customer. View only — nothing here changes the order.",
+    "searchPlaceholder": "Search by order ID, phone number or name…",
+    "allStatuses": "All statuses",
+    "statusGroup": {
+      "active": "In progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "orderId": "Order ID",
+    "customer": "Customer",
+    "driver": "Driver",
+    "helper": "Helper",
+    "driverOrOutlet": "Outlet / Driver",
+    "status": "Status",
+    "total": "Total",
+    "placed": "Placed",
+    "loading": "Loading orders…",
+    "noOrders": "No orders yet.",
+    "noMatches": "No orders match “{{q}}”.",
+    "searchFailed": "Couldn’t load orders. Try again.",
+    "resultCount_one": "{{count}} order",
+    "resultCount_other": "{{count}} orders",
+    "updating": "updating…",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "back": "Back",
+    "backToSearch": "Back to order search",
+    "orderDetails": "Order details",
+    "viewOnlyNotice": "View only. Phone numbers are masked and delivery codes are hidden.",
+    "loadingOrder": "Loading order…",
+    "cancelledBecause": "Cancelled",
+    "cancelReason": {
+      "restaurant_rejected": "Restaurant rejected the order",
+      "restaurant_timeout": "Restaurant didn’t accept in time",
+      "driver_cancelled": "Cancelled by the driver",
+      "admin_cancelled": "Cancelled by the Adios team",
+      "customer_cancelled": "Cancelled by the customer"
+    },
+    "name": "Name",
+    "phone": "Phone",
+    "address": "Address",
+    "vehicle": "Vehicle",
+    "unknown": "Unknown",
+    "bookedForSomeoneElse": "Booked for someone else",
+    "noneAssigned": "Not assigned yet",
+    "dispatchSummary": "Search: {{state}} · {{attempts}} attempts · {{candidates}} nearby",
+    "restaurant": "Restaurant",
+    "meatShop": "Meat shop",
+    "paymentAndPrice": "Payment & price",
+    "discount": "Discount",
+    "method": "Method",
+    "paymentStatusLabel": "Payment status",
+    "paymentMethod": {
+      "cash": "Cash",
+      "online": "Online"
+    },
+    "paymentStatus": {
+      "pending": "Not paid yet",
+      "paid": "Paid online",
+      "cash_collected": "Cash collected"
+    },
+    "cashCollectedAmount": "Cash collected",
+    "distance": "Distance",
+    "refund": "Refund",
+    "refundAmount": "Refund amount",
+    "refundReference": "Reference",
+    "refundFailure": "Failure reason",
+    "refundStatus": {
+      "pending": "In progress",
+      "processed": "Refunded",
+      "failed": "Failed"
+    },
+    "scheduled": "Scheduled order",
+    "scheduledFor": "Scheduled for",
+    "scheduleStatus": "Schedule status",
+    "rejectionReason": "Rejection reason",
+    "route": "Route",
+    "noAddress": "No address recorded",
+    "stopType": {
+      "pickup": "Pickup",
+      "drop": "Drop",
+      "stop": "Stop"
+    },
+    "items": "Items",
+    "timeline": "Timeline",
+    "event": {
+      "placed": "Order placed",
+      "outletAccepted": "Outlet accepted",
+      "outletAcceptedPrep": "Outlet accepted · {{minutes}} min prep",
+      "foodReady": "Food ready",
+      "driverAccepted": "{{role}} accepted",
+      "taskConfirmed": "Task confirmed in chat",
+      "taskStarted": "Task started",
+      "taskCompleted": "Task completed",
+      "searchExhausted": "No {{role}} accepted",
+      "cashCollected": "Cash collected",
+      "refundRequested": "Refund started",
+      "refundCompleted": "Refund finished",
+      "current": "Now: {{status}}"
+    },
+    "chatBetween": "Chat between customer and {{role}}",
+    "loadingChat": "Loading chat…",
+    "chatLoadFailed": "Couldn’t load the chat.",
+    "noChat": "No messages on this order.",
+    "recentOrdersOf": "Recent orders of {{name}}",
+    "openFullOrder": "Open full order",
+    "unlink": "Unlink order",
+    "linkToTicket": "Link",
+    "linked": "Order linked to this case",
+    "unlinked": "Order unlinked"
   }
 }

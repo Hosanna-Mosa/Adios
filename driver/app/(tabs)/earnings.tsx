@@ -14,6 +14,7 @@ import {
   EarningsLoadingCard,
   EarningsStatsRow,
   RecentActivityList,
+  StatementSection,
 } from "@/features/earnings/components";
 import { formatCurrency } from "@/features/earnings/utils/format";
 import { useEarnings } from "@/features/earnings/hooks/useEarnings";
@@ -97,6 +98,8 @@ export default function EarningsScreen() {
               onlineHours={earnings.stats.onlineHours}
               totalDistance={earnings.stats.totalDistance}
             />
+
+            <StatementSection />
           </>
         )}
       </ScrollBox>

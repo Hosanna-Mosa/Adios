@@ -58,7 +58,7 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
 
         return (
           <Animated.View key={order._id} entering={staggerListItem(index)}>
-            <TouchableOpacity style={styles.activeCard} activeOpacity={0.9} onPress={openTracking}>
+            <TouchableOpacity style={styles.activeCard} activeOpacity={0.9} onPress={openTracking} accessibilityRole="button" accessibilityHint={t("app.orders.trackOrder")}>
               <View style={styles.activeTop}>
                 <OrderThumb order={order} icon={serviceIcon(key)} background={accent.skin} color={accent.accent} styles={styles} />
                 <View style={styles.titleWrap}>
@@ -81,15 +81,13 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
                   <Text style={styles.footLabel}>{destLabel}</Text>
                   <Text style={styles.footAddress} numberOfLines={1}>{dest || "—"}</Text>
                 </View>
-                <TouchableOpacity
-                  style={[styles.trackPill, { backgroundColor: accent.accent }]}
-                  activeOpacity={0.88}
-                  onPress={openTracking}
-                  accessibilityRole="button"
-                >
+                {/* Part of the card, not a second button: the card already opens tracking,
+                    and a touchable inside it gave double press feedback. flexShrink 0 so it
+                    no longer squeezes the address down to a few characters. */}
+                <View style={[styles.trackPill, { backgroundColor: accent.accent, flexShrink: 0 }]}>
                   <Ionicons name="navigate" size={moderateScale(15)} color={accent.on} />
-                  <Text style={[styles.trackPillText, { color: accent.on }]}>{t("app.orders.trackOrder")}</Text>
-                </TouchableOpacity>
+                  <Text style={[styles.trackPillText, { color: accent.on }]} numberOfLines={1}>{t("app.orders.trackOrder")}</Text>
+                </View>
               </View>
             </TouchableOpacity>
           </Animated.View>

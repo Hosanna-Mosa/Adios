@@ -21,6 +21,8 @@ export interface Ticket {
   // header) but was missing from the original type -- added here since
   // it's a real field the page reads, not a new one.
   userRole?: string;
+  /** Who opened the case: a User id, or the Vendor/MeatCenter id for partner tickets (userRole "VENDOR"). */
+  userId?: string | null;
   time: string;
   createdAt: string;
   messages: TicketMessage[];

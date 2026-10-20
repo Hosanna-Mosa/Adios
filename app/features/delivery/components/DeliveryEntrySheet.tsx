@@ -91,7 +91,7 @@ export function DeliveryEntrySheet({
             {isCalculating ? (
               <Text style={styles.footerMeta}>{t("app.delivery.calculatingRoute")}</Text>
             ) : route ? (
-              <Text style={styles.footerMeta}>{route.totalDistance} {t("app.delivery.kmAbout")} {route.estimatedTime} min</Text>
+              <Text style={styles.footerMeta}>{t("app.delivery.distanceKm", { km: route.totalDistance })} · {t("app.delivery.aboutMinutes", { min: route.estimatedTime })}</Text>
             ) : (
               <Text style={styles.footerMeta}>{t("app.delivery.addAPickupToSeeDistance")}</Text>
             )}

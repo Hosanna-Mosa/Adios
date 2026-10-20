@@ -1,10 +1,10 @@
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from "@/components/maps";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
 import { useMapStyle } from "@/components/useMapStyle";
+import { MapBackButton } from "@/components/ui/MapBackButton";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -92,13 +92,7 @@ export function SearchingMap({
         })}
         <Marker coordinate={pickupCoords} image={rideStopMarker("pickup")} anchor={RIDE_STOP_ANCHOR} zIndex={3} />
       </MapView>
-      <TouchableOpacity
-        style={styles.screenBackButton}
-        activeOpacity={0.85}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back" size={24} color={colors.text} />
-      </TouchableOpacity>
+      <MapBackButton absolute onPress={() => router.back()} />
     </View>
   );
 }

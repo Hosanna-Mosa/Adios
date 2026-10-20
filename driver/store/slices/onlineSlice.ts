@@ -30,7 +30,7 @@ export const createOnlineSlice = (
         // whose app would then silently drop it. Sending it here lets the
         // backend skip that driver as a candidate instead of wasting the offer.
         const res = await patchDriver(token, "status", { status: "ONLINE", activeServices: services });
-        // Refused because an admin hasn't approved this driver (yet): stay
+        // Refused (not approved yet, or the driving licence has expired): stay
         // offline and don't open the dispatch socket.
         if (res.status === 403) {
           const body = await res.json().catch(() => ({}));
@@ -40,6 +40,11 @@ export const createOnlineSlice = (
               i18n.t("verification.notApprovedTitle", "Verification pending"),
               body.message || i18n.t("verification.notApprovedBody", "You can go online once an admin approves your documents."),
             );
+            return;
+          }
+          if (body?.code === "LICENSE_EXPIRED") {
+            set({ isOnline: false });
+            Alert.alert(i18n.t("jobs.licenseExpiredTitle"), i18n.t("jobs.licenseExpiredBody"));
             return;
           }
         }

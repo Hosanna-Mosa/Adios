@@ -59,7 +59,7 @@ export function LandingBody({
           styles={styles}
         />
 
-        <Text style={styles.headline} numberOfLines={1}>{t("app.home.welcomeBack")}</Text>
+        <Text style={styles.headline} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{t("app.home.welcomeBack")}</Text>
         <Text style={styles.subhead}>
           {t("app.home.foodMeatRidesHelpersAndCourier")}
         </Text>
