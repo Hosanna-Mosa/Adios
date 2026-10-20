@@ -270,7 +270,10 @@
     "contactSupport": "Contact Support",
     "signOut": "Sign Out",
     "helperPricing": "Helper Pricing",
-    "supportBot": "Support Bot"
+    "supportBot": "Support Bot",
+    "broadcasts": "Push broadcast",
+    "reports": "Reports",
+    "auditLog": "Audit log"
   },
   "notifications": {
     "justNow": "Just now",

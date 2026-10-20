@@ -101,14 +101,21 @@ export function RestaurantListItem({
       onPress={handlePress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      disabled={isClosed}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isClosed }}
     >
-      <Image source={{ uri: image }} style={styles.thumb} contentFit="cover" transition={200} />
+      <View style={styles.thumbWrap}>
+        <Image source={{ uri: image }} style={styles.thumb} contentFit="cover" transition={200} />
+        {isClosed && <View style={styles.thumbGreyscale} pointerEvents="none" />}
+      </View>
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <TouchableOpacity
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={() => toggleFavorite(_id)}
+            disabled={isClosed}
           >
             <Ionicons
               name={isFavorite ? "heart" : "heart-outline"}

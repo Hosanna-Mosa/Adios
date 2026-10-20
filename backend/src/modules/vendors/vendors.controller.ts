@@ -26,46 +26,31 @@ import {
   toVendorKycFields,
 } from "./vendor-verification.service";
 
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const toSearchTokens = (term: string) => term.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6);
-
-const matchesAnyToken = (value: unknown, tokens: string[]) => {
-  if (typeof value !== "string" || !value) return false;
-  const haystack = value.toLowerCase();
-  return tokens.some((token) => haystack.includes(token));
-};
-
-/** Vendor identity match — name, cuisines and address. */
-const vendorTextMatches = (vendor: any, tokens: string[]) =>
-  matchesAnyToken(vendor?.name, tokens) ||
-  matchesAnyToken(vendor?.address, tokens) ||
-  (Array.isArray(vendor?.categories) &&
-    vendor.categories.some((category: unknown) => matchesAnyToken(category, tokens)));
+/** Vendor identity — name, address and cuisines. */
+const vendorIdentityFields = (vendor: any): unknown[] => [
+  vendor?.name,
+  vendor?.address,
+  ...(Array.isArray(vendor?.categories) ? vendor.categories : []),
+];
 
 /**
  * Menus captured during onboarding live on the vendor document instead of the
- * FoodItem collection, so a dish word has to be looked for in both places.
+ * FoodItem collection, so a dish has to be looked for in both places. A dish
+ * matches when every typed word starts a word in it or in the vendor's identity.
  */
 const onboardedMenuMatches = (vendor: any, tokens: string[]) => {
   const operations = vendor?.operations || {};
   const menuCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
   const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];
-
-  const categoryMatch = menuCategories.some(
-    (category: any) =>
-      matchesAnyToken(category?.name, tokens) ||
-      (Array.isArray(category?.items) &&
-        category.items.some(
-          (item: any) => matchesAnyToken(item?.name, tokens) || matchesAnyToken(item?.description, tokens)
-        ))
-  );
+  const identity = vendorIdentityFields(vendor);
 
   return (
-    categoryMatch ||
-    uploadedRows.some(
-      (row: any) => matchesAnyToken(row?.itemName, tokens) || matchesAnyToken(row?.category, tokens)
-    )
+    menuCategories.some((category: any) =>
+      Array.isArray(category?.items) && category.items.length > 0
+        ? category.items.some((item: any) => allTokensIn([item?.name, item?.description, category?.name, ...identity], tokens))
+        : allTokensIn([category?.name, ...identity], tokens)
+    ) ||
+    uploadedRows.some((row: any) => allTokensIn([row?.itemName, row?.category, ...identity], tokens))
   );
 };
 
@@ -81,16 +66,25 @@ const filterVendorsBySearch = async (vendors: any[], term: string) => {
   const menuMatches = await FoodItem.find({
     vendorId: { $in: vendors.map((vendor) => vendor._id) },
     isAvailable: true,
+    // Broad prefilter (any word, anywhere); allTokensIn below is the real test.
     $or: [{ name: { $in: patterns } }, { category: { $in: patterns } }, { description: { $in: patterns } }],
   })
-    .select("vendorId")
+    .select("vendorId name category description")
     .lean();
 
-  const vendorIdsWithMatchingDish = new Set(menuMatches.map((item: any) => String(item.vendorId)));
+  const vendorsById = new Map(vendors.map((vendor) => [String(vendor._id), vendor]));
+  const vendorIdsWithMatchingDish = new Set(
+    menuMatches
+      .filter((item: any) => {
+        const vendor = vendorsById.get(String(item.vendorId));
+        return allTokensIn([item.name, item.category, item.description, ...vendorIdentityFields(vendor)], tokens);
+      })
+      .map((item: any) => String(item.vendorId))
+  );
 
   return vendors.filter(
     (vendor) =>
-      vendorTextMatches(vendor, tokens) ||
+      allTokensIn(vendorIdentityFields(vendor), tokens) ||
       vendorIdsWithMatchingDish.has(String(vendor._id)) ||
       onboardedMenuMatches(vendor, tokens)
   );
@@ -112,7 +106,8 @@ export const forgotVendorPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await Vendor.findOne({ email }).collation({ locale: "en", strength: 2 });
+    if (!vendor) console.warn(`[forgot-password] no restaurant account with email "${email}"`);
     if (vendor) {
       // Generate OTP and save
       const otp = generateOTP();
@@ -168,7 +163,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
     await otpRecord.save();
 
     // Update password
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await Vendor.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (!vendor) {
       return res.status(404).json({ message: "Account not found" });
     }
@@ -682,6 +677,7 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
 };
 
 import axios from "axios";
+import { allTokensIn, escapeRegex, toSearchTokens } from "../food/food.search";
 
 export const searchGooglePlaces = async (req: Request, res: Response) => {
   try {

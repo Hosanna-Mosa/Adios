@@ -34,7 +34,7 @@ export function TrackingTopBar({
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <View style={[styles.etaChip, { backgroundColor: accent.accent }]}>
-        <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${eta} min`}</Text>
+        <Text style={[styles.etaChipText, { color: accent.on }]}>{status === "arrived_pickup" || status === "arrived_delivery" || eta == null ? bannerText : `${bannerText} · ${eta} min`}</Text>
       </View>
       <View style={{ width: moderateScale(40) }} />
     </View>

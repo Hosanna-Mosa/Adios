@@ -24,6 +24,8 @@ import {
 } from "../../services/supportAssignment.service";
 import { NotificationService } from "../../services/notification.service";
 import { sendDriverDecisionEmail } from "../verification/verification.emails";
+import { computeSla } from "../support/support.sla";
+import { cleanPermissions, effectivePermissions, hasPermission } from "../support/support.permissions";
 
 const SUPPORT_PHONE_PREFIX = "support-";
 
@@ -33,8 +35,9 @@ function findSupportMember(id: string) {
   return User.findOne({ _id: id, role: UserRole.SUPPORT });
 }
 
-function toSupportMemberResponse(member: { _id: unknown; name: string; email?: string; phone?: string; createdAt?: Date }) {
+function toSupportMemberResponse(member: { _id: unknown; name: string; email?: string; phone?: string; createdAt?: Date; supportPermissions?: string[] }) {
   return {
+    permissions: effectivePermissions(UserRole.SUPPORT, member.supportPermissions),
     _id: String(member._id),
     name: member.name,
     email: member.email ?? "",
@@ -570,8 +573,13 @@ export class AdminController {
     try {
       // Support members only ever see the cases assigned to them; admins see all.
       const filter = req.user?.role === UserRole.SUPPORT ? { assignedTo: req.user.userId } : {};
-      const tickets = await SupportTicket.find(filter).populate("assignedTo", "name").populate("botQuery", "question answer intentKey helpful").sort({ createdAt: -1 });
-      return res.json(tickets);
+      const tickets = await SupportTicket.find(filter)
+        .select("+internalNotes")
+        .populate("assignedTo", "name")
+        .populate("botQuery", "question answer intentKey helpful")
+        .sort({ createdAt: -1 });
+      const now = new Date();
+      return res.json(tickets.map((ticket) => ({ ...ticket.toJSON({ staff: true } as any), sla: computeSla(ticket, now) })));
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }
@@ -612,11 +620,18 @@ export class AdminController {
   async updateSupportTicket(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status, replyText } = req.body;
+      const { status, replyText, priority } = req.body;
       const ticket = await SupportTicket.findById(id);
       // Another member's case answers exactly like a missing one.
       const isForeignCase = req.user?.role === UserRole.SUPPORT && ticket?.assignedTo?.toString() !== req.user.userId;
       if (!ticket || isForeignCase) return res.status(404).json({ message: "Ticket not found" });
+
+      // A support member may only do what their account allows (admins always may).
+      const denied = async (permission: Parameters<typeof hasPermission>[1]) => !(await hasPermission(req, permission));
+      if ((replyText && (await denied("reply"))) || (status !== undefined && (await denied("resolve"))) || (priority !== undefined && (await denied("priority")))) {
+        return res.status(403).json({ message: "Your support account does not have permission to do this. Ask an admin." });
+      }
+      if (priority !== undefined) ticket.priority = priority;
 
       if (status !== undefined) {
         if (status === "RESOLVED") {
@@ -677,7 +692,7 @@ export class AdminController {
   async getSupportMembers(req: Request, res: Response) {
     try {
       const [members, workloads] = await Promise.all([
-        User.find({ role: UserRole.SUPPORT }).select("name email phone createdAt updatedAt").sort({ createdAt: -1 }).lean(),
+        User.find({ role: UserRole.SUPPORT }).select("name email phone createdAt updatedAt supportPermissions").sort({ createdAt: -1 }).lean(),
         getSupportWorkloads(),
       ]);
       return res.json(
@@ -698,7 +713,7 @@ export class AdminController {
 
   async createSupportMember(req: Request, res: Response) {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, permissions } = req.body;
 
       const existing = await User.findOne({ email }).select("_id").lean();
       if (existing) {
@@ -713,6 +728,7 @@ export class AdminController {
         password,
         phone: `${SUPPORT_PHONE_PREFIX}${new Types.ObjectId().toHexString()}`,
         role: UserRole.SUPPORT,
+        ...(Array.isArray(permissions) ? { supportPermissions: cleanPermissions(permissions) } : {}),
       });
       await member.save();
       // Cases that arrived while nobody was on the team go to the new member(s) now.

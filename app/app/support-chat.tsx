@@ -66,6 +66,8 @@ export default function SupportChatScreen() {
           contentContainerStyle={styles.messagesList}
           showsVerticalScrollIndicator={false}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          // Keep the newest bubble in view when a reply or admin message arrives.
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
         />
 
                   <SupportChatBody

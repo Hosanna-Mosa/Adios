@@ -1,6 +1,5 @@
 import { Text, TouchableOpacity } from "react-native";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
-import { toggleChipKeys } from "../useOrders.shared";
 
 // Moved out of app/(tabs)/orders.tsx.
 //
@@ -29,7 +28,8 @@ export function OrdersServiceChip({
   return (
     <TouchableOpacity
       style={[styles.chip, isActive && styles.chipActive]}
-      onPress={() => setServiceFilters((prev) => toggleChipKeys(prev, serviceKeys))}
+      // One service at a time: picking another replaces it; tapping it again goes back to All.
+      onPress={() => setServiceFilters(() => (isActive ? new Set<string>() : new Set(serviceKeys)))}
     >
       <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{label}</Text>
     </TouchableOpacity>

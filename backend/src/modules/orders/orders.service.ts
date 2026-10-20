@@ -1289,9 +1289,27 @@ export class OrdersService {
     dropLng: number,
     serviceType: ServiceType,
   ) {
-    // Calculate approximate distance using Haversine
-    const distanceInKm = this.haversineDistance(pickupLat, pickupLng, dropLat, dropLng);
-    const estimatedMinutes = Math.round(distanceInKm * 4); // assume avg speed 15 km/h
+    // Same road route createOrder prices the order on (priceOrder → optimizeAndGetRoute),
+    // so the fare quoted on the booking screen is the fare that gets charged. The
+    // straight-line distance it used before quoted ₹26 for a trip then booked at ₹25.
+    // Straight line (at ~15 km/h) is only the fallback when routing is unavailable.
+    let distanceInKm = this.haversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+    let estimatedMinutes = Math.round(distanceInKm * 4);
+    try {
+      const route = await this.routingService.optimizeAndGetRoute(
+        { latitude: pickupLat, longitude: pickupLng },
+        [
+          { id: "pickup", address: "Pickup", latitude: pickupLat, longitude: pickupLng, type: "pickup", items: [] },
+          { id: "drop", address: "Drop", latitude: dropLat, longitude: dropLng, type: "drop", items: [] },
+        ]
+      );
+      if (route) {
+        distanceInKm = route.totalDistance;
+        estimatedMinutes = route.estimatedTime;
+      }
+    } catch (error) {
+      console.warn("[estimateFare] routing failed, using straight-line distance:", (error as Error).message);
+    }
 
     let surgeMultiplier = 1.0;
     const activeZonesCount = await Zone.countDocuments({ isActive: true });

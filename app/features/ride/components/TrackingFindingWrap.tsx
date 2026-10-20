@@ -12,6 +12,7 @@ interface Props {
   accent: ServiceTokens;
   isHelper: boolean;
   isRide: boolean;
+  isPackageDelivery?: boolean;
   styles: TrackingStyles;
 }
 
@@ -19,6 +20,7 @@ export function TrackingFindingWrap({
   accent,
   isHelper,
   isRide,
+  isPackageDelivery = false,
   styles,
 }: Props) {
   const { t } = useTranslation();
@@ -29,7 +31,7 @@ export function TrackingFindingWrap({
           <Ionicons name="search" size={22} color={accent.on} />
         </View>
       </View>
-      <Text style={styles.findingTitle}>{isRide ? `${t("app.ride.findingYourCaptain")}…` : isHelper ? `${t("app.ride.findingYourHelper")}…` : `${t("app.ride.findingYourDeliveryPartner")}…`}</Text>
+      <Text style={styles.findingTitle}>{isRide && !isPackageDelivery ? `${t("app.ride.findingYourCaptain")}…` : isHelper ? `${t("app.ride.findingYourHelper")}…` : `${t("app.ride.findingYourDeliveryPartner")}…`}</Text>
       <Text style={styles.findingSubtitle}>{t("app.ride.thisUsuallyTakesUnderAMinute")}</Text>
     </View>
   );

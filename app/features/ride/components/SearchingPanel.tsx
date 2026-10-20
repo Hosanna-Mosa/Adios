@@ -67,10 +67,16 @@ export function SearchingPanel({
           </View>
 
           <View style={styles.addFareRow}>
+            {/* Rides have no fare-raise API yet, so these are shown muted and
+                non-interactive instead of looking like working buttons. */}
             {["+ ₹10", "+ ₹15", "+ ₹20", "+"].map((label) => (
-              <TouchableOpacity key={label} style={[styles.addFarePill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                <Text style={[styles.addFareText, { color: colors.text }]}>{label}</Text>
-              </TouchableOpacity>
+              <View
+                key={label}
+                style={[styles.addFarePill, { backgroundColor: colors.surface, borderColor: colors.border, opacity: 0.5 }]}
+                accessibilityState={{ disabled: true }}
+              >
+                <Text style={[styles.addFareText, { color: colors.textSecondary }]}>{label}</Text>
+              </View>
             ))}
           </View>
         </View>

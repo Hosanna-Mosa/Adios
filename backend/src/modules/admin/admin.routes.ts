@@ -3,6 +3,12 @@ import { AdminController } from "./admin.controller";
 import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { validateRequest } from "../../middleware/validation.middleware";
+import { listAuditLogs } from "./audit.controller";
+import * as supportStaff from "../support/support.staff.controller";
+import { downloadReport } from "./admin.reports.controller";
+import { getFleet } from "./admin.fleet.controller";
+import { listBroadcasts, sendBroadcast } from "./admin.broadcast.controller";
+import { requireSupportPermission } from "../support/support.permissions";
 import * as supportBotController from "../supportBot/supportBot.controller";
 import { createIntentSchema, updateIntentSchema, deleteIntentSchema } from "../supportBot/supportBot.validation";
 import {
@@ -15,6 +21,12 @@ import {
   createSupportTicketSchema,
   updateSupportTicketSchema,
   createSupportMemberSchema,
+  setSupportMemberPermissionsSchema,
+  cannedReplySchema,
+  updateCannedReplySchema,
+  internalNoteSchema,
+  broadcastSchema,
+  reportKindSchema,
   resetSupportMemberPasswordSchema,
   createOrderSchema,
   updateSystemConfigSchema,
@@ -43,6 +55,17 @@ router.put("/drivers/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), v
 router.delete("/drivers/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(idParamSchema), adminController.deleteDriver.bind(adminController));
 router.post("/orders", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createOrderSchema), adminController.createOrder.bind(adminController));
 
+// Data exports (orders, drivers, users, vendors) and push announcements — admin only, both audited.
+router.get("/reports/:kind", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(reportKindSchema), downloadReport);
+router.get("/broadcasts", authenticateToken, authorizeRole([UserRole.ADMIN]), listBroadcasts);
+router.post("/broadcasts", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(broadcastSchema), sendBroadcast);
+
+// Live fleet positions for the dashboard map.
+router.get("/fleet", authenticateToken, authorizeRole([UserRole.ADMIN]), getFleet);
+
+// Who did what — read-only, admin only.
+router.get("/audit-logs", authenticateToken, authorizeRole([UserRole.ADMIN]), listAuditLogs);
+
 // Dynamic no-mock endpoints
 router.get("/payments", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getPayments.bind(adminController));
 router.get("/analytics", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getAnalytics.bind(adminController));
@@ -50,6 +73,20 @@ router.get("/multistop", authenticateToken, authorizeRole([UserRole.ADMIN]), adm
 router.get("/tickets", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), adminController.getSupportTickets.bind(adminController));
 router.post("/tickets", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), validateRequest(createSupportTicketSchema), adminController.createSupportTicket.bind(adminController));
 router.put("/tickets/:id", authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT]), validateRequest(updateSupportTicketSchema), adminController.updateSupportTicket.bind(adminController));
+
+// Support tools: internal notes, the ticket export and metrics, and canned replies. Admins always
+// pass; a support member needs the matching permission (support.permissions.ts).
+const staff = [authenticateToken, authorizeRole([UserRole.ADMIN, UserRole.SUPPORT])];
+router.get("/tickets/export", ...staff, requireSupportPermission("export"), supportStaff.exportTickets);
+router.get("/tickets/metrics", ...staff, supportStaff.ticketMetrics);
+router.post("/tickets/:id/notes", ...staff, requireSupportPermission("notes"), validateRequest(internalNoteSchema), supportStaff.addInternalNote);
+router.get("/canned-replies", ...staff, supportStaff.listCannedReplies);
+router.post("/canned-replies", ...staff, requireSupportPermission("manage_canned"), validateRequest(cannedReplySchema), supportStaff.createCannedReply);
+router.put("/canned-replies/:id", ...staff, requireSupportPermission("manage_canned"), validateRequest(updateCannedReplySchema), supportStaff.updateCannedReply);
+router.delete("/canned-replies/:id", ...staff, requireSupportPermission("manage_canned"), validateRequest(idParamSchema), supportStaff.deleteCannedReply);
+router.get("/me/permissions", ...staff, supportStaff.myPermissions);
+router.get("/support-permissions", authenticateToken, authorizeRole([UserRole.ADMIN]), supportStaff.permissionCatalog);
+router.put("/support-members/:id/permissions", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(setSupportMemberPermissionsSchema), supportStaff.setMemberPermissions);
 
 // Support team accounts — admin only; support staff cannot manage each other.
 router.get("/support-members", authenticateToken, authorizeRole([UserRole.ADMIN]), adminController.getSupportMembers.bind(adminController));

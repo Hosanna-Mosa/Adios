@@ -8,7 +8,7 @@
     "build": "rimraf dist && tsc",
     "start": "node dist/index.js",
     "lint": "eslint .",
-    "test": "node --require ts-node/register/transpile-only --test src/modules/pricing/helper.pricing.test.ts src/modules/orders/helper.flow.test.ts src/modules/supportBot/supportBot.test.ts",
+    "test": "node --require ts-node/register/transpile-only --test src/modules/pricing/helper.pricing.test.ts src/modules/orders/helper.flow.test.ts src/modules/supportBot/supportBot.test.ts src/modules/food/food.search.test.ts src/modules/places/places.search.test.ts src/modules/payments/razorpayx.test.ts src/middleware/auditLog.test.ts src/modules/support/support.sla.test.ts src/modules/vendors/vendor-analytics.test.ts",
     "test:digilocker": "ts-node digilocker.e2e.ts"
   },
   "keywords": [],

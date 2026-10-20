@@ -88,6 +88,7 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.serviceType) setServiceType(order.serviceType);
           // A package delivery starts without a PIN, so there is none to show.
           setIsPackageDelivery(!!order.packageDelivery);
+          useDeliveryStore.getState().setIsPackageDelivery(!!order.packageDelivery);
           if (order.restaurantPickupCode && !order.packageDelivery) setStartOtp(order.restaurantPickupCode);
           if (order.totalPrice != null) setTotalPrice(order.totalPrice);
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));

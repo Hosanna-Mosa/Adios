@@ -37,6 +37,9 @@ router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQ
 router.get("/:id", authenticateToken, ordersController.getOrder.bind(ordersController));
 router.get("/:id/chat", authenticateToken, ordersController.getChatHistory.bind(ordersController));
 router.get("/:id/invoice", authenticateToken, ordersController.getInvoice.bind(ordersController));
+router.post("/:id/invoice-link", authenticateToken, ordersController.createInvoiceLink.bind(ordersController));
+// No sign-in header: the signed, short-lived link made by invoice-link is the credential.
+router.get("/:id/invoice/view", ordersController.viewInvoice.bind(ordersController));
 router.patch("/:id/schedule", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(scheduleDecisionSchema), ordersController.respondToOrderSchedule.bind(ordersController));
 router.post("/:id/reorder", authenticateToken, ordersController.reorder.bind(ordersController));
 router.patch("/:id/increase-price", authenticateToken, ordersController.increasePrice.bind(ordersController));

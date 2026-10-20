@@ -50,12 +50,19 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   headlineMeasure: { position: "absolute", left: 0, top: 0, width: 4000, opacity: 0 },
   headlineMeasureText: { alignSelf: "flex-start" },
 
+  // Same shape as the search screen's input (searchSheetInputWrap), so tapping
+  // the bar reads as the field simply coming into focus.
   searchBar: {
-    flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
-    borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), height: moderateScale(48),
-    paddingHorizontal: 14, marginHorizontal: 16, marginTop: 14,
+    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface,
+    borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(16), height: moderateScale(52),
+    paddingLeft: 8, paddingRight: 16, marginHorizontal: 16, marginTop: 14,
+    shadowColor: "#000000", shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2,
   },
-  searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.sec },
+  searchIconCircle: {
+    width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(12),
+    backgroundColor: accent.skin, alignItems: "center", justifyContent: "center",
+  },
+  searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.muted },
 
   tilesRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: 16, alignItems: "stretch" },
   togglePill: { flex: 1, flexDirection: "row", gap: 4, backgroundColor: accent.skin, borderRadius: moderateScale(22), padding: 4 },

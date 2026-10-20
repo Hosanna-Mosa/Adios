@@ -17,7 +17,6 @@ import { showAlert } from "@/components/ui/AppAlert";
 
 interface Props {
   lastVendorName: string;
-  lastOrder: any;
   daysAgo: any;
   accent: ServiceTokens;
   insets: EdgeInsets;
@@ -31,7 +30,6 @@ interface Props {
 
 export function EmptyCartBody({
   lastVendorName,
-  lastOrder,
   daysAgo,
   accent,
   insets,
@@ -81,17 +79,6 @@ export function EmptyCartBody({
           <TouchableOpacity style={styles.primaryBtn} activeOpacity={0.85} onPress={() => router.replace("/(tabs)")}>
             <Text style={styles.primaryBtnText}>{t("app.food.browseRestaurants")}</Text>
           </TouchableOpacity>
-          {lastVendorName && (
-            <TouchableOpacity
-              style={styles.secondaryBtn}
-              activeOpacity={0.85}
-              onPress={() =>
-                openRestaurant(typeof lastOrder.vendor === "object" ? lastOrder.vendor._id : lastOrder.vendor, lastVendorName)
-              }
-            >
-              <Text style={styles.secondaryBtnText}>{t("app.food.orderFrom")} {lastVendorName} {t("app.food.again")}</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {recentOrders.length > 0 && (

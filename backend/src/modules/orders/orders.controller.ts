@@ -13,9 +13,12 @@ import * as foodDispatch from "../../services/foodDispatch.service";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import { getJwtSecret } from "../../utils/jwtSecret";
 import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
 import { helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { PricingService } from "../pricing/pricing.service";
+import { hasPermission } from "../support/support.permissions";
 import { ZonesService } from "../zones/zones.service";
 
 /**
@@ -63,6 +66,16 @@ const refId = (value: any): string | undefined => {
 // fulfilling it — plus platform staff. Vendor and meat-centre tokens carry the
 // Vendor/MeatCenter _id as userId with a role outside UserRole, which is why the
 // vendor arm compares against order.vendor rather than a user id.
+const INVOICE_LINK_TTL = "10m";
+const FINISHED_ORDER_STATUSES = ["delivered", "completed"];
+
+const renderInvoiceHtml = (order: any): string => {
+  const invoices = InvoiceService.getInstance();
+  if (order.serviceType === ServiceType.DELIVERY) return invoices.generateDeliveryInvoiceHtml(order);
+  if (order.serviceType === ServiceType.HELPER) return invoices.generateTaskInvoiceHtml(order);
+  return invoices.generateRideInvoiceHtml(order);
+};
+
 const canReadOrder = (order: any, user?: { userId: string; role: string }): boolean => {
   if (!user?.userId) return false;
   if (user.role === UserRole.ADMIN || user.role === UserRole.SUPPORT) return true;
@@ -222,8 +235,9 @@ export class OrdersController {
       // The tracking screen names the restaurant and draws it (and the delivery home)
       // as such. Added alongside `vendor`, which stays the bare id other callers expect.
       if (json.vendor) json.outlet = await outletSummary(json.vendor);
-      // A package delivery's OTP is the receiver's to give — never the driver's to read.
-      if (relation === "driver" && isPackageDeliveryOrder(json)) delete json.deliveryOtp;
+      // A package delivery's OTP is the receiver's to give, and a food / meat order's the
+      // customer's — never the driver's to read.
+      if (relation === "driver" && (isPackageDeliveryOrder(json) || json.vendor)) delete json.deliveryOtp;
       return res.json(json);
     } catch (error) {
       next(error);
@@ -267,19 +281,47 @@ export class OrdersController {
         throw new NotFoundError("Order not found");
       }
 
-      let invoiceHtml = "";
-      if (populatedOrder.serviceType === ServiceType.DELIVERY) {
-        invoiceHtml = InvoiceService.getInstance().generateDeliveryInvoiceHtml(populatedOrder);
-      } else if (populatedOrder.serviceType === ServiceType.HELPER) {
-        invoiceHtml = InvoiceService.getInstance().generateTaskInvoiceHtml(populatedOrder);
-      } else {
-        invoiceHtml = InvoiceService.getInstance().generateRideInvoiceHtml(populatedOrder);
-      }
-
       res.setHeader("Content-Type", "text/html");
-      return res.send(invoiceHtml);
+      return res.send(renderInvoiceHtml(populatedOrder));
     } catch (error) {
       next(error);
+    }
+  }
+
+  /**
+   * POST /orders/:id/invoice-link — a link that opens this order's invoice for 10 minutes without
+   * a sign-in header, so a phone's browser can show it, print it or save it as a PDF. Same access
+   * rule as the invoice itself; a restaurant or meat centre gets one only for a finished order.
+   */
+  async createInvoiceLink(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { order, relation } = await ordersService.getOrderForActor(id as string, req.user);
+      if (!canReadOrder(order, req.user)) throw new NotFoundError("Order not found");
+      if (relation === "vendor" && !FINISHED_ORDER_STATUSES.includes(String(order.status).toLowerCase())) {
+        throw new ConflictError("The invoice is available once the order is delivered.");
+      }
+      const token = jwt.sign({ purpose: "invoice", orderId: String(order._id) }, getJwtSecret(), { expiresIn: INVOICE_LINK_TTL });
+      const base = `${req.protocol}://${req.get("host")}${req.baseUrl}`;
+      return res.json({ url: `${base}/${encodeURIComponent(String(order._id))}/invoice/view?t=${token}`, expiresInMinutes: 10 });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** GET /orders/:id/invoice/view?t=… — the invoice for a link made by createInvoiceLink. */
+  async viewInvoice(req: Request, res: Response) {
+    try {
+      const token = String(req.query.t || "");
+      const claims = jwt.verify(token, getJwtSecret()) as { purpose?: string; orderId?: string };
+      if (claims.purpose !== "invoice" || claims.orderId !== String(req.params.id)) throw new Error("wrong link");
+      const order = await Order.findById(req.params.id).populate("user").populate({ path: "driver", populate: { path: "user" } }).populate("vendor");
+      if (!order) throw new Error("no order");
+      res.setHeader("Content-Type", "text/html");
+      res.setHeader("Cache-Control", "no-store");
+      return res.send(renderInvoiceHtml(order));
+    } catch {
+      return res.status(404).send("This invoice link is invalid or has expired. Open the invoice again from the app.");
     }
   }
 
@@ -437,6 +479,9 @@ export class OrdersController {
       if (relation === "staff" && req.user?.role === UserRole.SUPPORT && !isCancel) {
         throw new ForbiddenError("Support can view and cancel orders but not make other changes.");
       }
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT && isCancel && !(await hasPermission(req, "cancel_orders"))) {
+        throw new ForbiddenError("Your support account does not have permission to cancel orders. Ask an admin.");
+      }
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");
       }
@@ -460,13 +505,13 @@ export class OrdersController {
         if (storedCash && !orderObj.cashCollected) {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
-        // Restaurant / meat-shop orders and rides finish without the customer's OTP
-        // (a ride still starts with its PIN); package deliveries and helper tasks still need it.
+        // Restaurant / meat-shop orders, package deliveries and helper tasks all finish with the
+        // customer's (or receiver's) OTP; only rides end without one (they start with a PIN).
         // A package delivery is stored as a bike/auto ride, but it always ends with the
         // receiver's OTP — that is the only proof the package reached the right person.
         const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        if (orderObj && orderObj.deliveryOtp && !orderObj.vendor && (!isRide || isPackageDelivery)) {
+        if (orderObj && orderObj.deliveryOtp && (!isRide || isPackageDelivery)) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError(
               isPackageDelivery

@@ -6,6 +6,7 @@ import { SupportChatHeader } from "./SupportChatHeader";
 import { SupportChatMessages } from "./SupportChatMessages";
 import { SupportChatComposer } from "./SupportChatComposer";
 import { SupportCancelOrder } from "./SupportCancelOrder";
+import { InternalNotes } from "./InternalNotes";
 import type { Ticket } from "../types";
 
 interface SupportChatWindowProps {
@@ -40,6 +41,7 @@ export function SupportChatWindow({ ticket, messagesEndRef, typedMessage, onType
           )}
           {ticket.orderId && <SupportCancelOrder orderId={ticket.orderId} />}
           <SupportChatMessages messages={ticket.messages} messagesEndRef={messagesEndRef} />
+          <InternalNotes ticketId={ticket._id} notes={ticket.internalNotes} />
           <SupportChatComposer value={typedMessage} onChange={onTypedMessageChange} onKeyDown={onKeyDown} onSend={onSend} placeholderName={ticket.user} />
         </FadeIn>
       ) : (

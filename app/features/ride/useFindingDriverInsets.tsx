@@ -25,7 +25,7 @@ export function useFindingDriverInsets() {
   const [confirmedDriver, setConfirmedDriver] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
-  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean }>({});
+  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean; isPackageDelivery?: boolean; isFoodOrder?: boolean; isReserved?: boolean; paidOnline?: boolean }>({});
 
   // Set from each poll of the order (and right after a food order is placed).
   const foodStage = useDeliveryStore((s) => s.foodStage);

@@ -34,6 +34,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     signOutBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.error },
     signOutAllBtn: { marginTop: 10, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
     signOutAllBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
+    deleteAccountBtn: { marginTop: 4, minHeight: moderateScale(44), alignItems: "center", justifyContent: "center" },
+    deleteAccountBtnText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.error },
 
     modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.45)" },
     modalBody: { backgroundColor: tokens.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: "88%" },

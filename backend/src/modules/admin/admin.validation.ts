@@ -81,6 +81,7 @@ export const updateSupportTicketSchema = z.object({
   }),
   body: z.object({
     status: z.enum(["OPEN", "RESOLVED", "PENDING_RESOLVE"]).optional(),
+    priority: z.enum(["LOW", "NORMAL", "HIGH", "URGENT"]).optional(),
     replyText: z.string().optional(),
     sender: z.string().optional(),
   }),
@@ -98,7 +99,45 @@ export const createSupportMemberSchema = z.object({
     // Login lowercases the identifier before matching on email, so store it lowercase too.
     email: z.string().trim().toLowerCase().email("Invalid email"),
     password: supportPasswordSchema,
+    // Left out = the original support abilities (see support.permissions.ts).
+    permissions: z.array(z.string()).optional(),
   }),
+});
+
+export const setSupportMemberPermissionsSchema = z.object({
+  params: z.object({ id: z.string().min(1, "Member ID is required") }),
+  body: z.object({ permissions: z.array(z.string()) }),
+});
+
+export const cannedReplySchema = z.object({
+  body: z.object({
+    title: z.string().trim().min(1, "Title is required").max(80),
+    body: z.string().trim().min(1, "Reply text is required").max(2000),
+    category: z.string().trim().max(40).optional(),
+  }),
+});
+
+export const updateCannedReplySchema = z.object({
+  params: z.object({ id: z.string().min(1, "Canned reply ID is required") }),
+  body: cannedReplySchema.shape.body,
+});
+
+export const broadcastSchema = z.object({
+  body: z.object({
+    audience: z.enum(["users", "drivers", "partners", "everyone"]),
+    title: z.string().trim().min(1, "Title is required").max(60),
+    body: z.string().trim().min(1, "Message is required").max(200),
+    screen: z.string().trim().max(60).optional(),
+  }),
+});
+
+export const reportKindSchema = z.object({
+  params: z.object({ kind: z.string().min(1) }),
+});
+
+export const internalNoteSchema = z.object({
+  params: z.object({ id: z.string().min(1, "Ticket ID is required") }),
+  body: z.object({ text: z.string().trim().min(1, "Note is required").max(2000) }),
 });
 
 export const resetSupportMemberPasswordSchema = z.object({

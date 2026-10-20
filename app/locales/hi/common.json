@@ -43,15 +43,16 @@
     },
     "allServices": {
       "rideTierDesc": {
-        "bike": "1 सीट · सबसे तेज़",
-        "auto": "3 सीटें · मीटर के अनुसार"
+        "bike": "1 व्यक्ति · सबसे तेज़",
+        "auto": "अधिकतम 3 लोग · मीटर से"
       }
     },
     "rideConfirmation": {
       "capacity": {
-        "bike": "1 सीट",
-        "auto": "3 सीटें"
-      }
+        "bike": "1 व्यक्ति",
+        "auto": "अधिकतम 3 लोग"
+      },
+      "autoCapacityNote": "ऑटो में अधिकतम 3 यात्री ही सफ़र कर सकते हैं।"
     },
     "quickReplies": {
       "onMyWay": "मैं आ रहा हूँ",
@@ -99,7 +100,8 @@
         "bookedByMistake": "गलती से बुक हो गया",
         "fareTooHigh": "किराया बहुत ज़्यादा है",
         "foundAnotherRide": "दूसरी राइड मिल गई",
-        "other": "अन्य"
+        "other": "अन्य",
+        "sendingAnotherWay": "किसी और तरीके से भेज रहा हूँ"
       }
     },
     "supportChat": {
@@ -264,8 +266,6 @@
       "failedToSignInPleaseCheck": "साइन इन नहीं हो सका. कृपया अपनी जानकारी जांचें.",
       "forgotPassword": "पासवर्ड भूल गए",
       "passwordRecoveryInstructionsWillBeSent": "पासवर्ड रिकवरी निर्देश आपके अकाउंट पर भेजे जाएंगे.",
-      "phoneNumberNeeded": "फ़ोन नंबर ज़रूरी है",
-      "enterYourPhoneNumberAboveTo": "OTP से जारी रखने के लिए ऊपर अपना फ़ोन नंबर दर्ज करें.",
       "customizeDistance": "दूरी को कस्टमाइज़ करें",
       "filteringWithinKm": "{{km}} किमी के भीतर फ़िल्टर हो रहा है",
       "showingAllNearbyOptions": "सभी पास के विकल्प दिखाए जा रहे हैं",
@@ -295,8 +295,6 @@
       "vegOnly": "केवल शाकाहारी",
       "welcomeBack": "वापसी पर स्वागत है",
       "foodMeatRidesHelpersAndCourier": "खाना, मीट, राइड, हेल्पर और कूरियर — एक ही ऐप में.",
-      "or": "या",
-      "continueWithOtpInstead": "इसके बजाय OTP से जारी रखें",
       "newHere": "नए हैं?",
       "createAnAccount": "अकाउंट बनाएं",
       "noLocationSelected": "कोई लोकेशन नहीं चुनी गई",
@@ -347,7 +345,79 @@
       "pickAServiceToGetStarted": "शुरू करने के लिए कोई सेवा चुनें।",
       "beta": "बीटा",
       "offerEyebrow": "ऑफ़र",
-      "viewOffer": "ऑफ़र देखें"
+      "viewOffer": "ऑफ़र देखें",
+      "filterModal": {
+        "tabs": {
+          "sort": "क्रम",
+          "store149": "149 स्टोर",
+          "mins15": "15 मिनट",
+          "ratings": "रेटिंग",
+          "costForTwo": "दो लोगों का खर्च",
+          "vegNonVeg": "शाकाहारी/मांसाहारी",
+          "cuisines": "व्यंजन"
+        },
+        "sections": {
+          "sortBy": "क्रम से लगाएँ",
+          "store149Partners": "149 स्टोर पार्टनर",
+          "deliveryTime": "डिलीवरी समय",
+          "availability": "उपलब्धता",
+          "offers": "ऑफ़र",
+          "ratings": "रेटिंग",
+          "costForTwo": "दो लोगों का खर्च",
+          "dietaryPreference": "आहार पसंद",
+          "cuisines": "व्यंजन"
+        },
+        "sort": {
+          "relevance": "प्रासंगिकता (डिफ़ॉल्ट)",
+          "distance": "दूरी: सबसे पास पहले",
+          "time": "डिलीवरी समय",
+          "rating": "रेटिंग",
+          "costLowHigh": "कीमत: कम से ज़्यादा",
+          "costHighLow": "कीमत: ज़्यादा से कम"
+        },
+        "showAll": "सभी दिखाएँ",
+        "ratingsPlus": "रेटिंग {{value}}+",
+        "cost": {
+          "under300": "₹300 से कम",
+          "between300And600": "₹300 – ₹600",
+          "over600": "₹600 से ज़्यादा"
+        },
+        "diet": {
+          "pureVeg": "शुद्ध शाकाहारी",
+          "nonVeg": "मांसाहारी"
+        },
+        "resultCount_one": "{{count}} परिणाम",
+        "resultCount_other": "{{count}} परिणाम"
+      },
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "पहला ऑर्डर",
+          "headline": "₹120 तक 50% छूट",
+          "caption": "कोड FLAV50 · न्यूनतम ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "लेट नाइट",
+          "headline": "रात 2 बजे तक खुला",
+          "caption": "आपके पास 42 आउटलेट"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "संडे स्पेशल",
+          "headline": "देसी चिकन ₹399 / किलो"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "साफ़ करके काटा गया",
+          "headline": "आज कोई शुल्क नहीं"
+        }
+      },
+      "searchFoodHungry": "भूख लगी है? अपने पास के व्यंजन और रेस्टोरेंट खोजें",
+      "searchFoodTry": "“पिज़्ज़ा”, “डोसा”, “थाली” आज़माएँ",
+      "searchMeatFresh": "ताज़ा मीट आपके दरवाज़े तक",
+      "searchMeatTry": "“चिकन”, “मछली”, “अंडे” आज़माएँ",
+      "searchEverything": "खाना, मीट, राइड और बहुत कुछ — सब Adios में",
+      "packageShort": "पैकेज",
+      "helperShort": "हेल्पर"
     },
     "profile": {
       "menuItems": {
@@ -358,7 +428,8 @@
         "notifications": "सूचनाएं",
         "security": "सुरक्षा",
         "language": "भाषा",
-        "helpSupport": "सहायता व समर्थन"
+        "helpSupport": "सहायता व समर्थन",
+        "termsPrivacy": "नियम और गोपनीयता नीति"
       },
       "signOutOfAllDevices": "सभी डिवाइस से साइन आउट करें?",
       "everyPhoneSignedInToThis": "इस अकाउंट में साइन इन हर फ़ोन साइन आउट हो जाएगा, यह वाला भी शामिल है.",
@@ -448,8 +519,6 @@
       "lastOrderDaysAgo_other": "यहाँ अभी कुछ नहीं है. आपका आख़िरी ऑर्डर {{vendor}}, {{count}} दिन पहले था.",
       "nothingHereYetFindSomethingTo": "यहाँ अभी कुछ नहीं है — किसी रेस्टोरेंट या मीट सेंटर से कुछ जोड़ें.",
       "browseRestaurants": "रेस्टोरेंट देखें",
-      "orderFrom": "यहाँ से ऑर्डर करें",
-      "again": "फिर से",
       "orderAgain": "फिर से ऑर्डर करें",
       "itemWasUpdatedCount_one": "{{count}} आइटम अपडेट हुआ",
       "itemWasUpdatedCount_other": "{{count}} आइटम अपडेट हुए",
@@ -638,7 +707,6 @@
       "passwordMustBeAtLeast8": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए.",
       "termsPrivacyPolicy": "नियम व गोपनीयता नीति",
       "pleaseAgreeToTheTermsAnd": "जारी रखने के लिए नियम व गोपनीयता नीति से सहमत हों.",
-      "couldntSendCode": "कोड नहीं भेजा जा सका",
       "somethingWentWrongTryAgain": "कुछ गड़बड़ हो गई. कृपया फिर से प्रयास करें.",
       "fullName": "पूरा नाम",
       "yourName": "आपका नाम",
@@ -662,22 +730,11 @@
       "rahulvermagmailcom": "rahul.verma@gmail.com",
       "password": "पासवर्ड",
       "min8Characters": "न्यूनतम 8 अक्षर",
-      "verificationFailed": "सत्यापन विफल",
-      "thatCodeDidntWork": "वह कोड काम नहीं किया. कृपया फिर से प्रयास करें.",
-      "couldntResend": "फिर से नहीं भेजा जा सका",
-      "pleaseTryAgainInAMoment": "कृपया थोड़ी देर में फिर से प्रयास करें.",
-      "callRequested": "कॉल का अनुरोध किया गया",
-      "wellRingYouWithYourCode": "हम जल्द ही आपके कोड के साथ आपको कॉल करेंगे.",
-      "didnapostGetIt": "नहीं मिला?",
-      "getACallInstead": "इसके बजाय कॉल पाएं",
-      "verifyYourNumber": "अपना नंबर सत्यापित करें",
-      "weSentA6digitCodeTo": "हमने 6 अंकों का कोड भेजा है",
-      "change": "बदलें",
-      "resendCodeIn0": "0: में कोड फिर से भेजें",
-      "resend": "फिर से भेजें",
       "verified": "सत्यापित",
       "createYourAccount": "अपना अकाउंट बनाएं",
-      "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे."
+      "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे.",
+      "couldntCreateAccount": "अकाउंट नहीं बन सका",
+      "and": "और"
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -1024,7 +1081,7 @@
       "giveThisToYourHelperOnceWorkIsFinished": "काम पूरा होने के बाद ही इसे अपने हेल्पर को दें।",
       "restaurantDidNotAcceptInTime": "रेस्टोरेंट ने समय पर आपका ऑर्डर स्वीकार नहीं किया, इसलिए इसे रद्द कर दिया गया है। ऑनलाइन भुगतान वापस कर दिया जाएगा।",
       "restaurantCouldNotTakeOrder": "रेस्टोरेंट आपका ऑर्डर नहीं ले सका, इसलिए इसे रद्द कर दिया गया है। ऑनलाइन भुगतान वापस कर दिया जाएगा।",
-      "waitingForRestaurantTitle": "रेस्टोरेंट का इंतज़ार",
+      "waitingForRestaurantTitle": "रेस्टोरेंट के ऑर्डर कन्फ़र्म करने का इंतज़ार है",
       "waitingForRestaurantSubtitle": "रेस्टोरेंट जल्द ही आपका ऑर्डर स्वीकार करेगा। स्वीकार होते ही हम राइडर ढूँढेंगे।",
       "restaurantPreparingTitle": "रेस्टोरेंट आपका खाना तैयार कर रहा है",
       "restaurantPreparingSubtitle": "इसे लेने के लिए राइडर ढूँढ रहे हैं। आमतौर पर एक मिनट से कम।",
@@ -1087,9 +1144,6 @@
     "notifications": {
       "nothingHereYetOrderAndAccount": "यहाँ अभी कुछ नहीं है. ऑर्डर और अकाउंट अपडेट इस सूची में दिखेंगे."
     },
-    "otp": {
-      "verifyContinue": "सत्यापित करें व जारी रखें"
-    },
     "payment": {
       "pricesChangedTitle": "आपकी कार्ट बदल गई है",
       "pricesChanged": "कार्ट खोलने के बाद कुछ कीमतें या आइटम बदल गए हैं। कृपया कार्ट पर वापस जाकर देखें और फिर से भुगतान करें। आपसे कोई पैसा नहीं लिया गया है।",
@@ -1110,6 +1164,17 @@
       "online": "ऑनलाइन",
       "onlineHint": "UPI, कार्ड, नेटबैंकिंग",
       "paySecurely": "सुरक्षित रूप से भुगतान करें",
+      "proceedToPay": "भुगतान के लिए आगे बढ़ें",
+      "paymentOptions": "भुगतान विकल्प",
+      "toPayAmount": "देय ₹{{amount}}",
+      "scheduledFor": "{{slot}} के लिए शेड्यूल",
+      "payOnDelivery": "डिलीवरी पर भुगतान",
+      "payOnDeliveryHint": "ऑर्डर पहुँचने पर राइडर को नकद भुगतान करें",
+      "payOnline": "ऑनलाइन भुगतान",
+      "payOnlineHint": "UPI, कार्ड, नेटबैंकिंग और वॉलेट",
+      "payWithCash": "₹{{amount}} नकद में चुकाएँ",
+      "payAmountOnline": "₹{{amount}} ऑनलाइन चुकाएँ",
+      "securedByRazorpay": "ऑनलाइन भुगतान Razorpay द्वारा सुरक्षित रूप से प्रोसेस किए जाते हैं। ऑर्डर रद्द होने पर पैसा उसी खाते में वापस जाता है जिससे आपने भुगतान किया था।",
       "topupRefundedTitle": "भुगतान वापस किया जा रहा है",
       "topupRefunded": "आपका टास्क पहले ही किसी ने ले लिया है, इसलिए यह भुगतान वापस किया जा रहा है।"
     },
@@ -1166,7 +1231,8 @@
         "inProgress": "जारी है",
         "arrived": "पहुँच गए",
         "waitingForRestaurant": "रेस्टोरेंट का इंतज़ार"
-      }
+      },
+      "deliveryInProgress": "डिलीवरी जारी है"
     },
     "shareLink": {
       "cantShareRightNow": "अभी शेयर नहीं कर सकते",
@@ -1277,7 +1343,25 @@
       "deliveryOtpLabel": "पैकेज डिलीवरी OTP",
       "deliveryOtpHint": "इसे पाने वाले के साथ शेयर करें। डिलीवरी पूरी करने के लिए कैप्टन को इसकी ज़रूरत है — पाने वाला इसे पैकेज मिलने के बाद ही दे।",
       "shareOtp": "पाने वाले को OTP भेजें",
-      "shareOtpMessage": "आपका पैकेज डिलीवरी OTP {{otp}} है। पैकेज मिलने के बाद ही इसे कैप्टन को दें।"
+      "shareOtpMessage": "आपका पैकेज डिलीवरी OTP {{otp}} है। पैकेज मिलने के बाद ही इसे कैप्टन को दें।",
+      "cancelDelivery": "डिलीवरी रद्द करें",
+      "noFeeNoPartnerYet": "कोई रद्दीकरण शुल्क नहीं — हमने अभी तक डिलीवरी पार्टनर नहीं सौंपा है।",
+      "steps": {
+        "partnerAssigned": "डिलीवरी पार्टनर सौंपा गया",
+        "inProgress": "डिलीवरी जारी है",
+        "delivered": "पैकेज डिलीवर हो गया"
+      },
+      "banner": {
+        "partnerOnTheWay": "डिलीवरी पार्टनर रास्ते में है",
+        "partnerArrived": "डिलीवरी पार्टनर पहुँच गया है",
+        "inProgress": "डिलीवरी जारी है",
+        "arrivedAtDrop": "ड्रॉप लोकेशन पर पहुँच गए"
+      },
+      "done": {
+        "headline": "पैकेज डिलीवर हो गया",
+        "deliveredBy": "{{name}} ने डिलीवर किया।",
+        "delivered": "आपका पैकेज डिलीवर हो गया।"
+      }
     },
     "supportBot": {
       "allQuestions": "सभी प्रश्न",
@@ -1305,6 +1389,59 @@
         "payment": "भुगतान",
         "general": "सामान्य"
       }
+    },
+    "cartStripe": {
+      "yourCart": "आपका कार्ट",
+      "viewCart": "कार्ट देखें",
+      "a11yLabel": "{{vendor}}, {{total}}, {{items}}. कार्ट देखें"
+    },
+    "a11y": {
+      "back": "वापस जाएँ"
+    },
+    "deleteAccount": {
+      "title": "अकाउंट हटाएँ",
+      "heading": "अकाउंट हटाना स्थायी है",
+      "pointProfile": "आपका नाम, ईमेल, फ़ोन नंबर और फ़ोटो आपकी प्रोफ़ाइल से हटा दिए जाएँगे।",
+      "pointAddresses": "सेव किए गए पते, पसंदीदा, आपका कार्ट और सूचनाएँ हटा दी जाएँगी।",
+      "pointSignOut": "आप हर डिवाइस से साइन आउट हो जाएँगे और इस अकाउंट में दोबारा साइन इन नहीं कर पाएँगे।",
+      "pointOrders": "कानून के अनुसार पिछले ऑर्डर और भुगतान हमारे रिकॉर्ड में रखे जाते हैं।",
+      "passwordLabel": "अपने पासवर्ड से पुष्टि करें",
+      "passwordPlaceholder": "पासवर्ड",
+      "deleteMyAccount": "मेरा अकाउंट हटाएँ",
+      "confirmTitle": "अपना अकाउंट हटाएँ?",
+      "confirmBody": "इसे वापस नहीं किया जा सकता।",
+      "deleteForever": "हटाएँ",
+      "couldntDelete": "अकाउंट नहीं हटाया जा सका"
+    },
+    "legal": {
+      "title": "नियम और गोपनीयता",
+      "terms": "सेवा की शर्तें",
+      "privacy": "गोपनीयता नीति",
+      "lastUpdated": "अंतिम अपडेट: {{date}}"
+    },
+    "language": {
+      "chooseYourLanguage": "अपनी भाषा चुनें",
+      "changeLater": "आप इसे बाद में अपनी प्रोफ़ाइल से बदल सकते हैं।"
+    },
+    "foodOrder": {
+      "cancelOrder": "ऑर्डर रद्द करें",
+      "keepOrder": "ऑर्डर रखें",
+      "cancelTitle": "यह ऑर्डर रद्द करें?",
+      "cancelBody": "आपके डिलीवरी पार्टनर ने अभी खाना नहीं उठाया है। अगर आपने ऑनलाइन भुगतान किया है, तो राशि वापस कर दी जाएगी।",
+      "couldntCancel": "ऑर्डर रद्द नहीं हो सका",
+      "noFeeNoPartnerYet": "कोई रद्दीकरण शुल्क नहीं — अभी तक डिलीवरी पार्टनर नहीं सौंपा गया है।",
+      "cancelReasons": {
+        "orderedByMistake": "गलती से ऑर्डर किया",
+        "changeMyOrder": "अपना ऑर्डर बदलना चाहता हूँ",
+        "wrongAddress": "गलत डिलीवरी पता"
+      }
+    },
+    "raiseFare": {
+      "titleRide": "अभी तक किसी राइडर ने स्वीकार नहीं किया",
+      "titlePackage": "अभी तक किसी डिलीवरी पार्टनर ने स्वीकार नहीं किया",
+      "subtitle": "किराया बढ़ाएँ और हम आपका अनुरोध दोबारा भेजेंगे — ज़्यादा किराया जल्दी स्वीकार होता है।",
+      "addAmount": "किराये में ₹{{amount}} जोड़ें",
+      "couldntRaise": "किराया नहीं बढ़ाया जा सका"
     }
   }
 }

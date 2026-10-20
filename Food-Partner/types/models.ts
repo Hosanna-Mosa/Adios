@@ -112,6 +112,7 @@ export interface SupportTicket {
 export interface PartnerProfile extends PartnerSession {
   address?: string;
   image?: string;
+  coverImage?: string; // wide banner at the top of the outlet's page
   /** Average customer rating; 0 until the outlet has reviews. */
   rating?: number;
   /** Review count — stored as a string on the backend model. */
@@ -147,6 +148,7 @@ export interface ProfileUpdate {
   email?: string;
   address?: string;
   image?: string;
+  coverImage?: string;
   branchCode?: string | null;
   currentLocation?: OutletLocation | null;
   openingHours?: WeekHours;

@@ -270,7 +270,10 @@
     "contactSupport": "सपोर्ट से संपर्क करें",
     "signOut": "साइन आउट",
     "helperPricing": "हेल्पर मूल्य निर्धारण",
-    "supportBot": "सपोर्ट बॉट"
+    "supportBot": "सपोर्ट बॉट",
+    "broadcasts": "पुश ब्रॉडकास्ट",
+    "reports": "रिपोर्ट",
+    "auditLog": "ऑडिट लॉग"
   },
   "notifications": {
     "justNow": "अभी अभी",

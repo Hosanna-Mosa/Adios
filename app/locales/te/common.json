@@ -43,15 +43,16 @@
     },
     "allServices": {
       "rideTierDesc": {
-        "bike": "1 సీటు · అత్యంత వేగవంతమైనది",
-        "auto": "3 సీట్లు · మీటర్ ప్రకారం"
+        "bike": "1 వ్యక్తి · వేగవంతమైనది",
+        "auto": "గరిష్టంగా 3 మంది · మీటర్ ప్రకారం"
       }
     },
     "rideConfirmation": {
       "capacity": {
-        "bike": "1 సీటు",
-        "auto": "3 సీట్లు"
-      }
+        "bike": "1 వ్యక్తి",
+        "auto": "గరిష్టంగా 3 మంది"
+      },
+      "autoCapacityNote": "ఆటోలో గరిష్టంగా 3 మంది ప్రయాణికులు మాత్రమే ప్రయాణించగలరు."
     },
     "quickReplies": {
       "onMyWay": "నేను వస్తున్నాను",
@@ -99,7 +100,8 @@
         "bookedByMistake": "పొరపాటున బుక్ చేశారు",
         "fareTooHigh": "ఛార్జీ ఎక్కువగా ఉంది",
         "foundAnotherRide": "వేరే రైడ్ దొరికింది",
-        "other": "ఇతరం"
+        "other": "ఇతరం",
+        "sendingAnotherWay": "వేరే విధంగా పంపుతున్నాను"
       }
     },
     "supportChat": {
@@ -264,8 +266,6 @@
       "failedToSignInPleaseCheck": "సైన్ ఇన్ కాలేకపోయాము. దయచేసి మీ వివరాలను తనిఖీ చేయండి.",
       "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా",
       "passwordRecoveryInstructionsWillBeSent": "పాస్‌వర్డ్ రికవరీ సూచనలు మీ ఖాతాకు పంపబడతాయి.",
-      "phoneNumberNeeded": "ఫోన్ నంబర్ అవసరం",
-      "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి.",
       "customizeDistance": "దూరాన్ని అనుకూలీకరించండి",
       "filteringWithinKm": "{{km}} కి.మీ లోపల ఫిల్టర్ చేస్తోంది",
       "showingAllNearbyOptions": "అన్ని సమీప ఎంపికలను చూపిస్తోంది",
@@ -295,8 +295,6 @@
       "vegOnly": "శాఖాహారం మాత్రమే",
       "welcomeBack": "తిరిగి స్వాగతం",
       "foodMeatRidesHelpersAndCourier": "ఆహారం, మాంసం, రైడ్‌లు, హెల్పర్‌లు మరియు కొరియర్ రన్‌లు. ఒకే యాప్.",
-      "or": "లేదా",
-      "continueWithOtpInstead": "బదులుగా OTPతో కొనసాగించండి",
       "newHere": "కొత్తగా వచ్చారా?",
       "createAnAccount": "ఖాతాను సృష్టించండి",
       "noLocationSelected": "లొకేషన్ ఎంచుకోబడలేదు",
@@ -347,7 +345,79 @@
       "pickAServiceToGetStarted": "ప్రారంభించడానికి ఒక సేవను ఎంచుకోండి.",
       "beta": "బీటా",
       "offerEyebrow": "ఆఫర్",
-      "viewOffer": "ఆఫర్ చూడండి"
+      "viewOffer": "ఆఫర్ చూడండి",
+      "filterModal": {
+        "tabs": {
+          "sort": "క్రమం",
+          "store149": "149 స్టోర్",
+          "mins15": "15 నిమిషాలు",
+          "ratings": "రేటింగ్‌లు",
+          "costForTwo": "ఇద్దరికి ఖర్చు",
+          "vegNonVeg": "వెజ్/నాన్-వెజ్",
+          "cuisines": "వంటకాల రకాలు"
+        },
+        "sections": {
+          "sortBy": "క్రమబద్ధీకరణ",
+          "store149Partners": "149 స్టోర్ భాగస్వాములు",
+          "deliveryTime": "డెలివరీ సమయం",
+          "availability": "అందుబాటు",
+          "offers": "ఆఫర్‌లు",
+          "ratings": "రేటింగ్‌లు",
+          "costForTwo": "ఇద్దరికి ఖర్చు",
+          "dietaryPreference": "ఆహార ప్రాధాన్యత",
+          "cuisines": "వంటకాల రకాలు"
+        },
+        "sort": {
+          "relevance": "సంబంధితం (డిఫాల్ట్)",
+          "distance": "దూరం: దగ్గరివి ముందు",
+          "time": "డెలివరీ సమయం",
+          "rating": "రేటింగ్",
+          "costLowHigh": "ధర: తక్కువ నుండి ఎక్కువ",
+          "costHighLow": "ధర: ఎక్కువ నుండి తక్కువ"
+        },
+        "showAll": "అన్నీ చూపించు",
+        "ratingsPlus": "రేటింగ్‌లు {{value}}+",
+        "cost": {
+          "under300": "₹300 కంటే తక్కువ",
+          "between300And600": "₹300 – ₹600",
+          "over600": "₹600 కంటే ఎక్కువ"
+        },
+        "diet": {
+          "pureVeg": "ప్యూర్ వెజ్",
+          "nonVeg": "నాన్-వెజ్"
+        },
+        "resultCount_one": "{{count}} ఫలితం",
+        "resultCount_other": "{{count}} ఫలితాలు"
+      },
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "మొదటి ఆర్డర్",
+          "headline": "₹120 వరకు 50% తగ్గింపు",
+          "caption": "కోడ్ FLAV50 · కనీసం ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "లేట్ నైట్",
+          "headline": "రాత్రి 2 గంటల వరకు తెరిచి ఉంటుంది",
+          "caption": "మీ దగ్గర్లో 42 అవుట్‌లెట్‌లు"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "ఆదివారం స్పెషల్",
+          "headline": "నాటు కోడి ₹399 / కేజీ"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "క్లీన్ చేసి కట్ చేయబడింది",
+          "headline": "ఈరోజు ఛార్జీ లేదు"
+        }
+      },
+      "searchFoodHungry": "ఆకలిగా ఉందా? మీ దగ్గరి వంటకాలు & రెస్టారెంట్‌లను వెతకండి",
+      "searchFoodTry": "“పిజ్జా”, “దోశ”, “థాలీ” ప్రయత్నించండి",
+      "searchMeatFresh": "తాజా మాంసం మీ ఇంటి వద్దకే",
+      "searchMeatTry": "“చికెన్”, “చేప”, “గుడ్లు” ప్రయత్నించండి",
+      "searchEverything": "ఆహారం, మాంసం, రైడ్‌లు & మరిన్ని — అన్నీ Adiosలో",
+      "packageShort": "ప్యాకేజీ",
+      "helperShort": "హెల్పర్"
     },
     "profile": {
       "menuItems": {
@@ -358,7 +428,8 @@
         "notifications": "నోటిఫికేషన్‌లు",
         "security": "భద్రత",
         "language": "భాష",
-        "helpSupport": "సహాయం & మద్దతు"
+        "helpSupport": "సహాయం & మద్దతు",
+        "termsPrivacy": "నిబంధనలు & గోప్యతా విధానం"
       },
       "signOutOfAllDevices": "అన్ని పరికరాల నుండి సైన్ అవుట్ చేయాలా?",
       "everyPhoneSignedInToThis": "ఈ ఖాతాలో సైన్ ఇన్ అయిన ప్రతి ఫోన్ సైన్ అవుట్ అవుతుంది, ఇది కూడా.",
@@ -448,8 +519,6 @@
       "lastOrderDaysAgo_other": "ఇక్కడ ఇంకా ఏమీ లేదు. మీ చివరి ఆర్డర్ {{vendor}}, {{count}} రోజుల క్రితం.",
       "nothingHereYetFindSomethingTo": "ఇక్కడ ఇంకా ఏమీ లేదు — రెస్టారెంట్ లేదా మాంసం కేంద్రం నుండి జోడించడానికి ఏదైనా కనుగొనండి.",
       "browseRestaurants": "రెస్టారెంట్‌లను బ్రౌజ్ చేయండి",
-      "orderFrom": "నుండి ఆర్డర్ చేయండి",
-      "again": "మళ్లీ",
       "orderAgain": "మళ్లీ ఆర్డర్ చేయండి",
       "itemWasUpdatedCount_one": "{{count}} వస్తువు అప్‌డేట్ చేయబడింది",
       "itemWasUpdatedCount_other": "{{count}} వస్తువులు అప్‌డేట్ చేయబడ్డాయి",
@@ -638,7 +707,6 @@
       "passwordMustBeAtLeast8": "పాస్‌వర్డ్ కనీసం 8 అక్షరాలు ఉండాలి.",
       "termsPrivacyPolicy": "నిబంధనలు & గోప్యతా విధానం",
       "pleaseAgreeToTheTermsAnd": "కొనసాగించడానికి నిబంధనలు మరియు గోప్యతా విధానానికి అంగీకరించండి.",
-      "couldntSendCode": "కోడ్ పంపలేకపోయాము",
       "somethingWentWrongTryAgain": "ఏదో పొరపాటు జరిగింది. దయచేసి మళ్లీ ప్రయత్నించండి.",
       "fullName": "పూర్తి పేరు",
       "yourName": "మీ పేరు",
@@ -662,22 +730,11 @@
       "rahulvermagmailcom": "rahul.verma@gmail.com",
       "password": "పాస్‌వర్డ్",
       "min8Characters": "కనీసం 8 అక్షరాలు",
-      "verificationFailed": "ధృవీకరణ విఫలమైంది",
-      "thatCodeDidntWork": "ఆ కోడ్ పని చేయలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
-      "couldntResend": "మళ్లీ పంపలేకపోయాము",
-      "pleaseTryAgainInAMoment": "దయచేసి కొద్ది సేపటిలో మళ్లీ ప్రయత్నించండి.",
-      "callRequested": "కాల్ అభ్యర్థించబడింది",
-      "wellRingYouWithYourCode": "మేము మీ కోడ్‌తో త్వరలో మీకు కాల్ చేస్తాము.",
-      "didnapostGetIt": "అందుకోలేదా?",
-      "getACallInstead": "బదులుగా కాల్ పొందండి",
-      "verifyYourNumber": "మీ నంబర్‌ను ధృవీకరించండి",
-      "weSentA6digitCodeTo": "మేము 6-అంకెల కోడ్‌ను పంపాము",
-      "change": "మార్చండి",
-      "resendCodeIn0": "0: లో కోడ్‌ను మళ్లీ పంపండి",
-      "resend": "మళ్లీ పంపండి",
       "verified": "ధృవీకరించబడింది",
       "createYourAccount": "మీ ఖాతాను సృష్టించండి",
-      "takesAboutAMinuteWeaposllVerify": "సుమారు ఒక నిమిషం పడుతుంది. మేము OTPతో మీ ఫోన్‌ను ధృవీకరిస్తాము."
+      "takesAboutAMinuteWeaposllVerify": "సుమారు ఒక నిమిషం పడుతుంది. మేము OTPతో మీ ఫోన్‌ను ధృవీకరిస్తాము.",
+      "couldntCreateAccount": "ఖాతా సృష్టించలేకపోయాము",
+      "and": "మరియు"
     },
     "delivery": {
       "streetAddress": "వీధి చిరునామా",
@@ -1024,7 +1081,7 @@
       "giveThisToYourHelperOnceWorkIsFinished": "పని పూర్తయిన తర్వాత మాత్రమే దీన్ని మీ హెల్పర్‌కు ఇవ్వండి.",
       "restaurantDidNotAcceptInTime": "రెస్టారెంట్ సమయానికి మీ ఆర్డర్‌ను అంగీకరించలేదు, అందుకే అది రద్దు చేయబడింది. ఆన్‌లైన్ చెల్లింపు తిరిగి ఇవ్వబడుతుంది.",
       "restaurantCouldNotTakeOrder": "రెస్టారెంట్ మీ ఆర్డర్‌ను తీసుకోలేకపోయింది, అందుకే అది రద్దు చేయబడింది. ఆన్‌లైన్ చెల్లింపు తిరిగి ఇవ్వబడుతుంది.",
-      "waitingForRestaurantTitle": "రెస్టారెంట్ కోసం వేచి ఉన్నాం",
+      "waitingForRestaurantTitle": "రెస్టారెంట్ మీ ఆర్డర్‌ను నిర్ధారించే వరకు వేచి ఉంది",
       "waitingForRestaurantSubtitle": "రెస్టారెంట్ త్వరలో మీ ఆర్డర్‌ను అంగీకరిస్తుంది. అంగీకరించిన వెంటనే రైడర్‌ను వెతుకుతాం.",
       "restaurantPreparingTitle": "రెస్టారెంట్ మీ ఆహారాన్ని సిద్ధం చేస్తోంది",
       "restaurantPreparingSubtitle": "దాన్ని తీసుకెళ్లడానికి రైడర్‌ను వెతుకుతున్నాం. సాధారణంగా ఒక నిమిషం లోపే.",
@@ -1087,9 +1144,6 @@
     "notifications": {
       "nothingHereYetOrderAndAccount": "ఇక్కడ ఇంకా ఏమీ లేదు. ఆర్డర్ మరియు ఖాతా అప్‌డేట్‌లు ఈ జాబితాలో కనిపిస్తాయి."
     },
-    "otp": {
-      "verifyContinue": "ధృవీకరించి కొనసాగించండి"
-    },
     "payment": {
       "pricesChangedTitle": "మీ కార్ట్ మారింది",
       "pricesChanged": "మీరు కార్ట్ తెరిచిన తర్వాత కొన్ని ధరలు లేదా ఐటమ్‌లు మారాయి. దయచేసి కార్ట్‌కు తిరిగి వెళ్లి చూసి, మళ్లీ చెల్లించండి. మీ నుండి డబ్బు తీసుకోలేదు.",
@@ -1110,6 +1164,17 @@
       "online": "ఆన్‌లైన్",
       "onlineHint": "UPI, కార్డులు, నెట్‌బ్యాంకింగ్",
       "paySecurely": "సురక్షితంగా చెల్లించండి",
+      "proceedToPay": "చెల్లింపుకు కొనసాగండి",
+      "paymentOptions": "చెల్లింపు ఎంపికలు",
+      "toPayAmount": "చెల్లించాల్సింది ₹{{amount}}",
+      "scheduledFor": "{{slot}} కి షెడ్యూల్ చేయబడింది",
+      "payOnDelivery": "డెలివరీ సమయంలో చెల్లింపు",
+      "payOnDeliveryHint": "ఆర్డర్ వచ్చినప్పుడు రైడర్‌కు నగదు చెల్లించండి",
+      "payOnline": "ఆన్‌లైన్‌లో చెల్లించండి",
+      "payOnlineHint": "UPI, కార్డులు, నెట్‌బ్యాంకింగ్ & వాలెట్లు",
+      "payWithCash": "₹{{amount}} నగదుగా చెల్లించండి",
+      "payAmountOnline": "₹{{amount}} ఆన్‌లైన్‌లో చెల్లించండి",
+      "securedByRazorpay": "ఆన్‌లైన్ చెల్లింపులు Razorpay ద్వారా సురక్షితంగా ప్రాసెస్ అవుతాయి. మీ ఆర్డర్ రద్దయితే, మీరు చెల్లించిన ఖాతాకే డబ్బు తిరిగి వస్తుంది.",
       "topupRefundedTitle": "చెల్లింపు తిరిగి ఇవ్వబడుతోంది",
       "topupRefunded": "మీ పనిని ఇప్పటికే ఒకరు తీసుకున్నారు, కాబట్టి ఈ చెల్లింపు మీకు తిరిగి ఇవ్వబడుతోంది."
     },
@@ -1166,7 +1231,8 @@
         "inProgress": "కొనసాగుతోంది",
         "arrived": "చేరుకున్నారు",
         "waitingForRestaurant": "రెస్టారెంట్ కోసం వేచి ఉన్నాం"
-      }
+      },
+      "deliveryInProgress": "డెలివరీ జరుగుతోంది"
     },
     "shareLink": {
       "cantShareRightNow": "ఇప్పుడు షేర్ చేయలేము",
@@ -1277,7 +1343,25 @@
       "deliveryOtpLabel": "ప్యాకేజీ డెలివరీ OTP",
       "deliveryOtpHint": "దీన్ని అందుకునేవారితో పంచుకోండి. డెలివరీ పూర్తి చేయడానికి కెప్టెన్‌కు ఇది అవసరం — ప్యాకేజీ అందిన తర్వాతే అందుకునేవారు దీన్ని ఇవ్వాలి.",
       "shareOtp": "అందుకునేవారికి OTP పంపండి",
-      "shareOtpMessage": "మీ ప్యాకేజీ డెలివరీ OTP {{otp}}. ప్యాకేజీ అందిన తర్వాత మాత్రమే దీన్ని కెప్టెన్‌కు ఇవ్వండి."
+      "shareOtpMessage": "మీ ప్యాకేజీ డెలివరీ OTP {{otp}}. ప్యాకేజీ అందిన తర్వాత మాత్రమే దీన్ని కెప్టెన్‌కు ఇవ్వండి.",
+      "cancelDelivery": "డెలివరీని రద్దు చేయండి",
+      "noFeeNoPartnerYet": "రద్దు రుసుము లేదు — మేము ఇంకా డెలివరీ భాగస్వామిని కేటాయించలేదు.",
+      "steps": {
+        "partnerAssigned": "డెలివరీ భాగస్వామి కేటాయించబడ్డారు",
+        "inProgress": "డెలివరీ జరుగుతోంది",
+        "delivered": "ప్యాకేజీ డెలివరీ అయింది"
+      },
+      "banner": {
+        "partnerOnTheWay": "డెలివరీ భాగస్వామి వస్తున్నారు",
+        "partnerArrived": "డెలివరీ భాగస్వామి వచ్చారు",
+        "inProgress": "డెలివరీ జరుగుతోంది",
+        "arrivedAtDrop": "డ్రాప్ ప్రదేశానికి చేరుకున్నారు"
+      },
+      "done": {
+        "headline": "ప్యాకేజీ డెలివరీ అయింది",
+        "deliveredBy": "{{name}} డెలివరీ చేశారు.",
+        "delivered": "మీ ప్యాకేజీ డెలివరీ అయింది."
+      }
     },
     "supportBot": {
       "allQuestions": "అన్ని ప్రశ్నలు",
@@ -1305,6 +1389,59 @@
         "payment": "చెల్లింపులు",
         "general": "సాధారణం"
       }
+    },
+    "cartStripe": {
+      "yourCart": "మీ కార్ట్",
+      "viewCart": "కార్ట్ చూడండి",
+      "a11yLabel": "{{vendor}}, {{total}}, {{items}}. కార్ట్ చూడండి"
+    },
+    "a11y": {
+      "back": "వెనుకకు వెళ్ళండి"
+    },
+    "deleteAccount": {
+      "title": "ఖాతాను తొలగించండి",
+      "heading": "మీ ఖాతాను తొలగించడం శాశ్వతం",
+      "pointProfile": "మీ పేరు, ఇమెయిల్, ఫోన్ నంబర్ మరియు ఫోటో మీ ప్రొఫైల్ నుండి తొలగించబడతాయి.",
+      "pointAddresses": "సేవ్ చేసిన చిరునామాలు, ఇష్టమైనవి, మీ కార్ట్ మరియు నోటిఫికేషన్‌లు తొలగించబడతాయి.",
+      "pointSignOut": "అన్ని పరికరాల నుండి మీరు సైన్ అవుట్ అవుతారు మరియు ఈ ఖాతాలోకి మళ్లీ సైన్ ఇన్ చేయలేరు.",
+      "pointOrders": "చట్టం ప్రకారం గత ఆర్డర్‌లు మరియు చెల్లింపులు మా రికార్డుల కోసం ఉంచబడతాయి.",
+      "passwordLabel": "మీ పాస్‌వర్డ్‌తో నిర్ధారించండి",
+      "passwordPlaceholder": "పాస్‌వర్డ్",
+      "deleteMyAccount": "నా ఖాతాను తొలగించండి",
+      "confirmTitle": "మీ ఖాతాను తొలగించాలా?",
+      "confirmBody": "దీన్ని రద్దు చేయలేము.",
+      "deleteForever": "తొలగించు",
+      "couldntDelete": "ఖాతాను తొలగించలేకపోయాము"
+    },
+    "legal": {
+      "title": "నిబంధనలు & గోప్యత",
+      "terms": "సేవా నిబంధనలు",
+      "privacy": "గోప్యతా విధానం",
+      "lastUpdated": "చివరిగా నవీకరించబడింది: {{date}}"
+    },
+    "language": {
+      "chooseYourLanguage": "మీ భాషను ఎంచుకోండి",
+      "changeLater": "దీన్ని తర్వాత మీ ప్రొఫైల్ నుండి మార్చుకోవచ్చు."
+    },
+    "foodOrder": {
+      "cancelOrder": "ఆర్డర్ రద్దు చేయండి",
+      "keepOrder": "ఆర్డర్ ఉంచండి",
+      "cancelTitle": "ఈ ఆర్డర్‌ను రద్దు చేయాలా?",
+      "cancelBody": "మీ డెలివరీ భాగస్వామి ఇంకా ఆహారాన్ని తీసుకోలేదు. మీరు ఆన్‌లైన్‌లో చెల్లించి ఉంటే, మొత్తం తిరిగి చెల్లించబడుతుంది.",
+      "couldntCancel": "ఆర్డర్‌ను రద్దు చేయలేకపోయాము",
+      "noFeeNoPartnerYet": "రద్దు రుసుము లేదు — ఇంకా డెలివరీ భాగస్వామిని కేటాయించలేదు.",
+      "cancelReasons": {
+        "orderedByMistake": "పొరపాటున ఆర్డర్ చేశాను",
+        "changeMyOrder": "నా ఆర్డర్ మార్చాలనుకుంటున్నాను",
+        "wrongAddress": "తప్పు డెలివరీ చిరునామా"
+      }
+    },
+    "raiseFare": {
+      "titleRide": "ఇంకా ఏ రైడర్ అంగీకరించలేదు",
+      "titlePackage": "ఇంకా ఏ డెలివరీ భాగస్వామి అంగీకరించలేదు",
+      "subtitle": "మీ ఛార్జీని పెంచండి, మేము మీ అభ్యర్థనను మళ్లీ పంపుతాము — ఎక్కువ ఛార్జీ త్వరగా అంగీకరించబడుతుంది.",
+      "addAmount": "ఛార్జీకి ₹{{amount}} జోడించండి",
+      "couldntRaise": "ఛార్జీని పెంచలేకపోయాము"
     }
   }
 }

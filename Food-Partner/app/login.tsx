@@ -12,7 +12,7 @@ export default function LoginScreen() {
   } = useLogin();
 
   return (
-    <ScreenShell keyboardAvoiding scroll contentStyle={[styles.content, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]}>
+    <ScreenShell keyboardAvoiding scroll style={{ paddingTop: insets.top }} contentStyle={[styles.content, { paddingTop: 40, paddingBottom: insets.bottom + 24 }]}>
       <AuthHero title={t("auth.title")} subtitle={t("auth.subtitle")} styles={styles} />
       <LoginForm
         identifier={identifier}

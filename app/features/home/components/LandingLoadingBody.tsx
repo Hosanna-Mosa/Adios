@@ -1,46 +1,90 @@
-// Animated must come from react-native, not reanimated: the opacity/translate
-// values below are RN Animated.Value instances created in app/index.tsx.
-import { View, Animated } from "react-native";
-import { typography } from "@/constants/typography";
+// Animated must come from react-native, not reanimated: the values below are RN
+// Animated.Value instances created in features/home/useIntroSplash.ts.
+import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
+import { useTranslation } from "react-i18next";
+import { fontFamilies, typography } from "@/constants/typography";
+import { SPLASH_WORD, type IntroSplashAnims } from "@/features/home/useIntroSplash";
 
-// Moved out of app/index.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+const MARK = require("@/assets/images/splash-mark.png");
 
 interface Props {
-  letters: any[];
-  opacityAnim: any;
-  translateAnim: any;
+  anims: IntroSplashAnims;
 }
 
-export function LandingLoadingBody({
-  letters,
-  opacityAnim,
-  translateAnim,
-}: Props) {
+/** The intro splash: the white "A" mark (same artwork as the native splash) with ripples,
+ * then the ADIOS wordmark and tagline. */
+export function LandingLoadingBody({ anims }: Props) {
+  const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  // Same share of the screen width as the native splash image's mark (assets/images/splash-icon.png).
+  const markSize = Math.min(width * 0.36, 180);
+
+  const markScale = anims.mark.interpolate({ inputRange: [0, 0.4, 1], outputRange: [1, 0.9, 1] });
+  const lift = anims.lift.interpolate({ inputRange: [0, 1], outputRange: [0, -markSize * 0.3] });
+  const ringScale = anims.ring.interpolate({ inputRange: [0, 1], outputRange: [1, 2.1] });
+  const ringOpacity = anims.ring.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] });
+
   return (
-    <>
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {letters.map((letter, idx) => (
-        <Animated.Text
-          key={idx}
-          style={{
-            fontSize: typography.sizes.extraLarge,
-            fontWeight: "900",
-            color: "#ffffff",
-            marginHorizontal: 4,
-            textTransform: "uppercase",
-            letterSpacing: 2,
-            transform: [{ translateY: translateAnim[idx] }],
-            opacity: opacityAnim[idx],
-            textShadowColor: "rgba(0,0,0,0.3)",
-            textShadowOffset: { width: 0, height: 4 },
-            textShadowRadius: 6,
-          }}
-        >
-          {letter}
-        </Animated.Text>
-      ))}
-    </View>
-    </>
+    <Animated.View style={[styles.stack, { transform: [{ translateY: lift }] }]}>
+      <View style={{ width: markSize, height: markSize, alignItems: "center", justifyContent: "center" }}>
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.ring, { width: markSize, height: markSize, borderRadius: markSize / 2, opacity: ringOpacity, transform: [{ scale: ringScale }] }]}
+        />
+        <Animated.Image
+          source={MARK}
+          style={[styles.mark, { width: markSize, height: markSize, borderRadius: markSize / 2, transform: [{ scale: markScale }] }]}
+        />
+      </View>
+
+      <View style={styles.wordRow}>
+        {SPLASH_WORD.map((letter, idx) => (
+          <Animated.Text
+            key={idx}
+            style={[
+              styles.wordLetter,
+              {
+                opacity: anims.letters[idx],
+                transform: [{ translateY: anims.letters[idx].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
+              },
+            ]}
+          >
+            {letter}
+          </Animated.Text>
+        ))}
+      </View>
+
+      <Animated.Text style={[styles.tagline, { opacity: anims.tagline }]} numberOfLines={2}>
+        {/* The splash is always English, whichever language the customer has chosen. */}
+        {t("app.home.foodMeatRidesHelpersAndCourier", { lng: "en" })}
+      </Animated.Text>
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  stack: { alignItems: "center", paddingHorizontal: 32 },
+  ring: { position: "absolute", borderWidth: 2, borderColor: "#FFFFFF" },
+  mark: {
+    shadowColor: "#000000",
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  wordRow: { flexDirection: "row", marginTop: 28 },
+  wordLetter: {
+    fontFamily: fontFamilies.heading.bold,
+    fontSize: typography.sizes.extraLarge,
+    color: "#FFFFFF",
+    letterSpacing: 6,
+    marginHorizontal: 2,
+  },
+  tagline: {
+    fontFamily: fontFamilies.body.medium,
+    fontSize: typography.sizes.medium,
+    lineHeight: typography.lineHeights.medium,
+    color: "rgba(255,255,255,0.9)",
+    textAlign: "center",
+    marginTop: 10,
+  },
+});

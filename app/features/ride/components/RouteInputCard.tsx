@@ -60,6 +60,19 @@ export function RouteInputCard({
   const { t } = useTranslation();
   const isFocused = (type: string, id?: string) =>
     focusedInput?.type === type && (id === undefined || focusedInput?.id === id);
+  // With nothing focused, the first empty field is the active one: Pickup until
+  // it is set, then Drop. (Drop used to be highlighted even with no pickup.)
+  const defaultField: "pickup" | "drop" = pickup ? "drop" : "pickup";
+  const isActive = (type: "pickup" | "drop") => isFocused(type) || (!focusedInput && defaultField === type);
+
+  // Put the cursor in that field when the screen opens. Read through a ref: a
+  // pickup passed in the route params is set a moment after mount.
+  const pickupSetRef = React.useRef(pickup);
+  pickupSetRef.current = pickup;
+  React.useEffect(() => {
+    const timer = setTimeout(() => (pickupSetRef.current ? dropRef : pickupRef).current?.focus?.(), 500);
+    return () => clearTimeout(timer);
+  }, [pickupRef, dropRef]);
 
   const ClearButton = ({ type }: { type: "pickup" | "drop" }) => (
     <TouchableOpacity
@@ -89,8 +102,8 @@ export function RouteInputCard({
       </View>
 
       <View style={styles.inputsContainer}>
-        <View style={[styles.fieldSlot, isFocused("pickup") && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, isFocused("pickup") && { color: accent.accent }]}>Pickup</Text>
+        <View style={[styles.fieldSlot, isActive("pickup") && styles.fieldSlotActive]}>
+          <Text style={[styles.fieldLabel, isActive("pickup") && { color: accent.accent }]}>Pickup</Text>
           <GooglePlacesAutocomplete
             ref={pickupRef}
             placeholder="Pickup location"
@@ -149,8 +162,8 @@ export function RouteInputCard({
           </View>
         ))}
 
-        <View style={[styles.fieldSlot, (isFocused("drop") || !focusedInput) && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, (isFocused("drop") || !focusedInput) && { color: accent.accent }]}>Drop</Text>
+        <View style={[styles.fieldSlot, isActive("drop") && styles.fieldSlotActive]}>
+          <Text style={[styles.fieldLabel, isActive("drop") && { color: accent.accent }]}>Drop</Text>
           <GooglePlacesAutocomplete
             ref={dropRef}
             placeholder={t("app.ride.searchDestination")}

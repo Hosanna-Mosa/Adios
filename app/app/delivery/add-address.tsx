@@ -8,6 +8,7 @@ import { AddAddressSearchResults } from "@/features/delivery/components/AddAddre
 import { AddAddressSearchRow } from "@/features/delivery/components/AddAddressSearchRow";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useAddAddress } from "@/features/delivery/useAddAddress";
+import { useMapStyle } from "@/components/useMapStyle";
 
 export default function AddAddressScreen() {
   const {
@@ -19,6 +20,7 @@ export default function AddAddressScreen() {
   handleUseCurrentLocation, onRegionChangeComplete, handleSearch, handleSelectSearchResult,
   handleSave
   } = useAddAddress();
+  const mapStyle = useMapStyle();
 
   return (
     <ScreenShell keyboardAvoiding>
@@ -29,6 +31,7 @@ export default function AddAddressScreen() {
             provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
             style={StyleSheet.absoluteFill}
             initialRegion={region}
+            customMapStyle={mapStyle}
             onRegionChangeComplete={onRegionChangeComplete}
             showsUserLocation
             showsMyLocationButton={false}

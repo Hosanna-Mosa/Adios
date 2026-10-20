@@ -108,8 +108,10 @@ export function SignupBody({
             {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
           </View>
           <Text style={styles.termsText}>
-            {t("app.auth.iAgreeToThe")} <Text style={styles.legalHighlight}>{t("app.auth.terms")}</Text> and{" "}
-            <Text style={styles.legalHighlight}>{t("app.auth.privacyPolicy")}</Text>.
+            {t("app.auth.iAgreeToThe")}{" "}
+            <Text style={styles.legalHighlight} onPress={() => router.push("/legal")} suppressHighlighting>{t("app.auth.terms")}</Text>{" "}
+            {t("app.auth.and")}{" "}
+            <Text style={styles.legalHighlight} onPress={() => router.push({ pathname: "/legal", params: { doc: "privacy" } })} suppressHighlighting>{t("app.auth.privacyPolicy")}</Text>.
           </Text>
         </TouchableOpacity>
       </Animated.View>

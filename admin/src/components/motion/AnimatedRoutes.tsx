@@ -38,6 +38,9 @@ const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
 const HelperPricing = lazy(() => import("@/pages/HelperPricing"));
+const AuditLog = lazy(() => import("@/pages/AuditLog"));
+const Broadcasts = lazy(() => import("@/pages/Broadcasts"));
+const Reports = lazy(() => import("@/pages/Reports"));
 const DriverVerification = lazy(() => import("@/pages/DriverVerification"));
 const RestaurantVerification = lazy(() => import("@/pages/RestaurantVerification"));
 
@@ -109,6 +112,9 @@ export function AnimatedRoutes() {
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
         <Route path="/helper-pricing" element={<RequireAdmin><HelperPricing /></RequireAdmin>} />
+        <Route path="/audit-log" element={<RequireAdmin><AuditLog /></RequireAdmin>} />
+        <Route path="/broadcasts" element={<RequireAdmin><Broadcasts /></RequireAdmin>} />
+        <Route path="/reports" element={<RequireAdmin><Reports /></RequireAdmin>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

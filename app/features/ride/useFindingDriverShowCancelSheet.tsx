@@ -17,20 +17,30 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     cab_prime: t("app.rideTierNames.cabPrime"),
   }), [t]);
 
-  const CANCEL_REASONS = useMemo(() => [
+  const isPackageDelivery = !!orderSummary?.isPackageDelivery;
+  const isFoodOrder = !!orderSummary?.isFoodOrder;
+  const CANCEL_REASONS = useMemo(() => isFoodOrder ? [
+    t("app.findingDriver.cancelReasons.waitingTooLong"),
+    t("app.foodOrder.cancelReasons.orderedByMistake"),
+    t("app.foodOrder.cancelReasons.changeMyOrder"),
+    t("app.foodOrder.cancelReasons.wrongAddress"),
+    t("app.findingDriver.cancelReasons.other"),
+  ] : [
     t("app.findingDriver.cancelReasons.waitingTooLong"),
     t("app.findingDriver.cancelReasons.bookedByMistake"),
     t("app.findingDriver.cancelReasons.fareTooHigh"),
-    t("app.findingDriver.cancelReasons.foundAnotherRide"),
+    isPackageDelivery ? t("app.findingDriver.cancelReasons.sendingAnotherWay") : t("app.findingDriver.cancelReasons.foundAnotherRide"),
     t("app.findingDriver.cancelReasons.other"),
-  ], [t]);
+  ], [t, isPackageDelivery, isFoodOrder]);
 
   const [showCancelSheet, setShowCancelSheet] = useState(false);
   const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0]);
 
   const handleCancel = async () => {
     setShowCancelSheet(false);
-    router.push("/(tabs)");
+    // Replace, not push: a pushed Home left this screen under it, and Back then
+    // returned to a "Finding…" screen for an order that was already cancelled.
+    router.replace("/(tabs)");
     if (orderId) {
       try {
         await cancelOrder(orderId);

@@ -38,7 +38,7 @@ export function MeatCentersTopRow({
         <Text style={styles.addressEyebrow}>{t("app.home.deliveryTo")}</Text>
         <View style={styles.addressLabelRow}>
           <Text style={styles.addressLabel} numberOfLines={1}>
-            {selectedAddress?.label ? `${selectedAddress.label} · Nallagandla` : t("app.meat.selectLocation")}
+            {selectedAddress?.label || t("app.meat.selectLocation")}
           </Text>
           <Ionicons name="chevron-down" size={moderateScale(12)} color={tokens.sec} />
         </View>

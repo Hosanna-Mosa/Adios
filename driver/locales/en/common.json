@@ -266,7 +266,6 @@
     "arrivedAtPickupLocation": "Arrived at Pickup Location",
     "arrivedAtRestaurant": "Arrived at Restaurant",
     "assistanceRequested": "Assistance Requested",
-    "backToOrder": "Back to Order",
     "cancelDelivery": "Cancel Delivery",
     "checklistIncomplete": "Checklist Incomplete",
     "confirmCustomerDelivery": "Confirm Customer Delivery",
@@ -447,7 +446,6 @@
     "waitForCustomerToAssignTask": "Wait for the customer to assign the task.",
     "waitingFeeEarned": "Waiting Fee Earned",
     "waitingForRestaurant": "Waiting for Restaurant...",
-    "whyAreYouDeclining": "Why are you declining?",
     "within20MetersOfRestaurant": "You are within 20 meters of restaurant location.",
     "yesCancel": "Yes, Cancel",
     "youllReceiveOrdersFor": "You'll receive orders for {{value}}",
@@ -455,10 +453,6 @@
     "youreOnline": "You're Online!",
     "youreOnlineAndReceivingOrders": "You're online and receiving orders",
     "youreVisibleToCustomers": "You're visible to customers",
-    "declineReasonFareTooLow": "Fare is too low",
-    "declineReasonDistanceTooLong": "Distance is too long",
-    "declineReasonPickupTooFar": "Pickup is too far",
-    "declineReasonNotInterested": "Not interested right now",
     "backToOnboarding": "Back to Onboarding",
     "deliveryActiveTask": "Delivery Active Task",
     "failedToLoadZoneMap": "Failed to load zone map",
@@ -535,7 +529,9 @@
     "packageDeliveryEnterOtp": "Enter the delivery OTP from the receiver",
     "packageDeliveryOtpPlaceholder": "4-digit OTP",
     "packageDeliveryInvalidOtp": "Wrong OTP. Ask the receiver for the 4-digit code the sender shared with them.",
-    "packageDeliveryComplete": "Complete package delivery"
+    "packageDeliveryComplete": "Complete package delivery",
+    "packageDeliveryActiveTask": "Package Delivery Task",
+    "packageDeliveryCompleted": "Package Delivered!"
   },
   "onboarding": {
     "sections": {

@@ -1,6 +1,21 @@
 import { Request, Response } from "express";
+import { expandQueryVariants, interleaveSuggestions, mapNominatimResult, mergeSuggestions, type PlaceSuggestion } from "./places.search";
 
 const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+
+// OpenStreetMap's public services ask every client to identify itself.
+const OSM_USER_AGENT = "Adios/1.0 address autocomplete";
+const MAX_SUGGESTIONS = 10;
+
+/** GET + parse JSON, or null when the service is slow (6 s), down or answers badly. */
+const fetchJson = async (url: string, headers?: Record<string, string>): Promise<any | null> => {
+  try {
+    const response = await fetch(url, { headers, signal: AbortSignal.timeout(6000) });
+    return await response.json();
+  } catch {
+    return null;
+  }
+};
 
 const isFiniteCoordinate = (value: unknown) => {
   const numberValue = Number(value);
@@ -117,86 +132,86 @@ export class PlacesController {
   static async getAutocompleteSuggestions(req: Request, res: Response) {
     const { input, lat, lng, radius = 10000 } = req.query;
     const radiusValue = firstQueryValue(radius) ?? 10000;
-
     const inputText = String(input || "").trim();
     if (!inputText) {
       return res.status(400).json({ message: "input query param is required" });
     }
 
     try {
-      const autocompleteParams = new URLSearchParams({
-        input: inputText,
-        language: "en",
-        components: "country:in",
-        key: GOOGLE_MAPS_APIKEY,
-      });
-      if (isFiniteCoordinate(lat) && isFiniteCoordinate(lng)) {
-        autocompleteParams.set("location", `${lat},${lng}`);
-        autocompleteParams.set("radius", String(radiusValue));
-        autocompleteParams.set("origin", `${lat},${lng}`);
+      const hasPoint = isFiniteCoordinate(lat) && isFiniteCoordinate(lng);
+      // The typed text, then other ways of writing it ("busstand" -> "bus station", the two
+      // spellings of Telugu town names): small places are often listed under those.
+      const variants = expandQueryVariants(inputText, 4);
+
+      const googleAutocomplete = async (text: string): Promise<PlaceSuggestion[]> => {
+        const params = new URLSearchParams({ input: text, language: "en", components: "country:in", key: GOOGLE_MAPS_APIKEY });
+        if (hasPoint) {
+          params.set("location", `${lat},${lng}`);
+          params.set("radius", String(radiusValue));
+          params.set("origin", `${lat},${lng}`);
+        }
+        const data = await fetchJson(`https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`);
+        if (data?.status === "OK") return (data.predictions || []).map(mapAutocompletePrediction);
+        if (data && data.status !== "ZERO_RESULTS") {
+          console.warn("GOOGLE AUTOCOMPLETE ERROR:", { status: data.status, error_message: data.error_message });
+        }
+        return [];
+      };
+
+      const googleGeocode = async (text: string): Promise<PlaceSuggestion[]> => {
+        const params = new URLSearchParams({ address: text, components: "country:IN", key: GOOGLE_MAPS_APIKEY });
+        const bounds = getBoundsParam(lat, lng, radiusValue);
+        if (bounds) params.set("bounds", bounds);
+        const data = await fetchJson(`https://maps.googleapis.com/maps/api/geocode/json?${params.toString()}`);
+        if (data?.status === "OK") return (data.results || []).slice(0, 8).map(mapGeocodeResult);
+        if (data && data.status !== "ZERO_RESULTS") {
+          console.warn("GOOGLE GEOCODE FALLBACK ERROR:", { status: data.status, error_message: data.error_message });
+        }
+        return [];
+      };
+
+      const photonSearch = async (text: string): Promise<PlaceSuggestion[]> => {
+        const params = new URLSearchParams({ q: `${text} India`, limit: "10", lang: "en" });
+        if (hasPoint) {
+          params.set("lat", String(lat));
+          params.set("lon", String(lng));
+        }
+        const data = await fetchJson(`https://photon.komoot.io/api/?${params.toString()}`, { "User-Agent": OSM_USER_AGENT });
+        const found = (data?.features || [])
+          .map(mapPhotonFeature)
+          .filter((item: any) => item.address && Number.isFinite(item.lat) && Number.isFinite(item.lng));
+        const indian = found.filter((item: any) => item.address.toLowerCase().includes("india"));
+        return indian.length > 0 ? indian : found;
+      };
+
+      const nominatimSearch = async (text: string): Promise<PlaceSuggestion[]> => {
+        const params = new URLSearchParams({ format: "jsonv2", countrycodes: "in", limit: "8", q: text });
+        const data = await fetchJson(`https://nominatim.openstreetmap.org/search?${params.toString()}`, { "User-Agent": OSM_USER_AGENT });
+        return Array.isArray(data) ? data.map(mapNominatimResult).filter((item) => Number.isFinite(item.lat) && Number.isFinite(item.lng)) : [];
+      };
+
+      // 1. Google's own suggestions — shown first, as before.
+      let results = await googleAutocomplete(inputText);
+      if (results.length < 5 && variants.length > 1) {
+        results = mergeSuggestions([results, await googleAutocomplete(variants[1])], MAX_SUGGESTIONS);
       }
+      if (results.length >= 6) return res.json(results.slice(0, MAX_SUGGESTIONS));
 
-      const autocompleteUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${autocompleteParams.toString()}`;
-      const autocompleteResponse = await fetch(autocompleteUrl);
-      const autocompleteData = await autocompleteResponse.json();
+      // 2. Too few: add Google's geocoder and the OpenStreetMap-based searches (Photon and
+      // Nominatim, which lists bus stations, stops and shops that Photon often misses). Each
+      // spelling gets a fair share of the slots. Nominatim is a shared public service, so only
+      // the typed text and its best alternative are sent, one request each.
+      const [geocoded, photon, nominatim] = await Promise.all([
+        googleGeocode(inputText),
+        Promise.all(variants.map(photonSearch)),
+        Promise.all(variants.slice(0, 2).map(nominatimSearch)),
+      ]);
+      results = mergeSuggestions(
+        [results, geocoded, interleaveSuggestions([...nominatim, ...photon])],
+        MAX_SUGGESTIONS,
+      );
 
-      if (autocompleteData.status === "OK") {
-        return res.json((autocompleteData.predictions || []).map(mapAutocompletePrediction));
-      }
-
-      if (autocompleteData.status !== "ZERO_RESULTS") {
-        console.warn("GOOGLE AUTOCOMPLETE ERROR:", {
-          status: autocompleteData.status,
-          error_message: autocompleteData.error_message,
-        });
-      }
-
-      const geocodeParams = new URLSearchParams({
-        address: inputText,
-        components: "country:IN",
-        key: GOOGLE_MAPS_APIKEY,
-      });
-      const bounds = getBoundsParam(lat, lng, radiusValue);
-      if (bounds) {
-        geocodeParams.set("bounds", bounds);
-      }
-
-      const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?${geocodeParams.toString()}`;
-      const geocodeResponse = await fetch(geocodeUrl);
-      const geocodeData = await geocodeResponse.json();
-
-      if (geocodeData.status === "OK") {
-        return res.json((geocodeData.results || []).slice(0, 8).map(mapGeocodeResult));
-      }
-
-      if (geocodeData.status !== "ZERO_RESULTS") {
-        console.warn("GOOGLE GEOCODE FALLBACK ERROR:", {
-          status: geocodeData.status,
-          error_message: geocodeData.error_message,
-        });
-      }
-
-      const photonParams = new URLSearchParams({
-        q: `${inputText} India`,
-        limit: "10",
-        lang: "en",
-      });
-      if (isFiniteCoordinate(lat) && isFiniteCoordinate(lng)) {
-        photonParams.set("lat", String(lat));
-        photonParams.set("lon", String(lng));
-      }
-
-      const photonUrl = `https://photon.komoot.io/api/?${photonParams.toString()}`;
-      const photonResponse = await fetch(photonUrl, {
-        headers: { "User-Agent": "Project-X/1.0 address autocomplete" },
-      });
-      const photonData = await photonResponse.json();
-      const photonSuggestions = (photonData.features || [])
-        .map(mapPhotonFeature)
-        .filter((item: any) => item.address && Number.isFinite(item.lat) && Number.isFinite(item.lng));
-      const indianSuggestions = photonSuggestions.filter((item: any) => item.address.toLowerCase().includes("india"));
-
-      return res.json((indianSuggestions.length > 0 ? indianSuggestions : photonSuggestions).slice(0, 8));
+      return res.json(results);
     } catch (error) {
       console.error("Autocomplete API Error:", error);
       res.status(500).json({ message: "Internal server error" });

@@ -45,14 +45,13 @@ export default function AllServicesScreen() {
   const styles = React.useMemo(() => createStyles(tokens, accent), [theme, accent, tokens]);
   const setServiceType = useDeliveryStore((state) => state.setServiceType);
   const RIDE_TIERS = useRideTiers();
-  const { t } = useTranslation();
 
   const selectTier = (tier: RideTier) => {
     setServiceType(tier.id);
     router.push({ pathname: "/drop-location", params: { serviceId: tier.id, name: tier.name } });
   };
 
-  // Four equal cards: the ride tiers, then Hire a helper and Package delivery.
+  // Rides only (Bike and Auto). Package delivery and Hire a helper are separate services on Home.
   const services: ServiceCardItem[] = [
     ...RIDE_TIERS.map((tier) => ({
       id: tier.id,
@@ -62,24 +61,6 @@ export default function AllServicesScreen() {
       accent: tokens.services.ride,
       onPress: () => selectTier(tier),
     })),
-    {
-      id: "helper",
-      name: t("app.home.hireAHelper"),
-      icon: "hammer-wrench",
-      description: t("app.home.from80Hour"),
-      accent: tokens.services.task,
-      onPress: () => router.push("/helper-task"),
-    },
-    {
-      id: "package-delivery",
-      name: t("app.delivery.packageDelivery"),
-      icon: "package-variant-closed",
-      description: t("app.packageDelivery.serviceCardHint"),
-      accent: tokens.services.delivery,
-      // Pickup → drop by bike or auto (app/package-delivery). The older multi-stop courier at
-      // /delivery/entry is still reached from "Reorder" on past delivery orders.
-      onPress: () => router.push("/package-delivery"),
-    },
   ];
 
   return (

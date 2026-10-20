@@ -266,7 +266,6 @@
     "arrivedAtPickupLocation": "పికప్ లొకేషన్‌కు చేరుకున్నారు",
     "arrivedAtRestaurant": "రెస్టారెంట్‌కు చేరుకున్నారు",
     "assistanceRequested": "సహాయం అభ్యర్థించబడింది",
-    "backToOrder": "ఆర్డర్‌కు వెనుకకు",
     "cancelDelivery": "డెలివరీని రద్దు చేయండి",
     "checklistIncomplete": "చెక్‌లిస్ట్ అసంపూర్తిగా ఉంది",
     "confirmCustomerDelivery": "కస్టమర్ డెలివరీని నిర్ధారించండి",
@@ -447,7 +446,6 @@
     "waitForCustomerToAssignTask": "కస్టమర్ టాస్క్‌ను కేటాయించే వరకు వేచి ఉండండి.",
     "waitingFeeEarned": "సంపాదించిన వెయిటింగ్ ఫీజు",
     "waitingForRestaurant": "రెస్టారెంట్ కోసం వేచి ఉంది...",
-    "whyAreYouDeclining": "మీరు ఎందుకు తిరస్కరిస్తున్నారు?",
     "within20MetersOfRestaurant": "మీరు రెస్టారెంట్ లొకేషన్‌కు 20 మీటర్ల లోపు ఉన్నారు.",
     "yesCancel": "అవును, రద్దు చేయండి",
     "youllReceiveOrdersFor": "మీరు {{value}} కోసం ఆర్డర్‌లను స్వీకరిస్తారు",
@@ -455,10 +453,6 @@
     "youreOnline": "మీరు ఆన్‌లైన్‌లో ఉన్నారు!",
     "youreOnlineAndReceivingOrders": "మీరు ఆన్‌లైన్‌లో ఉన్నారు మరియు ఆర్డర్‌లను స్వీకరిస్తున్నారు",
     "youreVisibleToCustomers": "మీరు కస్టమర్‌లకు కనిపిస్తున్నారు",
-    "declineReasonFareTooLow": "ఛార్జీ చాలా తక్కువ",
-    "declineReasonDistanceTooLong": "దూరం చాలా ఎక్కువ",
-    "declineReasonPickupTooFar": "పికప్ చాలా దూరంగా ఉంది",
-    "declineReasonNotInterested": "ప్రస్తుతం ఆసక్తి లేదు",
     "backToOnboarding": "ఆన్‌బోర్డింగ్‌కు తిరిగి వెళ్లండి",
     "deliveryActiveTask": "డెలివరీ యాక్టివ్ టాస్క్",
     "failedToLoadZoneMap": "జోన్ మ్యాప్‌ను లోడ్ చేయడంలో విఫలమైంది",
@@ -535,7 +529,9 @@
     "packageDeliveryEnterOtp": "అందుకునేవారి నుండి డెలివరీ OTP నమోదు చేయండి",
     "packageDeliveryOtpPlaceholder": "4 అంకెల OTP",
     "packageDeliveryInvalidOtp": "OTP తప్పు. పంపేవారు పంచుకున్న 4 అంకెల కోడ్‌ను అందుకునేవారిని అడగండి.",
-    "packageDeliveryComplete": "ప్యాకేజీ డెలివరీ పూర్తి చేయండి"
+    "packageDeliveryComplete": "ప్యాకేజీ డెలివరీ పూర్తి చేయండి",
+    "packageDeliveryActiveTask": "ప్యాకేజీ డెలివరీ పని",
+    "packageDeliveryCompleted": "ప్యాకేజీ డెలివరీ అయింది!"
   },
   "onboarding": {
     "sections": {

@@ -79,6 +79,7 @@ export function usePackageDeliveryConfirm() {
       const { setOrderId, setServiceType, setStatus } = useDeliveryStore.getState();
       setOrderId(order._id);
       setServiceType(vehicle);
+      useDeliveryStore.getState().setIsPackageDelivery(true);
       setStatus("confirmed");
       placed.current = true;
       // Home underneath "Finding your captain", not this booking flow.

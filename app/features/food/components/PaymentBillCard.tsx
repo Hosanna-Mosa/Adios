@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { type ThemeTokens } from "@/constants/colors";
 import { type PaymentStyles } from "@/features/food/usePayment.shared";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/payment.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -26,35 +27,36 @@ export function PaymentBillCard({
   tokens,
   total,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.billCard}>
       <View style={styles.billRow}>
-        <Text style={styles.billLabel}>Item total</Text>
+        <Text style={styles.billLabel}>{t("app.food.itemTotal")}</Text>
         <Text style={styles.billValue}>₹{subtotal}</Text>
       </View>
       {deliveryFee != null ? (
         <View style={styles.billRow}>
-          <Text style={styles.billLabel}>Delivery fee</Text>
-          <Text style={styles.billValue}>{deliveryFee === 0 ? "Free" : `₹${deliveryFee}`}</Text>
+          <Text style={styles.billLabel}>{t("app.food.deliveryFee")}</Text>
+          <Text style={styles.billValue}>{deliveryFee === 0 ? t("app.food.free") : `₹${deliveryFee}`}</Text>
         </View>
       ) : (
-        <Text style={styles.billNote}>Delivery fee is confirmed with your order.</Text>
+        <Text style={styles.billNote}>{t("app.food.deliveryFeeIsConfirmedWithYour")}</Text>
       )}
       {tip > 0 && (
         <View style={styles.billRow}>
-          <Text style={styles.billLabel}>Delivery tip</Text>
+          <Text style={styles.billLabel}>{t("app.food.deliveryTip")}</Text>
           <Text style={styles.billValue}>₹{tip}</Text>
         </View>
       )}
       {discount > 0 && (
         <View style={styles.billRow}>
-          <Text style={[styles.billLabel, { color: tokens.success }]}>Coupon {couponCode}</Text>
+          <Text style={[styles.billLabel, { color: tokens.success }]}>{t("app.food.coupon")} {couponCode}</Text>
           <Text style={[styles.billValue, { color: tokens.success }]}>−₹{discount}</Text>
         </View>
       )}
       <View style={styles.billDivider} />
       <View style={styles.billRow}>
-        <Text style={styles.billTotalLabel}>To pay</Text>
+        <Text style={styles.billTotalLabel}>{t("app.food.toPay")}</Text>
         <Text style={styles.billTotalValue}>₹{total}</Text>
       </View>
     </View>

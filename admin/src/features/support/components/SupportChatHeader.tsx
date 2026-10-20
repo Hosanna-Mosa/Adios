@@ -2,6 +2,7 @@ import { toast } from "sonner";
 import { CheckCircle, Clock, MoreVertical, Phone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PriorityBadge, PriorityMenuItems, SlaBadge } from "./TicketMeta";
 import type { Ticket } from "../types";
 
 interface SupportChatHeaderProps {
@@ -43,6 +44,10 @@ export function SupportChatHeader({ ticket, onResolve, onReopen }: SupportChatHe
           <p className="text-xs text-muted-foreground">
             {ticket.ticketId} • <span className="font-bold text-primary">{ticket.category}</span>
           </p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <PriorityBadge priority={ticket.priority} />
+            <SlaBadge sla={ticket.sla} status={ticket.status} />
+          </div>
         </div>
       </div>
 
@@ -65,6 +70,7 @@ export function SupportChatHeader({ ticket, onResolve, onReopen }: SupportChatHe
               <Clock className="mr-2 h-4 w-4 text-red-500" />
               {t("support.reopenCase")}
             </DropdownMenuItem>
+            <PriorityMenuItems ticketId={ticket._id} current={ticket.priority} />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

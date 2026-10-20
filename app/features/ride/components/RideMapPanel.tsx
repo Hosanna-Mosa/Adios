@@ -15,6 +15,7 @@ import Animated from "react-native-reanimated";
 
 import type { Props } from "./RideMapPanel.props";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
+import { useMapStyle } from "@/components/useMapStyle";
 
 export function RideMapPanel(props: Props) {
   const { GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
@@ -23,11 +24,13 @@ export function RideMapPanel(props: Props) {
   routeCoordinates, selectedFare, selectedTier, setMapReady, styles, tokens, tripCoordinates,
   userLocation, validStops } = props;
   const { t } = useTranslation();
+  const mapStyle = useMapStyle();
   return (
     <View style={styles.mapContainer}>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={initialRegion}
         zoomEnabled scrollEnabled pitchEnabled rotateEnabled zoomTapEnabled
@@ -122,7 +125,7 @@ export function RideMapPanel(props: Props) {
         </View>
       </Animated.View>
 
-      <Animated.View style={styles.routeChip} entering={fadeIn(60)}>
+      <Animated.View style={[styles.routeChip, { top: insets.top + 10 }]} entering={fadeIn(60)}>
         <Text style={styles.routeChipMain} numberOfLines={1}>{getDisplayName(params.pickupName)} → {getDisplayName(params.dropName)}</Text>
         {selectedFare && (
           <Text style={styles.routeChipSub}>{selectedFare.distanceInKm.toFixed(1)} km · about {selectedFare.estimatedMinutes} min</Text>

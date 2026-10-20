@@ -12,4 +12,6 @@ export const queryKeys = {
   supportTickets: (vendorId: string) => ["partner-support-tickets", vendorId] as const,
   profile: (vendorId: string) => ["partner-profile", vendorId] as const,
   payouts: (vendorId: string) => ["partner-payouts", vendorId] as const,
+  analytics: (vendorId: string, days: number) => ["partner-analytics", vendorId, days] as const,
+  offers: (vendorId: string) => ["partner-offers", vendorId] as const,
 };

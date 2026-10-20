@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { Image, Paperclip, Send, Smile } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CannedRepliesMenu } from "./CannedRepliesMenu";
 
 interface SupportChatComposerProps {
   value: string;
@@ -25,7 +26,8 @@ export function SupportChatComposer({ value, onChange, onKeyDown, onSend, placeh
           className="w-full bg-transparent text-sm placeholder:text-muted-foreground resize-none focus:outline-none max-h-32"
         />
         <div className="flex items-center justify-between mt-1 pt-2 border-t border-border/40">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <CannedRepliesMenu onPick={(text) => onChange(value.trim() ? `${value.trimEnd()}\n${text}` : text)} customerName={placeholderName} />
             <button onClick={() => toast.info(t("support.attachmentsDialogClicked"))} className="p-1.5 hover:bg-muted rounded-lg transition-colors border border-transparent hover:border-border" title={t("support.attachFiles")}>
               <Paperclip className="h-4 w-4 text-muted-foreground" />
             </button>
