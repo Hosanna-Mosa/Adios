@@ -11,6 +11,9 @@ import {
   getVendorMeatMenu,
   updateMeatItemAvailability,
   updateMeatItemPrice,
+  createMyMeatItem,
+  updateMyMeatItem,
+  deleteMyMeatItem,
   changeMeatVendorPassword,
   forgotMeatVendorPassword,
   resetMeatVendorPassword,
@@ -32,6 +35,9 @@ import {
   vendorMeatMenuParamSchema,
   updateMeatItemAvailabilitySchema,
   updateMeatItemPriceSchema,
+  createMyMeatItemSchema,
+  updateMyMeatItemSchema,
+  meatItemIdParamSchema,
   changeMeatVendorPasswordSchema,
 } from "./meat.validation";
 
@@ -60,6 +66,9 @@ router.post("/reset-password", authRateLimiter, validateRequest(resetPasswordSch
 router.get("/vendor-menu/:centerId", authenticateToken, validateRequest(vendorMeatMenuParamSchema), getVendorMeatMenu);
 router.put("/items/:itemId/availability", authenticateToken, validateRequest(updateMeatItemAvailabilitySchema), updateMeatItemAvailability);
 router.put("/items/:itemId/price", authenticateToken, validateRequest(updateMeatItemPriceSchema), updateMeatItemPrice);
+router.post("/items", authenticateToken, validateRequest(createMyMeatItemSchema), createMyMeatItem);
+router.put("/items/:itemId", authenticateToken, validateRequest(updateMyMeatItemSchema), updateMyMeatItem);
+router.delete("/items/:itemId", authenticateToken, validateRequest(meatItemIdParamSchema), deleteMyMeatItem);
 router.put("/change-password", authenticateToken, validateRequest(changeMeatVendorPasswordSchema), changeMeatVendorPassword);
 
 export default router;

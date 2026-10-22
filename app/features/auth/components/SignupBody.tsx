@@ -113,7 +113,10 @@ export function SignupBody({
           <Text style={styles.termsText}>
             <Trans
               i18nKey="app.auth.agreeToTermsAndPrivacy"
-              components={{ terms: <Text style={styles.legalHighlight} />, privacy: <Text style={styles.legalHighlight} /> }}
+              components={{
+                terms: <Text style={styles.legalHighlight} onPress={() => router.push("/legal")} suppressHighlighting />,
+                privacy: <Text style={styles.legalHighlight} onPress={() => router.push({ pathname: "/legal", params: { doc: "privacy" } })} suppressHighlighting />,
+              }}
             />
           </Text>
         </TouchableOpacity>

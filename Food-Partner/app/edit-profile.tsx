@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { Header } from "@/components/ui/Header";
 import { ScreenShell } from "@/components/ui/ScreenShell";
+import { ProfileImagesCard } from "@/features/account/edit/components/ProfileImagesCard";
 import { EditProfileForm } from "@/features/account/edit/components/EditProfileForm";
 import { useEditProfile } from "@/features/account/edit/useEditProfile";
 
@@ -30,6 +31,15 @@ export default function EditProfileScreen() {
       contentStyle={p.styles.content}
       footer={<Button title={t("editProfile.save")} onPress={p.submit} loading={p.saving} disabled={p.locating} fullWidth />}
     >
+      <ProfileImagesCard
+        name={p.form.name}
+        image={p.profile?.image}
+        coverImage={p.profile?.coverImage}
+        busy={p.images.busy}
+        onChange={p.images.change}
+        styles={p.styles}
+        tokens={p.tokens}
+      />
       <EditProfileForm
         form={p.form}
         update={p.update}

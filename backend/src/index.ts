@@ -25,6 +25,7 @@ import userRoutes from "./modules/users/users.routes";
 import driverRoutes from "./modules/drivers/drivers.routes";
 import orderRoutes from "./modules/orders/orders.routes";
 import adminRoutes from "./modules/admin/admin.routes";
+import { auditAdminActions } from "./middleware/auditLog.middleware";
 import placesRoutes from "./modules/places/places.routes";
 import routingRoutes from "./modules/routing/routing.routes";
 import paymentRoutes from "./modules/payments/payment.routes";
@@ -129,6 +130,8 @@ connectDB().then(async () => {
 
   // API Routes
   // API Routes v1
+  // Records admin / support writes in the audit trail — see middleware/auditLog.middleware.ts.
+  app.use("/api/v1", auditAdminActions);
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/users", userRoutes);
   app.use("/api/v1/drivers", driverRoutes);

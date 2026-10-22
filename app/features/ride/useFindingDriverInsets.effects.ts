@@ -86,6 +86,13 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
             totalDistance: orderData.totalDistance,
             duration: orderData.duration,
             serviceType: orderData.serviceType,
+            // A package delivery rides on a bike/auto order; its screens use delivery wording.
+            isPackageDelivery: !!orderData.packageDelivery,
+            // A restaurant order (not meat): the cancel sheet talks about the order, not a ride.
+            isFoodOrder: orderData.outlet?.partnerType === "food",
+            // What decides whether "add to your fare" can be offered.
+            isReserved: !!orderData.isReserved,
+            paidOnline: orderData.paymentMethod === "online" && orderData.paymentStatus === "paid",
             // A restaurant / meat-shop order: the map marks the restaurant and the delivery home.
             hasOutlet: !!orderData.vendor,
             packageDelivery: !!orderData.packageDelivery,

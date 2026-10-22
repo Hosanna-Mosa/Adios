@@ -122,6 +122,25 @@ export const updateMeatItemPriceSchema = z.object({
   }),
 });
 
+const meatItemFields = {
+  name: z.string().trim().min(1, "Name is required").max(80),
+  weight: z.string().trim().min(1, "Weight / pack size is required").max(40),
+  price: z.coerce.number().positive("Price must be more than 0").max(100000),
+  category: z.string().trim().min(1, "Category is required").max(40),
+  image: z.string().trim().max(2048).optional(),
+  description: z.string().trim().max(300).optional(),
+  isAvailable: z.boolean().optional(),
+};
+
+/** A partner adds an item to their own meat inventory. */
+export const createMyMeatItemSchema = z.object({ body: z.object(meatItemFields) });
+
+/** A partner edits an item; every field optional. */
+export const updateMyMeatItemSchema = z.object({
+  params: z.object({ itemId: z.string().min(1, "Meat item ID is required") }),
+  body: z.object(meatItemFields).partial().refine((b) => Object.keys(b).length > 0, "Nothing to update"),
+});
+
 export const changeMeatVendorPasswordSchema = z.object({
   body: z.object({
     currentPassword: z.string().min(1, "Current password and new password are required"),

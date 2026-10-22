@@ -59,3 +59,7 @@ export const getFavouriteOutlets = () => customFetch<Vendor[]>("/users/favorites
 export const getFavouriteItems = () => customFetch<MenuItem[]>("/users/favorite-items");
 
 export const signOutAllDevices = () => customFetch("/auth/logout-all", { method: "POST" });
+
+/** Permanently deletes the signed-in customer's account; the server archives a copy first. */
+export const deleteAccount = (body: { password: string; reason?: string }) =>
+  customFetch("/users/me", { method: "DELETE", body: JSON.stringify(body) });

@@ -37,7 +37,7 @@ export function useSignup() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const requestOTP = useAuthStore((s) => s.requestOTP);
+  const register = useAuthStore((s) => s.register);
   const loading = useAuthStore((s) => s.loading);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -56,14 +56,13 @@ export function useSignup() {
     }
   }, [isInitialized, token]);
 
-  // Anything the user actually typed. The phone is pre-filled and locked when
-  // this screen is reached from the OTP screen, so it doesn't count as entered.
+  // Anything the user actually typed. A phone pre-filled through the route
+  // params is locked, so it doesn't count as entered.
   const hasEnteredDetails =
     !!name || !!email || !!password || agreedToTerms || (!prefillPhone && !!phoneNumber);
 
-  // Never router.back() here: this screen is reached with a replace from both
-  // the sign-in screen and the OTP screen, so "back" would either dead-end or
-  // drop the user onto a spent OTP screen.
+  // Never router.back() here: this screen is reached with a replace from the
+  // sign-in screen, so "back" would dead-end.
   const leaveSignup = useCallback(() => {
     router.replace("/login");
   }, []);
@@ -120,17 +119,10 @@ export function useSignup() {
     }
 
     try {
-      // The account isn't created here — a real OTP has to verify the phone
-      // first. verifyOTP on the next screen carries name/email/password
-      // through and creates the account once the code checks out.
-      const trimmedPhone = phoneNumber.trim();
-      await requestOTP(trimmedPhone);
-      router.push({
-        pathname: "/otp",
-        params: { phone: trimmedPhone, name: name.trim(), email: email.trim(), password },
-      });
+      await register(name.trim(), phoneNumber.trim(), email.trim(), password);
+      router.replace("/(tabs)");
     } catch (error: any) {
-      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.auth.somethingWentWrongTryAgain"));
+      showAlert(t("app.auth.couldntCreateAccount"), error.message || t("app.auth.somethingWentWrongTryAgain"));
     }
   };
 

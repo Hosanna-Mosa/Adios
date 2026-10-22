@@ -154,7 +154,7 @@ export default function RootLayout() {
     if (!(fontsLoaded || fontError) || !isInitialized || !introSplashDone) return;
 
     const firstSegment = segments[0];
-    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
+    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup";
 
     // A restored session always wins — an authenticated user goes straight to
     // the main app and never sees the language gate again this process.
@@ -179,7 +179,8 @@ export default function RootLayout() {
     }
 
 
-    if (!isAuthScreen) {
+    // Terms & Privacy are linked from Sign up, so they open signed out too.
+    if (!isAuthScreen && firstSegment !== "legal") {
       router.replace("/login");
     }
   }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone]);

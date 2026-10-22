@@ -5,6 +5,7 @@ import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
 import { type FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 import type { FoodStage } from "@/contexts/delivery.types";
+import { FindingDriverRaiseFare } from "./FindingDriverRaiseFare";
 
 // Moved out of app/finding-driver.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -23,6 +24,10 @@ interface Props {
   spinStyle: any;
   styles: FindingDriverStyles;
   tierLabel: string;
+  /** No rider has accepted yet: offer to add to the fare (rides and package deliveries). */
+  showRaiseFare?: boolean;
+  raising?: number | null;
+  onRaiseFare?: (amount: number) => void;
 }
 
 export function FindingDriverSheet({
@@ -36,8 +41,12 @@ export function FindingDriverSheet({
   spinStyle,
   styles,
   tierLabel,
+  showRaiseFare = false,
+  raising = null,
+  onRaiseFare,
 }: Props) {
   const { t } = useTranslation();
+  const isPackageDelivery = !!orderSummary?.isPackageDelivery;
   const searchingText =
     (tierLabel ? t("app.ride.searchingNearby", { tier: tierLabel, defaultValue: "Searching {{tier}} nearby. " }) : t("app.ride.searchingNearbyCaptains")) +
     t("app.ride.usuallyUnderAMinute");
@@ -46,7 +55,9 @@ export function FindingDriverSheet({
       ? t("app.ride.waitingForRestaurantTitle")
       : foodStage === "preparing"
         ? t("app.ride.restaurantPreparingTitle")
-        : t("app.ride.findingYourCaptain");
+        : isPackageDelivery
+          ? t("app.ride.findingYourDeliveryPartner")
+          : t("app.ride.findingYourCaptain");
   const subtitle =
     foodStage === "awaiting_restaurant"
       ? t("app.ride.waitingForRestaurantSubtitle")
@@ -92,9 +103,13 @@ export function FindingDriverSheet({
         </Animated.View>
       )}
 
+      {showRaiseFare && onRaiseFare && (
+        <FindingDriverRaiseFare isPackageDelivery={isPackageDelivery} raising={raising} onRaise={onRaiseFare} />
+      )}
+
       <View style={{ marginTop: "auto" }}>
         <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowCancelSheet(true)} activeOpacity={0.85}>
-          <Text style={styles.cancelBtnText}>{isRide ? t("app.ride.cancelRideLower") : t("app.ride.cancelOrderLower")}</Text>
+          <Text style={styles.cancelBtnText}>{isPackageDelivery ? t("app.packageDelivery.cancelDelivery") : isRide ? t("app.ride.cancelRideLower") : t("app.ride.cancelOrderLower")}</Text>
         </TouchableOpacity>
       </View>
     </View>

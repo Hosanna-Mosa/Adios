@@ -1,4 +1,4 @@
-import { parsePushPayload, pushTarget } from "@/utils/pushPayload";
+import { parsePushPayload, pushTarget, pushTargetFromData } from "@/utils/pushPayload";
 
 // The shapes backend/src/modules/orders/orders.service.ts sends.
 const newOrderPush = {
@@ -47,5 +47,31 @@ describe("pushTarget", () => {
 
   it("goes nowhere for other notifications", () => {
     expect(pushTarget(null)).toBeNull();
+  });
+});
+
+describe("pushTargetFromData", () => {
+  it("keeps the live alerts going where they went", () => {
+    expect(pushTargetFromData(newOrderPush)).toEqual({ pathname: "/order/[id]", params: { id: "66aa11bb22cc" } });
+    expect(pushTargetFromData(scheduledPush)).toEqual({ pathname: "/scheduled-orders" });
+  });
+
+  it("routes order updates, payouts and support replies", () => {
+    expect(pushTargetFromData({ kind: "order_update", orderId: "ADSF010125123456" })).toEqual({ pathname: "/order/[id]", params: { id: "ADSF010125123456" } });
+    expect(pushTargetFromData({ kind: "payout" })).toEqual({ pathname: "/payouts" });
+    expect(pushTargetFromData({ kind: "support_reply", ticketId: "T-9" })).toEqual({ pathname: "/support-chat", params: { ticketId: "T-9" } });
+    expect(pushTargetFromData({ kind: "support_reply" })).toEqual({ pathname: "/support" });
+  });
+
+  it("opens an announcement's screen only when it is on the allow-list", () => {
+    expect(pushTargetFromData({ kind: "announcement", screen: "/payouts" })).toEqual({ pathname: "/payouts" });
+    expect(pushTargetFromData({ kind: "announcement", screen: "/(tabs)/menu" })).toEqual({ pathname: "/(tabs)/menu" });
+    expect(pushTargetFromData({ kind: "announcement", screen: "/login" })).toBeNull();
+    expect(pushTargetFromData({ kind: "announcement" })).toBeNull();
+  });
+
+  it("goes nowhere for unknown or empty data", () => {
+    expect(pushTargetFromData(null)).toBeNull();
+    expect(pushTargetFromData({ kind: "mystery" })).toBeNull();
   });
 });

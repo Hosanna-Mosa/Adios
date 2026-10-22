@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { Linking } from "react-native";
+import * as WebBrowser from "expo-web-browser";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { showAlert } from "@/components/ui/AppAlert";
 import { useToast } from "@/components/ui/Toast";
 import { useTokens } from "@/contexts/themeStore";
 import { useAcceptOrder, useMarkOrderReady, useRejectOrder, useVendorOrder } from "@/queries/orders.queries";
+import { getInvoiceLink } from "@/services/insights.service";
 import { errorMessage } from "@/utils/errorMessage";
 import {
   canMarkOrderReady,
@@ -30,7 +32,23 @@ export function useOrderDetail(orderId: string) {
   const accept = useAcceptOrder();
   const reject = useRejectOrder();
   const [prepMinutes, setPrepMinutes] = useState(DEFAULT_PREP_MINUTES);
+  const [openingInvoice, setOpeningInvoice] = useState(false);
   const order = query.data;
+
+  // The invoice is for a finished order; the link opens it in the browser, where it can be printed or saved as a PDF.
+  const canInvoice = ["delivered", "completed"].includes(String(order?.status ?? "").toLowerCase());
+  const openInvoice = async () => {
+    if (!order || openingInvoice) return;
+    setOpeningInvoice(true);
+    try {
+      const { url } = await getInvoiceLink(order._id);
+      await WebBrowser.openBrowserAsync(url);
+    } catch (error) {
+      toast.show(errorMessage(error, t("orderDetail.invoiceFailed")), "error");
+    } finally {
+      setOpeningInvoice(false);
+    }
+  };
 
   const acceptOrder = () => {
     if (!order) return;
@@ -104,5 +122,8 @@ export function useOrderDetail(orderId: string) {
     confirmReject,
     rejecting: reject.isPending,
     call,
+    canInvoice,
+    openInvoice,
+    openingInvoice,
   };
 }

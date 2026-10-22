@@ -25,6 +25,16 @@ export const verifyOtpSchema = z.object({
   }),
 });
 
+// Customer self-sign-up with a password (the customer app has no OTP step).
+export const registerSchema = z.object({
+  body: z.object({
+    name: z.string().trim().min(3, "Please enter your full name"),
+    phone: z.string().trim().min(10, "Phone number must be at least 10 digits").max(15, "Phone number must be at most 15 digits"),
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address").optional(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  }),
+});
+
 export const loginWithPasswordSchema = z.object({
   // The admin portal posts { email, password, role } when the identifier looks
   // like an email and { phone, ... } otherwise, so either key identifies the

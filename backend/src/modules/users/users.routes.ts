@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { UsersController } from "./users.controller";
-import { authenticateToken } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole, AuthRequest } from "../../middleware/auth.middleware";
+import { UserRole } from "../../database/models/User";
 import { upload } from "../../middleware/upload.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
 import {
@@ -13,7 +14,9 @@ import {
   toggleFavoriteSchema,
   toggleFavoriteItemSchema,
   updatePushTokenSchema,
+  deleteAccountSchema,
 } from "./users.validation";
+import { deleteCustomerAccount } from "./account-deletion.service";
 
 const router = Router();
 const usersController = new UsersController();
@@ -39,6 +42,16 @@ router.post("/favorites/:vendorId", authenticateToken, validateRequest(toggleFav
 
 router.get("/favorite-items", authenticateToken, usersController.getFavoriteItems.bind(usersController));
 router.post("/favorite-items/:itemId", authenticateToken, validateRequest(toggleFavoriteItemSchema), usersController.toggleFavoriteItem.bind(usersController));
+
+// Customer account deletion. Saves a full archive copy first — see account-deletion.service.ts.
+router.delete("/me", authenticateToken, authorizeRole([UserRole.USER]), validateRequest(deleteAccountSchema), async (req: AuthRequest, res, next) => {
+  try {
+    const result = await deleteCustomerAccount(req.user!.userId, req.body.password, req.body.reason);
+    return res.json(result);
+  } catch (error) {
+    return next(error);
+  }
+});
 
 router.post("/push-token", authenticateToken, validateRequest(updatePushTokenSchema), usersController.updatePushToken.bind(usersController));
 

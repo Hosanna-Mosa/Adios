@@ -2,14 +2,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/contexts/authStore";
 import {
   addFoodItem,
+  addMeatItem,
   bulkAddFoodItems,
   deleteFoodItem,
+  deleteMeatItem,
   getFoodMenu,
   getMeatInventory,
   setFoodItemAvailability,
   setMeatItemAvailability,
   setMeatItemPrice,
   updateFoodItem,
+  updateMeatItem,
+  type MeatItemInput,
 } from "@/services/menu.service";
 import type { BulkFoodItem, FoodItem, FoodItemInput, MeatItem } from "@/types/models";
 import { queryKeys } from "./keys";
@@ -109,6 +113,25 @@ export function useToggleMeatAvailability() {
       if (context?.previous) queryClient.setQueryData(key, context.previous);
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: key }),
+  });
+}
+
+/** Add (no id) or edit (id) a meat item, then reload the inventory. */
+export function useSaveMeatItem() {
+  const { vendorId } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id?: string; input: MeatItemInput }) => (id ? updateMeatItem(id, input) : addMeatItem(input)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.meatInventory(vendorId) }),
+  });
+}
+
+export function useDeleteMeatItem() {
+  const { vendorId } = useSession();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteMeatItem(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.meatInventory(vendorId) }),
   });
 }
 
