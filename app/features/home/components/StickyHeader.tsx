@@ -4,6 +4,12 @@ import Animated from "react-native-reanimated";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { useTranslation } from "react-i18next";
+
+// The emoji buttons are ~28-30pt; the slop brings each tap target to ~44pt.
+// Horizontal slop is kept within the gaps so neighbouring buttons never overlap.
+const STICKY_TOGGLE_HIT_SLOP = { top: 8, bottom: 8 };
+const STICKY_HIT_SLOP = { top: 7, bottom: 7, left: 4, right: 4 };
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -28,6 +34,7 @@ export function StickyHeader({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View
       style={[styles.stickyHeader, { paddingTop: insets.top + 8 }, stickyHeaderAnimatedStyle]}
@@ -39,20 +46,49 @@ export function StickyHeader({
             <TouchableOpacity
               style={[styles.stickyToggleCell, activeService === "Food" && { backgroundColor: tokens.surface }]}
               onPress={() => handleServiceSwitch("Food")}
+              hitSlop={STICKY_TOGGLE_HIT_SLOP}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.serviceMeta.food")}
+              accessibilityState={{ selected: activeService === "Food" }}
             >
               <Text style={styles.stickyToggleEmoji}>🍛</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.stickyToggleCell, activeService === "Meat" && { backgroundColor: tokens.surface }]}
               onPress={() => handleServiceSwitch("Meat")}
+              hitSlop={STICKY_TOGGLE_HIT_SLOP}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.serviceMeta.meat")}
+              accessibilityState={{ selected: activeService === "Meat" }}
             >
               <Text style={styles.stickyToggleEmoji}>🍖</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.stickyIconBtn} onPress={() => router.push("/all-services")}>
-            <Text style={styles.stickyToggleEmoji}>🛺</Text>
+          <TouchableOpacity
+            style={styles.stickyIconBtn}
+            onPress={() => router.push("/all-services")}
+            hitSlop={STICKY_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.serviceMeta.ride")}
+          >
+            <Text style={styles.stickyToggleEmoji}>🚖</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.stickyIconBtn} onPress={() => router.push("/helper-task")}>
+          <TouchableOpacity
+            style={styles.stickyIconBtn}
+            onPress={() => router.push("/package-delivery")}
+            hitSlop={STICKY_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.serviceMeta.packageDelivery")}
+          >
+            <Text style={styles.stickyToggleEmoji}>📦</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.stickyIconBtn}
+            onPress={() => router.push("/helper-task")}
+            hitSlop={STICKY_HIT_SLOP}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.home.hireAHelper")}
+          >
             <Text style={styles.stickyToggleEmoji}>🧰</Text>
           </TouchableOpacity>
         </View>

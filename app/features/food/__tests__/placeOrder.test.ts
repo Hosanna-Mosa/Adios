@@ -1,5 +1,5 @@
-// Food checkout's "Place order" (buildPlaceOrder): the guards that stop a bad order,
-// the payload the server receives, cash vs online, and where the customer lands.
+// Food checkout's "Proceed to pay" (buildPlaceOrder): the guards that stop a bad order and the
+// order it hands to the payment screen. Placing the order (cash vs Razorpay) happens on that screen.
 
 const mockRouterPush = jest.fn();
 const mockRouterReplace = jest.fn();
@@ -25,6 +25,7 @@ jest.mock("@/contexts/deliveryStore", () => ({ useDeliveryStore: { getState: () 
 jest.mock("@/contexts/foodStage", () => ({ foodStageOf: () => "awaiting_restaurant" }));
 
 import { buildPlaceOrder } from "../useFoodCheckoutPlaceOrder.handlers";
+import { useFoodPaymentStore } from "../foodPaymentStore";
 
 const ADDRESS = {
   label: "Home",
@@ -74,6 +75,7 @@ function setup(overrides: Record<string, any> = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  useFoodPaymentStore.getState().setPending(null);
   mockGetPaymentMethod.mockReturnValue("cash");
   mockGetVendor.mockResolvedValue({ address: "Spice Hut, Main Rd", location: { coordinates: [81.79, 17.01] } });
   mockCreateOrder.mockResolvedValue({ _id: "ADSF161026123456" });
@@ -119,36 +121,33 @@ describe("guards — nothing is ordered or charged", () => {
   });
 });
 
-describe("a cash order", () => {
-  it("sends the outlet as pickup, the address pin as drop, and the items to the server", async () => {
-    const { place } = setup();
+describe("proceeding to pay", () => {
+  it("hands the order and its totals to the payment screen without placing it", async () => {
+    const { place, v } = setup();
     await place();
 
-    expect(mockCreateOrder).toHaveBeenCalledTimes(1);
-    const payload = mockCreateOrder.mock.calls[0][0];
-    expect(payload).toMatchObject({
+    // The order is created on the payment screen (cash) or after Razorpay confirms (online).
+    expect(mockCreateOrder).not.toHaveBeenCalled();
+    expect(mockPayOnline).not.toHaveBeenCalled();
+    expect(v.clearCart).not.toHaveBeenCalled();
+    expect(mockRouterPush).toHaveBeenCalledWith("/payment");
+
+    const pending = useFoodPaymentStore.getState().pending!;
+    expect(pending).toMatchObject({ total: 256, itemCount: 2, vendorName: "Spice Hut", addressLabel: "Home", scheduledFor: null });
+    expect(pending.orderData).toMatchObject({
       serviceType: "delivery",
       vendorId: "64b000000000000000000001",
-      paymentMethod: "cash",
       scheduledDelivery: { type: "now" },
       totals: { subtotal: 240, deliveryFee: 30, tip: 10, discount: 24, total: 256, couponCode: "SAVE10" },
     });
-    const [pickup, drop] = payload.stops;
+    // The payment method is chosen on the payment screen, so it is not in the payload yet.
+    expect(pending.orderData).not.toHaveProperty("paymentMethod");
+
+    const [pickup, drop] = (pending.orderData as any).stops;
     expect(pickup).toMatchObject({ type: "pickup", latitude: 17.01, longitude: 81.79, address: "Spice Hut, Main Rd" });
     expect(drop).toMatchObject({ type: "drop", latitude: 17.0, longitude: 81.8 });
-    expect(drop.items).toEqual([
-      expect.objectContaining({ id: "i1", name: "Biryani", quantity: 2, price: 120, total: 240 }),
-    ]);
+    expect(drop.items).toEqual([expect.objectContaining({ id: "i1", name: "Biryani", quantity: 2, price: 120, total: 240 })]);
     expect(drop.deliveryAddress).toMatchObject({ receiverPhone: "9876543210", landmark: "Near park" });
-  });
-
-  it("clears the cart and opens the driver search", async () => {
-    const { place, v } = setup();
-    await place();
-    expect(v.setOrderId).toHaveBeenCalledWith("ADSF161026123456");
-    expect(mockSetFoodStage).toHaveBeenCalledWith("awaiting_restaurant");
-    expect(v.clearCart).toHaveBeenCalled();
-    expect(mockRouterReplace).toHaveBeenCalledWith({ pathname: "/finding-driver", params: { orderId: "ADSF161026123456" } });
     expect(v.setIsPlacingOrder).toHaveBeenLastCalledWith(false);
   });
 
@@ -156,46 +155,32 @@ describe("a cash order", () => {
     mockGetVendor.mockRejectedValue(new Error("offline"));
     const { place } = setup();
     await place();
-    const [pickup] = mockCreateOrder.mock.calls[0][0].stops;
+    const [pickup] = (useFoodPaymentStore.getState().pending!.orderData as any).stops;
     expect(pickup).toMatchObject({ latitude: 17.0, longitude: 81.8, address: "Spice Hut" });
   });
-});
 
-describe("an online order", () => {
-  it("goes through Razorpay for the total, never straight to createOrder", async () => {
-    mockGetPaymentMethod.mockReturnValue("online");
-    const { place, v } = setup();
-    await place();
-    expect(mockPayOnline).toHaveBeenCalledWith(256, expect.objectContaining({ serviceType: "delivery" }));
-    expect(mockPayOnline.mock.calls[0][1]).not.toHaveProperty("paymentMethod");
-    expect(mockCreateOrder).not.toHaveBeenCalled();
-    expect(v.setOrderId).toHaveBeenCalledWith("ADSF161026999999");
-  });
-});
-
-describe("a scheduled order", () => {
-  it("lands on My orders instead of the driver search", async () => {
+  it("carries a scheduled slot to the payment screen", async () => {
     const slot = new Date(Date.now() + 3 * 60 * 60 * 1000);
     const { place } = setup({ scheduledFor: slot });
     await place();
-    expect(mockCreateOrder.mock.calls[0][0]).toMatchObject({
+    const pending = useFoodPaymentStore.getState().pending!;
+    expect(pending.scheduledFor).toBe(slot.toISOString());
+    expect(pending.orderData).toMatchObject({
       scheduledFor: slot.toISOString(),
       scheduledDelivery: { type: "later", requestedAt: slot.toISOString() },
     });
-    expect(mockRouterReplace).toHaveBeenCalledWith("/(tabs)/orders");
+    expect(mockRouterPush).toHaveBeenCalledWith("/payment");
   });
 });
 
-describe("when placing fails", () => {
-  it("shows the payment error, keeps the cart, and stops the spinner", async () => {
+describe("when building the order fails", () => {
+  it("shows the error, keeps the cart, never opens the payment screen, and stops the spinner", async () => {
     jest.spyOn(console, "error").mockImplementation(() => {});
-    mockCreateOrder.mockRejectedValue(new Error("Restaurant is closed"));
-    mockDescribePaymentError.mockReturnValue(null);
-    const { place, v } = setup();
+    const { place, v } = setup({ items: null });
     await place();
-    expect(mockShowAlert).toHaveBeenCalledWith("app.food.orderFailed", "Restaurant is closed");
+    expect(mockShowAlert).toHaveBeenCalledWith("app.food.orderFailed", expect.any(String));
     expect(v.clearCart).not.toHaveBeenCalled();
-    expect(mockRouterReplace).not.toHaveBeenCalled();
+    expect(mockRouterPush).not.toHaveBeenCalledWith("/payment");
     expect(v.setIsPlacingOrder).toHaveBeenLastCalledWith(false);
   });
 });

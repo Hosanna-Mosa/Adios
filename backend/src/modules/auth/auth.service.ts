@@ -138,6 +138,22 @@ export class AuthService {
     return { user, token, isNewUser: false };
   }
 
+  /** Customer sign-up without OTP: creates a USER account and signs it in. */
+  async register(name: string, phone: string, password: string, email?: string) {
+    if (await User.exists(buildLoginIdentifierQuery(phone))) {
+      throw new AppError(409, "This phone number is already registered. Sign in instead.");
+    }
+    if (email && (await User.exists({ email }))) {
+      throw new AppError(409, EMAIL_TAKEN_MESSAGE);
+    }
+
+    const user = new User({ name, phone, email, password, role: UserRole.USER });
+    await user.save();
+
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    return { user, token };
+  }
+
   async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole) {
     const query = {
       ...buildLoginIdentifierQuery(phoneOrEmail),

@@ -8,6 +8,7 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { bulkFoodRowSchema } from "./food.validation";
 import { getDishOrderCounts, withComputedDishFields } from "./food.service";
+import { dishMatches, escapeRegex, scoreDish, toSearchTokens, vendorMatches } from "./food.search";
 
 const cloudinaryService = new CloudinaryService();
 
@@ -63,48 +64,6 @@ export const buildOnboardedFoodItems = (vendor: any) => {
   }));
 
   return [...manualItems, ...uploadedItems].filter((item) => item.name && item.price > 0);
-};
-
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const toSearchTokens = (term: string) => term.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6);
-
-const matchesAnyToken = (value: unknown, tokens: string[]) => {
-  if (typeof value !== "string" || !value) return false;
-  const haystack = value.toLowerCase();
-  return tokens.some((token) => haystack.includes(token));
-};
-
-const itemMatchesTokens = (item: any, tokens: string[]) =>
-  matchesAnyToken(item?.name, tokens) ||
-  matchesAnyToken(item?.category, tokens) ||
-  matchesAnyToken(item?.description, tokens);
-
-const vendorMatchesTokens = (vendor: any, tokens: string[]) =>
-  matchesAnyToken(vendor?.name, tokens) ||
-  (Array.isArray(vendor?.categories) &&
-    vendor.categories.some((category: unknown) => matchesAnyToken(category, tokens)));
-
-/** Name hits beat category hits beat description hits; extra token hits break ties. */
-const scoreItem = (item: any, term: string, tokens: string[]) => {
-  const name = String(item?.name || "").toLowerCase();
-  const category = String(item?.category || "").toLowerCase();
-  const description = String(item?.description || "").toLowerCase();
-  const lowerTerm = term.toLowerCase();
-
-  let score = 0;
-  if (name.startsWith(lowerTerm)) score += 100;
-  else if (name.includes(lowerTerm)) score += 50;
-  if (category.includes(lowerTerm)) score += 20;
-  if (description.includes(lowerTerm)) score += 5;
-
-  for (const token of tokens) {
-    if (name.includes(token)) score += 3;
-    if (category.includes(token)) score += 2;
-    if (description.includes(token)) score += 1;
-  }
-
-  return score;
 };
 
 // Bounds on a single search: the onboarded-menu scan is a regex-free in-memory
@@ -456,14 +415,16 @@ export const searchFoodItems = async (req: Request, res: Response) => {
       vendor.openState ??= evaluateOutletOpenState(vendor);
       scored.push({
         item: { ...item, vendorId: vendor },
-        score: scoreItem(item, term, tokens),
+        score: scoreDish(item, vendor, term, tokens),
         distance: typeof vendor.distance === "number" ? vendor.distance : Number.POSITIVE_INFINITY,
         rating: vendor.rating || 0,
       });
     };
 
+    // The query above is a broad prefilter (any word, anywhere); dishMatches is the real test.
     for (const item of storedItems) {
-      collect(item, vendorMap.get(String(item.vendorId)));
+      const vendor = vendorMap.get(String(item.vendorId));
+      if (dishMatches(item, vendor, tokens)) collect(item, vendor);
     }
 
     const vendorsNeedingMenu: any[] = [];
@@ -471,13 +432,13 @@ export const searchFoodItems = async (req: Request, res: Response) => {
     for (const vendor of menuVendors) {
       const onboardedItems = buildOnboardedFoodItems(vendor);
       for (const item of onboardedItems) {
-        if (itemMatchesTokens(item, tokens)) collect(item, vendor);
+        if (dishMatches(item, vendor, tokens)) collect(item, vendor);
       }
 
       // A restaurant whose own name or cuisine matches still has to surface, so
       // carry a couple of its dishes — the app promotes a restaurant into the
       // results from the outlet attached to a dish.
-      if (!matchedVendorIds.has(String(vendor._id)) && vendorMatchesTokens(vendor, tokens)) {
+      if (!matchedVendorIds.has(String(vendor._id)) && vendorMatches(vendor, tokens)) {
         if (onboardedItems.length > 0) {
           for (const item of onboardedItems.slice(0, 2)) collect(item, vendor);
         } else {

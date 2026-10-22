@@ -16,6 +16,7 @@ import mongoose from "mongoose";
 import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
 import { helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { PricingService } from "../pricing/pricing.service";
+import { hasPermission } from "../support/support.permissions";
 import { ZonesService } from "../zones/zones.service";
 import { INVOICE_LINK_TTL_SECONDS, invoiceTokenAllows, isInvoiceable, signInvoiceToken } from "./invoice.link";
 
@@ -246,8 +247,9 @@ export class OrdersController {
       // The tracking screen names the restaurant and draws it (and the delivery home)
       // as such. Added alongside `vendor`, which stays the bare id other callers expect.
       if (json.vendor) json.outlet = await outletSummary(json.vendor);
-      // A package delivery's OTP is the receiver's to give — never the driver's to read.
-      if (relation === "driver" && isPackageDeliveryOrder(json)) delete json.deliveryOtp;
+      // A package delivery's OTP is the receiver's to give, and a food / meat order's the
+      // customer's — never the driver's to read.
+      if (relation === "driver" && (isPackageDeliveryOrder(json) || json.vendor)) delete json.deliveryOtp;
       return res.json(json);
     } catch (error) {
       next(error);
@@ -490,6 +492,9 @@ export class OrdersController {
       if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
         throw new ForbiddenError("Support can view orders but not change them.");
       }
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT && isCancel && !(await hasPermission(req, "cancel_orders"))) {
+        throw new ForbiddenError("Your support account does not have permission to cancel orders. Ask an admin.");
+      }
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");
       }
@@ -513,17 +518,17 @@ export class OrdersController {
         if (storedCash && !orderObj.cashCollected) {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
-        // Restaurant / meat-shop orders and rides finish without the customer's OTP
-        // (a ride still starts with its PIN); package deliveries and helper tasks still need it.
+        // Restaurant / meat-shop orders, package deliveries and helper tasks all finish with the
+        // customer's (or receiver's) OTP; only rides end without one (they start with a PIN).
         // A package delivery is stored as a bike/auto ride, but it always ends with the
         // receiver's OTP — that is the only proof the package reached the right person.
         const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        // `current.vendor` is the raw outlet id. orderObj's is populated from Vendor only, so a
-        // legacy MeatCenter outlet came back null and its orders were asked for an OTP the
-        // driver app (rightly) never shows for outlet orders.
-        const isOutletOrder = !!current.vendor;
-        if (orderObj && orderObj.deliveryOtp && !isOutletOrder && (!isRide || isPackageDelivery)) {
+        // Rides end without a code (they start with a PIN); every other order — package, helper,
+        // and food / meat from an outlet — is completed with the customer's own delivery code.
+        // `orderObj.vendor` is not used here: it is populated from Vendor only, so a legacy
+        // MeatCenter outlet reads as null — the rule must not depend on it.
+        if (orderObj && orderObj.deliveryOtp && (!isRide || isPackageDelivery)) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError(
               isPackageDelivery

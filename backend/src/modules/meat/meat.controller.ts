@@ -27,7 +27,7 @@ export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const center = await MeatCenter.findOne({ email });
+    const center = await MeatCenter.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (center) {
       // Generate OTP and save
       const otp = generateOTP();
@@ -83,7 +83,7 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
     await otpRecord.save();
 
     // Update password
-    const center = await MeatCenter.findOne({ email });
+    const center = await MeatCenter.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (!center) {
       return res.status(404).json({ message: "Account not found" });
     }
@@ -655,6 +655,63 @@ export const updateMeatItemPrice = async (req: AuthRequest, res: Response) => {
     await item.save();
     res.json(item);
   } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const MEAT_PARTNER_ROLES = ["meat_vendor"];
+
+/** POST /meat/items — a meat partner adds an item to their own inventory. */
+export const createMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!MEAT_PARTNER_ROLES.includes(String(req.user?.role))) return res.status(403).json({ message: "Only meat partners can add meat items" });
+    const { name, weight, price, category, image, description, isAvailable } = req.body;
+    const duplicate = await MeatItem.exists({ meatCenterId: req.user!.userId, name, weight }).collation({ locale: "en", strength: 2 });
+    if (duplicate) return res.status(409).json({ message: "You already have an item with this name and weight" });
+    const item = await MeatItem.create({
+      meatCenterId: req.user!.userId, name, weight, price, category, image: image || undefined, description: description || undefined,
+      isAvailable: isAvailable ?? true, isGlobalItem: false,
+    });
+    res.status(201).json(item);
+  } catch (error) {
+    console.error("Error adding meat item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * PUT /meat/items/:itemId — edit an own item. The standard items every centre starts with keep
+ * their name, weight and category (the admin prices them by name); price, photo, description and
+ * availability can still be changed.
+ */
+export const updateMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    const item = await MeatItem.findById(req.params.itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (req.user?.userId !== item.meatCenterId.toString()) return res.status(403).json({ message: "Access denied: you do not own this item" });
+
+    const body = req.body as Record<string, unknown>;
+    const editable = item.isGlobalItem ? ["price", "image", "description", "isAvailable"] : ["name", "weight", "price", "category", "image", "description", "isAvailable"];
+    for (const field of editable) if (body[field] !== undefined) (item as any)[field] = body[field];
+    await item.save();
+    res.json(item);
+  } catch (error) {
+    console.error("Error updating meat item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/** DELETE /meat/items/:itemId — remove an own item (not one of the standard items). */
+export const deleteMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    const item = await MeatItem.findById(req.params.itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (req.user?.userId !== item.meatCenterId.toString()) return res.status(403).json({ message: "Access denied: you do not own this item" });
+    if (item.isGlobalItem) return res.status(400).json({ message: "Standard items can't be deleted — mark them unavailable instead" });
+    await item.deleteOne();
+    res.json({ message: "Item deleted" });
+  } catch (error) {
+    console.error("Error deleting meat item:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };

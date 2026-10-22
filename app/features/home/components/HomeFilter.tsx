@@ -48,7 +48,7 @@ export function HomeFilter(props: Props) {
   return (
     <View style={styles.filterModalContent}>
       <View style={styles.filterModalHeader}>
-        <Text style={styles.filterModalTitle}>Filter</Text>
+        <Text style={styles.filterModalTitle}>{t("app.home.filter")}</Text>
         <TouchableOpacity
           onPress={() => setIsFilterModalVisible(false)}
           style={styles.filterModalCloseBtn}

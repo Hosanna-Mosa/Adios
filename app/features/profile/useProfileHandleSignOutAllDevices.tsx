@@ -64,6 +64,7 @@ export function useProfileHandleSignOutAllDevices(user: any, logout: any, setLoa
     { key: "security", icon: "shield-checkmark", label: t("app.profile.menuItems.security"), onPress: () => setSecurityVisible(true) },
     { key: "language", icon: "globe", label: t("app.profile.menuItems.language"), onPress: () => router.push("/language-settings") },
     { key: "support", icon: "mail", label: t("app.profile.menuItems.helpSupport"), onPress: () => router.push("/support") },
+    { key: "legal", icon: "document-text", label: t("app.profile.menuItems.termsPrivacy"), onPress: () => router.push("/legal") },
   ] as const;
 
   return { handleSignOutAllDevices, handleLogout, memberSinceYear, MENU_ITEMS };

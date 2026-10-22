@@ -3,6 +3,7 @@ import type { Model } from "mongoose";
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
+import { NotificationService } from "../../services/notification.service";
 import { DAY_KEYS, evaluateOutletOpenState, weeklyHoursFromOperations, type DayHours, type WeeklyHours } from "../../utils/openingHours";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
@@ -30,7 +31,7 @@ const effectiveWeek = (openingHours: unknown, operations: unknown): Record<strin
 // sensitive field on the model (password, kyc, legal/bank details…) can never
 // reach the client by accident — unlike the public GET /vendors/:id.
 const PROFILE_FIELDS =
-  "name email phone partnerType address image rating reviews categories isPureVeg isOpen isManuallyClosed openingHours operations branchCode currentLocation";
+  "name email phone partnerType address image coverImage rating reviews categories isPureVeg isOpen isManuallyClosed openingHours operations branchCode currentLocation";
 
 // Owner's phone, a manager's phone, the kitchen tablet… plus slack for devices
 // that were reinstalled without signing out. The oldest registration drops off.
@@ -122,6 +123,7 @@ type ProfileUpdateBody = {
   email?: string;
   address?: string;
   image?: string;
+  coverImage?: string;
   branchCode?: string | null;
   currentLocation?: { lat: number; lng: number; address?: string } | null;
   openingHours?: Record<string, DayHours>;
@@ -146,7 +148,7 @@ export const updateMyVendorProfile = async (req: AuthRequest, res: Response) => 
     const $set: Record<string, unknown> = {};
     const $unset: Record<string, ""> = {};
 
-    for (const field of ["name", "phone", "email", "address", "image"] as const) {
+    for (const field of ["name", "phone", "email", "address", "image", "coverImage"] as const) {
       if (body[field] !== undefined) $set[field] = body[field];
     }
     if (body.branchCode !== undefined) {
@@ -223,6 +225,37 @@ export const registerMyPushToken = async (req: AuthRequest, res: Response) => {
     return res.json({ message: "Push token registered" });
   } catch (error) {
     console.error("Error registering partner push token:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * POST /api/v1/vendors/me/test-push — sends a test notification to this outlet's own devices, so a
+ * partner can check alerts reach them (app open or closed). Tapping it opens the Account tab.
+ */
+export const sendMyTestPush = async (req: AuthRequest, res: Response) => {
+  try {
+    const partner = partnerOf(req);
+    if (!partner) return res.status(403).json({ message: "Only partner accounts have push notifications" });
+
+    const model = await outletModelFor(partner.id, partner.role);
+    if (!model) return res.status(404).json({ message: "Outlet not found" });
+    const outlet = await model.findById(partner.id).select("expoPushTokens").lean<{ expoPushTokens?: string[] }>();
+    if (!outlet?.expoPushTokens?.length) {
+      return res.status(409).json({ message: "No device is registered for notifications yet. Allow notifications for this app and try again." });
+    }
+
+    await NotificationService.getInstance().sendNotification({
+      userId: partner.id,
+      title: "Test notification",
+      body: "Notifications are working on this device.",
+      type: "transactional",
+      category: "system",
+      data: { kind: "announcement", screen: "/(tabs)/account" },
+    });
+    return res.json({ message: "Test notification sent", devices: outlet.expoPushTokens.length });
+  } catch (error) {
+    console.error("Error sending test push:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -13,6 +13,7 @@ import { CheckoutBillDetails } from "./CheckoutBillDetails";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CheckoutStyles } from "@/features/food/checkout.styles";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -62,7 +63,9 @@ export function CheckoutBody(props: Props) {
   const { addressIssue, footerHeight, insets, receiverName, receiverPhone, selectedAddress, styles, tokens } = props;
   const { t } = useTranslation();
   return (
-    <ScrollView
+    // Keyboard-aware so the promo-code and "Other tip" inputs scroll clear of the keyboard.
+    <KeyboardAwareScrollView
+      bottomOffset={16}
       contentContainerStyle={{ paddingBottom: Math.max(footerHeight ?? 0, insets.bottom + 150) + 16 }}
       showsVerticalScrollIndicator={false}
     >
@@ -104,6 +107,6 @@ export function CheckoutBody(props: Props) {
       <CheckoutTipYourDelivery {...props} />
 
       <CheckoutBillDetails {...props} />
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }

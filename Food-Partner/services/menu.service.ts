@@ -69,3 +69,34 @@ export const setMeatItemAvailability = (itemId: string, isAvailable: boolean) =>
 
 export const setMeatItemPrice = (itemId: string, price: number) =>
   customFetch(`/meat/items/${itemId}/price`, { method: "PUT", body: JSON.stringify({ price }) });
+
+/** The meat item form's fields — the price stays a string while it is being typed. */
+export interface MeatItemInput {
+  name: string;
+  weight: string;
+  price: string;
+  category: string;
+  description: string;
+  image: string;
+  isAvailable: boolean;
+}
+
+const toMeatPayload = (input: MeatItemInput) => ({
+  name: input.name.trim(),
+  weight: input.weight.trim(),
+  price: parseNumber(input.price),
+  category: input.category.trim(),
+  description: input.description.trim(),
+  image: input.image,
+  isAvailable: input.isAvailable,
+});
+
+/** POST /meat/items — add an item to this centre's own inventory. */
+export const addMeatItem = (input: MeatItemInput) =>
+  customFetch<MeatItem>("/meat/items", { method: "POST", body: JSON.stringify(toMeatPayload(input)) });
+
+/** PUT /meat/items/:id — the server ignores name / weight / category on the standard items. */
+export const updateMeatItem = (id: string, input: MeatItemInput) =>
+  customFetch<MeatItem>(`/meat/items/${id}`, { method: "PUT", body: JSON.stringify(toMeatPayload(input)) });
+
+export const deleteMeatItem = (id: string) => customFetch(`/meat/items/${id}`, { method: "DELETE" });

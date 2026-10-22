@@ -39,6 +39,9 @@ import {
   BadgePercent,
   HandHelping,
   Bot,
+  ScrollText,
+  Megaphone,
+  FileDown,
   PackageSearch,
 } from "lucide-react";
 
@@ -74,6 +77,9 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
     { title: t("sidebar.banners"), url: "/banners", icon: Image },
+    { title: t("sidebar.broadcasts"), url: "/broadcasts", icon: Megaphone },
+    { title: t("sidebar.reports"), url: "/reports", icon: FileDown },
+    { title: t("sidebar.auditLog"), url: "/audit-log", icon: ScrollText },
   ];
 }
 

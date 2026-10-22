@@ -4,13 +4,12 @@ import { useTranslation } from "react-i18next";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { CashCollectionPanel, OrderStage, OtpEntry, StageActionButton, StageSpacer } from "../order";
 import { CancelDeliveryButton } from "./CancelDeliveryButton";
-import { isOutletOrder } from "../../orderStops";
 
 export function DeliveryArrivedStage() {
   const { t } = useTranslation();
-  const { currentOrder, verification, handleStatusTransition } = useActiveOrderCtx();
-  // Restaurant / meat-shop orders are handed over without the customer's OTP.
-  const needsOtp = !isOutletOrder(currentOrder);
+  const { verification, handleStatusTransition } = useActiveOrderCtx();
+  // Every delivery, restaurant and meat-shop orders included, ends with the customer's 4-digit code.
+  const needsOtp = true;
 
   return (
     <OrderStage title={t("jobs.confirmCustomerDelivery")}>

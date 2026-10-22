@@ -66,8 +66,8 @@ export default function SupportChatScreen() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<SupportThreadEmpty tokens={tokens} />}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-          // A new reply grows the list; keep it in view (the thread used to stay put).
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          // Keep the newest bubble in view when a reply or admin message arrives.
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
         />
 
                   <SupportChatBody

@@ -89,6 +89,12 @@ export function TripChooserSheet({
               )}
             </View>
           </View>
+          {selectedTier === "auto" && (
+            <View style={styles.capacityNote} accessibilityRole="text">
+              <Ionicons name="people-outline" size={16} color={accent.accent} />
+              <Text style={styles.capacityNoteText}>{t("app.rideConfirmation.autoCapacityNote")}</Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity style={styles.scheduleRow} onPress={() => setShowDatePicker(true)} activeOpacity={0.85}>

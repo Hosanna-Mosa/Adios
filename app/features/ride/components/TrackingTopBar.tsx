@@ -36,7 +36,7 @@ export function TrackingTopBar({
           several lines or ran into the back button. "min" was hardcoded English. */}
       <View style={[styles.etaChip, { backgroundColor: accent.accent, flexShrink: 1, marginHorizontal: 8 }]}>
         <Text style={[styles.etaChipText, { color: accent.on }]} numberOfLines={1}>
-          {status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${t("app.ride.etaMinutes", { min: eta })}`}
+          {status === "arrived_pickup" || status === "arrived_delivery" || eta == null ? bannerText : `${bannerText} · ${t("app.ride.etaMinutes", { min: eta })}`}
         </Text>
       </View>
       {/* Balances the 44pt back button so the chip stays centred. */}
