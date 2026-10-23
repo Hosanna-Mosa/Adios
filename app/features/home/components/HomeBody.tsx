@@ -34,7 +34,7 @@ export function HomeBody(props: Props) {
     <View>
       <HomeIntro {...props} />
 
-      {/* Service tiles: Food/Meat toggle + Ride/Task launchers */}
+      {/* Service tiles: Food/Meat/Ride/Package/Helper, 5 equal cards, all real 3D art */}
       <ServiceTiles
         styles={styles}
         tokens={tokens}

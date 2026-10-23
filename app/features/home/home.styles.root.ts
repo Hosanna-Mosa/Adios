@@ -57,22 +57,17 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   },
   searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.sec },
 
-  tilesRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: 16, alignItems: "stretch" },
-  togglePill: { flex: 1, flexDirection: "row", gap: 4, backgroundColor: accent.skin, borderRadius: moderateScale(22), padding: 4 },
-  toggleCell: { flex: 1, borderRadius: moderateScale(18), borderWidth: 1.5, borderColor: "transparent", paddingVertical: 9, alignItems: "center", gap: 7 },
-  launcherTile: {
-    flex: 1, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(20),
-    paddingVertical: 10, alignItems: "center", gap: 7, position: "relative",
+  // Five equal cards (Food/Meat/Ride/Package/Helper) in one row, replacing the old
+  // grouped pill + launcher-tile layout. Fixed width keeps all 5 + their gaps within
+  // a 360-390dp screen with the label still fully visible on one line.
+  serviceCardsRow: { flexDirection: "row", gap: moderateScale(6), paddingHorizontal: 16, marginTop: 16 },
+  serviceCard: {
+    flex: 1, minWidth: 0, backgroundColor: tokens.surface, borderWidth: 1.5, borderColor: tokens.border,
+    borderRadius: moderateScale(16), paddingVertical: 10, paddingHorizontal: 2, alignItems: "center", gap: 6, position: "relative",
   },
-  launcherArrow: { position: "absolute", top: 6, right: 8, fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.sec },
-  toggleIconCircle: { width: moderateScale(32), height: moderateScale(32), borderRadius: moderateScale(11), alignItems: "center", justifyContent: "center" },
-  toggleEmoji: { fontSize: typography.sizes.medium },
-  // Ride/Task carry a permanent skin tint, so the slack around a 15pt emoji in
-  // the 32pt toggle circle showed up as an oversized empty box. Tighter frame,
-  // bigger glyph — the icon fills ~63% of it instead of ~47%.
-  launcherIconCircle: { width: moderateScale(30), height: moderateScale(30), borderRadius: moderateScale(10), alignItems: "center", justifyContent: "center" },
-  launcherEmoji: { fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, textAlign: "center", includeFontPadding: false },
-  toggleLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.sec },
+  serviceCardImage: { width: moderateScale(36), height: moderateScale(36) },
+  serviceCardArrow: { position: "absolute", top: 5, right: 6, fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.sec },
+  serviceCardLabel: { fontFamily: fontFamilies.body.bold, fontSize: moderateScale(10.5), color: tokens.sec },
 
   promoSection: { marginTop: 20 },
   promoScrollContent: { paddingHorizontal: 16, gap: CARD_GAP },
