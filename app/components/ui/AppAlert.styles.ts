@@ -75,6 +75,24 @@ export const createStyles = (tokens: ThemeTokens) =>
       fontFamily: fontFamilies.body.semibold,
       color: tokens.sec,
     },
+    // Delete-confirmation popup only — fixed colors agreed with the team, kept
+    // separate from the generic cancel/destructive styles above so the rest of
+    // the app's alerts (logout, clear cart, etc.) are unaffected.
+    buttonDeleteSolid: {
+      backgroundColor: "#DC2626",
+    },
+    buttonTextDeleteSolid: {
+      fontFamily: fontFamilies.body.bold,
+      color: "#FFFFFF",
+    },
+    buttonCancelSolid: {
+      backgroundColor: "#E5E7EB",
+      minHeight: moderateScale(48),
+    },
+    buttonTextCancelSolid: {
+      fontFamily: fontFamilies.body.semibold,
+      color: "#374151",
+    },
   });
 
 export const iconFor = (tokens: ThemeTokens) => ({

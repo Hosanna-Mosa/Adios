@@ -1,5 +1,5 @@
 import { useState, useRef, useMemo, useCallback } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, TextInput } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createStyles } from "./restaurant-menu.styles";
@@ -52,6 +52,7 @@ export function useRestaurantMenuId() {
   const [highlightedItemId, setHighlightedItemId] = useState("");
   const [selectedDishDetail, setSelectedDishDetail] = useState<FoodItem | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
+  const searchInputRef = useRef<TextInput>(null);
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const { orderingState, isClosed: outletClosed, refresh: refreshOrderingState } = useOutletOrderingState(id as string, isOpen === "false" ? false : undefined);
 
@@ -71,5 +72,5 @@ export function useRestaurantMenuId() {
     }, 450);
   };
 
-  return { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems, setLoadingItems, handleAddToCart, orderingState, outletClosed };
+  return { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, searchInputRef, loadingItems, setLoadingItems, handleAddToCart, orderingState, outletClosed };
 }

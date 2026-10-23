@@ -1,6 +1,7 @@
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
@@ -9,11 +10,15 @@ import { type SavedAddressesStyles } from "@/features/delivery/saved-addresses.s
 // Moved out of app/delivery/saved-addresses.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
 
+// Edit/delete are their own icon buttons on the row (matching the driver app's pattern)
+// instead of a single "⋯" that opened an options popup first.
+
 interface Props {
   accent: ServiceTokens;
   addresses: any[];
   deletingId: any;
-  handleMoreOptions: any;
+  handleEditAddress: any;
+  handleDeleteAddress: any;
   handleSelectAddress: any;
   loading: boolean;
   parseInstructions: any;
@@ -27,7 +32,8 @@ export function SavedAddressesList({
   accent,
   addresses,
   deletingId,
-  handleMoreOptions,
+  handleEditAddress,
+  handleDeleteAddress,
   handleSelectAddress,
   loading,
   parseInstructions,
@@ -46,6 +52,7 @@ export function SavedAddressesList({
         <View style={styles.card}>
           {addresses.map((addr, idx) => {
             const isSelecting = selectingId === addr._id;
+            const isDeleting = deletingId === addr._id;
             const instructions = parseInstructions(addr.addressLine);
             const contact = [addr.receiverName, addr.receiverPhone].filter(Boolean).join(" · ");
             return (
@@ -65,15 +72,32 @@ export function SavedAddressesList({
                   {instructions && <Text style={styles.addrInstructions} numberOfLines={1}>{instructions}</Text>}
                   {!!contact && <Text style={styles.addrContact} numberOfLines={1}>{contact}</Text>}
                 </View>
-                <TouchableOpacity
-                  onPress={() => handleMoreOptions(addr)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  disabled={selectingId !== null || deletingId !== null}
-                  accessibilityRole="button"
-                  accessibilityLabel={t("app.a11y.moreOptionsFor", { name: addr.label })}
-                >
-                  {deletingId === addr._id ? <ActivityIndicator size="small" color={tokens.error} /> : <Ionicons name="ellipsis-horizontal" size={18} color={tokens.muted} />}
-                </TouchableOpacity>
+                {isDeleting ? (
+                  <ActivityIndicator size="small" color={tokens.error} style={{ width: moderateScale(32), height: moderateScale(32) }} />
+                ) : (
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity
+                      style={[styles.rowActionBtn, styles.rowActionBtnEdit]}
+                      onPress={() => handleEditAddress(addr)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      disabled={selectingId !== null || deletingId !== null}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t("app.delivery.editWord")} ${addr.label}`}
+                    >
+                      <Ionicons name="pencil" size={moderateScale(15)} color={accent.accent} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.rowActionBtn, styles.rowActionBtnDelete]}
+                      onPress={() => handleDeleteAddress(addr._id)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      disabled={selectingId !== null || deletingId !== null}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t("app.delivery.deleteWord")} ${addr.label}`}
+                    >
+                      <Ionicons name="trash-outline" size={moderateScale(15)} color={tokens.error} />
+                    </TouchableOpacity>
+                  </View>
+                )}
               </TouchableOpacity>
               </Animated.View>
             );

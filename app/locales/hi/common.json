@@ -99,6 +99,8 @@
         "bookedByMistake": "गलती से बुक हो गया",
         "fareTooHigh": "किराया बहुत ज़्यादा है",
         "foundAnotherRide": "दूसरी राइड मिल गई",
+        "priceTooHigh": "कीमत बहुत ज़्यादा है",
+        "changedMind": "मेरा मन बदल गया",
         "other": "अन्य"
       }
     },
