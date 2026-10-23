@@ -37,7 +37,10 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     heroImage: { width: "100%", height: moderateScale(190), backgroundColor: tokens.sunken },
     sheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, marginTop: -20, paddingTop: 18, paddingHorizontal: 16 },
     titleRow: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
-    nameRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+    // alignItems: "flex-start" (not "center") so the trailing chevron stays
+    // pinned next to the name's first line when a long name wraps to 2 lines,
+    // instead of centering against the whole wrapped block and drifting down.
+    nameRow: { flexDirection: "row", alignItems: "flex-start", gap: 4 },
     name: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
     metaLine: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 5 },
     ratingPill: {
@@ -61,7 +64,10 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
       borderRadius: 14, height: moderateScale(46), paddingHorizontal: 14,
     },
-    searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text },
+    // textAlignVertical + paddingVertical: 0 override TextInput's own default
+    // internal padding on Android, which otherwise pushes the text/placeholder
+    // below center even though the parent row already centers its children.
+    searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text, textAlignVertical: "center", paddingVertical: 0 },
 
     // Category strip (CategoryTabs): a sunken track with a frosted-glass bubble
     // that slides under the active tab.
