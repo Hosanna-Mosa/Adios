@@ -63,10 +63,20 @@ export const createOrderLifecycleSlice = (
       return true;
     }
 
-    set({
-      currentOrder: orderFromApi
+    // The server has already assigned the job. If its reply can't be read, fall back to the
+    // offer we already hold rather than throw and leave the driver stuck on the offer card.
+    let accepted: Order;
+    try {
+      accepted = orderFromApi
         ? mapApiOrder(orderFromApi, incomingOrder)
-        : ({ ...incomingOrder, status: "accepted" } as Order),
+        : ({ ...incomingOrder, status: "accepted" } as Order);
+    } catch (e) {
+      console.warn("Could not read the accepted order, using the offer instead:", e);
+      accepted = { ...incomingOrder, status: "accepted" } as Order;
+    }
+
+    set({
+      currentOrder: accepted,
       incomingOrder: null,
       currentStep: 0,
       activeChat: [],

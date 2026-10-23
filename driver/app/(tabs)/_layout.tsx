@@ -13,6 +13,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: t("tabs.home") }} />
+      <Tabs.Screen name="orders" options={{ title: t("tabs.orders", { defaultValue: "Orders" }) }} />
       <Tabs.Screen name="earnings" options={{ title: t("tabs.earnings") }} />
       <Tabs.Screen name="profile" options={{ title: t("tabs.profile") }} />
     </Tabs>

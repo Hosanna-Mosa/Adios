@@ -6,7 +6,17 @@ import { z } from "zod";
 // this intentionally just checks it's an object rather than enumerating every
 // field and risking rejecting a currently-working step.
 export const saveOnboardingSchema = z.object({
-  body: z.record(z.string(), z.any()),
+  body: z.record(z.string(), z.any()).superRefine((body, ctx) => {
+    // The few fields with an exact shape are checked here; the rest stay open as described above.
+    const account = body.bankAccountNumber;
+    if (account !== undefined && (typeof account !== "string" || !/^\d{9,18}$/.test(account) || /^(\d)\1+$/.test(account))) {
+      ctx.addIssue({ code: "custom", path: ["bankAccountNumber"], message: "Enter a valid bank account number (9 to 18 digits)" });
+    }
+    const ifsc = body.bankIfsc;
+    if (ifsc !== undefined && (typeof ifsc !== "string" || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc.toUpperCase()))) {
+      ctx.addIssue({ code: "custom", path: ["bankIfsc"], message: "Enter a valid IFSC code, like SBIN0001234" });
+    }
+  }),
 });
 
 export const verifyAadhaarSchema = z.object({

@@ -11,6 +11,7 @@ interface PayoutsTableProps {
   emptyLabel: string;
   onMarkPaid: (row: PayoutRow) => void;
   onReject: (row: PayoutRow) => void;
+  onAskBank: (row: PayoutRow) => void;
 }
 
 function processedLine(p: PayoutRow, t: TFunction) {
@@ -21,7 +22,7 @@ function processedLine(p: PayoutRow, t: TFunction) {
   return t("money.payoutPaidDate", { date });
 }
 
-const columns = (onMarkPaid: PayoutsTableProps["onMarkPaid"], onReject: PayoutsTableProps["onReject"], t: TFunction): DataTableColumn<PayoutRow>[] => [
+const columns = (onMarkPaid: PayoutsTableProps["onMarkPaid"], onReject: PayoutsTableProps["onReject"], onAskBank: PayoutsTableProps["onAskBank"], t: TFunction): DataTableColumn<PayoutRow>[] => [
   {
     key: "requested",
     header: t("money.columnRequested"),
@@ -67,6 +68,9 @@ const columns = (onMarkPaid: PayoutsTableProps["onMarkPaid"], onReject: PayoutsT
           {p.status === "processed" && (
             <p className="text-xs text-muted-foreground">{processedLine(p, t)}</p>
           )}
+          {p.status === "needs_bank_details" && p.bankIssue && (
+            <p className="text-xs text-muted-foreground max-w-[220px]">{t("money.bankIssueLine", { reason: p.bankIssue })}</p>
+          )}
           {p.status === "failed" && p.failureReason && <p className="text-xs text-muted-foreground max-w-[220px]">{p.failureReason}</p>}
         </div>
       );
@@ -76,8 +80,11 @@ const columns = (onMarkPaid: PayoutsTableProps["onMarkPaid"], onReject: PayoutsT
     key: "action",
     header: t("money.columnAction"),
     cell: (p) =>
-      p.status === "pending" ? (
-        <div className="flex gap-2">
+      p.status === "pending" || p.status === "needs_bank_details" || (p.status === "processing" && p.method !== "razorpayx") ? (
+        <div className="flex flex-wrap gap-2">
+          {p.kind === "driver" && p.status !== "needs_bank_details" && (
+            <Button variant="outline" size="sm" className="rounded-lg" onClick={() => onAskBank(p)}>{t("money.askBankBtn")}</Button>
+          )}
           <Button variant="outline" size="sm" className="rounded-lg" onClick={() => onReject(p)}>{t("money.rejectBtn")}</Button>
           <Button size="sm" className="rounded-lg" onClick={() => onMarkPaid(p)}>{t("money.submitMarkPaid")}</Button>
         </div>
@@ -90,12 +97,12 @@ const columns = (onMarkPaid: PayoutsTableProps["onMarkPaid"], onReject: PayoutsT
 ];
 
 /** Driver and vendor cash-out requests on Payouts.tsx. */
-export function PayoutsTable({ rows, isLoading, emptyLabel, onMarkPaid, onReject }: PayoutsTableProps) {
+export function PayoutsTable({ rows, isLoading, emptyLabel, onMarkPaid, onReject, onAskBank }: PayoutsTableProps) {
   const { t } = useTranslation();
   return (
     <div className="section-card">
       <DataTable
-        columns={columns(onMarkPaid, onReject, t)}
+        columns={columns(onMarkPaid, onReject, onAskBank, t)}
         data={rows}
         rowKey={(p) => `${p.kind}-${p.id}`}
         isLoading={isLoading}

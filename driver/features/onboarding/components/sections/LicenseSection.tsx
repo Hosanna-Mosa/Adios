@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { dlStyles } from "../../onboarding.styles";
+import { fieldMessage, validateLicenseExpiry } from "@/utils/validation";
 import { validateDLFormat } from "../../validators";
 import { FieldColumn } from "../FieldColumn";
 import { FormInput } from "../FormInput";
@@ -73,6 +74,9 @@ export function LicenseSection() {
         placeholder={t("onboarding.selectExpiryDate")}
         onPress={() => docs.setShowDatePicker(true)}
       />
+      {docs.dlExpiry && validateLicenseExpiry(docs.dlExpiryDate) ? (
+        <LicenseFormatError message={fieldMessage(t, validateLicenseExpiry(docs.dlExpiryDate))} />
+      ) : null}
 
       {docs.showDatePicker && (
         <DateTimePicker

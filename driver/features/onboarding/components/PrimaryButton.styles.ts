@@ -18,5 +18,5 @@ export const btnStyles = StyleSheet.create({
     elevation: 6,
   },
   disabled: { opacity: 0.5 },
-  text: { color: Colors.white, fontSize: typography.sizes.large, fontWeight: "700" },
+  text: { color: Colors.white, fontSize: typography.sizes.medium, fontWeight: "700" },
 });

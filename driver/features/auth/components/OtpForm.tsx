@@ -58,7 +58,7 @@ export function OtpForm({
             ref={(r) => { otpRefs.current[idx] = r; }}
             style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
             value={digit}
-            onChangeText={(t) => onOtpChange(t.slice(-1), idx)}
+            onChangeText={(t) => onOtpChange(t.replace(/\D/g, "").slice(-1), idx)}
             onKeyPress={(e) => onKeyPress(e, idx)}
             keyboardType="number-pad"
             maxLength={1}

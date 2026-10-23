@@ -23,6 +23,8 @@ export interface EarningsResponse {
   trendPercent: number;
   weeklyBreakdown: WeeklyPoint[];
   recentActivity: ActivityItem[];
+  /** Set when the admin couldn't pay a payout to the saved bank account and wants other details. */
+  bankActionRequired?: { payoutId: string; amount: number; reason: string } | null;
   stats: {
     onlineHours: number;
     totalDistance: number;
@@ -55,3 +57,39 @@ export const emptyEarnings: EarningsResponse = {
     ifsc: null,
   },
 };
+
+export interface StatementTripRow {
+  date: string;
+  orderId: string;
+  service: string;
+  fare: number;
+  earning: number;
+  paymentMethod: "cash" | "online";
+  cashCollected: number;
+}
+
+export interface StatementPayoutRow {
+  date: string;
+  amount: number;
+  status: string;
+  reference?: string | null;
+}
+
+/** `POST /drivers/earnings-statement` when the period is short enough to show here. */
+export interface StatementResult {
+  delivery: "inline";
+  label: string;
+  from: string;
+  to: string;
+  totals: {
+    trips: number;
+    fareTotal: number;
+    earningsTotal: number;
+    cashCollectedTotal: number;
+    payoutsTotal: number;
+  };
+  trips: StatementTripRow[];
+  payouts: StatementPayoutRow[];
+  /** The printable statement page; the app turns it into the PDF. */
+  html: string;
+}

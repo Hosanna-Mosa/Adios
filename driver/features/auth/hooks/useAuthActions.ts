@@ -4,11 +4,16 @@ import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import {
+  fieldMessage,
+  validateConfirmPassword,
+  validateEmail,
+  validateNewPassword,
+  validatePersonName,
+  validatePhone,
+  type ValidationCode,
+} from "@/utils/validation";
 import { useRouteAfterAuth } from "./useRouteAfterAuth";
-
-// Must match the backend's verify-otp rule; the app used to accept 6.
-const MIN_PASSWORD_LENGTH = 8;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** The backend's most specific message: a field error before the generic one. */
 const errorMessage = (data: any, fallback: string): string =>
@@ -43,8 +48,9 @@ export function useAuthActions({
   const { t } = useTranslation();
 
   const handleSignIn = async () => {
-    if (phone.length < 10) {
-      Alert.alert(t("auth.invalidPhone"), t("auth.pleaseEnterAValid10DigitPhone"));
+    const phoneCode = validatePhone(phone);
+    if (phoneCode) {
+      Alert.alert(t("auth.invalidPhone"), fieldMessage(t, phoneCode));
       return;
     }
     if (!password) {
@@ -75,31 +81,17 @@ export function useAuthActions({
   // ── Sign Up ──────────────────────────────────────────────────
 
   const handleSendOTP = async () => {
-    if (!name.trim()) {
-      Alert.alert(t("auth.nameRequired"), t("auth.pleaseEnterYourFullName"));
-      return;
-    }
-    if (phone.length < 10) {
-      Alert.alert(t("auth.invalidPhone"), t("auth.pleaseEnterAValid10DigitPhone"));
-      return;
-    }
-    if (!EMAIL_PATTERN.test(email.trim())) {
-      Alert.alert(
-        t("auth.invalidEmailTitle", "Email required"),
-        t("auth.pleaseEnterAValidEmail", "Please enter a valid email address. We'll email you when your account is approved."),
-      );
-      return;
-    }
-    if (!password) {
-      Alert.alert(t("auth.passwordRequired"), t("auth.pleaseCreateAPassword"));
-      return;
-    }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      Alert.alert(t("auth.weakPassword"), t("auth.passwordMustBeAtLeast6Characters"));
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert(t("auth.passwordsDontMatch"), t("auth.pleaseMakeSureBothPasswordsMatch"));
+    // The first thing wrong, in the order the fields appear. The form shows the same messages inline.
+    const problems: [string, ValidationCode | null][] = [
+      [t("auth.nameRequired"), validatePersonName(name)],
+      [t("auth.invalidEmailTitle", "Check your email"), validateEmail(email)],
+      [t("auth.invalidPhone"), validatePhone(phone)],
+      [t("auth.weakPassword"), validateNewPassword(password)],
+      [t("auth.passwordsDontMatch"), validateConfirmPassword(password, confirmPassword)],
+    ];
+    const first = problems.find(([, code]) => code);
+    if (first) {
+      Alert.alert(first[0], fieldMessage(t, first[1]));
       return;
     }
 
