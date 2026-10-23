@@ -26,6 +26,10 @@ export function useDriverTracking(
     let locationSub: Location.LocationSubscription | null = null;
     let headingSub: Location.LocationSubscription | null = null;
 
+    // Set on unmount: the screen can close while a permission/GPS call is still pending,
+    // and the subscriptions made after that would never be removed.
+    let cancelled = false;
+
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -33,7 +37,15 @@ export function useDriverTracking(
         return;
       }
 
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      let loc: Location.LocationObject;
+      try {
+        loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      } catch (posErr) {
+        // GPS switched off or no fix yet: don't leave an unhandled rejection behind.
+        console.warn("[Location] Could not get a position:", posErr);
+        return;
+      }
+      if (cancelled) return;
       const initialLoc = { lat: loc.coords.latitude, lng: loc.coords.longitude };
       setDriverLocation(initialLoc);
       if (typeof loc.coords.heading === "number" && loc.coords.heading >= 0) {
@@ -71,10 +83,16 @@ export function useDriverTracking(
       if (p) coords.push(p);
       if (d) coords.push(d);
 
+      if (cancelled) {
+        locationSub?.remove();
+        headingSub?.remove();
+        return;
+      }
       setTimeout(() => fitMapToCoords(mapRef.current, coords, initialLoc, 0.03, 500), 500);
-    })();
+    })().catch((err) => console.warn("[Location] Tracking setup failed:", err));
 
     return () => {
+      cancelled = true;
       locationSub?.remove();
       headingSub?.remove();
     };

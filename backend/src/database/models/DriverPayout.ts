@@ -5,6 +5,8 @@ export enum DriverPayoutStatus {
   PROCESSING = "processing",
   PROCESSED = "processed",
   FAILED = "failed",
+  /** The admin could not pay the bank account on file and asked the driver for other details. The amount stays reserved. */
+  NEEDS_BANK_DETAILS = "needs_bank_details",
 }
 
 export interface IDriverPayout extends Document {
@@ -24,6 +26,8 @@ export interface IDriverPayout extends Document {
   /** The admin who marked it paid or rejected it. */
   handledBy?: mongoose.Types.ObjectId;
   adminNote?: string;
+  /** Why the admin asked for other bank details (status needs_bank_details). */
+  bankIssue?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +51,7 @@ const DriverPayoutSchema = new Schema(
     method: { type: String, enum: ["razorpayx", "manual"] },
     handledBy: { type: Schema.Types.ObjectId, ref: "User" },
     adminNote: { type: String },
+    bankIssue: { type: String },
   },
   { timestamps: true },
 );

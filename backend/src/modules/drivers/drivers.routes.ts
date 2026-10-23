@@ -25,6 +25,8 @@ router.get("/earnings", authenticateToken, authorizeRole([UserRole.DRIVER]), dri
 // Monthly earnings statement: the link is minted with the session; the page opens with
 // the link's 10-minute token in the phone's browser.
 router.post("/earnings-statement-link", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.earningsStatementLink.bind(driversController));
+router.get("/earnings-statement/bounds", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.earningsStatementBounds.bind(driversController));
+router.post("/earnings-statement", authenticateToken, authorizeRole([UserRole.DRIVER]), driversController.earningsStatement.bind(driversController));
 router.get("/earnings-statement/view", driversController.viewEarningsStatement.bind(driversController));
 router.post("/cash-out", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(cashOutSchema), driversController.cashOut.bind(driversController));
 router.get("/high-demand-areas", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(highDemandAreasSchema), driversController.highDemandAreas.bind(driversController));

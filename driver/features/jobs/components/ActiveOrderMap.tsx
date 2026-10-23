@@ -50,7 +50,8 @@ export function ActiveOrderMap({
   /** Rides: pickup and drop are green "Pickup" / red "Drop" bubbles. */
   isRide?: boolean;
 }) {
-  const hasCoords = (p?: Point | null) => p != null && p.lat != null && p.lng != null;
+  const hasCoords = (p?: Point | null) =>
+    p != null && p.lat != null && p.lng != null && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lng));
 
   const onDeliveryLeg = DELIVERY_LEG_STATUSES.includes(status);
   const legTarget = onDeliveryLeg ? deliveryStop : pickupStop;

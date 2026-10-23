@@ -18,6 +18,8 @@ interface ReferenceDialogProps {
   withNote?: boolean;
   submitLabel: string;
   destructive?: boolean;
+  /** A larger text box for a sentence instead of a short reference. */
+  multiline?: boolean;
   isSubmitting: boolean;
   onSubmit: (value: string, note?: string) => void;
 }
@@ -25,7 +27,7 @@ interface ReferenceDialogProps {
 /** One dialog for "Mark paid", "Mark refunded" and "Reject": a required reference/reason, plus an optional note. */
 export function ReferenceDialog({
   open, onOpenChange, title, description, summary, fieldLabel, fieldPlaceholder, withNote,
-  submitLabel, destructive, isSubmitting, onSubmit,
+  submitLabel, destructive, multiline, isSubmitting, onSubmit,
 }: ReferenceDialogProps) {
   const { t } = useTranslation();
   const [value, setValue] = useState("");
@@ -57,7 +59,7 @@ export function ReferenceDialog({
           <div className="rounded-2xl bg-muted/50 p-4 text-sm space-y-1">{summary}</div>
           <div className="space-y-2">
             <label htmlFor="money-reference" className="text-sm font-medium">{fieldLabel}</label>
-            {destructive ? (
+            {destructive || multiline ? (
               <Textarea id="money-reference" value={value} onChange={(e) => setValue(e.target.value)} placeholder={fieldPlaceholder} />
             ) : (
               <Input id="money-reference" value={value} onChange={(e) => setValue(e.target.value)} placeholder={fieldPlaceholder} autoComplete="off" />

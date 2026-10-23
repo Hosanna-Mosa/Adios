@@ -17,6 +17,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  // No elevation/shadow on the three marker styles: a custom-view marker is drawn to a software
+  // canvas on Android, and elevation/shadow is a hardware-only effect that can crash it.
   navArrowMarker: {
     width: 36,
     height: 36,
@@ -26,11 +28,6 @@ export const styles = StyleSheet.create({
     borderColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
   },
   container: { flex: 1, backgroundColor: Colors.background },
   keyboardAvoider: { flex: 1 },
@@ -66,11 +63,6 @@ export const styles = StyleSheet.create({
     borderRadius: 13,
     borderWidth: 2,
     borderColor: Colors.white,
-    elevation: 4,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -81,7 +73,6 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.error,
     borderWidth: 2,
     borderColor: Colors.white,
-    elevation: 4,
   },
   bottomCard: {
     backgroundColor: Colors.surface,

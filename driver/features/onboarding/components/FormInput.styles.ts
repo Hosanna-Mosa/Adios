@@ -16,5 +16,5 @@ export const inputStyles = StyleSheet.create({
     gap: 12,
     backgroundColor: Colors.surface,
   },
-  input: { flex: 1, fontSize: typography.sizes.large, color: Colors.text },
+  input: { flex: 1, fontSize: typography.sizes.medium, color: Colors.text },
 });
