@@ -16,7 +16,7 @@ interface Props {
   insets: EdgeInsets;
   isFavorite: boolean;
   name: string | string[];
-  setScrolledPast: any;
+  onSearchPress: () => void;
   styles: RestaurantMenuStyles;
   toggleFavorite: any;
 }
@@ -27,7 +27,7 @@ export function RestaurantMenuHeroOverlay({
   insets,
   isFavorite,
   name,
-  setScrolledPast,
+  onSearchPress,
   styles,
   toggleFavorite,
 }: Props) {
@@ -53,7 +53,7 @@ export function RestaurantMenuHeroOverlay({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => setScrolledPast(true)}
+          onPress={onSearchPress}
           accessibilityRole="button"
           accessibilityLabel={t("app.food.search")}
         >
