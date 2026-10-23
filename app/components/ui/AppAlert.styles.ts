@@ -75,25 +75,9 @@ export const createStyles = (tokens: ThemeTokens) =>
       fontFamily: fontFamilies.body.semibold,
       color: tokens.sec,
     },
-    // Address options / delete-confirmation popups only — fixed colors agreed with the
-    // team, kept separate from the generic cancel/destructive styles above so the rest
-    // of the app's alerts (logout, clear cart, etc.) are unaffected.
-    buttonEdit: {
-      backgroundColor: "#FFF0DF",
-    },
-    buttonTextEdit: {
-      fontFamily: fontFamilies.body.bold,
-      color: "#C96A0A",
-    },
-    buttonDeleteSoft: {
-      backgroundColor: "#FEF2F2",
-      borderWidth: 1,
-      borderColor: "#DC2626",
-    },
-    buttonTextDeleteSoft: {
-      fontFamily: fontFamilies.body.bold,
-      color: "#DC2626",
-    },
+    // Delete-confirmation popup only — fixed colors agreed with the team, kept
+    // separate from the generic cancel/destructive styles above so the rest of
+    // the app's alerts (logout, clear cart, etc.) are unaffected.
     buttonDeleteSolid: {
       backgroundColor: "#DC2626",
     },

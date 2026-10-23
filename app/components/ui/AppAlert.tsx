@@ -27,9 +27,7 @@ export type AlertButtonStyle =
   | "default"
   | "cancel"
   | "destructive"
-  // Address options / delete-confirmation popups only — see AppAlert.styles.ts.
-  | "edit"
-  | "deleteSoft"
+  // Delete-confirmation popup only — see AppAlert.styles.ts.
   | "deleteSolid"
   | "cancelSolid";
 export type AlertTone = "info" | "success" | "error" | "warning";
@@ -118,8 +116,6 @@ export function AppAlert() {
                   styles.button,
                   button.style === "cancel" && styles.buttonCancel,
                   button.style === "destructive" && styles.buttonDestructive,
-                  button.style === "edit" && styles.buttonEdit,
-                  button.style === "deleteSoft" && styles.buttonDeleteSoft,
                   button.style === "deleteSolid" && styles.buttonDeleteSolid,
                   button.style === "cancelSolid" && styles.buttonCancelSolid,
                 ]}
@@ -130,8 +126,6 @@ export function AppAlert() {
                   style={[
                     styles.buttonText,
                     button.style === "cancel" && styles.buttonTextCancel,
-                    button.style === "edit" && styles.buttonTextEdit,
-                    button.style === "deleteSoft" && styles.buttonTextDeleteSoft,
                     button.style === "deleteSolid" && styles.buttonTextDeleteSolid,
                     button.style === "cancelSolid" && styles.buttonTextCancelSolid,
                   ]}

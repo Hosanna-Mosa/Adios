@@ -43,14 +43,6 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
     ]);
   };
 
-  const handleMoreOptions = (addr: any) => {
-    showAlert(addr.label || t("app.ride.addressFallback"), undefined, [
-      { text: t("app.delivery.editWord"), style: "edit", onPress: () => handleEditAddress(addr) },
-      { text: t("app.delivery.deleteWord"), style: "deleteSoft", onPress: () => handleDeleteAddress(addr._id) },
-      { text: t("actions.cancel"), style: "cancelSolid" },
-    ]);
-  };
-
   const parseInstructions = (addressLine: string) => {
     const match = addressLine?.match(/\(Instructions: (.*?)\)/);
     return match ? match[1] : null;
@@ -59,5 +51,5 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const isEmpty = !loading && addresses.length === 0;
 
-  return { handleMoreOptions, parseInstructions, stripMeta, isEmpty };
+  return { handleEditAddress, handleDeleteAddress, parseInstructions, stripMeta, isEmpty };
 }
