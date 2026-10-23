@@ -20,10 +20,10 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
   const handleDeleteAddress = (id: string) => {
     if (selectingId || deletingId) return;
     showAlert(t("app.delivery.deleteAddress"), t("app.delivery.areYouSureRemoveAddress"), [
-      { text: t("actions.cancel"), style: "cancel" },
+      { text: t("actions.cancel"), style: "cancelSolid" },
       {
         text: t("app.delivery.deleteWord"),
-        style: "destructive",
+        style: "deleteSolid",
         onPress: async () => {
           try {
             setDeletingId(id);
@@ -45,9 +45,9 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const handleMoreOptions = (addr: any) => {
     showAlert(addr.label || t("app.ride.addressFallback"), undefined, [
-      { text: t("app.delivery.editWord"), onPress: () => handleEditAddress(addr) },
-      { text: t("app.delivery.deleteWord"), style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
-      { text: t("actions.cancel"), style: "cancel" },
+      { text: t("app.delivery.editWord"), style: "edit", onPress: () => handleEditAddress(addr) },
+      { text: t("app.delivery.deleteWord"), style: "deleteSoft", onPress: () => handleDeleteAddress(addr._id) },
+      { text: t("actions.cancel"), style: "cancelSolid" },
     ]);
   };
 

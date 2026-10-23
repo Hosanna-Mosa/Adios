@@ -23,7 +23,15 @@ import { createStyles, iconFor } from "./AppAlert.styles";
  * from plain handlers and hooks, exactly the way `Alert.alert` could. Mount
  * <AppAlert /> once at the app root (see app/_layout.tsx).
  */
-export type AlertButtonStyle = "default" | "cancel" | "destructive";
+export type AlertButtonStyle =
+  | "default"
+  | "cancel"
+  | "destructive"
+  // Address options / delete-confirmation popups only — see AppAlert.styles.ts.
+  | "edit"
+  | "deleteSoft"
+  | "deleteSolid"
+  | "cancelSolid";
 export type AlertTone = "info" | "success" | "error" | "warning";
 
 export interface AlertButton {
@@ -110,11 +118,24 @@ export function AppAlert() {
                   styles.button,
                   button.style === "cancel" && styles.buttonCancel,
                   button.style === "destructive" && styles.buttonDestructive,
+                  button.style === "edit" && styles.buttonEdit,
+                  button.style === "deleteSoft" && styles.buttonDeleteSoft,
+                  button.style === "deleteSolid" && styles.buttonDeleteSolid,
+                  button.style === "cancelSolid" && styles.buttonCancelSolid,
                 ]}
                 activeOpacity={0.85}
                 onPress={() => handlePress(button)}
               >
-                <Text style={[styles.buttonText, button.style === "cancel" && styles.buttonTextCancel]}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    button.style === "cancel" && styles.buttonTextCancel,
+                    button.style === "edit" && styles.buttonTextEdit,
+                    button.style === "deleteSoft" && styles.buttonTextDeleteSoft,
+                    button.style === "deleteSolid" && styles.buttonTextDeleteSolid,
+                    button.style === "cancelSolid" && styles.buttonTextCancelSolid,
+                  ]}
+                >
                   {button.text}
                 </Text>
               </TouchableOpacity>
