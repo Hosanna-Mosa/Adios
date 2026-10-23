@@ -16,6 +16,12 @@ export default function LiveOrders() {
     setServiceFilter,
     activeOrdersCount,
     filteredOrders,
+    pagedOrders,
+    search,
+    setSearch,
+    currentPage,
+    totalPages,
+    setPage,
   } = useLiveOrders();
 
   return (
@@ -25,7 +31,16 @@ export default function LiveOrders() {
 
         <LiveOrdersStatsRow orders={orders} activeOrdersCount={activeOrdersCount} />
 
-        <LiveOrdersTable isLoading={isLoading} filteredOrders={filteredOrders} totalCount={filteredOrders.length} />
+        <LiveOrdersTable
+          isLoading={isLoading}
+          orders={pagedOrders}
+          totalCount={filteredOrders.length}
+          search={search}
+          onSearchChange={setSearch}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </DashboardLayout>
   );

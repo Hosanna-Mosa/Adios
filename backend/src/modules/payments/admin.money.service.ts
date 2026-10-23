@@ -3,12 +3,27 @@ import DriverPayout from "../../database/models/DriverPayout";
 import VendorPayout from "../../database/models/VendorPayout";
 import { AdminMoneyError, RefundService } from "./refund.service";
 import { notifyPayoutOwner } from "./payout.status";
+import Driver from "../../database/models/Driver";
+import { NotificationService } from "../../services/notification.service";
 
 // Admin panel → Refunds and Payouts. Until RazorpayX is set up, driver and vendor payouts are
 // paid by hand: the admin transfers the money and records the bank/UPI reference here.
 // Refunds stay automatic through Razorpay; this page shows them and handles the exceptions.
 
 type PayoutKind = "driver" | "vendor";
+
+/**
+ * A payout an admin may still settle by hand: requested (pending), or "processing" without a
+ * RazorpayX payout behind it. One already sent to RazorpayX is settled by RazorpayX, never twice.
+ */
+const OPEN_PAYOUT = (id: string) => ({
+  _id: id,
+  $or: [
+    { status: "pending" },
+    { status: "needs_bank_details" },
+    { status: "processing", razorpayPayoutId: { $in: [null, ""] } },
+  ],
+});
 const payoutModels = { driver: DriverPayout, vendor: VendorPayout } as const;
 
 const refundService = new RefundService();
@@ -101,6 +116,7 @@ export class AdminMoneyService {
         reference: p.utr,
         failureReason: p.failureReason,
         adminNote: p.adminNote,
+        bankIssue: p.bankIssue,
         handledBy: p.handledBy?.name,
         requestedAt: p.createdAt,
         processedAt: p.processedAt,
@@ -131,13 +147,13 @@ export class AdminMoneyService {
   }
 
   /**
-   * The admin transferred the money by hand. Only a "requested" (pending) payout can be marked
-   * paid: one already with RazorpayX (processing) is settled by RazorpayX, never twice.
+   * The admin transferred the money by hand. A pending or manual-processing payout can be marked
+   * paid; one already with RazorpayX is settled by RazorpayX, never twice.
    */
   async markPayoutPaid(kind: PayoutKind, id: string, adminUserId: string, reference: string, note?: string) {
     const Model: any = payoutModels[kind];
     const updated = await Model.findOneAndUpdate(
-      { _id: id, status: "pending" },
+      OPEN_PAYOUT(id),
       {
         $set: {
           status: "processed",
@@ -162,7 +178,7 @@ export class AdminMoneyService {
   async rejectPayout(kind: PayoutKind, id: string, adminUserId: string, reason: string) {
     const Model: any = payoutModels[kind];
     const updated = await Model.findOneAndUpdate(
-      { _id: id, status: "pending" },
+      OPEN_PAYOUT(id),
       { $set: { status: "failed", failureReason: reason, handledBy: adminUserId, method: "manual" } },
       { new: true },
     );
@@ -171,6 +187,35 @@ export class AdminMoneyService {
     notifyPayoutOwner(kind, updated, "failed").catch((err) =>
       console.error("[admin-money] Failed to notify payout owner:", err),
     );
+    return updated;
+  }
+
+  /**
+   * The admin could not pay the driver's bank account. The payout waits (its amount stays reserved),
+   * the driver's account is marked unverified, and the driver is asked for other or corrected details.
+   * When the driver saves a different account, the payout goes back to pending (OnboardingService).
+   */
+  async requestNewBankDetails(id: string, adminUserId: string, reason: string) {
+    const updated: any = await DriverPayout.findOneAndUpdate(
+      OPEN_PAYOUT(id),
+      { $set: { status: "needs_bank_details", bankIssue: reason, handledBy: adminUserId, method: "manual" } },
+      { new: true },
+    );
+    if (!updated) throw await this.payoutConflict(DriverPayout, id);
+
+    await Driver.updateOne({ _id: updated.driver }, { $set: { bankVerified: false } });
+    console.log(`[admin-money] driver payout ${id}: new bank details requested by ${adminUserId}: ${reason}`);
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: String(updated.user),
+        title: "Update your bank details",
+        body: `We couldn't pay ₹${Number(updated.amount).toFixed(2)} to your bank account: ${reason}. Please add correct or different bank details and we'll pay it again.`,
+        type: "transactional",
+        category: "system",
+        data: { deepLink: { screen: "/payout-setup" } },
+      })
+      .catch((err) => console.error("[admin-money] Failed to notify driver about bank details:", err));
     return updated;
   }
 

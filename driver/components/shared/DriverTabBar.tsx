@@ -18,13 +18,13 @@ import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
-type TabKey = "home" | "earnings" | "profile";
+type TabKey = "home" | "orders" | "earnings" | "profile";
 
 interface DriverTabBarProps {
   active: TabKey;
 }
 
-const ALL_TAB_KEYS: TabKey[] = ["home", "earnings", "profile"];
+const ALL_TAB_KEYS: TabKey[] = ["home", "orders", "earnings", "profile"];
 
 /**
  * Total height the floating bar occupies, measured from the very bottom of
@@ -39,7 +39,7 @@ export function useDriverTabBarHeight() {
 /**
  * Floating pill tab bar for the driver app, matching the customer app's
  * AppTabBar treatment (spring-animated sliding indicator, glass blur,
- * haptic feedback on tab press) — adapted for driver/: 3 tabs, no cart card,
+ * haptic feedback on tab press) — adapted for driver/: 4 tabs, no cart card,
  * and driver's flat `Colors` export (no light/dark theme switching here).
  */
 export function DriverTabBar({ active }: DriverTabBarProps) {
@@ -48,6 +48,7 @@ export function DriverTabBar({ active }: DriverTabBarProps) {
 
   const TABS: { key: TabKey; label: string; icon: keyof typeof Feather.glyphMap; route: string }[] = [
     { key: "home", label: t("tabs.home"), icon: "home", route: "/(tabs)" },
+    { key: "orders", label: t("tabs.orders", { defaultValue: "Orders" }), icon: "list", route: "/(tabs)/orders" },
     { key: "earnings", label: t("tabs.earnings"), icon: "bar-chart-2", route: "/(tabs)/earnings" },
     { key: "profile", label: t("tabs.profile"), icon: "user", route: "/(tabs)/profile" },
   ];

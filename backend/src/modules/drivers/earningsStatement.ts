@@ -20,6 +20,65 @@ export function statementMonthRange(month: string, now: Date = new Date()): { fr
   return { from, to, label };
 }
 
+const YMD = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** "YYYY-MM-DD" → its UTC calendar parts, or null unless it is a real date (no 2026-02-30). */
+function parseYmd(value: unknown): { y: number; m: number; d: number } | null {
+  const match = YMD.exec(String(value || ""));
+  if (!match) return null;
+  const [y, m, d] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  const check = new Date(Date.UTC(y, m - 1, d));
+  if (check.getUTCFullYear() !== y || check.getUTCMonth() !== m - 1 || check.getUTCDate() !== d) return null;
+  return { y, m, d };
+}
+
+/** The calendar day an instant falls on in IST, as "YYYY-MM-DD". */
+export function istYmd(date: Date): string {
+  return new Date(date.getTime() + IST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+const istMidnight = (p: { y: number; m: number; d: number }) => new Date(Date.UTC(p.y, p.m - 1, p.d) - IST_OFFSET_MS);
+const ymdLabel = (p: { y: number; m: number; d: number }) =>
+  new Date(Date.UTC(p.y, p.m - 1, p.d)).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" });
+
+export type StatementPeriod =
+  | { ok: true; from: Date; to: Date; fromYmd: string; toYmd: string; label: string; overOneYear: boolean }
+  | { ok: false; message: string };
+
+/**
+ * Checks a driver's chosen statement dates. `from`/`to` are "YYYY-MM-DD" (both days included, IST).
+ * They must be real dates, in order, not in the future, and not before the day the driver started
+ * working (`workStart`). A period longer than one calendar year is flagged: it is emailed, not shown.
+ */
+export function parseStatementPeriod(fromStr: unknown, toStr: unknown, opts: { workStart: Date; now?: Date }): StatementPeriod {
+  const now = opts.now ?? new Date();
+  const from = parseYmd(fromStr);
+  const to = parseYmd(toStr);
+  if (!from || !to) return { ok: false, message: "Choose a valid start date and end date." };
+
+  const fromYmd = `${String(from.y).padStart(4, "0")}-${String(from.m).padStart(2, "0")}-${String(from.d).padStart(2, "0")}`;
+  const toYmd = `${String(to.y).padStart(4, "0")}-${String(to.m).padStart(2, "0")}-${String(to.d).padStart(2, "0")}`;
+  if (fromYmd > toYmd) return { ok: false, message: "The start date must be on or before the end date." };
+  if (toYmd > istYmd(now)) return { ok: false, message: "The end date can't be in the future." };
+
+  const startYmd = istYmd(opts.workStart);
+  if (fromYmd < startYmd) {
+    const start = parseYmd(startYmd)!;
+    return { ok: false, message: `You started on ${ymdLabel(start)}. Choose a start date on or after that.` };
+  }
+
+  return {
+    ok: true,
+    from: istMidnight(from),
+    // Exclusive: midnight after the end day, so the whole end day is included.
+    to: istMidnight({ y: to.y, m: to.m, d: to.d + 1 }),
+    fromYmd,
+    toYmd,
+    label: fromYmd === toYmd ? ymdLabel(from) : `${ymdLabel(from)} – ${ymdLabel(to)}`,
+    overOneYear: toYmd > `${String(from.y + 1).padStart(4, "0")}-${fromYmd.slice(5)}`,
+  };
+}
+
 export interface StatementTrip {
   date: Date;
   orderId: string;
@@ -75,7 +134,10 @@ export function renderStatementHtml(input: {
   trips: StatementTrip[];
   payouts: StatementPayout[];
   generatedAt?: Date;
+  /** How the empty rows name the window: "this month" (default) or "in this period". */
+  windowWord?: string;
 }): string {
+  const windowWord = input.windowWord ?? "this month";
   const totals = summarizeStatement(input.trips, input.payouts);
   const tripRows = input.trips.length
     ? input.trips
@@ -84,14 +146,14 @@ export function renderStatementHtml(input: {
             `<td>${escapeHtml(t.paymentMethod === "cash" ? "Cash" : "Online")}</td><td class="num">${rupees(t.fare)}</td><td class="num">${rupees(t.earning)}</td></tr>`,
         )
         .join("")
-    : `<tr><td colspan="6" class="empty">No completed trips this month.</td></tr>`;
+    : `<tr><td colspan="6" class="empty">No completed trips ${escapeHtml(windowWord)}.</td></tr>`;
   const payoutRows = input.payouts.length
     ? input.payouts
         .map(
           (p) => `<tr><td>${escapeHtml(day(p.date))}</td><td>${escapeHtml(p.status)}</td><td>${escapeHtml(p.reference || "—")}</td><td class="num">${rupees(p.amount)}</td></tr>`,
         )
         .join("")
-    : `<tr><td colspan="4" class="empty">No cash-outs this month.</td></tr>`;
+    : `<tr><td colspan="4" class="empty">No cash-outs ${escapeHtml(windowWord)}.</td></tr>`;
   const generated = (input.generatedAt ?? new Date()).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
   return `<!doctype html>

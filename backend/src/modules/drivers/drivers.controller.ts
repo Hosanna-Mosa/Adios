@@ -2,8 +2,31 @@ import { Response } from "express";
 import { DriverService, hasUnexpiredLicense } from "./drivers.service";
 import { DOCUMENT_LINK_TTL_SECONDS, readDocumentToken, signDocumentToken } from "../../utils/documentLink";
 import { statementMonthRange } from "./earningsStatement";
+import { sendEmail } from "../../services/email.service";
 
 const STATEMENT_PURPOSE = "earnings-statement";
+
+/** The statement as a PDF when a Chrome is configured (CHROME_EXECUTABLE_PATH), otherwise the printable HTML page. */
+async function statementAttachments(html: string, name: string) {
+  const executablePath = process.env.CHROME_EXECUTABLE_PATH;
+  if (executablePath) {
+    try {
+      const puppeteer = require("puppeteer-core");
+      const browser = await puppeteer.launch({ executablePath, headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+      try {
+        const page = await browser.newPage();
+        await page.setContent(html, { waitUntil: "load" });
+        const pdf = await page.pdf({ format: "A4", printBackground: true, margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" } });
+        return [{ filename: `${name}.pdf`, content: Buffer.from(pdf), contentType: "application/pdf" }];
+      } finally {
+        await browser.close();
+      }
+    } catch (error: any) {
+      console.warn("[drivers] Statement PDF failed, attaching HTML instead:", error?.message);
+    }
+  }
+  return [{ filename: `${name}.html`, content: html, contentType: "text/html" }];
+}
 
 // The public URL the phone's browser can reach. Behind a proxy set PUBLIC_API_URL.
 const publicBaseUrl = (req: AuthRequest) =>
@@ -145,6 +168,62 @@ export class DriversController {
       url: `${publicBaseUrl(req)}/api/v1/drivers/earnings-statement/view?token=${encodeURIComponent(token)}`,
       expiresInSeconds: DOCUMENT_LINK_TTL_SECONDS,
     });
+  }
+
+  /** GET /drivers/earnings-statement/bounds: the first and last date a statement can cover. */
+  async earningsStatementBounds(req: AuthRequest, res: Response) {
+    try {
+      return res.json(await driverService.getStatementBounds(req.user!.userId));
+    } catch (error: any) {
+      const notFound = error.message === "Driver profile not found";
+      return res.status(notFound ? 404 : 500).json({ message: notFound ? "Driver profile not found" : "Internal server error" });
+    }
+  }
+
+  /**
+   * POST /drivers/earnings-statement { from, to } (YYYY-MM-DD, both days included).
+   * Up to a year the statement comes back to show and to turn into a PDF in the app.
+   * Longer than that it is emailed to the driver instead.
+   */
+  async earningsStatement(req: AuthRequest, res: Response) {
+    try {
+      const result = await driverService.getPeriodStatement(req.user!.userId, req.body?.from, req.body?.to);
+      if ("invalid" in result) return res.status(400).json({ message: result.invalid });
+
+      const { period } = result;
+      if (period.overOneYear) {
+        if (!result.email) {
+          return res.status(400).json({
+            message: "Add an email address to your profile and we will send this statement there.",
+            code: "NO_EMAIL",
+          });
+        }
+        const attachments = await statementAttachments(result.html, `earnings-statement-${period.fromYmd}-to-${period.toYmd}`);
+        await sendEmail({
+          to: result.email,
+          subject: `Your earnings statement, ${period.label}`,
+          text: `Hi ${result.driverName},\n\nYour earnings statement for ${period.label} is attached.\n\nThis is a system-generated statement.`,
+          attachments,
+        });
+        return res.json({ delivery: "email", email: result.email, label: period.label });
+      }
+
+      return res.json({
+        delivery: "inline",
+        label: period.label,
+        from: period.fromYmd,
+        to: period.toYmd,
+        totals: result.totals,
+        trips: result.trips,
+        payouts: result.payouts,
+        html: result.html,
+      });
+    } catch (error: any) {
+      const notFound = error.message === "Driver profile not found";
+      return res.status(notFound ? 404 : 500).json({
+        message: notFound ? "Driver profile not found" : "Could not prepare your statement. Please try again.",
+      });
+    }
   }
 
   /** GET /drivers/earnings-statement/view?token=… — the statement page behind such a link. */
