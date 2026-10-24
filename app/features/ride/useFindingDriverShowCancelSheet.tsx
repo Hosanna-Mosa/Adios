@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { cancelOrder } from "@/services/orders.service";
-import { getNearbyDrivers } from "@/services/places.service";
+import { fetchNearbyDriverPins } from "@/utils/nearbyDrivers";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useFindingDriver so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -48,40 +49,16 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     let active = true;
     const fetchOnlineDrivers = async () => {
       try {
-        const queryParams = new URLSearchParams({ latitude: String(pickupStop.lat), longitude: String(pickupStop.lng), radius: "50000" });
-        const res = await getNearbyDrivers(queryParams.toString());
-        if (active && Array.isArray(res)) {
-          // Only a captain's own live position is drawn. This used to fall back to
-          // their saved home address and then to the pickup point itself, so a
-          // captain with no GPS fix still appeared on the map — sometimes sitting
-          // exactly on the pickup pin, which reads as a captain already waiting.
-          const mapped = res
-            .map((drv) => {
-              const coords = drv.currentLocation?.coordinates;
-              const lng = Number(coords?.[0]);
-              const lat = Number(coords?.[1]);
-              if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
-                return null;
-              }
-              return {
-                id: drv._id,
-                lat,
-                lng,
-                vehicleType: drv.vehicleType || "bike",
-                name: drv.user?.name || "Driver",
-              };
-            })
-            .filter(Boolean) as { id: string; lat: number; lng: number; vehicleType: string; name: string }[];
-          setOnlineDrivers(mapped);
-        }
+        const pins = await fetchNearbyDriverPins(pickupStop.lat, pickupStop.lng, { radius: 50000 });
+        if (active) setOnlineDrivers(pins);
       } catch (error) {
         console.error("Failed to fetch nearby drivers in finding-driver:", error);
       }
     };
 
     fetchOnlineDrivers();
-    const interval = setInterval(fetchOnlineDrivers, 10000);
-    return () => { active = false; clearInterval(interval); };
+    const stopPolling = setForegroundInterval(fetchOnlineDrivers, 10000);
+    return () => { active = false; stopPolling(); };
   }, [stops]);
 
   const pickupStop = stops.find((s: any) => s.type === "pickup");

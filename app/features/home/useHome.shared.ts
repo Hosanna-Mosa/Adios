@@ -1,3 +1,13 @@
+import type { Dispatch, MutableRefObject, SetStateAction } from "react";
+import type { SharedValue } from "react-native-reanimated";
+
+// Parameter types for the useHome* hooks, which take the home screen's state
+// positionally.
+export type SetState<T> = Dispatch<SetStateAction<T>>;
+export type HomeService = "Food" | "Meat";
+export type DistanceOption = "1" | "3" | "5" | "10" | "custom";
+export type { MutableRefObject, SharedValue };
+
 
 
 // Module-level values shared by the parts of useHome.

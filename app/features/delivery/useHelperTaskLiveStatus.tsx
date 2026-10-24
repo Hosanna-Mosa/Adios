@@ -8,6 +8,7 @@ import {
   ASSIGNED_STATUSES, DEAD_STATUSES, DONE_STATUSES, SEARCHING_STATUSES, STARTED_STATUSES,
   isForOrder, orderPrice, toHelperDriver,
 } from "./useHelperTask.shared";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // The searching and assigned steps follow the server: a poll of GET /orders/:id
 // (the source of truth, and what catches up after the app was backgrounded) plus
@@ -80,7 +81,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 3000);
+    const stopPolling = setForegroundInterval(fetchStatus, 3000);
 
     const onAccepted = (data: any) => {
       if (isForOrder(data, localOrderId)) goToAssigned(data?.driver);
@@ -103,7 +104,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stopPolling();
       socketService.off("order_accepted", onAccepted);
       socketService.off("order_status_update", onStatus);
       socketService.off("no_drivers_available", onNoDrivers);
@@ -143,11 +144,11 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
         // A failed poll is not worth surfacing; the socket is the primary path.
       }
     };
-    const interval = setInterval(poll, 5000);
+    const stopPolling = setForegroundInterval(poll, 5000);
 
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      stopPolling();
       socketService.off("task_started", onTaskStarted);
       socketService.off("order_status_update", onStatus);
     };

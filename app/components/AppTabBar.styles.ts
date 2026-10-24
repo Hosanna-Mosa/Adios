@@ -48,6 +48,28 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: S
     borderWidth: 1,
     borderColor: tokens.border,
   },
+  // Drag-up affordance on the cart stripe (components/CartStripe.tsx).
+  cartGrabHandle: {
+    position: "absolute",
+    top: 4,
+    alignSelf: "center",
+    width: 28,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: tokens.border,
+  },
+  cartDragHint: {
+    position: "absolute",
+    top: -22,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+  cartDragHintText: {
+    fontFamily: fontFamilies.body.semibold,
+    fontSize: typography.sizes.small,
+  },
   cartRow: {
     flex: 1,
     flexDirection: "row",

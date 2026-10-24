@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { getOutletOrderingState, getVendor, type OutletOrderingState } from "@/services/catalog.service";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // How often an open menu re-checks, so a partner switching "Accepting orders"
 // off shows up here without the customer leaving the screen.
@@ -57,8 +58,7 @@ export function useOutletOrderingState(outletId: string | undefined | null, know
   useFocusEffect(
     useCallback(() => {
       refresh();
-      const timer = setInterval(refresh, REFRESH_MS);
-      return () => clearInterval(timer);
+      return setForegroundInterval(refresh, REFRESH_MS);
     }, [refresh])
   );
 

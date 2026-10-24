@@ -49,7 +49,7 @@ export function HomeTopBar({
 
   return (
     <View style={[styles.topRow, { paddingTop: insets.top + 6 }]}>
-      {/* "Delivery to · Home · <address>" on one line, truncated at the end. */}
+      {/* Only the saved name (Home / Work…), same as the scrolled header; the full address is on the saved-addresses screen. */}
       <TouchableOpacity
         style={[styles.addressBlock, styles.addressInlineRow]}
         activeOpacity={0.7}
@@ -57,10 +57,9 @@ export function HomeTopBar({
         accessibilityRole="button"
         accessibilityLabel={t("app.home.deliveryAddressAccessibilityLabel", { area: areaLine })}
       >
+        <Ionicons name="location-sharp" size={moderateScale(16)} color={tokens.services.food.accent} />
         <Text style={styles.addressInlineText} numberOfLines={1}>
-          <Text style={styles.addressInlineEyebrow}>{t("app.home.deliveryTo").toUpperCase()} </Text>
           <Text style={styles.addressInlineLabel}>{areaLabel}</Text>
-          <Text style={styles.addressInlineLine}>{` · ${areaLine}`}</Text>
         </Text>
         <Ionicons name="chevron-down" size={moderateScale(14)} color={tokens.sec} />
       </TouchableOpacity>
