@@ -5,11 +5,12 @@ import type { LoginResponse } from "@/services/auth.service";
 import { logoutSession } from "@/services/auth.service";
 import { removePushToken } from "@/services/outlet.service";
 import { usePushStore } from "./pushStore";
+import { clearToken, loadToken, saveToken } from "@/utils/secureToken";
 
 // The signed-in outlet. Mirrors the web panel's vendor_token / vendor_data pair
-// (admin/src/lib/session.ts), persisted in AsyncStorage instead of localStorage.
+// (admin/src/lib/session.ts): the token in secure storage (utils/secureToken.ts),
+// the outlet details in AsyncStorage.
 
-const TOKEN_KEY = "partner_token";
 const SESSION_KEY = "partner_session";
 
 export interface AuthState {
@@ -33,7 +34,7 @@ export interface AuthState {
 let sessionExpiryHandled = false;
 
 const clearStorage = () =>
-  Promise.all([AsyncStorage.removeItem(TOKEN_KEY), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
+  Promise.all([clearToken(), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: null,
@@ -42,7 +43,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initializeAuth: async () => {
     try {
-      const [token, raw] = await Promise.all([AsyncStorage.getItem(TOKEN_KEY), AsyncStorage.getItem(SESSION_KEY)]);
+      const [token, raw] = await Promise.all([loadToken(), AsyncStorage.getItem(SESSION_KEY)]);
       if (token && raw) {
         // An expired token is caught by the first API call's 401, which signs out.
         set({ token, partner: JSON.parse(raw) as PartnerSession });
@@ -65,7 +66,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       partnerType: profile.partnerType,
     };
     set({ token, partner });
-    await Promise.all([AsyncStorage.setItem(TOKEN_KEY, token), AsyncStorage.setItem(SESSION_KEY, JSON.stringify(partner))]);
+    await Promise.all([saveToken(token), AsyncStorage.setItem(SESSION_KEY, JSON.stringify(partner))]);
   },
 
   updatePartner: (fields) => {

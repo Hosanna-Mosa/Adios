@@ -42,7 +42,7 @@ export function OtpForm({
   const { t } = useTranslation();
   return (
     <AnimatedBox style={[styles.formSection, animatedStyle]}>
-      <Touchable style={styles.backButton} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backButton} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
       </Touchable>
 

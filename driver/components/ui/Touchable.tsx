@@ -9,6 +9,15 @@ import { TouchableOpacity, TouchableOpacityProps, View } from "react-native";
  */
 export const Touchable = React.forwardRef<View, TouchableOpacityProps>(
   function Touchable(props, ref) {
-    return <TouchableOpacity ref={ref} {...props} />;
+    // Anything pressable is announced as a button (and as disabled when it is)
+    // unless the caller says otherwise, so screen readers can tell it is tappable.
+    return (
+      <TouchableOpacity
+        ref={ref}
+        accessibilityRole={props.onPress ? "button" : undefined}
+        accessibilityState={props.disabled ? { disabled: true } : undefined}
+        {...props}
+      />
+    );
   },
 );

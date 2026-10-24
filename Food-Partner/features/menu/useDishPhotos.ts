@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as ImagePicker from "expo-image-picker";
-import { showAlert } from "@/components/ui/AppAlert";
+import { showAlert, showPermissionAlert } from "@/components/ui/AppAlert";
 import { useToast } from "@/components/ui/Toast";
 import { uploadFoodImages, type LocalImage } from "@/services/menu.service";
 import { errorMessage } from "@/utils/errorMessage";
@@ -41,7 +41,7 @@ export function useDishPhotos(images: string[], onUploaded: (urls: string[]) => 
   const pickFromLibrary = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      showAlert(t("dishForm.permissionTitle"), t("dishForm.libraryPermission"), undefined, "warning");
+      showPermissionAlert(t("dishForm.permissionTitle"), t("dishForm.libraryPermission"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"], allowsMultipleSelection: true, selectionLimit: room, quality: 0.7 });
@@ -51,7 +51,7 @@ export function useDishPhotos(images: string[], onUploaded: (urls: string[]) => 
   const takePhoto = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      showAlert(t("dishForm.permissionTitle"), t("dishForm.cameraPermission"), undefined, "warning");
+      showPermissionAlert(t("dishForm.permissionTitle"), t("dishForm.cameraPermission"));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ["images"], quality: 0.7, allowsEditing: true, aspect: [4, 3] });

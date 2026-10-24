@@ -17,7 +17,11 @@ interface Props {
   blurField: (field: string, value: string) => () => void;
   editField: any;
   email: string;
-  errors: Partial<Record<"name" | "username" | "email", string>>;
+  /** True once the email differs from the saved one — the API then needs the current password. */
+  emailChanged: boolean;
+  currentPassword: string;
+  setCurrentPassword: (value: string) => void;
+  errors: Partial<Record<"name" | "username" | "email" | "currentPassword", string>>;
   handleSave: () => void;
   insets: EdgeInsets;
   name: string;
@@ -36,6 +40,9 @@ export function PersonalDetailsBody({
   blurField,
   editField,
   email,
+  emailChanged,
+  currentPassword,
+  setCurrentPassword,
   errors,
   handleSave,
   insets,
@@ -103,6 +110,26 @@ export function PersonalDetailsBody({
           />
           {!!errors.email && <Text style={styles.fieldError}>{errors.email}</Text>}
         </Animated.View>
+        {emailChanged && (
+          <Animated.View entering={staggerListItem(0)}>
+            <Text style={styles.label}>{t("app.personaldetails.currentPassword")}</Text>
+            <TextInput
+              style={[styles.field, errors.currentPassword && styles.fieldInvalid]}
+              value={currentPassword}
+              onChangeText={editField("currentPassword", setCurrentPassword)}
+              placeholder={t("app.personaldetails.currentPasswordPlaceholder")}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="current-password"
+              placeholderTextColor={tokens.muted}
+            />
+            {errors.currentPassword ? (
+              <Text style={styles.fieldError}>{errors.currentPassword}</Text>
+            ) : (
+              <Text style={styles.phoneHint}>{t("app.personaldetails.currentPasswordHint")}</Text>
+            )}
+          </Animated.View>
+        )}
         <Animated.View entering={staggerListItem(3)}>
           <Text style={styles.label}>{t("app.auth.phone")}</Text>
           <PersonalDetailsPhoneField

@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 jest.mock("@/services/cart.service", () => ({
   getCart: jest.fn(() => Promise.resolve({ vendorId: null, items: [] })),
@@ -17,16 +18,19 @@ import { resetSessionExpiry } from "../auth.session";
 
 beforeEach(async () => {
   await AsyncStorage.clear();
+  (SecureStore as any).__reset();
   resetSessionExpiry();
   useAuthStore.setState({ user: null, token: null, loading: false, error: null, isInitialized: false });
 });
 
 describe("setToken", () => {
-  it("stores the token and mirrors it to storage", async () => {
+  it("stores the token and mirrors it to secure storage, never AsyncStorage", async () => {
     useAuthStore.getState().setToken("abc123");
+    await new Promise((resolve) => setImmediate(resolve));
 
     expect(useAuthStore.getState().token).toBe("abc123");
-    expect(await AsyncStorage.getItem("token")).toBe("abc123");
+    expect(await SecureStore.getItemAsync("token")).toBe("abc123");
+    expect(await AsyncStorage.getItem("token")).toBeNull();
   });
 });
 

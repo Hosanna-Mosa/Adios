@@ -10,7 +10,8 @@ export { ProfileLoadingCard, ProfileUnavailableCard } from "./ProfileLoadingStat
 export { ProfileSectionModal } from "./ProfileSectionModal";
 export { ProfileStatsCard } from "./ProfileStatsCard";
 export type { ProfileTabStat } from "./ProfileStatsCard";
-export { RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
+export { DeleteAccountLink, RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
+export { DeleteAccountBody } from "./DeleteAccountBody";
 export { AddAddressButton } from "./AddAddressButton";
 export { AddressFieldHeader } from "./AddressFieldHeader";
 export { AddressLabelPicker } from "./AddressLabelPicker";

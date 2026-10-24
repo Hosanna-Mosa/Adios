@@ -61,11 +61,11 @@ export function MapPickerMapContainer({
         </View>
       </Animated.View>
 
-      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()}>
+      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.recenterBtn} onPress={handleUseCurrentLocation} disabled={recentering}>
+      <TouchableOpacity style={styles.recenterBtn} onPress={handleUseCurrentLocation} disabled={recentering} accessibilityRole="button" accessibilityLabel={t("app.packageDelivery.recenter")} accessibilityState={{ busy: recentering, disabled: recentering }}>
         {recentering ? (
           <ActivityIndicator size="small" color={tokens.text} />
         ) : (

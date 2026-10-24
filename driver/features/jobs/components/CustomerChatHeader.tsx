@@ -23,7 +23,7 @@ export function CustomerChatHeader({
   const { t } = useTranslation();
   return (
     <Box style={[styles.header, { paddingTop }]}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={22} color={Colors.text} />
       </Touchable>
       <Box style={styles.headerCenter}>
@@ -36,7 +36,7 @@ export function CustomerChatHeader({
           <AppText style={styles.headerStatus}>{t("jobs.customerOnline")}</AppText>
         </Box>
       </Box>
-      <Touchable style={styles.callBtn} onPress={onCall}>
+      <Touchable accessibilityLabel={t("a11y.callCustomer")} hitSlop={8} style={styles.callBtn} onPress={onCall}>
         <Feather name="phone" size={20} color={Colors.brand} />
       </Touchable>
     </Box>

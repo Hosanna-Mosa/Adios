@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import User from "../../database/models/User";
 import Order from "../../database/models/Order";
 import Vendor from "../../database/models/Vendor";
@@ -7,6 +7,7 @@ import FoodItem from "../../database/models/FoodItem";
 import MeatItem from "../../database/models/MeatItem";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import cloudinary from "../../utils/cloudinary";
+import { deleteOwnAccount } from "./account-deletion.service";
 
 /** Trims, collapses runs of whitespace and lowercases, so "MG  Road " == "mg road". */
 const normalizeAddressText = (value: unknown) =>
@@ -60,11 +61,41 @@ export class UsersController {
     }
   }
 
+  /** POST /users/me/delete — anonymises the signed-in account (see account-deletion.service). */
+  async deleteAccount(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      return res.json(await deleteOwnAccount(String(req.user?.userId), req.body.password));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateProfile(req: AuthRequest, res: Response) {
     try {
-      const { name, username, email, phone, bio } = req.body;
+      const { name, username, email, phone, bio, currentPassword } = req.body;
       const user = await User.findById(req.user?.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
+
+      // Phone and email are how this account signs in and recovers its password,
+      // so changing either takes the current password: a borrowed phone or a
+      // stolen session must not be enough to move the account to someone else.
+      // Only an actual change counts — the apps resend unchanged values on every save.
+      const digits = (value: unknown) => String(value ?? "").replace(/\D/g, "");
+      const phoneChanging = !!phone && digits(phone) !== digits(user.phone);
+      const emailChanging =
+        !!email && String(email).trim().toLowerCase() !== String(user.email ?? "").trim().toLowerCase();
+      if (phoneChanging || emailChanging) {
+        if (!currentPassword) {
+          return res.status(400).json({
+            code: "PASSWORD_REQUIRED",
+            message: "Enter your current password to change your phone number or email.",
+          });
+        }
+        // 403, not 401: the apps sign the user out on any 401.
+        if (!user.password || !(await user.matchPassword(String(currentPassword)))) {
+          return res.status(403).json({ code: "PASSWORD_INCORRECT", message: "Current password is incorrect" });
+        }
+      }
 
       if (name) user.name = name;
       if (username) user.username = username;
@@ -359,8 +390,9 @@ export class UsersController {
 
       const favoriteIds = user.favorites || [];
       const [vendors, meatCenters] = await Promise.all([
-        Vendor.find({ _id: { $in: favoriteIds } }).lean(),
-        MeatCenter.find({ _id: { $in: favoriteIds } }).lean(),
+        // A favourite whose partner deleted their account just drops off the list.
+        Vendor.find({ _id: { $in: favoriteIds }, deletedAt: { $exists: false } }).lean(),
+        MeatCenter.find({ _id: { $in: favoriteIds }, deletedAt: { $exists: false } }).lean(),
       ]);
 
       const combined = [

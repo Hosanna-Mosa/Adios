@@ -488,6 +488,10 @@
     "scheduledRideStartsIn15Minutes": "Your scheduled ride for {{value}} starts in 15 minutes! Please prepare to travel.",
     "startTravel": "Start Travel",
     "upcomingReservedRide": "Upcoming Reserved Ride!",
+    "backgroundLocationDisclosureTitle": "Allow location while you are online",
+    "backgroundLocationDisclosureBody": "Flavour Driver collects your location to send you nearby ride and delivery requests, and to show your live position to the customer and support during a job — including when the app is closed or not in use.\n\nLocation is collected only while you are online and stops as soon as you go offline. It is not used for advertising.\n\nOn the next screen, choose \"Allow all the time\".",
+    "backgroundLocationDisclosureAccept": "Continue",
+    "backgroundLocationDisclosureDecline": "Not now",
     "flavourDriverActive": "Flavour Driver Active",
     "trackingLocationForOrderDispatches": "Tracking location for order dispatches in background...",
     "noHighDemandAreas": "No high-demand areas right now",
@@ -686,6 +690,31 @@
     "bankAccountSavedTeamWillVerify": "Bank account saved. Our team will verify it before your first payout."
   },
   "profile": {
+    "privacyPolicy": "Privacy policy",
+    "deleteAccount": {
+      "title": "Delete account",
+      "whatHappens": "What happens when you delete your account",
+      "points": {
+        "removed": "Your name, phone number, email and profile photo are removed.",
+        "kyc": "Your Aadhaar, PAN, driving licence, bank details and document photos are deleted.",
+        "records": "Your past trips, earnings and payouts are kept without your details, because we must keep them for tax and accounting.",
+        "signedOut": "You are signed out on every device and stop receiving jobs.",
+        "final": "This can't be undone. To drive again you'll need to sign up and verify again."
+      },
+      "passwordLabel": "Current password",
+      "passwordPlaceholder": "Enter your password to confirm",
+      "passwordRequired": "Enter your password to confirm.",
+      "passwordIncorrect": "That password is incorrect.",
+      "activeOrder": "You have a job in progress. You can delete your account once it is completed or cancelled.",
+      "payoutPending": "A payout to your bank account is still being processed. Try again once it has completed.",
+      "failed": "Couldn't delete your account. Please try again.",
+      "deleteButton": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "Your details and documents are removed and you are signed out everywhere. This can't be undone.",
+      "confirmButton": "Delete",
+      "doneTitle": "Account deleted",
+      "doneBody": "Your account has been deleted."
+    },
     "personalInfo": "Personal Info",
     "name": "Name",
     "username": "Username",
@@ -925,5 +954,25 @@
       "bank": "Bank account",
       "selfie": "Selfie"
     }
+  },
+  "offline": {
+    "driverMessage": "You're offline. New jobs won't reach you until you reconnect.",
+    "retry": "Retry",
+    "checking": "Checking…"
+  },
+  "a11y": {
+    "back": "Go back",
+    "close": "Close",
+    "sos": "Send SOS alert",
+    "call": "Call",
+    "callCustomer": "Call customer",
+    "chat": "Open chat",
+    "navigate": "Open directions",
+    "contact": "Contact",
+    "rateStars_one": "Rate {{count}} star",
+    "rateStars_other": "Rate {{count}} stars",
+    "takeSelfie": "Take selfie",
+    "editAddress": "Edit address",
+    "deleteAddress": "Delete address"
   }
 }

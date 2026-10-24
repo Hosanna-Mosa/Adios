@@ -92,7 +92,7 @@ export class AdminController {
           end.setHours(hourNum + 2, 0, 0, 0);
 
           const delivered = await Order.countDocuments({
-            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] },
+            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] },
             createdAt: { $gte: start, $lt: end }
           });
 
@@ -114,7 +114,7 @@ export class AdminController {
           end.setDate(end.getDate() - (weekNum - 1) * 7);
 
           const delivered = await Order.countDocuments({
-            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] },
+            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] },
             createdAt: { $gte: start, $lt: end }
           });
 
@@ -136,7 +136,7 @@ export class AdminController {
       // back to a hardcoded name.
       const dynamicActivity: any[] = [];
 
-      const latestDelivered = await Order.find({ status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] } })
+      const latestDelivered = await Order.find({ status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] } })
         .populate({ path: "driver", populate: { path: "user" } })
         .sort({ updatedAt: -1 })
         .limit(5);
@@ -171,7 +171,7 @@ export class AdminController {
       // and no invented rows when the board is empty: an idle system should show
       // an empty table, not two fictional San Jose deliveries.
       const liveOrders = await Order.find({
-        status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "searching_driver", "driver_assigned"] }
+        status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "searching_driver" as OrderStatus, "driver_assigned" as OrderStatus] }
       })
       .populate({ path: "driver", populate: { path: "user" } })
       .sort({ createdAt: -1 })
@@ -437,7 +437,7 @@ export class AdminController {
   async getPayments(req: Request, res: Response) {
     try {
       const orders = await Order.find({
-        status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] }
+        status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] }
       }).sort({ createdAt: -1 });
 
       const payments = orders.map(o => {
@@ -498,7 +498,7 @@ export class AdminController {
         Order.countDocuments({ createdAt: { $gte: rangeStart } }),
         Order.find({
           createdAt: { $gte: rangeStart },
-          status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered", "completed"] },
+          status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus, "completed" as OrderStatus] },
         }).select("totalPrice createdAt updatedAt"),
         Driver.countDocuments({ status: DriverStatus.ONLINE }),
       ]);
@@ -788,7 +788,7 @@ export class AdminController {
       }
       
       // Find user (customer)
-      let customer = await User.findOne({ role: "USER" });
+      let customer = await User.findOne({ role: UserRole.USER });
       if (!customer) {
         customer = await User.findOne();
       }

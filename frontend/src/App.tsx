@@ -10,6 +10,7 @@ const PartnerPage = lazy(() => import("./routes/partner"));
 const PartnerOnboarding = lazy(() => import("./routes/partner-onboarding"));
 const PartnerResubmit = lazy(() => import("./routes/partner-resubmit"));
 const RestaurantMenuFront = lazy(() => import("./routes/restaurant-menu"));
+const DeleteAccount = lazy(() => import("./routes/delete-account"));
 
 function NotFound() {
   const { t } = useTranslation();
@@ -118,6 +119,8 @@ export default function App() {
           <Route path="partner/onboarding" element={<PartnerOnboarding />} />
           <Route path="partner/resubmit" element={<PartnerResubmit />} />
           <Route path="restaurant-menu/:id" element={<RestaurantMenuFront />} />
+          {/* Account deletion for app customers and drivers — the link Google Play asks for. */}
+          <Route path="delete-account" element={<DeleteAccount />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

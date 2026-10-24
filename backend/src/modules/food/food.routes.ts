@@ -22,6 +22,7 @@ import {
   deleteRestaurant
 } from "./restaurant-menu.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
+import { upload as imageUpload } from "../../middleware/upload.middleware";
 import {
   vendorIdParamSchema,
   foodItemIdParamSchema,
@@ -45,7 +46,16 @@ router.get("/vendor/:vendorId", validateRequest(vendorIdParamSchema), getVendorM
 router.post("/", authenticateToken, validateRequest(addFoodItemSchema), addFoodItem);
 // Spreadsheet menu import (Food-Partner). Registered with the other static paths.
 router.post("/bulk", authenticateToken, validateRequest(bulkFoodItemsSchema), bulkAddFoodItems);
-router.post("/upload", authenticateToken, upload.array("images", 5), uploadImages);
+// Menu photos (partner app, vendor panel) and banner/offer art (admin). The shared
+// uploader caps each file at 5MB and accepts images only; customers, drivers and
+// support have nothing to upload here.
+router.post(
+  "/upload",
+  authenticateToken,
+  authorizeRole([UserRole.ADMIN, "restaurant_vendor", "meat_vendor"] as UserRole[]),
+  imageUpload.array("images", 5),
+  uploadImages
+);
 // Vendor-or-admin stock toggle. Registered before PUT /:id so the three-segment
 // path is never matched as an item id.
 router.patch("/items/:id/availability", authenticateToken, validateRequest(updateFoodItemAvailabilitySchema), updateFoodItemAvailability);

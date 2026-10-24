@@ -4,7 +4,7 @@ import Driver, {
   IDriver,
   OnboardingStatus,
 } from "../../database/models/Driver";
-import Vendor, { VendorResubmittableDocument } from "../../database/models/Vendor";
+import Vendor, { VendorOnboardingStatus, VendorResubmittableDocument } from "../../database/models/Vendor";
 import { NotificationService } from "../../services/notification.service";
 import { sendDriverDecisionEmail, sendVendorDecisionEmail } from "./verification.emails";
 import { NotFoundError } from "../../utils/errors";
@@ -91,7 +91,7 @@ export class VerificationService {
     const statuses = status === "all" ? [...DRIVER_REVIEW_STATUSES] : [status];
 
     const [drivers, counts] = await Promise.all([
-      Driver.find({ onboardingStatus: { $in: statuses } })
+      Driver.find({ onboardingStatus: { $in: statuses as OnboardingStatus[] } })
         .populate("user", "name phone email profilePic createdAt")
         .populate("preferredZone", "name")
         .sort({ submittedForReviewAt: -1, updatedAt: -1 })
@@ -179,7 +179,7 @@ export class VerificationService {
     const statuses = status === "all" ? [...VENDOR_REVIEW_STATUSES] : [status];
 
     const [vendors, counts] = await Promise.all([
-      Vendor.find({ onboardingStatus: { $in: statuses } })
+      Vendor.find({ onboardingStatus: { $in: statuses as VendorOnboardingStatus[] } })
         .select("-password -webPushSubscriptions -operations")
         .sort({ submittedAt: -1, updatedAt: -1 })
         .limit(500)

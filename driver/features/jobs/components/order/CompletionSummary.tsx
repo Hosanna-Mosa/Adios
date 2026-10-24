@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -36,10 +37,11 @@ export function RatingStars({
   rating: number;
   onRate: (star: number) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.ratingStars}>
       {[1, 2, 3, 4, 5].map((star) => (
-        <Touchable key={star} onPress={() => onRate(star)}>
+        <Touchable accessibilityLabel={t("a11y.rateStars", { count: star })} key={star} onPress={() => onRate(star)}>
           <Ionicons
             name={star <= rating ? "star" : "star-outline"}
             size={28}

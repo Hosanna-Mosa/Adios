@@ -30,6 +30,9 @@ export default {
       },
     },
     android: {
+      // Off on purpose: with predictive back on, Android 16 stops delivering the back
+      // press to React Native's BackHandler, which the custom back handling relies on.
+      predictiveBackGestureEnabled: false,
       package: 'com.flavour.partner',
       adaptiveIcon: {
         foregroundImage: './assets/images/icon.png',
@@ -41,6 +44,18 @@ export default {
         buttonStyle: 'dark',
       },
       permissions: ['android.permission.VIBRATE'],
+      // Never requested, even if a library's manifest asks for them: no app records
+      // audio or picks video, and only the driver app tracks in the background.
+      blockedPermissions: [
+        'android.permission.RECORD_AUDIO',
+        'android.permission.READ_MEDIA_AUDIO',
+        'android.permission.READ_MEDIA_VIDEO',
+        // From the Expo project template; nothing here draws over other apps or
+        // writes to shared storage (files go to the app cache and the share sheet).
+        'android.permission.SYSTEM_ALERT_WINDOW',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+        'android.permission.ACCESS_BACKGROUND_LOCATION',
+      ],
     },
     web: {
       favicon: './assets/images/icon.png',
@@ -49,6 +64,9 @@ export default {
       'expo-router',
       'expo-font',
       'expo-web-browser',
+      // Session token lives in the Android Keystore / iOS Keychain (utils/secureToken.ts).
+      'expo-secure-store',
+      './plugins/withPortraitOnLargeScreens',
       [
         'expo-image-picker',
         {
@@ -92,6 +110,7 @@ export default {
       supportPhone: process.env.EXPO_PUBLIC_SUPPORT_PHONE,
       supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL,
       partnerWebUrl: process.env.EXPO_PUBLIC_PARTNER_WEB_URL,
+      privacyPolicyUrl: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL,
       ...(process.env.EAS_PROJECT_ID ? { eas: { projectId: process.env.EAS_PROJECT_ID } } : {}),
     },
   },

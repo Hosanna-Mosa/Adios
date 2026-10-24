@@ -115,7 +115,7 @@ const createStyles = (tokens: ThemeTokens) =>
       borderWidth: 1,
       borderColor: tokens.border,
       paddingHorizontal: moderateScale(14),
-      height: moderateScale(50),
+      minHeight: moderateScale(50),
     },
     input: {
       flex: 1,

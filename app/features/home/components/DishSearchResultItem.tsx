@@ -65,7 +65,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
       </TouchableOpacity>
 
       <View style={styles.dishItemImageContainer}>
-        <TouchableOpacity activeOpacity={0.85} onPress={handleNavigateToMenu}>
+        <TouchableOpacity activeOpacity={0.85} onPress={handleNavigateToMenu} accessibilityRole="button" accessibilityLabel={item.name}>
           <Image source={item.images?.[0] ? { uri: item.images[0] } : null} style={styles.dishItemImage} contentFit="cover" transition={200} />
         </TouchableOpacity>
         <View style={styles.dishAddButtonOverlay}>

@@ -1,11 +1,13 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createJSONStorage } from "zustand/middleware";
+
+import { secureStateStorage } from "./secureStorage";
 
 import type { DriverState } from "./types";
 
 export const persistConfig = {
   name: "driver-store",
-  storage: createJSONStorage(() => AsyncStorage),
+  // token → Keystore/Keychain, the rest → AsyncStorage (see secureStorage.ts).
+  storage: createJSONStorage(() => secureStateStorage),
   partialize: (state: DriverState) => ({
     isAuthenticated: state.isAuthenticated,
     hasCompletedOnboarding: state.hasCompletedOnboarding,

@@ -42,3 +42,15 @@ export const loginWithPasswordSchema = z.object({
     }),
 });
 
+/**
+ * POST /auth/delete-account — the web deletion request (Google Play requires one
+ * outside the app). Same credentials as the app sign-in: customers, drivers, and
+ * PARTNER for restaurant / meat-centre owners (the Partner app's sign-in).
+ */
+export const deleteAccountWithPasswordSchema = z.object({
+  body: z.object({
+    phone: z.string().trim().min(3, "Phone or email is required").max(254),
+    password: z.string().min(1, "Password is required").max(128),
+    role: z.enum([UserRole.USER, UserRole.DRIVER, "PARTNER"]),
+  }),
+});

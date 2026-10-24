@@ -37,7 +37,10 @@ export default function PersonalDetailsScreen() {
   const [name, setName] = useState(user?.name || "");
   const [username, setUsername] = useState(user?.username || "");
   const [email, setEmail] = useState(user?.email || "");
-  const [errors, setErrors] = useState<PersonalDetailsErrors>({});
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [errors, setErrors] = useState<PersonalDetailsErrors & { currentPassword?: string }>({});
+  // The API asks for the current password before it moves the account to a new email.
+  const emailChanged = email.trim().toLowerCase() !== String(user?.email || "").trim().toLowerCase();
   const [saving, setSaving] = useState(false);
 
   // The three fields above only seed from whatever the store happened to hold
@@ -82,13 +85,19 @@ export default function PersonalDetailsScreen() {
   };
 
   const handleSave = async () => {
-    const found = validatePersonalDetails({ name, username, email });
+    const found: PersonalDetailsErrors & { currentPassword?: string } = validatePersonalDetails({ name, username, email });
+    if (emailChanged && !currentPassword) found.currentPassword = t("app.personaldetails.currentPasswordRequired");
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
     try {
       setSaving(true);
-      const data = await updateProfile({ name: name.trim(), username: username.trim(), email: email.trim() });
+      const data = await updateProfile({
+        name: name.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        ...(emailChanged ? { currentPassword } : {}),
+      });
       if (data) {
         setUser(data);
         router.back();
@@ -114,6 +123,9 @@ export default function PersonalDetailsScreen() {
         blurField={blurField}
         editField={editField}
         email={email}
+        emailChanged={emailChanged}
+        currentPassword={currentPassword}
+        setCurrentPassword={setCurrentPassword}
         errors={errors}
         handleSave={handleSave}
         insets={insets}

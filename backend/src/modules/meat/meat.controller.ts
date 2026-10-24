@@ -10,6 +10,7 @@ import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.se
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { toPublicVendor } from "../vendors/vendor.public";
 
 // Upper bound on documents scanned when open-now has to be filtered in memory
 // (the state is derived server-side, so Mongo cannot page it).
@@ -127,7 +128,8 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       $or: [...(email ? [{ email }] : []), ...(phone ? [{ phone }] : [])],
     });
 
-    if (!center) {
+    // A deleted account has no password left to compare against.
+    if (!center || center.deletedAt || !center.password) {
       return res.status(401).json({ message: "Invalid email/phone or password" });
     }
 
@@ -197,8 +199,9 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     }
 
     // Spatial query parameters enforcing active zone
-    const centerGeoQuery: any = {};
-    const vendorGeoQuery: any = { partnerType: "meat" };
+    // A deleted partner account (partner-account-deletion.service) never reaches customers.
+    const centerGeoQuery: any = { deletedAt: { $exists: false } };
+    const vendorGeoQuery: any = { partnerType: "meat", deletedAt: { $exists: false } };
 
     if (activeZone.type === "polygon" && activeZone.boundary) {
       centerGeoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
@@ -229,7 +232,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         const openState = evaluateOutletOpenState(center);
 
         return {
-          ...center,
+          ...toPublicVendor(center),
           role: "meat_vendor",
           partnerType: "meat",
           image: center.image || DEFAULT_MEAT_IMAGE,
@@ -330,7 +333,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       const openState = evaluateOutletOpenState(center);
 
       return {
-        ...center,
+        ...toPublicVendor(center),
         role: "meat_vendor",
         partnerType: "meat",
         image: center.image || DEFAULT_MEAT_IMAGE,

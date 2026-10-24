@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Order, { ServiceType, IOrder } from "../database/models/Order";
 import User from "../database/models/User";
 import { sendEmail } from "./email.service";
+import { escapeForHtml } from "../utils/html";
+import { maskEmail } from "../utils/logMask";
 
 export class InvoiceService {
   private static instance: InvoiceService;
@@ -19,7 +21,7 @@ export class InvoiceService {
    * Generates a Google Static Map image URL showing the route
    */
   private getStaticMapUrl(order: any): string {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
     
     const pickupStop = order.stops[0];
     const dropStop = order.stops[order.stops.length - 1];
@@ -167,6 +169,9 @@ export class InvoiceService {
    * Compiles the Food Delivery Invoice HTML
    */
   public generateDeliveryInvoiceHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const dropStop = order.stops.find((s: any) => s.type === "drop") || order.stops[1];
     const itemsList = dropStop?.items?.lines || [];
     const totals = dropStop?.items?.totals || {};
@@ -462,6 +467,9 @@ export class InvoiceService {
    * Compiles the Ride Share (3-page replica) Invoice HTML
    */
   public generateRideInvoiceHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const orderId = order._id || "—";
     const staticMapUrl = this.getStaticMapUrl(order);
     const dateTime = this.formatDate(order.createdAt || new Date());
@@ -798,12 +806,23 @@ export class InvoiceService {
   private async generatePdfFromHtml(html: string): Promise<Buffer> {
     const puppeteer = require("puppeteer-core");
     const browser = await puppeteer.launch({
-      executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      // CHROME_PATH: the Chrome/Chromium binary on this host (e.g. /usr/bin/chromium on
+      // Linux). The macOS default only suits a developer laptop.
+      executablePath: process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     try {
       const page = await browser.newPage();
+      // Invoices are static markup: no scripts, and only https resources (maps, QR
+      // code, images) — nothing on file:// or a plain-http internal address.
+      await page.setJavaScriptEnabled(false);
+      await page.setRequestInterception(true);
+      page.on("request", (request: any) => {
+        const url: string = request.url();
+        if (url.startsWith("https://") || url.startsWith("data:") || url === "about:blank") request.continue();
+        else request.abort();
+      });
       await page.setContent(html, { waitUntil: "networkidle0" });
       const pdf = await page.pdf({
         format: "A4",
@@ -820,6 +839,9 @@ export class InvoiceService {
    * Generates email body HTML matching the Swiggy delivery confirmation layout
    */
   public generateDeliveryEmailHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const dropStop = order.stops.find((s: any) => s.type === "drop") || order.stops[1];
     const itemsList = dropStop?.items?.lines || [];
     const totals = dropStop?.items?.totals || {};
@@ -1042,6 +1064,9 @@ export class InvoiceService {
    * Generates email body HTML matching the Rapido trip confirmation layout
    */
   public generateRideEmailHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const orderId = order._id || "";
     const staticMapUrl = this.getStaticMapUrl(order);
     const dateTime = this.formatDate(order.createdAt || new Date());
@@ -1256,7 +1281,7 @@ export class InvoiceService {
         ]
       });
 
-      console.log(`[InvoiceService] Invoice successfully sent to ${user.email} for order ${orderId} with PDF attached`);
+      console.log(`[InvoiceService] Invoice successfully sent to ${maskEmail(user.email)} for order ${orderId} with PDF attached`);
       return true;
     } catch (error) {
       console.error("[InvoiceService] Error generating or sending invoice:", error);
@@ -1268,6 +1293,9 @@ export class InvoiceService {
    * Generates PDF HTML for helper/task booking invoice (with Indigo branding and Total Hours Taken)
    */
   public generateTaskInvoiceHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const orderId = order._id || "";
     const staticMapUrl = this.getStaticMapUrl(order);
     const dateTime = this.formatDate(order.createdAt || new Date());
@@ -1602,6 +1630,9 @@ export class InvoiceService {
   }
 
   public generateTaskEmailHtml(order: any): string {
+    // Every string in the order (names, addresses, notes) is escaped once here,
+    // so no template field can carry markup into the page or the PDF renderer.
+    order = escapeForHtml(order);
     const orderId = order._id || "";
     const staticMapUrl = this.getStaticMapUrl(order);
     const dateTime = this.formatDate(order.createdAt || new Date());

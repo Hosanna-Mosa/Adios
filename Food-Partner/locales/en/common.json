@@ -12,6 +12,7 @@
   "actions": {
     "ok": "OK",
     "cancel": "Cancel",
+    "openSettings": "Open settings",
     "continue": "Continue",
     "delete": "Delete",
     "accept": "Accept",
@@ -458,7 +459,37 @@
     "payoutsHint": "Balance, bank account and payout history",
     "branchCode": "Branch code: {{code}}",
     "openingHours": "Opening hours",
-    "openingHoursHint": "Days and times customers can order"
+    "openingHoursHint": "Days and times customers can order",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "Permanently remove your partner account",
+    "privacyPolicy": "Privacy policy",
+    "privacyPolicyHint": "How we collect and use your data"
+  },
+  "deleteAccount": {
+    "title": "Delete account",
+    "intro": "This permanently deletes your partner account.",
+    "whatHappens": "What happens when you delete your account",
+    "points": {
+      "removed": "Your email, phone number, owner details, KYC, PAN, bank account, signature and uploaded documents are removed.",
+      "menu": "Your menu, dish photos and outlet photo are deleted, and your outlet no longer appears to customers.",
+      "records": "Your outlet name, address, GSTIN and FSSAI number stay on past orders and invoices, because we must keep them for tax and accounting.",
+      "signedOut": "You are signed out on every device, including the web partner panel.",
+      "final": "This can't be undone. To partner with us again, apply as a new partner."
+    },
+    "beforeNote": "Before you delete: finish or cancel any order in progress, answer open scheduled requests, and withdraw your earnings from Payouts.",
+    "delete": "Delete my account",
+    "confirmTitle": "Delete your account?",
+    "confirmMessage": "Your partner account and menu will be deleted permanently. This can't be undone.",
+    "doneTitle": "Account deleted",
+    "doneMessage": "Your partner account has been deleted and you've been signed out.",
+    "failed": "Couldn't delete your account. Please try again.",
+    "blocked": {
+      "PASSWORD_INCORRECT": "That password is incorrect.",
+      "ACTIVE_ORDER": "An order is still in progress. Delete your account once it is delivered or cancelled.",
+      "SCHEDULED_PENDING": "You have scheduled orders that are still open. Respond to them, or wait until they are delivered, then try again.",
+      "PAYOUT_PENDING": "A payout to your bank account is still being processed. Try again once it has completed.",
+      "BALANCE_REMAINING": "You still have earnings to withdraw. Request a payout from the Payouts screen first, then delete your account."
+    }
   },
   "support": {
     "title": "Help & support",
@@ -699,5 +730,10 @@
       "sat": "Saturday",
       "sun": "Sunday"
     }
+  },
+  "offline": {
+    "partnerMessage": "You're offline. New orders won't reach you until you reconnect.",
+    "retry": "Retry",
+    "checking": "Checking…"
   }
 }

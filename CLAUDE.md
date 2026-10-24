@@ -58,7 +58,7 @@ npm run typecheck          # tsc --noEmit
 npm run lint                # expo lint (both app and driver)
 npm run android / ios       # native builds via `expo run:*`
 ```
-Both are built/distributed via **EAS** (`eas.json` has `development`/`preview`/`production` profiles). No automated test setup in either.
+Both are built/distributed via **EAS** (`eas.json` has `development`/`preview`/`production` profiles, each naming its EAS environment). API keys (`EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`) come from EAS environment variables, never from `eas.json` — this repo is public. Both have jest suites (`npx jest`).
 
 ### Food-Partner (Expo)
 ```
@@ -102,7 +102,7 @@ Cross-cutting pieces:
 - `backend/src/services/invoice.service.ts` + `puppeteer-core` — server-side PDF invoice generation from the `compiled_*_invoice.html` templates at the backend root
 - External integrations: Cloudinary (media), Razorpay (payments), Google Maps (geo/routing), DigiLocker + Surepass (driver Aadhaar/PAN KYC), Gemini API (OCR), Nodemailer (email)
 
-The ad-hoc one-off debug scripts (`check_*.ts`, `fix_*.ts`, `scratch-*.ts`) and committed debug logs that used to litter the `backend/` root have been pruned — legitimate one-off scripts still live under `backend/src/scripts/`.
+The ad-hoc one-off debug scripts (`check_*.ts`, `fix_*.ts`, `scratch-*.ts`) and committed debug logs that used to litter the `backend/` root are untracked, and `backend/.gitignore` ignores any `.ts`/`.js` file in the backend root plus logs and data dumps (`*.log`, `*backup*.json`, `*.sql`) — legitimate one-off scripts live under `backend/src/scripts/`. Never commit database exports: an order backup with customer phones, addresses and delivery OTPs once reached the public GitHub repo this way.
 
 ## Client conventions
 

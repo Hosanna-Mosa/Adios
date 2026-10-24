@@ -45,7 +45,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
       ]}
     >
       <View style={styles.searchSheetHeaderRow}>
-        <TouchableOpacity onPress={() => setIsSearchActive(false)}>
+        <TouchableOpacity onPress={() => setIsSearchActive(false)} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <Ionicons name="arrow-back" size={moderateScale(22)} color={tokens.sec} />
         </TouchableOpacity>
         <Text style={styles.searchSheetHeaderText}>{t("app.home.searchForDishesRestaurants")}</Text>
@@ -66,7 +66,7 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
             onSubmitEditing={() => addRecentSearch(searchText)}
           />
           {!!searchText && (
-            <TouchableOpacity onPress={() => setSearchText("")}>
+            <TouchableOpacity onPress={() => setSearchText("")} accessibilityRole="button" accessibilityLabel={t("app.food.clearSearch")} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
               <Ionicons name="close-circle" size={moderateScale(18)} color={tokens.muted} />
             </TouchableOpacity>
           )}

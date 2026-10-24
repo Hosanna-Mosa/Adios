@@ -331,7 +331,7 @@ export default function DigiLockerVerifyScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity accessibilityLabel={t("a11y.back")}
           onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
           hitSlop={12}
           style={styles.backBtn}

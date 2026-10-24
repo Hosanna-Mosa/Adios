@@ -1194,7 +1194,32 @@
       "topupRefundedTitle": "Payment refunded",
       "topupRefunded": "Your task was already taken, so this payment is being refunded."
     },
+    "deleteAccount": {
+      "title": "Delete account",
+      "whatHappens": "What happens when you delete your account",
+      "points": {
+        "removed": "Your name, phone number, email, saved addresses, favourites and profile photo are removed.",
+        "orders": "Your past orders and invoices are kept without your details, because we must keep them for tax and accounting.",
+        "signedOut": "You are signed out on every device.",
+        "final": "This can't be undone. You can sign up again later with the same phone number."
+      },
+      "passwordLabel": "Current password",
+      "passwordPlaceholder": "Enter your password to confirm",
+      "passwordRequired": "Enter your password to confirm.",
+      "passwordIncorrect": "That password is incorrect.",
+      "activeOrder": "You have an order in progress. You can delete your account once it is completed or cancelled.",
+      "deleteButton": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "Your details are removed and you are signed out everywhere. This can't be undone.",
+      "confirmButton": "Delete",
+      "doneTitle": "Account deleted",
+      "doneBody": "Your account has been deleted."
+    },
     "personaldetails": {
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "currentPasswordHint": "Needed to move your account to a new email.",
+      "currentPasswordRequired": "Enter your current password to change your email.",
       "couldntSave": "Couldn't save",
       "fullNameRequired": "Full name is required.",
       "useAtLeast3Characters": "Use at least 3 characters.",
@@ -1391,6 +1416,8 @@
     },
     "a11y": {
       "goBack": "Go back",
+      "rateStars_one": "Rate {{count}} star",
+      "rateStars_other": "Rate {{count}} stars",
       "unreadCount_one": "{{label}} unread",
       "unreadCount_other": "{{label}} unread",
       "cartWithItems_one": "Cart, {{count}} item",

@@ -6,7 +6,17 @@ import Driver, { DriverStatus } from "../../database/models/Driver";
 import RevokedToken from "../../database/models/RevokedToken";
 import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
-import { isSelfSignupRole, isAdminPhone, OTP_ROLE_NOT_ALLOWED_MESSAGE, ACCOUNT_BLOCKED_MESSAGE } from "../../config/auth.config";
+import {
+  isSelfSignupRole,
+  isAdminPhone,
+  isDummyOtpEnabled,
+  OTP_ROLE_NOT_ALLOWED_MESSAGE,
+  OTP_UNAVAILABLE_MESSAGE,
+  ACCOUNT_BLOCKED_MESSAGE,
+} from "../../config/auth.config";
+import { deleteOwnAccount } from "../users/account-deletion.service";
+import { deleteOwnPartnerAccount, findPartnerBySignIn } from "../vendors/partner-account-deletion.service";
+import { maskPhone } from "../../utils/logMask";
 
 function buildLoginIdentifierQuery(identifier: string) {
   const trimmed = identifier.trim();
@@ -49,6 +59,9 @@ function buildLoginIdentifierQuery(identifier: string) {
 // email addresses are registered.
 const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
 
+/** Roles that sign in to the admin panel; their sessions are kept short (generateToken). */
+const STAFF_SESSION_ROLES: readonly UserRole[] = [UserRole.ADMIN, UserRole.SUPPORT];
+
 // A cost-10 bcrypt digest of 24 random bytes whose preimage was never recorded,
 // so no password can ever match it. Comparing against it when the account does
 // not exist keeps the failure path in the same timing band as a wrong password,
@@ -71,6 +84,11 @@ async function startDriverSessionOffline(user: { _id: unknown; role: UserRole })
 
 export class AuthService {
   async requestOTP(phone: string, email?: string) {
+    // No SMS provider is wired up yet, so outside dev there is no OTP to send.
+    if (!isDummyOtpEnabled()) {
+      throw new AppError(503, OTP_UNAVAILABLE_MESSAGE);
+    }
+
     // Checked before the OTP step so a sign-up with a taken email fails here,
     // not after the user has typed the code.
     if (email && (await User.exists({ email }))) {
@@ -78,13 +96,19 @@ export class AuthService {
     }
 
     // Dummy mode — log and return success (no SMS sent)
-    console.log(`[DUMMY AUTH] OTP requested for ${phone}. Any 6-digit code will work.`);
+    console.log(`[DUMMY AUTH] OTP requested for ${maskPhone(phone)}. Any 6-digit code will work.`);
     return { success: true, message: "OTP sent successfully" };
   }
 
   async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string) {
+    // Gated separately from requestOTP: a caller can post here without ever
+    // asking for a code, and this is the step that mints the session.
+    if (!isDummyOtpEnabled()) {
+      throw new AppError(503, OTP_UNAVAILABLE_MESSAGE);
+    }
+
     // Dummy mode — ANY code is accepted. No DB lookup needed.
-    console.log(`[DUMMY AUTH] Verifying OTP for ${phone}. Code: ${_code} — accepted.`);
+    console.log(`[DUMMY AUTH] Verifying OTP for ${maskPhone(phone)} — accepted.`);
 
     // verifyOtpSchema already rejects privileged roles; repeated here so the
     // guarantee survives a caller that reaches the service another way.
@@ -130,7 +154,7 @@ export class AuthService {
       await user.save();
 
       // Driver record will be created on first onboarding save (getOrCreateDriver)
-      console.log(`[DUMMY AUTH] New user created: ${name} (${phone}) with password and email ${email || ""}`);
+      console.log(`[DUMMY AUTH] New user created: ${user._id} (${maskPhone(phone)})`);
     }
 
     await startDriverSessionOffline(user);
@@ -174,6 +198,34 @@ export class AuthService {
     return { user, token };
   }
 
+  /**
+   * The web deletion request: proves ownership with the same credentials as
+   * sign-in, then anonymises the account. Fails the same way, and in the same
+   * time, for an unknown account as for a wrong password (see loginWithPassword).
+   */
+  async deleteAccountWithPassword(phoneOrEmail: string, password: string, role: UserRole | "PARTNER") {
+    if (role === "PARTNER") {
+      // Restaurant and meat-centre partners: their own collections, their own sign-in.
+      const found = await findPartnerBySignIn(phoneOrEmail);
+      const isMatch = found?.outlet.password
+        ? await found.outlet.matchPassword(password)
+        : await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+      if (!found || !isMatch || found.outlet.deletedAt) {
+        throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
+      }
+      return deleteOwnPartnerAccount(String(found.outlet._id), found.role, password);
+    }
+
+    const user = await User.findOne({ ...buildLoginIdentifierQuery(phoneOrEmail), role });
+    const isMatch = user?.password
+      ? await user.matchPassword(password)
+      : await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+    if (!user || !isMatch || user.deletedAt) {
+      throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+    return deleteOwnAccount(String(user._id), password);
+  }
+
   async logoutAll(userId: string) {
     const user = await User.findByIdAndUpdate(
       userId,
@@ -196,7 +248,9 @@ export class AuthService {
       // logoutAll's tokenVersion bump does.
       { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
-      { expiresIn: "30d" } // 30 days
+      // Staff sessions live in the admin panel's localStorage and can do far more
+      // with a leaked token, so they end after a working day. App sessions stay long.
+      { expiresIn: STAFF_SESSION_ROLES.includes(role) ? "12h" : "30d" }
     );
   }
 

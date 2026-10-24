@@ -108,7 +108,7 @@ export function OrderReviewCard({
       <Text style={[styles.reviewTitle, { alignSelf: "center" }]}>{t("app.ride.rateYourExperience")}</Text>
       <View style={{ flexDirection: "row", gap: 10, marginTop: 12, alignSelf: "center" }}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7}>
+          <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={t("app.a11y.rateStars", { count: star })} accessibilityState={{ selected: star <= rating }}>
             <Ionicons name="star" size={32} color={star <= rating ? "#F59E0B" : tokens.border} />
           </TouchableOpacity>
         ))}
