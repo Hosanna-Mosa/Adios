@@ -12,7 +12,10 @@ export const createStyles = (tokens: ThemeTokens, size: Size) => {
   const height = size === "sm" ? moderateScale(40) : moderateScale(52);
   return StyleSheet.create({
     base: {
-      height,
+      // minHeight, not height: with the system font size turned up the label
+      // grows, and a fixed height would clip it.
+      minHeight: height,
+      paddingVertical: moderateScale(8),
       borderRadius: radius.pill,
       backgroundColor: tokens.brand,
       alignItems: "center",
@@ -33,7 +36,7 @@ export const createStyles = (tokens: ThemeTokens, size: Size) => {
     },
     link: {
       backgroundColor: "transparent",
-      height: undefined,
+      minHeight: undefined,
       paddingHorizontal: 0,
       paddingVertical: 4,
       alignSelf: "flex-start",

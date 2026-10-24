@@ -165,3 +165,37 @@ export const restaurantAcceptSchema = z.object({
       .max(prepMinutesMax, `Prep time can be at most ${prepMinutesMax} minutes`),
   }),
 });
+
+const orderIdParams = z.object({ id: z.string().min(1) });
+
+export const validateCouponSchema = z.object({
+  body: z.object({
+    code: z.string({ message: "Promo code is required" }).trim().min(1, "Promo code is required").max(40),
+    cartTotal: z.coerce.number().min(0).max(1_000_000).optional(),
+    vendorId: z.string().max(64).optional(),
+  }),
+});
+
+export const increasePriceSchema = z.object({
+  params: orderIdParams,
+  body: z.object({
+    amount: z.coerce.number({ message: "Invalid amount to increase" }).positive("Invalid amount to increase").max(10_000),
+  }),
+});
+
+// The allowed status values and who may set them are checked in the controller;
+// this only pins down the shape.
+export const updateStatusSchema = z.object({
+  params: orderIdParams,
+  body: z.object({
+    status: z.string({ message: "Invalid status value" }).trim().min(1, "Invalid status value").max(40),
+    otp: z.union([z.string().trim().max(10), z.number().int().nonnegative()]).optional(),
+  }),
+});
+
+export const declineOrderSchema = z.object({
+  params: orderIdParams,
+  body: z.object({
+    reason: z.string({ message: "Decline reason is required" }).trim().min(1, "Decline reason is required").max(300),
+  }),
+});

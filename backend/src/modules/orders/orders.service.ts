@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Order, { OrderStatus, ServiceType, StopType } from "../../database/models/Order";
-import User from "../../database/models/User";
+import User, { UserRole } from "../../database/models/User";
 import Driver from "../../database/models/Driver";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
@@ -29,6 +29,8 @@ import { getOutletOrderingState } from "../../utils/outletOrderingState";
 import { clampHelperHours, haversineKm, helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { assertHelperTransition, helperPushText, isHelperDone, isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
 import { DriverStatus } from "../../database/models/Driver";
+import { PUBLIC_VENDOR_SELECT } from "../vendors/vendor.public";
+import { maskPhone } from "../../utils/logMask";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -481,7 +483,7 @@ export class OrdersService {
       console.log("\n============================================================");
       console.log("🛒 [NEW ORDER BOOKED]");
       console.log(`Order ID: ${savedOrder._id}`);
-      console.log(`👤 Customer: ${user.name || "N/A"} (${user.phone || "N/A"})`);
+      console.log(`👤 Customer: ${user._id} (${maskPhone(user.phone)})`);
       console.log(`📍 Booked Pickup Zone: "${pickupZoneName}"`);
       console.log(`Service Type: ${effectiveType}`);
 
@@ -591,10 +593,9 @@ export class OrdersService {
 
       console.log(`\n📢 [NOTIFIED DRIVERS]: ${driversToNotify.length} drivers selected`);
       driversToNotify.forEach((d: any) => {
-        const uName = (d.user as any)?.name || "Unknown";
-        const uPhone = (d.user as any)?.phone || "No Phone";
+        const uPhone = maskPhone((d.user as any)?.phone);
         const dZoneName = d.preferredZone ? (zoneNameMap.get(d.preferredZone.toString()) || "Unknown Zone") : "No Zone";
-        console.log(`   🚗 Driver: ${uName} (${uPhone}) | Driver ID: ${d._id} | Assigned Zone: "${dZoneName}"`);
+        console.log(`   🚗 Driver: ${uPhone} | Driver ID: ${d._id} | Assigned Zone: "${dZoneName}"`);
       });
       console.log("============================================================\n");
 
@@ -801,7 +802,7 @@ export class OrdersService {
     // Not awaited: the restaurant is waiting for its button, not for a rider.
     foodDispatch.startDispatch(accepted._id.toString(), "accepted");
 
-    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -823,7 +824,7 @@ export class OrdersService {
     if (["searching", "unassigned"].includes(order.dispatch?.state)) {
       foodDispatch.startDispatch(order._id.toString(), "food is ready");
     }
-    return Order.findOne(this.getOrderQuery(order._id.toString())).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(order._id.toString())).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -1231,7 +1232,7 @@ export class OrdersService {
       })
       .catch((err) => console.error("[orders.service] Failed to send cash-collected notification:", err));
 
-    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -1366,7 +1367,7 @@ export class OrdersService {
         path: "driver",
         populate: { path: "user" }
       })
-      .populate("vendor");
+      .populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Dynamically adjust totalCandidatesCount based on active online status of the candidates
     if (order && order.status === OrderStatus.SEARCHING_DRIVER) {
@@ -1486,7 +1487,7 @@ export class OrdersService {
         },
       ],
       { new: true, updatePipeline: true },
-    ).populate("user").populate("vendor");
+    ).populate("user").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
     if (!order) return null;
 
     const newPrice = order.customerPrice || order.totalPrice;
@@ -1580,7 +1581,7 @@ export class OrdersService {
     if (order.dispatchMode === "broadcast" && isReadyStatus(status)) {
       if (!order.restaurantAcceptedAt) throw new ConflictError("Accept the order before marking it ready.");
       if (order.foodReadyAt) {
-        return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+        return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
       }
       if (!order.driver) return this.markFoodReadyBeforeRider(order);
       order.foodReadyAt = new Date();
@@ -1689,7 +1690,7 @@ export class OrdersService {
       }
     }
 
-    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Send Push & In-app notifications based on status changes
     if (populated && populated.user) {
@@ -1987,7 +1988,7 @@ export class OrdersService {
         $nin: [
           OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED,
           OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
-          "completed", "cancelled",
+          "completed" as OrderStatus, "cancelled" as OrderStatus,
         ],
       },
       updatedAt: { $gte: new Date(now.getTime() - 6 * 60 * 60 * 1000) },
@@ -1996,7 +1997,7 @@ export class OrdersService {
       .sort({ updatedAt: -1 })
       .populate("user")
       .populate("driver")
-      .populate("vendor");
+      .populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -2166,7 +2167,7 @@ export class OrdersService {
       socketManager.logConnectionStatus("after_driver_accept_emit", order.user?.toString(), driverUserId, orderId.toString());
     }
 
-    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Send Push & In-app Notification to customer
     if (populated && populated.user) {
@@ -2247,7 +2248,7 @@ export class OrdersService {
     emitTicketUpdate(supportTicket);
 
     // 2. Query all Admin users
-    const admins = await User.find({ role: "ADMIN" });
+    const admins = await User.find({ role: UserRole.ADMIN });
 
     // 3. Dispatch Push & In-app alerts to all admins
     const notificationService = NotificationService.getInstance();

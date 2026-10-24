@@ -67,7 +67,7 @@ export const createStyles = (tokens: ThemeTokens) =>
       top: -5,
       right: -10,
       minWidth: moderateScale(17),
-      height: moderateScale(17),
+      minHeight: moderateScale(17),
       borderRadius: moderateScale(9),
       paddingHorizontal: 4,
       backgroundColor: tokens.error,

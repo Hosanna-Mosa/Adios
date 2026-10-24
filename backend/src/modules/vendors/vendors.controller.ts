@@ -25,6 +25,8 @@ import {
   missingDocumentFields,
   toVendorKycFields,
 } from "./vendor-verification.service";
+import { toPublicVendor } from "./vendor.public";
+import { UserRole } from "../../database/models/User";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -183,7 +185,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const getNearbyVendors = async (req: Request, res: Response) => {
+export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
   try {
     const { lat, lng, page = 1, limit = 20, radius, minRating, sort, openNow, search } = req.query;
 
@@ -194,10 +196,14 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     const userLat = parseFloat(lat as string);
     const userLng = parseFloat(lng as string);
 
-    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors
-    if (userLat === 0 && userLng === 0) {
-      console.log(`[API] Fetching ALL vendors for Admin Panel`);
-      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } }).sort({ createdAt: -1 }).lean();
+    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors, with the KYC and bank
+    // details the Vendors page reviews. Signed-in admins only (the route runs
+    // optionalAuth) — anyone else sending 0,0 falls through to the zone check.
+    if (userLat === 0 && userLng === 0 && req.user?.role === UserRole.ADMIN) {
+      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } })
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .lean();
       return res.json(allVendors.map((vendor) => ({ ...vendor, openState: evaluateOutletOpenState(vendor) })));
     }
 
@@ -224,6 +230,8 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     // Build spatial match query enforcing active zone boundaries
     const geoQuery: any = {
       partnerType: { $ne: "meat" },
+      // A deleted partner account (partner-account-deletion.service) never reaches customers.
+      deletedAt: { $exists: false },
       // Applications still in review (or turned down) must not reach customers.
       // Admin-created and legacy vendors carry no onboardingSource and are unaffected.
       $nor: [
@@ -289,7 +297,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
       const openState = evaluateOutletOpenState(vendor);
 
       return {
-        ...vendor,
+        ...toPublicVendor(vendor),
         openState,
         isOpen: openState.isOpen,
         distanceKm: Math.round(distanceInKm * 10) / 10,
@@ -322,11 +330,11 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
 export const getVendorById = async (req: Request, res: Response) => {
   try {
     const vendor = await Vendor.findById(req.params.id).lean();
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+    if (!vendor || vendor.deletedAt) return res.status(404).json({ message: "Vendor not found" });
     // openState carries today's window and the full week so the details screen can
     // show real timings instead of a hardcoded "Open now".
     const openState = evaluateOutletOpenState(vendor);
-    res.json({ ...vendor, openState, isOpen: openState.isOpen });
+    res.json({ ...toPublicVendor(vendor), openState, isOpen: openState.isOpen });
   } catch (error) {
     console.error("Error fetching vendor:", error);
     res.status(500).json({ message: "Internal server error" });

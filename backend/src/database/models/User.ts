@@ -53,6 +53,8 @@ export interface IUser extends Document, IUserMethods {
   tokenVersion?: number;
   expoPushToken?: string;
   webPushSubscriptions?: IWebPushSubscription[];
+  /** Set when the person deleted their own account; the record is anonymised (see account-deletion.service). */
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +72,7 @@ const UserSchema: Schema = new Schema(
     tokenVersion: { type: Number, default: 0 },
     expoPushToken: { type: String },
     webPushSubscriptions: [webPushSubscriptionSchema],
+    deletedAt: { type: Date },
     role: {
       type: String,
       enum: Object.values(UserRole),

@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { getJwtSecret } from "./jwtSecret";
 
 /**
  * Symmetric encryption helpers used to keep third-party OAuth material
@@ -46,7 +47,8 @@ function getKey(): Buffer {
     );
   }
 
-  const seed = raw || process.env.JWT_SECRET || "supersecret123";
+  // No literal fallback: a known default would let anyone decrypt the stored tokens.
+  const seed = raw || getJwtSecret();
   cachedKey = crypto.scryptSync(seed, "digilocker-token-store", 32);
   return cachedKey;
 }

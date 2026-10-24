@@ -5,6 +5,8 @@ import { moderateScale } from "react-native-size-matters";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 
+const MIN_TOUCH = 48;
+
 interface Props {
   icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
@@ -24,11 +26,14 @@ export function IconButton({ icon, onPress, accessibilityLabel, size = 40, color
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const d = moderateScale(size);
+  // Grow the touch area (not the drawn circle) to the 48dp minimum.
+  const slop = Math.max(0, (MIN_TOUCH - d) / 2);
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
+      hitSlop={slop}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       style={[

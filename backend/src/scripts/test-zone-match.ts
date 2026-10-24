@@ -28,7 +28,7 @@ async function testMatch() {
     console.log(`\nTesting: ${c.name} (Lat: ${c.lat}, Lng: ${c.lng})`);
     
     // Test direct MongoDB query
-    const directQuery = await Zone.findOne({
+    const directQuery = await Zone.findOne(<any>{
       type: "polygon",
       isActive: true,
       boundary: {

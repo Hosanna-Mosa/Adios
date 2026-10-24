@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Platform } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
@@ -27,6 +28,7 @@ export function ProfileSectionModal({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <ModalBox visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardView
@@ -36,7 +38,7 @@ export function ProfileSectionModal({
         <Box style={styles.modalCard}>
           <Box style={styles.modalHeader}>
             <AppText style={styles.modalTitle}>{title}</AppText>
-            <PressBox style={styles.closeButton} onPress={onClose}>
+            <PressBox accessibilityLabel={t("a11y.close")} hitSlop={8} style={styles.closeButton} onPress={onClose}>
               <Feather name="x" size={18} color={Colors.text} />
             </PressBox>
           </Box>

@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, type Style
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, radius, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies, typography } from "@/constants/typography";
+import { COMPACT_MAX_FONT_SCALE, fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
 interface Props {
@@ -59,7 +59,7 @@ export function ActionTile({ icon, label, onPress, color, background, badge, das
       )}
       {badge ? (
         <View style={[styles.badge, plain && styles.plainBadge]}>
-          <Text style={styles.badgeText}>{badge > 99 ? "99+" : badge}</Text>
+          <Text style={styles.badgeText} maxFontSizeMultiplier={COMPACT_MAX_FONT_SCALE}>{badge > 99 ? "99+" : badge}</Text>
         </View>
       ) : null}
     </TouchableOpacity>
@@ -128,7 +128,7 @@ const createStyles = (tokens: ThemeTokens) =>
       top: 12,
       right: 12,
       minWidth: moderateScale(22),
-      height: moderateScale(22),
+      minHeight: moderateScale(22),
       borderRadius: moderateScale(11),
       paddingHorizontal: 6,
       backgroundColor: tokens.error,

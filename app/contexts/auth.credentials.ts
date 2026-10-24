@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
 import { trackEvent } from "@/utils/analytics";
+import { saveToken } from "@/utils/secureToken";
 
 // The three credential exchanges: request an OTP, verify one, and sign in with
 // a password. Split out of contexts/authStore.ts unchanged — same endpoints,
@@ -51,7 +52,7 @@ export const createCredentialActions = (set: Set) => ({
       resetSessionExpiry();
       set({ user: data.user, token: data.token });
       await Promise.all([
-        AsyncStorage.setItem("token", data.token),
+        saveToken(data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
       ]);
       // The signup screen hands its name through to this same call, so a name
@@ -80,7 +81,7 @@ export const createCredentialActions = (set: Set) => ({
       resetSessionExpiry();
       set({ user: data.user, token: data.token });
       await Promise.all([
-        AsyncStorage.setItem("token", data.token),
+        saveToken(data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
       ]);
       trackEvent("login", { method: "password" });

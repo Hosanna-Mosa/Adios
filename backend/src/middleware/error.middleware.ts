@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/errors";
+import { isDevEnv } from "../utils/env";
 
 export const globalErrorHandler = (
   err: any,
@@ -7,7 +8,8 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const isDev = process.env.NODE_ENV === "development" || !process.env.NODE_ENV;
+  // Stack traces only on an explicit dev box — never when NODE_ENV is unset.
+  const isDev = isDevEnv();
   
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -26,6 +28,14 @@ export const globalErrorHandler = (
     return res.status(409).json({
       success: false,
       message: `A record with this ${key} already exists.`,
+    });
+  }
+
+  // Upload limits (upload.middleware): a file over 5MB, too many files, an unexpected field.
+  if (err.name === "MulterError") {
+    return res.status(400).json({
+      success: false,
+      message: err.code === "LIMIT_FILE_SIZE" ? "Each image must be 5MB or smaller." : err.message,
     });
   }
 

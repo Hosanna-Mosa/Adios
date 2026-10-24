@@ -9,6 +9,25 @@ import { FileSpreadsheet, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
+// Report rows carry names, addresses and notes typed by customers, drivers and
+// vendors. The PDF export writes them into a window on this origin, where a
+// script could read the admin's localStorage token, so every value is escaped.
+const escapeHtml = (value: unknown): string =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+// A text cell starting with = + - @ (or a tab / CR) runs as a formula when the CSV
+// is opened in Excel or Sheets; the leading quote keeps it as plain text.
+const csvCell = (value: unknown): string => {
+  let text = String(value || "");
+  if (typeof value === "string" && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
 interface DownloadReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,11 +49,11 @@ export function DownloadReportDialog({
     }
 
     try {
-      const headers = Object.keys(data[0]).join(",");
+      const headers = Object.keys(data[0]).map(csvCell).join(",");
       const rows = data
         .map((obj) =>
           Object.values(obj)
-            .map((val) => `"${String(val || "").replace(/"/g, '""')}"`)
+            .map(csvCell)
             .join(",")
         )
         .join("\n");
@@ -73,17 +92,17 @@ export function DownloadReportDialog({
       }
 
       const htmlHeaders = Object.keys(data[0]);
-      const titleHtml = `<h1 style="font-family: Arial, sans-serif; color: #0f172a; margin-bottom: 4px;">${title}</h1>`;
-      const subtitleHtml = `<p style="font-family: Arial, sans-serif; color: #64748b; margin-top: 0; font-size: 14px;">${t("downloadReport.reportGeneratedOn", {
+      const titleHtml = `<h1 style="font-family: Arial, sans-serif; color: #0f172a; margin-bottom: 4px;">${escapeHtml(title)}</h1>`;
+      const subtitleHtml = `<p style="font-family: Arial, sans-serif; color: #64748b; margin-top: 0; font-size: 14px;">${escapeHtml(t("downloadReport.reportGeneratedOn", {
         date: new Date().toLocaleString(),
         defaultValue: "Precision Nav Logistics Report — Generated on {{date}}",
-      })}</p>`;
+      }))}</p>`;
 
       let tableHtml = `<table style="width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; margin-top: 24px; font-size: 13px;">`;
       // Headers
       tableHtml += `<tr style="background-color: #0f172a; color: #ffffff; text-align: left;">`;
       htmlHeaders.forEach((h) => {
-        tableHtml += `<th style="padding: 12px 10px; border: 1px solid #cbd5e1; text-transform: uppercase; font-size: 11px; tracking-wider: 0.05em;">${h}</th>`;
+        tableHtml += `<th style="padding: 12px 10px; border: 1px solid #cbd5e1; text-transform: uppercase; font-size: 11px; tracking-wider: 0.05em;">${escapeHtml(h)}</th>`;
       });
       tableHtml += `</tr>`;
       // Rows
@@ -95,9 +114,7 @@ export function DownloadReportDialog({
           if (typeof cellValue === "object" && cellValue !== null) {
             cellValue = JSON.stringify(cellValue);
           }
-          tableHtml += `<td style="padding: 10px; border: 1px solid #e2e8f0; color: #334155;">${
-            cellValue !== undefined ? cellValue : ""
-          }</td>`;
+          tableHtml += `<td style="padding: 10px; border: 1px solid #e2e8f0; color: #334155;">${escapeHtml(cellValue)}</td>`;
         });
         tableHtml += `</tr>`;
       });
@@ -106,7 +123,7 @@ export function DownloadReportDialog({
       printWindow.document.write(`
         <html>
           <head>
-            <title>${title}</title>
+            <title>${escapeHtml(title)}</title>
             <style>
               body { padding: 40px; }
               @media print {
@@ -114,7 +131,7 @@ export function DownloadReportDialog({
               }
             </style>
           </head>
-          <body onload="window.print(); window.close();">
+          <body>
             ${titleHtml}
             ${subtitleHtml}
             ${tableHtml}
@@ -122,6 +139,11 @@ export function DownloadReportDialog({
         </html>
       `);
       printWindow.document.close();
+      // Printed from here rather than an inline onload: the blank window inherits
+      // the admin's Content-Security-Policy, which refuses inline handlers.
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
 
       toast.success(t("downloadReport.pdfReportGeneratedSuccessfully"));
       onOpenChange(false);

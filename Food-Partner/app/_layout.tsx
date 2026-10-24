@@ -21,6 +21,7 @@ import i18n from "@/i18n";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { PushNotificationHandler } from "@/components/PushNotificationHandler";
 import { NewOrderBanner } from "@/components/shared/NewOrderBanner";
 import { ScheduledRequestSheet } from "@/components/shared/ScheduledRequestSheet";
@@ -128,6 +129,7 @@ export default function RootLayout() {
               <ToastProvider>
                 <RootLayoutNav />
                 <GlobalSocketHandler />
+                <OfflineBanner />
                 <PushNotificationHandler />
                 <NewOrderBanner />
                 <ScheduledRequestSheet />

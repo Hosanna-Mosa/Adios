@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { getNearbyVendors, getVendorById, createVendor, searchGooglePlaces, getPlaceDetails, loginVendor, saveVendorOnboarding, changeVendorPassword, forgotVendorPassword, resetVendorPassword, updateVendor, deleteVendor, requestVendorPayout, getOutletOrderingStatus } from "./vendors.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { authRateLimiter } from "../../middleware/rateLimit.middleware";
+import { authRateLimiter, mapsRateLimiter, onboardingRateLimiter } from "../../middleware/rateLimit.middleware";
 import {
   forgotVendorPasswordSchema,
   resetVendorPasswordSchema,
@@ -24,6 +24,7 @@ import {
   setMyOpenStateSchema,
   partnerPushTokenSchema,
   updateMyVendorProfileSchema,
+  deleteMyPartnerAccountSchema,
 } from "./vendors.validation";
 import {
   digilockerRateLimit,
@@ -36,14 +37,14 @@ import {
   resubmitOnboardingDocuments,
   startOnboardingDigilocker,
 } from "./vendor-verification.controller";
-import { getMyVendorProfile, registerMyPushToken, removeMyPushToken, setMyOpenState, updateMyVendorProfile } from "./vendor-profile.controller";
+import { deleteMyPartnerAccount, getMyVendorProfile, registerMyPushToken, removeMyPushToken, setMyOpenState, updateMyVendorProfile } from "./vendor-profile.controller";
 import { getMyPayouts } from "./vendor-payouts.controller";
 
 const router = Router();
 
-router.get("/nearby", validateRequest(nearbyVendorsSchema), getNearbyVendors);
-router.get("/search-google", validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
-router.get("/place-details/:placeId", validateRequest(placeDetailsParamSchema), getPlaceDetails);
+router.get("/nearby", optionalAuth, validateRequest(nearbyVendorsSchema), getNearbyVendors);
+router.get("/search-google", optionalAuth, mapsRateLimiter, validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
+router.get("/place-details/:placeId", optionalAuth, mapsRateLimiter, validateRequest(placeDetailsParamSchema), getPlaceDetails);
 // The signed-in outlet's own profile (partner app). Registered before /:id so "me" is never read as an id.
 router.get("/me", authenticateToken, getMyVendorProfile);
 router.put("/me", authenticateToken, validateRequest(updateMyVendorProfileSchema), updateMyVendorProfile);
@@ -51,11 +52,13 @@ router.put("/me/open", authenticateToken, validateRequest(setMyOpenStateSchema),
 router.get("/me/payouts", authenticateToken, getMyPayouts);
 router.post("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), registerMyPushToken);
 router.delete("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), removeMyPushToken);
+// Partner app "Delete account" (see partner-account-deletion.service); throttled like sign-in.
+router.post("/me/delete", authenticateToken, authRateLimiter, validateRequest(deleteMyPartnerAccountSchema), deleteMyPartnerAccount);
 router.get("/:id", validateRequest(vendorIdParamSchema), getVendorById);
 // Restaurants and meat centres alike — the customer menu reads it before adding to the cart.
 router.get("/:id/ordering-state", validateRequest(vendorIdParamSchema), getOutletOrderingStatus);
 router.post("/login", authRateLimiter, validateRequest(loginVendorSchema), loginVendor);
-router.post("/onboarding", validateRequest(saveVendorOnboardingSchema), saveVendorOnboarding);
+router.post("/onboarding", onboardingRateLimiter, validateRequest(saveVendorOnboardingSchema), saveVendorOnboarding);
 // Owner KYC through DigiLocker, for applicants who don't have an account yet.
 router.post(
   "/onboarding/digilocker/session",

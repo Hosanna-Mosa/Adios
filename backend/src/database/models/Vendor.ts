@@ -142,6 +142,8 @@ export interface IVendor extends Document {
    * NOT move the searchable `location` pin.
    */
   currentLocation?: { lat: number; lng: number; address?: string };
+  /** Set when the partner deleted their own account; the record is anonymised (see partner-account-deletion.service). */
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -333,8 +335,20 @@ const VendorSchema: Schema = new Schema(
     expoPushTokens: { type: [String], default: [] },
     branchCode: { type: String, trim: true },
     currentLocation: { type: currentLocationSchema, default: undefined },
+    deletedAt: { type: Date },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Never send the bcrypt hash to a client. Orders populate their vendor and
+    // are serialized through res.json for customers and drivers alike. .lean()
+    // reads skip this — public endpoints run theirs through toPublicVendor.
+    toJSON: {
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret.password;
+        return ret;
+      },
+    },
+  }
 );
 
 // Hash password before saving

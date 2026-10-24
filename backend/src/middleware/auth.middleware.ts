@@ -3,6 +3,11 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
 import RevokedToken from "../database/models/RevokedToken";
+import Vendor from "../database/models/Vendor";
+import MeatCenter from "../database/models/MeatCenter";
+
+// Tokens from /vendors/login and /meat/login: they carry a Vendor/MeatCenter _id.
+const PARTNER_ROLES = ["restaurant_vendor", "meat_vendor"];
 import { getJwtSecret } from "../utils/jwtSecret";
 import { ACCOUNT_BLOCKED_MESSAGE } from "../config/auth.config";
 
@@ -71,6 +76,21 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       // interceptor clears the stored token and returns them to the login screen.
       if (user.isBlocked) {
         return res.status(401).json({ message: ACCOUNT_BLOCKED_MESSAGE });
+      }
+    } catch (error) {
+      return next(error);
+    }
+  } else if (PARTNER_ROLES.includes(payload?.role)) {
+    // A partner who deleted their account (or an outlet an admin removed) is
+    // signed out everywhere: the token outlives the outlet, so check it is still there.
+    if (!mongoose.Types.ObjectId.isValid(payload.userId)) {
+      return res.status(401).json({ message: "Session no longer valid" });
+    }
+    try {
+      const live = { _id: payload.userId, deletedAt: { $exists: false } };
+      const outlet = (await Vendor.exists(live)) || (payload.role === "meat_vendor" && (await MeatCenter.exists(live)));
+      if (!outlet) {
+        return res.status(401).json({ message: "Session no longer valid" });
       }
     } catch (error) {
       return next(error);

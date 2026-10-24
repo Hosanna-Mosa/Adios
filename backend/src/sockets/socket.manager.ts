@@ -10,6 +10,7 @@ import Order from "../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../database/models/Driver";
 import ChatMessage from "../database/models/ChatMessage";
 import { getJwtSecret } from "../utils/jwtSecret";
+import { getAllowedOrigins } from "../utils/env";
 
 // Order._id is a custom string like "ADSF120926123456" (see
 // generateCustomOrderId in orders.service.ts), not a Mongo ObjectId, so a plain
@@ -33,7 +34,8 @@ export class SocketManager {
 
   private constructor(server: http.Server) {
     this.io = new Server(server, {
-      cors: { origin: "*" },
+      // Same browser origins as the REST API (ALLOWED_ORIGINS).
+      cors: { origin: getAllowedOrigins() },
       path: "/ws/v1/socket.io",
     });
 

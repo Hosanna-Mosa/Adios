@@ -35,6 +35,8 @@ export function FavoriteCard({
       <TouchableOpacity
         style={styles.cardThumb}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel={item.name}
         onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item._id, name: item.name, image: item.image || "", isMeat: isMeat ? "true" : "false" } })}
       >
         <Image source={{ uri: item.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />

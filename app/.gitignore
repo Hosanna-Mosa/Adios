@@ -42,3 +42,6 @@ yarn-error.*
 
 # test coverage reports
 coverage/
+
+# Firebase config: supplied by the GOOGLE_SERVICES_JSON EAS file variable
+google-services.json

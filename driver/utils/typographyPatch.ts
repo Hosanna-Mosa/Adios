@@ -49,6 +49,12 @@ const resolveFamily = (style: unknown) => {
   return familyFor(size >= typography.sizes.large, flat.fontWeight);
 };
 
+// --- Large font sizes ---------------------------------------------------------
+// The system font size still scales every text, but only up to 1.6x. At Android's
+// largest setting (2x) the fixed-height cards, buttons and map overlays clip their
+// labels. A caller can still pass its own maxFontSizeMultiplier.
+const MAX_FONT_SCALE = 1.6;
+
 const SKIP_STATICS = new Set(["length", "name", "prototype", "$$typeof", "render", "caller", "arguments"]);
 
 const wrap = (key: "Text" | "TextInput") => {
@@ -60,6 +66,7 @@ const wrap = (key: "Text" | "TextInput") => {
 
   const Wrapped: any = React.forwardRef((props: any, ref: unknown) =>
     React.createElement(Base, {
+      maxFontSizeMultiplier: MAX_FONT_SCALE,
       ...props,
       // The caller's own style comes last, so a style that names a fontFamily
       // explicitly still wins.

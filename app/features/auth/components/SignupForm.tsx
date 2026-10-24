@@ -121,6 +121,9 @@ export function SignupForm({
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             style={styles.eyeBtn}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? t("app.a11y.hidePassword") : t("app.a11y.showPassword")}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Ionicons
               name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}

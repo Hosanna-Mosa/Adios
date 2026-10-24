@@ -149,7 +149,7 @@ export function RouteInputCard({
                 enablePoweredByContainer={false}
                 debounce={200}
               />
-              <TouchableOpacity style={styles.clearFieldBtn} onPress={() => handleRemoveStop(stop.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <TouchableOpacity style={styles.clearFieldBtn} onPress={() => handleRemoveStop(stop.id)} accessibilityRole="button" accessibilityLabel={t("app.a11y.removeStop", { name: String(index + 1) })} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="close-circle" size={moderateScale(18)} color={tokens.muted} />
               </TouchableOpacity>
             </View>

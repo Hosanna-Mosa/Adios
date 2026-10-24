@@ -71,9 +71,11 @@ export function AppModal({
       onRequestClose={onClose}
     >
       {dismissOnBackdropPress ? (
-        <PressBox style={styles.fill} onPress={onClose}>
+        // accessible={false}: a pressable wrapper is otherwise read by TalkBack as one
+        // element, hiding every control inside the modal. The back gesture still closes it.
+        <PressBox style={styles.fill} onPress={onClose} accessible={false}>
           {/* Swallow taps on the panel itself so only the backdrop dismisses. */}
-          <PressBox style={styles.fill} onPress={(e) => e.stopPropagation()}>
+          <PressBox style={styles.fill} onPress={(e) => e.stopPropagation()} accessible={false}>
             {backdrop}
           </PressBox>
         </PressBox>

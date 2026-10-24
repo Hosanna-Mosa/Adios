@@ -4,7 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-na
 import * as Haptics from "expo-haptics";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, elevation, radius, type ThemeTokens } from "@/constants/colors";
-import { fontFamilies, typography } from "@/constants/typography";
+import { COMPACT_MAX_FONT_SCALE, fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { SPRING } from "@/motion/presets";
 
@@ -64,7 +64,7 @@ export function SegmentedControl<K extends string>({ segments, value, onChange, 
             </Text>
             {segment.count ? (
               <View style={[styles.count, selected && styles.countSelected]}>
-                <Text style={[styles.countText, selected && styles.countTextSelected]}>{segment.count}</Text>
+                <Text style={[styles.countText, selected && styles.countTextSelected]} maxFontSizeMultiplier={COMPACT_MAX_FONT_SCALE}>{segment.count}</Text>
               </View>
             ) : null}
           </Pressable>
@@ -81,7 +81,7 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: tokens.sunken,
       borderRadius: radius.pill,
       padding: 4,
-      height: moderateScale(46),
+      minHeight: moderateScale(46),
     },
     indicatorWrap: {
       position: "absolute",
@@ -101,6 +101,7 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: "center",
       justifyContent: "center",
       gap: 6,
+      paddingVertical: moderateScale(6),
     },
     label: {
       fontFamily: fontFamilies.body.semibold,
@@ -112,7 +113,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     count: {
       minWidth: moderateScale(20),
-      height: moderateScale(20),
+      minHeight: moderateScale(20),
       borderRadius: moderateScale(10),
       paddingHorizontal: 5,
       backgroundColor: tokens.borderStrong,

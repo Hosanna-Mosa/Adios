@@ -12,6 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { LocationHandler } from "@/components/shared/LocationHandler";
 import { GlobalSocketHandler } from "@/components/shared/GlobalSocketHandler";
+import { OfflineBanner } from "@/components/shared/OfflineBanner";
 import UpdateModal from "@/components/shared/UpdateModal";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/utils/networkLogger";
@@ -78,6 +79,7 @@ export default function RootLayout() {
               <RootLayoutNav />
               <LocationHandler />
               <GlobalSocketHandler />
+              <OfflineBanner />
               <UpdateModal
                 visible={showUpdate}
                 forceUpdate={forceUpdate}

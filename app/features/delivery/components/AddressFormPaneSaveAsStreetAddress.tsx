@@ -51,7 +51,7 @@ export function AddressFormPaneSaveAsStreetAddress({
       <Text style={styles.fieldLabel}>{t("app.delivery.streetAddress")}</Text>
       <View style={styles.fieldRow}>
         <TextInput style={styles.fieldInput} placeholder={t("app.delivery.streetAddress")} placeholderTextColor={tokens.muted} value={addressLine} onChangeText={setAddressLine} />
-        <TouchableOpacity onPress={handleUseCurrentLocation}><Ionicons name="locate-outline" size={17} color={tokens.sec} /></TouchableOpacity>
+        <TouchableOpacity onPress={handleUseCurrentLocation} accessibilityRole="button" accessibilityLabel={t("app.packageDelivery.useCurrentLocation")} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}><Ionicons name="locate-outline" size={17} color={tokens.sec} /></TouchableOpacity>
       </View>
       <Text style={[styles.fieldLabel, { marginTop: 16 }]}>{t("app.delivery.apartmentSuiteFloorOptional")}</Text>
       <View style={styles.fieldRow}>

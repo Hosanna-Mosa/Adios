@@ -7,6 +7,7 @@ import { razorpayClient } from "./payment.service";
 import { getJwtSecret } from "../../utils/jwtSecret";
 import { AppError } from "../../utils/errors";
 import { OnlinePriceService } from "./payment.pricing";
+import { isDevEnv } from "../../utils/env";
 
 // Pay-at-checkout through a Razorpay page opened in the phone's browser (Chrome Custom Tab).
 // Security rules follow RAZORPAY_INTEGRATION.md §2: the Payment is bound to the user, the
@@ -27,7 +28,7 @@ export class PaymentError extends AppError {
 // Only our own app may be sent back to. Expo Go / dev-client URLs are allowed outside production.
 const isAllowedReturnUrl = (url: string) => {
   if (/^flavour:\/\//i.test(url)) return true;
-  if (process.env.NODE_ENV === "production") return false;
+  if (!isDevEnv()) return false;
   return /^(exp|exps|exp\+[a-z0-9-]+):\/\//i.test(url);
 };
 

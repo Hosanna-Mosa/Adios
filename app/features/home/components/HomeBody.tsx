@@ -97,6 +97,10 @@ export function HomeBody(props: Props) {
               <TouchableOpacity
                 style={[styles.vegSwitchTrack, filterVegNonVeg === "veg" && { backgroundColor: tokens.veg }]}
                 activeOpacity={0.85}
+                accessibilityRole="switch"
+                accessibilityLabel={t("app.home.vegOnly")}
+                accessibilityState={{ checked: filterVegNonVeg === "veg" }}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 onPress={() => setFilterVegNonVeg(filterVegNonVeg === "veg" ? "all" : "veg")}
               >
                 <View style={[styles.vegSwitchThumb, filterVegNonVeg === "veg" && { alignSelf: "flex-end" }]} />

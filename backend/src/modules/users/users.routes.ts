@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { UsersController } from "./users.controller";
-import { authenticateToken } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
+import { UserRole } from "../../database/models/User";
 import { upload } from "../../middleware/upload.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
 import {
+  deleteAccountSchema,
   updateProfileSchema,
   addAddressSchema,
   updateAddressSchema,
@@ -23,6 +25,8 @@ router.patch("/profile", authenticateToken, validateRequest(updateProfileSchema)
 router.post("/profile-pic", authenticateToken, upload.single("image"), usersController.uploadProfilePic.bind(usersController));
 router.delete("/profile-pic", authenticateToken, usersController.deleteProfilePic.bind(usersController));
 
+// Customers and drivers only; staff accounts are removed by an admin.
+router.post("/me/delete", authenticateToken, authorizeRole([UserRole.USER, UserRole.DRIVER]), validateRequest(deleteAccountSchema), usersController.deleteAccount.bind(usersController));
 router.post("/change-password", authenticateToken, validateRequest(changePasswordSchema), usersController.changePassword.bind(usersController));
 
 router.get("/addresses", authenticateToken, usersController.getAddresses.bind(usersController));

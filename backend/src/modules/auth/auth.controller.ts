@@ -101,6 +101,15 @@ export class AuthController {
     }
   }
 
+  async deleteAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { phone, password, role } = req.body;
+      return res.json(await authService.deleteAccountWithPassword(phone, password, role as UserRole));
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       // Deliberately not gated by authenticateToken: that would 401 on a

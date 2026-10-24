@@ -64,6 +64,14 @@ export const changePassword = (role: PartnerRole, currentPassword: string, newPa
  */
 export const logoutSession = (headers?: HeadersInit) => customFetch("/auth/logout", { method: "POST", headers });
 
+/**
+ * Deletes the signed-in partner's account (backend partner-account-deletion.service).
+ * A blocked deletion is a 409 whose body carries a `code` (ACTIVE_ORDER, SCHEDULED_PENDING,
+ * PAYOUT_PENDING, BALANCE_REMAINING); a wrong password is a 403 with PASSWORD_INCORRECT.
+ */
+export const deleteMyAccount = (password: string) =>
+  customFetch<{ success: boolean }>("/vendors/me/delete", { method: "POST", body: JSON.stringify({ password }) });
+
 /** The signed-in outlet's own profile — name, contact, address, rating, open state. */
 export const getMyProfile = () => customFetch<PartnerProfile>("/vendors/me");
 

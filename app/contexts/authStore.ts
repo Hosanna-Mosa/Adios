@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { clearToken, loadToken, saveToken } from "@/utils/secureToken";
 
 // The API URL should be retrieved from app.json/Constants
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
@@ -55,7 +56,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   setToken: (token) => {
     resetSessionExpiry();
     set({ token });
-    AsyncStorage.setItem("token", token);
+    saveToken(token).catch((err) => console.warn("Failed to persist token", err));
   },
 
   toggleFavorite: async (restaurantId: string) => {
@@ -116,7 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   /**
    * Called once on app start (inside _layout.tsx).
-   * Reads the persisted token & user from AsyncStorage and marks
+   * Reads the persisted token (secure storage) & user (AsyncStorage) and marks
    * isInitialized=true as soon as they are read, so the layout can redirect
    * without waiting on the network. The saved profile is then refreshed in
    * the background (see refreshProfileInBackground below).
@@ -124,7 +125,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeAuth: async () => {
     try {
       const [token, userStr] = await Promise.all([
-        AsyncStorage.getItem("token"),
+        loadToken(),
         AsyncStorage.getItem("user"),
       ]);
 
@@ -165,7 +166,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ user: null, token: null, error: null, loading: false });
     try {
       await Promise.all([
-        AsyncStorage.removeItem("token"),
+        clearToken(),
         AsyncStorage.removeItem("user"),
       ]);
     } finally {
@@ -216,7 +217,7 @@ async function refreshProfileInBackground(
       // moved; neither is a reason to throw the session away.
       set({ token: null, user: null });
       await Promise.all([
-        AsyncStorage.removeItem("token"),
+        clearToken(),
         AsyncStorage.removeItem("user"),
       ]);
     }

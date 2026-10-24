@@ -1,7 +1,7 @@
 import { getDistance } from "geolib";
 import { performance } from "perf_hooks";
 
-const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
 // This whole chain runs synchronously inside order creation, so a stalled external
 // call must not be free to hold up the customer's "place order" tap indefinitely.

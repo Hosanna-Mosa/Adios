@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { create } from "zustand";
@@ -65,6 +65,22 @@ export function showAlert(
     buttons: buttons && buttons.length > 0 ? buttons : [{ text: i18n.t("actions.ok") }],
     tone,
   });
+}
+
+/**
+ * A denied permission. Once the partner has picked "Don't ask again" the OS
+ * never shows its prompt again, so Settings is the only way back in.
+ */
+export function showPermissionAlert(title: string, message: string) {
+  showAlert(
+    title,
+    message,
+    [
+      { text: i18n.t("actions.cancel"), style: "cancel" },
+      { text: i18n.t("actions.openSettings"), onPress: () => Linking.openSettings().catch(() => {}) },
+    ],
+    "warning"
+  );
 }
 
 export function AppAlert() {

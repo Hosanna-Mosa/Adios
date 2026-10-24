@@ -1,5 +1,9 @@
 jest.mock("@/i18n", () => ({ __esModule: true, default: { t: (k: string) => k } }));
 jest.mock("../backgroundLocationTask", () => ({ BACKGROUND_LOCATION_TASK: "bg-location" }));
+const mockDisclosure = jest.fn();
+jest.mock("../backgroundLocationDisclosure", () => ({
+  confirmBackgroundLocationDisclosure: (...a: any[]) => mockDisclosure(...a),
+}));
 
 const mockLocation = {
   getBackgroundPermissionsAsync: jest.fn(),
@@ -26,6 +30,7 @@ import { syncBackgroundTracking } from "../backgroundTracking";
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockDisclosure.mockResolvedValue(true);
   jest.spyOn(console, "log").mockImplementation(() => {});
   jest.spyOn(console, "warn").mockImplementation(() => {});
 });
@@ -47,6 +52,7 @@ it("going online with permission starts tracking every 10 s / 10 m", async () =>
   mockIsTaskRegistered.mockResolvedValue(false);
   mockLocation.getBackgroundPermissionsAsync.mockResolvedValue({ status: "granted" });
   await syncBackgroundTracking(true);
+  expect(mockDisclosure).not.toHaveBeenCalled();
   expect(mockLocation.requestBackgroundPermissionsAsync).not.toHaveBeenCalled();
   expect(mockLocation.startLocationUpdatesAsync).toHaveBeenCalledWith(
     "bg-location",
@@ -54,12 +60,22 @@ it("going online with permission starts tracking every 10 s / 10 m", async () =>
   );
 });
 
-it("asks for permission when it isn't granted yet, and stays off if refused", async () => {
+it("shows the disclosure, then asks for permission, and stays off if refused", async () => {
   mockIsTaskRegistered.mockResolvedValue(false);
   mockLocation.getBackgroundPermissionsAsync.mockResolvedValue({ status: "undetermined" });
   mockLocation.requestBackgroundPermissionsAsync.mockResolvedValue({ status: "denied" });
   await syncBackgroundTracking(true);
+  expect(mockDisclosure).toHaveBeenCalled();
   expect(mockLocation.requestBackgroundPermissionsAsync).toHaveBeenCalled();
+  expect(mockLocation.startLocationUpdatesAsync).not.toHaveBeenCalled();
+});
+
+it("never shows the system prompt when the driver declines the disclosure", async () => {
+  mockIsTaskRegistered.mockResolvedValue(false);
+  mockLocation.getBackgroundPermissionsAsync.mockResolvedValue({ status: "undetermined" });
+  mockDisclosure.mockResolvedValue(false);
+  await syncBackgroundTracking(true);
+  expect(mockLocation.requestBackgroundPermissionsAsync).not.toHaveBeenCalled();
   expect(mockLocation.startLocationUpdatesAsync).not.toHaveBeenCalled();
 });
 

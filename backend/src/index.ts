@@ -9,6 +9,10 @@ dotenv.config();
 import { getJwtSecret } from "./utils/jwtSecret";
 // Fail fast on boot rather than letting auth silently fall back to a hardcoded secret.
 getJwtSecret();
+import { getAllowedOrigins, getTrustProxy, isDevEnv } from "./utils/env";
+// Same for CORS and proxy trust: a bad or missing value stops the boot here.
+const allowedOrigins = getAllowedOrigins();
+const trustProxy = getTrustProxy();
 import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
@@ -53,13 +57,17 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-// ALLOWED_ORIGINS: comma-separated list of allowed web origins (admin dashboard, partner
-// site). Mobile apps (app/driver) call the API directly and aren't affected by CORS. Left
-// unset, CORS stays fully open (current behavior) — set it in production to lock this down.
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean);
-app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
+// Behind a proxy/load balancer, TRUST_PROXY makes req.ip the real client so the
+// per-IP rate limits apply per client instead of to everyone at once.
+if (trustProxy !== undefined) app.set("trust proxy", trustProxy);
+// ALLOWED_ORIGINS (see utils/env): the admin dashboard and partner site. Mobile apps
+// call the API directly and aren't affected by CORS.
+app.use(cors({ origin: allowedOrigins }));
 app.use(helmet());
-app.use(morgan("dev"));
+// Request log. Outside dev the query string is dropped: it carries search text,
+// coordinates and the occasional token (?token= on document links).
+morgan.token("path", (req: express.Request) => (req.originalUrl || req.url).split("?")[0]);
+app.use(isDevEnv() ? morgan("dev") : morgan(":method :path :status :res[content-length] - :response-time ms"));
 // Razorpay signs the exact raw bytes of a webhook, so that route must see the body before
 // the JSON parser does (express.json skips a body that is already parsed).
 app.use("/api/v1/payments/webhook", express.raw({ type: "application/json", limit: "1mb" }));

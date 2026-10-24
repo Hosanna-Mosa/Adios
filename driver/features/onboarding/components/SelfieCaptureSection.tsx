@@ -43,7 +43,7 @@ export function SelfieCaptureSection({
       </Box>
 
       {!captured ? (
-        <Touchable
+        <Touchable accessibilityLabel={t("a11y.takeSelfie")}
           style={selfieSectionStyles.captureBtn}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);

@@ -235,6 +235,16 @@ export const styles = StyleSheet.create({
     fontSize: typography.sizes.small,
     color: Colors.textMuted,
   },
+  deleteAccountLink: {
+    marginTop: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  deleteAccountLinkText: {
+    fontSize: typography.sizes.medium,
+    fontWeight: "600",
+    color: Colors.textSecondary,
+  },
   signOutButtonWrap: {
     marginTop: 16,
     borderRadius: 16,

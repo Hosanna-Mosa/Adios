@@ -5,6 +5,7 @@ import { Header } from "@/components/ui/Header";
 import { AppTabBar } from "@/components/AppTabBar";
 import { fadeInDown, fadeInUp } from "@/motion/presets";
 import { ProfileSignOutAllBtn } from "@/features/profile/components/ProfileSignOutAllBtn";
+import { ProfileDeleteAccountLink } from "@/features/profile/components/ProfileDeleteAccountLink";
 import { ProfileSignOutBtn } from "@/features/profile/components/ProfileSignOutBtn";
 import { ProfileMenuCard } from "@/features/profile/components/ProfileMenuCard";
 import { ProfileStatsRow } from "@/features/profile/components/ProfileStatsRow";
@@ -67,6 +68,7 @@ export default function ProfileScreen() {
             styles={styles}
             tokens={tokens}
           />
+          <ProfileDeleteAccountLink styles={styles} disabled={signingOutAll || loading} />
         </Animated.View>
       </ScrollView>
 

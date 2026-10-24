@@ -6,6 +6,8 @@ import { gradients } from "@/constants/colors";
 import { styles } from "../profile-tab.styles";
 import { PressBox } from "@/components/ui/PressBox";
 import { AppText } from "@/components/ui/AppText";
+import { router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 
 /** Gradient sign-out button. */
 export function SignOutButton({ onPress }: { onPress: () => void }) {
@@ -20,6 +22,31 @@ export function SignOutButton({ onPress }: { onPress: () => void }) {
       >
         <AppText style={styles.signOutText}>{t("profile.signOut")}</AppText>
       </LinearGradient>
+    </PressBox>
+  );
+}
+
+/** Quiet link under "Sign out" to the account-deletion screen. */
+export function DeleteAccountLink() {
+  const { t } = useTranslation();
+  return (
+    <PressBox style={styles.deleteAccountLink} onPress={() => router.push("/delete-account")}>
+      <AppText style={styles.deleteAccountLinkText}>{t("profile.deleteAccount.title")}</AppText>
+    </PressBox>
+  );
+}
+
+/**
+ * Link to the published privacy policy (EXPO_PUBLIC_PRIVACY_POLICY_URL).
+ * Hidden until that is set, rather than opening a dead page.
+ */
+export function PrivacyPolicyLink() {
+  const { t } = useTranslation();
+  const url = process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL;
+  if (!url) return null;
+  return (
+    <PressBox style={styles.deleteAccountLink} onPress={() => void WebBrowser.openBrowserAsync(url).catch(() => {})}>
+      <AppText style={styles.deleteAccountLinkText}>{t("profile.privacyPolicy")}</AppText>
     </PressBox>
   );
 }

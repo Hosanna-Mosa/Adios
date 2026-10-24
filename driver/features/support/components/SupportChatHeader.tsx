@@ -27,7 +27,7 @@ export function SupportChatHeader({
   };
   return (
     <Box style={[styles.header, { paddingTop, borderBottomColor: Colors.border }]}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={22} color={Colors.text} />
       </Touchable>
       <Box style={styles.headerCenter}>

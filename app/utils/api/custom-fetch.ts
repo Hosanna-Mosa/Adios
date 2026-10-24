@@ -18,6 +18,11 @@ export type UnauthorizedHandler = (response: Response) => void;
 
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
+// React Native's fetch never gives up on its own, so on a crawling connection
+// a screen would sit on its loader indefinitely. Photo uploads get longer.
+const REQUEST_TIMEOUT_MS = 20000;
+const UPLOAD_TIMEOUT_MS = 60000;
+
 // ---------------------------------------------------------------------------
 // Module-level configuration
 // ---------------------------------------------------------------------------
@@ -164,17 +169,42 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  if (__DEV__) console.log(`[NETWORK] ${method} ${input}`);
-  const response = await fetch(input, { ...init, method, headers });
-  if (__DEV__) console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
+  // Our own controller, so a caller's signal still cancels the request too.
+  const controller = new AbortController();
+  const callerSignal = init.signal;
+  const onCallerAbort = () => controller.abort();
+  if (callerSignal?.aborted) controller.abort();
+  else callerSignal?.addEventListener("abort", onCallerAbort);
+  let timedOut = false;
+  const timer = setTimeout(
+    () => {
+      timedOut = true;
+      controller.abort();
+    },
+    options.isFormData ? UPLOAD_TIMEOUT_MS : REQUEST_TIMEOUT_MS,
+  );
 
-  if (!response.ok) {
-    if (response.status === 401 && _unauthorizedHandler) {
-      _unauthorizedHandler(response);
+  try {
+    if (__DEV__) console.log(`[NETWORK] ${method} ${input}`);
+    const response = await fetch(input, { ...init, method, headers, signal: controller.signal });
+    if (__DEV__) console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
+
+    if (!response.ok) {
+      if (response.status === 401 && _unauthorizedHandler) {
+        _unauthorizedHandler(response);
+      }
+      const errorData = await parseErrorBody(response, method);
+      throw new ApiError(response, errorData, requestInfo);
     }
-    const errorData = await parseErrorBody(response, method);
-    throw new ApiError(response, errorData, requestInfo);
-  }
 
-  return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+    return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+  } catch (error) {
+    // Reported exactly like a dropped connection, so every screen's existing
+    // "check your connection" handling applies.
+    if (timedOut) throw new TypeError("Network request failed");
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    callerSignal?.removeEventListener("abort", onCallerAbort);
+  }
 }

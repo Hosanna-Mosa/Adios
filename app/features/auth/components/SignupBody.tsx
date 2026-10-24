@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { SignupHeroBlock } from "./SignupHeroBlock";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type SignupStyles } from "@/features/auth/signup.styles";
+import { openLegalPage, PRIVACY_POLICY_URL, TERMS_URL } from "@/utils/legalLinks";
 
 // Moved out of app/signup.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -108,12 +109,25 @@ export function SignupBody({
             {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
           </View>
           {/* One sentence key, so Hindi/Telugu can order it naturally (it was English " and "
-              between translated pieces). The names are emphasised, not link-coloured: there
-              are no Terms / Privacy pages to open, and tapping them only ticks the box. */}
+              between translated pieces). Each name opens its page once its URL is set
+              (utils/legalLinks.ts); until then it is only emphasised, and a tap ticks the box. */}
           <Text style={styles.termsText}>
             <Trans
               i18nKey="app.auth.agreeToTermsAndPrivacy"
-              components={{ terms: <Text style={styles.legalHighlight} />, privacy: <Text style={styles.legalHighlight} /> }}
+              components={{
+                terms: (
+                  <Text
+                    style={[styles.legalHighlight, !!TERMS_URL && { textDecorationLine: "underline" }]}
+                    onPress={TERMS_URL ? () => openLegalPage(TERMS_URL) : undefined}
+                  />
+                ),
+                privacy: (
+                  <Text
+                    style={[styles.legalHighlight, !!PRIVACY_POLICY_URL && { textDecorationLine: "underline" }]}
+                    onPress={PRIVACY_POLICY_URL ? () => openLegalPage(PRIVACY_POLICY_URL) : undefined}
+                  />
+                ),
+              }}
             />
           </Text>
         </TouchableOpacity>
