@@ -2,11 +2,12 @@ import { useMemo } from "react";
 import { runOnJS, useAnimatedScrollHandler } from "react-native-reanimated";
 import { useHomeStore } from "@/contexts/homeStore";
 import { HOME_SKELETON_ITEMS } from "./useHome.shared";
+import type { SetState, DistanceOption, SharedValue } from "./useHome.shared";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, loadingDrivers: any, searchText: any, selectedAddress: any, setDistanceOption: any, setCustomDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, searchedDishes: any, selectedSort: any, setSelectedSort: any, filter99Store: any, setFilter99Store: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, showHomeSkeleton: any, filteredAndSortedItems: any, scrollY: any, isStickyVisibleShared: any, setIsStickyVisible: any) {
+export function useHomeOnMainScroll(restaurants: any[], nearbyDriversCount: number | null, loadingDrivers: boolean, searchText: string, selectedAddress: any, setDistanceOption: SetState<DistanceOption>, setCustomDistance: SetState<string>, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, searchedDishes: any[], selectedSort: string, setSelectedSort: SetState<string>, filter99Store: boolean, setFilter99Store: SetState<boolean>, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, showHomeSkeleton: boolean, filteredAndSortedItems: any[], scrollY: SharedValue<number>, isStickyVisibleShared: SharedValue<boolean>, setIsStickyVisible: SetState<boolean>) {
   const onMainScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
     const visible = event.contentOffset.y >= 330;

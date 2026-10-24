@@ -14,6 +14,7 @@ import {
 } from "@/services/support.service";
 import { ApiError } from "@/utils/api/custom-fetch";
 import { trackEvent } from "@/utils/analytics";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // State and data for the support bot on app/support.tsx: the question list from
 // GET /support/bot/intents, and one question at a time through
@@ -74,11 +75,11 @@ export function useSupportBot() {
       if (stopped) return;
       if (Date.now() - startedAt > POLL_TIMEOUT_MS) setPhase("timeout");
     };
-    const id = setInterval(tick, POLL_MS);
+    const stopPolling = setForegroundInterval(tick, POLL_MS);
     tick();
     return () => {
       stopped = true;
-      clearInterval(id);
+      stopPolling();
     };
   }, [phase, queryId, intent?.key]);
 

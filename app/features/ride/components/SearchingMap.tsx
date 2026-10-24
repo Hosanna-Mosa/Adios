@@ -64,25 +64,10 @@ export function SearchingMap({
         />
         <Marker coordinate={dropCoords} image={rideStopMarker("drop")} anchor={RIDE_STOP_ANCHOR} zIndex={3} />
         {onlineDrivers.map((drv) => {
-          const coords = drv.currentLocation?.coordinates;
-          if (
-            !coords ||
-            coords.length < 2 ||
-            typeof coords[0] !== "number" ||
-            typeof coords[1] !== "number" ||
-            Number.isNaN(coords[0]) ||
-            Number.isNaN(coords[1]) ||
-            (coords[0] === 0 && coords[1] === 0)
-          ) {
-            return null;
-          }
           return (
             <Marker
-              key={drv._id}
-              coordinate={{
-                latitude: coords[1],
-                longitude: coords[0],
-              }}
+              key={drv.id}
+              coordinate={{ latitude: drv.lat, longitude: drv.lng }}
               anchor={{ x: 0.5, y: 0.5 }}
               // image prop, not an <Image> child: see vehicleMarkerIcon (Android hardware-bitmap crash).
               image={vehicleMarkerIcon(drv.vehicleType === "car" ? "cab" : drv.vehicleType)}

@@ -1,9 +1,10 @@
 import { useMemo } from "react";
+import type { HomeService } from "./useHome.shared";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeIsServerSearched(restaurants: any, meatCenters: any, store149Items: any, activeService: any, searchText: any, searchQuery: any, appliedSearchTerm: any, selectedSort: any, filter99Store: any, filterFastDelivery: any, filterOffers: any, filterMinRating: any, filterOpenNow: any, filterCostRange: any, filterVegNonVeg: any, selectedCuisines: any, dishVendorIds: any) {
+export function useHomeIsServerSearched(restaurants: any[], meatCenters: any[], store149Items: any[], activeService: HomeService, searchText: string, searchQuery: string, appliedSearchTerm: string, selectedSort: string, filter99Store: boolean, filterFastDelivery: boolean, filterOffers: boolean, filterMinRating: number, filterOpenNow: boolean, filterCostRange: string, filterVegNonVeg: string, selectedCuisines: string[], dishVendorIds: any) {
   // For Food the server already matched restaurants through their menus, so a
   // second name-only pass here would throw those hits away. /meat/nearby has no
   // search parameter, so meat keeps the local match, widened by the dish hits.

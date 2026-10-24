@@ -1,6 +1,8 @@
 import React from "react";
 import { RouteOptimizeResponse, decodePolyline } from "./useRideConfirmation.shared";
-import { getNearbyDriversJson, optimizeRoute } from "@/services/places.service";
+import { optimizeRoute } from "@/services/places.service";
+import { fetchNearbyDriverPins } from "@/utils/nearbyDrivers";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -42,23 +44,13 @@ export function useRideConfirmationMapFit(params: any, selectedTier: any, pickup
     const loadNearbyDrivers = async () => {
       if (!Number.isFinite(pickupCoords.latitude) || !Number.isFinite(pickupCoords.longitude)) return;
       try {
-        const drivers = await getNearbyDriversJson(`latitude=${pickupCoords.latitude}&longitude=${pickupCoords.longitude}&radius=50000`);
-        const mapped = (drivers || [])
-          .map((driver: any) => ({
-            id: driver._id || driver.id,
-            vehicleType: driver.vehicleType || selectedTier,
-            lat: driver.currentLocation?.coordinates?.[1] || driver.user?.addresses?.[0]?.location?.coordinates?.[1],
-            lng: driver.currentLocation?.coordinates?.[0] || driver.user?.addresses?.[0]?.location?.coordinates?.[0],
-          }))
-          .filter((d: any) => Number.isFinite(d.lat) && Number.isFinite(d.lng));
-        setNearbyDrivers(mapped);
+        setNearbyDrivers(await fetchNearbyDriverPins(pickupCoords.latitude, pickupCoords.longitude, { radius: 50000, fallbackVehicleType: selectedTier }));
       } catch (error) {
         console.warn("Unable to load nearby online drivers", error);
       }
     };
     loadNearbyDrivers();
-    const interval = setInterval(loadNearbyDrivers, 12000);
-    return () => clearInterval(interval);
+    return setForegroundInterval(loadNearbyDrivers, 12000);
   }, [pickupCoords.latitude, pickupCoords.longitude, selectedTier]);
 
   return {  };

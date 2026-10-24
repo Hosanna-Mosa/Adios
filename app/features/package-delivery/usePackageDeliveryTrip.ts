@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import type { PackageDeliveryPoint, PackageDeliveryVehicle } from "@/contexts/packageDeliveryStore";
 import { estimateFare } from "@/services/orders.service";
-import { getNearbyDriversJson, optimizeRoute } from "@/services/places.service";
+import { optimizeRoute } from "@/services/places.service";
 import { decodePolyline } from "@/components/mapBackground.utils";
 import { PACKAGE_DELIVERY_VEHICLES, distanceKm } from "./packageDelivery.utils";
+import { fetchNearbyDriverPins } from "@/utils/nearbyDrivers";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // What the confirm step shows about the trip: a fare per vehicle, the road route, and
 // the captains online around the pickup (refreshed while the screen is open).
@@ -71,24 +73,15 @@ export function usePackageDeliveryTrip(pickup: PackageDeliveryPoint | null, drop
     let cancelled = false;
     const load = async () => {
       try {
-        const list = await getNearbyDriversJson<any[]>(`latitude=${pickup.lat}&longitude=${pickup.lng}&radius=10000`);
-        const mapped: NearbyDriver[] = (list || [])
-          .map((d: any) => ({
-            id: String(d._id || d.id),
-            vehicleType: String(d.vehicleType || "bike"),
-            lat: Number(d.currentLocation?.coordinates?.[1]),
-            lng: Number(d.currentLocation?.coordinates?.[0]),
-            heading: d.heading,
-          }))
-          .filter((d) => Number.isFinite(d.lat) && Number.isFinite(d.lng));
+        const mapped: NearbyDriver[] = await fetchNearbyDriverPins(pickup.lat, pickup.lng, { radius: 10000 });
         if (!cancelled) setDrivers(mapped);
       } catch (error) {
         console.warn("Package delivery: could not load nearby captains", error);
       }
     };
     load();
-    const timer = setInterval(load, DRIVER_REFRESH_MS);
-    return () => { cancelled = true; clearInterval(timer); };
+    const stopPolling = setForegroundInterval(load, DRIVER_REFRESH_MS);
+    return () => { cancelled = true; stopPolling(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickup?.lat, pickup?.lng]);
 

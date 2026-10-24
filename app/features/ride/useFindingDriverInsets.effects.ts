@@ -6,6 +6,7 @@ import i18n from "@/i18n";
 import { cancelOrder, getOrderJson } from "@/services/orders.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { cancellationNotice } from "@/utils/cancellationNotice";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
@@ -20,14 +21,14 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     socketService.connect();
     socketService.trackOrder(orderId);
 
-    let pollIntervalId: any;
+    let pollIntervalId: (() => void) | undefined;
     let isTransitioned = false;
 
     const handleTransition = (driverData: any) => {
       if (isTransitioned) return;
       isTransitioned = true;
 
-      if (pollIntervalId) clearInterval(pollIntervalId);
+      if (pollIntervalId) pollIntervalId();
       if (timeoutTimer) clearTimeout(timeoutTimer);
 
       const { setDriver, setStatus } = useDeliveryStore.getState();
@@ -62,7 +63,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     const handleOrderCancelled = (reason?: string | null) => {
       if (isTransitioned) return;
       isTransitioned = true;
-      if (pollIntervalId) clearInterval(pollIntervalId);
+      if (pollIntervalId) pollIntervalId();
       if (timeoutTimer) clearTimeout(timeoutTimer);
       router.replace("/(tabs)");
       // The customer cancelled it themselves (from this screen's Cancel) — nothing to announce.
@@ -118,7 +119,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     };
 
     checkOrderStatus();
-    pollIntervalId = setInterval(checkOrderStatus, 2000);
+    pollIntervalId = setForegroundInterval(checkOrderStatus, 2000);
 
     const handleOrderAccepted = (data: any) => {
       if (data && String(data.orderId) === String(orderId)) handleTransition(data.driver);
@@ -135,7 +136,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       timeoutTimer = setTimeout(async () => {
         if (isTransitioned) return;
         isTransitioned = true;
-        if (pollIntervalId) clearInterval(pollIntervalId);
+        if (pollIntervalId) pollIntervalId();
         showAlert(
           i18n.t("app.ride.noCaptainFound"),
           i18n.t("app.ride.sorryNoCaptainsAreAvailableTo"),
@@ -160,6 +161,6 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       socketService.off("order_accepted", handleOrderAccepted);
       socketService.off("order_status_update", handleStatusUpdate);
       if (timeoutTimer) clearTimeout(timeoutTimer);
-      if (pollIntervalId) clearInterval(pollIntervalId);
+      if (pollIntervalId) pollIntervalId();
     };
 };

@@ -4,6 +4,7 @@ import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
 import { createSupportTicket } from "@/services/support.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -17,9 +18,9 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
       setAllTickets((prev: any) => prev.map((t: any) => (t._id === updatedTicket._id ? updatedTicket : t)));
     };
     socketService.on("ticket_updated", handleTicketUpdate);
-    const interval = setInterval(() => fetchTickets(false), 4000);
+    const stopPolling = setForegroundInterval(() => fetchTickets(false), 4000);
     return () => {
-      clearInterval(interval);
+      stopPolling();
       socketService.off("ticket_updated", handleTicketUpdate);
     };
   }, []);

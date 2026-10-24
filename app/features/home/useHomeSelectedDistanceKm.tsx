@@ -2,11 +2,12 @@ import { useEffect, useMemo } from "react";
 import { router } from "expo-router";
 import { useHomeStore } from "@/contexts/homeStore";
 import { buildCheckNearbyDrivers, buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
+import type { SetState, HomeService, DistanceOption, MutableRefObject } from "./useHome.shared";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: any, setNearbyDriversCount: any, loading: any, setLoading: any, loadingDrivers: any, setLoadingDrivers: any, setStore149Items: any, activeService: any, setActiveService: any, searchQuery: any, setAppliedSearchTerm: any, loadingMore: any, setLoadingMore: any, isRetryingDrivers: any, page: any, setPage: any, hasMore: any, setHasMore: any, token: any, selectedAddress: any, isAddressLoaded: any, setHasNoLocation: any, addressResolveRef: any, hasRedirectedRef: any, setIsDistanceSheetOpen: any, distanceOption: any, customDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, distanceRefreshKey: any, setDistanceRefreshKey: any, setLoading149: any, selectedSort: any, filterMinRating: any, filterOpenNow: any, getCoords: any) {
+export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: any[]) => any[])) => void, setMeatCenters: (v: any[] | ((prev: any[]) => any[])) => void, setNearbyDriversCount: (v: number) => void, loading: boolean, setLoading: (v: boolean) => void, loadingDrivers: boolean, setLoadingDrivers: (v: boolean) => void, setStore149Items: (v: any[]) => void, activeService: HomeService, setActiveService: (v: HomeService) => void, searchQuery: string, setAppliedSearchTerm: SetState<string>, loadingMore: boolean, setLoadingMore: SetState<boolean>, isRetryingDrivers: boolean, page: number, setPage: SetState<number>, hasMore: boolean, setHasMore: SetState<boolean>, token: any, selectedAddress: any, isAddressLoaded: boolean, setHasNoLocation: SetState<boolean>, addressResolveRef: MutableRefObject<(() => void) | null>, hasRedirectedRef: MutableRefObject<boolean>, setIsDistanceSheetOpen: SetState<boolean>, distanceOption: DistanceOption, customDistance: string, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, distanceRefreshKey: number, setDistanceRefreshKey: SetState<number>, setLoading149: SetState<boolean>, selectedSort: string, filterMinRating: number, filterOpenNow: boolean, getCoords: any) {
   const selectedDistanceKm = distanceOption === "custom"
     ? Math.max(1, Number(customDistance) || 5)
     : Number(distanceOption);

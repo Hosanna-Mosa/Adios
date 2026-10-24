@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { foodStageOf, nextDriverLocation, normalizeStatus } from "./useTracking.shared";
 import { getOrder } from "@/services/orders.service";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useTracking so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence
@@ -106,8 +107,7 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
     };
 
     fetchOrderDetails();
-    const interval = setInterval(fetchOrderDetails, 7000);
-    return () => clearInterval(interval);
+    return setForegroundInterval(fetchOrderDetails, 7000);
   }, [currentOrderId]);
 
   return { pickupStop };

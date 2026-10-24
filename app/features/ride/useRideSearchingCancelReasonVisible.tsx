@@ -1,6 +1,7 @@
 import React from "react";
 import { normalizeServiceType } from "./useRideSearching.shared";
-import { getNearbyDrivers } from "@/services/places.service";
+import { fetchNearbyDriverPins, type NearbyDriverPin } from "@/utils/nearbyDrivers";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useRideSearching so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -10,15 +11,7 @@ export function useRideSearchingCancelReasonVisible(params: any) {
   const [cancelConfirmVisible, setCancelConfirmVisible] = React.useState(false);
   const [selectedCancelReason, setSelectedCancelReason] = React.useState("");
 
-  interface OnlineDriver {
-    _id: string;
-    currentLocation?: {
-      coordinates: [number, number];
-    };
-    vehicleType?: "bike" | "auto" | "car";
-  }
-
-  const [onlineDrivers, setOnlineDrivers] = React.useState<OnlineDriver[]>([]);
+  const [onlineDrivers, setOnlineDrivers] = React.useState<NearbyDriverPin[]>([]);
 
   const pickupCoords = React.useMemo(
     () => ({
@@ -39,30 +32,22 @@ export function useRideSearchingCancelReasonVisible(params: any) {
     let active = true;
     const fetchOnlineDrivers = async () => {
       try {
-        const service = normalizeServiceType(params.serviceId);
-        console.log(`[CLIENT DRIVER SEARCH] Request coordinates: [lat: ${pickupCoords.latitude}, lng: ${pickupCoords.longitude}], vehicleType: ${service}`);
-        const queryParams = new URLSearchParams({
-          latitude: String(pickupCoords.latitude),
-          longitude: String(pickupCoords.longitude),
-          radius: "5000",
-          vehicleType: service,
+        const pins = await fetchNearbyDriverPins(pickupCoords.latitude, pickupCoords.longitude, {
+          radius: 5000,
+          vehicleType: normalizeServiceType(params.serviceId),
         });
-        const res = await getNearbyDrivers<OnlineDriver[]>(queryParams.toString());
-        console.log(`[CLIENT DRIVER SEARCH RESPONSE] Returned count: ${res ? res.length : 0}, data: ${JSON.stringify(res)}`);
-        if (active && Array.isArray(res)) {
-          setOnlineDrivers(res);
-        }
+        if (active) setOnlineDrivers(pins);
       } catch (error) {
         console.error("Failed to fetch nearby drivers:", error);
       }
     };
 
     fetchOnlineDrivers();
-    const interval = setInterval(fetchOnlineDrivers, 10000);
+    const stopPolling = setForegroundInterval(fetchOnlineDrivers, 10000);
 
     return () => {
       active = false;
-      clearInterval(interval);
+      stopPolling();
     };
   }, [pickupCoords.latitude, pickupCoords.longitude, params.serviceId]);
 

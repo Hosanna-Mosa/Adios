@@ -90,6 +90,7 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   adDescription: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
   sectionBlock: { marginTop: 24, paddingHorizontal: 16 },
+  sectionEndRule: { height: StyleSheet.hairlineWidth * 2, backgroundColor: tokens.border, marginTop: 20 },
   sectionHeadRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   sectionHeadLeft: { flexDirection: "row", alignItems: "baseline", gap: 8 },
   sectionTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },
