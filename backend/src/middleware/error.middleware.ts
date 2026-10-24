@@ -7,7 +7,9 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const isDev = process.env.NODE_ENV === "development" || !process.env.NODE_ENV;
+  // Fails closed: an unset NODE_ENV (a common deploy misconfiguration) must not
+  // be treated as dev mode, or a production server would leak stack traces.
+  const isDev = process.env.NODE_ENV === "development";
   
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({

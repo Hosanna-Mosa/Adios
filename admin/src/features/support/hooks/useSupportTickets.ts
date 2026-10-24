@@ -78,12 +78,30 @@ export function useSupportTickets() {
       queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
     };
 
+    // A brand-new ticket gets its own event (see backend's emitTicketCreated)
+    // specifically so this can show a real notification instead of silently
+    // refreshing the list - previously a new ticket produced zero visible
+    // indication unless an admin was already staring at the Support page.
+    const handleTicketCreated = (data: unknown) => {
+      const ticket = data as Partial<Ticket> | undefined;
+      queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
+      toast.info(
+        t("support.newTicketReceived", {
+          ticketId: ticket?.ticketId,
+          title: ticket?.title,
+          defaultValue: "New ticket {{ticketId}}: {{title}}",
+        })
+      );
+    };
+
     socketService.on("ticket_updated", handleTicketUpdate);
+    socketService.on("ticket_created", handleTicketCreated);
 
     return () => {
       socketService.off("ticket_updated", handleTicketUpdate);
+      socketService.off("ticket_created", handleTicketCreated);
     };
-  }, [queryClient]);
+  }, [queryClient, t]);
 
   const handleSendMessage = () => {
     if (!typedMessage.trim() || !selectedTicket) return;

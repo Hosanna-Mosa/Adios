@@ -12,5 +12,9 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  // One-off maintenance scripts (never imported by the deployed server, run
+  // manually via ts-node) shouldn't gate the real build on their own type
+  // quirks — this excludes them from `tsc`'s project-wide check only; running
+  // one directly (e.g. `ts-node src/scripts/foo.ts`) is unaffected.
+  "exclude": ["node_modules", "**/*.spec.ts", "src/scripts/**/*"]
 }

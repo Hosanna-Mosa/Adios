@@ -1314,6 +1314,7 @@
     "supportCategory": "Support Category",
     "supportResolution": "Support Resolution",
     "ticketCreatedSuccessfully": "Ticket {{ticketId}} created successfully!",
+    "newTicketReceived": "New ticket {{ticketId}}: {{title}}",
     "ticketMarkedAsResolved": "Ticket {{ticketId}} marked as Resolved!",
     "ticketUpdatedSuccessfully": "Ticket updated successfully!",
     "totalActiveTickets": "Total Active Tickets",
