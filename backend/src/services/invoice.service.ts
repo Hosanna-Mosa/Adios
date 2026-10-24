@@ -19,7 +19,7 @@ export class InvoiceService {
    * Generates a Google Static Map image URL showing the route
    */
   private getStaticMapUrl(order: any): string {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
     
     const pickupStop = order.stops[0];
     const dropStop = order.stops[order.stops.length - 1];
