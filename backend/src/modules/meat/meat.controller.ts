@@ -142,7 +142,7 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       email: center.email,
       phone: center.phone,
       role: "meat_vendor",
-      token: generateToken(center._id.toString(), "meat_vendor"),
+      token: generateToken(center._id.toString(), "meat_vendor", center.tokenVersion ?? 0),
     });
   } catch (error) {
     console.error("Error logging in meat center:", error);
@@ -623,6 +623,8 @@ export const changeMeatVendorPassword = async (req: AuthRequest, res: Response) 
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
 
     res.json({ message: "Password changed successfully" });

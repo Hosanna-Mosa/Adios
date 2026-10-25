@@ -243,6 +243,10 @@ export class UsersController {
       }
 
       user.password = newPassword;
+      // Invalidates every token issued before this change — see IAM-001 in
+      // TESTING_REPORT/02_FINDINGS_REGISTER.md. Mirrors what logoutAll already
+      // does (auth.service.ts), just triggered by this flow too.
+      user.tokenVersion = (user.tokenVersion ?? 0) + 1;
       await user.save();
 
       return res.json({ message: "Password changed successfully" });

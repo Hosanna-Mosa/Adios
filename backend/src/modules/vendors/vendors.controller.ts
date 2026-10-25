@@ -387,7 +387,8 @@ export const loginVendor = async (req: Request, res: Response) => {
         partnerType: vendor.partnerType || "food",
         token: generateToken(
           vendor._id.toString(),
-          vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor"
+          vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor",
+          vendor.tokenVersion ?? 0
         ),
       });
     } else {
@@ -815,6 +816,8 @@ export const changeVendorPassword = async (req: AuthRequest, res: Response) => {
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     res.json({ message: "Password changed successfully" });
@@ -874,7 +877,11 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (name !== undefined) vendor.name = name;
     if (email !== undefined) vendor.email = email;
     if (phone !== undefined) vendor.phone = phone;
-    if (password) vendor.password = password; // pre-save hook will hash it
+    if (password) {
+      vendor.password = password; // pre-save hook will hash it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+    }
     if (googlePlaceId !== undefined) vendor.googlePlaceId = googlePlaceId;
     if (location !== undefined) vendor.location = location;
     if (address !== undefined) vendor.address = address;
@@ -887,7 +894,15 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (deliveryFee !== undefined) vendor.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) vendor.minOrderValue = minOrderValue;
     const previousOnboardingStatus = vendor.onboardingStatus;
-    if (onboardingStatus !== undefined) vendor.onboardingStatus = onboardingStatus;
+    if (onboardingStatus !== undefined) {
+      vendor.onboardingStatus = onboardingStatus;
+      if (onboardingStatus !== previousOnboardingStatus) {
+        // The vendor's access situation just changed (e.g. approved -> rejected) —
+        // an already-issued token should not keep working regardless of the new
+        // status. See IAM-002.
+        vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+      }
+    }
     if (commissionRate !== undefined) vendor.commissionRate = commissionRate;
 
     await vendor.save();

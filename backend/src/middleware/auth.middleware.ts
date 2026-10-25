@@ -2,9 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
+import Vendor from "../database/models/Vendor";
+import MeatCenter from "../database/models/MeatCenter";
 import RevokedToken from "../database/models/RevokedToken";
 import { getJwtSecret } from "../utils/jwtSecret";
 import { ACCOUNT_BLOCKED_MESSAGE } from "../config/auth.config";
+
+const VENDOR_ROLES = new Set(["restaurant_vendor", "meat_vendor"]);
 
 export interface AuthRequest extends Request {
   user?: {
@@ -71,6 +75,27 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       // interceptor clears the stored token and returns them to the login screen.
       if (user.isBlocked) {
         return res.status(401).json({ message: ACCOUNT_BLOCKED_MESSAGE });
+      }
+    } catch (error) {
+      return next(error);
+    }
+  } else if (VENDOR_ROLES.has(payload?.role)) {
+    // Vendor/meat-centre tokenVersion check — see IAM-002 in
+    // TESTING_REPORT/02_FINDINGS_REGISTER.md. A "meat_vendor" role can back
+    // onto either a Vendor (partnerType: "meat") or a legacy MeatCenter
+    // document; try Vendor first, same resolution order already used by
+    // GET /vendors/me (vendor-profile.controller.ts: getMyVendorProfile).
+    if (!mongoose.Types.ObjectId.isValid(payload.userId)) {
+      return res.status(401).json({ message: "Session no longer valid" });
+    }
+
+    try {
+      const vendor = await Vendor.findById(payload.userId).select("tokenVersion").lean();
+      const account =
+        vendor ?? (payload.role === "meat_vendor" ? await MeatCenter.findById(payload.userId).select("tokenVersion").lean() : null);
+
+      if (!account || (payload.tv ?? 0) !== (account.tokenVersion ?? 0)) {
+        return res.status(401).json({ message: "Session no longer valid" });
       }
     } catch (error) {
       return next(error);
