@@ -1,4 +1,5 @@
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import i18n from "@/i18n";
@@ -33,11 +34,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
   const handleUseCurrentLocation = async () => {
     try {
       setRecentering(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.locationPermissionIsRequired"));
-        return;
-      }
+      if (!(await requestLocationPermission(t("app.delivery.locationPermissionIsRequired")))) return;
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const nextRegion = { ...region, latitude: location.coords.latitude, longitude: location.coords.longitude };
       mapRef.current?.animateToRegion(nextRegion, 350);

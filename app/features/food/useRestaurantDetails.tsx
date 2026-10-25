@@ -9,6 +9,8 @@ import { createStyles } from "./restaurant-details.styles";
 import { VendorDetails, VendorOffer } from "./vendor-details.types";
 import { getVendor } from "@/services/catalog.service";
 import { getApplicableCoupons } from "@/services/payments.service";
+import { showToast } from "@/components/ui/Toast";
+import i18n from "@/i18n";
 
 // State, data loading and handlers for app/restaurant-details.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -49,6 +51,8 @@ export function useRestaurantDetails() {
         setVendor(await getVendor<VendorDetails>(id));
       } catch (error) {
         console.error("Error fetching vendor details:", error);
+        // The page still shows what the previous screen passed along; say the rest didn't load.
+        showToast(i18n.t("app.food.restaurantDetailsFailed"), "error");
       } finally {
         setLoading(false);
       }

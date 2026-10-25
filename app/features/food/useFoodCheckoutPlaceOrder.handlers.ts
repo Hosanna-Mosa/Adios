@@ -7,6 +7,7 @@ import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { foodStageOf } from "@/contexts/foodStage";
 import { showAlert } from "@/components/ui/AppAlert";
+import { showToast } from "@/components/ui/Toast";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -137,6 +138,7 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         // No driver is dispatched for a slot hours away, so finding-driver would
         // spin forever — the order waits under Scheduled in My orders instead.
         router.replace("/(tabs)/orders");
+        showToast(i18n.t("app.food.orderScheduled"), "success");
         return;
       }
       router.replace({ pathname: "/finding-driver", params: { orderId: finalOrderId } });

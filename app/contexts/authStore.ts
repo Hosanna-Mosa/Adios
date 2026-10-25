@@ -14,6 +14,9 @@ export interface AuthState {
   error: string | null;
   /** True once initializeAuth() has completed — used to gate navigation */
   isInitialized: boolean;
+  /** Set when the server ended the session (401), so the sign-in screen can say why. Cleared once shown. */
+  sessionExpired: boolean;
+  clearSessionExpired: () => void;
 
   setUser: (user: any) => void;
   setToken: (token: string) => void;
@@ -42,6 +45,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   isInitialized: false,
+  sessionExpired: false,
+  clearSessionExpired: () => set({ sessionExpired: false }),
 
   // Mirrored into AsyncStorage so the cached user initializeAuth() restores on
   // the next cold start isn't a stale copy from sign-in time. Without this,
@@ -54,8 +59,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setToken: (token) => {
     resetSessionExpiry();
-    set({ token });
-    AsyncStorage.setItem("token", token);
+    set({ token, sessionExpired: false });
+    AsyncStorage.setItem("token", token).catch(() => {});
   },
 
   toggleFavorite: async (restaurantId: string) => {
@@ -145,6 +150,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (isSessionExpiryHandled() || !get().token) return false;
     markSessionExpiryHandled();
     void get().logout();
+    set({ sessionExpired: true });
     return true;
   },
 
@@ -214,7 +220,7 @@ async function refreshProfileInBackground(
       // expired or revoked token, or a user that no longer exists. A 403
       // means authenticated-but-not-permitted and a 404 means the route
       // moved; neither is a reason to throw the session away.
-      set({ token: null, user: null });
+      set({ token: null, user: null, sessionExpired: true });
       await Promise.all([
         AsyncStorage.removeItem("token"),
         AsyncStorage.removeItem("user"),

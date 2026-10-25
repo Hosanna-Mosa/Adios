@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useCallback, useRef, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { getOutletOrderingState, getVendor, type OutletOrderingState } from "@/services/catalog.service";
@@ -57,7 +58,7 @@ export function useOutletOrderingState(outletId: string | undefined | null, know
   useFocusEffect(
     useCallback(() => {
       refresh();
-      const timer = setInterval(refresh, REFRESH_MS);
+      const timer = setForegroundInterval(refresh, REFRESH_MS);
       return () => clearInterval(timer);
     }, [refresh])
   );

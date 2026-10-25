@@ -153,6 +153,7 @@
       "raiseANewTicket": "కొత్త టికెట్‌ను లేవనెత్తండి",
       "addATitleAndAShort": "ముందుగా ఒక శీర్షిక మరియు చిన్న వివరణను జోడించండి.",
       "messageNotSent": "సందేశం పంపబడలేదు",
+      "casesLoadFailed": "మీ కేసులను లోడ్ చేయలేకపోయాం. మీ కనెక్షన్ తనిఖీ చేయండి.",
       "todayAt": "ఈరోజు, {{time}}",
       "yesterdayAt": "నిన్న, {{time}}",
       "yesterday": "నిన్న",
@@ -276,6 +277,8 @@
       "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా",
       "passwordRecoveryInstructionsWillBeSent": "పాస్‌వర్డ్ రికవరీ సూచనలు మీ ఖాతాకు పంపబడతాయి.",
       "phoneNumberNeeded": "ఫోన్ నంబర్ అవసరం",
+      "enterAValid10digitNumber": "చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.",
+      "enterAValidPhoneOrEmail": "చెల్లుబాటు అయ్యే ఫోన్ నంబర్ లేదా ఈమెయిల్ నమోదు చేయండి.",
       "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి.",
       "customizeDistance": "దూరాన్ని అనుకూలీకరించండి",
       "filteringWithinKm": "{{km}} కి.మీ లోపల ఫిల్టర్ చేస్తోంది",
@@ -319,6 +322,8 @@
       "useMyCurrentLocation": "నా ప్రస్తుత లొకేషన్‌ను ఉపయోగించండి",
       "enterAddressManually": "చిరునామాను మాన్యువల్‌గా నమోదు చేయండి",
       "noRidersAvailableNearby": "సమీపంలో రైడర్లు అందుబాటులో లేరు",
+      "recentlySearched": "ఇటీవల శోధించినవి",
+      "recommended": "సిఫార్సు చేసినవి",
       "allCaptainsNearbyAreOnTrips": "సమీపంలోని అందరు రైడర్‌లు ప్రస్తుతం ప్రయాణంలో ఉన్నారు. సాధారణంగా ఒకరు ఖాళీ అవ్వడానికి కొన్ని నిమిషాలు పడుతుంది.",
       "retrySearch": "మళ్లీ వెతకండి",
       "freshMeatDaily": "ప్రతిరోజూ తాజా మాంసం!",
@@ -436,7 +441,9 @@
       "invalidTime": "సరైన సమయం కాదు",
       "pleaseChooseAFutureDeliveryTime": "దయచేసి భవిష్యత్తులో డెలివరీ సమయాన్ని ఎంచుకోండి.",
       "orderFailed": "ఆర్డర్ విఫలమైంది",
-      "unableToPlaceYourOrder": "మీ ఆర్డర్‌ను ఉంచడం సాధ్యం కాలేదు.",
+      "orderScheduled": "ఆర్డర్ షెడ్యూల్ చేయబడింది. రెస్టారెంట్ అంగీకరించిన తర్వాత మేము నిర్ధారిస్తాము.",
+      "restaurantDetailsFailed": "రెస్టారెంట్ వివరాలన్నీ లోడ్ చేయలేకపోయాం. మీ కనెక్షన్ తనిఖీ చేయండి.",
+      "unableToPlaceYourOrder":"మీ ఆర్డర్‌ను ఉంచడం సాధ్యం కాలేదు.",
       "codeApplied": "{{code}} వర్తింపజేయబడింది",
       "haveAPromoCode": "ప్రోమో కోడ్ ఉందా?",
       "youSaved": "మీరు ₹{{amount}} ఆదా చేశారు",
@@ -828,6 +835,7 @@
       "invalidPhone": "చెల్లని ఫోన్ నంబర్",
       "enterAValid10digitReceiverPhone": "సరైన 10 అంకెల స్వీకర్త ఫోన్ నంబర్‌ను నమోదు చేయండి.",
       "failedToSaveAddress": "చిరునామాను సేవ్ చేయడంలో విఫలమైంది.",
+      "addressSaved": "చిరునామా సేవ్ చేయబడింది",
       "required": "అవసరం",
       "pleaseProvideAnAddressForThe": "దయచేసి పికప్ కోసం చిరునామాను అందించండి.",
       "itemsNeeded": "వస్తువులు అవసరం",
@@ -1215,6 +1223,27 @@
       "yourReservedRideWithVarStarts": "{{value}}తో మీ రిజర్వ్ చేసిన రైడ్ 15 నిమిషాల్లో ప్రారంభమవుతుంది!",
       "trackDriver": "డ్రైవర్‌ను ట్రాక్ చేయండి"
     },
+    "network": {
+      "requestTimedOut": "అభ్యర్థన సమయం ముగిసింది. మీ కనెక్షన్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+    },
+    "permissions": {
+      "openSettings": "సెట్టింగ్‌లు తెరవండి",
+      "locationTitle": "లొకేషన్ అనుమతి అవసరం",
+      "locationBody": "మీ ప్రస్తుత లొకేషన్ ఉపయోగించడానికి సెట్టింగ్‌లలో లొకేషన్ యాక్సెస్ అనుమతించండి.",
+      "notificationsOffTitle": "నోటిఫికేషన్లు ఆఫ్‌లో ఉన్నాయి",
+      "notificationsOffBody": "ఆర్డర్ మరియు చాట్ అప్‌డేట్‌లు పొందడానికి సెట్టింగ్‌లలో వాటిని ఆన్ చేయండి."
+    },
+    "ErrorState": {
+      "title": "దీన్ని లోడ్ చేయలేకపోయాం",
+      "subtitle": "మీ కనెక్షన్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+      "retry": "మళ్లీ ప్రయత్నించండి"
+    },
+    "SessionExpiredNotice": {
+      "message": "మీ సెషన్ ముగిసింది. దయచేసి మళ్లీ సైన్ ఇన్ చేయండి."
+    },
+    "SlowNetworkToast": {
+      "message": "నెట్‌వర్క్ నెమ్మదిగా ఉంది — ఇది సాధారణం కంటే ఎక్కువ సమయం పడుతోంది"
+    },
     "OfflineBanner": {
       "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
       "checking": "తనిఖీ చేస్తోంది…",
@@ -1232,6 +1261,7 @@
     "meat": {
       "selectLocation": "స్థానాన్ని ఎంచుకోండి",
       "meatCentersNearYou": "మీ సమీపంలోని మీట్ సెంటర్‌లు",
+      "noCentersSubtitle": "మీ శోధన లేదా ఫిల్టర్‌లకు సరిపోయే మీట్ సెంటర్‌లు లేవు.",
       "openNowCutFreshOnOrder": "ఇప్పుడు తెరిచి ఉంది · ఆర్డర్‌పై తాజాగా కోస్తారు",
       "searchCentersOrMeatType": "సెంటర్‌లు లేదా మీట్ రకం కోసం శోధించండి"
     },

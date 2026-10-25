@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
@@ -32,7 +33,7 @@ export function OfferRestaurantCard({ group, styles, tokens, accent, onPress }: 
     >
       <View style={styles.vendorRow}>
         {vendor.image ? (
-          <Image source={{ uri: vendor.image }} style={styles.vendorImage} contentFit="cover" transition={200} />
+          <Image source={{ uri: optimizedImageUrl(vendor.image, 100) }} style={styles.vendorImage} contentFit="cover" transition={200} />
         ) : (
           // No photo: a placeholder icon, not a blank grey box.
           <View style={[styles.vendorImage, { alignItems: "center", justifyContent: "center" }]}>

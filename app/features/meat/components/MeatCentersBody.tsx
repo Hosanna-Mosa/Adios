@@ -1,5 +1,8 @@
 import { ActivityIndicator, FlatList, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { type ServiceTokens } from "@/constants/colors";
@@ -13,6 +16,8 @@ interface Props {
   getCoords: any;
   loadMore: any;
   loading: boolean;
+  /** The first-page request failed; shown instead of "no results" when the list is empty. */
+  loadError: boolean;
   loadingMore: any;
   renderHeader: any;
   selectedCategory: any;
@@ -27,6 +32,7 @@ export function MeatCentersBody({
   getCoords,
   loadMore,
   loading,
+  loadError,
   loadingMore,
   renderHeader,
   selectedCategory,
@@ -34,6 +40,13 @@ export function MeatCentersBody({
   setPage,
   visibleCenters,
 }: Props) {
+  const { t } = useTranslation();
+  const reload = async () => {
+    setPage(1);
+    setHasMore(true);
+    const { lat, lng } = await getCoords();
+    fetchMeatCenters(lat, lng, 1, selectedCategory);
+  };
   return (
     <>
     <FlatList
@@ -45,6 +58,13 @@ export function MeatCentersBody({
         </Animated.View>
       )}
       ListHeaderComponent={renderHeader}
+      ListEmptyComponent={
+        loading ? null : loadError ? (
+          <ErrorState onRetry={reload} />
+        ) : (
+          <EmptyState icon="search-outline" title={t("app.home.noResultsFound")} subtitle={t("app.meat.noCentersSubtitle")} />
+        )
+      }
       ListFooterComponent={() =>
         loadingMore ? <ActivityIndicator size="small" color={accent.accent} style={{ marginVertical: 20 }} /> : <View style={{ height: 120 }} />
       }
@@ -52,12 +72,7 @@ export function MeatCentersBody({
       onEndReachedThreshold={0.5}
       showsVerticalScrollIndicator={false}
       refreshing={loading}
-      onRefresh={async () => {
-        setPage(1);
-        setHasMore(true);
-        const { lat, lng } = await getCoords();
-        fetchMeatCenters(lat, lng, 1, selectedCategory);
-      }}
+      onRefresh={reload}
     />
     </>
   );

@@ -9,6 +9,8 @@ export const ALLOWED_EVENTS = new Set([
   "screen_view",
   "login",
   "sign_up",
+  // uncaught JS errors and render crashes, reported by the apps (utils/crashReporting.ts)
+  "app_error",
   // customer app
   "order_placed",
   "purchase",

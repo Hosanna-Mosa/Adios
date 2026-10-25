@@ -15,9 +15,11 @@ import { navigateToNotificationTarget } from "@/utils/deepLink";
 import { NotificationsHeader } from "@/features/profile/components/NotificationsHeader";
 import { NotificationsCenter } from "@/features/profile/components/NotificationsCenter";
 import { ScreenShell } from "@/components/ui/ScreenShell";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { NotificationsBody } from "@/features/profile/components/NotificationsBody";
 import { createStyles } from "@/features/profile/notifications.styles";
 import { NotificationsEmptyState } from "@/features/profile/components/NotificationsEmptyState";
+import { NotificationsPermissionBanner } from "@/features/profile/components/NotificationsPermissionBanner";
 
 const CATEGORY_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   order_status: "receipt",
@@ -50,15 +52,24 @@ export default function NotificationsScreen() {
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [loadError, setLoadError] = useState(false);
+
   const fetchList = async () => {
     try {
       const data = await getNotifications();
       setItems(data || []);
+      setLoadError(false);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const retry = () => {
+    setLoading(true);
+    fetchList();
   };
 
   useFocusEffect(
@@ -95,11 +106,15 @@ export default function NotificationsScreen() {
         unreadCount={unreadCount}
       />
 
+      <NotificationsPermissionBanner />
+
       {loading ? (
         <NotificationsCenter
           accent={accent}
           styles={styles}
         />
+      ) : loadError && items.length === 0 ? (
+        <ErrorState onRetry={retry} />
       ) : items.length === 0 ? (
         <NotificationsEmptyState styles={styles} tokens={tokens} />
       ) : (

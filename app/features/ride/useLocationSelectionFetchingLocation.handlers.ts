@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { checkZone, searchPlacesJsonBiased } from "@/services/places.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import i18n from "@/i18n";
 
 // Handlers lifted out of useLocationSelectionFetchingLocation: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -97,7 +98,7 @@ export const buildHandleSearch = (setSearchResults: any, setIsSearching: any, se
       console.error("Search error:", e);
       if (requestId === searchRequestIdRef.current) {
         setSearchResults([]);
-        setSearchError("Could not load places. Check your connection and try again.");
+        setSearchError(i18n.t("app.packageDelivery.searchFailed"));
       }
     } finally {
       if (requestId === searchRequestIdRef.current) {

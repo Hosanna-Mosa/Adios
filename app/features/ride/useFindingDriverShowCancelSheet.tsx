@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
@@ -80,7 +81,7 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     };
 
     fetchOnlineDrivers();
-    const interval = setInterval(fetchOnlineDrivers, 10000);
+    const interval = setForegroundInterval(fetchOnlineDrivers, 10000);
     return () => { active = false; clearInterval(interval); };
   }, [stops]);
 

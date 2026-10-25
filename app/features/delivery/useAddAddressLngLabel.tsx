@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 
 // Split out of useAddAddress so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -27,8 +28,7 @@ export function useAddAddressLngLabel(params: any, mapRef: any, isEditMode: any,
   const handleUseCurrentLocation = async () => {
     try {
       setLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") return;
+      if (!(await requestLocationPermission())) return;
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const { latitude, longitude } = location.coords;
       const newRegion = { latitude, longitude, latitudeDelta: 0.005, longitudeDelta: 0.005 };

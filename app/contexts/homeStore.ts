@@ -18,11 +18,14 @@ interface HomeState {
   nearbyDriversCount: number | null;
   loading: boolean;
   loadingDrivers: boolean;
+  /** The first-page restaurant / meat-centre request failed (as opposed to returning nothing). */
+  loadError: boolean;
   store149Items: any[];
   activeService: 'Food' | 'Meat';
   lastFetchedCoords: { lat: number; lng: number } | null;
   lastFetchedService: 'Food' | 'Meat' | null;
-  
+
+  setLoadError: (failed: boolean) => void;
   setRestaurants: (restaurants: any[] | ((prev: any[]) => any[])) => void;
   setMeatCenters: (meatCenters: any[] | ((prev: any[]) => any[])) => void;
   setNearbyDriversCount: (count: number | null) => void;
@@ -57,11 +60,13 @@ export const useHomeStore = create<HomeState>((set, get) => ({
   nearbyDriversCount: null,
   loading: true,
   loadingDrivers: true,
+  loadError: false,
   store149Items: [],
   activeService: 'Food',
   lastFetchedCoords: null,
   lastFetchedService: null,
-  
+
+  setLoadError: (loadError) => set({ loadError }),
   setRestaurants: (val) => set((state) => ({
     restaurants: typeof val === 'function' ? val(state.restaurants) : val
   })),
@@ -107,21 +112,21 @@ export const useHomeStore = create<HomeState>((set, get) => ({
       if (activeService === 'Meat') {
         servicePromise = getNearbyMeatCentres<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
           .then((data) => {
-            set({ meatCenters: Array.isArray(data) ? data : [] });
+            set({ meatCenters: Array.isArray(data) ? data : [], loadError: false });
           })
           .catch((err) => {
             console.error("Fetch meat centers error in homeStore:", err);
-            set({ meatCenters: [] });
+            set({ meatCenters: [], loadError: true });
           });
       } else {
         servicePromise = Promise.all([
           getNearbyVendors<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
             .then((data) => {
-              set({ restaurants: Array.isArray(data) ? data : [] });
+              set({ restaurants: Array.isArray(data) ? data : [], loadError: false });
             })
             .catch((err) => {
               console.error("Fetch vendors error in homeStore:", err);
-              set({ restaurants: [] });
+              set({ restaurants: [], loadError: true });
             }),
           getStore149<any[]>(lat, lng)
             .then((data) => {

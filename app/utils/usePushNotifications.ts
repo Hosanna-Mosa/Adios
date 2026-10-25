@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Platform } from "react-native";
+import { InteractionManager, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import { navigateToNotificationTarget } from "@/utils/deepLink";
 
@@ -21,9 +21,12 @@ export function usePushNotifications(token: string | null) {
 
     const { registerForPushNotificationsAsync } = require("@/utils/notificationRegister");
 
-    // 1. Initial Registration
-    registerForPushNotificationsAsync().catch((err: any) => {
-      console.error("Error registering push notifications:", err);
+    // 1. Initial Registration — after the launch animations and first screen have settled,
+    // so creating channels and fetching the token don't compete with them for the JS thread.
+    const registration = InteractionManager.runAfterInteractions(() => {
+      registerForPushNotificationsAsync().catch((err: any) => {
+        console.error("Error registering push notifications:", err);
+      });
     });
 
     // 2. Token Refresh Listener (Priority 3)
@@ -56,6 +59,7 @@ export function usePushNotifications(token: string | null) {
     });
 
     return () => {
+      registration.cancel();
       tokenSubscription.remove();
       responseSubscription.remove();
     };

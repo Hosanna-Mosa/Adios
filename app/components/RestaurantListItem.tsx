@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import React from "react";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
@@ -102,7 +103,7 @@ export function RestaurantListItem({
       onPressIn={onPressIn}
       onPressOut={onPressOut}
     >
-      <Image source={{ uri: image }} style={styles.thumb} contentFit="cover" transition={200} />
+      <Image source={{ uri: optimizedImageUrl(image, 120) }} style={styles.thumb} contentFit="cover" transition={200} />
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>

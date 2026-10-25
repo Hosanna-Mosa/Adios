@@ -72,13 +72,19 @@ export function useFavorites() {
   const [favoriteItems, setFavoriteItems] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"outlets" | "items">("outlets");
 
+  // A failed request must not read as "no favourites yet".
+  const [outletsError, setOutletsError] = useState(false);
+  const [itemsError, setItemsError] = useState(false);
+
   const fetchFavorites = async () => {
     try {
       setLoading(true);
       const data = await getFavouriteOutlets();
       if (Array.isArray(data)) setFavorites(data);
+      setOutletsError(false);
     } catch (error) {
       console.error("Error fetching favorites:", error);
+      setOutletsError(true);
     } finally {
       setLoading(false);
     }
@@ -89,8 +95,10 @@ export function useFavorites() {
       setItemsLoading(true);
       const data = await getFavouriteItems();
       if (Array.isArray(data)) setFavoriteItems(data);
+      setItemsError(false);
     } catch (error) {
       console.error("Error fetching favorite items:", error);
+      setItemsError(true);
     } finally {
       setItemsLoading(false);
     }
@@ -122,7 +130,7 @@ export function useFavorites() {
   return {
   insets, tabBarHeight, tokens, accent, styles, toggleFavoriteItem, toggleFavorite, loading, favorites,
   itemsLoading, activeTab, setActiveTab, fetchFavorites, fetchFavoriteItems, activeFavorites,
-  activeFavoriteItems, popularNearby
+  activeFavoriteItems, popularNearby, outletsError, itemsError
   };
 }
 

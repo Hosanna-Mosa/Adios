@@ -7,6 +7,8 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { getSupportCategories, SupportTicket } from "./useSupportChat.shared";
 import { getSupportTickets } from "@/services/support.service";
+import { showToast } from "@/components/ui/Toast";
+import i18n from "@/i18n";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -59,6 +61,8 @@ export function useSupportChatInsets() {
       }
     } catch (error) {
       console.error("Failed to fetch support tickets:", error);
+      // Only the first load: the 4 s refresh failing on a weak signal isn't worth a toast each time.
+      if (showLoading) showToast(i18n.t("app.support.casesLoadFailed"), "error");
     } finally {
       if (showLoading) setLoading(false);
     }

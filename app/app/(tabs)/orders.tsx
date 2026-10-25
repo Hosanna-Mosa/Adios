@@ -10,7 +10,7 @@ import { OrdersSheets } from "@/features/orders/components/OrdersSheets";
 
 export default function OrdersScreen() {
   const {
-  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters,
+  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, loadError, retryOrders, serviceFilters, setServiceFilters,
   showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters,
   reorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating,
   reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, scheduled, active,
@@ -51,7 +51,7 @@ export default function OrdersScreen() {
         hasActiveFilters={serviceFilters.size > 0}
         insets={insets}
         summary={
-          loading || isEmpty
+          loading || isEmpty || loadError
             ? undefined
             : [
                 active.length ? t("app.orders.activeCount", { count: active.length, defaultValue: "{{count}} active" }) : null,
@@ -72,6 +72,8 @@ export default function OrdersScreen() {
         loading={loading}
         refreshing={refreshing}
         onRefresh={onRefresh}
+        loadError={loadError}
+        onRetry={retryOrders}
         serviceFilters={serviceFilters}
         setServiceFilters={setServiceFilters}
         reorderingId={reorderingId}

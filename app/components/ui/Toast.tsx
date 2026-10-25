@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -18,6 +18,14 @@ interface ToastState {
 
 const ToastContext = createContext<{ show: (message: string, variant?: ToastVariant) => void } | null>(null);
 
+// Set by the mounted ToastProvider so plain handlers (no hooks) can raise a toast too.
+let externalShow: ((message: string, variant?: ToastVariant) => void) | null = null;
+
+/** Same toast as useToast().show, for code that isn't a component. A no-op until the provider has mounted. */
+export function showToast(message: string, variant: ToastVariant = "info") {
+  externalShow?.(message, variant);
+}
+
 /** Mount once at the app root (see app/_layout.tsx). Renders whatever the
  * nearest ToastProvider is currently showing. */
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -33,6 +41,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       setToast((current) => (current?.id === id ? null : current));
     }, 2600);
   }, []);
+
+  useEffect(() => {
+    externalShow = show;
+    return () => {
+      if (externalShow === show) externalShow = null;
+    };
+  }, [show]);
 
   return (
     <ToastContext.Provider value={{ show }}>
