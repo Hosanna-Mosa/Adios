@@ -153,6 +153,7 @@
       "raiseANewTicket": "नई टिकट दर्ज करें",
       "addATitleAndAShort": "पहले एक शीर्षक और संक्षिप्त विवरण जोड़ें।",
       "messageNotSent": "संदेश नहीं भेजा गया",
+      "casesLoadFailed": "आपके केस लोड नहीं हो सके। अपना कनेक्शन जांचें।",
       "todayAt": "आज, {{time}}",
       "yesterdayAt": "कल, {{time}}",
       "yesterday": "कल",
@@ -276,6 +277,8 @@
       "forgotPassword": "पासवर्ड भूल गए",
       "passwordRecoveryInstructionsWillBeSent": "पासवर्ड रिकवरी निर्देश आपके अकाउंट पर भेजे जाएंगे.",
       "phoneNumberNeeded": "फ़ोन नंबर ज़रूरी है",
+      "enterAValid10digitNumber": "मान्य 10 अंकों का मोबाइल नंबर दर्ज करें।",
+      "enterAValidPhoneOrEmail": "मान्य फ़ोन नंबर या ईमेल दर्ज करें।",
       "enterYourPhoneNumberAboveTo": "OTP से जारी रखने के लिए ऊपर अपना फ़ोन नंबर दर्ज करें.",
       "customizeDistance": "दूरी को कस्टमाइज़ करें",
       "filteringWithinKm": "{{km}} किमी के भीतर फ़िल्टर हो रहा है",
@@ -319,6 +322,8 @@
       "useMyCurrentLocation": "मेरी मौजूदा लोकेशन उपयोग करें",
       "enterAddressManually": "पता खुद दर्ज करें",
       "noRidersAvailableNearby": "पास में कोई राइडर उपलब्ध नहीं",
+      "recentlySearched": "हाल की खोजें",
+      "recommended": "सुझाए गए",
       "allCaptainsNearbyAreOnTrips": "पास के सभी राइडर अभी ट्रिप पर हैं. आमतौर पर एक के खाली होने में कुछ मिनट लगते हैं.",
       "retrySearch": "फिर से खोजें",
       "freshMeatDaily": "रोज़ ताज़ा मीट!",
@@ -436,7 +441,9 @@
       "invalidTime": "अमान्य समय",
       "pleaseChooseAFutureDeliveryTime": "कृपया भविष्य का डिलीवरी समय चुनें.",
       "orderFailed": "ऑर्डर विफल हुआ",
-      "unableToPlaceYourOrder": "आपका ऑर्डर नहीं दिया जा सका.",
+      "orderScheduled": "ऑर्डर शेड्यूल हो गया है। रेस्टोरेंट के स्वीकार करते ही हम पुष्टि करेंगे।",
+      "restaurantDetailsFailed": "रेस्टोरेंट की सारी जानकारी लोड नहीं हो सकी। अपना कनेक्शन जांचें।",
+      "unableToPlaceYourOrder":"आपका ऑर्डर नहीं दिया जा सका.",
       "codeApplied": "{{code}} लागू हुआ",
       "haveAPromoCode": "क्या आपके पास प्रोमो कोड है?",
       "youSaved": "आपने ₹{{amount}} बचाए",
@@ -828,6 +835,7 @@
       "invalidPhone": "अमान्य फ़ोन नंबर",
       "enterAValid10digitReceiverPhone": "मान्य 10 अंकों का प्राप्तकर्ता फ़ोन नंबर दर्ज करें.",
       "failedToSaveAddress": "पता सेव नहीं हो सका.",
+      "addressSaved": "पता सेव हो गया",
       "required": "ज़रूरी है",
       "pleaseProvideAnAddressForThe": "कृपया पिकअप के लिए पता दें.",
       "itemsNeeded": "आइटम ज़रूरी हैं",
@@ -1215,6 +1223,27 @@
       "yourReservedRideWithVarStarts": "{{value}} के साथ आपकी रिज़र्व राइड 15 मिनट में शुरू होगी!",
       "trackDriver": "ड्राइवर को ट्रैक करें"
     },
+    "network": {
+      "requestTimedOut": "अनुरोध का समय समाप्त हो गया। अपना कनेक्शन जांचें और फिर से प्रयास करें।"
+    },
+    "permissions": {
+      "openSettings": "सेटिंग्स खोलें",
+      "locationTitle": "लोकेशन अनुमति ज़रूरी है",
+      "locationBody": "अपनी वर्तमान लोकेशन का उपयोग करने के लिए सेटिंग्स में लोकेशन एक्सेस की अनुमति दें।",
+      "notificationsOffTitle": "नोटिफ़िकेशन बंद हैं",
+      "notificationsOffBody": "ऑर्डर और चैट अपडेट पाने के लिए सेटिंग्स में उन्हें चालू करें।"
+    },
+    "ErrorState": {
+      "title": "यह लोड नहीं हो सका",
+      "subtitle": "अपना कनेक्शन जांचें और फिर से प्रयास करें।",
+      "retry": "फिर से प्रयास करें"
+    },
+    "SessionExpiredNotice": {
+      "message": "आपका सेशन समाप्त हो गया है। कृपया फिर से साइन इन करें।"
+    },
+    "SlowNetworkToast": {
+      "message": "नेटवर्क धीमा है — इसमें सामान्य से अधिक समय लग रहा है"
+    },
     "OfflineBanner": {
       "youaposreOffline": "आप ऑफ़लाइन हैं",
       "checking": "जांच हो रही है…",
@@ -1232,6 +1261,7 @@
     "meat": {
       "selectLocation": "स्थान चुनें",
       "meatCentersNearYou": "आपके पास के मीट सेंटर",
+      "noCentersSubtitle": "आपकी खोज या फ़िल्टर से मेल खाने वाला कोई मीट सेंटर नहीं है।",
       "openNowCutFreshOnOrder": "अभी खुला है · ऑर्डर पर ताज़ा काटा जाता है",
       "searchCentersOrMeatType": "सेंटर या मीट के प्रकार खोजें"
     },

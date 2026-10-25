@@ -1,4 +1,5 @@
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { router } from "expo-router";
 import i18n from "@/i18n";
 import { checkZone } from "@/services/places.service";
@@ -25,9 +26,7 @@ export function useLocationSelectionSelectSavedAddress(params: any, serviceId: a
   const handleCurrentLocation = async () => {
     try {
       setFetchingLocation(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        showAlert(i18n.t("app.ride.permissionDenied"), i18n.t("app.delivery.locationPermissionIsRequired"));
+      if (!(await requestLocationPermission(i18n.t("app.delivery.locationPermissionIsRequired")))) {
         setFetchingLocation(false);
         return;
       }

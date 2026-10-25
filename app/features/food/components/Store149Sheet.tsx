@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
@@ -107,7 +108,7 @@ export function Store149Sheet({
                 <View style={styles.cardImageWrap}>
                   {/* expo-image like the rest of the app: cached, and fades in instead of popping. */}
                   <Image
-                    source={item.images?.[0] ? { uri: item.images[0] } : undefined}
+                    source={item.images?.[0] ? { uri: optimizedImageUrl(item.images[0], 200) } : undefined}
                     style={styles.cardImage}
                     contentFit="cover"
                     transition={200}

@@ -7,6 +7,7 @@ import { SavedAddressesList } from "@/features/delivery/components/SavedAddresse
 import { RecentAddressesList } from "@/features/delivery/components/RecentAddressesList";
 import { SavedAddressesEmptyWrap } from "@/features/delivery/components/SavedAddressesEmptyWrap";
 import { ScreenShell } from "@/components/ui/ScreenShell";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { useSavedAddresses } from "@/features/delivery/useSavedAddresses";
 
 export default function SavedAddressesScreen() {
@@ -14,7 +15,8 @@ export default function SavedAddressesScreen() {
   const {
   insets, tokens, accent, styles, addresses, loading, selectingId, deletingId, recentLocations,
   recentLoading, currentLocLoading, handleUseCurrentLocation, handleSelectRecentLocation,
-  handleSelectAddress, handleMoreOptions, parseInstructions, stripMeta, isEmpty
+  handleSelectAddress, handleMoreOptions, parseInstructions, stripMeta, isEmpty,
+  loadError, retryAddresses
   } = useSavedAddresses();
 
   return (
@@ -26,7 +28,19 @@ export default function SavedAddressesScreen() {
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
       />
 
-      {isEmpty ? (
+      {isEmpty && loadError ? (
+        // "Use my current location" stays available — a failed list shouldn't block picking a place.
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+          <SavedAddressRow
+            accent={accent}
+            currentLocLoading={currentLocLoading}
+            handleUseCurrentLocation={handleUseCurrentLocation}
+            selectingId={selectingId}
+            styles={styles}
+          />
+          <ErrorState onRetry={retryAddresses} />
+        </ScrollView>
+      ) : isEmpty ? (
         <SavedAddressesEmptyWrap
           accent={accent}
           addresses={addresses}

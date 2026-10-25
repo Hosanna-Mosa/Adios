@@ -3,6 +3,7 @@ import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliv
 import { createAddress, updateAddress } from "@/services/users.service";
 import { getPlaceDetails } from "@/services/places.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import { showToast } from "@/components/ui/Toast";
 
 // Split out of useAddAddress so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -93,6 +94,7 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       }
 
       router.back();
+      showToast(t("app.delivery.addressSaved"), "success");
     } catch (error: any) {
       console.error(error);
       showAlert(t("actions.error"), error.message || t("app.delivery.failedToSaveAddress"));

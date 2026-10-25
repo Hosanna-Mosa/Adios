@@ -1,3 +1,4 @@
+import { useHomeStore } from "@/contexts/homeStore";
 import { getNearbyMeatCentres, getNearbyVendors, getStore149 } from "@/services/catalog.service";
 import { getNearbyDriversWithHeaders } from "@/services/places.service";
 
@@ -24,8 +25,10 @@ export const buildFetchVendors = (discoveryParams: any, setRestaurants: any, set
           });
         }
       }
+      if (pageNum === 1) useHomeStore.getState().setLoadError(false);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+      if (pageNum === 1) useHomeStore.getState().setLoadError(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -48,8 +51,10 @@ export const buildFetchMeatCenters = (discoveryParams: any, setMeatCenters: any,
           });
         }
       }
+      if (pageNum === 1) useHomeStore.getState().setLoadError(false);
     } catch (error) {
       console.error("Error fetching meat centers:", error);
+      if (pageNum === 1) useHomeStore.getState().setLoadError(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);

@@ -10,7 +10,7 @@ import { useRestaurantMenuFilteredMenu } from "./useRestaurantMenuFilteredMenu";
 export function useRestaurantMenu() {
   const { id, name, image, rating, reviews, isMeat, highlightDishId, categories, minOrderValue, time, distance, address, insets, tabBarHeight, tokens, accent, styles, setVendorId, items, updateQuantity, getItemCount, toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, setLoading, menu, setMenu, activeCategory, setActiveCategory, scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly, highlightedItemId, setHighlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems, setLoadingItems, handleAddToCart, orderingState, outletClosed } = useRestaurantMenuId();
   const { handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress } = useRestaurantMenuHandleUpdateQuantity(updateQuantity, getItemCount, activeCategory, setActiveCategory, setScrolledPast, scrollViewRef, loadingItems, setLoadingItems);
-  const {  } = useRestaurantMenuLoader(id, isMeat, highlightDishId, setVendorId, setLoading, menu, setMenu, setActiveCategory, setHighlightedItemId, handleCategoryPress);
+  const { loadError, retryMenu } = useRestaurantMenuLoader(id, isMeat, highlightDishId, setVendorId, setLoading, menu, setMenu, setActiveCategory, setHighlightedItemId, handleCategoryPress);
   const { groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts } = useRestaurantMenuFilteredMenu(isMeat, categories, minOrderValue, time, distance, address, menu, activeCategory, setActiveCategory, searchQuery, vegOnly);
 
   return {
@@ -19,7 +19,8 @@ export function useRestaurantMenu() {
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
   highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed,
+  loadError, retryMenu
   };
 }
 

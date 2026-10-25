@@ -22,7 +22,16 @@ export function useHomeGetCoords(selectedAddress: any) {
     }
 
     try {
-      const gpsDeniedBefore = await AsyncStorage.getItem("gps_permission_denied");
+      let gpsDeniedBefore = await AsyncStorage.getItem("gps_permission_denied");
+      if (gpsDeniedBefore === "true") {
+        // The customer may have switched location on in system Settings since;
+        // without this the saved flag kept Home on "no location" for good.
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status === "granted") {
+          await AsyncStorage.removeItem("gps_permission_denied");
+          gpsDeniedBefore = null;
+        }
+      }
       if (gpsDeniedBefore !== "true") {
         let { status } = await Location.getForegroundPermissionsAsync();
         if (status === "undetermined") {

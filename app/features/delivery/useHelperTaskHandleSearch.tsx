@@ -1,4 +1,5 @@
 import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
+import { usePlaceSearchRunner, usePlaceSearchStatus } from "./placeSearch";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -8,17 +9,13 @@ import { getPlaceDetails, searchPlacesJson } from "@/services/places.service";
 // a place is the server's call (zones, dispatch), not the app's.
 
 export function useHelperTaskHandleSearch(setPickupLocation: any, setDropoffLocation: any, setPickupCoords: any, setDropoffCoords: any, activeField: any, setActiveField: any, setSearchResults: any, setIsPickupValid: any, setIsDropoffValid: any) {
-  const handleSearch = async (text: string, type: "pickup" | "dropoff") => {
+  const placeSearch = usePlaceSearchRunner();
+
+  const handleSearch = (text: string, type: "pickup" | "dropoff") => {
     if (type === "pickup") { setPickupLocation(text); setIsPickupValid(false); }
     else { setDropoffLocation(text); setIsDropoffValid(false); }
     setActiveField(type);
-    if (text.trim().length < 2) { setSearchResults([]); return; }
-    try {
-      const data = await searchPlacesJson(text);
-      setSearchResults(Array.isArray(data) ? data : []);
-    } catch {
-      setSearchResults([]);
-    }
+    placeSearch.run(text, searchPlacesJson, setSearchResults);
   };
 
   const selectResult = async (result: any) => {
@@ -47,6 +44,7 @@ export function useHelperTaskHandleSearch(setPickupLocation: any, setDropoffLoca
     }
     setSearchResults([]);
     setActiveField(null);
+    usePlaceSearchStatus.getState().setStatus("idle");
   };
 
   return { handleSearch, selectResult };

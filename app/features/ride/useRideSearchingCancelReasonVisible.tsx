@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import React from "react";
 import { normalizeServiceType } from "./useRideSearching.shared";
 import { getNearbyDrivers } from "@/services/places.service";
@@ -58,7 +59,7 @@ export function useRideSearchingCancelReasonVisible(params: any) {
     };
 
     fetchOnlineDrivers();
-    const interval = setInterval(fetchOnlineDrivers, 10000);
+    const interval = setForegroundInterval(fetchOnlineDrivers, 10000);
 
     return () => {
       active = false;

@@ -6,6 +6,7 @@ import { fadeInUp } from "@/motion/presets";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HelperTaskStyles } from "../helper-task.styles";
+import { PlaceSearchMessage, usePlaceSearchHasMessage } from "./PlaceSearchMessage";
 
 // Section of TaskComposeFormWhereTheWork, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -38,6 +39,8 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const hasMessage = usePlaceSearchHasMessage(searchResults.length > 0);
+  const messageStyle = { flex: 0, padding: 12, color: tokens.sec };
   return (
     <Animated.View style={styles.section} entering={fadeInUp(80)}>
       <View style={styles.locationCard}>
@@ -62,7 +65,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
                 <Ionicons name="locate" size={moderateScale(18)} color={accent.accent} />
               </TouchableOpacity>
             </View>
-            {activeField === "pickup" && searchResults.length > 0 && (
+            {activeField === "pickup" && (searchResults.length > 0 || hasMessage) && (
               <View style={styles.dropdown}>
                 {searchResults.map((r, i) => (
                   <TouchableOpacity key={r.id || i} style={styles.dropdownRow} onPress={() => selectResult(r)}>
@@ -70,6 +73,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
                     <Text style={styles.dropdownText} numberOfLines={1}>{r.description || r.name}</Text>
                   </TouchableOpacity>
                 ))}
+                <PlaceSearchMessage hasResults={searchResults.length > 0} style={[styles.dropdownText, messageStyle]} />
               </View>
             )}
           </View>
@@ -86,7 +90,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
                 onFocus={() => setActiveField("dropoff")}
               />
             </View>
-            {activeField === "dropoff" && searchResults.length > 0 && (
+            {activeField === "dropoff" && (searchResults.length > 0 || hasMessage) && (
               <View style={styles.dropdown}>
                 {searchResults.map((r, i) => (
                   <TouchableOpacity key={r.id || i} style={styles.dropdownRow} onPress={() => selectResult(r)}>
@@ -94,6 +98,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
                     <Text style={styles.dropdownText} numberOfLines={1}>{r.description || r.name}</Text>
                   </TouchableOpacity>
                 ))}
+                <PlaceSearchMessage hasResults={searchResults.length > 0} style={[styles.dropdownText, messageStyle]} />
               </View>
             )}
           </View>

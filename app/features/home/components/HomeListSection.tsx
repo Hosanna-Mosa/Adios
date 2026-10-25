@@ -7,6 +7,8 @@ import { DishSearchResultItem } from "@/features/home/components/DishSearchResul
 import { HomeSkeletonCard } from "@/features/home/components/HomeSkeletonCard";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { AppTabBar } from "@/components/AppTabBar";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { useHomeStore } from "@/contexts/homeStore";
 import { staggerListItem } from "@/motion/presets";
 import { NoRidersNearbyState } from "@/features/home/components/NoRidersNearbyState";
 import { ServiceUnavailableState } from "@/features/home/components/ServiceUnavailableState";
@@ -27,6 +29,17 @@ export function HomeListSection(props: Props) {
   fetchMeatCenters, fetch149StoreItems, checkNearbyDrivers, loadMore, showHomeSkeleton,
   visibleItems, onMainScroll, listData, activeFilterCount, clearAllFilters, isSearching,
   handleUseCurrentLocation, renderHeader, AnimatedFlashList } = props;
+  const loadError = useHomeStore((s) => s.loadError);
+
+  const reloadHome = async () => {
+    setPage(1);
+    setHasMore(true);
+    const { lat, lng } = await getCoords();
+    checkNearbyDrivers(lat, lng);
+    if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
+    else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
+  };
+
   return (
     <>
     <AnimatedFlashList
@@ -47,6 +60,9 @@ export function HomeListSection(props: Props) {
             />
           );
         }
+        // A failed request has to be said so: with nothing loaded, every empty state
+        // below ("no riders", "not available here") would be a wrong diagnosis.
+        if (loadError) return <ErrorState onRetry={reloadHome} />;
         if (isSearching) {
           return (
             <EmptySearchState
@@ -133,14 +149,7 @@ export function HomeListSection(props: Props) {
       contentContainerStyle={[styles.mainScrollContent, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 140 : tabBarHeight + 24 }]}
       showsVerticalScrollIndicator={false}
       refreshing={false}
-      onRefresh={async () => {
-        setPage(1);
-        setHasMore(true);
-        const { lat, lng } = await getCoords();
-        checkNearbyDrivers(lat, lng);
-        if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
-        else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
-      }}
+      onRefresh={reloadHome}
       onScroll={onMainScroll}
       scrollEventThrottle={16}
     />

@@ -3,6 +3,7 @@ import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type AddAddressStyles } from "@/features/delivery/add-address.styles";
+import { PlaceSearchMessage } from "./PlaceSearchMessage";
 
 // Moved out of app/delivery/add-address.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -30,6 +31,7 @@ export function AddAddressSearchResults({
           </TouchableOpacity>
         </Animated.View>
       ))}
+      <PlaceSearchMessage hasResults={searchResults.length > 0} style={[styles.searchResultAddr, { padding: 14 }]} />
     </ScrollView>
   );
 }

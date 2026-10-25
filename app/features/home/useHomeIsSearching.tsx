@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { requestLocationPermission } from "@/utils/permissions";
 import { HomeBody } from "./components/HomeBody";
 
 // Split out of useHome so each file stays small. Kept in the original call
@@ -17,6 +18,9 @@ export function useHomeIsSearching(restaurants: any, nearbyDriversCount: any, lo
   // Re-attempts GPS from scratch: drops any saved address and the cached
   // "user denied GPS" flag, then nudges the address-loading effect to re-run.
   const handleUseCurrentLocation = async () => {
+    // Without this, a blocked permission made the button do nothing: the effect below
+    // re-ran, found location still denied, and put the same empty state back.
+    if (!(await requestLocationPermission())) return;
     try {
       await AsyncStorage.removeItem("gps_permission_denied");
       await AsyncStorage.removeItem("active_address");

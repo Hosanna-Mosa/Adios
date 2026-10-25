@@ -21,7 +21,8 @@ export default function RestaurantMenu() {
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
   highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed,
+  loadError, retryMenu
   } = useRestaurantMenu();
   const { t } = useTranslation();
   const noRidersOnline = useHomeStore(selectNoRidersOnline);
@@ -88,6 +89,8 @@ export default function RestaurantMenu() {
         isMeat={isMeat}
         items={items}
         loading={loading}
+        loadError={loadError}
+        onRetry={retryMenu}
         loadingItems={loadingItems}
         metaLine1Parts={metaLine1Parts}
         metaLine2Parts={metaLine2Parts}

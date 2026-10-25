@@ -37,12 +37,15 @@ import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/
 import { usePushNotifications } from "@/utils/usePushNotifications";
 import { useAnalytics } from "@/utils/useAnalytics";
 import { configureAnalytics } from "@/utils/analytics";
+import { installCrashReporting } from "@/utils/crashReporting";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { useVersionGate } from "@/utils/useVersionGate";
 import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
 import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { SlowNetworkToast } from "@/components/SlowNetworkToast";
+import { SessionExpiredNotice } from "@/components/SessionExpiredNotice";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -72,6 +75,8 @@ setAuthTokenGetter(() => {
 if (apiUrl) {
   configureAnalytics({ apiUrl, app: "customer", getToken: () => useAuthStore.getState().token });
 }
+
+installCrashReporting();
 
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized clears the session and returns true only for the first of
@@ -201,6 +206,8 @@ export default function RootLayout() {
                 <RootLayoutNav />
                 <GlobalSocketHandler />
                 <OfflineBanner />
+                <SlowNetworkToast />
+                <SessionExpiredNotice />
                 <UpdateModal
                   visible={showUpdate}
                   forceUpdate={forceUpdate}

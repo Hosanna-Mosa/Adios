@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -118,7 +119,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     };
 
     checkOrderStatus();
-    pollIntervalId = setInterval(checkOrderStatus, 2000);
+    pollIntervalId = setForegroundInterval(checkOrderStatus, 2000);
 
     const handleOrderAccepted = (data: any) => {
       if (data && String(data.orderId) === String(orderId)) handleTransition(data.driver);

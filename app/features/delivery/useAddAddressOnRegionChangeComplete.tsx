@@ -1,11 +1,14 @@
 import { useEffect } from "react";
 import * as Location from "expo-location";
 import { searchPlaces } from "@/services/places.service";
+import { usePlaceSearchRunner } from "./placeSearch";
 
 // Split out of useAddAddress so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
 export function useAddAddressOnRegionChangeComplete(isEditMode: any, setShortAddress: any, setCityOrCountry: any, setRegion: any, setSearchQuery: any, setSearchResults: any, setSearching: any, userCoords: any, setUserCoords: any, setIsResolvingAddress: any, isMapReady: any, fetchAddressForCoords: any) {
+  const placeSearch = usePlaceSearchRunner();
+
   useEffect(() => {
     (async () => {
       try {
@@ -37,22 +40,10 @@ export function useAddAddressOnRegionChangeComplete(isEditMode: any, setShortAdd
     await fetchAddressForCoords(r.latitude, r.longitude);
   };
 
-  const handleSearch = async (text: string) => {
+  const handleSearch = (text: string) => {
     setSearchQuery(text);
-    if (text.trim().length > 0) {
-      setSearching(true);
-      try {
-        const locQuery = userCoords ? `&lat=${userCoords.lat}&lng=${userCoords.lng}&radius=50000` : "";
-        const results = await searchPlaces(text, locQuery);
-        setSearchResults(results || []);
-      } catch (error) {
-        console.error("Search error:", error);
-      } finally {
-        setSearching(false);
-      }
-    } else {
-      setSearchResults([]);
-    }
+    const locQuery = userCoords ? `&lat=${userCoords.lat}&lng=${userCoords.lng}&radius=50000` : "";
+    placeSearch.run(text, (q) => searchPlaces(q, locQuery), setSearchResults, setSearching);
   };
 
   return { onRegionChangeComplete, handleSearch };

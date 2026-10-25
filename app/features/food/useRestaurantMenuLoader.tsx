@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Constants from "expo-constants";
 
 // Split out of useRestaurantMenu so each file stays small. Kept in the original call
@@ -9,9 +9,14 @@ export function useRestaurantMenuLoader(id: any, isMeat: any, highlightDishId: a
     if (id) setVendorId(id as string);
   }, [id]);
 
+  // The request failed, as opposed to the outlet having no menu.
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
   useEffect(() => {
     const fetchMenu = async () => {
       try {
+        setLoading(true);
         const baseUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
         const endpoint = isMeat === "true"
           ? `${baseUrl}/meat/menu/${id}`
@@ -19,6 +24,9 @@ export function useRestaurantMenuLoader(id: any, isMeat: any, highlightDishId: a
 
         const response = await fetch(endpoint);
         const data = await response.json();
+        // An error body is an object, not a menu — it used to blow up on .map and
+        // leave "Menu not available yet" up for what was really a failed request.
+        if (!response.ok || !Array.isArray(data)) throw new Error(`Menu request failed (${response.status})`);
 
         const normalizedData = data.map((item: any) => {
           if (isMeat === "true") {
@@ -33,6 +41,7 @@ export function useRestaurantMenuLoader(id: any, isMeat: any, highlightDishId: a
         });
 
         setMenu(normalizedData);
+        setLoadError(false);
         if (normalizedData.length > 0) {
           let categoryToSelect = normalizedData[0].category;
           if (highlightDishId) {
@@ -48,12 +57,13 @@ export function useRestaurantMenuLoader(id: any, isMeat: any, highlightDishId: a
         }
       } catch (error) {
         console.error("Error fetching menu:", error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     fetchMenu();
-  }, [id, isMeat]);
+  }, [id, isMeat, reloadKey]);
 
-  return {  };
+  return { loadError, retryMenu: () => setReloadKey((k) => k + 1) };
 }

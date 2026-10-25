@@ -153,6 +153,7 @@
       "raiseANewTicket": "Raise a new ticket",
       "addATitleAndAShort": "Add a title and a short description first.",
       "messageNotSent": "Message not sent",
+      "casesLoadFailed": "Couldn't load your cases. Check your connection.",
       "todayAt": "Today, {{time}}",
       "yesterdayAt": "Yesterday, {{time}}",
       "yesterday": "Yesterday",
@@ -276,6 +277,8 @@
       "forgotPassword": "Forgot Password",
       "passwordRecoveryInstructionsWillBeSent": "Password recovery instructions will be sent to your account.",
       "phoneNumberNeeded": "Phone number needed",
+      "enterAValid10digitNumber": "Enter a valid 10-digit mobile number.",
+      "enterAValidPhoneOrEmail": "Enter a valid phone number or email.",
       "enterYourPhoneNumberAboveTo": "Enter your phone number above to continue with an OTP.",
       "customizeDistance": "Customize distance",
       "filteringWithinKm": "Filtering within {{km}} km",
@@ -319,6 +322,8 @@
       "useMyCurrentLocation": "Use my current location",
       "enterAddressManually": "Enter address manually",
       "noRidersAvailableNearby": "No riders available nearby",
+      "recentlySearched": "RECENTLY SEARCHED",
+      "recommended": "RECOMMENDED",
       "allCaptainsNearbyAreOnTrips": "All riders nearby are on trips right now. It's usually a few minutes before one frees up.",
       "retrySearch": "Retry search",
       "freshMeatDaily": "Fresh Meat Daily!",
@@ -436,6 +441,8 @@
       "invalidTime": "Invalid time",
       "pleaseChooseAFutureDeliveryTime": "Please choose a future delivery time.",
       "orderFailed": "Order failed",
+      "orderScheduled": "Order scheduled. We'll confirm once the restaurant accepts.",
+      "restaurantDetailsFailed": "Couldn't load all the restaurant details. Check your connection.",
       "unableToPlaceYourOrder": "Unable to place your order.",
       "codeApplied": "{{code}} applied",
       "haveAPromoCode": "Have a promo code?",
@@ -828,6 +835,7 @@
       "invalidPhone": "Invalid phone",
       "enterAValid10digitReceiverPhone": "Enter a valid 10-digit receiver phone number.",
       "failedToSaveAddress": "Failed to save address.",
+      "addressSaved": "Address saved",
       "required": "Required",
       "pleaseProvideAnAddressForThe": "Please provide an address for the pickup.",
       "itemsNeeded": "Items needed",
@@ -1215,6 +1223,27 @@
       "yourReservedRideWithVarStarts": "Your reserved ride with {{value}} starts in 15 minutes!",
       "trackDriver": "Track Driver"
     },
+    "network": {
+      "requestTimedOut": "The request timed out. Check your connection and try again."
+    },
+    "permissions": {
+      "openSettings": "Open Settings",
+      "locationTitle": "Location permission needed",
+      "locationBody": "Allow location access in Settings to use your current location.",
+      "notificationsOffTitle": "Notifications are off",
+      "notificationsOffBody": "Turn them on in Settings to get order and chat updates."
+    },
+    "ErrorState": {
+      "title": "Couldn't load this",
+      "subtitle": "Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "SessionExpiredNotice": {
+      "message": "Your session expired. Please sign in again."
+    },
+    "SlowNetworkToast": {
+      "message": "Slow network — this is taking longer than usual"
+    },
     "OfflineBanner": {
       "youaposreOffline": "You're offline",
       "checking": "Checking…",
@@ -1232,6 +1261,7 @@
     "meat": {
       "selectLocation": "Select location",
       "meatCentersNearYou": "Meat centers near you",
+      "noCentersSubtitle": "No meat centers match your search or filters.",
       "openNowCutFreshOnOrder": "open now · cut fresh on order",
       "searchCentersOrMeatType": "Search centers or meat type"
     },

@@ -136,6 +136,11 @@ async function flush() {
   }
 }
 
+/** Uploads whatever is queued now instead of waiting for the next scheduled flush. */
+export function flushAnalytics() {
+  return flush();
+}
+
 function scheduleFlush() {
   if (queue.length >= FLUSH_AT_COUNT) {
     void flush();

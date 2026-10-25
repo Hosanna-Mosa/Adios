@@ -10,6 +10,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useIntroSplashStore } from "@/contexts/introSplashStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { showAlert } from "@/components/ui/AppAlert";
+import { isValidIdentifier, toMobileNumber } from "@/features/auth/login.validation";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -106,6 +107,10 @@ export function useAuth() {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPhoneNumberOr"));
       return;
     }
+    if (!isValidIdentifier(trimmed)) {
+      showAlert(t("actions.error"), t("app.home.enterAValidPhoneOrEmail"));
+      return;
+    }
     if (!password) {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPassword"));
       return;
@@ -126,15 +131,19 @@ export function useAuth() {
 
   const handleContinueWithOtp = async () => {
     const trimmed = identifier.trim();
-    const digitsOnly = trimmed.replace(/\D/g, "");
-    if (digitsOnly.length < 10) {
+    if (!trimmed.replace(/\D/g, "")) {
       showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterYourPhoneNumberAboveTo"));
+      return;
+    }
+    const phone = toMobileNumber(trimmed);
+    if (!phone) {
+      showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterAValid10digitNumber"));
       return;
     }
     setSendingOtp(true);
     try {
-      await requestOTP(digitsOnly);
-      router.push({ pathname: "/otp", params: { phone: digitsOnly } });
+      await requestOTP(phone);
+      router.push({ pathname: "/otp", params: { phone } });
     } catch (error: any) {
       showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
     } finally {
