@@ -10,7 +10,7 @@ import type { Order, MapMarker, TimelineStep } from "../orderDetailTypes";
 // by id and throws if a second caller asks for different ones.
 export const GOOGLE_MAPS_LOADER_OPTIONS = {
   id: "google-map-script",
-  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA",
+  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
 };
 
 // Where the map opens when no stop has coordinates. Only the initial viewport:
