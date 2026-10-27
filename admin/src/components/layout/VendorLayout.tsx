@@ -1,6 +1,6 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, Suspense, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { TopBar } from "./TopBar";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { RouteContentFallback } from "@/components/motion/RouteLoadingFallback";
+import { ShellContext, useShell } from "./ShellContext";
 import { socketService } from "@/lib/socketService";
 import { playNewOrderChime } from "@/lib/notificationSound";
 
@@ -29,7 +31,7 @@ const navItems = [
   { title: "Settings", url: "/vendor/settings", icon: Settings },
 ];
 
-export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps) {
+function VendorFrame({ children, searchPlaceholder }: VendorLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -86,6 +88,7 @@ export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps)
   return (
     <div className="flex min-h-screen w-full bg-background">
       <motion.div
+        initial={false}
         animate={{ width: isSidebarOpen ? 240 : 0 }}
         transition={{ type: "tween", duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
         className="overflow-hidden flex shrink-0 sticky top-0 h-screen"
@@ -173,10 +176,43 @@ export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps)
 
         <main className="flex-1 p-6 md:p-8">
           <div className="max-w-[1600px] mx-auto">
-            <PageTransition>{children}</PageTransition>
+            {children}
           </div>
         </main>
       </div>
     </div>
+  );
+}
+
+/** Route layout: mounted once, so the sidebar, top bar and order socket survive navigation. */
+export function VendorShell() {
+  const location = useLocation();
+  const [searchPlaceholder, setSearchPlaceholder] = useState<string>();
+  const value = useMemo(() => ({ setSearchPlaceholder }), []);
+
+  return (
+    <ShellContext.Provider value={value}>
+      <VendorFrame searchPlaceholder={searchPlaceholder}>
+        <Suspense fallback={<RouteContentFallback />}>
+          <Outlet key={location.pathname} />
+        </Suspense>
+      </VendorFrame>
+    </ShellContext.Provider>
+  );
+}
+
+export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps) {
+  const shell = useShell();
+
+  useLayoutEffect(() => {
+    shell?.setSearchPlaceholder(searchPlaceholder);
+  }, [shell, searchPlaceholder]);
+
+  if (shell) return <PageTransition>{children}</PageTransition>;
+
+  return (
+    <VendorFrame searchPlaceholder={searchPlaceholder}>
+      <PageTransition>{children}</PageTransition>
+    </VendorFrame>
   );
 }

@@ -6,13 +6,14 @@ import { getDispatchStagesForVehicle, mapServiceTypeToDriverVehicleType, driverA
 import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPayout";
 import User from "../../database/models/User";
 import Zone from "../../database/models/Zone";
-import { PaymentService } from "../payments/payment.service";
-import { RazorpayXError } from "../payments/razorpayx.client";
-import { applyRazorpayXPayout, syncOpenPayouts } from "../payments/payout.status";
+import { syncOpenPayouts } from "../payments/payout.status";
+import { notifyAdminOfPayoutRequest } from "./payoutRequestEmail";
 import { SocketManager } from "../../sockets/socket.manager";
 import { ZonesService } from "../zones/zones.service";
 import { NotificationService } from "../../services/notification.service";
-import { maskPan, renderStatementHtml, statementMonthRange, type StatementPayout, type StatementTrip } from "./earningsStatement";
+import { onlineSessionsWithin } from "../../database/models/DriverOnlineSession";
+import { onlineHoursWithin } from "./onlineTime";
+import { istYmd, maskPan, parseStatementPeriod, renderStatementHtml, statementMonthRange, summarizeStatement, type StatementPayout, type StatementTrip } from "./earningsStatement";
 
 export interface HighDemandArea {
   id: string;
@@ -45,7 +46,6 @@ function withoutExpiredLicenses(drivers: any[], source: string): any[] {
 }
 
 export class DriverService {
-  private paymentService = new PaymentService();
 
   private haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371e3; // Earth's radius in meters
@@ -692,6 +692,11 @@ export class DriverService {
       ? Math.round(((weekGross - previousWeekGross) / previousWeekGross) * 100)
       : weekGross > 0 ? 100 : 0;
 
+    // A payout the admin could not pay: the driver has to send other bank details for it to go through.
+    const bankIssuePayout: any = await DriverPayout.findOne({ driver: driver._id, status: DriverPayoutStatus.NEEDS_BANK_DETAILS })
+      .sort({ updatedAt: -1 })
+      .lean();
+
     const recentActivity = [
       ...allCompletedOrders.map((order: any) => ({
         id: order._id.toString(),
@@ -707,7 +712,7 @@ export class DriverService {
         id: payout._id.toString(),
         type: "payout",
         icon: "credit-card",
-        label: `Cash out - ${payout.status}`,
+        label: `Cash out - ${payout.status === DriverPayoutStatus.NEEDS_BANK_DETAILS ? "bank details needed" : payout.status}`,
         amount: -payout.amount,
         createdAt: payout.createdAt,
       })),
@@ -728,9 +733,14 @@ export class DriverService {
       trendPercent,
       weeklyBreakdown,
       recentActivity,
+      bankActionRequired: bankIssuePayout
+        ? { payoutId: String(bankIssuePayout._id), amount: bankIssuePayout.amount, reason: bankIssuePayout.bankIssue || "" }
+        : null,
       stats: {
-        onlineHours: this.estimateActiveHours(weekOrders),
-        totalDistance: Math.round(weekOrders.reduce((sum: number, order: any) => sum + (order.totalDistance || 0), 0)),
+        // Real time online this week, from the driver's online/offline record (see DriverOnlineSession).
+        onlineHours: onlineHoursWithin(await onlineSessionsWithin(driver._id, weekStart, now), weekStart, now, now),
+        // Distance of this week's completed trips, to one decimal.
+        totalDistance: Math.round(weekOrders.reduce((sum: number, order: any) => sum + (Number(order.totalDistance) || 0), 0) * 10) / 10,
         completedTrips: weekOrders.length,
         completedTripsToday: todayOrders.length,
       },
@@ -756,9 +766,29 @@ export class DriverService {
     ]);
     if (!driver) throw new Error("Driver profile not found");
 
+    const { trips, payouts } = await this.loadStatementRows(driver._id, range.from, range.to);
+    return renderStatementHtml({
+      driverName: (user as any)?.name || "Driver",
+      panMasked: maskPan(driver.panNumber),
+      monthLabel: range.label,
+      trips,
+      payouts,
+    });
+  }
+
+  /** Completed trips and cash-outs in [from, to), shaped for the statement. */
+  private async loadStatementRows(driverId: any, from: Date, to: Date) {
     const [orders, payouts] = await Promise.all([
-      this.getCompletedOrdersForDriver(driver._id, range.from, range.to).sort({ updatedAt: 1 }),
-      DriverPayout.find({ driver: driver._id, createdAt: { $gte: range.from, $lt: range.to } }).sort({ createdAt: 1 }).lean(),
+      this.getCompletedOrdersForDriver(driverId, from, to).sort({ updatedAt: 1 }),
+      // A paid cash-out belongs to the period it was paid in (money received); one still
+      // waiting, or rejected, to the period it was requested in.
+      DriverPayout.find({
+        driver: driverId,
+        $or: [
+          { status: DriverPayoutStatus.PROCESSED, processedAt: { $gte: from, $lt: to } },
+          { status: { $ne: DriverPayoutStatus.PROCESSED }, createdAt: { $gte: from, $lt: to } },
+        ],
+      }).lean(),
     ]);
 
     const trips: StatementTrip[] = orders.map((order: any) => ({
@@ -776,14 +806,56 @@ export class DriverService {
       status: payout.status,
       reference: payout.utr || null,
     }));
+    payoutRows.sort((x, y) => new Date(x.date).getTime() - new Date(y.date).getTime());
+    return { trips, payouts: payoutRows };
+  }
 
-    return renderStatementHtml({
-      driverName: (user as any)?.name || "Driver",
-      panMasked: maskPan(driver.panNumber),
-      monthLabel: range.label,
+  /** The day the driver started: their account, or their first order if that is earlier. */
+  private async statementWorkStart(driver: { _id: any; createdAt?: Date }): Promise<Date> {
+    const first: any = await Order.findOne({ driver: driver._id }).sort({ createdAt: 1 }).select("createdAt").lean();
+    const dates = [driver.createdAt, first?.createdAt].filter(Boolean).map((d) => new Date(d as Date));
+    return dates.length ? new Date(Math.min(...dates.map((d) => d.getTime()))) : new Date();
+  }
+
+  /** The dates a statement can cover: from the day the driver started to today (IST, YYYY-MM-DD). */
+  async getStatementBounds(userId: string) {
+    const driver = await Driver.findOne({ user: userId }).select("_id createdAt");
+    if (!driver) throw new Error("Driver profile not found");
+    return { minDate: istYmd(await this.statementWorkStart(driver)), maxDate: istYmd(new Date()) };
+  }
+
+  /**
+   * A statement for the dates the driver chose. `invalid` carries the reason when the dates fail
+   * the checks (the app checks the same ones, but the server never trusts that).
+   */
+  async getPeriodStatement(userId: string, from: unknown, to: unknown) {
+    const [driver, user] = await Promise.all([
+      Driver.findOne({ user: userId }).select("_id panNumber createdAt"),
+      User.findById(userId).select("name email").lean(),
+    ]);
+    if (!driver) throw new Error("Driver profile not found");
+
+    const period = parseStatementPeriod(from, to, { workStart: await this.statementWorkStart(driver) });
+    if (!period.ok) return { invalid: period.message } as const;
+
+    const { trips, payouts } = await this.loadStatementRows(driver._id, period.from, period.to);
+    const driverName = (user as any)?.name || "Driver";
+    return {
+      period,
+      email: ((user as any)?.email as string | undefined) || "",
+      driverName,
+      totals: summarizeStatement(trips, payouts),
       trips,
-      payouts: payoutRows,
-    });
+      payouts,
+      html: renderStatementHtml({
+        driverName,
+        panMasked: maskPan(driver.panNumber),
+        monthLabel: period.label,
+        windowWord: "in this period",
+        trips,
+        payouts,
+      }),
+    } as const;
   }
 
   async cashOut(userId: string, password: string, amount?: number) {
@@ -819,7 +891,7 @@ export class DriverService {
       }
 
       // "pending" = requested. It already counts against the balance (getPaidOutTotal), so the
-      // amount stays reserved until RazorpayX processes it or it fails.
+      // amount stays reserved until an admin pays it (processed) or rejects it (failed).
       payoutRecord = await DriverPayout.create({
         driver: driver._id,
         user: user._id,
@@ -831,45 +903,20 @@ export class DriverService {
     }
 
     const recordId = payoutRecord._id.toString();
-    let result: Awaited<ReturnType<PaymentService["createDriverPayout"]>> = null;
-    try {
-      result = await this.paymentService.createDriverPayout({
-        referenceId: recordId,
-        name: user.name,
-        phone: user.phone,
-        email: user.email,
-        accountNumber: driver.bankAccountNumber,
-        ifsc: driver.bankIfsc,
-        amount: payoutRecord.amount,
-        notes: { driverId: driver._id.toString(), payoutRecordId: recordId },
-      });
-    } catch (error: any) {
-      const outcomeUnknown = error instanceof RazorpayXError && error.stage === "payout" && !error.definitive;
-      if (outcomeUnknown) {
-        // RazorpayX may have created it. Keep the amount reserved; the webhook (matched by
-        // reference_id) settles it. Never report this as paid or as failed.
-        await DriverPayout.updateOne(
-          { _id: recordId, status: DriverPayoutStatus.PENDING },
-          { $set: { status: DriverPayoutStatus.PROCESSING, failureReason: "Awaiting confirmation from RazorpayX" } },
-        );
-        console.error(`[drivers.service] ALERT payout ${recordId} outcome unknown:`, error.message);
-      } else {
-        // No payout exists at RazorpayX: release the amount back to the balance.
-        await DriverPayout.updateOne(
-          { _id: recordId, status: DriverPayoutStatus.PENDING },
-          { $set: { status: DriverPayoutStatus.FAILED, failureReason: error.message } },
-        );
-        throw error;
-      }
-    }
 
-    if (result) {
-      await DriverPayout.updateOne(
-        { _id: recordId },
-        { $set: { razorpayContactId: result.contact.id, razorpayFundAccountId: result.fundAccount.id } },
-      );
-      await applyRazorpayXPayout("driver", recordId, result.payout);
-    }
+    // Payouts are paid by hand: the request stays "pending" until an admin transfers the money
+    // from the admin panel and marks it paid (or rejects it). The admin is emailed here.
+    await DriverPayout.updateOne({ _id: recordId }, { $set: { method: "manual" } });
+    notifyAdminOfPayoutRequest({
+      payoutId: recordId,
+      amount: payoutRecord.amount,
+      requestedAt: payoutRecord.createdAt,
+      driverName: user.name,
+      driverPhone: user.phone,
+      driverEmail: user.email,
+      bankAccountNumber: driver.bankAccountNumber,
+      bankIfsc: driver.bankIfsc,
+    }).catch((err) => console.error(`[drivers.service] Could not email admin about payout ${recordId}:`, err));
 
     const saved = await DriverPayout.findById(recordId);
     const status = saved?.status ?? DriverPayoutStatus.PENDING;
@@ -877,8 +924,7 @@ export class DriverService {
       throw new Error(saved?.failureReason || "Payout failed");
     }
 
-    // Tell the truth about where the money is. "processed" is only ever set from RazorpayX's
-    // answer, and applyRazorpayXPayout already notified the driver in that case.
+    // The request is only recorded: the money moves when an admin pays it and marks it paid.
     if (status !== DriverPayoutStatus.PROCESSED) {
       NotificationService.getInstance()
         .sendNotification({
@@ -1006,7 +1052,7 @@ export class DriverService {
       {
         $match: {
           driver: driverId,
-          status: { $in: [DriverPayoutStatus.PENDING, DriverPayoutStatus.PROCESSING, DriverPayoutStatus.PROCESSED] },
+          status: { $in: [DriverPayoutStatus.PENDING, DriverPayoutStatus.PROCESSING, DriverPayoutStatus.PROCESSED, DriverPayoutStatus.NEEDS_BANK_DETAILS] },
         },
       },
       { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -1055,15 +1101,6 @@ export class DriverService {
   private getOrderDestination(order: any) {
     const lastStop = order.stops?.[order.stops.length - 1];
     return lastStop?.address?.split(",")[0]?.trim() || "Completed Trip";
-  }
-
-  private estimateActiveHours(orders: any[]) {
-    const minutes = orders.reduce((sum, order) => {
-      if (order.duration) return sum + Number(order.duration);
-      return sum + (order.totalDistance || 0) * 4;
-    }, 0);
-
-    return Math.round((minutes / 60) * 10) / 10;
   }
 
   private maskValue(value?: string, visible: number = 4) {

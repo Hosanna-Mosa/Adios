@@ -1977,6 +1977,50 @@ export class OrdersService {
    * touched in the last 6 hours, and not a reserved ride still waiting for its time.
    * Populated like acceptOrder's answer, which is what the app maps.
    */
+  /**
+   * The orders this driver was assigned, newest first, one page at a time. `ongoing` = the job
+   * is still live; `past` = delivered / completed / cancelled. Orders nobody had assigned yet
+   * (searching, created) never belong to a driver, so they appear in neither list.
+   */
+  async getDriverOrders(driverUserId: string, scope: "ongoing" | "past", page: number, limit: number) {
+    const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
+    if (!driver) return { orders: [], page, hasMore: false };
+
+    const finished = [
+      OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
+      "completed", "cancelled",
+    ];
+    const notAssigned = [OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED];
+    const now = new Date();
+    const filter: any =
+      scope === "past"
+        ? { driver: driver._id, status: { $in: finished } }
+        : {
+            driver: driver._id,
+            status: { $nin: [...finished, ...notAssigned] },
+            // A scheduled ride the driver holds for later is not "ongoing" yet.
+            $nor: [{ isReserved: true, reservedAt: { $gt: now } }],
+          };
+
+    const rows: any[] = await Order.find(filter)
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit + 1)
+      .populate("user", "name phone")
+      .lean();
+    const hasMore = rows.length > limit;
+    const orders = rows.slice(0, limit);
+    const outlets = await this.outletSummaries(orders.map((order) => order.vendor));
+    return {
+      page,
+      hasMore,
+      orders: orders.map((order) => ({
+        ...order,
+        vendor: (order.vendor && outlets.get(String(order.vendor))) || order.vendor,
+      })),
+    };
+  }
+
   async getDriverActiveOrder(driverUserId: string) {
     const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
     if (!driver) return null;

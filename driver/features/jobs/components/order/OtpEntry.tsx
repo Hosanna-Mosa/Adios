@@ -2,6 +2,7 @@ import React from "react";
 
 import type { StyleProp, ViewStyle } from "react-native";
 import { Colors } from "@/constants/colors";
+import { SHOW_TEST_OTP } from "../../testOtp";
 import { styles } from "../../active-order.styles";
 import { AppTextInput } from "@/components/ui/AppTextInput";
 import { Box } from "@/components/ui/Box";
@@ -17,6 +18,7 @@ export function OtpEntry({
   hasError,
   errorText,
   maxLength = 8,
+  testCode,
   style,
 }: {
   label: string;
@@ -26,6 +28,8 @@ export function OtpEntry({
   hasError: boolean;
   errorText: string;
   maxLength?: number;
+  /** The code being asked for, when the app has it. Shown only in test builds. */
+  testCode?: string | null;
   style?: StyleProp<ViewStyle>;
 }) {
   return (
@@ -40,6 +44,9 @@ export function OtpEntry({
         value={value}
         onChangeText={onChangeText}
       />
+      {SHOW_TEST_OTP && testCode ? (
+        <AppText style={{ color: Colors.primaryDark, marginTop: 6 }}>Test OTP: {testCode}</AppText>
+      ) : null}
       {hasError && <AppText style={styles.errorText}>{errorText}</AppText>}
     </Box>
   );

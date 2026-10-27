@@ -75,4 +75,16 @@ router.post(
   }),
 );
 
+router.post(
+  "/payouts/driver/:id/request-bank-details",
+  ...adminOnly,
+  validateRequest(z.object({
+    params: z.object({ id: z.string().regex(/^[a-f0-9]{24}$/i) }),
+    body: z.object({ reason: z.string().trim().min(3, "Say what was wrong with the bank details").max(300) }),
+  })),
+  handle(async (req, res) => {
+    res.json(await service.requestNewBankDetails(String(req.params.id), req.user!.userId, req.body.reason));
+  }),
+);
+
 export default router;

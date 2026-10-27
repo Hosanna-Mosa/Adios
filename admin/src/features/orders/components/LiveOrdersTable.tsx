@@ -2,15 +2,24 @@ import { Link } from "react-router-dom";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { ServiceBadge } from "@/components/shared/ServiceBadge";
 import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
-import { Star, GitBranch, MapPin } from "lucide-react";
+import { Pagination } from "@/components/shared/Pagination";
+import { Input } from "@/components/ui/input";
+import { Search, Star, GitBranch, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LiveOrder } from "../liveOrdersTypes";
 import { adminOrderStatusLabel } from "@/components/shared/adminOrderStatus";
 
 interface LiveOrdersTableProps {
   isLoading: boolean;
-  filteredOrders: LiveOrder[];
+  /** The current page of orders. */
+  orders: LiveOrder[];
+  /** Matches across all pages. */
   totalCount: number;
+  search: string;
+  onSearchChange: (value: string) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string): DataTableColumn<LiveOrder>[] => [
@@ -86,7 +95,7 @@ const getColumns = (t: (key: string, opts?: Record<string, unknown>) => string):
 ];
 
 /** The "Ongoing Operations" table (rows + result count) on LiveOrders.tsx. */
-export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveOrdersTableProps) {
+export function LiveOrdersTable({ isLoading, orders, totalCount, search, onSearchChange, currentPage, totalPages, onPageChange }: LiveOrdersTableProps) {
   const { t } = useTranslation();
   const columns = getColumns(t);
   return (
@@ -96,23 +105,34 @@ export function LiveOrdersTable({ isLoading, filteredOrders, totalCount }: LiveO
           <span className="h-2.5 w-2.5 rounded-full bg-success animate-pulse-dot" />
           <h3 className="text-lg font-semibold text-foreground">{t("orders.ongoingOperations")}</h3>
         </div>
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={t("orders.searchOrdersDrivers")}
+            className="pl-9"
+          />
+        </div>
       </div>
 
       <DataTable
         columns={columns}
-        data={filteredOrders}
+        data={orders}
         rowKey={(o) => o._id}
         isLoading={isLoading}
         loadingLabel={t("orders.loadingOrders")}
         emptyLabel={t("orders.noOrdersFoundMatchingFilter")}
       />
 
-      {/* Every matching order is listed above, so there is nothing to page
-          through: the Previous/Next buttons that only toasted "No previous
-          pages" / "No next pages" were removed. */}
-      <div className="flex items-center justify-between px-6 py-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">{t("orders.showingNResults", { count: totalCount, defaultValue: "Showing {{count}} results" })}</p>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        shownCount={orders.length}
+        totalCount={totalCount}
+        itemLabel={t("orders.title", { defaultValue: "orders" }).toLowerCase()}
+      />
     </div>
   );
 }

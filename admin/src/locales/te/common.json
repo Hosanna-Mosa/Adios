@@ -256,6 +256,8 @@
     "meatPricing": "మీట్ ధరలు",
     "zones": "జోన్‌లు",
     "payments": "చెల్లింపులు",
+    "payouts": "చెల్లింపు అభ్యర్థనలు",
+    "refunds": "రీఫండ్లు",
     "analytics": "అనలిటిక్స్",
     "support": "సపోర్ట్",
     "supportCases": "సపోర్ట్ కేసులు",
@@ -1446,7 +1448,17 @@
     "statusWithRazorpayX": "RazorpayX వద్ద",
     "submitMarkPaid": "చెల్లించినట్లు గుర్తించండి",
     "submitRecordRefund": "రిఫండ్‌ను నమోదు చేయండి",
-    "submitRejectRequest": "అభ్యర్థనను తిరస్కరించండి"
+    "submitRejectRequest": "అభ్యర్థనను తిరస్కరించండి",
+    "statusNeedsBankDetails": "బ్యాంక్ వివరాల కోసం వేచి ఉంది",
+    "filterWaitingBank": "బ్యాంక్ వివరాలు",
+    "emptyPayoutsWaitingBank": "కొత్త బ్యాంక్ వివరాల కోసం ఏ చెల్లింపూ వేచి లేదు.",
+    "askBankBtn": "బ్యాంక్ వివరాలు అడగండి",
+    "bankIssueLine": "డ్రైవర్‌ను కొత్త వివరాలు అడిగారు: {{reason}}",
+    "dialogAskBankTitle": "డ్రైవర్‌ను బ్యాంక్ వివరాలు అడగండి",
+    "dialogAskBankDesc": "ఉన్న ఖాతాకు చెల్లించలేనప్పుడు దీనిని ఉపయోగించండి. డ్రైవర్‌కు తెలియజేయబడుతుంది, మొత్తం రిజర్వ్‌లోనే ఉంటుంది. వారు కొత్త వివరాలు సేవ్ చేయగానే ఈ చెల్లింపు మళ్లీ \"చెల్లించాలి\" లోకి వస్తుంది.",
+    "fieldBankProblem": "ఏమి తప్పు?",
+    "fieldBankProblemPlaceholder": "ఉదా: ఖాతా సంఖ్య చెల్లదు, లేదా చెల్లింపు తిరిగి వచ్చింది",
+    "submitAskBank": "డ్రైవర్‌ను బ్యాంక్ వివరాలు అడగండి"
   },
   "offers": {
     "restaurantOffers": "రెస్టారెంట్ ఆఫర్లు",

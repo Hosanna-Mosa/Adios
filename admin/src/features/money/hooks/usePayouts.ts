@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { adminFetch } from "@/lib/api-client";
 import type { PayoutRow, PayoutStatus } from "../moneyTypes";
 
-export type PayoutFilter = "pending" | "processed" | "failed" | "ALL";
+export type PayoutFilter = "pending" | "needs_bank_details" | "processed" | "failed" | "ALL";
 
 /** Data and actions for Payouts.tsx: driver/vendor cash-out requests paid by hand. */
 export function usePayouts() {
@@ -12,6 +12,7 @@ export function usePayouts() {
   const [filter, setFilter] = useState<PayoutFilter>("pending");
   const [paying, setPaying] = useState<PayoutRow | null>(null);
   const [rejecting, setRejecting] = useState<PayoutRow | null>(null);
+  const [askingBank, setAskingBank] = useState<PayoutRow | null>(null);
 
   const { data: payouts = [], isLoading } = useQuery({
     queryKey: ["admin", "payouts"],
@@ -49,6 +50,20 @@ export function usePayouts() {
     onError: (err: Error) => toast.error(err.message || "Couldn't reject the payout"),
   });
 
+  const askBank = useMutation({
+    mutationFn: ({ row, reason }: { row: PayoutRow; reason: string }) =>
+      adminFetch(`/admin/payouts/driver/${row.id}/request-bank-details`, {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: (_d, { row }) => {
+      toast.success(`${row.name} has been asked for new bank details. The ₹${row.amount} stays reserved.`);
+      setAskingBank(null);
+      refresh();
+    },
+    onError: (err: Error) => toast.error(err.message || "Couldn't ask for new bank details"),
+  });
+
   const count = (status: PayoutStatus) => payouts.filter((p) => p.status === status).length;
   const toPay = payouts.filter((p) => p.status === "pending");
   const toPayTotal = toPay.reduce((sum, p) => sum + (p.amount || 0), 0);
@@ -57,8 +72,9 @@ export function usePayouts() {
 
   return {
     payouts, filtered, isLoading, filter, setFilter,
-    paying, setPaying, rejecting, setRejecting,
-    markPaid, reject,
+    paying, setPaying, rejecting, setRejecting, askingBank, setAskingBank,
+    markPaid, reject, askBank,
+    waitingBankCount: count("needs_bank_details"),
     toPayCount: toPay.length, toPayTotal, paidCount: count("processed"), rejectedCount: count("failed"),
   };
 }

@@ -10,7 +10,7 @@ import { AppText } from "@/components/ui/AppText";
 export function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <Box style={{ marginBottom: 16 }}>
-      <AppText style={{ fontSize: typography.sizes.extraLarge, fontWeight: "700", color: Colors.text }}>{title}</AppText>
+      <AppText style={{ fontSize: typography.sizes.large, fontWeight: "700", color: Colors.text }}>{title}</AppText>
       {subtitle && (
         <AppText style={{ fontSize: typography.sizes.medium, color: Colors.textSecondary, marginTop: 4, lineHeight: typography.lineHeights.medium }}>
           {subtitle}

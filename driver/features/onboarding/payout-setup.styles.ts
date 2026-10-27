@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontWeight: "500",
-    fontSize: typography.sizes.large,
+    fontSize: typography.sizes.medium,
     color: Colors.text,
   },
   errorRow: {
@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
   },
   saveButtonText: {
     fontWeight: "700",
-    fontSize: typography.sizes.large,
+    fontSize: typography.sizes.medium,
     color: Colors.white,
   },
 });

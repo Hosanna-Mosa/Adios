@@ -53,6 +53,7 @@ function RootLayoutNav() {
       <Stack.Screen name="digilocker-callback" options={{ headerShown: false, animation: "none" }} />
       <Stack.Screen name="identity-verify" options={{ headerShown: false, animation: "slide_from_bottom" }} />
       <Stack.Screen name="zone-map" options={{ headerShown: false, animation: "slide_from_bottom" }} />
+      <Stack.Screen name="order-details" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: "fade" }} />
       <Stack.Screen name="+not-found" />
     </Stack>

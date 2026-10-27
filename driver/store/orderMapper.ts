@@ -71,14 +71,19 @@ export function mapApiOrder(apiOrder: any, fallback?: Partial<Order>): Order {
     foodReadyAt: apiOrder.foodReadyAt ?? fallback?.foodReadyAt ?? null,
     vendorName: vendorField(apiOrder, "name") || fallback?.vendorName,
     vendorPhone: vendorField(apiOrder, "phone") || fallback?.vendorPhone,
-    stops: apiOrder.stops.map((s: any) => ({
-      id: s._id,
-      type: s.type.toLowerCase() === "drop" ? "delivery" : s.type.toLowerCase(),
-      locationName: s.address?.split(",")[0],
-      address: s.address,
-      lat: s.location.coordinates[1],
-      lng: s.location.coordinates[0],
-      items: s.items,
-    })),
+    // A stop with no type or location must not throw: this runs right after the server
+    // has already given the driver the job, so a throw here leaves them stuck on it.
+    stops: (Array.isArray(apiOrder.stops) ? apiOrder.stops : []).map((s: any) => {
+      const type = String(s?.type || "stop").toLowerCase();
+      return {
+        id: s?._id,
+        type: type === "drop" ? "delivery" : type,
+        locationName: s?.address?.split(",")[0],
+        address: s?.address,
+        lat: s?.location?.coordinates?.[1],
+        lng: s?.location?.coordinates?.[0],
+        items: s?.items,
+      };
+    }),
   } as Order;
 }

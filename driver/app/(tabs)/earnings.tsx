@@ -8,6 +8,7 @@ import { DriverTabBar, useDriverTabBarHeight } from "@/components/shared/DriverT
 import { fadeInUp } from "@/motion/presets";
 import {
   BalanceCard,
+  BankActionBanner,
   CashOutButton,
   CashOutDialog,
   EarningsChart,
@@ -64,6 +65,14 @@ export default function EarningsScreen() {
               trendLabel={trendLabel}
               bankLast4={earnings.bank.last4}
             />
+
+            {earnings.bankActionRequired ? (
+              <BankActionBanner
+                amount={earnings.bankActionRequired.amount}
+                reason={earnings.bankActionRequired.reason}
+                onUpdate={() => router.push("/payout-setup")}
+              />
+            ) : null}
 
             <AnimatedBox entering={fadeInUp(60)}>
               <EarningsChart data={earnings.weeklyBreakdown} />

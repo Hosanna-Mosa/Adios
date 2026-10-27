@@ -11,6 +11,14 @@ interface PaginationProps {
   totalCount?: number;
 }
 
+/** Page numbers to show: all of them when few, else first/last and a window around the current page ("…" = gap). */
+function visiblePages(current: number, total: number): (number | "gap")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = new Set([1, total, current - 1, current, current + 1]);
+  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  return sorted.flatMap((p, i) => (i > 0 && p - sorted[i - 1] > 1 ? ["gap" as const, p] : [p]));
+}
+
 export function Pagination({
   currentPage,
   totalPages,
@@ -42,8 +50,10 @@ export function Pagination({
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        {Array.from({ length: totalPages }, (_, idx) => {
-          const page = idx + 1;
+        {visiblePages(currentPage, totalPages).map((page, idx) => {
+          if (page === "gap") {
+            return <span key={`gap-${idx}`} className="px-1 text-muted-foreground">…</span>;
+          }
           const isActive = currentPage === page;
           return (
             <button

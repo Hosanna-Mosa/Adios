@@ -15,6 +15,10 @@ import {
 import { ActiveOrderStage } from "@/features/jobs/components/stages";
 import { KeyboardView } from "@/components/ui/KeyboardView";
 
+// A render error on this screen now shows expo-router's error screen (with Retry) instead of
+// closing the whole app, which is what an uncaught JS error does in a release build.
+export { ErrorBoundary } from "expo-router";
+
 const { height } = Dimensions.get("window");
 
 // Stages with more to show get a taller bottom sheet.

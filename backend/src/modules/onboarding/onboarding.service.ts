@@ -4,6 +4,8 @@ import { digilockerModuleService } from "../digilocker/digilocker.service";
 import DigiLockerSession, { DigiLockerPurpose, DigiLockerSessionStatus } from "../../database/models/DigiLockerSession";
 import { AppError } from "../../utils/errors";
 import User from "../../database/models/User";
+import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPayout";
+import { notifyAdminBankDetailsUpdated } from "../drivers/payoutRequestEmail";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -121,6 +123,26 @@ export class OnboardingService {
     }
 
     await driver.save();
+
+    // New bank details answer an admin's "send other bank details" request: those payouts go
+    // back to the admin's pending list, and the admin is told.
+    if (bankChanged) {
+      const waiting = await DriverPayout.find({ driver: driver._id, status: DriverPayoutStatus.NEEDS_BANK_DETAILS }).select("_id amount").lean();
+      if (waiting.length) {
+        await DriverPayout.updateMany(
+          { _id: { $in: waiting.map((p) => p._id) }, status: DriverPayoutStatus.NEEDS_BANK_DETAILS },
+          { $set: { status: DriverPayoutStatus.PENDING }, $unset: { bankIssue: "" } },
+        );
+        const user = await User.findById(userId).select("name phone").lean();
+        notifyAdminBankDetailsUpdated({
+          driverName: user?.name,
+          driverPhone: user?.phone,
+          amount: waiting.reduce((sum, p) => sum + (p.amount || 0), 0),
+          bankAccountNumber: driver.bankAccountNumber,
+          bankIfsc: driver.bankIfsc,
+        }).catch((err) => console.error("[onboarding] Could not email admin about updated bank details:", err));
+      }
+    }
 
     return {
       onboardingStatus: driver.onboardingStatus,
