@@ -227,11 +227,33 @@ export class DispatchManagerService {
   }
 
   /**
+   * RBAC-003: read-only check, no state mutated — is this driver currently
+   * the one holding the offer for this order? Callers use this to decide
+   * whether a decline is legitimate before recording anything.
+   */
+  public isCurrentCandidate(orderId: string, driverUserId: string): boolean {
+    const session = this.activeDispatches.get(orderId);
+    if (!session) return false;
+    const currentCandidate = session.candidates[session.currentIndex];
+    return !!currentCandidate && currentCandidate.driverUserId === driverUserId;
+  }
+
+  /**
    * Handle when a driver declines the order
    */
   public async handleDriverDecline(orderId: string, driverUserId: string): Promise<boolean> {
     const session = this.activeDispatches.get(orderId);
     if (!session) return false;
+
+    // RBAC-003: only the driver currently holding the offer may decline it —
+    // otherwise an unrelated driver could force-advance the dispatch queue.
+    const currentCandidate = session.candidates[session.currentIndex];
+    if (!currentCandidate || currentCandidate.driverUserId !== driverUserId) {
+      console.warn(
+        `[DISPATCH MANAGER] Driver ${driverUserId} attempted to decline order ${orderId}, but active candidate is ${currentCandidate?.driverUserId}`
+      );
+      return false;
+    }
 
     console.log(`🛑 [DISPATCH DECLINE] Driver ${driverUserId} explicitly declined order ${orderId}`);
 

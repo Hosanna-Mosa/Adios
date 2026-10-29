@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Order, { OrderStatus, ServiceType } from "../database/models/Order";
-import type { IFoodOffer } from "../database/models/Order";
+import type { IFoodOffer, IOrder } from "../database/models/Order";
 import Driver, { DriverStatus } from "../database/models/Driver";
 import Vendor from "../database/models/Vendor";
 import User from "../database/models/User";
@@ -513,6 +513,15 @@ export async function declineOffer(orderId: string, driverUserId: string, reason
   );
   SocketManager.getInstance()?.emitToDriver(driverUserId, "order_offer_expired", { orderId, reason: "declined" }, "FoodDispatch.decline");
   console.log(`${BADGE} ${orderId} declined by driver user ${driverUserId}${reason ? ` — ${reason}` : ""}`);
+}
+
+/**
+ * RBAC-003: read-only check, no DB write — is this driver currently holding
+ * an open ("offered") broadcast offer on this order? Callers use this to
+ * decide whether a decline is for a real offer before recording anything.
+ */
+export function wasOfferedTo(order: Pick<IOrder, "dispatch">, driverUserId: string): boolean {
+  return !!order.dispatch?.offers?.some((o) => o.driverUserId === driverUserId && o.outcome === "offered");
 }
 
 /** A rider who just took a job is no longer holding any other food offer. */

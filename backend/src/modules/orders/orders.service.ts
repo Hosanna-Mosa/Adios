@@ -1918,11 +1918,24 @@ export class OrdersService {
     const driver = await Driver.findOne({ user: driverUserId });
     if (!driver) throw new Error("Driver profile not found");
 
+    // RBAC-003: each dispatch mode is the source of truth for who's actually
+    // been offered this order. These are read-only checks (nothing written
+    // yet) so a bogus decline on an order this driver was never offered is
+    // rejected before anything below records it or advances dispatch.
+    const { dispatchManager } = require("../../services/dispatch.manager");
+    const wasOffered =
+      order.dispatchMode === "broadcast"
+        ? foodDispatch.wasOfferedTo(order, driverUserId)
+        : dispatchManager.isCurrentCandidate(orderId, driverUserId);
+    if (!wasOffered) {
+      return order;
+    }
+
     // Push the reason
     if (!order.declineReasons) {
       order.declineReasons = [];
     }
-    
+
     // Prevent duplicate declining from the same driver
     const alreadyDeclined = order.declineReasons.some(r => r.driverId === driver._id.toString());
     if (!alreadyDeclined) {
@@ -1937,7 +1950,7 @@ export class OrdersService {
         acc[r.reason] = (acc[r.reason] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      
+
       let mostCommonReason = "";
       let maxCount = 0;
       for (const [r, count] of Object.entries(reasonCounts)) {
@@ -1964,7 +1977,6 @@ export class OrdersService {
       await foodDispatch.declineOffer(order._id.toString(), driverUserId, reason);
     } else {
       // Trigger dispatch manager to pass order to next nearest driver in sequence
-      const { dispatchManager } = require("../../services/dispatch.manager");
       await dispatchManager.handleDriverDecline(orderId, driverUserId);
     }
 
