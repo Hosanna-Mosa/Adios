@@ -213,9 +213,12 @@ export class DispatchManagerService {
 
     const currentCandidate = session.candidates[session.currentIndex];
 
-    // Verify driver is the active candidate
-    if (currentCandidate && currentCandidate.driverUserId !== driverUserId) {
-      console.warn(`[DISPATCH MANAGER] Driver ${driverUserId} attempted to accept order ${orderId}, but active candidate is ${currentCandidate.driverUserId}`);
+    // RBAC-003 follow-up: only the driver currently holding the offer may
+    // accept it — otherwise an unrelated driver could claim an order they
+    // were never offered. Previously this only warned; now it blocks.
+    if (!currentCandidate || currentCandidate.driverUserId !== driverUserId) {
+      console.warn(`[DISPATCH MANAGER] Driver ${driverUserId} attempted to accept order ${orderId}, but active candidate is ${currentCandidate?.driverUserId}`);
+      return false;
     }
 
     if (session.timer) {

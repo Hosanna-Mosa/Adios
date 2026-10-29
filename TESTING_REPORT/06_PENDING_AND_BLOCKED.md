@@ -10,6 +10,8 @@ Draft PR opened: **[#46 — Fix session invalidation on password/status change (
 
 **Confirmed (2026-10-29):** RBAC-003 fix implemented, per lead's explicit "Fix now" decision. 5 new dedicated regression tests (`rbac-003.decline-authorization.test.ts`) — 5/5 pass. Full IAM/RBAC suite now 217/217 pass (was 212, +5 new). Existing suite 43/43 pass. `tsc --noEmit` clean. Lint: same 22 pre-existing errors, 0 new. Full detail in `02_FINDINGS_REGISTER.md`. **Still awaiting dispatch-owner review before merge — not fully closed.**
 
+**Confirmed (2026-10-29):** RBAC-004 (the `handleDriverAccept` follow-up found during RBAC-003's investigation) fix also implemented, per explicit "fix now" decision. 3 new dedicated regression tests (`handle-driver-accept-authorization.test.ts`) — 3/3 pass. A separate one-off end-to-end verification against the throwaway replica-set MongoDB (same environment used for `IDOR-T04`) — 9/9 checks pass, confirming the full transactional `acceptOrder` flow actually rejects an unauthorized accept and that the new atomic claim prevents a double-acceptance race. Full IAM/RBAC suite now 220/220 pass (was 217, +3 new). Existing suite 43/43 pass. `tsc --noEmit` clean. Lint unchanged. Full detail in `02_FINDINGS_REGISTER.md`. **Also awaiting dispatch-owner review — not fully closed.**
+
 ## Blocked, waiting on you
 
 | Item | Why blocked | What's needed |
@@ -30,7 +32,16 @@ Lead decision received: **"Fix now — implement the proposed fix, you or someon
 
 **This is NOT fully closed.** Per the lead's own instruction, it needs sign-off from whoever owns dispatch before merge. **Dispatch-owner review has not happened yet** — nobody has reviewed this diff besides the implementation and self-testing done here. See `02_FINDINGS_REGISTER.md`'s "Review readiness" row for exactly what a reviewer needs to check.
 
-**Separately found, not fixed (new, smaller item):** `handleDriverAccept` has the same class of bug on the accept path (detects an out-of-turn accept, only logs a warning, doesn't block it) — out of scope for this fix, flagged for a follow-up decision.
+## RBAC-004 — fixed and tested, awaiting dispatch-owner review (not yet closed)
+
+The `handleDriverAccept` issue found while investigating RBAC-003 — higher severity than RBAC-003 itself (actual order-assignment bypass, not just analytics pollution, plus an independent concurrency race). Explicit "fix now" decision received; implemented (2026-10-29):
+
+- `dispatch.manager.ts`'s `handleDriverAccept` now actually returns `false` on a candidate mismatch, instead of only warning
+- `orders.service.ts`'s `acceptOrder` now checks that return value and rejects before any write, and the assignment itself is now an atomic conditional update instead of a plain save — closing both the authorization gap and a silent-overwrite race in one change
+- `orders.controller.ts` maps the new rejection to a proper `403`, not a generic 500
+- 3 new dedicated tests (`ACCEPT-T01`–`T03`) plus a separate 9-check end-to-end verification against the replica-set environment — see `02_FINDINGS_REGISTER.md` for full detail
+
+**This is NOT fully closed either.** Same gate as RBAC-003 — dispatch-owner review required before merge, not yet obtained.
 
 ## Explicitly not attempted (would need your authorization first)
 
@@ -63,6 +74,7 @@ None of the above block you from using this report today — the two highest-sev
 
 ## Housekeeping (not blocking, just outstanding)
 
+- **Orphaned port-3001 process (PID 11408 as of 2026-10-29)** — a `TaskStop` on the background task that started it reported success, but the underlying `node`/`ts-node` process survived and kept holding port 3001 (same orphaned-process pattern documented earlier in this assignment). It's currently serving the correct, up-to-date code and isn't causing any problem, but can't be killed from this session (same auto-mode restriction as before) — kill it yourself with `taskkill /F /PID 11408` (confirm the PID first, it may have changed) whenever convenient.
 - Tear down the throwaway port-3001 backend and port-27118 `mongod` once this assignment is done
 - Delete the untracked `mongo-replset-data/` directory (never commit it — binary replica-set data)
-- `TESTING_REPORT/` is currently untracked on this branch — decide whether it should be committed as part of PR #46 or kept local
+- ~~`TESTING_REPORT/` is currently untracked~~ — resolved: committed and pushed to PR #46 (commit `cfbc73a`)

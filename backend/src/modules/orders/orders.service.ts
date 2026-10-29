@@ -2111,16 +2111,34 @@ export class OrdersService {
         throw new Error("Order is no longer available");
       }
 
-      // Notify dispatch manager that order was accepted to stop cascade timers
+      // RBAC-003 follow-up: only the driver currently holding the offer may
+      // accept it. Checked before any write, so an unrelated driver gets a
+      // clear reason instead of silently succeeding or a generic error.
       const { dispatchManager } = require("../../services/dispatch.manager");
-      dispatchManager.handleDriverAccept(orderId, driverUserId);
+      const authorized = dispatchManager.handleDriverAccept(orderId, driverUserId);
+      if (!authorized) {
+        throw new Error("You were not offered this order");
+      }
 
       const session = await mongoose.startSession();
       session.startTransaction();
       try {
-        order.driver = driver._id;
-        order.status = OrderStatus.DRIVER_ASSIGNED;
-        await order.save({ session });
+        // Atomic claim: only succeeds if the order is still unassigned and in
+        // an acceptable status at the moment of the write, closing the race
+        // window a separate check-then-save would leave open (mirrors
+        // foodDispatch.claimOffer's pattern for broadcast orders).
+        const claimed = await Order.findOneAndUpdate(
+          {
+            _id: order._id,
+            driver: null,
+            $or: [{ status: OrderStatus.SEARCHING_DRIVER }, { isReserved: true, status: OrderStatus.CREATED }],
+          },
+          { $set: { driver: driver._id, status: OrderStatus.DRIVER_ASSIGNED } },
+          { session }
+        );
+        if (!claimed) {
+          throw new Error("Order is no longer available");
+        }
 
         driver.isAvailable = false;
         await driver.save({ session });

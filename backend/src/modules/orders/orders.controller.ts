@@ -609,6 +609,9 @@ export class OrdersController {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
       }
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
