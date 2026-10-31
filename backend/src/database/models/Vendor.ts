@@ -52,6 +52,11 @@ export interface IVendor extends Document {
   // Short lock so two payout requests can't both pass the balance check.
   payoutLockUntil?: Date | null;
   partnerType?: "food" | "meat";
+  // Bumped on password change or an onboardingStatus change via admin update, so
+  // already-issued tokens (which carry the version they were minted with) stop
+  // passing authenticateToken's check once the account's access situation changes
+  // — mirrors User.tokenVersion. See IAM-002 in TESTING_REPORT/02_FINDINGS_REGISTER.md.
+  tokenVersion?: number;
   owner?: {
     name?: string;
     email?: string;
@@ -223,6 +228,7 @@ const VendorSchema: Schema = new Schema(
       enum: ["food", "meat"],
       default: "food",
     },
+    tokenVersion: { type: Number, default: 0 },
     owner: {
       name: { type: String },
       email: { type: String },
