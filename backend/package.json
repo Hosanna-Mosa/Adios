@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "test": "node --require ts-node/register/transpile-only --test src/modules/pricing/helper.pricing.test.ts src/modules/orders/helper.flow.test.ts src/modules/supportBot/supportBot.test.ts src/modules/support/support.orders.test.ts src/modules/orders/invoice.link.test.ts src/modules/drivers/earningsStatement.test.ts",
     "test:digilocker": "ts-node digilocker.e2e.ts",
-    "test:iam-rbac": "node --require ts-node/register/transpile-only --test --test-concurrency=1 src/modules/auth/iam-rbac-security.test.ts src/modules/auth/iam-rbac-idor.test.ts src/modules/auth/iam-rbac-admin-sweep.test.ts src/modules/auth/iam-rbac-final-gaps.test.ts src/modules/auth/iam-rbac-pagination-bulk.test.ts src/modules/orders/rbac-003.decline-authorization.test.ts src/modules/orders/handle-driver-accept-authorization.test.ts src/modules/auth/iam-002-gaps.test.ts"
+    "test:iam-rbac": "node --require ts-node/register/transpile-only --test --test-concurrency=1 src/modules/auth/iam-rbac-security.test.ts src/modules/auth/iam-rbac-idor.test.ts src/modules/auth/iam-rbac-admin-sweep.test.ts src/modules/auth/iam-rbac-final-gaps.test.ts src/modules/auth/iam-rbac-pagination-bulk.test.ts src/modules/orders/rbac-003.decline-authorization.test.ts src/modules/orders/handle-driver-accept-authorization.test.ts src/modules/auth/iam-002-gaps.test.ts src/modules/orders/rbac-004-exhaustion.test.ts"
   },
   "keywords": [],
   "author": "",

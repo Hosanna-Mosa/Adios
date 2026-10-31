@@ -2107,7 +2107,17 @@ export class OrdersService {
         status: OrderStatus.DRIVER_ASSIGNED,
       });
     } else {
-      if (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) {
+      if (
+        (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) ||
+        order.searchExhaustedAt
+      ) {
+        // RBAC-004 follow-up: a dispatch that ran out of candidates (every
+        // candidate declined or timed out) is just as unavailable as one
+        // that's already assigned or cancelled — searchExhaustedAt is the
+        // persisted record of that, since the in-memory dispatch session is
+        // deleted the moment candidates are exhausted and can't be relied on
+        // here. See the atomic claim below for the race-safe version of this
+        // same check.
         throw new Error("Order is no longer available");
       }
 
@@ -2127,10 +2137,19 @@ export class OrdersService {
         // an acceptable status at the moment of the write, closing the race
         // window a separate check-then-save would leave open (mirrors
         // foodDispatch.claimOffer's pattern for broadcast orders).
+        //
+        // RBAC-004 follow-up: searchExhaustedAt: null is required in both
+        // branches — a dispatch that's genuinely run out of candidates must
+        // not be claimable by anyone, even though its order.driver/status
+        // alone still look identical to an order that's legitimately never
+        // been dispatched (e.g. isReserved). This is the real, race-safe
+        // enforcement; the earlier throw above is just the fast, common-case
+        // version of the same check.
         const claimed = await Order.findOneAndUpdate(
           {
             _id: order._id,
             driver: null,
+            searchExhaustedAt: null,
             $or: [{ status: OrderStatus.SEARCHING_DRIVER }, { isReserved: true, status: OrderStatus.CREATED }],
           },
           { $set: { driver: driver._id, status: OrderStatus.DRIVER_ASSIGNED } },
