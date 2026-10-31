@@ -5,6 +5,8 @@ import http from "http";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
+import Vendor from "../database/models/Vendor";
+import MeatCenter from "../database/models/MeatCenter";
 import RevokedToken from "../database/models/RevokedToken";
 import Order from "../database/models/Order";
 import Driver, { DriverStatus, OnboardingStatus } from "../database/models/Driver";
@@ -24,6 +26,9 @@ const findOrderById = (orderId: string) => {
     : { _id: orderId };
   return Order.findOne(query as any);
 };
+
+// Mirrors auth.middleware.ts's VENDOR_ROLES — see IAM-002.
+const VENDOR_ROLES = new Set(["restaurant_vendor", "meat_vendor"]);
 
 export class SocketManager {
   private static instance: SocketManager;
@@ -137,8 +142,7 @@ export class SocketManager {
       }
 
       // Same tokenVersion check authenticateToken runs, so /auth/logout-all also
-      // shuts the door on sockets. Vendor and meat-centre tokens carry a role
-      // that is not a UserRole and no User document, so they are skipped.
+      // shuts the door on sockets.
       if (Object.values(UserRole).includes(decoded?.role)) {
         try {
           const user = mongoose.Types.ObjectId.isValid(decoded.userId)
@@ -155,6 +159,28 @@ export class SocketManager {
           if (user.isBlocked) {
             console.warn(`[SOCKET SECURITY] Handshake rejected: Blocked account (Socket ID: ${socket.id})`);
             return next(new Error("Authentication error: Account blocked"));
+          }
+        } catch (err) {
+          console.error("[SOCKET SECURITY] Token version check failed:", err);
+          return next(new Error("Authentication error: Unable to verify session"));
+        }
+      } else if (VENDOR_ROLES.has(decoded?.role)) {
+        // Vendor/meat-centre tokenVersion check — see IAM-002. Same resolution
+        // order as auth.middleware.ts: try Vendor first, fall back to a legacy
+        // MeatCenter document for "meat_vendor" tokens.
+        try {
+          if (!mongoose.Types.ObjectId.isValid(decoded.userId)) {
+            console.warn(`[SOCKET SECURITY] Handshake rejected: Revoked token (Socket ID: ${socket.id})`);
+            return next(new Error("Authentication error: Session no longer valid"));
+          }
+
+          const vendor = await Vendor.findById(decoded.userId).select("tokenVersion").lean();
+          const account =
+            vendor ?? (decoded.role === "meat_vendor" ? await MeatCenter.findById(decoded.userId).select("tokenVersion").lean() : null);
+
+          if (!account || (decoded.tv ?? 0) !== (account.tokenVersion ?? 0)) {
+            console.warn(`[SOCKET SECURITY] Handshake rejected: Revoked token (Socket ID: ${socket.id})`);
+            return next(new Error("Authentication error: Session no longer valid"));
           }
         } catch (err) {
           console.error("[SOCKET SECURITY] Token version check failed:", err);

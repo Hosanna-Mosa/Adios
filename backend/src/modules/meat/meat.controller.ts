@@ -89,6 +89,8 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
@@ -379,7 +381,7 @@ export const createMeatCenter = async (req: Request, res: Response) => {
 
     // 1. Get current global prices from master list
     let masterPrices = await MeatGlobalPrice.find();
-    
+
     // 2. If master list is empty, seed it with defaults
     if (masterPrices.length === 0) {
       masterPrices = await MeatGlobalPrice.insertMany(DEFAULT_MEAT_ITEMS);
@@ -564,12 +566,12 @@ export const getMeatCenterMenu = async (req: Request, res: Response) => {
 export const getVendorMeatMenu = async (req: AuthRequest, res: Response) => {
   try {
     const { centerId } = req.params;
-    
+
     // Verify vendor owns this center
     if (req.user?.userId !== centerId) {
       return res.status(403).json({ message: "Access denied: you do not own this center" });
     }
-    
+
     const items = await MeatItem.find({ meatCenterId: centerId }).sort({ category: 1, name: 1 });
     res.json(items);
   } catch (error) {
@@ -581,17 +583,17 @@ export const updateMeatItemAvailability = async (req: AuthRequest, res: Response
   try {
     const { itemId } = req.params;
     const { isAvailable } = req.body;
-    
+
     const item = await MeatItem.findById(itemId);
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
-    
+
     // Verify vendor owns the center this item belongs to
     if (req.user?.userId !== item.meatCenterId.toString()) {
       return res.status(403).json({ message: "Access denied: you do not own this item" });
     }
-    
+
     item.isAvailable = isAvailable;
     await item.save();
     res.json(item);
@@ -687,7 +689,11 @@ export const updateMeatCenter = async (req: Request, res: Response) => {
     if (name !== undefined) center.name = name;
     if (phone !== undefined) center.phone = phone;
     if (email !== undefined) center.email = email;
-    if (password) center.password = password; // pre-save hashes it
+    if (password) {
+      center.password = password; // pre-save hashes it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      center.tokenVersion = (center.tokenVersion ?? 0) + 1;
+    }
     if (location !== undefined) center.location = location;
     if (address !== undefined) center.address = address;
     if (image !== undefined) center.image = image;

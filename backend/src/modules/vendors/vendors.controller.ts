@@ -174,6 +174,8 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
