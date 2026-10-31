@@ -1928,7 +1928,12 @@ export class OrdersService {
         ? foodDispatch.wasOfferedTo(order, driverUserId)
         : dispatchManager.isCurrentCandidate(orderId, driverUserId);
     if (!wasOffered) {
-      return order;
+      // RBAC-003 follow-up: this used to silently return the order
+      // unchanged, which left the HTTP layer with nothing to distinguish
+      // from a real success — an unauthorized decline attempt got a 200.
+      // Throwing here lets the controller map it to 403, same as acceptOrder
+      // already does for the equivalent case.
+      throw new Error("You were not offered this order");
     }
 
     // Push the reason

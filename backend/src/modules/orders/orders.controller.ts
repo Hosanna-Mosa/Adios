@@ -691,6 +691,9 @@ export class OrdersController {
       await ordersService.declineOrder(id as string, driverUserId, reason);
       return res.json({ success: true, message: "Order declined successfully" });
     } catch (error: any) {
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }

@@ -136,7 +136,12 @@ test("RBAC-003-T01: a driver who is NOT the current candidate cannot decline a s
   );
 
   // attacker was never offered this order — only candidateA is the current candidate.
-  await ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline");
+  // RBAC-003 follow-up: this must now throw (mapped to 403 at the controller),
+  // not silently succeed with a 200.
+  await assert.rejects(
+    () => ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline"),
+    { message: "You were not offered this order" }
+  );
 
   const afterAttack = await Order.findById(order._id).lean();
   assert.deepEqual(afterAttack!.declineReasons ?? [], [], "an out-of-turn decline must not be recorded in declineReasons");
@@ -183,7 +188,10 @@ test("RBAC-003-T03: a driver cannot decline an order with no active dispatch ses
   const order = await makeOrder("RBAC003-NOSESSION-01", customerUserDocId, { status: OrderStatus.DELIVERED });
   // Deliberately never call startDispatch — no active session exists for this order.
 
-  await ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline an unrelated/finished order");
+  await assert.rejects(
+    () => ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline an unrelated/finished order"),
+    { message: "You were not offered this order" }
+  );
 
   const reloaded = await Order.findById(order._id).lean();
   assert.deepEqual(reloaded!.declineReasons ?? [], [], "declining an order with no active dispatch session must not be recorded");
@@ -200,7 +208,10 @@ test("RBAC-003-T04: a driver who was never offered a broadcast (food) order cann
     },
   });
 
-  await ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline a broadcast order they were never offered");
+  await assert.rejects(
+    () => ordersService.declineOrder(order._id.toString(), attacker.userId, "attacker trying to decline a broadcast order they were never offered"),
+    { message: "You were not offered this order" }
+  );
 
   const reloaded = await Order.findById(order._id).lean();
   assert.deepEqual(reloaded!.declineReasons ?? [], [], "a non-offered driver's decline on a broadcast order must not be recorded");

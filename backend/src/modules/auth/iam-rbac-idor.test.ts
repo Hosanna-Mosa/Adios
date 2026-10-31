@@ -112,28 +112,21 @@ test("IDOR-T01: a driver cannot confirm cash-collected on an order assigned to a
   assert.equal(res.status, 404, `driver2 must not be able to act on driver1's order (IDOR) — got ${res.status}`);
 });
 
-test("IDOR-T02 [finding]: decline does not verify the caller was ever offered this order", async () => {
-  // NOTE: declineOrder (orders.service.ts:1914) is a dispatch-offer-pool action by
-  // design — it does not require order.driver to match the caller, and declining
-  // an already-assigned order doesn't reassign or disrupt it (it only appends to
-  // declineReasons, an analytics array). So this is NOT the same severity class as
-  // IAM-001/IAM-002 (no privilege escalation, no data exposure, no ability to hijack
-  // an order). What it DOES show: there's no check that the calling driver was ever
-  // actually offered this order in the first place — any authenticated driver can
-  // inject an arbitrary decline-reason into any order's history. Recorded as a
-  // lower-severity "potential issue requiring a product decision" in
-  // 02_FINDINGS_REGISTER.md (RBAC-003), not auto-fixed, since the correct scope of a
-  // fix depends on how the dispatch-offer system is meant to track "this driver was
-  // actually offered this order" — touching that is out of this assignment's safe,
-  // narrowly-scoped-fix mandate without that product clarification.
+test("IDOR-T02 [fixed]: decline is rejected (403) when the caller was never offered this order", async () => {
+  // RBAC-003 follow-up fix: declineOrder (orders.service.ts:1914) used to
+  // silently return the order unchanged when the caller wasn't the current
+  // dispatch candidate, which gave an unauthorized decline attempt an HTTP
+  // 200 — indistinguishable from success. It now throws "You were not
+  // offered this order", which orders.controller.ts's decline() maps to 403,
+  // the same pattern acceptOrder already used. See 02_FINDINGS_REGISTER.md
+  // (RBAC-003) for the original finding.
   const driver2 = await loginUser(ACCOUNTS.driver2.phone, ACCOUNTS.driver2.password, "DRIVER");
   const res = await fetch(`${API}/orders/${fixtureOrderId}/decline`, {
     method: "POST",
     headers: { ...authed(driver2.token), "Content-Type": "application/json" },
     body: JSON.stringify({ reason: "test" }),
   });
-  // Documenting actual behavior, not asserting a severity judgement here.
-  assert.equal(res.status, 200, `confirms current behavior: decline succeeds regardless of offer history (got ${res.status})`);
+  assert.equal(res.status, 403, `an unauthorized decline attempt must be rejected with 403, not succeed — got ${res.status}`);
 });
 
 test("IDOR-T03: a different customer cannot cancel another customer's order", async () => {
