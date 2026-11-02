@@ -6,7 +6,7 @@ import { verifyPayment } from "@/services/payments.service";
 import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
 import { isDefinitePaymentFailure } from "@/utils/razorpay";
 
-// Target of flavour://payment-result, where the browser checkout sends the customer back.
+// Target of adios://payment-result, where the browser checkout sends the customer back.
 // Normally RazorpayIntegration.open (utils/razorpay.ts) is already waiting for this link and
 // finishes the payment, so this screen only steps out of the way. If Android closed the app
 // while the customer was paying, the link starts the app here instead: confirm the payment

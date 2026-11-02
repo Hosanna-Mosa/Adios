@@ -74,7 +74,7 @@ export interface IDigiLockerSession extends Document {
   /**
    * Where the callback page bounces the client back to after consent.
    * Per-session because a dev build's deep link (exp://…) differs from a
-   * release build's (flavour-driver://). Falls back to the configured default.
+   * release build's (adios-driver://). Falls back to the configured default.
    */
   clientRedirectUrl?: string;
 

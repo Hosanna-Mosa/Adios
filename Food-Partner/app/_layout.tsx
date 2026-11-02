@@ -30,11 +30,22 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
+import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
 import { env } from "@/utils/env";
 
 if (env.apiUrl) setBaseUrl(env.apiUrl);
 
 setAuthTokenGetter(() => useAuthStore.getState().token);
+
+// Renews the short access token silently; only a refresh the server rejects reaches the handler below.
+if (env.apiUrl) {
+  configureSessionRefresh({
+    apiUrl: env.apiUrl,
+    getToken: () => useAuthStore.getState().token,
+    getRefreshToken: () => useAuthStore.getState().refreshToken,
+    onTokens: (tokens) => useAuthStore.getState().setTokens(tokens),
+  });
+}
 
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized returns true only for the first of a burst of parallel 401s,

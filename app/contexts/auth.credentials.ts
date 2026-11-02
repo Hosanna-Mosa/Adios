@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
 import { trackEvent } from "@/utils/analytics";
+import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 
 // The three credential exchanges: request an OTP, verify one, and sign in with
 // a password. Split out of contexts/authStore.ts unchanged — same endpoints,
@@ -36,7 +37,7 @@ export const createCredentialActions = (set: Set) => ({
     try {
       const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
         body: JSON.stringify({ phone, code, role, name, email, password }),
       });
       const data = await response.json();
@@ -49,10 +50,11 @@ export const createCredentialActions = (set: Set) => ({
       }
 
       resetSessionExpiry();
-      set({ user: data.user, token: data.token });
+      set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
+        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
       ]);
       // The signup screen hands its name through to this same call, so a name
       // here means the account was just created rather than signed back into.
@@ -69,7 +71,7 @@ export const createCredentialActions = (set: Set) => ({
     try {
       const response = await fetch(`${apiUrl}/auth/login-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
         body: JSON.stringify({ phone: phoneOrEmail, password, role }),
       });
       const data = await response.json();
@@ -78,10 +80,11 @@ export const createCredentialActions = (set: Set) => ({
       if (!response.ok) throw new Error(data.message || "Login failed");
 
       resetSessionExpiry();
-      set({ user: data.user, token: data.token });
+      set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
+        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
       ]);
       trackEvent("login", { method: "password" });
       return { success: true };
