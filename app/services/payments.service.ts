@@ -25,7 +25,7 @@ export const createPaymentOrder = <T = CreatePaymentOrderResponse>(amount: numbe
     body: JSON.stringify({
       amount,
       orderData,
-      // Where the browser checkout sends the customer back (flavour://payment-result in builds).
+      // Where the browser checkout sends the customer back (adios://payment-result in builds).
       returnUrl: Linking.createURL("payment-result"),
       language: i18n.language,
     }),

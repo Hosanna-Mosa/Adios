@@ -57,6 +57,9 @@ const PORT = process.env.PORT || 5000;
 // site). Mobile apps (app/driver) call the API directly and aren't affected by CORS. Left
 // unset, CORS stays fully open (current behavior) — set it in production to lock this down.
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean);
+if (!allowedOrigins?.length && process.env.NODE_ENV === "production") {
+  console.warn("[SECURITY] ALLOWED_ORIGINS is not set, so any website can call this API from a browser. Set it to the admin and partner site origins.");
+}
 app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
 app.use(helmet());
 app.use(morgan("dev"));
@@ -98,7 +101,7 @@ connectDB().then(async () => {
         apps: [],
         details: [
           {
-            appID: `${teamId}.com.flavour.customer`,
+            appID: `${teamId}.com.adios.customer`,
             paths: ["/restaurant-menu/*", "/restaurant-menu"],
           },
         ],
@@ -115,7 +118,7 @@ connectDB().then(async () => {
         relation: ["delegate_permission/common.handle_all_urls"],
         target: {
           namespace: "android_app",
-          package_name: "com.flavour.customer",
+          package_name: "com.adios.customer",
           sha256_cert_fingerprints: [fingerprint],
         },
       },

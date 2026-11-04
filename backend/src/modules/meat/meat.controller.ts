@@ -6,10 +6,12 @@ import OTP from "../../database/models/OTP";
 import Vendor from "../../database/models/Vendor";
 import FoodItem from "../../database/models/FoodItem";
 import generateToken from "../../utils/generateToken";
+import { clientSupportsRefresh, revokeAllRefreshSessions, startSession } from "../auth/session.service";
 import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.service";
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { isVerifiedAdmin, toAdminVendor, toPublicVendor } from "../../utils/publicProfile";
 
 // Upper bound on documents scanned when open-now has to be filtered in memory
 // (the state is derived server-side, so Mongo cannot page it).
@@ -90,6 +92,7 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
 
     center.password = newPassword;
     await center.save();
+    await revokeAllRefreshSessions(center._id.toString());
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
   } catch (error) {
@@ -142,7 +145,9 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       email: center.email,
       phone: center.phone,
       role: "meat_vendor",
-      token: generateToken(center._id.toString(), "meat_vendor"),
+      ...(clientSupportsRefresh(req)
+        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor" })
+        : { token: generateToken(center._id.toString(), "meat_vendor") }),
     });
   } catch (error) {
     console.error("Error logging in meat center:", error);
@@ -165,6 +170,9 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     if (!Number.isFinite(userLat) || !Number.isFinite(userLng)) {
       return res.status(400).json({ message: "Latitude and Longitude must be valid numbers" });
     }
+
+    // Admins see the full record; everyone else a public view (no credentials, KYC or bank details).
+    const present = (await isVerifiedAdmin(req)) ? toAdminVendor : toPublicVendor;
 
     // Zone Serviceability Check
     const zonesService = new ZonesService();
@@ -229,7 +237,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         const openState = evaluateOutletOpenState(center);
 
         return {
-          ...center,
+          ...present(center),
           role: "meat_vendor",
           partnerType: "meat",
           image: center.image || DEFAULT_MEAT_IMAGE,
@@ -330,7 +338,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       const openState = evaluateOutletOpenState(center);
 
       return {
-        ...center,
+        ...present(center),
         role: "meat_vendor",
         partnerType: "meat",
         image: center.image || DEFAULT_MEAT_IMAGE,
@@ -624,6 +632,7 @@ export const changeMeatVendorPassword = async (req: AuthRequest, res: Response) 
 
     center.password = newPassword;
     await center.save();
+    await revokeAllRefreshSessions(center._id.toString());
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {

@@ -30,6 +30,7 @@ export const initialState: DriverData = {
   driverEmail: "",
   driverUserId: null,
   token: null,
+  refreshToken: null,
   isAuthenticated: false,
   hasCompletedOnboarding: false,
   onboardingStatus: null,

@@ -43,7 +43,7 @@ export const getRestaurantShareLanding = async (req: Request, res: Response) => 
 
     // flavour:// is the app's own scheme (app.config.js `scheme`), so this opens
     // the right screen even where App Links verification isn't set up yet.
-    const appLink = `flavour://restaurant-menu?id=${encodeURIComponent(id)}${
+    const appLink = `adios://restaurant-menu?id=${encodeURIComponent(id)}${
       itemId ? `&highlightDishId=${encodeURIComponent(itemId)}` : ""
     }`;
     return res.type("html").send(page(heading, sub, appLink));
@@ -71,5 +71,5 @@ const page = (heading: string, sub: string, appLink?: string) => `<!doctype html
   <h1>${escapeHtml(heading)}</h1>
   <p>${escapeHtml(sub)}</p>
   ${appLink ? `<a class="cta" href="${escapeHtml(appLink)}">Open in the Flavour app</a>` : ""}
-  <a class="alt" href="https://play.google.com/store/apps/details?id=com.flavour.customer">Get the app</a>
+  <a class="alt" href="https://play.google.com/store/apps/details?id=com.adios.customer">Get the app</a>
 </div></body></html>`;
