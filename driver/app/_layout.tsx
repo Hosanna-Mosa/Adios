@@ -23,6 +23,7 @@ import { useVersionCheck } from "@/hooks/useVersionCheck";
 import { useAuthGate } from "@/hooks/useAuthGate";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { configureAnalytics } from "@/utils/analytics";
+import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
 import { API_URL } from "@/utils/apiUrl";
 import { useDriverStore } from "@/store/driverStore";
 
@@ -31,6 +32,14 @@ SplashScreen.preventAutoHideAsync();
 // Live copy of analytics events for the admin Live Activity page (Firebase
 // keeps getting them too). Signed-out events are sent without a token.
 configureAnalytics({ apiUrl: API_URL, app: "driver", getToken: () => useDriverStore.getState().token });
+
+// Renews the short access token silently; only a refresh the server rejects ends the session.
+configureSessionRefresh({
+  apiUrl: API_URL,
+  getToken: () => useDriverStore.getState().token,
+  getRefreshToken: () => useDriverStore.getState().refreshToken,
+  onTokens: (tokens) => useDriverStore.getState().setTokens(tokens),
+});
 
 function RootLayoutNav() {
   const { hydrated, token } = useAuthGate();

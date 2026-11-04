@@ -17,6 +17,8 @@ import { PageTransition } from "@/components/motion/PageTransition";
 import { RouteContentFallback } from "@/components/motion/RouteLoadingFallback";
 import { ShellContext, useShell } from "./ShellContext";
 import { socketService } from "@/lib/socketService";
+import { logoutOnServer } from "@/lib/api-client";
+import { clearSession } from "@/lib/session";
 import { playNewOrderChime } from "@/lib/notificationSound";
 
 interface VendorLayoutProps {
@@ -80,8 +82,8 @@ function VendorFrame({ children, searchPlaceholder }: VendorLayoutProps) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("vendor_token");
-    localStorage.removeItem("vendor_data");
+    logoutOnServer();
+    clearSession();
     navigate("/vendor-login");
   };
 

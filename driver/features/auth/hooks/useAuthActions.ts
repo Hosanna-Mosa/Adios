@@ -122,7 +122,7 @@ export function useAuthActions({
     try {
       const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
         body: JSON.stringify({
           phone: `+91${phone}`,
           code: fullOtp,
@@ -137,7 +137,7 @@ export function useAuthActions({
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const { setAuthenticated } = useDriverStore.getState();
-      setAuthenticated(data.user.name, data.user.phone, data.token, data.user.id || data.user._id);
+      setAuthenticated(data.user.name, data.user.phone, data.token, data.user.id || data.user._id, data.refreshToken ?? null);
       await routeAfterAuth();
     } catch (err: any) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);

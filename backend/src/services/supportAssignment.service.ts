@@ -95,6 +95,21 @@ export async function assignUnownedTickets() {
  * other members' cases.
  */
 export function emitTicketUpdate(ticket: ISupportTicket) {
+  emitToTicketRooms(ticket, "ticket_updated");
+}
+
+/**
+ * Same audience as emitTicketUpdate, but its own event name — so a client
+ * can tell "a brand-new ticket just came in" apart from "a ticket I already
+ * know about changed" without guessing from the payload shape. Admin uses
+ * this one specifically to surface a real notification, not just a silent
+ * list refresh.
+ */
+export function emitTicketCreated(ticket: ISupportTicket) {
+  emitToTicketRooms(ticket, "ticket_created");
+}
+
+function emitToTicketRooms(ticket: ISupportTicket, event: "ticket_updated" | "ticket_created") {
   try {
     // No instance outside the HTTP server (e.g. the backfill script) — nothing to push to.
     const io = SocketManager.getInstance()?.getIo();
@@ -102,7 +117,7 @@ export function emitTicketUpdate(ticket: ISupportTicket) {
     let target = io.to("support_tickets");
     if (ticket.assignedTo) target = target.to(ticket.assignedTo.toString());
     if (ticket.userId) target = target.to(ticket.userId.toString());
-    target.emit("ticket_updated", ticket);
+    target.emit(event, ticket);
   } catch (err) {
     console.error("Socket emit support update error:", err);
   }

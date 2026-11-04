@@ -117,7 +117,22 @@ export class DriversController {
         vehicleType ? String(vehicleType) : undefined,
         isOnlineOnly
       );
-      return res.json(drivers);
+      // Any signed-in customer can call this, so each captain is reduced to what the map draws:
+      // position, vehicle and first name. Identity documents, bank details and the captain's
+      // contact details never leave the server.
+      return res.json(
+        (drivers as any[]).map((driver) => {
+          const json = typeof driver.toJSON === "function" ? driver.toJSON() : driver;
+          const firstName = String(json.user?.name ?? "").trim().split(/\s+/)[0];
+          return {
+            _id: json._id,
+            vehicleType: json.vehicleType,
+            currentLocation: json.currentLocation,
+            heading: json.heading,
+            user: firstName ? { name: firstName } : undefined,
+          };
+        })
+      );
     } catch (error) {
        return res.status(500).json({ message: "Internal server error" });
     }

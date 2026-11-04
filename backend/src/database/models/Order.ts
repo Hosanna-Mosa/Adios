@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { scrubDriverSecrets, scrubVendorSecrets } from "../../utils/scrubSecrets";
 
 export enum ServiceType {
   BIKE = "bike",
@@ -385,6 +386,10 @@ const OrderSchema: Schema = new Schema(
           ret.dispatch = { ...ret.dispatch, offerCount: ret.dispatch.offers.length };
           delete ret.dispatch.offers;
         }
+        // A populated driver / vendor is a whole document (Aadhaar, PAN, bank account, password
+        // hash). Orders go to the customer, the driver and the restaurant, so none of that is sent.
+        scrubDriverSecrets(ret.driver);
+        scrubVendorSecrets(ret.vendor);
         return ret;
       },
     },
