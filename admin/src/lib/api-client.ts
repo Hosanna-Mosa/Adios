@@ -1,7 +1,29 @@
 import i18n from "@/i18n";
-import { clearSession } from "@/lib/session";
+import { clearSession, getAccessToken, getRefreshToken, storeRenewedTokens } from "@/lib/session";
+import { configureSessionRefresh } from "@/lib/sessionRefresh";
 
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+
+// Renews the short access token silently; only a refresh the server rejects reaches the
+// 401 handling in adminFetch below. Every role keeps its token in localStorage, so a
+// renewed token is picked up by the next read anywhere in the panel.
+configureSessionRefresh({
+  apiUrl: BASE_URL,
+  getToken: () => getAccessToken()?.token ?? null,
+  getRefreshToken,
+  onTokens: storeRenewedTokens,
+});
+
+/** Best-effort sign-out on the server (revokes the token and its refresh session). Call before clearSession(). */
+export function logoutOnServer() {
+  const token = getAccessToken()?.token;
+  if (!token) return;
+  fetch(`${BASE_URL}/auth/logout`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ refreshToken: getRefreshToken() }),
+  }).catch(() => {});
+}
 
 /** A non-2xx response. Still an Error, so existing `.message` handling is unchanged. */
 export class ApiError extends Error {

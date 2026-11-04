@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import FoodItem from "../../database/models/FoodItem";
 import Vendor from "../../database/models/Vendor";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { toPublicVendor } from "../../utils/publicProfile";
 import { CloudinaryService } from "../../services/cloudinary.service";
 import { ZonesService } from "../zones/zones.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
@@ -455,7 +456,7 @@ export const searchFoodItems = async (req: Request, res: Response) => {
       // The app greys out ADD for an outlet that isn't taking orders right now.
       vendor.openState ??= evaluateOutletOpenState(vendor);
       scored.push({
-        item: { ...item, vendorId: vendor },
+        item: { ...item, vendorId: toPublicVendor(vendor) },
         score: scoreItem(item, term, tokens),
         distance: typeof vendor.distance === "number" ? vendor.distance : Number.POSITIVE_INFINITY,
         rating: vendor.rating || 0,

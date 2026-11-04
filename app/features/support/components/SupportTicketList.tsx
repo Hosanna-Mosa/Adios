@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type RefObject } from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
@@ -29,6 +29,9 @@ interface Props {
   setNewTitle: React.Dispatch<React.SetStateAction<any>>;
   setTicket: React.Dispatch<React.SetStateAction<any>>;
   setViewMode: React.Dispatch<React.SetStateAction<any>>;
+  /** So the header's "+" button can jump straight to the new-ticket form below
+   * the case list, instead of requiring a manual scroll past every case. */
+  scrollRef?: RefObject<ScrollView | null>;
   styles: SupportChatStyles;
   ticket: any;
   tokens: ThemeTokens;
@@ -37,10 +40,10 @@ interface Props {
 }
 
 export function SupportTicketList(props: Props) {
-  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens, unreadCount } = props;
+  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, scrollRef, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens, unreadCount } = props;
   const { t } = useTranslation();
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
+    <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
       {allTickets.length > 0 && (
         <View style={{ paddingHorizontal: 16, paddingTop: 16, gap: 12 }}>
           {allTickets.map((item, idx) => {
