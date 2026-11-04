@@ -6,6 +6,7 @@ import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { foodStageOf } from "@/contexts/foodStage";
 import { showAlert } from "@/components/ui/AppAlert";
+import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/orderGate";
 
 // Split out of usePayment so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -13,10 +14,7 @@ import { showAlert } from "@/components/ui/AppAlert";
 export function usePaymentHandlePayment(params: any, theme: any, items: any, vendorId: any, clearCart: any, setOrderId: any, setStatus: any, setServiceType: any, user: any, token: any, selectedAddress: any, setProcessing: any, vendor: any, subtotal: any, deliveryFee: any, tip: any, discount: any, couponCode: any, total: any, vendorName: any) {
   const { t } = useTranslation();
   const handlePayment = async () => {
-    if (!user || !token) {
-      showAlert(t("app.food.loginRequired"), t("app.food.pleaseLogInBeforePlacingYour"));
-      return;
-    }
+    if (!requireLogin()) return;
     if (!vendorId || items.length === 0) {
       showAlert(t("app.food.cartIsEmpty"), t("app.food.pleaseAddItemsBeforePaying"));
       return;
@@ -43,6 +41,9 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
       const vendorCoords = vendor?.location?.coordinates;
       const pickupLat = Number(vendorCoords?.[1] ?? dropLat);
       const pickupLng = Number(vendorCoords?.[0] ?? dropLng);
+      // Before any payment: nothing to charge for if we don't deliver there or no driver can take it.
+      if (!(await ensureServiceable({ lat: dropLat, lng: dropLng }))) return;
+      if (!(await ensureDriversOnline({ lat: pickupLat, lng: pickupLng }))) return;
       const orderItems = items.map((item: any) => ({ id: item._id, name: item.name, quantity: item.quantity, price: item.price, total: item.price * item.quantity }));
 
       // Online: this goes with the payment and the server places the order once Razorpay

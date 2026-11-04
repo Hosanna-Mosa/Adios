@@ -3,6 +3,7 @@ import { showAlert } from "@/components/ui/AppAlert";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
+import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/orderGate";
 import { apiErrorMessage, orderPrice } from "./useHelperTask.shared";
 
 // Split out of useHelperTask so each file stays small. Kept in the original call
@@ -14,8 +15,22 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setService
     // 400 with the allowed bound when it is outside it.
     const finalOffer = offer ?? calculatedFare;
     if (!finalOffer) return;
-    const isOnline = getPaymentMethod("helper") === "online";
+    // Before the search screen or any payment: nothing to charge for if no helper can take it.
+    if (!requireLogin()) return;
     setIsCreating(true);
+    const pickupPoint = pickupCoords?.lat != null && pickupCoords?.lng != null ? { lat: pickupCoords.lat, lng: pickupCoords.lng } : null;
+    if (!(await ensureServiceable(pickupPoint))) {
+      setIsCreating(false);
+      return;
+    }
+    const driversOnline = await ensureDriversOnline(
+      pickupCoords?.lat != null && pickupCoords?.lng != null ? { lat: pickupCoords.lat, lng: pickupCoords.lng } : null,
+    );
+    if (!driversOnline) {
+      setIsCreating(false);
+      return;
+    }
+    const isOnline = getPaymentMethod("helper") === "online";
     setSearchExhausted(false);
     // Online: Razorpay opens first, so the search screen only appears once the task is paid.
     if (!isOnline) {
