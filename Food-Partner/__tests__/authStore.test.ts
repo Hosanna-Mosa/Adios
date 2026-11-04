@@ -45,7 +45,7 @@ describe("signOut", () => {
 
     const auth = { authorization: "Bearer jwt-abc" };
     expect(removePushMock).toHaveBeenCalledWith("ExponentPushToken[device-1]", auth);
-    expect(logoutMock).toHaveBeenCalledWith(auth);
+    expect(logoutMock).toHaveBeenCalledWith(auth, null);
     expect(removePushMock.mock.invocationCallOrder[0]).toBeLessThan(logoutMock.mock.invocationCallOrder[0]);
     expect(useAuthStore.getState()).toMatchObject({ token: null, partner: null });
     expect(usePushStore.getState().registeredToken).toBeNull();

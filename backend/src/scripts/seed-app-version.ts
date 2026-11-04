@@ -20,7 +20,7 @@ const initialVersions = [
     platform: "android",
     latest: "1.2.0",
     minRequired: "1.1.0",
-    storeUrl: "https://play.google.com/store/apps/details?id=com.flavour"
+    storeUrl: "https://play.google.com/store/apps/details?id=com.adios.customer"
   }
 ];
 

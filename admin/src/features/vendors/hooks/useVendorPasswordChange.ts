@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
+import { clearSession } from "@/lib/session";
 
 /** All state/submit logic for VendorSettings.tsx (work queue item #18). */
 export function useVendorPasswordChange() {
@@ -49,8 +50,7 @@ export function useVendorPasswordChange() {
       toast.success(t("vendorSettings.passwordChangedSuccessfully"));
 
       // Sign out after password change — force re-login with new password
-      localStorage.removeItem("vendor_token");
-      localStorage.removeItem("vendor_data");
+      clearSession();
       navigate("/vendor-login");
     } catch (error) {
       toast.error((error as Error).message || t("vendorSettings.failedToChangePassword"));

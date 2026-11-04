@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
 const isFiniteCoordinate = (value: unknown) => {
   const numberValue = Number(value);

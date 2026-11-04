@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { router } from "expo-router";
 import { SupportTicketList } from "@/features/support/components/SupportTicketList";
-import { FlatList } from "react-native";
+import { FlatList, type ScrollView as ScrollViewType } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SupportMessageBubble } from "@/features/support/components/SupportMessageBubble";
 import { SupportChatHeader } from "@/features/support/components/SupportChatHeader";
@@ -22,6 +22,9 @@ export default function SupportChatScreen() {
   } = useSupportChat();
   const { t } = useTranslation();
   const { unreadCount } = useSupportUnreadReplies(allTickets, ticket, viewMode === "chat");
+  // Lets the header's "+" jump straight to "Raise a new ticket" instead of
+  // requiring a manual scroll past every existing case.
+  const ticketListRef = useRef<ScrollViewType>(null);
 
   const STATUS_LABEL: Record<string, string> = useMemo(() => ({
     OPEN: t("app.supportChat.statusLabel.open"),
@@ -106,6 +109,8 @@ export default function SupportChatScreen() {
         title={t("app.support.yourCases")}
         onBack={() => router.back()}
         insets={insets}
+        onAddPress={() => ticketListRef.current?.scrollToEnd({ animated: true })}
+        tokens={tokens}
       />
 
       <SupportTicketList
@@ -121,6 +126,7 @@ export default function SupportChatScreen() {
         newCategory={newCategory}
         newMessage={newMessage}
         newTitle={newTitle}
+        scrollRef={ticketListRef}
         setNewCategory={setNewCategory}
         setNewMessage={setNewMessage}
         setNewTitle={setNewTitle}

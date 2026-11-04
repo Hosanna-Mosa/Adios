@@ -1314,6 +1314,7 @@
     "supportCategory": "సపోర్ట్ వర్గం",
     "supportResolution": "సపోర్ట్ పరిష్కారం",
     "ticketCreatedSuccessfully": "టికెట్ {{ticketId}} విజయవంతంగా సృష్టించబడింది!",
+    "newTicketReceived": "కొత్త టికెట్ {{ticketId}}: {{title}}",
     "ticketMarkedAsResolved": "టికెట్ {{ticketId}} పరిష్కరించబడినట్లు గుర్తించబడింది!",
     "ticketUpdatedSuccessfully": "టికెట్ విజయవంతంగా నవీకరించబడింది!",
     "totalActiveTickets": "మొత్తం క్రియాశీల టికెట్లు",

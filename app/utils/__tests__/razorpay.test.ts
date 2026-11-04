@@ -10,7 +10,7 @@ jest.mock("@/services/payments.service", () => ({
 }));
 jest.mock("expo-web-browser", () => ({ openAuthSessionAsync: (...a: any[]) => mockOpenAuthSession(...a) }));
 jest.mock("expo-linking", () => ({
-  parse: (url: string) => ({ queryParams: Object.fromEntries(new URL(url.replace("flavour://", "http://x/")).searchParams) }),
+  parse: (url: string) => ({ queryParams: Object.fromEntries(new URL(url.replace("adios://", "http://x/")).searchParams) }),
 }));
 jest.mock("@/i18n", () => ({ __esModule: true, default: { t: (k: string) => k } }));
 
@@ -23,10 +23,10 @@ const confirming = () =>
 beforeEach(() => {
   jest.useFakeTimers();
   [mockCreatePaymentOrder, mockVerifyPayment, mockGetCheckoutStatus, mockOpenAuthSession].forEach((m) => m.mockReset());
-  mockCreatePaymentOrder.mockResolvedValue({ id: "order_1", checkoutUrl: "https://x/checkout", returnUrl: "flavour://payment-result" });
+  mockCreatePaymentOrder.mockResolvedValue({ id: "order_1", checkoutUrl: "https://x/checkout", returnUrl: "adios://payment-result" });
   mockOpenAuthSession.mockResolvedValue({
     type: "success",
-    url: "flavour://payment-result?status=success&razorpay_order_id=order_1&razorpay_payment_id=pay_1&razorpay_signature=sig",
+    url: "adios://payment-result?status=success&razorpay_order_id=order_1&razorpay_payment_id=pay_1&razorpay_signature=sig",
   });
 });
 afterEach(() => jest.useRealTimers());

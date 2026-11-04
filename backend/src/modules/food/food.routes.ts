@@ -37,7 +37,12 @@ import {
 } from "./food.validation";
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+// Images only, 10 MB each, at most 5 per request: the buffers are held in memory and pushed to Cloudinary.
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 5 },
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith("image/")),
+});
 
 router.get("/search", validateRequest(searchFoodItemsSchema), searchFoodItems);
 router.get("/store-149", validateRequest(store149ItemsSchema), getStore149Items);

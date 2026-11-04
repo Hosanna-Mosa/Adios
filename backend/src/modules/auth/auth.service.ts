@@ -82,7 +82,7 @@ export class AuthService {
     return { success: true, message: "OTP sent successfully" };
   }
 
-  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string) {
+  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string, accessTtl = "30d") {
     // Dummy mode — ANY code is accepted. No DB lookup needed.
     console.log(`[DUMMY AUTH] Verifying OTP for ${phone}. Code: ${_code} — accepted.`);
 
@@ -134,11 +134,11 @@ export class AuthService {
     }
 
     await startDriverSessionOffline(user);
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token, isNewUser: false };
   }
 
-  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole) {
+  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole, accessTtl = "30d") {
     const query = {
       ...buildLoginIdentifierQuery(phoneOrEmail),
       role,
@@ -170,7 +170,7 @@ export class AuthService {
     }
 
     await startDriverSessionOffline(user);
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token };
   }
 
@@ -188,7 +188,7 @@ export class AuthService {
     return { success: true, message: "Signed out of all devices" };
   }
 
-  generateToken(userId: string, role: UserRole, tokenVersion = 0) {
+  generateToken(userId: string, role: UserRole, tokenVersion = 0, expiresIn = "30d") {
     return jwt.sign(
       // jti gives this specific token an identity distinct from every other
       // token this account holds, so POST /auth/logout can revoke just this
@@ -196,7 +196,7 @@ export class AuthService {
       // logoutAll's tokenVersion bump does.
       { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
-      { expiresIn: "30d" } // 30 days
+      { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] } // 30 days unless the client signs in with a refresh token
     );
   }
 
