@@ -30,6 +30,7 @@ export interface Props {
   rating: any;
   reviews: any;
   scrollViewRef: any;
+  searchInputRef: any;
   scrolledPast: any;
   searchQuery: any;
   setSearchQuery: React.Dispatch<React.SetStateAction<any>>;

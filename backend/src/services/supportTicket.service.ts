@@ -2,7 +2,7 @@ import SupportTicket from "../database/models/SupportTicket";
 import User from "../database/models/User";
 import Vendor from "../database/models/Vendor";
 import MeatCenter from "../database/models/MeatCenter";
-import { assignAndSaveTicket, emitTicketUpdate } from "./supportAssignment.service";
+import { assignAndSaveTicket, emitTicketCreated } from "./supportAssignment.service";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -59,7 +59,7 @@ export async function createSupportTicket(input: CreateSupportTicketInput) {
       if (err?.code === 11000 && attempt < 5) continue;
       throw err;
     }
-    emitTicketUpdate(ticket);
+    emitTicketCreated(ticket);
     return ticket;
   }
 }

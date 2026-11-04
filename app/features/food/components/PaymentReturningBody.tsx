@@ -5,7 +5,7 @@ import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 
-/** Shown for the moment the app spends on flavour://payment-result. */
+/** Shown for the moment the app spends on adios://payment-result. */
 export function PaymentReturningBody() {
   const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);

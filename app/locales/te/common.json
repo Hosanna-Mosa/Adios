@@ -100,8 +100,10 @@
         "bookedByMistake": "పొరపాటున బుక్ చేశారు",
         "fareTooHigh": "ఛార్జీ ఎక్కువగా ఉంది",
         "foundAnotherRide": "వేరే రైడ్ దొరికింది",
-        "other": "ఇతరం",
-        "sendingAnotherWay": "వేరే విధంగా పంపుతున్నాను"
+        "sendingAnotherWay": "వేరే విధంగా పంపుతున్నాను",
+        "priceTooHigh": "ధర ఎక్కువగా ఉంది",
+        "changedMind": "నా మనసు మార్చుకున్నాను",
+        "other": "ఇతరం"
       }
     },
     "supportChat": {

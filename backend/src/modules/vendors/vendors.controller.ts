@@ -12,6 +12,7 @@ import { RazorpayXError } from "../payments/razorpayx.client";
 import { applyRazorpayXPayout } from "../payments/payout.status";
 import FoodItem from "../../database/models/FoodItem";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { isVerifiedAdmin, toAdminVendor, toPublicVendor } from "../../utils/publicProfile";
 import { getOutletOrderingState } from "../../utils/outletOrderingState";
 import { AppError } from "../../utils/errors";
 import { sendVendorDecisionEmail } from "../verification/verification.emails";
@@ -170,6 +171,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
 
     vendor.password = newPassword;
     await vendor.save();
+    await revokeAllRefreshSessions(vendor._id.toString());
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
   } catch (error) {
@@ -189,11 +191,12 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     const userLat = parseFloat(lat as string);
     const userLng = parseFloat(lng as string);
 
-    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors
-    if (userLat === 0 && userLng === 0) {
+    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors. Only for a verified admin session;
+    // anyone else asking for 0,0 falls through to the normal zone check (no zone covers it).
+    if (userLat === 0 && userLng === 0 && (await isVerifiedAdmin(req))) {
       console.log(`[API] Fetching ALL vendors for Admin Panel`);
       const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } }).sort({ createdAt: -1 }).lean();
-      return res.json(allVendors.map((vendor) => ({ ...vendor, openState: evaluateOutletOpenState(vendor) })));
+      return res.json(allVendors.map((vendor) => ({ ...toAdminVendor(vendor), openState: evaluateOutletOpenState(vendor) })));
     }
 
     // Zone Serviceability Check
@@ -284,7 +287,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
       const openState = evaluateOutletOpenState(vendor);
 
       return {
-        ...vendor,
+        ...toPublicVendor(vendor),
         openState,
         isOpen: openState.isOpen,
         distanceKm: Math.round(distanceInKm * 10) / 10,
@@ -321,7 +324,8 @@ export const getVendorById = async (req: Request, res: Response) => {
     // openState carries today's window and the full week so the details screen can
     // show real timings instead of a hardcoded "Open now".
     const openState = evaluateOutletOpenState(vendor);
-    res.json({ ...vendor, openState, isOpen: openState.isOpen });
+    const visible = (await isVerifiedAdmin(req)) ? toAdminVendor(vendor) : toPublicVendor(vendor);
+    res.json({ ...visible, openState, isOpen: openState.isOpen });
   } catch (error) {
     console.error("Error fetching vendor:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -346,6 +350,7 @@ export const getOutletOrderingStatus = async (req: Request, res: Response) => {
 };
 
 import generateToken from "../../utils/generateToken";
+import { clientSupportsRefresh, revokeAllRefreshSessions, startSession } from "../auth/session.service";
 
 export const loginVendor = async (req: Request, res: Response) => {
   try {
@@ -373,17 +378,18 @@ export const loginVendor = async (req: Request, res: Response) => {
         return res.status(403).json(block);
       }
 
+      const vendorRole = vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor";
+      const refresh = clientSupportsRefresh(req);
       res.json({
         _id: vendor._id,
         name: vendor.name,
         email: vendor.email,
         phone: vendor.phone,
-        role: vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor",
+        role: vendorRole,
         partnerType: vendor.partnerType || "food",
-        token: generateToken(
-          vendor._id.toString(),
-          vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor"
-        ),
+        ...(refresh
+          ? await startSession({ subjectId: vendor._id.toString(), role: vendorRole })
+          : { token: generateToken(vendor._id.toString(), vendorRole) }),
       });
     } else {
       res.status(401).json({ message: "Invalid email/phone or password" });
@@ -812,6 +818,7 @@ export const changeVendorPassword = async (req: AuthRequest, res: Response) => {
 
     vendor.password = newPassword;
     await vendor.save();
+    await revokeAllRefreshSessions(vendor._id.toString());
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
@@ -1068,4 +1075,3 @@ export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-

@@ -10,7 +10,7 @@ import { useFindingDriverRaiseFare } from "./useFindingDriverRaiseFare";
 
 export function useFindingDriver() {
   const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight } = useFindingDriverInsets();
-  const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary);
+  const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary, isRide);
 
   const { showRaiseFare, raising, raiseFare } = useFindingDriverRaiseFare(orderId, orderSummary, foodStage);
 

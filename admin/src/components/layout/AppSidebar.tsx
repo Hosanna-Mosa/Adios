@@ -2,7 +2,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { adminFetch } from "@/lib/api-client";
+import { adminFetch, logoutOnServer } from "@/lib/api-client";
 import type { LiveOrder } from "@/features/orders/liveOrdersTypes";
 import type { VerificationQueueResponse } from "@/features/verification/types";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
@@ -127,6 +127,7 @@ export function AppSidebar() {
   };
 
   const handleLogout = () => {
+    logoutOnServer();
     clearSession();
     // The socket authenticated with this session's token; drop it so the next
     // sign-in (possibly a different role) connects with its own.

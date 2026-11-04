@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { getNearbyVendors, getVendorById, createVendor, searchGooglePlaces, getPlaceDetails, loginVendor, saveVendorOnboarding, changeVendorPassword, forgotVendorPassword, resetVendorPassword, updateVendor, deleteVendor, requestVendorPayout, getOutletOrderingStatus } from "./vendors.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
@@ -46,7 +46,8 @@ import { getMyPayouts } from "./vendor-payouts.controller";
 
 const router = Router();
 
-router.get("/nearby", validateRequest(nearbyVendorsSchema), getNearbyVendors);
+// optionalAuth: signed-in admins get the full records (lat=0&lng=0 list); everyone else a public view.
+router.get("/nearby", optionalAuth, validateRequest(nearbyVendorsSchema), getNearbyVendors);
 router.get("/search-google", validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
 router.get("/place-details/:placeId", validateRequest(placeDetailsParamSchema), getPlaceDetails);
 // The signed-in outlet's own profile (partner app). Registered before /:id so "me" is never read as an id.
@@ -62,7 +63,7 @@ router.delete("/me/offers/:id", authenticateToken, validateRequest(partnerOfferI
 router.post("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), registerMyPushToken);
 router.post("/me/test-push", authenticateToken, sendMyTestPush);
 router.delete("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), removeMyPushToken);
-router.get("/:id", validateRequest(vendorIdParamSchema), getVendorById);
+router.get("/:id", optionalAuth, validateRequest(vendorIdParamSchema), getVendorById);
 // Restaurants and meat centres alike — the customer menu reads it before adding to the cart.
 router.get("/:id/ordering-state", validateRequest(vendorIdParamSchema), getOutletOrderingStatus);
 router.post("/login", authRateLimiter, validateRequest(loginVendorSchema), loginVendor);

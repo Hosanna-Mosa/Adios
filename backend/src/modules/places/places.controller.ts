@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { expandQueryVariants, interleaveSuggestions, mapNominatimResult, mergeSuggestions, type PlaceSuggestion } from "./places.search";
 
-const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA";
+const GOOGLE_MAPS_APIKEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
 // OpenStreetMap's public services ask every client to identify itself.
 const OSM_USER_AGENT = "Adios/1.0 address autocomplete";

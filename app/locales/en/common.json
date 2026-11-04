@@ -100,8 +100,10 @@
         "bookedByMistake": "Booked by mistake",
         "fareTooHigh": "Fare is too high",
         "foundAnotherRide": "Found another ride",
-        "other": "Other",
-        "sendingAnotherWay": "Sending it another way"
+        "sendingAnotherWay": "Sending it another way",
+        "priceTooHigh": "Price is too high",
+        "changedMind": "Changed my mind",
+        "other": "Other"
       }
     },
     "supportChat": {

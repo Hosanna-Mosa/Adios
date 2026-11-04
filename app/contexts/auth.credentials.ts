@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
 import { trackEvent } from "@/utils/analytics";
+import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 
 // The two credential exchanges: create an account and sign in with a password.
 // The customer app has no OTP login.
@@ -23,12 +24,12 @@ export const createCredentialActions = (set: Set) => ({
       const data = await response.json();
       set({ loading: false });
       if (!response.ok) throw new Error(data.message || "Something went wrong");
-
       resetSessionExpiry();
-      set({ user: data.user, token: data.token });
+      set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
+        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
       ]);
       trackEvent("sign_up", { method: "password" });
       return { success: true };
@@ -43,7 +44,7 @@ export const createCredentialActions = (set: Set) => ({
     try {
       const response = await fetch(`${apiUrl}/auth/login-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
         body: JSON.stringify({ phone: phoneOrEmail, password, role }),
       });
       const data = await response.json();
@@ -52,10 +53,11 @@ export const createCredentialActions = (set: Set) => ({
       if (!response.ok) throw new Error(data.message || "Login failed");
 
       resetSessionExpiry();
-      set({ user: data.user, token: data.token });
+      set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
       await Promise.all([
         AsyncStorage.setItem("token", data.token),
         AsyncStorage.setItem("user", JSON.stringify(data.user)),
+        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
       ]);
       trackEvent("login", { method: "password" });
       return { success: true };

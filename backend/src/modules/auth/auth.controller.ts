@@ -3,6 +3,7 @@ import { AuthService } from "./auth.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import AppVersion from "../../database/models/AppVersion";
+import { ACCESS_TOKEN_TTL, clientSupportsRefresh, refreshSession, revokeAllRefreshSessions, revokeRefreshSession, startSession } from "./session.service";
 
 const authService = new AuthService();
 
@@ -84,7 +85,13 @@ export class AuthController {
   async verifyOTP(req: Request, res: Response, next: NextFunction) {
     try {
       const { phone, code, role, name, password, email } = req.body;
-      const result = await authService.verifyOTP(phone, code, role as UserRole, name, password, email);
+      const refresh = clientSupportsRefresh(req);
+      const result = await authService.verifyOTP(phone, code, role as UserRole, name, password, email, refresh ? ACCESS_TOKEN_TTL : undefined);
+      if (refresh && "user" in result && result.user) {
+        const user = result.user;
+        const session = await startSession({ subjectId: String(user._id), role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+        return res.json({ ...result, ...session });
+      }
       return res.json(result);
     } catch (error: any) {
       next(error);
@@ -104,7 +111,13 @@ export class AuthController {
   async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { phone, email, password, role } = req.body;
-      const result = await authService.loginWithPassword(phone || email, password, role as UserRole);
+      const refresh = clientSupportsRefresh(req);
+      const result = await authService.loginWithPassword(phone || email, password, role as UserRole, refresh ? ACCESS_TOKEN_TTL : undefined);
+      if (refresh) {
+        const user = result.user;
+        const session = await startSession({ subjectId: String(user._id), role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+        return res.json({ ...result, ...session });
+      }
       return res.json(result);
     } catch (error: any) {
       next(error);
@@ -120,6 +133,7 @@ export class AuthController {
       // Decode by hand instead, and treat anything wrong with the token as
       // "already logged out" rather than an error.
       await authService.revokePresentedToken(req.headers["authorization"]);
+      await revokeRefreshSession(req.body?.refreshToken);
       return res.json({ message: "Logged out successfully" });
     } catch (error) {
       next(error);
@@ -134,7 +148,19 @@ export class AuthController {
       }
 
       const result = await authService.logoutAll(userId);
+      await revokeAllRefreshSessions(userId);
       return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** Trades a refresh token for a new access token and the next refresh token. */
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const session = await refreshSession(req.body?.refreshToken);
+      res.setHeader("Cache-Control", "no-store");
+      return res.json(session);
     } catch (error) {
       next(error);
     }
