@@ -8,7 +8,7 @@ jest.mock("@/utils/api/custom-fetch", () => ({
   customFetch: (...args: any[]) => mockCustomFetch(...(args as [])),
 }));
 
-jest.mock("expo-linking", () => ({ createURL: (path: string) => `flavour://${path}` }));
+jest.mock("expo-linking", () => ({ createURL: (path: string) => `adios://${path}` }));
 jest.mock("@/i18n", () => ({ __esModule: true, default: { language: "te" } }));
 
 import * as catalog from "../catalog.service";
@@ -88,7 +88,7 @@ describe("payments", () => {
     expect(JSON.parse(lastCall()[1].body)).toEqual({
       amount: 325,
       orderData: { vendorId: "v1" },
-      returnUrl: "flavour://payment-result",
+      returnUrl: "adios://payment-result",
       language: "te",
     });
   });

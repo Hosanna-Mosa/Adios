@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { BASE_URL } from "./api-client";
+import { getAccessToken } from "./session";
 
 const SOCKET_URL = BASE_URL.replace("/api/v1", "");
 
@@ -20,17 +21,14 @@ class SocketService {
   public connect() {
     if (this.socket) return;
 
-    const token =
-      localStorage.getItem("admin_token") ||
-      localStorage.getItem("vendor_token") ||
-      localStorage.getItem("support_token");
     console.log(`[Vendor Socket] Connecting to ${SOCKET_URL}/ws/v1/socket.io`);
 
     this.socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
       autoConnect: true,
       path: "/ws/v1/socket.io",
-      auth: token ? { token } : undefined,
+      // Evaluated on every (re)connect, so a token renewed in the meantime is used.
+      auth: (cb) => cb({ token: getAccessToken()?.token ?? "" }),
     });
 
     this.socket.on("connect", () => {

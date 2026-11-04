@@ -99,6 +99,8 @@
         "bookedByMistake": "Booked by mistake",
         "fareTooHigh": "Fare is too high",
         "foundAnotherRide": "Found another ride",
+        "priceTooHigh": "Price is too high",
+        "changedMind": "Changed my mind",
         "other": "Other"
       }
     },

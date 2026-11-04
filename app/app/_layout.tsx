@@ -33,7 +33,9 @@ import "@/constants/applyFontPatch";
 // live at the bottom of cartStore.ts; it is loaded here so the subscription is
 // still established exactly once, at app start, without a store<->sync cycle.
 import "@/contexts/cart.ownerSync";
-import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";import { usePushNotifications } from "@/utils/usePushNotifications";
+import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
+import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
+import { usePushNotifications } from "@/utils/usePushNotifications";
 import { useAnalytics } from "@/utils/useAnalytics";
 import { configureAnalytics } from "@/utils/analytics";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
@@ -75,6 +77,16 @@ if (apiUrl) {
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized clears the session and returns true only for the first of
 // a burst of parallel 401s, so the sign-out and the redirect happen once.
+// Renews the short access token silently; only a refresh the server rejects reaches the handler below.
+if (apiUrl) {
+  configureSessionRefresh({
+    apiUrl,
+    getToken: () => useAuthStore.getState().token,
+    getRefreshToken: () => useAuthStore.getState().refreshToken,
+    onTokens: (tokens) => useAuthStore.getState().setTokens(tokens),
+  });
+}
+
 // A guest's 401 is ignored here on purpose: browsing is open, and the login prompt belongs to the
 // actions that need an account (checkout, saving an address), which call requireLogin themselves.
 setUnauthorizedHandler(() => {

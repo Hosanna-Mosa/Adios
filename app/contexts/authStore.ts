@@ -11,6 +11,8 @@ import { isSessionExpiryHandled, markSessionExpiryHandled, resetSessionExpiry } 
 export interface AuthState {
   user: any | null;
   token: string | null;
+  /** One-use token that renews `token` when it expires (see utils/api/sessionRefresh.ts). */
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
   /** True once initializeAuth() has completed — used to gate navigation */
@@ -26,6 +28,7 @@ export interface AuthState {
   continueAsGuest: () => void;
   setUser: (user: any) => void;
   setToken: (token: string) => void;
+  setTokens: (tokens: { token: string; refreshToken: string }) => Promise<void>;
   logout: () => Promise<void>;
   /**
    * Called by the HTTP layer's 401 interceptor. Clears the session, and returns
@@ -48,6 +51,7 @@ export interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
+  refreshToken: null,
   loading: false,
   error: null,
   isInitialized: false,
@@ -68,6 +72,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     resetSessionExpiry();
     set({ token });
     AsyncStorage.setItem("token", token);
+  },
+
+  setTokens: async ({ token, refreshToken }) => {
+    set({ token, refreshToken });
+    await Promise.all([AsyncStorage.setItem("token", token), AsyncStorage.setItem("refreshToken", refreshToken)]);
   },
 
   toggleFavorite: async (restaurantId: string) => {
@@ -142,14 +151,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
    */
   initializeAuth: async () => {
     try {
-      const [token, userStr] = await Promise.all([
+      const [token, userStr, refreshToken] = await Promise.all([
         AsyncStorage.getItem("token"),
         AsyncStorage.getItem("user"),
+        AsyncStorage.getItem("refreshToken"),
       ]);
 
       if (token && userStr) {
         const cachedUser = JSON.parse(userStr);
-        set({ token, user: cachedUser, isInitialized: true });
+        set({ token, refreshToken, user: cachedUser, isInitialized: true });
         void refreshProfileInBackground(token, set, get);
       } else {
         set({ isInitialized: true });
@@ -168,7 +178,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
-    const { token } = get();
+    const { token, refreshToken } = get();
 
     // Best-effort: tell the server this token is done so it can't be reused
     // if it leaks later. Local sign-out below happens regardless of whether
@@ -177,18 +187,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (token) {
       fetch(`${apiUrl}/auth/logout`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
       }).catch(() => {});
     }
 
-    set({ user: null, token: null, error: null, loading: false, guestMode: false });
+      set({ user: null, token: null, refreshToken: null, error: null, loading: false, guestMode: false });
     try {
       await Promise.all([
         AsyncStorage.removeItem("token"),
+        AsyncStorage.removeItem("refreshToken"),
         AsyncStorage.removeItem("user"),
       ]);
     } finally {
-      set({ user: null, token: null, error: null, loading: false });
+      set({ user: null, token: null, refreshToken: null, error: null, loading: false });
     }
   },
 
@@ -233,9 +245,10 @@ async function refreshProfileInBackground(
       // expired or revoked token, or a user that no longer exists. A 403
       // means authenticated-but-not-permitted and a 404 means the route
       // moved; neither is a reason to throw the session away.
-      set({ token: null, user: null });
+      set({ token: null, refreshToken: null, user: null });
       await Promise.all([
         AsyncStorage.removeItem("token"),
+        AsyncStorage.removeItem("refreshToken"),
         AsyncStorage.removeItem("user"),
       ]);
     }

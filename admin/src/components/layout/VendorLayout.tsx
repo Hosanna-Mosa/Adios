@@ -15,6 +15,8 @@ import {
 import { TopBar } from "./TopBar";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { socketService } from "@/lib/socketService";
+import { logoutOnServer } from "@/lib/api-client";
+import { clearSession } from "@/lib/session";
 import { playNewOrderChime } from "@/lib/notificationSound";
 
 interface VendorLayoutProps {
@@ -78,8 +80,8 @@ export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps)
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("vendor_token");
-    localStorage.removeItem("vendor_data");
+    logoutOnServer();
+    clearSession();
     navigate("/vendor-login");
   };
 

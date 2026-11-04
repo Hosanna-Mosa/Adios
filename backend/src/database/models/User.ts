@@ -128,6 +128,10 @@ const UserSchema: Schema = new Schema(
     toJSON: {
       transform: (_doc, ret: Record<string, unknown>) => {
         delete ret.password;
+        // Internal bookkeeping no client reads: session version and push endpoints.
+        delete ret.tokenVersion;
+        delete ret.webPushSubscriptions;
+        delete ret.expoPushToken;
         return ret;
       },
     },

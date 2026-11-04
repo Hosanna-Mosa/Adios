@@ -13,7 +13,7 @@ import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
 
 // Razorpay checkout in the phone's browser (Chrome Custom Tab on Android, an in-app Safari
 // sheet on iOS). The backend hosts the page; Razorpay posts the result to the backend, which
-// sends the browser back to flavour://payment-result. Every payment screen goes through this
+// sends the browser back to adios://payment-result. Every payment screen goes through this
 // one helper (RAZORPAY_INTEGRATION.md §7). The app never decides that a payment succeeded:
 // it hands the ids to /payments/verify, which checks them with Razorpay.
 

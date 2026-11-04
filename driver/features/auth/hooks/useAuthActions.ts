@@ -4,6 +4,7 @@ import { Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useDriverStore } from "@/store/driverStore";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 import { useRouteAfterAuth } from "./useRouteAfterAuth";
 
 // Must match the backend's verify-otp rule; the app used to accept 6.
@@ -130,7 +131,7 @@ export function useAuthActions({
     try {
       const response = await fetch(`${apiUrl}/auth/verify-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
         body: JSON.stringify({
           phone: `+91${phone}`,
           code: fullOtp,
@@ -145,7 +146,7 @@ export function useAuthActions({
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       const { setAuthenticated } = useDriverStore.getState();
-      setAuthenticated(data.user.name, data.user.phone, data.token, data.user.id || data.user._id);
+      setAuthenticated(data.user.name, data.user.phone, data.token, data.user.id || data.user._id, data.refreshToken ?? null);
       await routeAfterAuth();
     } catch (err: any) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
