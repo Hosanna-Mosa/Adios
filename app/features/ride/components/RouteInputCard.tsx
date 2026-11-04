@@ -91,10 +91,10 @@ export function RouteInputCard({
 
       <View style={styles.inputsContainer}>
         <View style={[styles.fieldSlot, isFocused("pickup") && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, isFocused("pickup") && { color: accent.accent }]}>Pickup</Text>
+          <Text style={[styles.fieldLabel, isFocused("pickup") && { color: accent.accent }]}>{t("app.ride.pickupLabel")}</Text>
           <GooglePlacesAutocomplete
             ref={pickupRef}
-            placeholder="Pickup location"
+            placeholder={t("app.ride.pickupLocationPlaceholder")}
             onPress={(data, details = null) => handleSelection('pickup', data, details)}
             fetchDetails={true}
             query={PLACES_QUERY}
@@ -109,7 +109,14 @@ export function RouteInputCard({
             renderRightButton={() => (
               <View style={styles.fieldActions}>
                 {!!fieldText.pickup && <ClearButton type="pickup" />}
-                <TouchableOpacity style={styles.currentLocBtn} onPress={handleCurrentLocation} disabled={fetchingLocation}>
+                <TouchableOpacity
+                  style={styles.currentLocBtn}
+                  onPress={handleCurrentLocation}
+                  disabled={fetchingLocation}
+                  hitSlop={{ top: 13, bottom: 13, left: 13, right: 13 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("app.packageDelivery.useCurrentLocation")}
+                >
                    {fetchingLocation ? (
                      <ActivityIndicator size="small" color={accent.accent} />
                    ) : (
@@ -151,7 +158,7 @@ export function RouteInputCard({
         ))}
 
         <View style={[styles.fieldSlot, (isFocused("drop") || !focusedInput) && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, (isFocused("drop") || !focusedInput) && { color: accent.accent }]}>Drop</Text>
+          <Text style={[styles.fieldLabel, (isFocused("drop") || !focusedInput) && { color: accent.accent }]}>{t("app.ride.dropLabel")}</Text>
           <GooglePlacesAutocomplete
             ref={dropRef}
             placeholder={t("app.ride.searchDestination")}

@@ -11,6 +11,7 @@ import { SupportMessages } from "@/features/support/components/SupportMessages";
 import { SupportNewTicketForm } from "@/features/support/components/SupportNewTicketForm";
 import { useSupportChat } from "@/features/support/useSupportChat";
 import { useSupportUnreadReplies } from "@/features/support/useSupportUnreadReplies";
+import { formatOrderId } from "@/utils/format";
 
 /** /support-chat lists cases and raises new ones; /support-chat?ticketId=… opens one conversation. */
 export default function SupportChatScreen() {
@@ -35,7 +36,7 @@ export default function SupportChatScreen() {
     return (
       <ScreenShell
         keyboardAvoiding
-        header={<Header bar title={t("support.partnerSupport")} subtitle={`${t("support.case")} #${s.ticket.ticketId} · ${status}`} onBack={s.backToCases} style={headerStyle} right={refreshButton} />}
+        header={<Header bar title={t("support.partnerSupport")} subtitle={[`${t("support.case")} #${s.ticket.ticketId}`, status, s.ticket.orderId ? t("support.orderRef", { id: formatOrderId(s.ticket.orderId) }) : null].filter(Boolean).join(" · ")} onBack={s.backToCases} style={headerStyle} right={refreshButton} />}
       >
         <SupportMessages messages={s.ticket.messages} listRef={s.flatListRef} styles={s.styles} accent={s.accent} tokens={s.tokens} />
         <SupportChatComposer
@@ -79,6 +80,9 @@ export default function SupportChatScreen() {
         setNewTitle={s.setNewTitle}
         newMessage={s.newMessage}
         setNewMessage={s.setNewMessage}
+        orderChoices={s.orderChoices}
+        newOrderId={s.newOrderId}
+        setNewOrderId={s.setNewOrderId}
         creatingTicket={s.creatingTicket}
         onSubmit={s.handleCreateTicket}
         styles={s.styles}

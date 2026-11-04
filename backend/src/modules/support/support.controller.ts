@@ -1,25 +1,11 @@
 import { Response } from "express";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import SupportTicket from "../../database/models/SupportTicket";
-import User from "../../database/models/User";
-import Vendor from "../../database/models/Vendor";
-import MeatCenter from "../../database/models/MeatCenter";
-import { assignAndSaveTicket, emitTicketUpdate } from "../../services/supportAssignment.service";
+import { emitTicketUpdate } from "../../services/supportAssignment.service";
+import { createSupportTicket, resolveTicketOwner } from "../../services/supportTicket.service";
+import { OrdersService } from "../orders/orders.service";
 
-const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
-
-// Vendor and meat-centre tokens carry a Vendor/MeatCenter _id, not a User _id
-// (see utils/generateToken.ts), so the partner app's tickets are filed under
-// the outlet. A meat vendor may be either a Vendor (partnerType "meat") or a
-// legacy MeatCenter, the same split /vendors/login and /meat/login cover.
-async function resolveTicketOwner(userId: string, role?: string): Promise<{ id: unknown; name: string; role: string } | null> {
-  if (role && VENDOR_ROLES.includes(role)) {
-    const outlet = (await Vendor.findById(userId).select("name").lean()) || (await MeatCenter.findById(userId).select("name").lean());
-    return outlet ? { id: outlet._id, name: outlet.name || "Partner", role: "VENDOR" } : null;
-  }
-  const user = await User.findById(userId);
-  return user ? { id: user._id, name: user.name, role: user.role } : null;
-}
+const ordersService = new OrdersService();
 
 export class SupportController {
   async getTickets(req: AuthRequest, res: Response) {
@@ -48,27 +34,19 @@ export class SupportController {
         return res.status(400).json({ message: "Title, category and message are required" });
       }
 
-      const ticketId = `QX-${Math.floor(1000 + Math.random() * 9000)}`;
-      const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      // A ticket may name the order it is about, so the agent sees it — but only one of
+      // the sender's own orders (as customer, driver or outlet), never anyone else's.
+      let orderId: string | null = null;
+      if (req.body.orderId) {
+        try {
+          const { order } = await ordersService.getOrderForActor(String(req.body.orderId), req.user);
+          orderId = String(order._id);
+        } catch {
+          return res.status(404).json({ message: "Order not found" });
+        }
+      }
 
-      const ticket = new SupportTicket({
-        ticketId,
-        title,
-        category,
-        status: "OPEN",
-        message: `"${message}"`,
-        user: owner.name,
-        userRole: owner.role,
-        userId: owner.id,
-        time: "Just now",
-        messages: [
-          { sender: "system", time: `TICKET OPENED • ${now}`, text: "" },
-          { sender: "user", time: now, text: message }
-        ]
-      });
-
-      await assignAndSaveTicket(ticket);
-      emitTicketUpdate(ticket);
+      const ticket = await createSupportTicket({ owner, title, category, message, orderId });
 
       return res.status(201).json(ticket);
     } catch (error) {

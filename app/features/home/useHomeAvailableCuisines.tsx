@@ -23,14 +23,6 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   // in English since they double as fallback filter-chip values matched
   // against live backend category data (see CuisineStrip.tsx's
   // translateFoodTag() for how those get a translated display instead).
-  const FOOD_PROMOS = useMemo<PromoCard[]>(() => [
-    { eyebrow: t("app.home.foodPromos.firstOrder.eyebrow"), headline: t("app.home.foodPromos.firstOrder.headline"), caption: t("app.home.foodPromos.firstOrder.caption") },
-    { eyebrow: t("app.home.foodPromos.lateNight.eyebrow"), headline: t("app.home.foodPromos.lateNight.headline"), caption: t("app.home.foodPromos.lateNight.caption") },
-  ], [t]);
-  const MEAT_PROMOS = useMemo<PromoCard[]>(() => [
-    { eyebrow: t("app.home.meatPromos.sundaySpecial.eyebrow"), headline: t("app.home.meatPromos.sundaySpecial.headline"), caption: "" },
-    { eyebrow: t("app.home.meatPromos.cleanedAndCut.eyebrow"), headline: t("app.home.meatPromos.cleanedAndCut.headline"), caption: "" },
-  ], [t]);
 
   const availableCuisines = useMemo(() => {
     const cuisinesSet = new Set<string>();
@@ -57,11 +49,15 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   );
   const greetingAds = useMemo(() => banners.filter((b: any) => b.itemType === "ad" && b.position === "below_greetings"), [banners]);
 
-  // While GET /banners is still in flight the carousel shows a skeleton, so the
-  // hardcoded promos only appear once we know there are no hero banners.
-  const promoCards: PromoCard[] = heroBanners.length > 0
-    ? heroBanners.map((b: any) => ({ eyebrow: t("app.home.offerEyebrow"), headline: b.title, caption: b.description || "", targetUrl: b.targetUrl }))
-    : bannersLoading ? [] : activeService === "Meat" ? MEAT_PROMOS : FOOD_PROMOS;
+  // Promos come only from the admin's banners (GET /banners). With none, the carousel is
+  // hidden. It used to fall back to hardcoded promos — advertising offers that might not
+  // exist, under translation keys that were never defined, so they showed as raw keys.
+  const promoCards: PromoCard[] = heroBanners.map((b: any) => ({
+    eyebrow: t("app.home.offerEyebrow"),
+    headline: b.title,
+    caption: b.description || "",
+    targetUrl: b.targetUrl,
+  }));
 
   useEffect(() => {
     if (promoCards.length < 2) return;

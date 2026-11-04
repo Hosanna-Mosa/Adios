@@ -5,7 +5,7 @@ import { DataTable, type DataTableColumn } from "@/components/shared/DataTable";
 import { Star, GitBranch, MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LiveOrder } from "../liveOrdersTypes";
-import { adminOrderStatusLabel } from "../adminOrderStatus";
+import { adminOrderStatusLabel } from "@/components/shared/adminOrderStatus";
 
 interface LiveOrdersTableProps {
   isLoading: boolean;

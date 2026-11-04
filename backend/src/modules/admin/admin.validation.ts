@@ -83,6 +83,8 @@ export const updateSupportTicketSchema = z.object({
     status: z.enum(["OPEN", "RESOLVED", "PENDING_RESOLVE"]).optional(),
     replyText: z.string().optional(),
     sender: z.string().optional(),
+    // Link the case to an order (null unlinks it). The order must exist.
+    orderId: z.string().trim().min(1).max(64).nullable().optional(),
   }),
 });
 
@@ -123,6 +125,28 @@ export const updateSystemConfigSchema = z.object({
     rates: z.any().optional(),
     platformFee: z.coerce.number().optional(),
     surgeMultiplier: z.coerce.number().optional(),
+    // Admin → Helper pricing. Any field left out keeps its saved (or default) value.
+    helperRates: z
+      .object({
+        baseFare: z.coerce.number().min(0).max(10000),
+        perHourRate: z.coerce.number().min(0).max(10000),
+        perKmRate: z.coerce.number().min(0).max(1000),
+        freeKm: z.coerce.number().min(0).max(100),
+        platformFee: z.coerce.number().min(0).max(1000),
+        taxPercent: z.coerce.number().min(0).max(50),
+        minOfferPercent: z.coerce.number().min(10).max(100),
+        maxOfferPercent: z.coerce.number().min(100).max(1000),
+        minHours: z.coerce.number().min(0.25).max(24),
+        maxHours: z.coerce.number().min(0.25).max(24),
+        expiryMinutes: z.coerce.number().int().min(1).max(240),
+      })
+      .partial()
+      .optional(),
+    // Admin → Support bot. How many "not helpful" answers a customer gets (per 24h) before only "Talk to an agent" is left.
+    supportBot: z
+      .object({ maxUnhelpfulAnswers: z.coerce.number().int().min(1).max(20) })
+      .partial()
+      .optional(),
   }),
 });
 

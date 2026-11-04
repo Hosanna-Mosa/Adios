@@ -1,28 +1,29 @@
 import { StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { typography } from "@/constants/typography";
+import { type ThemeTokens } from "@/constants/colors";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Part of the ride-searching.styles stylesheet, kept under the 150-line file limit.
-// Values are unchanged; ride-searching.styles.ts composes this back together.
+// Migrated from the legacy `Colors` palette + raw fontWeight to `designTokens`
+// + named font families (BUG-098). Sizes/radii/spacing are unchanged.
 
-export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: any) =>
+export const createTripButtonTextStyles = (tokens: ThemeTokens, insets: any) =>
   StyleSheet.create({
     tripButtonText: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.medium,
-      fontWeight: "700",
-      color: colors.text,
+      color: tokens.text,
     },
     dashedLine: {
       borderTopWidth: 1,
       borderStyle: "dashed",
-      borderColor: colors.border,
+      borderColor: tokens.border,
       marginHorizontal: -16,
       marginBottom: 12,
     },
     suggestionCard: {
       borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surfaceSecondary,
+      borderColor: tokens.border,
+      backgroundColor: tokens.sunken,
       borderRadius: 14,
       paddingHorizontal: 18,
       paddingTop: 13,
@@ -37,7 +38,7 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       marginRight: 12,
@@ -45,10 +46,10 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
     },
     suggestionTitle: {
       flex: 1,
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
       lineHeight: typography.lineHeights.medium,
-      fontWeight: "800",
-      color: colors.text,
+      color: tokens.text,
     },
     addFareRow: {
       flexDirection: "row",
@@ -59,16 +60,16 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
       minWidth: 62,
       height: 30,
       borderRadius: 15,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       borderWidth: 1,
-      borderColor: colors.borderLight,
+      borderColor: tokens.border,
     },
     addFareText: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.medium,
-      fontWeight: "700",
-      color: colors.text,
+      color: tokens.text,
     },
     bookAgainOverlay: {
       ...StyleSheet.absoluteFillObject,
@@ -77,16 +78,18 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
     },
     bookAgainBackdrop: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: colors.overlay,
+      backgroundColor: tokens.overlay,
     },
     bookAgainBackFloating: {
       position: "absolute",
       left: 18,
-      bottom: 600,
+      // Inside bookAgainSheet now, sitting just above its own top edge —
+      // follows the sheet instead of a guessed screen offset.
+      top: -56,
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -96,7 +99,7 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
       elevation: 8,
     },
     bookAgainSheet: {
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       paddingHorizontal: 18,
@@ -104,10 +107,11 @@ export const createTripButtonTextStyles = (colors: typeof Colors.light, insets: 
       paddingBottom: insets.bottom > 0 ? insets.bottom + 34 : 58,
     },
     bookAgainTitle: {
+      fontFamily: fontFamilies.heading.bold,
       fontSize: typography.sizes.large,
       lineHeight: typography.lineHeights.large,
-      fontWeight: "900",
-      color: colors.text,
+      letterSpacing: -0.3,
+      color: tokens.text,
       marginBottom: 10,
     },
   });

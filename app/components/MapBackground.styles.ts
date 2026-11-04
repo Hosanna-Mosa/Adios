@@ -120,10 +120,12 @@ export const styles = StyleSheet.create({
     height: 75,
     backgroundColor: 'transparent',
   },
+  // No `top`/`bottom` here — MapBackground.tsx supplies that, computed from
+  // the caller's actual (or resting) sheet height, so the buttons clear it
+  // instead of floating at a guessed percentage of the screen.
   zoomControlsContainer: {
     position: 'absolute',
     right: 16,
-    top: '30%',
     backgroundColor: 'transparent',
     alignItems: 'center',
     gap: 8,

@@ -32,7 +32,7 @@ export default function DriverChatScreen() {
   ];
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderId?: string }>();
-  const { currentOrder, activeChat, setUnreadCount, setIsChatActive, token, updateOrderStatus } = useDriverStore();
+  const { currentOrder, activeChat, setUnreadCount, setIsChatActive, token } = useDriverStore();
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const [fetchedOrder, setFetchedOrder] = useState<{ id: string; customerName: string; customerPhone: string; serviceType?: string } | null>(null);
@@ -70,6 +70,8 @@ export default function DriverChatScreen() {
   // The "discuss & start task" banner only makes sense for the driver's actual,
   // currently active job — not when viewing an older conversation.
   const isActiveJob = currentOrder?.id === chatOrderId;
+  const taskStarted =
+    !!currentOrder?.taskStartedAt || currentOrder?.status?.toLowerCase() === "in_progress";
 
   // Thread + task confirmation, polled over REST.
   const { loadingHistory, canStartTask, sendMessage, refresh, refreshing } = useOrderChat(
@@ -77,16 +79,10 @@ export default function DriverChatScreen() {
     isHelper && isActiveJob,
   );
 
-  // Starting the task moves the order; the customer's screen reads that status.
-  const handleStartTask = async () => {
-    if (!currentOrder?.id) return;
-    try {
-      await updateOrderStatus?.("IN_PROGRESS" as any);
-    } catch (err: any) {
-      console.warn("[Chat] Failed to mark task in progress:", err?.message);
-    }
-    router.push("/active-order");
-  };
+  // A task only starts with the customer's start OTP, which the server checks — that
+  // entry lives on the task screen. (The server tells the customer once it has started.)
+  // dismissTo goes back to the task screen when chat was opened from it, rather than stacking a second one.
+  const handleStartTask = () => router.dismissTo("/active-order");
 
   useEffect(() => {
     setUnreadCount?.(0);
@@ -126,8 +122,12 @@ export default function DriverChatScreen() {
         }}
       />
 
-      {isHelper && isActiveJob && (
-        <TaskAssignmentBanner canStartTask={canStartTask} onStartTask={handleStartTask} />
+      {/* Whether the customer confirmed comes from the order (and the global socket handler). */}
+      {isHelper && isActiveJob && !taskStarted && (
+        <TaskAssignmentBanner
+          customerConfirmed={canStartTask || !!currentOrder?.assignConfirmedAt}
+          onStartTask={handleStartTask}
+        />
       )}
 
       <List

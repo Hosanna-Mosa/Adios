@@ -58,12 +58,12 @@ export function useTrackingHandleBack(status: any, currentOrderId: any, stops: a
       : foodStage === "preparing"
       ? i18n.t("app.tracking.restaurantPreparing")
       : status === "arrived_pickup"
-      ? (isRide ? "Rider has arrived" : isHelper ? "Helper has arrived" : "Arrived at the store")
+      ? i18n.t(isRide ? "app.tracking.banner.riderArrived" : isHelper ? "app.tracking.banner.helperArrived" : "app.tracking.banner.arrivedAtStore")
       : status === "en_route_delivery"
-      ? (isRide ? "Trip in progress" : isHelper ? "Task in progress" : "Out for delivery")
+      ? i18n.t(isRide ? "app.tracking.banner.tripInProgress" : isHelper ? "app.tracking.banner.taskInProgress" : "app.tracking.banner.outForDelivery")
       : status === "arrived_delivery"
-      ? (isRide ? "Arrived at destination" : "Arrived at your location")
-      : (isHelper ? "Helper is on the way" : isRide ? "Rider on the way" : "Heading to pickup");
+      ? i18n.t(isRide ? "app.tracking.banner.arrivedAtDestination" : "app.tracking.banner.arrivedAtYourLocation")
+      : i18n.t(isHelper ? "app.tracking.banner.helperOnTheWay" : isRide ? "app.tracking.banner.riderOnTheWay" : "app.tracking.banner.headingToPickup");
 
   return { handleBack, userLocCoords, bannerText };
 }

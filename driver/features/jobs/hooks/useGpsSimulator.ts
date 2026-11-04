@@ -20,7 +20,11 @@ type Args = {
   onArrived: () => void;
 };
 
-/** Fakes movement toward a stop so the flow can be walked through off-road. */
+/**
+ * Fakes movement toward a stop so the flow can be walked through off-road.
+ * Development builds only: in a release build startGPSSimulator does nothing,
+ * so no fake location or status change can ever reach a live order.
+ */
 export function useGpsSimulator(args: Args) {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simSpeed, setSimSpeed] = useState(0);
@@ -45,6 +49,8 @@ export function useGpsSimulator(args: Args) {
         driverLocation, driverHeading, setDriverLocation, setDriverHeading,
         mapRef, onArrived,
       } = args;
+
+      if (!__DEV__) return;
 
       if (simInterval.current) {
         stopSimulation();

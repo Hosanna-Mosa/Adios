@@ -27,7 +27,12 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     useCurrentBtn: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9 },
     useCurrentText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: accent.accent },
 
-    centerMarker: { position: "absolute", top: "38%", left: "50%", marginLeft: -moderateScale(17), marginTop: -moderateScale(80), alignItems: "center" },
+    // Full width + alignItems: "center" centers the pin itself on the map's true
+    // horizontal center. A left: "50%" + fixed marginLeft (half the pin's own
+    // width) assumed this container was exactly pin-width, but it's actually as
+    // wide as its widest child, the drag-hint pill below, which pushed the pin
+    // off-center.
+    centerMarker: { position: "absolute", top: "38%", left: 0, right: 0, marginTop: -moderateScale(80), alignItems: "center" },
     dragHint: { backgroundColor: tokens.text, borderRadius: 9, paddingHorizontal: 11, paddingVertical: 7 },
     dragHintText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.bg },
     dragHintStem: { width: 2, height: 10, backgroundColor: tokens.text },
@@ -54,7 +59,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
 
     mapPreview: { height: 160, borderRadius: 16, overflow: "hidden", borderWidth: 1, borderColor: tokens.border, marginHorizontal: 16, marginTop: 4, position: "relative" },
-    mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
+    mapPreviewPin: { position: "absolute", top: "50%", left: "50%", marginLeft: -18, marginTop: -18, width: 36, height: 36, borderRadius: 18, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: tokens.surface },
     mapPreviewPill: { position: "absolute", bottom: 10, alignSelf: "center", backgroundColor: tokens.surface, paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: tokens.border, maxWidth: "82%" },
     mapPreviewPillText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text },
     mapPreviewCoords: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, textAlign: "center", marginTop: 6, marginHorizontal: 16 },

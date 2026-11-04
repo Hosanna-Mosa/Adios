@@ -6,6 +6,7 @@ import AppVersion from "./models/AppVersion";
 import Coupon from "./models/Coupon";
 import Vendor from "./models/Vendor";
 import MeatCenter from "./models/MeatCenter";
+import { seedSupportIntents } from "../modules/supportBot/seedIntents";
 
 // Minimal food/meat outlets so a local demo database has something for the rating, Open-now and
 // coupon filters to act on. Demo data only (SEED_DEMO_DATA=true). Phone numbers sit outside the
@@ -40,6 +41,7 @@ export async function seedDatabase() {
     console.log("Checking database seed requirements...");
 
     await seedAppVersions();
+    await seedSupportIntents();
 
     if (isDemoDataEnabled()) {
       await seedDemoData();
@@ -60,7 +62,7 @@ async function seedAppVersions() {
       platform: "android",
       latest: "1.0.0",
       minRequired: "0.9.0",
-      storeUrl: "https://play.google.com/store/apps/details?id=com.flavour.customer",
+      storeUrl: "https://play.google.com/store/apps/details?id=com.adios.customer",
     },
     {
       // The iOS id is a placeholder until a real App Store listing exists.

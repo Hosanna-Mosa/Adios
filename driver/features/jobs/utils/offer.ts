@@ -58,3 +58,26 @@ export function formatReservedAt(reservedAt?: string | Date | null) {
     minute: "2-digit",
   });
 }
+
+// Average city speed for a rough ETA — the same 22 km/h the customer app's tracking uses.
+const APPROACH_SPEED_KMH = 22;
+
+/**
+ * How far the driver is from the job's pickup, and roughly how long to get there.
+ * Null without the driver's position or a pickup point. The offer used to show only
+ * the trip (pickup → drop) distance and time with no labels, which read as the
+ * pickup distance and ETA — and looked wrong.
+ */
+export function pickupApproach(
+  driver: { lat: number; lng: number } | null | undefined,
+  stops: { type?: string; lat?: number; lng?: number }[] | null | undefined,
+): { km: number; minutes: number } | null {
+  const pickup = (stops || []).find((s) => s.type === "pickup") || stops?.[0];
+  if (!driver || pickup?.lat == null || pickup?.lng == null) return null;
+  const rad = Math.PI / 180;
+  const dLat = (pickup.lat - driver.lat) * rad;
+  const dLng = (pickup.lng - driver.lng) * rad;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(driver.lat * rad) * Math.cos(pickup.lat * rad) * Math.sin(dLng / 2) ** 2;
+  const km = 2 * 6371 * Math.asin(Math.sqrt(h));
+  return { km: Math.round(km * 10) / 10, minutes: Math.max(1, Math.round((km / APPROACH_SPEED_KMH) * 60)) };
+}

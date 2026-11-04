@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
-import { designTokens, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { designTokens, radius, type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -66,7 +66,7 @@ export default function AllServicesScreen() {
       id: "helper",
       name: t("app.home.hireAHelper"),
       icon: "hammer-wrench",
-      description: t("app.home.from120Hour"),
+      description: t("app.home.from80Hour"),
       accent: tokens.services.task,
       onPress: () => router.push("/helper-task"),
     },
@@ -84,11 +84,7 @@ export default function AllServicesScreen() {
 
   return (
     <ScreenShell>
-      <AllServicesHeaderRow
-        insets={insets}
-        styles={styles}
-        tokens={tokens}
-      />
+      <AllServicesHeaderRow insets={insets} />
 
       <AllServicesBody services={services} styles={styles} tabBarHeight={tabBarHeight} />
 
@@ -99,12 +95,6 @@ export default function AllServicesScreen() {
 
 const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     scrollContent: { paddingHorizontal: 16, paddingBottom: 160 },
     headline: {
       fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge,
@@ -112,15 +102,16 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
     },
     subhead: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 8 },
     tierGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 20 },
+    // Width is set per screen size in AllServicesTierGrid.
     tierCard: {
-      width: "47%", backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
-      borderRadius: moderateScale(20),
+      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
+      borderRadius: radius.lg,
     },
     // Fills the card so the whole card is tappable and both cards in a row match heights.
     tierCardTouchable: { flex: 1, padding: 16 },
     tierBadge: {
       position: "absolute", top: 12, right: 12, backgroundColor: tokens.sunken,
-      borderRadius: moderateScale(6), paddingHorizontal: 7, paddingVertical: 3,
+      borderRadius: radius.sm, paddingHorizontal: 7, paddingVertical: 3,
     },
     tierBadgeText: {
       fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small,

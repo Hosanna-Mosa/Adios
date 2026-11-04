@@ -51,9 +51,13 @@ export function OffersList({ groups, isLoading, isError, isRefreshing, onRefresh
       )}
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={accent.accent} colors={[accent.accent]} />}
       ListEmptyComponent={
-        <EmptyState icon="pricetags-outline" title={t("app.offers.emptyTitle")} subtitle={t("app.offers.emptySubtitle")} />
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <EmptyState icon="pricetags-outline" title={t("app.offers.emptyTitle")} subtitle={t("app.offers.emptySubtitle")} />
+        </View>
       }
-      contentContainerStyle={[styles.listContent, { paddingBottom: bottomInset + 24 }]}
+      // flexGrow: an empty list's EmptyState fills the screen and sits centred, like the
+      // error state, instead of hugging the top.
+      contentContainerStyle={[styles.listContent, { paddingBottom: bottomInset + 24, flexGrow: 1 }]}
       showsVerticalScrollIndicator={false}
     />
   );

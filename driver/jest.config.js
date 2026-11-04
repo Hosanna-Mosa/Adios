@@ -1,6 +1,5 @@
-// Business-logic tests only: stores, utils, services and hooks.
-// Screens and components are covered by the emulator screenshot diffing
-// instead — RN component tests are brittle and would duplicate that.
+// Business-logic tests: order mapping, the order-lifecycle store, pickup / delivery
+// code checks and background location. Mirrors the customer app's setup (app/jest.config.js).
 module.exports = {
   preset: "jest-expo",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],

@@ -31,7 +31,14 @@ export function OfferRestaurantCard({ group, styles, tokens, accent, onPress }: 
       accessibilityLabel={vendor.name}
     >
       <View style={styles.vendorRow}>
-        <Image source={vendor.image ? { uri: vendor.image } : undefined} style={styles.vendorImage} contentFit="cover" transition={200} />
+        {vendor.image ? (
+          <Image source={{ uri: vendor.image }} style={styles.vendorImage} contentFit="cover" transition={200} />
+        ) : (
+          // No photo: a placeholder icon, not a blank grey box.
+          <View style={[styles.vendorImage, { alignItems: "center", justifyContent: "center" }]}>
+            <Ionicons name="restaurant-outline" size={moderateScale(22)} color={tokens.muted} />
+          </View>
+        )}
         <View style={styles.vendorInfo}>
           <View style={styles.vendorNameRow}>
             <Text style={styles.vendorName} numberOfLines={1}>{vendor.name}</Text>

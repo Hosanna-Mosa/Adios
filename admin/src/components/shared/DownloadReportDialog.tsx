@@ -13,7 +13,7 @@ interface DownloadReportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  data: any[];
+  data: Record<string, unknown>[];
 }
 
 export function DownloadReportDialog({

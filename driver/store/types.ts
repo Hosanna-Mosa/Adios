@@ -26,6 +26,7 @@ export type OrderStatus =
   | "picked_up"
   | "en_route_delivery"
   | "arrived_delivery"
+  | "IN_PROGRESS"
   | "delivered"
   | "completed"
   | "CANCELLED";
@@ -57,6 +58,8 @@ export interface Order {
   vendorPhone?: string;
   /** Restaurant / meat-shop order (it has a vendor): no delivery OTP, and pickup waits for "ready". */
   hasOutlet?: boolean;
+  /** Which kind of outlet: words the pickup as a restaurant or a meat shop. Null without one. */
+  outletKind?: "food" | "meat" | null;
   /** When the outlet tapped "Mark as ready" (ISO); the pickup code unlocks after it. */
   foodReadyAt?: string | null;
   isReserved?: boolean;
@@ -82,6 +85,15 @@ export interface Order {
   secondsLeft?: number;
   /** Server's offer window in seconds (25 for rides). */
   offerTimeoutSeconds?: number;
+  /** Helper tasks only: hours the customer booked (the server's `duration`). */
+  bookedHours?: number;
+  /** Helper tasks only: what the customer wants done (stops[0].items.instructions). */
+  taskDescription?: string;
+  /** Helper tasks only: when the customer confirmed the task in chat (ISO). Info only; Start doesn't wait for it. */
+  assignConfirmedAt?: string | null;
+  /** Helper tasks only: set by the server when the start OTP / completion PIN was accepted (ISO). */
+  taskStartedAt?: string | null;
+  taskCompletedAt?: string | null;
 }
 
 export interface CompletedOrder {
@@ -144,6 +156,8 @@ export interface DriverState {
   driverEmail: string;
   driverUserId: string | null;
   token: string | null;
+  /** One-use token that renews `token` when it expires (see utils/api/sessionRefresh.ts). */
+  refreshToken: string | null;
   isAuthenticated: boolean;
   /** True only once an admin has approved the driver (status "completed"). */
   hasCompletedOnboarding: boolean;
@@ -170,7 +184,9 @@ export interface DriverState {
   completeOrder: () => void;
   setIncomingOrder: (order: Order | null) => void;
   updateDriverLocation: (lat: number, lng: number) => void;
-  setAuthenticated: (name: string, phone: string, token: string, userId: string) => void;
+  setAuthenticated: (name: string, phone: string, token: string, userId: string, refreshToken?: string | null) => void;
+  /** Stores a renewed token pair after a silent refresh. */
+  setTokens: (tokens: { token: string; refreshToken: string }) => void;
   setOnboardingCompleted: () => void;
   /** Records the status the server returned, e.g. after submitting onboarding. */
   setOnboardingStatus: (status: DriverOnboardingStatus) => void;

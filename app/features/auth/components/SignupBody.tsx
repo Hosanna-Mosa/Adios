@@ -1,6 +1,6 @@
 import { ScrollView, Text, View } from "react-native";
+import { Trans, useTranslation } from "react-i18next";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
-import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { fadeInUp } from "@/motion/presets";
@@ -108,9 +108,14 @@ export function SignupBody({
           <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
             {agreedToTerms && <Ionicons name="checkmark" size={moderateScale(14)} color={accent.on} />}
           </View>
+          {/* One sentence key, so Hindi/Telugu can order it naturally (it was English " and "
+              between translated pieces). The names are emphasised, not link-coloured: there
+              are no Terms / Privacy pages to open, and tapping them only ticks the box. */}
           <Text style={styles.termsText}>
-            {t("app.auth.iAgreeToThe")} <Text style={styles.legalHighlight}>{t("app.auth.terms")}</Text> and{" "}
-            <Text style={styles.legalHighlight}>{t("app.auth.privacyPolicy")}</Text>.
+            <Trans
+              i18nKey="app.auth.agreeToTermsAndPrivacy"
+              components={{ terms: <Text style={styles.legalHighlight} />, privacy: <Text style={styles.legalHighlight} /> }}
+            />
           </Text>
         </TouchableOpacity>
       </Animated.View>

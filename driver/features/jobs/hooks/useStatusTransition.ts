@@ -65,26 +65,35 @@ export function useStatusTransition(args: Args) {
     }
   }, [currentOrder, updateOrderStatus, verification, cashStillToCollect]);
 
+  /**
+   * Helper tasks: start with the customer's start OTP, complete with their completion PIN.
+   * Neither code is sent to the helper, so whatever was typed goes to the server, which
+   * checks it — its message is what the helper sees when it says no.
+   */
   const runHelper = useCallback(async (status: string) => {
     if (status === "delivered" || status === "completed") {
       finish();
       return;
     }
-    if (
-      !otpMatches(verification.customerOTP, currentOrder.deliveryOtp, currentOrder.id.slice(-4))
-    ) {
-      verification.setCustomerOTPError(true);
+    const started = status === "in_progress";
+    // The start OTP lives in the pickup-code field: on the server it is the order's pickup code.
+    const code = (started ? verification.customerOTP : verification.restaurantOTP).trim();
+    const setError = started ? verification.setCustomerOTPError : verification.setRestaurantOTPError;
+    if (!code) {
+      verification.setOtpErrorMessage("");
+      setError(true);
       return;
     }
-    verification.setCustomerOTPError(false);
-    if (cashStillToCollect()) return;
+    if (started && cashStillToCollect()) return;
     try {
-      await updateOrderStatus("delivered", verification.customerOTP);
+      await updateOrderStatus(started ? "delivered" : "IN_PROGRESS", code);
+      setError(false);
+      verification.setOtpErrorMessage("");
     } catch (err: any) {
-      verification.setCustomerOTPError(true);
-      warnVerificationFailed(err, t("jobs.customer"));
+      verification.setOtpErrorMessage(err?.message || "");
+      setError(true);
     }
-  }, [currentOrder, verification, updateOrderStatus, finish, t, cashStillToCollect]);
+  }, [verification, updateOrderStatus, finish, cashStillToCollect]);
 
   /** Food delivery has an extra "picking_items" checklist gate. */
   const runPickingItems = useCallback(async () => {

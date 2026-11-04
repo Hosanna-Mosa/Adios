@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import User, { UserRole } from "../../database/models/User";
+import Driver, { DriverStatus } from "../../database/models/Driver";
 import RevokedToken from "../../database/models/RevokedToken";
 import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
@@ -57,6 +58,17 @@ const DUMMY_PASSWORD_HASH = "$2b$10$bPAxJGsgdz.EoM9tuODmYOti.AVMh.XLTXpxeeIkuU5E
 
 const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, or use a different email.";
 
+/**
+ * A new sign-in starts a driver offline. The app takes the server's shift status
+ * as the truth on startup, so a driver who uninstalled while online (the server
+ * never heard them go offline) came back "online" on the fresh install and kept
+ * getting jobs they hadn't chosen to take.
+ */
+async function startDriverSessionOffline(user: { _id: unknown; role: UserRole }) {
+  if (user.role !== UserRole.DRIVER) return;
+  await Driver.updateOne({ user: String(user._id) }, { $set: { status: DriverStatus.OFFLINE, isAvailable: false } });
+}
+
 export class AuthService {
   async requestOTP(phone: string, email?: string) {
     // Checked before the OTP step so a sign-up with a taken email fails here,
@@ -70,7 +82,7 @@ export class AuthService {
     return { success: true, message: "OTP sent successfully" };
   }
 
-  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string) {
+  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string, accessTtl = "30d") {
     // Dummy mode — ANY code is accepted. No DB lookup needed.
     console.log(`[DUMMY AUTH] Verifying OTP for ${phone}. Code: ${_code} — accepted.`);
 
@@ -121,11 +133,12 @@ export class AuthService {
       console.log(`[DUMMY AUTH] New user created: ${name} (${phone}) with password and email ${email || ""}`);
     }
 
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    await startDriverSessionOffline(user);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token, isNewUser: false };
   }
 
-  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole) {
+  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole, accessTtl = "30d") {
     const query = {
       ...buildLoginIdentifierQuery(phoneOrEmail),
       role,
@@ -156,7 +169,8 @@ export class AuthService {
       throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
     }
 
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    await startDriverSessionOffline(user);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token };
   }
 
@@ -174,7 +188,7 @@ export class AuthService {
     return { success: true, message: "Signed out of all devices" };
   }
 
-  generateToken(userId: string, role: UserRole, tokenVersion = 0) {
+  generateToken(userId: string, role: UserRole, tokenVersion = 0, expiresIn = "30d") {
     return jwt.sign(
       // jti gives this specific token an identity distinct from every other
       // token this account holds, so POST /auth/logout can revoke just this
@@ -182,7 +196,7 @@ export class AuthService {
       // logoutAll's tokenVersion bump does.
       { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
-      { expiresIn: "30d" } // 30 days
+      { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] } // 30 days unless the client signs in with a refresh token
     );
   }
 

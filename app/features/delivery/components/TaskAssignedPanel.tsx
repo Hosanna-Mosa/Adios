@@ -7,7 +7,7 @@ import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
-import { type HelperTaskStyles } from "@/features/delivery/helper-task.styles";
+import { type HelperTaskStyles } from "../helper-task.styles";
 
 // Moved out of app/helper-task.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -20,6 +20,7 @@ interface Props {
   handleCancel: () => void;
   insets: EdgeInsets;
   offer: any;
+  orderId: string | null;
   pickupLocation: any;
   startOtp: any;
   styles: HelperTaskStyles;
@@ -34,6 +35,7 @@ export function TaskAssignedPanel({
   handleCancel,
   insets,
   offer,
+  orderId,
   pickupLocation,
   startOtp,
   styles,
@@ -72,7 +74,7 @@ export function TaskAssignedPanel({
           <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL(`tel:${activeDriver.phone || ""}`)}>
             <Text style={styles.callBtnText}>{t("app.delivery.call")}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.messageBtn} onPress={() => router.push("/chat")}>
+          <TouchableOpacity style={styles.messageBtn} onPress={() => router.push(orderId ? { pathname: "/chat", params: { orderId } } : "/chat")}>
             <Text style={styles.messageBtnText}>{t("app.delivery.message")}</Text>
           </TouchableOpacity>
         </Animated.View>

@@ -1,5 +1,6 @@
 import { ActivityIndicator, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import { EmptySearchState } from "@/features/home/components/EmptySearchState";
 import { NoRidersState } from "@/features/home/components/NoRidersState";
 import { DishSearchResultItem } from "@/features/home/components/DishSearchResultItem";
@@ -19,6 +20,7 @@ import { buildHomeListRenderItem } from "./HomeListRenderItem";
 import type { Props } from "./HomeListSection.props";
 
 export function HomeListSection(props: Props) {
+  const { t } = useTranslation();
   const { nearbyDriversCount, loadingDrivers, activeService, tabBarHeight, searchText,
   setSearchText, loadingMore, isRetryingDrivers, setIsRetryingDrivers, setPage, setHasMore,
   tokens, accent, styles, cartVendorName, keyboardHeight, hasNoLocation, getCoords, fetchVendors,
@@ -72,7 +74,20 @@ export function HomeListSection(props: Props) {
         }
         if (searchText) {
           const hasActiveFilters = activeFilterCount > 0;
-          const tryInstead = activeService === "Meat" ? ["Chicken curry cut", "Mutton", "Prawns"] : ["Biryani", "Pizza", "₹149 meals"];
+          // Shown translated, searched in English: menus are in English, so the chip's
+          // search term stays as written while its label follows the app language.
+          const tryInstead =
+            activeService === "Meat"
+              ? [
+                  { term: "Chicken curry cut", label: t("app.home.suggest.chickenCurryCut") },
+                  { term: "Mutton", label: t("app.home.suggest.mutton") },
+                  { term: "Prawns", label: t("app.home.suggest.prawns") },
+                ]
+              : [
+                  { term: "Biryani", label: t("app.home.suggest.biryani") },
+                  { term: "Pizza", label: t("app.home.suggest.pizza") },
+                  { term: "₹149 meals", label: t("app.home.suggest.meals149") },
+                ];
           return (
             <HomeEmptySearchContainer
               hasActiveFilters={hasActiveFilters}

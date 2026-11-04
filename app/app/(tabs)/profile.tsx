@@ -1,6 +1,6 @@
 import { ScrollView } from "react-native";
 import Animated from "react-native-reanimated";
-import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/Header";
 import { AppTabBar } from "@/components/AppTabBar";
 import { fadeInDown, fadeInUp } from "@/motion/presets";
@@ -14,6 +14,7 @@ import { SecuritySheet } from "@/features/profile/components/SecuritySheet";
 import { useProfile } from "@/features/profile/useProfile";
 
 export default function ProfileScreen() {
+  const { t } = useTranslation();
   const {
   insets, tabBarHeight, user, theme, toggleTheme, tokens, accent, styles, loading,
   securityVisible, setSecurityVisible, currentPassword, setCurrentPassword,
@@ -25,7 +26,7 @@ export default function ProfileScreen() {
   return (
     <ScreenShell>
       <Header
-        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
+        title={t("tabs.account")}
         style={{ paddingTop: insets.top + 12 }}
         entering={fadeInDown(0)}
       />
@@ -73,11 +74,11 @@ export default function ProfileScreen() {
 
       {/* Security modal */}
       <SecuritySheet
-        accent={accent}
         changingPassword={changingPassword}
         confirmPassword={confirmPassword}
         currentPassword={currentPassword}
         handleChangePassword={handleChangePassword}
+        insets={insets}
         newPassword={newPassword}
         securityVisible={securityVisible}
         setConfirmPassword={setConfirmPassword}

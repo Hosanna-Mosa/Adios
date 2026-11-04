@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { outletKey } from "../../orderStops";
 import { useActiveOrderCtx } from "../../ActiveOrderContext";
 import { ContactHeaderRow, OrderStage, RoundCommButton, StageActionButton, StageSpacer } from "../order";
 import { callPhone } from "../../utils/callPhone";
@@ -12,9 +13,9 @@ export function DeliveryEnRoutePickupStage() {
   const { currentOrder, pickupStop, isSimulating, handleStatusTransition } = useActiveOrderCtx();
 
   return (
-    <OrderStage title={t("jobs.travelToRestaurant")} showPulse={isSimulating}>
+    <OrderStage title={t(outletKey(currentOrder, "jobs.travelToRestaurant"))} showPulse={isSimulating}>
       <ContactHeaderRow
-        name={<>{currentOrder.vendorName || pickupStop?.locationName || t("jobs.restaurant")}</>}
+        name={<>{currentOrder.vendorName || pickupStop?.locationName || t(outletKey(currentOrder, "jobs.restaurant"))}</>}
         address={pickupStop?.address}
         actions={
           <>
@@ -28,7 +29,7 @@ export function DeliveryEnRoutePickupStage() {
       />
 
       <StageSpacer />
-      <StageActionButton label={t("jobs.arrivedAtRestaurant")} onPress={handleStatusTransition} />
+      <StageActionButton label={t(outletKey(currentOrder, "jobs.arrivedAtRestaurant"))} onPress={handleStatusTransition} />
       <CancelDeliveryButton />
     </OrderStage>
   );

@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { scrubDriverSecrets, scrubVendorSecrets } from "../../utils/scrubSecrets";
 
 export enum ServiceType {
   BIKE = "bike",
@@ -183,6 +184,15 @@ export interface IOrder extends Omit<Document, "_id"> {
   review?: mongoose.Types.ObjectId;
   declineReasons?: { driverId: string; reason: string }[];
   totalCandidatesCount?: number;
+  // Helper tasks. assignConfirmedAt: the customer confirmed the task to the helper in chat
+  // (unlocks Start). taskStartedAt / taskCompletedAt: the start OTP and completion PIN were
+  // verified. searchExhaustedAt: every helper offered passed; the task expires after a while.
+  assignConfirmedAt?: Date | null;
+  taskStartedAt?: Date | null;
+  taskCompletedAt?: Date | null;
+  searchExhaustedAt?: Date | null;
+  /** Online helper tasks: extra Razorpay payments made by raising the price while searching. */
+  topupPayments?: mongoose.Types.ObjectId[];
   // Food (restaurant) orders only. Unset on every other order, which keeps the sequential dispatcher.
   dispatchMode?: DispatchMode;
   /** Food orders: the restaurant must accept before this, or the order is cancelled. */
@@ -314,6 +324,11 @@ const OrderSchema: Schema = new Schema(
     duration: { type: Number },
     customerPrice: { type: Number },
     totalCandidatesCount: { type: Number, default: 0 },
+    assignConfirmedAt: { type: Date, default: null },
+    taskStartedAt: { type: Date, default: null },
+    taskCompletedAt: { type: Date, default: null },
+    searchExhaustedAt: { type: Date, default: null },
+    topupPayments: { type: [{ type: Schema.Types.ObjectId, ref: "Payment" }], default: undefined },
     bookingFor: {
       type: {
         type: String,
@@ -412,6 +427,10 @@ const OrderSchema: Schema = new Schema(
         // Same for the sequential offer: only the offered driver reads it, through
         // GET /orders/driver/offer, which goes to the document directly.
         delete ret.currentOffer;
+        // A populated driver / vendor is a whole document (Aadhaar, PAN, bank account, password
+        // hash). Orders go to the customer, the driver and the restaurant, so none of that is sent.
+        scrubDriverSecrets(ret.driver);
+        scrubVendorSecrets(ret.vendor);
         return ret;
       },
     },
@@ -430,6 +449,11 @@ OrderSchema.index({ "currentOffer.driverUserId": 1 }, { sparse: true });
 OrderSchema.index(
   { restaurantAcceptBy: 1 },
   { partialFilterExpression: { dispatchMode: "broadcast", status: "CREATED" } },
+);
+// Helper tasks still searching — the expiry sweep reads only these.
+OrderSchema.index(
+  { searchExhaustedAt: 1 },
+  { partialFilterExpression: { serviceType: "helper", status: "SEARCHING_DRIVER" } },
 );
 
 export default mongoose.model<IOrder>("Order", OrderSchema);

@@ -53,7 +53,23 @@ export function useOrdersHandleReorder(reorderIntoCart: any) {
     }
 
     if (order.serviceType === "helper") {
-      router.push("/helper-task");
+      // Same task again: the helper screen pre-fills from these and asks the server for today's price.
+      const [task, ...rest] = order.stops || [];
+      const drop = rest.find((s: any) => s.type === "drop") || rest[rest.length - 1];
+      const coord = (stop: any, i: 0 | 1) => (stop?.location?.coordinates?.[i] != null ? String(stop.location.coordinates[i]) : "");
+      router.push({
+        pathname: "/helper-task",
+        params: {
+          description: String(task?.items?.instructions || task?.instructions || ""),
+          pickupAddress: task?.address || "",
+          pickupLat: coord(task, 1),
+          pickupLng: coord(task, 0),
+          dropAddress: drop?.address || "",
+          dropLat: coord(drop, 1),
+          dropLng: coord(drop, 0),
+          hours: order.duration != null ? String(order.duration) : "",
+        },
+      });
       return;
     }
 

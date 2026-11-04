@@ -100,6 +100,8 @@
         "bookedByMistake": "गलती से बुक हो गया",
         "fareTooHigh": "किराया बहुत ज़्यादा है",
         "foundAnotherRide": "दूसरी राइड मिल गई",
+        "priceTooHigh": "कीमत बहुत ज़्यादा है",
+        "changedMind": "मेरा मन बदल गया",
         "other": "अन्य"
       }
     },
@@ -111,24 +113,6 @@
       }
     },
     "support": {
-      "faqs": {
-        "lateOrder": {
-          "question": "मेरा ऑर्डर देर से आ रहा है. अब क्या करें?",
-          "answer": "पहले ट्रैक स्क्रीन पर लाइव मैप देखें — ज़्यादातर देरी पार्टनर की तरफ़ के ट्रैफ़िक की वजह से होती है. अगर यह अनुमानित समय से काफ़ी आगे निकल गया है, तो उसी ऑर्डर के लिए लाइव चैट खोलें, हम इसे देखेंगे."
-        },
-        "refunds": {
-          "question": "रिफ़ंड कैसे काम करता है?",
-          "answer": "अगर किसी पेमेंट का रिफ़ंड ज़रूरी हो, तो हमारी सपोर्ट टीम उसकी समीक्षा करके Razorpay के ज़रिए आपके मूल भुगतान तरीक़े में रिफ़ंड कर देती है. लाइव चैट या टिकट के ज़रिए इसे बताएं, पूरा होने पर हम पुष्टि कर देंगे."
-        },
-        "cancelOrder": {
-          "question": "क्या मैं अपना ऑर्डर रद्द कर सकता हूँ?",
-          "answer": "हाँ — पूरा होने से पहले इसे ऑर्डर्स या ट्रैक स्क्रीन से कभी भी रद्द किया जा सकता है. अगर पार्टनर पहले ही उस पर काम शुरू कर चुका है, तो चैट में एक छोटा सा मैसेज उन्हें बेकार की यात्रा से पहले रोकने में मदद करता है."
-        },
-        "pinSafety": {
-          "question": "क्या मेरा पिन शेयर करना सुरक्षित है?",
-          "answer": "इसे तभी दें जब आपका सामान आपके हाथ में भौतिक रूप से आ चुका हो, या राइड के लिए आपका राइडर पहुँच चुका हो. Adios से कोई भी इसे कभी कॉल पर नहीं माँगेगा."
-        }
-      },
       "categories": {
         "operationalIssue": "परिचालन समस्या",
         "delayedDelivery": "देरी से डिलीवरी",
@@ -171,7 +155,18 @@
       "careflavourinWithin24Hours": "care@flavour.in · 24 घंटों में",
       "raiseANewTicket": "नई टिकट दर्ज करें",
       "addATitleAndAShort": "पहले एक शीर्षक और संक्षिप्त विवरण जोड़ें।",
-      "messageNotSent": "संदेश नहीं भेजा गया"
+      "messageNotSent": "संदेश नहीं भेजा गया",
+      "todayAt": "आज, {{time}}",
+      "yesterdayAt": "कल, {{time}}",
+      "yesterday": "कल",
+      "send": "भेजें",
+      "back": "वापस",
+      "call": "कॉल करें",
+      "closeModal": "बंद करें",
+      "caseClosedOn": "{{date}} को बंद",
+      "caseMeta_one": "{{count}} संदेश · {{date}} को अपडेट",
+      "caseMeta_other": "{{count}} संदेश · {{date}} को अपडेट",
+      "noMessagesYet": "अभी कोई संदेश नहीं"
     },
     "tracking": {
       "rideLabels": {
@@ -198,7 +193,20 @@
       "restaurantPin": "रेस्टोरेंट",
       "deliveryLocationPin": "आपकी डिलीवरी लोकेशन",
       "pickupPin": "पिकअप",
-      "dropPin": "ड्रॉप"
+      "dropPin": "ड्रॉप",
+      "banner": {
+        "riderArrived": "राइडर पहुँच गया है",
+        "helperArrived": "हेल्पर पहुँच गया है",
+        "arrivedAtStore": "स्टोर पर पहुँच गया",
+        "tripInProgress": "यात्रा जारी है",
+        "taskInProgress": "काम जारी है",
+        "outForDelivery": "डिलीवरी के लिए निकला",
+        "arrivedAtDestination": "मंज़िल पर पहुँच गए",
+        "arrivedAtYourLocation": "आपकी लोकेशन पर पहुँच गया",
+        "helperOnTheWay": "हेल्पर रास्ते में है",
+        "riderOnTheWay": "राइडर रास्ते में है",
+        "headingToPickup": "पिकअप की ओर जा रहे हैं"
+      }
     },
     "orderStatusTimeline": {
       "steps": {
@@ -283,6 +291,10 @@
       "fastDelivery": "तेज़ डिलीवरी",
       "ratings40": "रेटिंग 4.0+",
       "openNow": "अभी खुला है",
+      "deliveryAddressAccessibilityLabel": "डिलीवरी पता, {{area}}. बदलने के लिए टैप करें.",
+      "deliveryRadiusAccessibilityLabel": "डिलीवरी खोज त्रिज्या",
+      "notificationsAccessibilityLabel": "सूचनाएं",
+      "notificationsUnreadAccessibilityLabel": "सूचनाएं, {{count}} अपठित",
       "offers": "ऑफ़र",
       "under300": "₹300 से कम",
       "pureVeg": "शुद्ध शाकाहारी",
@@ -324,7 +336,7 @@
       "pickARideToSeeLive": "अपनी यात्रा के लिए लाइव किराया देखने हेतु राइड चुनें।",
       "alsoOnFlavour": "Adios पर और भी सेवाएँ",
       "hireAHelper": "एक हेल्पर बुक करें",
-      "from120Hour": "₹120 / घंटे से शुरू",
+      "from80Hour": "₹80 / घंटे से शुरू",
       "multistopCourierFrom39": "मल्टी-स्टॉप कूरियर · ₹39 से शुरू",
       "allServices": "सभी सेवाएँ",
       "searching": "खोज रहे हैं…",
@@ -353,7 +365,16 @@
       "pickAServiceToGetStarted": "शुरू करने के लिए कोई सेवा चुनें।",
       "beta": "बीटा",
       "offerEyebrow": "ऑफ़र",
-      "viewOffer": "ऑफ़र देखें"
+      "viewOffer": "ऑफ़र देखें",
+      "kmUnit": "कि.मी.",
+      "suggest": {
+        "chickenCurryCut": "चिकन करी कट",
+        "mutton": "मटन",
+        "prawns": "झींगे",
+        "biryani": "बिरयानी",
+        "pizza": "पिज़्ज़ा",
+        "meals149": "₹149 मील्स"
+      }
     },
     "profile": {
       "menuItems": {
@@ -396,7 +417,8 @@
       "changePhoto": "फ़ोटो बदलें",
       "uploadPhoto": "फ़ोटो अपलोड करें",
       "removePhoto": "फ़ोटो हटाएँ",
-      "failedToRemovePhoto": "फ़ोटो हटाने में विफल"
+      "failedToRemovePhoto": "फ़ोटो हटाने में विफल",
+      "yourNameFallback": "आपका नाम"
     },
     "food": {
       "orderFallback": {
@@ -485,6 +507,22 @@
       "veg": "शाकाहारी",
       "nonveg": "मांसाहारी",
       "add": "जोड़ें",
+      "decreaseQuantity": "मात्रा घटाएं",
+      "increaseQuantity": "मात्रा बढ़ाएं",
+      "addToFavorites": "फ़ेवरेट में जोड़ें",
+      "removeFromFavorites": "फ़ेवरेट से हटाएं",
+      "search": "खोजें",
+      "closeSearch": "खोज बंद करें",
+      "clearSearch": "खोज साफ़ करें",
+      "share": "शेयर करें",
+      "deliveryAmount": "₹{{amount}} डिलीवरी",
+      "soldOut": "समाप्त",
+      "fromVendor": "{{vendor}} से",
+      "minOrderFromPerKg": "₹{{amount}} / किग्रा से",
+      "costForTwo": "दो के लिए ₹{{amount}}",
+      "addMoreToUnlock": "इसका उपयोग करने के लिए ₹{{amount}} और जोड़ें",
+      "savesOnOrder": "इस ऑर्डर पर ₹{{amount}} की बचत",
+      "noAddressSelected": "कोई पता चयनित नहीं",
       "ratings": "रेटिंग)",
       "hygieneAmpSafety": "स्वच्छता व सुरक्षा",
       "kitchenAuditedByFssaiLicence": "किचन FSSAI द्वारा ऑडिट किया गया · लाइसेंस",
@@ -545,7 +583,10 @@
       "percentOff": "{{percent}}% छूट",
       "bestseller": "बेस्टसेलर",
       "kcal": "{{value}} kcal",
-      "proteinGrams": "{{value}} ग्राम प्रोटीन"
+      "proteinGrams": "{{value}} ग्राम प्रोटीन",
+      "restaurantFallback": "रेस्टोरेंट",
+      "kmAway": "{{km}} कि.मी. दूर",
+      "deliveryFeeAmount": "₹{{amount}} डिलीवरी"
     },
     "orders": {
       "refundedOriginal": "₹{{amount}} आपके मूल भुगतान तरीके में वापस कर दिए गए · {{date}}",
@@ -553,8 +594,6 @@
       "refundInProgress": "₹{{amount}} का रिफ़ंड प्रोसेस हो रहा है · आमतौर पर 5–7 कार्य दिवस",
       "refundBeingArranged": "आपके ₹{{amount}} के रिफ़ंड की व्यवस्था की जा रही है। ज़रूरत होने पर हमारी टीम आपसे संपर्क करेगी।",
       "preparingYourOrder": "आपका ऑर्डर तैयार किया जा रहा है",
-      "helperOnTheWay": "हेल्पर रास्ते में है",
-      "matchingAHelper": "हेल्पर खोजा जा रहा है",
       "riderOnTheRoute": "राइडर रास्ते में है",
       "findingYourCaptain": "आपका राइडर खोजा जा रहा है",
       "past": "पिछले",
@@ -573,6 +612,10 @@
       "showOrdersCount_one": "{{count}} ऑर्डर दिखाएं",
       "showOrdersCount_other": "{{count}} ऑर्डर दिखाएं",
       "rateYourOrder": "अपने ऑर्डर को रेट करें",
+      "starRating_one": "{{count}} स्टार",
+      "starRating_other": "{{count}} स्टार",
+      "filtersAccessibilityLabel": "फ़िल्टर",
+      "filtersActiveAccessibilityLabel": "फ़िल्टर, सक्रिय",
       "addFeedbackOptional": "फ़ीडबैक जोड़ें (वैकल्पिक)",
       "cancel": "रद्द करें",
       "submit": "सबमिट करें",
@@ -599,12 +642,20 @@
       "placedAt": "{{time}} बजे ऑर्डर किया",
       "deliveringTo": "डिलीवरी पता",
       "dropAt": "ड्रॉप",
-      "taskLocation": "काम की जगह"
+      "taskLocation": "काम की जगह",
+      "findingAHelper": "हेल्पर खोजा जा रहा है",
+      "helperAssigned": "हेल्पर असाइन हुआ",
+      "taskInProgress": "काम जारी है",
+      "taskCompleted": "काम पूरा हुआ",
+      "all": "सभी",
+      "slotRejectedFallback": "रेस्टोरेंट चुने गए समय पर यह ऑर्डर नहीं ले सका।",
+      "invoice": "इनवॉइस",
+      "invoiceUnavailable": "इनवॉइस उपलब्ध नहीं"
     },
     "helperTask": {
       "title": {
         "compose": "हेल्पर बुक करें",
-        "bidding": "आपका ऑफ़र",
+        "offer": "अपना ऑफ़र तय करें",
         "searching": "हेल्पर खोजा जा रहा है",
         "assigned": "टास्क असाइन हुआ",
         "noHelpersYet": "अभी कोई हेल्पर नहीं"
@@ -655,9 +706,6 @@
       "supportLinkText": "सपोर्ट",
       "toChangeItThereapossNoSelfserve": "इसे बदलने के लिए — नया नंबर खुद फिर से वेरिफ़ाई करने का कोई तरीका अभी नहीं है.",
       "updateProfile": "प्रोफ़ाइल अपडेट करें",
-      "iAgreeToThe": "मैं सहमत हूं",
-      "terms": "नियम",
-      "privacyPolicy": "गोपनीयता नीति",
       "createAccount": "अकाउंट बनाएं",
       "alreadyHaveOne": "पहले से अकाउंट है?",
       "signIn": "साइन इन करें",
@@ -677,11 +725,17 @@
       "verifyYourNumber": "अपना नंबर सत्यापित करें",
       "weSentA6digitCodeTo": "हमने 6 अंकों का कोड भेजा है",
       "change": "बदलें",
-      "resendCodeIn0": "0: में कोड फिर से भेजें",
       "resend": "फिर से भेजें",
       "verified": "सत्यापित",
       "createYourAccount": "अपना अकाउंट बनाएं",
-      "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे."
+      "takesAboutAMinuteWeaposllVerify": "करीब एक मिनट लगेगा. हम OTP से आपका फ़ोन सत्यापित करेंगे.",
+      "strength": {
+        "weak": "कमज़ोर",
+        "fair": "ठीक",
+        "good": "अच्छा"
+      },
+      "agreeToTermsAndPrivacy": "मैं <terms>शर्तों</terms> और <privacy>गोपनीयता नीति</privacy> से सहमत हूँ।",
+      "resendCodeIn": "{{time}} में कोड फिर से भेजें"
     },
     "delivery": {
       "streetAddress": "सड़क का पता",
@@ -707,7 +761,6 @@
       "stopCount_other": "{{count}} स्टॉप",
       "addPickupLocation": "+ पिकअप लोकेशन जोड़ें",
       "calculatingRoute": "रूट की गणना हो रही है…",
-      "kmAbout": "किमी · लगभग",
       "addAPickupToSeeDistance": "दूरी देखने के लिए पिकअप जोड़ें",
       "deliveryLower": "डिलीवरी",
       "reviewRoute": "रूट की समीक्षा करें",
@@ -739,6 +792,8 @@
       "addingThisStop": "यह स्टॉप जोड़ा जा रहा है:",
       "deliveryGoes": ", डिलीवरी शुल्क ₹",
       "addStopToRoute": "रूट में स्टॉप जोड़ें",
+      "addItem": "वस्तु जोड़ें",
+      "removeItem": "वस्तु हटाएं",
       "storeNameOptional": "स्टोर का नाम · वैकल्पिक",
       "egKarachiBakery": "जैसे करांची बेकरी",
       "pickupAddress": "पिकअप पता",
@@ -767,7 +822,6 @@
       "minutes": "मिनट",
       "taskDescription": "टास्क विवरण",
       "twoPeopleToCarryA3seater": "चौथी मंज़िल से 3-सीटर सोफ़ा और 4 कार्टन नीचे लाने के लिए दो लोग चाहिए. रात 8 बजे के बाद लिफ़्ट नहीं है.",
-      "helpersSeeThisBeforeTheyBid": "हेल्पर बोली लगाने से पहले यह देखते हैं. सीढ़ियां, वज़न और भारी चीज़ों का ज़िक्र करें.",
       "whereTheWorkStarts": "काम कहाँ से शुरू होता है",
       "pickupLocation": "पिकअप लोकेशन",
       "whereItEnds": "यह कहाँ खत्म होता है",
@@ -826,7 +880,6 @@
       "helpersNotified": "हेल्पर को सूचित किया गया",
       "waitingForTheFirstAcceptance": "पहली स्वीकृति का इंतज़ार",
       "currentOffer": "मौजूदा ऑफ़र",
-      "mAbout": "मि · लगभग ₹",
       "20Steps": "₹20 के चरण",
       "findingAHelper": "हेल्पर खोजा जा रहा है",
       "dragToAdjust": "समायोजित करने के लिए खींचें",
@@ -834,11 +887,7 @@
       "saved": "सेव किए गए",
       "near": "पास",
       "recent": "हाल के",
-      "save": "सेव करें",
-      "yourOfferIsVisibleToNearby": "हेल्पर खोजें दबाते ही आपका ऑफ़र पास के हेल्पर को दिखेगा.",
       "findAHelper": "हेल्पर खोजें · ₹",
-      "outOfRange": "सीमा से बाहर",
-      "thisLocationIsOutsideYourSelected": "यह लोकेशन आपके चुने गए {{value}}किमी दायरे से बाहर है.",
       "deleteAddress": "पता हटाएं",
       "areYouSureRemoveAddress": "क्या आप वाकई इस पते को हटाना चाहते हैं?",
       "deleteWord": "हटाएं",
@@ -855,7 +904,27 @@
       "offeredToHelpersSomePassed_one": "हमने इसे पास के {{count}} हेल्पर को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
       "offeredToHelpersSomePassed_other": "हमने इसे पास के {{count}} हेल्पर्स को ऑफ़र किया, और {{passed}} ने मना कर दिया। ऑफ़र बढ़ाने से आमतौर पर कुछ ही मिनटों में कोई मिल जाता है।",
       "nobodyOnShiftNearYou": "अभी आपके पास कोई ड्यूटी पर नहीं है। ऑफ़र बढ़ाने या थोड़ी देर में फिर कोशिश करने से आमतौर पर मदद मिलती है।",
-      "raising": "बढ़ा रहे हैं…"
+      "raising": "बढ़ा रहे हैं…",
+      "couldNotGetPrice": "इस टास्क की कीमत नहीं मिल सकी। जगहें जाँचें और फिर से कोशिश करें।",
+      "priceNotReady": "कीमत अभी तैयार नहीं है",
+      "calculatingPrice": "कीमत निकाली जा रही है…",
+      "estimatedPrice": "अनुमानित कीमत",
+      "couldNotCancelTask": "टास्क रद्द नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "cancelThisRequest": "यह अनुरोध रद्द करें?",
+      "cancelThisRequestHint": "आपका टास्क अभी चालू है। इसे चलने दें और मेरे ऑर्डर से वापस खोलें, या अभी रद्द करें।",
+      "keepIt": "रहने दें",
+      "cancelRequest": "अनुरोध रद्द करें",
+      "couldNotLoadTask": "यह टास्क लोड नहीं हो सका। कृपया फिर से कोशिश करें।",
+      "offerGoesToHelpersOneAtATime": "आपका टास्क इसी कीमत पर पास के हेल्पर्स को एक-एक करके भेजा जाता है।",
+      "helpersSeeThisBeforeTheyAccept": "हेल्पर स्वीकार करने से पहले इसे पढ़ते हैं। सीढ़ियाँ, वज़न और कोई भी भारी सामान बताएँ।",
+      "offerRange": "आप ₹{{min}} – ₹{{max}} तक का ऑफ़र दे सकते हैं",
+      "yourOffer": "आपका ऑफ़र",
+      "offerForDuration": "{{hours}} घं {{minutes}} मि के लिए · लगभग ₹{{perHour}}/घंटा",
+      "recommendedPrice": "सुझाई गई कीमत · ₹{{amount}}",
+      "taskCancelsAutomatically": "अगर अगले कुछ मिनटों में कोई इसे नहीं लेता, तो हम टास्क अपने-आप रद्द कर देंगे।",
+      "distanceKm": "{{km}} कि.मी.",
+      "aboutMinutes": "लगभग {{min}} मिनट",
+      "multiStopDelivery": "मल्टी-स्टॉप डिलीवरी"
     },
     "ride": {
       "whyDoYouWantToCancel": "आप क्यों रद्द करना चाहते हैं?",
@@ -998,6 +1067,26 @@
       "deliveryPin": "डिलीवरी PIN",
       "onlyGiveThisCodeWhenYour": "यह कोड तभी दें जब आपका सामान सुरक्षित रूप से मिल जाए।",
       "minAway": "मिनट दूर",
+      "etaSummary": "{{km}} किमी · लगभग {{min}} मिनट",
+      "minutesAway": "{{min}} मिनट दूर",
+      "pickupLabel": "पिकअप",
+      "dropLabel": "ड्रॉप",
+      "pickupLocationPlaceholder": "पिकअप स्थान",
+      "pickupPointFallback": "पिकअप पॉइंट",
+      "rideCompletedHeadline": "राइड पूरी हुई",
+      "taskCompleteHeadline": "कार्य पूरा हुआ",
+      "orderDeliveredHeadline": "ऑर्डर डिलीवर हो गया",
+      "arrivedSafelyWithName": "आप {{name}} के साथ सुरक्षित पहुंच गए।",
+      "arrivedSafelyNoName": "आप सुरक्षित पहुंच गए।",
+      "helperFinishedWithTime": "{{name}} ने {{time}} में कार्य पूरा किया।",
+      "helperFinishedNoTime": "{{name}} ने कार्य पूरा किया।",
+      "deliveredByWithTime": "{{name}} द्वारा {{time}} में डिलीवर किया गया।",
+      "deliveredByNoTime": "{{name}} द्वारा डिलीवर किया गया।",
+      "yourHelperFallback": "आपका हेल्पर",
+      "assignedPartnerFallback": "नियुक्त पार्टनर",
+      "deliveryPartnerFallback": "डिलीवरी पार्टनर",
+      "zoomIn": "ज़ूम इन",
+      "zoomOut": "ज़ूम आउट",
       "chooseATrip": "एक ट्रिप चुनें",
       "bookUpTo7DaysAhead": "7 दिन पहले तक बुक करें",
       "book": "बुक करें",
@@ -1027,7 +1116,10 @@
       "cancelledByAdios": "Adios द्वारा ऑर्डर रद्द किया गया",
       "adiosCancelledOrder": "Adios टीम ने यह ऑर्डर रद्द कर दिया है। कोई भी ऑनलाइन भुगतान वापस कर दिया जाएगा। कोई सवाल हो तो सपोर्ट से संपर्क करें।",
       "youCancelledThisOrder": "आपने यह ऑर्डर रद्द किया।",
-      "noRidersAvailableNow": "माफ़ करें, अभी कोई राइडर उपलब्ध नहीं है। कृपया कुछ मिनट बाद फिर से कोशिश करें।"
+      "noRidersAvailableNow": "माफ़ करें, अभी कोई राइडर उपलब्ध नहीं है। कृपया कुछ मिनट बाद फिर से कोशिश करें।",
+      "noHelperAvailable": "कोई हेल्पर उपलब्ध नहीं था",
+      "noHelperWasAvailableCancelled": "आपके टास्क के लिए कोई हेल्पर उपलब्ध नहीं था, इसलिए हमने इसे रद्द कर दिया है।",
+      "etaMinutes": "{{min}} मिनट"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "स्टोर नहीं खोला जा सका",
@@ -1052,13 +1144,11 @@
     },
     "CartConflictDialog": {
       "startANewCart": "नया कार्ट शुरू करें?",
-      "yourCartHasItemsFrom": "आपके कार्ट में सामान है",
-      "adding": ". जोड़ रहे हैं",
-      "willEmptyIt": "यह इसे खाली कर देगा.",
       "clearCart": "कार्ट खाली करें",
       "keepMyCart": "मेरा कार्ट रखें",
       "anotherOutlet": "किसी अन्य आउटलेट",
-      "thisOutlet": "इस आउटलेट"
+      "thisOutlet": "इस आउटलेट",
+      "body": "आपके कार्ट में {{from}} का सामान है। {{to}} से {{item}} जोड़ने पर कार्ट खाली हो जाएगा।"
     },
     "checkout": {
       "checkout": "चेकआउट",
@@ -1076,7 +1166,11 @@
       "tomorrow": "कल"
     },
     "notifications": {
-      "nothingHereYetOrderAndAccount": "यहाँ अभी कुछ नहीं है. ऑर्डर और अकाउंट अपडेट इस सूची में दिखेंगे."
+      "nothingHereYetOrderAndAccount": "यहाँ अभी कुछ नहीं है. ऑर्डर और अकाउंट अपडेट इस सूची में दिखेंगे.",
+      "justNow": "अभी-अभी",
+      "minutesAgo": "{{count}} मि. पहले",
+      "hoursAgo": "{{count}} घं. पहले",
+      "today": "आज"
     },
     "otp": {
       "verifyContinue": "सत्यापित करें व जारी रखें"
@@ -1100,7 +1194,9 @@
       "cashHint": "ड्राइवर को भुगतान करें",
       "online": "ऑनलाइन",
       "onlineHint": "UPI, कार्ड, नेटबैंकिंग",
-      "paySecurely": "सुरक्षित रूप से भुगतान करें"
+      "paySecurely": "सुरक्षित रूप से भुगतान करें",
+      "topupRefundedTitle": "भुगतान वापस किया जा रहा है",
+      "topupRefunded": "आपका टास्क पहले ही किसी ने ले लिया है, इसलिए यह भुगतान वापस किया जा रहा है।"
     },
     "personaldetails": {
       "couldntSave": "सेव नहीं हो सका",
@@ -1121,7 +1217,9 @@
     "OfflineBanner": {
       "youaposreOffline": "आप ऑफ़लाइन हैं",
       "checking": "जांच हो रही है…",
-      "retry": "फिर से प्रयास करें"
+      "retry": "फिर से प्रयास करें",
+      "lastSyncedMinutesAgo_one": "{{count}} मिनट पहले सिंक हुआ",
+      "lastSyncedMinutesAgo_other": "{{count}} मिनट पहले सिंक हुआ"
     },
     "RestaurantListItem": {
       "pureVeg": "शुद्ध शाकाहारी"
@@ -1262,6 +1360,53 @@
       "deliveryOtpHint": "इसे पाने वाले के साथ शेयर करें। डिलीवरी पूरी करने के लिए कैप्टन को इसकी ज़रूरत है — पाने वाला इसे पैकेज मिलने के बाद ही दे।",
       "shareOtp": "पाने वाले को OTP भेजें",
       "shareOtpMessage": "आपका पैकेज डिलीवरी OTP {{otp}} है। पैकेज मिलने के बाद ही इसे कैप्टन को दें।"
+    },
+    "supportBot": {
+      "allQuestions": "सभी प्रश्न",
+      "helpedPeople_one": "{{count}} व्यक्ति की मदद की",
+      "helpedPeople_other": "{{count}} लोगों की मदद की",
+      "didThisHelp": "क्या इससे मदद मिली?",
+      "yes": "हाँ",
+      "no": "नहीं",
+      "glad": "खुशी है कि हम मदद कर सके!",
+      "talkToAgent": "एजेंट से बात करें",
+      "aboutOrder": "ऑर्डर #{{id}} के बारे में",
+      "change": "बदलें",
+      "noOrders": "हाल का कोई ऑर्डर नहीं मिला।",
+      "timeout": "इसमें सामान्य से ज़्यादा समय लग रहा है। दोबारा कोशिश करें या एजेंट से बात करें।",
+      "error": "कुछ गलत हो गया। कृपया दोबारा कोशिश करें।",
+      "tryAgain": "दोबारा कोशिश करें",
+      "limitReached": "हम त्वरित उत्तरों से इसे हल नहीं कर पाए। कृपया एजेंट से बात करें।",
+      "noQuestions": "अभी कोई त्वरित उत्तर उपलब्ध नहीं है।",
+      "categories": {
+        "ride": "राइड",
+        "food": "फ़ूड",
+        "meat": "मीट",
+        "package": "पैकेज",
+        "helper": "हेल्पर",
+        "payment": "भुगतान",
+        "general": "सामान्य"
+      }
+    },
+    "a11y": {
+      "goBack": "वापस जाएँ",
+      "unreadCount_one": "{{label}} अपठित",
+      "unreadCount_other": "{{label}} अपठित",
+      "cartWithItems_one": "कार्ट, {{count}} आइटम",
+      "cartWithItems_other": "कार्ट, {{count}} आइटम",
+      "showPassword": "पासवर्ड दिखाएँ",
+      "hidePassword": "पासवर्ड छिपाएँ",
+      "callName": "{{name}} को कॉल करें",
+      "addItem": "{{name}} जोड़ें",
+      "removeFromFavorites": "{{name}} को पसंदीदा से हटाएँ",
+      "removeStop": "स्टॉप {{name}} हटाएँ",
+      "moreOptionsFor": "{{name}} के लिए और विकल्प",
+      "close": "बंद करें",
+      "changePhoto": "फ़ोटो बदलें"
+    },
+    "language": {
+      "chooseYourLanguage": "अपनी भाषा चुनें",
+      "youCanChangeThisLater": "आप इसे बाद में अपनी प्रोफ़ाइल से बदल सकते हैं।"
     }
   }
 }

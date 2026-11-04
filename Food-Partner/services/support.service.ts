@@ -6,7 +6,8 @@ import type { SupportTicket } from "@/types/models";
 
 export const getSupportTickets = () => customFetch<SupportTicket[]>("/support/tickets");
 
-export const createSupportTicket = (body: { title: string; category: string; message: string }) =>
+/** `orderId`: one of this outlet's orders, so the support agent opens the case with it in view. */
+export const createSupportTicket = (body: { title: string; category: string; message: string; orderId?: string }) =>
   customFetch<SupportTicket>("/support/tickets", { method: "POST", body: JSON.stringify(body) });
 
 export const sendTicketMessage = (ticketId: string, text: string) =>

@@ -89,6 +89,9 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: "center",
       gap: 10,
       backgroundColor: tokens.surface,
+      // A shadow alone vanishes on dark surfaces; the border keeps the toast visible in dark mode.
+      borderWidth: 1,
+      borderColor: tokens.border,
       borderRadius: radius.md,
       paddingHorizontal: 16,
       paddingVertical: 14,

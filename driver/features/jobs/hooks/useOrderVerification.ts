@@ -10,6 +10,8 @@ export function useOrderVerification() {
   const [restaurantOTPError, setRestaurantOTPError] = useState(false);
   const [customerOTP, setCustomerOTP] = useState("");
   const [customerOTPError, setCustomerOTPError] = useState(false);
+  // The server's reason when it turned a code down (helper tasks check codes only there).
+  const [otpErrorMessage, setOtpErrorMessage] = useState("");
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState("");
 
@@ -20,6 +22,7 @@ export function useOrderVerification() {
     restaurantOTPError, setRestaurantOTPError,
     customerOTP, setCustomerOTP,
     customerOTPError, setCustomerOTPError,
+    otpErrorMessage, setOtpErrorMessage,
     rating, setRating,
     feedback, setFeedback,
   };

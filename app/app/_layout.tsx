@@ -34,6 +34,7 @@ import "@/constants/applyFontPatch";
 // still established exactly once, at app start, without a store<->sync cycle.
 import "@/contexts/cart.ownerSync";
 import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
+import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
 import { usePushNotifications } from "@/utils/usePushNotifications";
 import { useAnalytics } from "@/utils/useAnalytics";
 import { configureAnalytics } from "@/utils/analytics";
@@ -51,7 +52,7 @@ import { designTokens } from "@/constants/colors";
 
 // The API URL should be retrieved from environment variables or app config
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
-console.log("[DEBUG] API URL:", apiUrl);
+if (__DEV__) console.log("[DEBUG] API URL:", apiUrl);
 
 // QA knob: makes the update gate report this version instead of the built one,
 // so every band can be exercised without building an old APK. Inlined by Metro
@@ -76,6 +77,16 @@ if (apiUrl) {
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized clears the session and returns true only for the first of
 // a burst of parallel 401s, so the sign-out and the redirect happen once.
+// Renews the short access token silently; only a refresh the server rejects reaches the handler below.
+if (apiUrl) {
+  configureSessionRefresh({
+    apiUrl,
+    getToken: () => useAuthStore.getState().token,
+    getRefreshToken: () => useAuthStore.getState().refreshToken,
+    onTokens: (tokens) => useAuthStore.getState().setTokens(tokens),
+  });
+}
+
 setUnauthorizedHandler(() => {
   if (useAuthStore.getState().handleUnauthorized()) {
     router.replace("/login");

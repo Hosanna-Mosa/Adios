@@ -22,16 +22,19 @@ import { RIDE_TYPES } from "@/features/ride/useTracking.shared";
  * restarting the exact booking flow, which is what made placing a second order
  * feel like it was stuck behind the first.
  *
- * Tapping it always goes to /tracking — that screen already renders every phase
- * of every service type correctly, "still finding a match" included (see
- * TrackingFindingWrap), so there's one destination regardless of what the order
- * actually is or how far along it's gotten.
+ * Tapping it goes to /tracking — that screen already renders every phase of
+ * every service type, "still finding a match" included (see TrackingFindingWrap).
+ * The exception is a helper task that hasn't started: its screen is where the
+ * price is raised, the task cancelled and the start OTP shown.
  */
 interface Props {
   bottom: number;
 }
 
 // i18n keys under app.activeOrderStripe.status — resolved at render time.
+/** Store statuses of a helper task before the helper starts (see normalizeStatus). */
+const HELPER_PRE_START: OrderStatus[] = ["pending", "confirmed", "driver_assigned"];
+
 const STATUS_LABEL_KEY: Partial<Record<OrderStatus, string>> = {
   pending: "findingAMatch",
   confirmed: "findingAMatch",
@@ -75,7 +78,11 @@ export function ActiveOrderStripe({ bottom }: Props) {
       <TouchableOpacity
         style={styles.row}
         activeOpacity={0.85}
-        onPress={() => router.push({ pathname: "/tracking", params: { orderId } })}
+        accessibilityRole="button"
+        accessibilityLabel={`${title}. ${caption}. ${t("app.activeOrderStripe.track")}`}
+        onPress={() =>
+          router.push({ pathname: isHelper && HELPER_PRE_START.includes(status) ? "/helper-task" : "/tracking", params: { orderId } })
+        }
       >
         <View style={styles.iconWrap}>
           <Ionicons name={isRide ? "car-sport" : isHelper ? "construct" : "cube"} size={moderateScale(18)} color={accent.accent} />
@@ -84,7 +91,7 @@ export function ActiveOrderStripe({ bottom }: Props) {
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.caption} numberOfLines={1}>{caption}</Text>
         </View>
-        <Text style={styles.cta}>{t("app.activeOrderStripe.track")}</Text>
+        <Text style={styles.cta} numberOfLines={1}>{t("app.activeOrderStripe.track")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -99,7 +106,10 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       position: "absolute",
       left: SIDE_MARGIN,
       right: SIDE_MARGIN,
-      height: ORDER_STRIPE_HEIGHT,
+      // minHeight, not height: at large accessibility font sizes the two text
+      // lines need more room and were clipped. ORDER_STRIPE_HEIGHT stays the
+      // usual height other screens reserve space for.
+      minHeight: ORDER_STRIPE_HEIGHT,
       borderRadius: radius.lg,
       overflow: "hidden",
       backgroundColor: Platform.OS === "android" ? tokens.surface : `${tokens.surface}E6`,
@@ -113,6 +123,7 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       alignItems: "center",
       gap: 12,
       paddingHorizontal: 14,
+      paddingVertical: 8,
     },
     iconWrap: {
       width: moderateScale(32),
@@ -146,5 +157,8 @@ const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
       paddingVertical: 9,
       borderRadius: radius.pill,
       overflow: "hidden",
+      // A long translation of "Track" must not squeeze the order info column.
+      flexShrink: 0,
+      maxWidth: "40%",
     },
   });

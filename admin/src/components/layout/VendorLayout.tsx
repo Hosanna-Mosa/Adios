@@ -12,6 +12,8 @@ import {
 import { TopBar } from "./TopBar";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { useVendorLiveAlerts } from "@/features/vendors/hooks/useVendorLiveAlerts";
+import { logoutOnServer } from "@/lib/api-client";
+import { clearSession } from "@/lib/session";
 
 interface VendorLayoutProps {
   children: ReactNode;
@@ -52,8 +54,8 @@ export function VendorLayout({ children, searchPlaceholder }: VendorLayoutProps)
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("vendor_token");
-    localStorage.removeItem("vendor_data");
+    logoutOnServer();
+    clearSession();
     navigate("/vendor-login");
   };
 

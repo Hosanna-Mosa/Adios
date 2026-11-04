@@ -14,11 +14,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: tokens.bg },
     loadingText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 12 },
 
-    header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 14, backgroundColor: tokens.surface, borderBottomWidth: 1, borderBottomColor: tokens.border },
-    backBtn: { width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19), backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center" },
-    headerName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
-    headerStatus: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
-
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginHorizontal: 16, marginTop: 22, marginBottom: 12 },
 
     caseCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderLeftWidth: 3, borderRadius: 14, padding: 14 },
@@ -66,7 +61,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     reopenBtn: { borderWidth: 1.5, borderColor: accent.accent, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 9 },
     reopenBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },
 
-    resolveOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center", padding: 32 },
+    resolveOverlay: { flex: 1, backgroundColor: tokens.overlay, alignItems: "center", justifyContent: "center", padding: 32 },
     resolveCard: { backgroundColor: tokens.surface, borderRadius: 20, padding: 22, width: "100%" },
     resolveTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, lineHeight: typography.lineHeights.extraLarge, letterSpacing: -0.3, color: tokens.text },
     resolveSub: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10, marginBottom: 20 },

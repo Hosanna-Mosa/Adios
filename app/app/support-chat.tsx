@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { router } from "expo-router";
 import { SupportTicketList } from "@/features/support/components/SupportTicketList";
-import { FlatList } from "react-native";
+import { FlatList, type ScrollView as ScrollViewType } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SupportMessageBubble } from "@/features/support/components/SupportMessageBubble";
 import { SupportChatHeader } from "@/features/support/components/SupportChatHeader";
@@ -9,6 +9,7 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportChatBody } from "@/features/support/components/SupportChatBody";
 import { SupportChatLoading } from "@/features/support/components/SupportChatLoading";
+import { SupportThreadEmpty } from "@/features/support/components/SupportThreadEmpty";
 import { getSupportCategories, useSupportChat } from "@/features/support/useSupportChat";
 import { useSupportUnreadReplies } from "@/features/support/useSupportUnreadReplies";
 
@@ -21,6 +22,9 @@ export default function SupportChatScreen() {
   } = useSupportChat();
   const { t } = useTranslation();
   const { unreadCount } = useSupportUnreadReplies(allTickets, ticket, viewMode === "chat");
+  // Lets the header's "+" jump straight to "Raise a new ticket" instead of
+  // requiring a manual scroll past every existing case.
+  const ticketListRef = useRef<ScrollViewType>(null);
 
   const STATUS_LABEL: Record<string, string> = useMemo(() => ({
     OPEN: t("app.supportChat.statusLabel.open"),
@@ -51,8 +55,6 @@ export default function SupportChatScreen() {
           subtitle={`${t("app.support.case")}${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
           onBack={() => setViewMode("cases")}
           insets={insets}
-          styles={styles}
-          tokens={tokens}
           onRefresh={refresh}
           refreshing={refreshing}
         />
@@ -67,7 +69,10 @@ export default function SupportChatScreen() {
           )}
           contentContainerStyle={styles.messagesList}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={<SupportThreadEmpty tokens={tokens} />}
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+          // A new reply grows the list; keep it in view (the thread used to stay put).
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
 
                   <SupportChatBody
@@ -106,7 +111,7 @@ export default function SupportChatScreen() {
         title={t("app.support.yourCases")}
         onBack={() => router.back()}
         insets={insets}
-        styles={styles}
+        onAddPress={() => ticketListRef.current?.scrollToEnd({ animated: true })}
         tokens={tokens}
         onRefresh={refresh}
         refreshing={refreshing}
@@ -125,6 +130,7 @@ export default function SupportChatScreen() {
         newCategory={newCategory}
         newMessage={newMessage}
         newTitle={newTitle}
+        scrollRef={ticketListRef}
         setNewCategory={setNewCategory}
         setNewMessage={setNewMessage}
         setNewTitle={setNewTitle}

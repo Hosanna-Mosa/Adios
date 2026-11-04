@@ -2,7 +2,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
-import { adminFetch } from "@/lib/api-client";
+import { adminFetch, logoutOnServer } from "@/lib/api-client";
 import type { LiveOrder } from "@/features/orders/liveOrdersTypes";
 import type { VerificationQueueResponse } from "@/features/verification/types";
 import { staggerContainer, fadeInUp } from "@/components/motion/variants";
@@ -36,12 +36,15 @@ import {
   MessageSquare,
   ShieldCheck,
   BadgeCheck,
-  UtensilsCrossed,
   BadgePercent,
+  UtensilsCrossed,
+  HandHelping,
+  Bot,
+  PackageSearch,
 } from "lucide-react";
 
 // The only pages a support session can open (see RequireAdmin in RequireAuth.tsx).
-const SUPPORT_NAV_URLS = new Set(["/support", "/support-cases", "/support/chats"]);
+const SUPPORT_NAV_URLS = new Set(["/support", "/support-cases", "/support/chats", "/support/orders"]);
 
 function getNavItems(t: (key: string) => string) {
   return [
@@ -60,6 +63,7 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.meatCenters"), url: "/meat-centers", icon: Drumstick },
     { title: t("sidebar.meatPricing"), url: "/meat-pricing", icon: IndianRupee },
     { title: t("sidebar.zones"), url: "/zones", icon: Map },
+    { title: t("sidebar.helperPricing"), url: "/helper-pricing", icon: HandHelping },
     { title: t("sidebar.payments"), url: "/payments", icon: CreditCard },
     { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
     { title: t("sidebar.liveActivity"), url: "/live-activity", icon: Activity },
@@ -67,6 +71,8 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.support"), url: "/support", icon: Headphones },
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
+    { title: t("sidebar.supportOrders"), url: "/support/orders", icon: PackageSearch },
+    { title: t("sidebar.supportBot"), url: "/support-bot", icon: Bot },
     { title: t("sidebar.coupons"), url: "/coupons", icon: Ticket },
     { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
@@ -118,6 +124,7 @@ export function AppSidebar() {
   };
 
   const handleLogout = () => {
+    logoutOnServer();
     clearSession();
     // The socket authenticated with this session's token; drop it so the next
     // sign-in (possibly a different role) connects with its own.

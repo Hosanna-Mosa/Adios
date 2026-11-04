@@ -6,8 +6,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { showAlert } from "@/components/ui/AppAlert";
 import { type ServiceTokens } from "@/constants/colors";
 import { useTokens } from "@/contexts/themeStore";
+import { useOrderHistory, useVendorOrders } from "@/queries/orders.queries";
 import type { ChatMessage, SupportTicket } from "@/types/models";
 import { errorMessage } from "@/utils/errorMessage";
+import { mergeOrders } from "@/utils/orderWindow";
 import { getPartnerSupportCategories } from "./categories";
 import { createStyles } from "./support-chat.styles";
 import { useCreateTicket, useResolveTicket, useSendTicketMessage, useSupportTickets } from "./useSupportTickets";
@@ -17,7 +19,8 @@ import { useCreateTicket, useResolveTicket, useSendTicketMessage, useSupportTick
 
 export function useSupportChat() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ ticketId?: string }>();
+  // ?orderId=… comes from an order's "Get help with this order", pre-selecting it on a new case.
+  const params = useLocalSearchParams<{ ticketId?: string; orderId?: string }>();
   const insets = useSafeAreaInsets();
   const tokens = useTokens();
   const accent: ServiceTokens = useMemo(() => ({ accent: tokens.brand, skin: tokens.brandSkin, on: tokens.onBrand }), [tokens]);
@@ -36,6 +39,7 @@ export function useSupportChat() {
   const [newCategory, setNewCategory] = useState(categories[0].value);
   const [newTitle, setNewTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
+  const [newOrderId, setNewOrderId] = useState<string | null>(params.orderId ?? null);
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
   // Set only by the header's Refresh button, not by the 8 s poll.
   const [refreshing, setRefreshing] = useState(false);
@@ -45,6 +49,17 @@ export function useSupportChat() {
     await query.refetch().catch(() => {});
     setRefreshing(false);
   };
+
+  // The orders a new case can be about: today's and the latest from history, plus the
+  // one the partner came from when it is older than those.
+  const { data: liveOrders } = useVendorOrders();
+  const { data: history } = useOrderHistory();
+  const orderChoices = useMemo(() => {
+    const recent = mergeOrders(liveOrders, history?.pages[0]).slice(0, 6);
+    const ids = recent.map((order) => order._id);
+    if (params.orderId && !ids.includes(params.orderId)) ids.unshift(params.orderId);
+    return ids;
+  }, [liveOrders, history, params.orderId]);
 
   const allTickets = useMemo(() => query.data ?? [], [query.data]);
   // Derived from the list, so a reply picked up by the 8 s poll shows up in the open chat.
@@ -68,11 +83,12 @@ export function useSupportChat() {
       return;
     }
     create.mutate(
-      { title: newTitle.trim(), category: newCategory, message: newMessage.trim() },
+      { title: newTitle.trim(), category: newCategory, message: newMessage.trim(), ...(newOrderId ? { orderId: newOrderId } : {}) },
       {
         onSuccess: (created) => {
           setNewTitle("");
           setNewMessage("");
+          setNewOrderId(null);
           openTicket(created);
         },
         onError: (error) => showAlert(t("support.couldNotSubmit"), errorMessage(error, t("errors.tryAgainMessage")), undefined, "error"),
@@ -116,6 +132,7 @@ export function useSupportChat() {
   const startNewChat = () => {
     setNewTitle("");
     setNewMessage("");
+    setNewOrderId(null);
     setTicketId(null);
     setViewMode("cases");
   };
@@ -143,6 +160,9 @@ export function useSupportChat() {
     setNewTitle,
     newMessage,
     setNewMessage,
+    orderChoices,
+    newOrderId,
+    setNewOrderId,
     creatingTicket: create.isPending,
     flatListRef,
     handleCreateTicket,

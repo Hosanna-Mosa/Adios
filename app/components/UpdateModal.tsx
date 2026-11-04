@@ -1,13 +1,12 @@
 import React, { useMemo } from "react";
 import { Linking, Modal, Platform, StyleSheet, Text, View } from "react-native";
-import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
 import { designTokens, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { showAlert } from "@/components/ui/AppAlert";
+import { Button } from "@/components/ui/Button";
 
 interface UpdateModalProps {
   visible: boolean;
@@ -30,7 +29,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
       storeUrl?.trim() ||
       (Platform.OS === "ios"
         ? "https://apps.apple.com/app/flavour/id123456"
-        : "https://play.google.com/store/apps/details?id=com.flavour.customer");
+        : "https://play.google.com/store/apps/details?id=com.adios.customer");
 
     // market:// hands the listing straight to the Play Store app; the https
     // listing is the fallback for devices without Play Services.
@@ -74,16 +73,12 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
               : t("app.UpdateModal.updateFlavourToGetTheLatest")}
           </Text>
 
-          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate} activeOpacity={0.85}>
-            <Text style={styles.updateText}>{t("app.UpdateModal.updateNow")}</Text>
-          </TouchableOpacity>
+          <Button title={t("app.UpdateModal.updateNow")} onPress={handleUpdate} fullWidth />
 
           {forceUpdate ? (
             <Text style={styles.forceNote}>{t("app.UpdateModal.noDismissRequiredRelease")}</Text>
           ) : (
-            <TouchableOpacity style={styles.laterButton} onPress={onDismiss} activeOpacity={0.8}>
-              <Text style={styles.laterText}>{t("app.UpdateModal.maybeLater")}</Text>
-            </TouchableOpacity>
+            <Button title={t("app.UpdateModal.maybeLater")} variant="ghost" onPress={onDismiss} fullWidth style={{ marginTop: 8 }} />
           )}
         </View>
       </View>
@@ -93,14 +88,10 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
 
 const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 24 },
+    overlay: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "center", alignItems: "center", padding: 24 },
     card: { width: "100%", maxWidth: 340, backgroundColor: tokens.surface, borderRadius: 20, padding: 22, alignItems: "center" },
     iconContainer: { width: 44, height: 44, borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center", marginBottom: 14 },
     title: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text, textAlign: "center" },
     subtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 8, marginBottom: 18 },
-    updateButton: { width: "100%", minHeight: moderateScale(48), borderRadius: 14, backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
-    updateText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.on },
-    laterButton: { width: "100%", minHeight: moderateScale(44), alignItems: "center", justifyContent: "center", marginTop: 4 },
-    laterText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
     forceNote: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.muted, marginTop: 12 },
   });

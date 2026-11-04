@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
@@ -40,22 +41,33 @@ export function PickupAddressField({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const [focusedField, setFocusedField] = useState<"store" | "address" | null>(null);
+  const addressFocused = focusedField === "address" || showDropdown;
   return (
     <View style={styles.section}>
       <Text style={styles.fieldLabel}>{t("app.delivery.storeNameOptional")}</Text>
-      <View style={styles.fieldBox}>
-        <TextInput style={styles.fieldInput} placeholder={t("app.delivery.egKarachiBakery")} placeholderTextColor={tokens.muted} value={storeName} onChangeText={setStoreName} />
+      <View style={[styles.fieldBox, focusedField === "store" && styles.fieldBoxFocused]}>
+        <TextInput
+          style={styles.fieldInput}
+          placeholder={t("app.delivery.egKarachiBakery")}
+          placeholderTextColor={tokens.muted}
+          value={storeName}
+          onChangeText={setStoreName}
+          onFocus={() => setFocusedField("store")}
+          onBlur={() => setFocusedField((f) => (f === "store" ? null : f))}
+        />
       </View>
 
       <Text style={[styles.fieldLabel, { marginTop: 14 }]}>{t("app.delivery.pickupAddress")}</Text>
-      <View style={[styles.fieldBox, styles.fieldBoxFocused, showDropdown && { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}>
+      <View style={[styles.fieldBox, addressFocused && styles.fieldBoxFocused, showDropdown && { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }]}>
         <TextInput
           style={styles.fieldInput}
           placeholder={t("app.delivery.searchNearbyStoreOrAddress")}
           placeholderTextColor={tokens.muted}
           value={addressInput}
           onChangeText={handleAddressInput}
-          onFocus={() => autocompleteSuggestions.length > 0 && setShowDropdown(true)}
+          onFocus={() => { setFocusedField("address"); if (autocompleteSuggestions.length > 0) setShowDropdown(true); }}
+          onBlur={() => setFocusedField((f) => (f === "address" ? null : f))}
           returnKeyType="search"
         />
         {isSearching && <ActivityIndicator size="small" color={accent.accent} />}

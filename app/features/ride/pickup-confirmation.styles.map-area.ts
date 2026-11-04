@@ -10,22 +10,7 @@ export const createMapAreaStyles = (tokens: ThemeTokens, accent: ServiceTokens, 
   StyleSheet.create({
     mapArea: {
       height: height * 0.64,
-      backgroundColor: "#eef1f4",
-    },
-    backButton: {
-      position: "absolute",
-      left: 16,
-      width: 42,
-      height: 42,
-      borderRadius: 21,
-      backgroundColor: tokens.surface,
-      alignItems: "center",
-      justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 3 },
-      shadowOpacity: 0.15,
-      shadowRadius: 8,
-      elevation: 4,
+      backgroundColor: tokens.bg,
     },
     locateButton: {
       position: "absolute",

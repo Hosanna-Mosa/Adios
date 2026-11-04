@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type PickupConfirmationStyles } from "@/features/ride/pickup-confirmation.styles";
+import { MapBackButton } from "@/components/ui/MapBackButton";
 
 // Moved out of app/pickup-confirmation.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -61,14 +62,14 @@ export function PickupConfirmMapArea({
         </View>
       </View>
 
-      <TouchableOpacity
-        style={[styles.backButton, { top: insets.top + 16 }]}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back" size={22} color={tokens.text} />
-      </TouchableOpacity>
+      <MapBackButton absolute onPress={() => router.back()} />
 
-      <TouchableOpacity style={styles.locateButton} onPress={useCurrentLocation}>
+      <TouchableOpacity
+        style={styles.locateButton}
+        onPress={useCurrentLocation}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.packageDelivery.useCurrentLocation")}
+      >
         <Ionicons name="locate" size={22} color={accent.accent} />
       </TouchableOpacity>
     </View>

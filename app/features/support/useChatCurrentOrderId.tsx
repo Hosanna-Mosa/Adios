@@ -6,9 +6,9 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RIDE_TYPES, createStyles, toChatMessage } from "./useChat.shared";
-import { confirmHelperTask, getOrder, getOrderChat } from "@/services/orders.service";
-import { showAlert } from "@/components/ui/AppAlert";
 import i18n from "@/i18n";
+import { confirmHelperAssign, getOrder, getOrderChat } from "@/services/orders.service";
+import { showAlert } from "@/components/ui/AppAlert";
 
 // Split out of useChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -39,22 +39,9 @@ export function useChatCurrentOrderId() {
 
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
+  // From the order's assignConfirmedAt, so it survives leaving and reopening the chat.
   const [taskAssigned, setTaskAssigned] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
-
-  // Hidden at once; shown again if the server did not take the confirmation.
-  const handleAssignTask = async () => {
-    const id = params.orderId || currentOrderId;
-    if (!id) return;
-    setTaskAssigned(true);
-    try {
-      await confirmHelperTask(id);
-    } catch (err) {
-      console.error("[Chat] Failed to confirm task:", err);
-      setTaskAssigned(false);
-      showAlert(i18n.t("actions.error"), i18n.t("app.chat.couldNotConfirmTask"));
-    }
-  };
 
   // The screen is reached two ways: pushed from tracking (the store already knows
   // the order) or opened cold from a notification with only an orderId. Both need
@@ -63,6 +50,19 @@ export function useChatCurrentOrderId() {
   // happened to send something new.
   const orderId = params.orderId || currentOrderId;
   const hydratedFor = useRef<string | null>(null);
+
+  // The server records the confirmation and tells the helper.
+  const handleAssignTask = async () => {
+    if (!orderId) return;
+    setTaskAssigned(true);
+    try {
+      await confirmHelperAssign(orderId);
+    } catch (err) {
+      console.warn("[Chat] confirm-assign failed:", err);
+      setTaskAssigned(false);
+      showAlert(i18n.t("actions.error"), i18n.t("app.chat.couldNotConfirmTask"));
+    }
+  };
 
   useEffect(() => {
     if (!orderId) {
@@ -75,6 +75,7 @@ export function useChatCurrentOrderId() {
 
     let cancelled = false;
     setLoadingHistory(true);
+    setTaskAssigned(false);
 
     // Only the deep-link path is missing the order itself; from tracking this is
     // a cheap confirmation that costs one request.
@@ -82,7 +83,7 @@ export function useChatCurrentOrderId() {
       .then((order) => {
         if (cancelled || !order) return;
         if (order.serviceType) setServiceType(order.serviceType);
-        if (order.helperTaskConfirmedAt) setTaskAssigned(true);
+        setTaskAssigned(!!order.assignConfirmedAt);
         if (order.driver) {
           setDriver({
             id: order.driver._id,

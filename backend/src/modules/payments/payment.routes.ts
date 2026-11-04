@@ -7,7 +7,7 @@ import { RefundService } from "./refund.service";
 import { renderCheckoutPage, renderResultPage } from "./payment.checkout.page";
 import { authenticateToken, AuthRequest } from "../../middleware/auth.middleware";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { checkoutStatusSchema, createRazorpayOrderSchema, verifyPaymentSchema } from "./payment.validation";
+import { checkoutStatusSchema, createRazorpayOrderSchema, createTopupSchema, verifyPaymentSchema } from "./payment.validation";
 
 const router = Router();
 const paymentService = new PaymentService();
@@ -60,6 +60,29 @@ router.post(
         userId: req.user!.userId,
         amount: req.body.amount,
         orderData: req.body.orderData,
+        returnUrl: req.body.returnUrl,
+        language: req.body.language,
+        baseUrl: publicBaseUrl(req),
+      });
+      res.json(result);
+    } catch (error) {
+      sendPaymentError(res, next, error);
+    }
+  },
+);
+
+// 1b. A helper task paid online raises its price: pay the difference. Settled by /verify like an order.
+router.post(
+  "/create-topup",
+  authenticateToken,
+  limiter(10),
+  validateRequest(createTopupSchema),
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const result = await checkoutService.createTopupCheckout({
+        userId: req.user!.userId,
+        orderId: req.body.orderId,
+        amount: req.body.amount,
         returnUrl: req.body.returnUrl,
         language: req.body.language,
         baseUrl: publicBaseUrl(req),

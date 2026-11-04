@@ -2,6 +2,8 @@ import { Response, NextFunction } from "express";
 import Review from "../../database/models/Review";
 import Order, { OrderStatus } from "../../database/models/Order";
 import Vendor from "../../database/models/Vendor";
+import Driver from "../../database/models/Driver";
+import { UserRole } from "../../database/models/User";
 import { AuthRequest } from "../../middleware/auth.middleware";
 import { ValidationError, NotFoundError } from "../../utils/errors";
 
@@ -103,6 +105,23 @@ export class ReviewsController {
       const { orderId } = req.params;
       const review = await Review.findOne({ order: orderId });
       if (!review) {
+        return res.status(404).json({ message: "No review found for this order" });
+      }
+
+      // Only the people the review is about, or admins, may read it. Anyone else gets the same
+      // 404 as a missing review, so order ids cannot be probed. A vendor token carries the
+      // Vendor _id; a driver's carries a User _id, which maps to the Driver through `user`.
+      const callerId = req.user?.userId?.toString();
+      let allowed =
+        !!callerId &&
+        (req.user?.role === UserRole.ADMIN ||
+          review.user.toString() === callerId ||
+          review.vendor?.toString() === callerId);
+      if (!allowed && callerId && review.driver) {
+        const driver = await Driver.findById(review.driver).select("user").lean();
+        allowed = driver?.user?.toString() === callerId;
+      }
+      if (!allowed) {
         return res.status(404).json({ message: "No review found for this order" });
       }
       return res.json({ review });

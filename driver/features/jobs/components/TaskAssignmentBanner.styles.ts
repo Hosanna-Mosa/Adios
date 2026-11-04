@@ -21,6 +21,5 @@ export const taskBannerStyles = StyleSheet.create({
     borderRadius: 20,
   },
   buttonEnabled: { backgroundColor: Colors.success },
-  buttonDisabled: { backgroundColor: Colors.textMuted },
   buttonText: { color: Colors.white, fontSize: typography.sizes.small, fontWeight: "700" },
 });

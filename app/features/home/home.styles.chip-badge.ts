@@ -98,7 +98,7 @@ export const createChipBadgeStyles = (tokens: ThemeTokens, accent: ServiceTokens
   searchSuggestChipText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
 
   distanceModalOverlay: { flex: 1, justifyContent: "flex-end" },
-  distanceModalScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.5)" },
+  distanceModalScrim: { ...StyleSheet.absoluteFillObject, backgroundColor: tokens.overlay },
   distanceSheet: { backgroundColor: tokens.surface, borderTopLeftRadius: moderateScale(26), borderTopRightRadius: moderateScale(26), paddingHorizontal: 20, paddingTop: 10 },
   distanceSheetHandle: { width: moderateScale(42), height: moderateScale(4), borderRadius: moderateScale(2), backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 18 },
   distanceSheetHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 18 },

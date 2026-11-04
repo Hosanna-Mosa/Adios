@@ -17,13 +17,6 @@ import { getFavouriteItems, getFavouriteOutlets } from "@/services/users.service
 
 export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   StyleSheet.create({
-    headerRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingBottom: 8 },
-    backBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
-    headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
-
     segmentWrap: { paddingHorizontal: 16, paddingTop: 18, paddingBottom: 4 },
     segmentTrack: { position: "relative", backgroundColor: tokens.sunken, borderRadius: 999, padding: 4, flexDirection: "row" },
     segmentThumb: { position: "absolute", top: 4, bottom: 4, left: 4, width: "calc(50% - 4px)" as any, backgroundColor: tokens.surface, borderRadius: 999 },
@@ -71,6 +64,7 @@ export function useFavorites() {
   const styles = useMemo(() => createStyles(tokens, accent), [theme]);
   const user = useAuthStore((s) => s.user);
   const toggleFavoriteItem = useAuthStore((s) => s.toggleFavoriteItem);
+  const toggleFavorite = useAuthStore((s) => s.toggleFavorite);
 
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<any[]>([]);
@@ -126,7 +120,7 @@ export function useFavorites() {
 
 
   return {
-  insets, tabBarHeight, tokens, accent, styles, toggleFavoriteItem, loading, favorites,
+  insets, tabBarHeight, tokens, accent, styles, toggleFavoriteItem, toggleFavorite, loading, favorites,
   itemsLoading, activeTab, setActiveTab, fetchFavorites, fetchFavoriteItems, activeFavorites,
   activeFavoriteItems, popularNearby
   };

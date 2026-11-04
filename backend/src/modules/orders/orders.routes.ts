@@ -14,6 +14,7 @@ import {
   restaurantAcceptSchema,
   sendChatMessageSchema,
   helperStatusSchema,
+  helperQuoteSchema,
 } from "./orders.validation";
 
 const router = Router();
@@ -34,6 +35,7 @@ router.get("/driver/food-offer", authenticateToken, authorizeRole([UserRole.DRIV
 // The job a driver is on — the app restores it after a restart. Before /:id so "driver" isn't read as an id.
 router.get("/driver/active", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverActiveOrder.bind(ordersController));
 router.get("/", authenticateToken, ordersController.getUserOrders.bind(ordersController));
+router.get("/helper-quote", authenticateToken, validateRequest(helperQuoteSchema), ordersController.helperQuote.bind(ordersController));
 router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSchema), ordersController.estimateFare.bind(ordersController));
 router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQuerySchema), ordersController.getVendorOrders.bind(ordersController));
 router.get("/:id", authenticateToken, ordersController.getOrder.bind(ordersController));
@@ -42,11 +44,16 @@ router.post("/:id/chat", authenticateToken, validateRequest(sendChatMessageSchem
 router.post("/:id/helper/confirm-task", authenticateToken, ordersController.confirmHelperTask.bind(ordersController));
 router.post("/:id/helper/status", authenticateToken, validateRequest(helperStatusSchema), ordersController.updateHelperStatus.bind(ordersController));
 router.get("/:id/invoice", authenticateToken, ordersController.getInvoice.bind(ordersController));
+// Invoice links for the phone's browser: the link is minted with the session, the page
+// itself is reached with the link's 10-minute, single-order token instead.
+router.post("/:id/invoice-link", authenticateToken, ordersController.invoiceLink.bind(ordersController));
+router.get("/:id/invoice/view", ordersController.viewInvoice.bind(ordersController));
 router.patch("/:id/schedule", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(scheduleDecisionSchema), ordersController.respondToOrderSchedule.bind(ordersController));
 router.post("/:id/reorder", authenticateToken, ordersController.reorder.bind(ordersController));
 router.patch("/:id/increase-price", authenticateToken, ordersController.increasePrice.bind(ordersController));
 router.post("/:id/decline", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.decline.bind(ordersController));
 router.patch("/:id/status", authenticateToken, ordersController.updateStatus.bind(ordersController));
+router.post("/:id/confirm-assign", authenticateToken, ordersController.confirmAssign.bind(ordersController));
 router.post("/:id/accept", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.accept.bind(ordersController));
 router.post("/:id/restaurant-accept", authenticateToken, validateRequest(restaurantAcceptSchema), ordersController.restaurantAccept.bind(ordersController));
 router.post("/:id/cash-collected", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(cashCollectedSchema), ordersController.cashCollected.bind(ordersController));

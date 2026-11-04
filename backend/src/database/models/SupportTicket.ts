@@ -21,6 +21,10 @@ export interface ISupportTicket extends Document {
   // Unset while there are no support members; admins see every case regardless.
   assignedTo?: mongoose.Types.ObjectId | null;
   assignedAt?: Date | null;
+  // Set when the customer escalated from the support bot: the order they asked about and the
+  // bot query (question + the answer they were not satisfied with) for the agent's context.
+  orderId?: string | null;
+  botQuery?: mongoose.Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +49,8 @@ const SupportTicketSchema: Schema = new Schema(
     ],
     assignedTo: { type: Schema.Types.ObjectId, ref: "User", default: null },
     assignedAt: { type: Date, default: null },
+    orderId: { type: String, default: null },
+    botQuery: { type: Schema.Types.ObjectId, ref: "SupportBotQuery", default: null },
   },
   { timestamps: true }
 );

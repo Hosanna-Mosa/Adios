@@ -47,25 +47,27 @@ export function CartStripe({ bottom, styles, theme, cartAccent, itemCount, total
   const image = storeImage || vendor?.image;
 
   return (
-    <Animated.View style={[styles.cartCard, { bottom }]}>
-      <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-      <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.cartThumb} contentFit="cover" transition={150} />
-        ) : (
-          <View style={[styles.cartThumb, styles.cartThumbFallback]}>
-            <Ionicons name="storefront-outline" size={moderateScale(20)} color={cartAccent.accent} />
+    <Animated.View style={[styles.cartCardWrap, { bottom }]}>
+      <View style={styles.cartCard}>
+        <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
+        <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.cartThumb} contentFit="cover" transition={150} />
+          ) : (
+            <View style={[styles.cartThumb, styles.cartThumbFallback]}>
+              <Ionicons name="storefront-outline" size={moderateScale(20)} color={cartAccent.accent} />
+            </View>
+          )}
+          <View style={styles.cartInfo}>
+            <Text style={styles.cartVendor} numberOfLines={1}>{name}</Text>
+            <Text style={styles.cartMeta} numberOfLines={1}>
+              <Text style={styles.cartPrice}>₹{totalPrice}</Text>
+              {` · ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
+            </Text>
           </View>
-        )}
-        <View style={styles.cartInfo}>
-          <Text style={styles.cartVendor} numberOfLines={1}>{name}</Text>
-          <Text style={styles.cartMeta} numberOfLines={1}>
-            <Text style={styles.cartPrice}>₹{totalPrice}</Text>
-            {` · ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
-          </Text>
-        </View>
-        <Text style={styles.cartCta}>View cart</Text>
-      </TouchableOpacity>
+          <Text style={styles.cartCta}>View cart</Text>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }

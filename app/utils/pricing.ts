@@ -33,3 +33,24 @@ export function discountPercentOf(item: Priced | null | undefined): number | nul
   const price = Number(item?.price);
   return Math.round(((price - offer) / price) * 100);
 }
+
+/**
+ * en-IN digit grouping (lakhs/crores, e.g. 1,23,456), rounded to at most 2
+ * decimals with no trailing zeros. Hand-rolled rather than
+ * `Intl.NumberFormat("en-IN")` because Hermes on this build has no ICU data
+ * for locale-aware number formatting — see useHome.shared.ts's date
+ * formatter, which avoids `Intl` for the same reason.
+ */
+export function formatINR(amount: number | string | null | undefined): string {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return "0";
+  const rounded = Math.round(n * 100) / 100;
+  const [intPart, decPart] = Math.abs(rounded).toFixed(2).split(".");
+  const trimmedDec = decPart === "00" ? "" : `.${decPart.replace(/0$/, "")}`;
+  const lastThree = intPart.slice(-3);
+  const rest = intPart.slice(0, -3);
+  const grouped = rest
+    ? `${rest.replace(/(\d)(?=(\d{2})+$)/g, "$1,")},${lastThree}`
+    : lastThree;
+  return `${rounded < 0 ? "-" : ""}${grouped}${trimmedDec}`;
+}

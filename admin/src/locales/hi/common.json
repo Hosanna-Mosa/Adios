@@ -271,7 +271,10 @@
     "needHelp": "मदद चाहिए?",
     "contactSupportForAssistance": "सहायता के लिए सपोर्ट से संपर्क करें।",
     "contactSupport": "सपोर्ट से संपर्क करें",
-    "signOut": "साइन आउट"
+    "signOut": "साइन आउट",
+    "helperPricing": "हेल्पर मूल्य निर्धारण",
+    "supportBot": "सपोर्ट बॉट",
+    "supportOrders": "ऑर्डर"
   },
   "notifications": {
     "justNow": "अभी अभी",
@@ -1314,6 +1317,7 @@
     "supportCategory": "सपोर्ट श्रेणी",
     "supportResolution": "सपोर्ट समाधान",
     "ticketCreatedSuccessfully": "टिकट {{ticketId}} सफलतापूर्वक बनाया गया!",
+    "newTicketReceived": "नया टिकट {{ticketId}}: {{title}}",
     "ticketMarkedAsResolved": "टिकट {{ticketId}} को हल के रूप में चिह्नित किया गया!",
     "ticketUpdatedSuccessfully": "टिकट सफलतापूर्वक अपडेट किया गया!",
     "totalActiveTickets": "कुल सक्रिय टिकट",
@@ -1325,7 +1329,12 @@
     "viewChat": "चैट देखें",
     "replyToName": "{{name}} को जवाब दें",
     "send": "भेजें",
-    "typeResponsePressEnter": "अपना जवाब लिखें, फिर भेजने के लिए Enter दबाएँ..."
+    "typeResponsePressEnter": "अपना जवाब लिखें, फिर भेजने के लिए Enter दबाएँ...",
+    "fromSupportBot": "सपोर्ट बॉट से",
+    "botNotHelpful": "उपयोगी नहीं बताया",
+    "botAsked": "पूछा",
+    "botAnswered": "बॉट का उत्तर",
+    "botOrder": "ऑर्डर"
   },
   "system": {
     "appStoreUrl": "ऐप स्टोर URL",
@@ -1483,6 +1492,93 @@
     "endBeforeStart": "समाप्ति तारीख शुरू होने की तारीख के बाद होनी चाहिए",
     "confirmDeleteOffer": "ऑफ़र \"{{title}}\" हटाएँ?"
   },
+  "helperPricing": {
+    "title": "हेल्पर मूल्य निर्धारण",
+    "description": "हेल्पर कार्यों के लिए किराया, ऑफ़र सीमाएँ, बुकिंग घंटे और खोज की समय-सीमा तय करें। सेव करते ही बदलाव नए कार्यों पर लागू हो जाते हैं।",
+    "save": "मूल्य सेव करें",
+    "reset": "बदलाव रद्द करें",
+    "loading": "हेल्पर मूल्य लोड हो रहे हैं...",
+    "loadFailed": "हेल्पर मूल्य लोड नहीं हो सके। फिर से प्रयास करने के लिए पेज रीफ़्रेश करें।",
+    "saved": "हेल्पर मूल्य सेव हो गए।",
+    "saveFailed": "हेल्पर मूल्य सेव करने में विफल",
+    "fixErrors": "सेव करने से पहले हाइलाइट किए गए फ़ील्ड ठीक करें।",
+    "errors": {
+      "required": "एक संख्या दर्ज करें।",
+      "wholeNumber": "पूर्ण संख्या दर्ज करें।",
+      "range": "{{min}} और {{max}} के बीच होना चाहिए।",
+      "maxHoursBelowMin": "न्यूनतम घंटों से कम नहीं हो सकता।"
+    },
+    "groups": {
+      "fare": {
+        "title": "किराया",
+        "desc": "ज़ोन सर्ज से पहले, किसी कार्य के लिए ग्राहक को बताया जाने वाला किराया।"
+      },
+      "offers": {
+        "title": "ऑफ़र सीमाएँ",
+        "desc": "ग्राहक बताए गए किराए से कितना कम या ज़्यादा ऑफ़र कर सकता है।"
+      },
+      "booking": {
+        "title": "बुकिंग",
+        "desc": "ग्राहक द्वारा बुक किया जा सकने वाला सबसे छोटा और सबसे लंबा कार्य।"
+      },
+      "search": {
+        "title": "खोज",
+        "desc": "जब कोई हेल्पर कार्य स्वीकार नहीं करता तब क्या होता है।"
+      }
+    },
+    "fields": {
+      "baseFare": "बेस किराया",
+      "perHourRate": "प्रति घंटा दर",
+      "perKmRate": "प्रति किमी दर",
+      "freeKm": "मुफ़्त दूरी",
+      "platformFee": "प्लेटफ़ॉर्म शुल्क",
+      "taxPercent": "कर",
+      "minOfferPercent": "न्यूनतम ऑफ़र",
+      "maxOfferPercent": "अधिकतम ऑफ़र",
+      "minHours": "न्यूनतम घंटे",
+      "maxHours": "अधिकतम घंटे",
+      "expiryMinutes": "इतने समय बाद रद्द करें"
+    },
+    "units": {
+      "baseFare": "₹",
+      "perHourRate": "₹ / घंटा",
+      "perKmRate": "₹ / किमी",
+      "freeKm": "किमी",
+      "platformFee": "₹",
+      "taxPercent": "%",
+      "minOfferPercent": "किराए का %",
+      "maxOfferPercent": "किराए का %",
+      "minHours": "घंटे",
+      "maxHours": "घंटे",
+      "expiryMinutes": "मिनट"
+    },
+    "hints": {
+      "baseFare": "हर कार्य में जोड़ी जाने वाली तय राशि (0–10000)।",
+      "perHourRate": "बुक किए गए हर घंटे के लिए लिया जाता है (0–10000)।",
+      "perKmRate": "मुफ़्त दूरी के बाद हर किमी के लिए लिया जाता है (0–1000)।",
+      "freeKm": "बिना अतिरिक्त शुल्क के किराए में शामिल दूरी (0–100)।",
+      "platformFee": "सर्ज लागू होने के बाद जोड़ा जाता है (0–1000)।",
+      "taxPercent": "प्लेटफ़ॉर्म शुल्क सहित किराए पर लगता है (0–50)।",
+      "minOfferPercent": "अनुमत सबसे कम ऑफ़र, किराए के प्रतिशत के रूप में (10–100)।",
+      "maxOfferPercent": "अनुमत सबसे ज़्यादा ऑफ़र, किराए के प्रतिशत के रूप में (100–1000)।",
+      "minHours": "ग्राहक द्वारा बुक किया जा सकने वाला सबसे छोटा कार्य (0.25–24)।",
+      "maxHours": "ग्राहक द्वारा बुक किया जा सकने वाला सबसे लंबा कार्य (0.25–24)।",
+      "expiryMinutes": "खोज समाप्त होने के बाद, जिस कार्य को किसी ने स्वीकार नहीं किया वह इतने मिनट बाद रद्द होकर रिफ़ंड हो जाता है (1–240)।"
+    },
+    "preview": {
+      "title": "उदाहरण किराया",
+      "trip": "{{hours}} घंटे, {{km}} किमी, सर्ज ×{{surge}}",
+      "baseFare": "बेस किराया",
+      "timeFare": "समय ({{hours}} घं.)",
+      "distanceFare": "दूरी ({{km}} किमी का शुल्क)",
+      "platformFee": "प्लेटफ़ॉर्म शुल्क",
+      "tax": "कर ({{percent}}%)",
+      "total": "ग्राहक भुगतान करेगा",
+      "offerRange": "ग्राहक {{min}} से {{max}} के बीच ऑफ़र कर सकता है।",
+      "invalid": "उदाहरण किराया देखने के लिए हाइलाइट किए गए फ़ील्ड ठीक करें।",
+      "formula": "किराया = round((बेस + घंटे × प्रति घंटा दर + मुफ़्त दूरी के बाद किमी × प्रति किमी दर) × ज़ोन सर्ज) + प्लेटफ़ॉर्म शुल्क, फिर कर जोड़ा जाता है।"
+    }
+  },
   "service": {
     "column": "सेवा",
     "all": "सभी सेवाएँ",
@@ -1517,5 +1613,158 @@
     "enRouteToSenderLabel": "भेजने वाले के पास जा रहे हैं",
     "packageDeliveredDesc": "पैकेज पाने वाले को सौंप दिया गया।",
     "onTheWayToReceiverDesc": "पाने वाले के पास जा रहे हैं..."
+  },
+  "supportBot": {
+    "title": "सपोर्ट बॉट",
+    "description": "एजेंट तक पहुँचने से पहले ग्राहक जो पहले से तय प्रश्न पूछ सकते हैं। उत्तर ग्राहक के लाइव डेटा से बनते हैं।",
+    "newQuestion": "नया प्रश्न",
+    "editQuestion": "प्रश्न संपादित करें",
+    "question": "प्रश्न",
+    "questionIn": "प्रश्न ({{lang}})",
+    "answerIn": "उत्तर ({{lang}})",
+    "key": "कुंजी (अद्वितीय, बाद में बदली नहीं जा सकती)",
+    "category": "श्रेणी",
+    "resolver": "उत्तर का स्रोत",
+    "sortOrder": "क्रम",
+    "needsOrder": "ऑर्डर ज़रूरी",
+    "enabled": "चालू",
+    "helped": "मदद मिली / उत्तर",
+    "missingTranslation": "तेलुगु/हिंदी अनुपलब्ध",
+    "loading": "प्रश्न लोड हो रहे हैं...",
+    "empty": "अभी कोई प्रश्न नहीं।",
+    "edit": "संपादित करें",
+    "delete": "हटाएँ",
+    "save": "सहेजें",
+    "saved": "सहेजा गया",
+    "deleted": "प्रश्न हटाया गया",
+    "saveFailed": "सहेज नहीं सके",
+    "confirmDelete": "\"{{question}}\" हटाएँ?",
+    "limitTitle": "एजेंट से पहले अधिकतम अनुपयोगी उत्तर",
+    "limitDescription": "24 घंटे में इतने \"नहीं\" उत्तरों के बाद ग्राहक केवल एजेंट से बात कर सकेगा।",
+    "limitInvalid": "1 से 20 तक पूर्ण संख्या दें",
+    "limitSaved": "सीमा सहेजी गई",
+    "categories": {
+      "ride": "राइड",
+      "food": "फ़ूड",
+      "meat": "मीट",
+      "package": "पैकेज",
+      "helper": "हेल्पर",
+      "payment": "भुगतान",
+      "general": "सामान्य"
+    }
+  },
+  "supportOrders": {
+    "title": "ऑर्डर",
+    "subtitle": "ग्राहक की मदद के लिए कोई भी ऑर्डर देखें। केवल देखने के लिए — यहाँ से ऑर्डर नहीं बदलता।",
+    "searchPlaceholder": "ऑर्डर ID, फ़ोन नंबर या नाम से खोजें…",
+    "allStatuses": "सभी स्थितियाँ",
+    "statusGroup": {
+      "active": "जारी",
+      "completed": "पूरा हुआ",
+      "cancelled": "रद्द"
+    },
+    "orderId": "ऑर्डर ID",
+    "customer": "ग्राहक",
+    "driver": "ड्राइवर",
+    "helper": "हेल्पर",
+    "driverOrOutlet": "आउटलेट / ड्राइवर",
+    "status": "स्थिति",
+    "total": "कुल",
+    "placed": "ऑर्डर का समय",
+    "loading": "ऑर्डर लोड हो रहे हैं…",
+    "noOrders": "अभी कोई ऑर्डर नहीं।",
+    "noMatches": "“{{q}}” से कोई ऑर्डर नहीं मिला।",
+    "searchFailed": "ऑर्डर लोड नहीं हो सके। फिर से कोशिश करें।",
+    "resultCount_one": "{{count}} ऑर्डर",
+    "resultCount_other": "{{count}} ऑर्डर",
+    "updating": "अपडेट हो रहा है…",
+    "previous": "पिछला",
+    "next": "अगला",
+    "pageOf": "पेज {{page}} / {{pages}}",
+    "back": "वापस",
+    "backToSearch": "ऑर्डर खोज पर वापस",
+    "orderDetails": "ऑर्डर विवरण",
+    "viewOnlyNotice": "केवल देखने के लिए। फ़ोन नंबर छिपे हैं और डिलीवरी कोड नहीं दिखाए जाते।",
+    "loadingOrder": "ऑर्डर लोड हो रहा है…",
+    "cancelledBecause": "रद्द",
+    "cancelReason": {
+      "restaurant_rejected": "रेस्टोरेंट ने ऑर्डर अस्वीकार किया",
+      "restaurant_timeout": "रेस्टोरेंट ने समय पर स्वीकार नहीं किया",
+      "driver_cancelled": "ड्राइवर ने रद्द किया",
+      "admin_cancelled": "Adios टीम ने रद्द किया",
+      "customer_cancelled": "ग्राहक ने रद्द किया"
+    },
+    "name": "नाम",
+    "phone": "फ़ोन",
+    "address": "पता",
+    "vehicle": "वाहन",
+    "unknown": "अज्ञात",
+    "bookedForSomeoneElse": "किसी और के लिए बुक किया",
+    "noneAssigned": "अभी असाइन नहीं हुआ",
+    "dispatchSummary": "खोज: {{state}} · {{attempts}} प्रयास · {{candidates}} पास में",
+    "restaurant": "रेस्टोरेंट",
+    "meatShop": "मीट शॉप",
+    "paymentAndPrice": "भुगतान और कीमत",
+    "discount": "छूट",
+    "method": "तरीका",
+    "paymentStatusLabel": "भुगतान स्थिति",
+    "paymentMethod": {
+      "cash": "नकद",
+      "online": "ऑनलाइन"
+    },
+    "paymentStatus": {
+      "pending": "अभी भुगतान नहीं हुआ",
+      "paid": "ऑनलाइन भुगतान हुआ",
+      "cash_collected": "नकद लिया गया"
+    },
+    "cashCollectedAmount": "लिया गया नकद",
+    "distance": "दूरी",
+    "refund": "रिफ़ंड",
+    "refundAmount": "रिफ़ंड राशि",
+    "refundReference": "संदर्भ",
+    "refundFailure": "विफलता का कारण",
+    "refundStatus": {
+      "pending": "जारी",
+      "processed": "रिफ़ंड हो गया",
+      "failed": "विफल"
+    },
+    "scheduled": "शेड्यूल्ड ऑर्डर",
+    "scheduledFor": "शेड्यूल समय",
+    "scheduleStatus": "शेड्यूल स्थिति",
+    "rejectionReason": "अस्वीकृति का कारण",
+    "route": "रूट",
+    "noAddress": "कोई पता दर्ज नहीं",
+    "stopType": {
+      "pickup": "पिकअप",
+      "drop": "ड्रॉप",
+      "stop": "स्टॉप"
+    },
+    "items": "आइटम",
+    "timeline": "टाइमलाइन",
+    "event": {
+      "placed": "ऑर्डर दिया गया",
+      "outletAccepted": "आउटलेट ने स्वीकार किया",
+      "outletAcceptedPrep": "आउटलेट ने स्वीकार किया · {{minutes}} मिनट तैयारी",
+      "foodReady": "खाना तैयार",
+      "driverAccepted": "{{role}} ने स्वीकार किया",
+      "taskConfirmed": "चैट में काम की पुष्टि",
+      "taskStarted": "काम शुरू",
+      "taskCompleted": "काम पूरा",
+      "searchExhausted": "किसी {{role}} ने स्वीकार नहीं किया",
+      "cashCollected": "नकद लिया गया",
+      "refundRequested": "रिफ़ंड शुरू",
+      "refundCompleted": "रिफ़ंड पूरा",
+      "current": "अभी: {{status}}"
+    },
+    "chatBetween": "ग्राहक और {{role}} की चैट",
+    "loadingChat": "चैट लोड हो रही है…",
+    "chatLoadFailed": "चैट लोड नहीं हो सकी।",
+    "noChat": "इस ऑर्डर पर कोई संदेश नहीं।",
+    "recentOrdersOf": "{{name}} के हाल के ऑर्डर",
+    "openFullOrder": "पूरा ऑर्डर खोलें",
+    "unlink": "ऑर्डर हटाएँ",
+    "linkToTicket": "जोड़ें",
+    "linked": "ऑर्डर इस केस से जोड़ा गया",
+    "unlinked": "ऑर्डर हटाया गया"
   }
 }

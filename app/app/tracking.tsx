@@ -20,12 +20,18 @@ export default function TrackingScreen() {
   if (status === "delivered") {
     const foodItems = deliveryStop?.items || [];
     const elapsed = orderCreatedAt && deliveredAt ? formatDuration(deliveredAt.getTime() - orderCreatedAt.getTime()) : null;
-    const headline = isRide ? "Ride completed" : isHelper ? "Task complete" : "Order delivered";
+    const headline = isRide ? t("app.ride.rideCompletedHeadline") : isHelper ? t("app.ride.taskCompleteHeadline") : t("app.ride.orderDeliveredHeadline");
     const subline = isRide
-      ? `You arrived safely${driver?.name ? ` with ${driver.name}` : ""}.`
+      ? driver?.name
+        ? t("app.ride.arrivedSafelyWithName", { name: driver.name })
+        : t("app.ride.arrivedSafelyNoName")
       : isHelper
-        ? `${driver?.name || "Your helper"} finished the task${elapsed ? ` in ${elapsed}` : ""}.`
-        : `Delivered by ${driver?.name || "your delivery partner"}${elapsed ? ` in ${elapsed}` : ""}.`;
+        ? elapsed
+          ? t("app.ride.helperFinishedWithTime", { name: driver?.name || t("app.ride.yourHelperFallback"), time: elapsed })
+          : t("app.ride.helperFinishedNoTime", { name: driver?.name || t("app.ride.yourHelperFallback") })
+        : elapsed
+          ? t("app.ride.deliveredByWithTime", { name: driver?.name || t("app.ride.deliveryPartnerFallback"), time: elapsed })
+          : t("app.ride.deliveredByNoTime", { name: driver?.name || t("app.ride.deliveryPartnerFallback") });
 
     return (
       <TripCompleteScreen

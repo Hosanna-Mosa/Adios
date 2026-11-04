@@ -37,15 +37,18 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     heroImage: { width: "100%", height: moderateScale(190), backgroundColor: tokens.sunken },
     sheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, marginTop: -20, paddingTop: 18, paddingHorizontal: 16 },
     titleRow: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
-    nameRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+    // alignItems: "flex-start" (not "center") so the trailing chevron stays
+    // pinned next to the name's first line when a long name wraps to 2 lines,
+    // instead of centering against the whole wrapped block and drifting down.
+    nameRow: { flexDirection: "row", alignItems: "flex-start", gap: 4 },
     name: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
     metaLine: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 5 },
     ratingPill: {
       flexDirection: "row", alignItems: "center", gap: 4, flexShrink: 0,
-      backgroundColor: tokens.success, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7,
+      backgroundColor: tokens.successSkin, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7,
     },
-    ratingPillValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: "#fff" },
-    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: "#fff", opacity: 0.9 },
+    ratingPillValue: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.success },
+    ratingPillCount: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.success, opacity: 0.9 },
 
     // Toggle + "Veg only" sit together on the right edge, above the search bar.
     vegRow: { flexDirection: "row", alignItems: "center", alignSelf: "flex-end", gap: 10, marginTop: 18 },
@@ -61,7 +64,10 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
       borderRadius: 14, height: moderateScale(46), paddingHorizontal: 14,
     },
-    searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text },
+    // textAlignVertical + paddingVertical: 0 override TextInput's own default
+    // internal padding on Android, which otherwise pushes the text/placeholder
+    // below center even though the parent row already centers its children.
+    searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text, textAlignVertical: "center", paddingVertical: 0 },
 
     // Category strip (CategoryTabs): a sunken track with a frosted-glass bubble
     // that slides under the active tab.
@@ -124,14 +130,16 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     closedBannerTitle: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.error },
     closedBannerText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
-    modalBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
-    modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden" },
+    modalBackdrop: { flex: 1, backgroundColor: tokens.overlay, justifyContent: "flex-end" },
+    modalSheet: { backgroundColor: tokens.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden", maxHeight: "90%" },
     modalImage: { width: "100%", height: 240, backgroundColor: tokens.sunken },
     modalCloseBtn: {
       position: "absolute", top: 16, right: 16, width: 36, height: 36, borderRadius: 18,
       backgroundColor: "rgba(0,0,0,0.5)", alignItems: "center", justifyContent: "center",
     },
-    modalContent: { padding: 20, paddingBottom: 28 },
+    modalScrollBody: { flexShrink: 1 },
+    modalContent: { padding: 20 },
+    modalFooter: { paddingHorizontal: 20, paddingBottom: 28 },
     modalHeadRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
     modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text },
     modalPrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 4 },

@@ -8,12 +8,12 @@ import { useDeliveryEntry } from "@/features/delivery/useDeliveryEntry";
 export default function DeliveryEntryScreen() {
   const {
   stops, route, price, currentLocation, removeStop, insets, tokens, accent, styles, isCalculating,
-  isLocating, mapRef, handleLocationUpdate, handleRecenter, handleStopPress, handleReview
+  isLocating, mapRef, handleLocationUpdate, handleRecenter, handleStopPress, handleReview, sheetHeight, setSheetHeight
   } = useDeliveryEntry();
 
   return (
     <ScreenShell>
-      <MapBackground ref={mapRef} stops={stops} polyline={route?.polyline} onLocationUpdate={handleLocationUpdate} style={StyleSheet.absoluteFill} />
+      <MapBackground ref={mapRef} stops={stops} polyline={route?.polyline} onLocationUpdate={handleLocationUpdate} sheetHeight={sheetHeight} style={StyleSheet.absoluteFill} />
 
       <DeliveryEntryHeader
         insets={insets}
@@ -33,6 +33,7 @@ export default function DeliveryEntryScreen() {
         price={price}
         removeStop={removeStop}
         route={route}
+        setSheetHeight={setSheetHeight}
         stops={stops}
         styles={styles}
       />

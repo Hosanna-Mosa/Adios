@@ -20,6 +20,7 @@ interface Props {
   name: string | string[];
   rating: any;
   reviews: any;
+  searchInputRef?: any;
   searchQuery: any;
   setSearchQuery: React.Dispatch<React.SetStateAction<any>>;
   setVegOnly: React.Dispatch<React.SetStateAction<boolean>>;
@@ -37,6 +38,7 @@ export function MenuVegOnly({
   name,
   rating,
   reviews,
+  searchInputRef,
   searchQuery,
   setSearchQuery,
   setVegOnly,
@@ -95,6 +97,7 @@ export function MenuVegOnly({
       <View style={styles.searchRow}>
         <Ionicons name="search" size={moderateScale(15)} color={tokens.sec} />
         <TextInput
+          ref={searchInputRef}
           style={styles.searchInput}
           placeholder={t("app.food.searchInVar", { value: name })}
           placeholderTextColor={tokens.muted}
@@ -102,7 +105,11 @@ export function MenuVegOnly({
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery("")}>
+          <TouchableOpacity
+            onPress={() => setSearchQuery("")}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.food.clearSearch")}
+          >
             <Ionicons name="close-circle" size={moderateScale(15)} color={tokens.sec} />
           </TouchableOpacity>
         )}

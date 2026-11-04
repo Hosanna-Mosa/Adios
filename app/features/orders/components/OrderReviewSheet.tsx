@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, Modal, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, View } from "react-native";
+import { Button } from "@/components/ui/Button";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -45,15 +46,29 @@ export function OrderReviewSheet({
   const { t } = useTranslation();
   return (
     <Modal visible={!!selectedOrderForReview} transparent animationType="fade" onRequestClose={() => setSelectedOrderForReview(null)}>
-      <View style={styles.reviewOverlay}>
+      <KeyboardAvoidingView style={styles.reviewOverlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <View style={styles.reviewCard}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <Text style={styles.reviewTitle}>{t("app.orders.rateYourOrder")}</Text>
-            <TouchableOpacity onPress={() => setSelectedOrderForReview(null)}><Ionicons name="close" size={20} color={tokens.sec} /></TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setSelectedOrderForReview(null)}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.support.closeModal")}
+            >
+              <Ionicons name="close" size={20} color={tokens.sec} />
+            </TouchableOpacity>
           </View>
           <View style={{ flexDirection: "row", gap: 10, justifyContent: "center", marginBottom: 14 }}>
             {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => setReviewRating(star)}>
+              <TouchableOpacity
+                key={star}
+                onPress={() => setReviewRating(star)}
+                hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+                accessibilityRole="button"
+                accessibilityLabel={t("app.orders.starRating", { count: star })}
+                accessibilityState={{ selected: star <= reviewRating }}
+              >
                 <Ionicons name={star <= reviewRating ? "star" : "star-outline"} size={moderateScale(30)} color={tokens.warning} />
               </TouchableOpacity>
             ))}
@@ -74,15 +89,13 @@ export function OrderReviewSheet({
           </View>
           <TextInput style={styles.reviewInput} placeholder={t("app.orders.addFeedbackOptional")} placeholderTextColor={tokens.muted} value={reviewComment} onChangeText={setReviewComment} multiline />
           <View style={{ flexDirection: "row", gap: 10, marginTop: 16, width: "100%" }}>
-            <TouchableOpacity style={styles.reviewCancelBtn} onPress={() => setSelectedOrderForReview(null)}>
-              <Text style={styles.reviewCancelBtnText}>{t("app.orders.cancel")}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.reviewSubmitBtn, { backgroundColor: tokens.brand }]} onPress={handleSubmitReview} disabled={submittingReview}>
-              {submittingReview ? <ActivityIndicator size="small" color={tokens.onBrand} /> : <Text style={[styles.reviewSubmitBtnText, { color: tokens.onBrand }]}>{t("app.orders.submit")}</Text>}
-            </TouchableOpacity>
+            {/* The shared Button, like the filter sheet: one radius and height for both
+                modals on this screen, and Submit dims while it's disabled. */}
+            <Button title={t("app.orders.cancel")} variant="secondary" onPress={() => setSelectedOrderForReview(null)} style={{ flex: 1 }} />
+            <Button title={t("app.orders.submit")} onPress={handleSubmitReview} loading={submittingReview} style={{ flex: 1 }} />
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -11,6 +11,12 @@ export const normalizeServiceType = (serviceId?: string) => {
   return "cab";
 };
 
+/** The fare card's icon for the vehicle actually booked (it always showed a motorbike). */
+export const rideVehicleIcon = (serviceId?: string): "motorbike" | "rickshaw" | "car" => {
+  const type = normalizeServiceType(serviceId);
+  return type === "bike" ? "motorbike" : type === "auto" ? "rickshaw" : "car";
+};
+
 export const parseFare = (value?: string, fallback?: string) => {
   const numeric = Number(value);
   if (Number.isFinite(numeric) && numeric > 0) return Math.round(numeric);

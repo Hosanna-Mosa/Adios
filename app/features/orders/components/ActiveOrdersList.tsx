@@ -22,11 +22,14 @@ interface Props {
 
 const RIDE_KEYS = ["bike", "auto", "cab", "cab_prime"];
 
+/** A helper task nobody has started yet lives on the helper screen (raise the price, cancel, start OTP). */
+const HELPER_PRE_START = ["CREATED", "SEARCHING_DRIVER", "DRIVER_ASSIGNED"];
+
 /**
  * One card per live order, read top to bottom: what it is (outlet or service,
  * items, when it was placed, price), where it stands (live caption over the same
  * checklist the tracking screen shows), and where it's going, with Track beside it.
- * The whole card opens tracking.
+ * The whole card opens tracking — or, for a helper task that hasn't started, the helper screen.
  */
 export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, styles, tokens }: Props) {
   const { t } = useTranslation();
@@ -38,7 +41,9 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
         const meta = SERVICE_META[key];
         const accent = tokens.services[meta?.accent || "ride"];
         const isOutlet = key === "food" || key === "meat";
-        const openTracking = () => router.push({ pathname: "/tracking", params: { orderId: order._id } });
+        const opensHelperScreen = key === "helper" && HELPER_PRE_START.includes(String(order.status || "").toUpperCase());
+        const openTracking = () =>
+          router.push({ pathname: opensHelperScreen ? "/helper-task" : "/tracking", params: { orderId: order._id } });
 
         const count = isOutlet ? itemCount(order) : 0;
         const placed = clockTime(order.createdAt);
@@ -54,7 +59,7 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
 
         return (
           <Animated.View key={order._id} entering={staggerListItem(index)}>
-            <TouchableOpacity style={styles.activeCard} activeOpacity={0.9} onPress={openTracking}>
+            <TouchableOpacity style={styles.activeCard} activeOpacity={0.9} onPress={openTracking} accessibilityRole="button" accessibilityHint={t("app.orders.trackOrder")}>
               <View style={styles.activeTop}>
                 <OrderThumb order={order} icon={serviceIcon(key)} background={accent.skin} color={accent.accent} styles={styles} />
                 <View style={styles.titleWrap}>
@@ -77,15 +82,13 @@ export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, st
                   <Text style={styles.footLabel}>{destLabel}</Text>
                   <Text style={styles.footAddress} numberOfLines={1}>{dest || "—"}</Text>
                 </View>
-                <TouchableOpacity
-                  style={[styles.trackPill, { backgroundColor: accent.accent }]}
-                  activeOpacity={0.88}
-                  onPress={openTracking}
-                  accessibilityRole="button"
-                >
+                {/* Part of the card, not a second button: the card already opens tracking,
+                    and a touchable inside it gave double press feedback. flexShrink 0 so it
+                    no longer squeezes the address down to a few characters. */}
+                <View style={[styles.trackPill, { backgroundColor: accent.accent, flexShrink: 0 }]}>
                   <Ionicons name="navigate" size={moderateScale(15)} color={accent.on} />
-                  <Text style={[styles.trackPillText, { color: accent.on }]}>{t("app.orders.trackOrder")}</Text>
-                </TouchableOpacity>
+                  <Text style={[styles.trackPillText, { color: accent.on }]} numberOfLines={1}>{t("app.orders.trackOrder")}</Text>
+                </View>
               </View>
             </TouchableOpacity>
           </Animated.View>

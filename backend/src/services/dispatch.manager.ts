@@ -1,6 +1,6 @@
 import { SocketManager } from "../sockets/socket.manager";
 import { NotificationService } from "./notification.service";
-import Order, { OrderStatus } from "../database/models/Order";
+import Order, { OrderStatus, ServiceType } from "../database/models/Order";
 import Driver, { DriverStatus } from "../database/models/Driver";
 
 export interface CandidateDriverInfo {
@@ -319,11 +319,26 @@ export class DispatchManagerService {
     const currentCandidate = session.candidates[session.currentIndex];
     if (currentCandidate) {
       const socketManager = SocketManager.getInstance();
-      socketManager.emitToDriver(currentCandidate.driverUserId, "order_cancelled", { orderId }, "DispatchManager.customerCancel");
+      socketManager.emitToDriver(currentCandidate.driverUserId, "order_cancelled", { orderId, reason: "customer_cancelled" }, "DispatchManager.customerCancel");
+      // The offer also went out as a push; a driver who only saw that (app in the
+      // background) was never told it was withdrawn. Follow it with a cancellation push.
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: currentCandidate.driverUserId,
+          title: "Request cancelled",
+          body: "The customer cancelled this request before it was accepted.",
+          data: { orderId, type: "ORDER_OFFER_CANCELLED" },
+        })
+        .catch((err: any) => console.warn(`[DISPATCH MANAGER] Cancellation push failed for ${currentCandidate.driverUserId}:`, err?.message));
     }
 
     this.activeDispatches.delete(orderId);
     console.log(`🚫 [DISPATCH CANCELLED] Dispatch sequence cancelled for order ${orderId}`);
+  }
+
+  /** Whether this process is running a search for the order. */
+  public isDispatching(orderId: string): boolean {
+    return this.activeDispatches.has(orderId);
   }
 
   /**
@@ -340,6 +355,13 @@ export class DispatchManagerService {
    * Helper to notify customer when no drivers are available
    */
   private notifyNoDriversAvailable(orderId: string, customerUserId?: string) {
+    // A helper task nobody took expires after a while unless the customer raises the price
+    // (OrdersService.expireStaleHelperSearches). Saved, so the app shows it after a reopen too.
+    Order.updateOne(
+      { _id: orderId, serviceType: ServiceType.HELPER, status: OrderStatus.SEARCHING_DRIVER, searchExhaustedAt: null },
+      { $set: { searchExhaustedAt: new Date() } },
+    ).catch((err: any) => console.warn(`[DISPATCH MANAGER] Failed to record exhausted search for ${orderId}:`, err.message));
+
     if (!customerUserId) return;
     try {
       const socketManager = SocketManager.getInstance();

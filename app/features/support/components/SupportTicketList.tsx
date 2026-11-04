@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type RefObject } from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
@@ -30,6 +30,9 @@ interface Props {
   setNewTitle: React.Dispatch<React.SetStateAction<any>>;
   setTicket: React.Dispatch<React.SetStateAction<any>>;
   setViewMode: React.Dispatch<React.SetStateAction<any>>;
+  /** So the header's "+" button can jump straight to the new-ticket form below
+   * the case list, instead of requiring a manual scroll past every case. */
+  scrollRef?: RefObject<ScrollView | null>;
   styles: SupportChatStyles;
   ticket: any;
   tokens: ThemeTokens;
@@ -38,10 +41,10 @@ interface Props {
 }
 
 export function SupportTicketList(props: Props) {
-  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens, unreadCount } = props;
+  const { STATUS_LABEL, accent, allTickets, formatDate, handleReopen, insets, scrollRef, setNewMessage, setNewTitle, setTicket, setViewMode, styles, ticket, tokens, unreadCount } = props;
   const { t } = useTranslation();
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
+    <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }} showsVerticalScrollIndicator={false}>
       {allTickets.length > 0 && (
         <View style={{ paddingHorizontal: 16, paddingTop: 16, gap: 12 }}>
           {allTickets.map((item, idx) => {
@@ -49,17 +52,19 @@ export function SupportTicketList(props: Props) {
             const isPending = item.status === "PENDING_RESOLVE";
             const stripeColor = isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning;
             const newReplies = unreadCount(item);
+            // A resolved case has no tap action (its buttons are inside), so it is a plain
+            // View; it used to be a touchable that did nothing and gave no feedback.
+            const Card: React.ElementType = isResolved ? View : TouchableOpacity;
+            const cardProps = isResolved
+              ? {}
+              : { activeOpacity: 0.85, accessibilityRole: "button", onPress: () => { setTicket(item); setViewMode("chat"); } };
             return (
               <Animated.View key={item._id} entering={staggerListItem(idx)}>
-                <TouchableOpacity
-                  activeOpacity={isResolved ? 1 : 0.85}
-                  onPress={() => { if (!isResolved) { setTicket(item); setViewMode("chat"); } }}
-                  style={[styles.caseCard, { borderLeftColor: stripeColor }]}
-                >
+                <Card {...cardProps} style={[styles.caseCard, { borderLeftColor: stripeColor }]}>
                   <View style={styles.caseTopRow}>
                     <Text style={[styles.caseEyebrow, { color: stripeColor }]} numberOfLines={1}>{item.category} · #{item.ticketId}</Text>
-                    <View style={[styles.caseStatusPill, { backgroundColor: isResolved ? tokens.successSkin : isPending ? tokens.services.task.skin : tokens.warningSkin }]}>
-                      <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]}>{STATUS_LABEL[item.status]}</Text>
+                    <View style={[styles.caseStatusPill, { flexShrink: 0, backgroundColor: isResolved ? tokens.successSkin : isPending ? tokens.services.task.skin : tokens.warningSkin }]}>
+                      <Text style={[styles.caseStatusPillText, { color: isResolved ? tokens.success : isPending ? tokens.services.task.accent : tokens.warning }]} numberOfLines={1}>{STATUS_LABEL[item.status]}</Text>
                     </View>
                   </View>
                   <Text style={styles.caseTitle} numberOfLines={1}>{item.title}</Text>
@@ -73,7 +78,9 @@ export function SupportTicketList(props: Props) {
                     </View>
                   )}
                   <Text style={styles.caseMeta}>
-                    {isResolved ? `Closed ${formatDate(item.updatedAt)}` : `${item.messages.length} message${item.messages.length === 1 ? "" : "s"} · updated ${formatDate(item.updatedAt)}`}
+                    {isResolved
+                      ? t("app.support.caseClosedOn", { date: formatDate(item.updatedAt) })
+                      : t("app.support.caseMeta", { count: item.messages.length, date: formatDate(item.updatedAt) })}
                   </Text>
                   {isResolved && (
                     <View style={styles.caseActionRow}>
@@ -88,7 +95,7 @@ export function SupportTicketList(props: Props) {
                       </TouchableOpacity>
                     </View>
                   )}
-                </TouchableOpacity>
+                </Card>
               </Animated.View>
             );
           })}

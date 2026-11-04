@@ -75,7 +75,7 @@
       "contextTask": "task",
       "contextRide": "ride",
       "contextOrder": "order",
-      "couldNotConfirmTask": "Could not confirm the task. Please try again."
+      "couldNotConfirmTask": "Couldn't confirm the task. Please try again."
     },
     "taskTypes": {
       "shifting": "Shifting",
@@ -100,6 +100,8 @@
         "bookedByMistake": "Booked by mistake",
         "fareTooHigh": "Fare is too high",
         "foundAnotherRide": "Found another ride",
+        "priceTooHigh": "Price is too high",
+        "changedMind": "Changed my mind",
         "other": "Other"
       }
     },
@@ -111,24 +113,6 @@
       }
     },
     "support": {
-      "faqs": {
-        "lateOrder": {
-          "question": "My order is late. What now?",
-          "answer": "Check the live map on the Track screen first — most delays are traffic on the partner's leg. If it's running well past the estimate, open Live chat with the order in mind and we'll look into it."
-        },
-        "refunds": {
-          "question": "How do refunds work?",
-          "answer": "If a payment needs to be refunded, our support team reviews it and processes the refund back to your original payment method through Razorpay. Raise it via Live chat or a ticket and we'll confirm once it's done."
-        },
-        "cancelOrder": {
-          "question": "Can I cancel my order?",
-          "answer": "Yes — cancel anytime from the Orders or Track screen before it's completed. If a partner has already started on it, a quick message in chat helps them stop before making an unnecessary trip."
-        },
-        "pinSafety": {
-          "question": "Is my PIN safe to share?",
-          "answer": "Only hand it over once your items are physically in hand, or once your rider has arrived for a ride. Nobody from Adios will ever ask for it over a call."
-        }
-      },
       "categories": {
         "operationalIssue": "Operational issue",
         "delayedDelivery": "Delayed delivery",
@@ -171,7 +155,18 @@
       "careflavourinWithin24Hours": "care@flavour.in · within 24 hours",
       "raiseANewTicket": "Raise a new ticket",
       "addATitleAndAShort": "Add a title and a short description first.",
-      "messageNotSent": "Message not sent"
+      "messageNotSent": "Message not sent",
+      "todayAt": "Today, {{time}}",
+      "yesterdayAt": "Yesterday, {{time}}",
+      "yesterday": "Yesterday",
+      "send": "Send",
+      "back": "Back",
+      "call": "Call",
+      "closeModal": "Close",
+      "caseClosedOn": "Closed {{date}}",
+      "caseMeta_one": "{{count}} message · updated {{date}}",
+      "caseMeta_other": "{{count}} messages · updated {{date}}",
+      "noMessagesYet": "No messages yet"
     },
     "tracking": {
       "rideLabels": {
@@ -198,7 +193,20 @@
       "restaurantPin": "Restaurant",
       "deliveryLocationPin": "Your delivery location",
       "pickupPin": "Pickup",
-      "dropPin": "Drop"
+      "dropPin": "Drop",
+      "banner": {
+        "riderArrived": "Rider has arrived",
+        "helperArrived": "Helper has arrived",
+        "arrivedAtStore": "Arrived at the store",
+        "tripInProgress": "Trip in progress",
+        "taskInProgress": "Task in progress",
+        "outForDelivery": "Out for delivery",
+        "arrivedAtDestination": "Arrived at destination",
+        "arrivedAtYourLocation": "Arrived at your location",
+        "helperOnTheWay": "Helper is on the way",
+        "riderOnTheWay": "Rider on the way",
+        "headingToPickup": "Heading to pickup"
+      }
     },
     "orderStatusTimeline": {
       "steps": {
@@ -283,6 +291,10 @@
       "fastDelivery": "Fast delivery",
       "ratings40": "Ratings 4.0+",
       "openNow": "Open now",
+      "deliveryAddressAccessibilityLabel": "Delivery address, {{area}}. Tap to change.",
+      "deliveryRadiusAccessibilityLabel": "Delivery search radius",
+      "notificationsAccessibilityLabel": "Notifications",
+      "notificationsUnreadAccessibilityLabel": "Notifications, {{count}} unread",
       "offers": "Offers",
       "under300": "Under ₹300",
       "pureVeg": "Pure Veg",
@@ -324,7 +336,7 @@
       "pickARideToSeeLive": "Pick a ride to see live fares for your trip.",
       "alsoOnFlavour": "Also on Adios",
       "hireAHelper": "Hire a helper",
-      "from120Hour": "From ₹120 / hour",
+      "from80Hour": "From ₹80 / hour",
       "multistopCourierFrom39": "Multi-stop courier · from ₹39",
       "allServices": "All services",
       "searching": "Searching…",
@@ -353,7 +365,16 @@
       "pickAServiceToGetStarted": "Pick a service to get started.",
       "beta": "Beta",
       "offerEyebrow": "Offer",
-      "viewOffer": "View offer"
+      "viewOffer": "View offer",
+      "kmUnit": "km",
+      "suggest": {
+        "chickenCurryCut": "Chicken curry cut",
+        "mutton": "Mutton",
+        "prawns": "Prawns",
+        "biryani": "Biryani",
+        "pizza": "Pizza",
+        "meals149": "₹149 meals"
+      }
     },
     "profile": {
       "menuItems": {
@@ -396,7 +417,8 @@
       "changePhoto": "Change photo",
       "uploadPhoto": "Upload photo",
       "removePhoto": "Remove photo",
-      "failedToRemovePhoto": "Failed to remove photo"
+      "failedToRemovePhoto": "Failed to remove photo",
+      "yourNameFallback": "Your name"
     },
     "food": {
       "orderFallback": {
@@ -485,6 +507,22 @@
       "veg": "Veg",
       "nonveg": "Non-veg",
       "add": "Add",
+      "decreaseQuantity": "Decrease quantity",
+      "increaseQuantity": "Increase quantity",
+      "addToFavorites": "Add to favorites",
+      "removeFromFavorites": "Remove from favorites",
+      "search": "Search",
+      "closeSearch": "Close search",
+      "clearSearch": "Clear search",
+      "share": "Share",
+      "deliveryAmount": "₹{{amount}} delivery",
+      "soldOut": "SOLD OUT",
+      "fromVendor": "from {{vendor}}",
+      "minOrderFromPerKg": "from ₹{{amount}} / kg",
+      "costForTwo": "₹{{amount}} for two",
+      "addMoreToUnlock": "Add ₹{{amount}} more to use this",
+      "savesOnOrder": "Saves ₹{{amount}} on this order",
+      "noAddressSelected": "No address selected",
       "ratings": "ratings)",
       "hygieneAmpSafety": "Hygiene & safety",
       "kitchenAuditedByFssaiLicence": "Kitchen audited by FSSAI · licence",
@@ -545,7 +583,10 @@
       "percentOff": "{{percent}}% OFF",
       "bestseller": "Bestseller",
       "kcal": "{{value}} kcal",
-      "proteinGrams": "{{value}}g protein"
+      "proteinGrams": "{{value}}g protein",
+      "restaurantFallback": "Restaurant",
+      "kmAway": "{{km}} km away",
+      "deliveryFeeAmount": "₹{{amount}} delivery"
     },
     "orders": {
       "refundedOriginal": "Refunded ₹{{amount}} to your original payment method · {{date}}",
@@ -553,8 +594,6 @@
       "refundInProgress": "Refund of ₹{{amount}} in progress · usually 5–7 working days",
       "refundBeingArranged": "Your refund of ₹{{amount}} is being arranged. Our team will contact you if needed.",
       "preparingYourOrder": "Preparing your order",
-      "helperOnTheWay": "Helper on the way",
-      "matchingAHelper": "Matching a helper",
       "riderOnTheRoute": "Rider on the route",
       "findingYourCaptain": "Finding your rider",
       "past": "Past",
@@ -573,6 +612,10 @@
       "showOrdersCount_one": "Show {{count}} order",
       "showOrdersCount_other": "Show {{count}} orders",
       "rateYourOrder": "Rate your order",
+      "starRating_one": "{{count}} star",
+      "starRating_other": "{{count}} stars",
+      "filtersAccessibilityLabel": "Filters",
+      "filtersActiveAccessibilityLabel": "Filters, active",
       "addFeedbackOptional": "Add feedback (optional)",
       "cancel": "Cancel",
       "submit": "Submit",
@@ -599,12 +642,20 @@
       "placedAt": "Placed {{time}}",
       "deliveringTo": "Delivering to",
       "dropAt": "Drop",
-      "taskLocation": "Task location"
+      "taskLocation": "Task location",
+      "findingAHelper": "Finding a helper",
+      "helperAssigned": "Helper assigned",
+      "taskInProgress": "Task in progress",
+      "taskCompleted": "Task completed",
+      "all": "All",
+      "slotRejectedFallback": "The restaurant could not take this order for the requested slot.",
+      "invoice": "Invoice",
+      "invoiceUnavailable": "Invoice not available"
     },
     "helperTask": {
       "title": {
         "compose": "Hire a helper",
-        "bidding": "Your offer",
+        "offer": "Set your offer",
         "searching": "Finding a helper",
         "assigned": "Task assigned",
         "noHelpersYet": "No helpers yet"
@@ -655,9 +706,6 @@
       "supportLinkText": "support",
       "toChangeItThereapossNoSelfserve": "to change it — there's no self-serve way to re-verify a new number yet.",
       "updateProfile": "Update profile",
-      "iAgreeToThe": "I agree to the",
-      "terms": "Terms",
-      "privacyPolicy": "Privacy Policy",
       "createAccount": "Create account",
       "alreadyHaveOne": "Already have one?",
       "signIn": "Sign in",
@@ -677,11 +725,17 @@
       "verifyYourNumber": "Verify your number",
       "weSentA6digitCodeTo": "We sent a 6-digit code to",
       "change": "Change",
-      "resendCodeIn0": "Resend code in 0:",
       "resend": "Resend",
       "verified": "Verified",
       "createYourAccount": "Create your account",
-      "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP."
+      "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP.",
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good"
+      },
+      "agreeToTermsAndPrivacy": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+      "resendCodeIn": "Resend code in {{time}}"
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -707,7 +761,6 @@
       "stopCount_other": "{{count}} stops",
       "addPickupLocation": "+ Add pickup location",
       "calculatingRoute": "Calculating route…",
-      "kmAbout": "km · about",
       "addAPickupToSeeDistance": "Add a pickup to see distance",
       "deliveryLower": "delivery",
       "reviewRoute": "Review route",
@@ -739,6 +792,8 @@
       "addingThisStop": "Adding this stop:",
       "deliveryGoes": ", delivery goes ₹",
       "addStopToRoute": "Add stop to route",
+      "addItem": "Add item",
+      "removeItem": "Remove item",
       "storeNameOptional": "Store name · optional",
       "egKarachiBakery": "e.g. Karachi Bakery",
       "pickupAddress": "Pickup address",
@@ -767,7 +822,6 @@
       "minutes": "minutes",
       "taskDescription": "Task description",
       "twoPeopleToCarryA3seater": "Two people to carry a 3-seater sofa and 4 cartons down from the 4th floor. No lift after 8 PM.",
-      "helpersSeeThisBeforeTheyBid": "Helpers see this before they bid. Mention stairs, weight and anything heavy.",
       "whereTheWorkStarts": "Where the work starts",
       "pickupLocation": "Pickup location",
       "whereItEnds": "Where it ends",
@@ -826,7 +880,6 @@
       "helpersNotified": "helpers notified",
       "waitingForTheFirstAcceptance": "Waiting for the first acceptance",
       "currentOffer": "Current offer",
-      "mAbout": "m · about ₹",
       "20Steps": "₹20 steps",
       "findingAHelper": "Finding a helper",
       "dragToAdjust": "Drag to adjust",
@@ -834,11 +887,7 @@
       "saved": "Saved",
       "near": "Near",
       "recent": "Recent",
-      "save": "Save",
-      "yourOfferIsVisibleToNearby": "Your offer is visible to nearby helpers once you tap Find a helper.",
       "findAHelper": "Find a helper · ₹",
-      "outOfRange": "Out of range",
-      "thisLocationIsOutsideYourSelected": "This location is outside your selected {{value}}km radius.",
       "deleteAddress": "Delete address",
       "areYouSureRemoveAddress": "Are you sure you want to remove this address?",
       "deleteWord": "Delete",
@@ -855,7 +904,27 @@
       "offeredToHelpersSomePassed_one": "We offered it to {{count}} helper nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
       "offeredToHelpersSomePassed_other": "We offered it to {{count}} helpers nearby, and {{passed}} passed. Raising your offer usually gets one within a few minutes.",
       "nobodyOnShiftNearYou": "Nobody is on shift near you right now. Raising your offer, or trying again shortly, usually helps.",
-      "raising": "Raising…"
+      "raising": "Raising…",
+      "couldNotGetPrice": "Couldn't get a price for this task. Check the places and try again.",
+      "priceNotReady": "Price not ready",
+      "calculatingPrice": "Calculating price…",
+      "estimatedPrice": "Estimated price",
+      "couldNotCancelTask": "Couldn't cancel the task. Please try again.",
+      "cancelThisRequest": "Cancel this request?",
+      "cancelThisRequestHint": "Your task is still live. Keep it running and come back to it from My Orders, or cancel it now.",
+      "keepIt": "Keep it",
+      "cancelRequest": "Cancel request",
+      "couldNotLoadTask": "Couldn't load this task. Please try again.",
+      "offerGoesToHelpersOneAtATime": "Nearby helpers are offered your task one at a time, at this price.",
+      "helpersSeeThisBeforeTheyAccept": "Helpers read this before they accept. Mention stairs, weight and anything heavy.",
+      "offerRange": "You can offer ₹{{min}} – ₹{{max}}",
+      "yourOffer": "Your offer",
+      "offerForDuration": "for {{hours}}h {{minutes}}m · about ₹{{perHour}}/hour",
+      "recommendedPrice": "Recommended price · ₹{{amount}}",
+      "taskCancelsAutomatically": "If no one takes it in the next few minutes, we'll cancel the task automatically.",
+      "distanceKm": "{{km}} km",
+      "aboutMinutes": "about {{min}} min",
+      "multiStopDelivery": "Multi-stop delivery"
     },
     "ride": {
       "whyDoYouWantToCancel": "Why do you want to cancel?",
@@ -998,6 +1067,26 @@
       "deliveryPin": "Delivery PIN",
       "onlyGiveThisCodeWhenYour": "Only give this code when your items are safely received.",
       "minAway": "min away",
+      "etaSummary": "{{km}} km · about {{min}} min",
+      "minutesAway": "{{min}} min away",
+      "pickupLabel": "Pickup",
+      "dropLabel": "Drop",
+      "pickupLocationPlaceholder": "Pickup location",
+      "pickupPointFallback": "Pickup point",
+      "rideCompletedHeadline": "Ride completed",
+      "taskCompleteHeadline": "Task complete",
+      "orderDeliveredHeadline": "Order delivered",
+      "arrivedSafelyWithName": "You arrived safely with {{name}}.",
+      "arrivedSafelyNoName": "You arrived safely.",
+      "helperFinishedWithTime": "{{name}} finished the task in {{time}}.",
+      "helperFinishedNoTime": "{{name}} finished the task.",
+      "deliveredByWithTime": "Delivered by {{name}} in {{time}}.",
+      "deliveredByNoTime": "Delivered by {{name}}.",
+      "yourHelperFallback": "Your helper",
+      "assignedPartnerFallback": "Assigned partner",
+      "deliveryPartnerFallback": "Delivery partner",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
       "chooseATrip": "Choose a trip",
       "bookUpTo7DaysAhead": "Book up to 7 days ahead",
       "book": "Book",
@@ -1027,7 +1116,10 @@
       "cancelledByAdios": "Order cancelled by Adios",
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
       "youCancelledThisOrder": "You cancelled this order.",
-      "noRidersAvailableNow": "Sorry, no riders are available right now. Please try again in a few minutes."
+      "noRidersAvailableNow": "Sorry, no riders are available right now. Please try again in a few minutes.",
+      "noHelperAvailable": "No helper was available",
+      "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it.",
+      "etaMinutes": "{{min}} min"
     },
     "UpdateModal": {
       "couldntOpenTheStore": "Couldn't open the store",
@@ -1052,13 +1144,11 @@
     },
     "CartConflictDialog": {
       "startANewCart": "Start a new cart?",
-      "yourCartHasItemsFrom": "Your cart has items from",
-      "adding": ". Adding",
-      "willEmptyIt": "will empty it.",
       "clearCart": "Clear cart",
       "keepMyCart": "Keep my cart",
       "anotherOutlet": "another outlet",
-      "thisOutlet": "this outlet"
+      "thisOutlet": "this outlet",
+      "body": "Your cart has items from {{from}}. Adding {{item}} from {{to}} will empty it."
     },
     "checkout": {
       "checkout": "Checkout",
@@ -1076,7 +1166,11 @@
       "tomorrow": "Tomorrow"
     },
     "notifications": {
-      "nothingHereYetOrderAndAccount": "Nothing here yet. Order and account updates will show up in this list."
+      "nothingHereYetOrderAndAccount": "Nothing here yet. Order and account updates will show up in this list.",
+      "justNow": "Just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "today": "Today"
     },
     "otp": {
       "verifyContinue": "Verify & continue"
@@ -1100,7 +1194,9 @@
       "cashHint": "Pay the driver",
       "online": "Online",
       "onlineHint": "UPI, cards, netbanking",
-      "paySecurely": "Pay securely"
+      "paySecurely": "Pay securely",
+      "topupRefundedTitle": "Payment refunded",
+      "topupRefunded": "Your task was already taken, so this payment is being refunded."
     },
     "personaldetails": {
       "couldntSave": "Couldn't save",
@@ -1121,7 +1217,9 @@
     "OfflineBanner": {
       "youaposreOffline": "You're offline",
       "checking": "Checking…",
-      "retry": "Retry"
+      "retry": "Retry",
+      "lastSyncedMinutesAgo_one": "last synced {{count}}m ago",
+      "lastSyncedMinutesAgo_other": "last synced {{count}}m ago"
     },
     "RestaurantListItem": {
       "pureVeg": "Pure veg"
@@ -1262,6 +1360,53 @@
       "deliveryOtpHint": "Share this with the receiver. The captain needs it to complete the delivery — the receiver should give it only after getting the package.",
       "shareOtp": "Share OTP with receiver",
       "shareOtpMessage": "Your package delivery OTP is {{otp}}. Give it to the captain only after you receive the package."
+    },
+    "supportBot": {
+      "allQuestions": "All questions",
+      "helpedPeople_one": "Helped {{count}} person",
+      "helpedPeople_other": "Helped {{count}} people",
+      "didThisHelp": "Did this help?",
+      "yes": "Yes",
+      "no": "No",
+      "glad": "Glad we could help!",
+      "talkToAgent": "Talk to an agent",
+      "aboutOrder": "About order #{{id}}",
+      "change": "Change",
+      "noOrders": "No recent orders found.",
+      "timeout": "This is taking longer than usual. You can try again or talk to an agent.",
+      "error": "Something went wrong. Please try again.",
+      "tryAgain": "Try again",
+      "limitReached": "We couldn't solve this with quick answers. Please talk to an agent and we'll sort it out.",
+      "noQuestions": "No quick answers available right now.",
+      "categories": {
+        "ride": "Ride",
+        "food": "Food",
+        "meat": "Meat",
+        "package": "Package",
+        "helper": "Helper",
+        "payment": "Payments",
+        "general": "General"
+      }
+    },
+    "a11y": {
+      "goBack": "Go back",
+      "unreadCount_one": "{{label}} unread",
+      "unreadCount_other": "{{label}} unread",
+      "cartWithItems_one": "Cart, {{count}} item",
+      "cartWithItems_other": "Cart, {{count}} items",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "callName": "Call {{name}}",
+      "addItem": "Add {{name}}",
+      "removeFromFavorites": "Remove {{name}} from favorites",
+      "removeStop": "Remove stop {{name}}",
+      "moreOptionsFor": "More options for {{name}}",
+      "close": "Close",
+      "changePhoto": "Change photo"
+    },
+    "language": {
+      "chooseYourLanguage": "Choose your language",
+      "youCanChangeThisLater": "You can change this later from your profile."
     }
   }
 }

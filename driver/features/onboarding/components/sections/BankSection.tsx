@@ -53,7 +53,7 @@ export function BankSection() {
         />
         {!docs.bankVerified ? (
           <PrimaryButton
-            title={t("onboarding.verifyBankAccount")}
+            title={t("onboarding.saveBankAccount")}
             onPress={handleVerifyBank}
             disabled={
               docs.bankAccount.length < 9 ||
@@ -65,7 +65,7 @@ export function BankSection() {
         ) : (
           <InfoBanner
             icon="check-circle"
-            text={t("onboarding.bankAccountVerifiedPayoutsWillBeSentHere")}
+            text={t("onboarding.bankAccountSavedTeamWillVerify")}
           />
         )}
       </Box>

@@ -9,6 +9,8 @@ const SESSION_KEYS: Record<PanelRole, { token: string; data: string }> = {
   vendor: { token: "vendor_token", data: "vendor_data" },
 };
 
+const REFRESH_KEY = "refresh_token";
+
 function read(key: string): string | null {
   try {
     return localStorage.getItem(key);
@@ -22,6 +24,25 @@ export function getStaffRole(): "admin" | "support" | null {
   if (read(SESSION_KEYS.admin.token)) return "admin";
   if (read(SESSION_KEYS.support.token)) return "support";
   return null;
+}
+
+/** The access token of whichever role is signed in, with the storage key it lives under. */
+export function getAccessToken(): { token: string; key: string } | null {
+  for (const { token } of Object.values(SESSION_KEYS)) {
+    const value = read(token);
+    if (value) return { token: value, key: token };
+  }
+  return null;
+}
+
+export const getRefreshToken = () => read(REFRESH_KEY);
+
+/** Stores a renewed pair under the same role key the old access token was in. */
+export function storeRenewedTokens(tokens: { token: string; refreshToken: string }) {
+  const current = getAccessToken();
+  if (!current) return;
+  localStorage.setItem(current.key, tokens.token);
+  localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
 }
 
 export function getSessionData<T = Record<string, unknown>>(role: PanelRole): T | null {
@@ -43,12 +64,18 @@ export function clearSession() {
       // Storage unavailable — nothing persisted to clear.
     }
   }
+  try {
+    localStorage.removeItem(REFRESH_KEY);
+  } catch {
+    // Storage unavailable — nothing persisted to clear.
+  }
 }
 
 /** Replaces whatever session exists, so a browser never holds two roles' tokens. */
-export function startSession(role: PanelRole, token: string, data: unknown) {
+export function startSession(role: PanelRole, token: string, data: unknown, refreshToken?: string) {
   clearSession();
   localStorage.setItem(SESSION_KEYS[role].token, token);
+  if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken);
   localStorage.setItem(SESSION_KEYS[role].data, JSON.stringify(data));
 }
 

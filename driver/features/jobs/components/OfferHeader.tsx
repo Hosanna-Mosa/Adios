@@ -9,19 +9,29 @@ import { AppText } from "@/components/ui/AppText";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
 
 /** Job title, payout, and the sub-line that differs for scheduled and
- * helper offers. */
+ * helper offers. The payout is labelled "You earn" and, for a cash job, sits
+ * over the amount to collect — the two used to show as one bare ₹ figure each,
+ * which read as a fare mismatch against the customer's price. */
 export function OfferHeader({
   title,
   earnings,
   isReserved,
   scheduledFor,
   isHelper,
+  bookedHoursLabel,
+  paymentMethod,
+  payableAmount,
 }: {
   title: string;
   earnings: React.ReactNode;
   isReserved?: boolean;
   scheduledFor: string;
   isHelper: boolean;
+  /** Helper offers: "2 hrs", from the booked hours. */
+  bookedHoursLabel?: string | null;
+  paymentMethod?: "cash" | "online";
+  /** What the customer pays — the cash to collect on a cash job. */
+  payableAmount?: number;
 }) {
   const { t } = useTranslation();
   return (
@@ -33,10 +43,24 @@ export function OfferHeader({
             {t("jobs.scheduledColon", { value: scheduledFor, defaultValue: "Scheduled: {{value}}" })}
           </AppText>
         ) : (
-          isHelper && <AppText style={styles.subtitle}>{t("jobs.hoursBookTaskSpecialist")}</AppText>
+          isHelper && (
+            <AppText style={styles.subtitle}>
+              {bookedHoursLabel
+                ? t("jobs.helperTaskBookedFor", { value: bookedHoursLabel })
+                : t("jobs.hoursBookTaskSpecialist")}
+            </AppText>
+          )
         )}
       </Box>
-      <AppText style={styles.earnings}>₹{earnings}</AppText>
+      <Box style={{ alignItems: "flex-end" }}>
+        <AppText style={styles.subtitle}>{t("jobs.youEarn")}</AppText>
+        <AppText style={styles.earnings}>₹{earnings}</AppText>
+        {paymentMethod ? (
+          <AppText style={styles.subtitle}>
+            {paymentMethod === "cash" ? t("jobs.cashToCollect", { amount: payableAmount ?? 0 }) : t("jobs.paidOnline")}
+          </AppText>
+        ) : null}
+      </Box>
     </Box>
   );
 }

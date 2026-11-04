@@ -24,6 +24,8 @@ const Payouts = lazy(() => import("@/pages/Payouts"));
 const Support = lazy(() => import("@/pages/Support"));
 const SupportIssues = lazy(() => import("@/pages/SupportIssues"));
 const SupportChat = lazy(() => import("@/pages/SupportChat"));
+const SupportOrders = lazy(() => import("@/pages/SupportOrders"));
+const SupportOrderDetail = lazy(() => import("@/pages/SupportOrderDetail"));
 const OrderDetail = lazy(() => import("@/pages/OrderDetail"));
 const Users = lazy(() => import("@/pages/Users"));
 const Vendors = lazy(() => import("@/pages/Vendors"));
@@ -33,10 +35,12 @@ const MeatPricing = lazy(() => import("@/pages/MeatPricing"));
 const Zones = lazy(() => import("@/pages/Zones"));
 const Banners = lazy(() => import("@/pages/Banners"));
 const Coupons = lazy(() => import("@/pages/Coupons"));
+const SupportBot = lazy(() => import("@/pages/SupportBot"));
 const Offers = lazy(() => import("@/pages/Offers"));
 const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
+const HelperPricing = lazy(() => import("@/pages/HelperPricing"));
 const DriverVerification = lazy(() => import("@/pages/DriverVerification"));
 const RestaurantVerification = lazy(() => import("@/pages/RestaurantVerification"));
 
@@ -89,6 +93,8 @@ export function AnimatedRoutes() {
         <Route path="/support-cases" element={<RequireAuth><SupportIssues /></RequireAuth>} />
         <Route path="/support/chats" element={<RequireAuth><SupportChat /></RequireAuth>} />
         <Route path="/support/chats/:id" element={<RequireAuth><SupportChat /></RequireAuth>} />
+        <Route path="/support/orders" element={<RequireAuth><SupportOrders /></RequireAuth>} />
+        <Route path="/support/orders/:id" element={<RequireAuth><SupportOrderDetail /></RequireAuth>} />
         <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
         <Route path="/vendors" element={<RequireAdmin><Vendors /></RequireAdmin>} />
         <Route path="/restaurant-menu" element={<RequireAdmin><RestaurantMenu /></RequireAdmin>} />
@@ -103,10 +109,12 @@ export function AnimatedRoutes() {
         <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
         <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
         <Route path="/coupons" element={<RequireAdmin><Coupons /></RequireAdmin>} />
+        <Route path="/support-bot" element={<RequireAdmin><SupportBot /></RequireAdmin>} />
         <Route path="/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
         <Route path="/users/:id" element={<RequireAdmin><UserDetail /></RequireAdmin>} />
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
+        <Route path="/helper-pricing" element={<RequireAdmin><HelperPricing /></RequireAdmin>} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

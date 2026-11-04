@@ -19,9 +19,9 @@ export default function RestaurantMenu() {
   id, name, image, rating, reviews, isMeat, insets, tabBarHeight, tokens, accent, styles, items,
   toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, activeCategory,
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
-  highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems,
+  highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, searchInputRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed, handleSearchIconPress
   } = useRestaurantMenu();
   const { t } = useTranslation();
   const noRidersOnline = useHomeStore(selectNoRidersOnline);
@@ -47,7 +47,7 @@ export default function RestaurantMenu() {
           insets={insets}
           isFavorite={isFavorite}
           name={name}
-          setScrolledPast={setScrolledPast}
+          onSearchPress={handleSearchIconPress}
           styles={styles}
           toggleFavorite={toggleFavorite}
         />
@@ -97,6 +97,7 @@ export default function RestaurantMenu() {
         rating={rating}
         reviews={reviews}
         scrollViewRef={scrollViewRef}
+        searchInputRef={searchInputRef}
         scrolledPast={scrolledPast}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

@@ -18,7 +18,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     headerEyebrow: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted },
     headerTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text, marginTop: 2 },
-    headerTitleSolo: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
 
     section: { paddingHorizontal: 16, paddingTop: 18 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 12 },
@@ -33,7 +32,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       borderRadius: 14,
       padding: 12,
     },
-    noticeTitle: { color: tokens.text, fontWeight: "600", marginBottom: 2 },
+    noticeTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginBottom: 2 },
     noticeLine: { color: tokens.sec, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small },
     itemsCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 18, paddingHorizontal: 14 },
     itemRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12 },
@@ -55,7 +54,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     },
     qtyBtn: { width: 30, height: 34, alignItems: "center", justifyContent: "center" },
     qtyText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
-    itemLinePrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, width: 56, textAlign: "right", flexShrink: 0 },
+    // minWidth, not width: "₹12,450" or a large system font no longer wraps or clips.
+    itemLinePrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, minWidth: 56, textAlign: "right", flexShrink: 0 },
     addMoreRow: { paddingVertical: 13 },
     addMoreText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
 

@@ -39,7 +39,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     itemsHint: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 10 },
 
     suggestionRow: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, padding: 12, minHeight: 56 },
-    suggestionThumb: { width: 34, height: 34, borderRadius: 11, backgroundColor: tokens.sunken, flexShrink: 0 },
+    suggestionThumb: { width: 34, height: 34, borderRadius: 11, backgroundColor: tokens.sunken, flexShrink: 0, alignItems: "center", justifyContent: "center" },
     suggestionName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
     suggestionMeta: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 

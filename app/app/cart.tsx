@@ -20,11 +20,7 @@ export default function CartScreen() {
   if (items.length === 0 && cartStatus === "hydrating") {
     return (
       <ScreenShell>
-        <CartHeader
-          insets={insets}
-          styles={styles}
-          tokens={tokens}
-        />
+        <CartHeader insets={insets} />
         <CartRestoringState
           accent={accent}
           styles={styles}

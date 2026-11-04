@@ -1,57 +1,65 @@
-import { Platform, Text, View } from "react-native";
+import { View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { RefreshButton } from "@/components/ui/RefreshButton";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { Header } from "@/components/ui/Header";
+import { WEB_TOP_OFFSET } from "@/constants/layout";
+import { type ThemeTokens } from "@/constants/colors";
 
-// The support-chat header. Replaces SupportChatHeader{,2}: the same bar with a
-// different back action and title block.
-//
-// With a `subtitle` the title sits in a flexed column (the conversation view);
-// without one the title renders bare, exactly as the case-list view did — the
-// wrapper View is not rendered at all in that case, so layout is unchanged.
+// The support-chat header (case list + conversation view). Built from the
+// shared Header so it matches the Help & Support screen's header instead of
+// carrying its own 38pt/surface-bar chip.
 
 interface Props {
   title: string;
   subtitle?: string;
   onBack: () => void;
   insets: { top: number };
-  styles: {
-    header: object;
-    backBtn: object;
-    headerName: object;
-    headerStatus: object;
-  };
-  tokens: { text: string };
+  /** Cases list only: jumps straight to "Raise a new ticket" instead of
+   * requiring a scroll past every existing case. Omit to hide the button
+   * (e.g. on the conversation view, which has nothing to raise). */
+  onAddPress?: () => void;
+  tokens?: ThemeTokens;
   /** Shows a refresh control at the trailing edge. */
   onRefresh?: () => void;
   refreshing?: boolean;
 }
 
-export function SupportChatHeader({ title, subtitle, onBack, insets, styles, tokens, onRefresh, refreshing }: Props) {
+export function SupportChatHeader({ title, subtitle, onBack, insets, onAddPress, tokens, onRefresh, refreshing }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) + 12 }]}>
-      <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
-      {subtitle ? (
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={styles.headerName}>{title}</Text>
-          <Text style={styles.headerStatus}>{subtitle}</Text>
-        </View>
-      ) : (
-        <Text style={styles.headerName}>{title}</Text>
-      )}
-      {onRefresh ? (
-        <RefreshButton
-          style={[styles.backBtn, { marginLeft: "auto" }]}
-          onPress={onRefresh}
-          refreshing={refreshing}
-          accessibilityLabel={t("actions.refresh")}
-        />
-      ) : null}
-    </View>
+    <Header
+      title={title}
+      subtitle={subtitle}
+      onBack={onBack}
+      backHitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      accessibilityLabel={t("app.a11y.goBack")}
+      style={{ paddingTop: insets.top + WEB_TOP_OFFSET + 12 }}
+      right={
+        (onRefresh || (onAddPress && tokens)) ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {onRefresh ? (
+              <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
+            ) : null}
+            {onAddPress && tokens ? (
+          <TouchableOpacity
+            onPress={onAddPress}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.support.raiseANewTicket")}
+            style={{
+              width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
+              backgroundColor: tokens.brand, alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Ionicons name="add" size={moderateScale(22)} color={tokens.onBrand} />
+          </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : undefined
+      }
+    />
   );
 }

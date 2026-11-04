@@ -13,29 +13,40 @@ export const CART_CARD_HEIGHT = moderateScale(68);
 export const TAB_PILL_HEIGHT = moderateScale(62);
 
 export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: ServiceTokens = accent) => StyleSheet.create({
-  tabPill: {
+  // Split into an outer View (position + shadow) and an inner one
+  // (overflow: hidden, for the rounded-corner blur clip) — iOS clips the
+  // shadow to nothing if both live on the same view as overflow: hidden.
+  tabPillWrap: {
     position: "absolute",
     left: SIDE_MARGIN,
     right: SIDE_MARGIN,
     height: TAB_PILL_HEIGHT,
     borderRadius: radius.pill,
+    ...elevation.lg,
+  },
+  tabPill: {
+    flex: 1,
+    borderRadius: radius.pill,
     overflow: "hidden",
     backgroundColor: Platform.OS === "android" ? tokens.surface : `${tokens.surface}E6`,
     borderWidth: 1,
     borderColor: tokens.border,
-    ...elevation.lg,
   },
-  cartCard: {
+  cartCardWrap: {
     position: "absolute",
     left: SIDE_MARGIN,
     right: SIDE_MARGIN,
     height: CART_CARD_HEIGHT,
     borderRadius: radius.lg,
+    ...elevation.md,
+  },
+  cartCard: {
+    flex: 1,
+    borderRadius: radius.lg,
     overflow: "hidden",
     backgroundColor: Platform.OS === "android" ? tokens.surface : `${tokens.surface}E6`,
     borderWidth: 1,
     borderColor: tokens.border,
-    ...elevation.md,
   },
   cartRow: {
     flex: 1,

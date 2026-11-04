@@ -13,10 +13,6 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     root: { flex: 1, backgroundColor: tokens.bg },
     mapContainer: { flex: 1 },
     mapOverlay: { position: "absolute", left: 16, right: 16, zIndex: 10, flexDirection: "row", justifyContent: "space-between" },
-    circleBtn: {
-      width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
-      backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
-    },
     toolGroup: { gap: 8 },
     toolCircleBtn: {
       width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19),
@@ -44,7 +40,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     editBubbleBtn: { width: 22, height: 22, borderRadius: 11, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginLeft: 6 },
 
     sheet: {
-      height: "63%", backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12,
+      maxHeight: "63%", overflow: "hidden", backgroundColor: tokens.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 12,
       borderTopWidth: 1, borderColor: tokens.border,
     },
     sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 14 },

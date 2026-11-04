@@ -19,6 +19,8 @@ interface Props {
   orderSummary: any;
   pickupStop: any;
   setShowCancelSheet: React.Dispatch<React.SetStateAction<any>>;
+  /** Reports the sheet's rendered height, so the map's zoom controls can clear it. */
+  setSheetHeight?: (height: number) => void;
   spinStyle: any;
   styles: FindingDriverStyles;
   tierLabel: string;
@@ -31,6 +33,7 @@ export function FindingDriverSheet({
   orderSummary,
   pickupStop,
   setShowCancelSheet,
+  setSheetHeight,
   spinStyle,
   styles,
   tierLabel,
@@ -52,7 +55,7 @@ export function FindingDriverSheet({
         ? t("app.ride.restaurantPreparingSubtitle")
         : searchingText;
   return (
-    <View style={styles.sheet}>
+    <View style={styles.sheet} onLayout={(e) => setSheetHeight?.(Math.round(e.nativeEvent.layout.height))}>
       <View style={styles.sheetHandle} />
       <View style={styles.titleRow}>
         <Animated.View style={[styles.spinner, spinStyle]} />

@@ -31,6 +31,29 @@ export function isOutletOrder(currentOrder: any) {
   return !!(currentOrder?.hasOutlet || currentOrder?.vendorName);
 }
 
+/** A meat-shop order: its pickup is worded "meat shop", never "restaurant". */
+export function isMeatOrder(currentOrder: any) {
+  return currentOrder?.outletKind === "meat";
+}
+
+const MEAT_SHOP_KEYS: Record<string, string> = {
+  "jobs.restaurant": "jobs.meatShop",
+  "jobs.startTravelToRestaurant": "jobs.startTravelToMeatShop",
+  "jobs.travelToRestaurant": "jobs.travelToMeatShop",
+  "jobs.arrivedAtRestaurant": "jobs.arrivedAtMeatShop",
+  "jobs.within20MetersOfRestaurant": "jobs.within20MetersOfMeatShop",
+  "jobs.enterPickupCodeFromRestaurant": "jobs.enterPickupCodeFromMeatShop",
+  "jobs.restaurantNotReadyYet": "jobs.meatShopNotReadyYet",
+  "jobs.waitingForRestaurant": "jobs.waitingForMeatShop",
+  "jobs.restaurantPickupCode": "jobs.meatShopPickupCode",
+  "jobs.invalidCodeAskRestaurantForPickupCode": "jobs.invalidCodeAskMeatShopForPickupCode",
+};
+
+/** The translation key for an outlet line: its meat-shop wording on a meat order. */
+export function outletKey(currentOrder: any, restaurantKey: string) {
+  return (isMeatOrder(currentOrder) && MEAT_SHOP_KEYS[restaurantKey]) || restaurantKey;
+}
+
 export function isHelperOrder(currentOrder: any) {
   return currentOrder?.serviceType?.toLowerCase() === "helper";
 }

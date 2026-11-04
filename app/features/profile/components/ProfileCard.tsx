@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { Avatar } from "@/components/ui/Avatar";
@@ -24,11 +25,12 @@ export function ProfileCard({
   tokens,
   user,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Animated.View style={styles.profileCard} entering={fadeInUp(0)}>
       {/* The badge is the affordance — tapping opens change/remove, which is
           otherwise an invisible gesture on a plain avatar. */}
-      <TouchableOpacity onPress={handleAvatarPress} activeOpacity={0.85}>
+      <TouchableOpacity onPress={handleAvatarPress} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel={t("app.a11y.changePhoto")}>
         <Avatar
           name={user?.name}
           imageUri={user?.profilePic}
@@ -41,7 +43,7 @@ export function ProfileCard({
         </View>
       </TouchableOpacity>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.profileName} numberOfLines={1}>{user?.name || "Your name"}</Text>
+        <Text style={styles.profileName} numberOfLines={1}>{user?.name || t("app.profile.yourNameFallback")}</Text>
         <Text style={styles.profilePhone}>{user?.phone || ""}</Text>
       </View>
     </Animated.View>

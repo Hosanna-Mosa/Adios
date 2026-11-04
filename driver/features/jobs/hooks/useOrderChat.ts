@@ -56,7 +56,7 @@ export function useOrderChat(orderId: string | undefined, watchTaskConfirmation:
       const res = await fetch(`${apiUrl}/orders/${orderId}`, { headers: { Authorization: `Bearer ${token}` } });
       if (!res.ok) return;
       const order = await res.json();
-      if (mounted.current && order?.helperTaskConfirmedAt) setCanStartTask(true);
+      if (mounted.current && (order?.assignConfirmedAt || order?.helperTaskConfirmedAt)) setCanStartTask(true);
     },
     ORDER_POLL_MS,
     !!orderId && !!token && watchTaskConfirmation && !canStartTask,

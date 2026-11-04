@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocalSearchParams } from "expo-router";
+import { useTranslation } from "react-i18next";
 import MapView from "@/components/maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { createStyles } from "./pickup-confirmation.styles";
@@ -11,6 +12,7 @@ import { FareEstimate } from "./usePickupConfirmation.shared";
 // order, so React still sees the same hook sequence.
 
 export function usePickupConfirmationInsets() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
@@ -43,7 +45,7 @@ export function usePickupConfirmationInsets() {
     [params.pickupLat, params.pickupLng],
   );
   const [confirmedPickup, setConfirmedPickup] = React.useState({
-    name: params.pickupName || "Pickup point",
+    name: params.pickupName || t("app.ride.pickupPointFallback"),
     coords: pickupCoords,
   });
 

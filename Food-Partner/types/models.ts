@@ -104,6 +104,8 @@ export interface SupportTicket {
   status: TicketStatus;
   message: string;
   messages: ChatMessage[];
+  /** The order the case is about, when the partner (or the support agent) linked one. */
+  orderId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

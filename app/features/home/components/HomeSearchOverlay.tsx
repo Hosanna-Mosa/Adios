@@ -40,7 +40,7 @@ interface Props {
 }
 
 export function HomeSearchOverlay(props: Props) {
-  const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive } = props;
+  const { isSearchVisible, searchBackdropAnimatedStyle, searchBackdropOpacity, searchTranslateY, setIsSearchActive, tokens } = props;
   const inputRef = React.useRef<TextInput>(null);
 
   return (
@@ -54,13 +54,14 @@ export function HomeSearchOverlay(props: Props) {
         searchBackdropOpacity.value = withTiming(1, { duration: 350 });
         // autoFocus alone doesn't raise the keyboard for an input mounted inside a
         // Modal on Android — the window isn't focusable yet when it fires — so the
-        // sheet opened and the customer had to tap the field. Focus once the modal
-        // window is actually up instead.
-        requestAnimationFrame(() => inputRef.current?.focus());
+        // sheet opened and the customer had to tap the field. A single
+        // requestAnimationFrame (~16ms) wasn't enough either; the native Android
+        // modal window needs real time to become focusable, confirmed on-device.
+        setTimeout(() => inputRef.current?.focus(), 200);
       }}
     >
       <View style={{ flex: 1 }}>
-        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: "rgba(0,0,0,0.6)" }, searchBackdropAnimatedStyle]}>
+        <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: tokens.overlay }, searchBackdropAnimatedStyle]}>
           <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setIsSearchActive(false)} />
         </Animated.View>
         <HomeSearchOverlaySearchForDishes {...props} inputRef={inputRef} />

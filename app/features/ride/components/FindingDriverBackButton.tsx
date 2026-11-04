@@ -1,8 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
 import { RefreshButton } from "@/components/ui/RefreshButton";
-import { Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
 import type { ThemeTokens } from "@/constants/colors";
 import type { FindingDriverStyles } from "@/features/ride/finding-driver.styles";
 
@@ -19,15 +17,13 @@ interface Props {
   refreshing: boolean;
 }
 
-export function FindingDriverBackButton({ insets, onPress, styles, tokens, onRefresh, refreshing }: Props) {
+export function FindingDriverBackButton({ insets, onPress, styles, onRefresh, refreshing }: Props) {
   const { t } = useTranslation();
   return (
     <>
-      <TouchableOpacity style={[styles.backBtn, { top: insets.top + 10 }]} onPress={onPress}>
-        <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-      </TouchableOpacity>
+      <MapBackButton absolute onPress={onPress} />
       <RefreshButton
-        style={[styles.refreshBtn, { top: insets.top + 10 }]}
+        style={[styles.refreshBtn, { top: mapControlTop(insets as any) }]}
         onPress={onRefresh}
         refreshing={refreshing}
         accessibilityLabel={t("actions.refresh")}

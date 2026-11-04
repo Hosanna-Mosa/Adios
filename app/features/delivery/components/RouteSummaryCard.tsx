@@ -33,33 +33,40 @@ export function RouteSummaryCard({
           <Text style={styles.emptyStopsText}>{t("app.delivery.noStopsAdded")}</Text>
         </View>
       ) : (
-        <View style={styles.routeCard}>
-          <View style={styles.routeRail}>
-            <View style={styles.pickupDot} />
-            {stops.map((_, i) => (
-              <React.Fragment key={i}>
-                <View style={styles.railLine} />
-                <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{i + 1}</Text></View>
-              </React.Fragment>
-            ))}
-            <View style={styles.railLine} />
-            <View style={styles.dropSquare} />
-          </View>
-          <View style={{ flex: 1, minWidth: 0, gap: 12 }}>
-            <Text style={styles.routeStartEnd}>{t("app.delivery.start")}</Text>
-            {stops.map((stop) => (
-              <View key={stop.id}>
-                <Text style={styles.stopName} numberOfLines={1}>{stop.storeName || stop.address}</Text>
-                {stop.items && stop.items.length > 0 && (
-                  <Text style={styles.stopMeta}>
-                    {t("app.food.itemCount", { count: stop.items.length })}
-                    {stop.items.some((i) => i.estimatedPrice != null) ? ` · ₹${stop.items.reduce((s, i) => s + (i.estimatedPrice || 0) * i.quantity, 0)} ${t("app.delivery.estLower")}` : ""}
-                  </Text>
-                )}
+        // One row per stop (marker + connector beside its own label), so a stop with an
+        // extra meta line can't push its dot out of line with its name. The dots and the
+        // names used to be laid out in two separate columns that drifted apart.
+        <View style={[styles.routeCard, { flexDirection: "column", gap: 0 }]}>
+          {[
+            { key: "start", marker: <View style={styles.pickupDot} />, body: <Text style={styles.routeStartEnd}>{t("app.delivery.start")}</Text> },
+            ...stops.map((stop, i) => ({
+              key: String(stop.id ?? i),
+              marker: <View style={styles.stopNumber}><Text style={styles.stopNumberText}>{i + 1}</Text></View>,
+              body: (
+                <>
+                  <Text style={styles.stopName} numberOfLines={1}>{stop.storeName || stop.address}</Text>
+                  {stop.items && stop.items.length > 0 && (
+                    <Text style={styles.stopMeta}>
+                      {t("app.food.itemCount", { count: stop.items.length })}
+                      {stop.items.some((it) => it.estimatedPrice != null) ? ` · ₹${stop.items.reduce((sum, it) => sum + (it.estimatedPrice || 0) * it.quantity, 0)} ${t("app.delivery.estLower")}` : ""}
+                    </Text>
+                  )}
+                </>
+              ),
+            })),
+            { key: "drop", marker: <View style={styles.dropSquare} />, body: <Text style={styles.routeStartEnd}>{t("app.delivery.drop")}</Text> },
+          ].map((row, idx, rows) => {
+            const isLast = idx === rows.length - 1;
+            return (
+              <View key={row.key} style={{ flexDirection: "row", gap: 12 }}>
+                <View style={{ width: 18, alignItems: "center", paddingTop: 2 }}>
+                  {row.marker}
+                  {!isLast && <View style={[styles.railLine, { marginVertical: 4 }]} />}
+                </View>
+                <View style={{ flex: 1, minWidth: 0, paddingBottom: isLast ? 0 : 12 }}>{row.body}</View>
               </View>
-            ))}
-            <Text style={styles.routeStartEnd}>{t("app.delivery.drop")}</Text>
-          </View>
+            );
+          })}
         </View>
       )}
     </Animated.View>

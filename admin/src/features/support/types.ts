@@ -19,11 +19,16 @@ export interface Ticket {
   // header) but was missing from the original type -- added here since
   // it's a real field the page reads, not a new one.
   userRole?: string;
+  /** Who opened the case: a User id, or the Vendor/MeatCenter id for partner tickets (userRole "VENDOR"). */
+  userId?: string | null;
   time: string;
   createdAt: string;
   messages: TicketMessage[];
   /** The support member who owns the case (populated with their name by GET /admin/tickets). */
   assignedTo?: { _id: string; name: string } | null;
+  /** Set when the customer escalated from the support bot (populated by GET /admin/tickets). */
+  botQuery?: { _id: string; question: string; answer: string; intentKey: string; helpful: boolean | null } | null;
+  orderId?: string | null;
 }
 
 export interface NewTicketForm {

@@ -13,6 +13,7 @@ import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
 import { QueueManager } from "./services/queue.service";
+import { SupportBotQueue } from "./services/supportBot.queue";
 import { SchedulerService } from "./services/scheduler.service";
 import { startFoodDispatchSweeper } from "./services/foodDispatch.service";
 import { OrdersService } from "./modules/orders/orders.service";
@@ -36,6 +37,7 @@ import onboardingRoutes from "./modules/onboarding/onboarding.routes";
 import zonesRoutes from "./modules/zones/zones.routes";
 import notificationsRoutes from "./modules/notifications/notifications.routes";
 import supportRoutes from "./modules/support/support.routes";
+import supportBotRoutes from "./modules/supportBot/supportBot.routes";
 import reviewRoutes from "./modules/reviews/reviews.routes";
 import bannersRoutes from "./modules/banners/banners.routes";
 import cartRoutes from "./modules/cart/cart.routes";
@@ -55,6 +57,9 @@ const PORT = process.env.PORT || 5000;
 // site). Mobile apps (app/driver) call the API directly and aren't affected by CORS. Left
 // unset, CORS stays fully open (current behavior) — set it in production to lock this down.
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",").map((o) => o.trim()).filter(Boolean);
+if (!allowedOrigins?.length && process.env.NODE_ENV === "production") {
+  console.warn("[SECURITY] ALLOWED_ORIGINS is not set, so any website can call this API from a browser. Set it to the admin and partner site origins.");
+}
 app.use(cors(allowedOrigins?.length ? { origin: allowedOrigins } : undefined));
 app.use(helmet());
 app.use(morgan("dev"));
@@ -96,7 +101,7 @@ connectDB().then(async () => {
         apps: [],
         details: [
           {
-            appID: `${teamId}.com.flavour.customer`,
+            appID: `${teamId}.com.adios.customer`,
             paths: ["/restaurant-menu/*", "/restaurant-menu"],
           },
         ],
@@ -113,7 +118,7 @@ connectDB().then(async () => {
         relation: ["delegate_permission/common.handle_all_urls"],
         target: {
           namespace: "android_app",
-          package_name: "com.flavour.customer",
+          package_name: "com.adios.customer",
           sha256_cert_fingerprints: [fingerprint],
         },
       },
@@ -144,6 +149,7 @@ connectDB().then(async () => {
   app.use("/api/v1/onboarding", onboardingRoutes);
   app.use("/api/v1/zones", zonesRoutes);
   app.use("/api/v1/notifications", notificationsRoutes);
+  app.use("/api/v1/support/bot", supportBotRoutes);
   app.use("/api/v1/support", supportRoutes);
   app.use("/api/v1/reviews", reviewRoutes);
   app.use("/api/v1/banners", bannersRoutes);
@@ -161,6 +167,7 @@ connectDB().then(async () => {
     
     // Initialize BullMQ worker
     QueueManager.getInstance().startWorker();
+    SupportBotQueue.getInstance().startWorker();
 
     // Initialize periodic scheduler
     SchedulerService.getInstance().startScheduler();
@@ -169,6 +176,17 @@ connectDB().then(async () => {
     // found nobody, and re-arm timers after a restart
     const ordersService = new OrdersService();
     startFoodDispatchSweeper({ onRestaurantTimeout: (id) => ordersService.cancelUnacceptedFoodOrder(id) });
+
+    // Helper tasks: cancel (and refund) ones nobody took once their search has been over for a while
+    let helperSweepRunning = false;
+    setInterval(() => {
+      if (helperSweepRunning) return;
+      helperSweepRunning = true;
+      ordersService
+        .expireStaleHelperSearches()
+        .catch((err) => console.error("[helper expiry] sweep failed:", err?.message))
+        .finally(() => { helperSweepRunning = false; });
+    }, 60 * 1000);
 
     // Report which DigiLocker backend is active (sandbox vs live)
     logDigilockerConfig();

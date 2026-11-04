@@ -10,7 +10,7 @@ import type { Hotspot } from "../components/HighDemandAreas";
  *
  * Going online is gated on identity verification — the driver is sent to the
  * verify screen rather than silently refused. Lifted out of the home screen. */
-export function useOnlineActions({ onServicesChosen }: { onServicesChosen: (mode: "ride" | "delivery") => void }) {
+export function useOnlineActions() {
   const { t } = useTranslation();
   const token = useDriverStore((s) => s.token);
   const isOnline = useDriverStore((s) => s.isOnline);
@@ -90,7 +90,6 @@ export function useOnlineActions({ onServicesChosen }: { onServicesChosen: (mode
 
   const handleGoOnline = (services: ("food" | "ride")[]) => {
     goOnline(services);
-    onServicesChosen(services[0] === "food" ? "delivery" : "ride");
   };
 
   return { showOnlineModal, setShowOnlineModal, openDemandAreaInMaps, handleToggleOnline, handleGoOnline };

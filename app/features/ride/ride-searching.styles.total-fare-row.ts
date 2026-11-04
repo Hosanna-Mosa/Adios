@@ -1,17 +1,18 @@
 import { StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { typography } from "@/constants/typography";
+import { type ThemeTokens } from "@/constants/colors";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Part of the ride-searching.styles stylesheet, kept under the 150-line file limit.
-// Values are unchanged; ride-searching.styles.ts composes this back together.
+// Migrated from the legacy `Colors` palette + raw fontWeight to `designTokens`
+// + named font families (BUG-098). Sizes/radii/spacing are unchanged.
 
-export const createTotalFareRowStyles = (colors: typeof Colors.light, insets: any) =>
+export const createTotalFareRowStyles = (tokens: ThemeTokens, insets: any) =>
   StyleSheet.create({
     totalFareRow: {
       height: 44,
       borderTopWidth: 1,
       borderBottomWidth: 1,
-      borderColor: colors.border,
+      borderColor: tokens.border,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -20,14 +21,15 @@ export const createTotalFareRowStyles = (colors: typeof Colors.light, insets: an
       marginBottom: 0,
     },
     totalFareLabel: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.large,
-      fontWeight: "900",
-      color: colors.text,
+      color: tokens.text,
     },
     totalFareValue: {
+      fontFamily: fontFamilies.heading.semibold,
       fontSize: typography.sizes.large,
-      fontWeight: "900",
-      color: colors.text,
+      letterSpacing: -0.2,
+      color: tokens.text,
     },
     paymentRow: {
       height: 46,
@@ -37,39 +39,40 @@ export const createTotalFareRowStyles = (colors: typeof Colors.light, insets: an
       marginHorizontal: -18,
       paddingHorizontal: 18,
       borderBottomWidth: 1,
-      borderColor: colors.border,
+      borderColor: tokens.border,
       marginBottom: 22,
     },
     paymentText: {
+      fontFamily: fontFamilies.body.medium,
       fontSize: typography.sizes.medium,
-      color: colors.textSecondary,
+      color: tokens.sec,
     },
     backYellowButton: {
       height: 48,
       borderRadius: 24,
-      backgroundColor: colors.primary,
+      backgroundColor: tokens.brand,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 12,
     },
     backYellowText: {
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
-      fontWeight: "800",
-      color: colors.surface,
+      color: tokens.onBrand,
     },
     cancelRideButton: {
       height: 46,
       borderRadius: 23,
       borderWidth: 1,
-      borderColor: colors.error,
+      borderColor: tokens.error,
       alignItems: "center",
       justifyContent: "center",
       marginBottom: 8,
     },
     cancelRideText: {
+      fontFamily: fontFamilies.body.semibold,
       fontSize: typography.sizes.medium,
-      fontWeight: "700",
-      color: colors.error,
+      color: tokens.error,
     },
     cancelFlowOverlay: {
       ...StyleSheet.absoluteFillObject,
@@ -78,16 +81,18 @@ export const createTotalFareRowStyles = (colors: typeof Colors.light, insets: an
     },
     cancelFlowBackdrop: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: colors.overlay,
+      backgroundColor: tokens.overlay,
     },
     cancelFlowBackButton: {
       position: "absolute",
       left: 14,
-      bottom: 562,
+      // Inside cancelReasonSheet now, sitting just above its own top edge —
+      // follows the sheet instead of a guessed screen offset.
+      top: -56,
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
       shadowColor: "#000",
@@ -97,7 +102,7 @@ export const createTotalFareRowStyles = (colors: typeof Colors.light, insets: an
       elevation: 8,
     },
     cancelReasonSheet: {
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       paddingHorizontal: 14,

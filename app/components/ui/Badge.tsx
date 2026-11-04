@@ -39,7 +39,12 @@ export function Chip({ label, selected = false, onPress, icon }: ChipProps) {
   const styles = React.useMemo(() => createChipStyles(tokens), [theme, tokens]);
 
   return (
-    <Pressable onPress={onPress} style={[styles.base, selected && styles.selected]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      style={({ pressed }) => [styles.base, selected && styles.selected, pressed && !selected && styles.pressed]}
+    >
       {icon}
       <Text style={[styles.label, selected && styles.labelSelected]}>{label}</Text>
     </Pressable>
@@ -86,6 +91,9 @@ const createChipStyles = (tokens: ThemeTokens) =>
     selected: {
       backgroundColor: tokens.brand,
       borderColor: tokens.brand,
+    },
+    pressed: {
+      backgroundColor: tokens.sunken,
     },
     label: {
       fontFamily: fontFamilies.body.semibold,

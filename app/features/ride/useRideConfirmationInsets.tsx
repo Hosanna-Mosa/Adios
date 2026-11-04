@@ -120,6 +120,9 @@ export function useRideConfirmationInsets() {
   const [mapReady, setMapReady] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState<Array<{ latitude: number; longitude: number }>>([]);
   const mapRef = useRef<MapView>(null);
+  // The sheet now sizes to its content instead of a fixed 63%, so the map fit
+  // needs the sheet's real measured height to know how much room it's hiding.
+  const [sheetHeight, setSheetHeight] = useState(260);
 
   const stops = useMemo(() => {
     if (!params.stops) return [];
@@ -130,5 +133,5 @@ export function useRideConfirmationInsets() {
     }
   }, [params.stops]);
 
-  return { insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares, booking, setBooking, showDatePicker, setShowDatePicker, reserveDate, setReserveDate, reserveHour, setReserveHour, reserveMinute, setReserveMinute, reserveAmpm, setReserveAmpm, confirmedReservation, setConfirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, setUserLocation, nearbyDrivers, setNearbyDrivers, mapReady, setMapReady, routeCoordinates, setRouteCoordinates, mapRef, stops };
+  return { insets, params, tokens, accent, styles, selectedTier, setSelectedTier, tierFares, loadingFares, booking, setBooking, showDatePicker, setShowDatePicker, reserveDate, setReserveDate, reserveHour, setReserveHour, reserveMinute, setReserveMinute, reserveAmpm, setReserveAmpm, confirmedReservation, setConfirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, setUserLocation, nearbyDrivers, setNearbyDrivers, mapReady, setMapReady, routeCoordinates, setRouteCoordinates, mapRef, stops, sheetHeight, setSheetHeight };
 }

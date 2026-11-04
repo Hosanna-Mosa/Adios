@@ -1,4 +1,5 @@
 import { Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { type OrdersStyles } from "@/features/orders/orders.styles";
 
@@ -16,9 +17,15 @@ export function OrdersAllChip({
   setServiceFilters,
   styles,
 }: Props) {
+  const { t } = useTranslation();
   return (
-    <TouchableOpacity style={[styles.chip, serviceFilters.size === 0 && styles.chipActive]} onPress={() => setServiceFilters(new Set())}>
-      <Text style={[styles.chipText, serviceFilters.size === 0 && styles.chipTextActive]}>All</Text>
+    <TouchableOpacity
+      style={[styles.chip, serviceFilters.size === 0 && styles.chipActive]}
+      onPress={() => setServiceFilters(new Set())}
+      accessibilityRole="button"
+      accessibilityState={{ selected: serviceFilters.size === 0 }}
+    >
+      <Text style={[styles.chipText, serviceFilters.size === 0 && styles.chipTextActive]}>{t("app.orders.all")}</Text>
     </TouchableOpacity>
   );
 }

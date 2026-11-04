@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -34,13 +35,24 @@ export function RestaurantMenuSolidHeader({
   tokens,
   onHeight,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.solidHeader, { paddingTop: insets.top }]} onLayout={(e) => onHeight?.(e.nativeEvent.layout.height)}>
-      <TouchableOpacity style={styles.solidHeaderBtn} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.solidHeaderBtn}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel={t("app.support.back")}
+      >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <Text style={styles.solidHeaderTitle} numberOfLines={1}>{name}</Text>
-      <TouchableOpacity style={styles.solidHeaderBtn} onPress={() => toggleFavorite(id as string)}>
+      <TouchableOpacity
+        style={styles.solidHeaderBtn}
+        onPress={() => toggleFavorite(id as string)}
+        accessibilityRole="button"
+        accessibilityLabel={isFavorite ? t("app.food.removeFromFavorites") : t("app.food.addToFavorites")}
+      >
         <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={moderateScale(18)} color={isFavorite ? accent.accent : tokens.text} />
       </TouchableOpacity>
     </View>

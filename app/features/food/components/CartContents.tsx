@@ -5,11 +5,18 @@ import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-nati
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+// The promo code input (in CartBillSummary, below) autoFocuses the moment it's
+// revealed, so a plain ScrollView left it and the Apply button under the
+// keyboard with no way to see either. This keyboard-aware variant is the same
+// library ScreenShell already uses elsewhere for real cross-platform keyboard
+// padding, plus it scrolls whatever's focused into view automatically.
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { CartBillSummary } from "./CartBillSummary";
+import { formatINR } from "@/utils/pricing";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CartStyles } from "../cart.styles";
@@ -48,7 +55,7 @@ export function CartContents(props: Props) {
   const { accent, addItem, clearSyncNotices, complements, insets, items, styles, syncNotices, tokens, updateQuantity, vendorId } = props;
   const { t } = useTranslation();
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScrollView bottomOffset={24} contentContainerStyle={{ paddingBottom: insets.bottom + 160 }} showsVerticalScrollIndicator={false}>
       {syncNotices.length > 0 && (
         <View style={styles.section}>
           <View style={styles.noticeCard}>
@@ -67,7 +74,12 @@ export function CartContents(props: Props) {
                 </Text>
               ))}
             </View>
-            <TouchableOpacity onPress={clearSyncNotices} hitSlop={8}>
+            <TouchableOpacity
+              onPress={clearSyncNotices}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t("app.support.closeModal")}
+            >
               <Feather name="x" size={moderateScale(16)} color={tokens.sec} />
             </TouchableOpacity>
           </View>
@@ -98,15 +110,27 @@ export function CartContents(props: Props) {
                 {!!item.category && <Text style={styles.itemMeta} numberOfLines={1}>{item.category}</Text>}
               </View>
               <View style={styles.qtyPill}>
-                <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item._id, item.quantity - 1)}>
+                <TouchableOpacity
+                  style={styles.qtyBtn}
+                  onPress={() => updateQuantity(item._id, item.quantity - 1)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("app.food.decreaseQuantity")}
+                >
                   <Feather name="minus" size={14} color={accent.accent} />
                 </TouchableOpacity>
                 <Text style={styles.qtyText}>{item.quantity}</Text>
-                <TouchableOpacity style={styles.qtyBtn} onPress={() => updateQuantity(item._id, item.quantity + 1)}>
+                <TouchableOpacity
+                  style={styles.qtyBtn}
+                  onPress={() => updateQuantity(item._id, item.quantity + 1)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("app.food.increaseQuantity")}
+                >
                   <Feather name="plus" size={14} color={accent.accent} />
                 </TouchableOpacity>
               </View>
-              <Text style={styles.itemLinePrice}>₹{item.price * item.quantity}</Text>
+              <Text style={styles.itemLinePrice} numberOfLines={1}>₹{formatINR(item.price * item.quantity)}</Text>
             </Animated.View>
           ))}
           <TouchableOpacity style={styles.addMoreRow} onPress={() => router.back()}>
@@ -121,11 +145,25 @@ export function CartContents(props: Props) {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
             {complements.slice(0, 8).map((comp, idx) => (
               <Animated.View key={comp._id} entering={staggerListItem(idx)} style={styles.complementCard}>
-                <Image source={{ uri: comp.images?.[0] }} style={styles.complementImage} contentFit="cover" transition={200} />
+                {/* Same placeholder as the cart rows above when the dish has no photo (it was a blank box). */}
+                {comp.images?.[0] ? (
+                  <Image source={{ uri: comp.images[0] }} style={styles.complementImage} contentFit="cover" transition={200} />
+                ) : (
+                  <View style={[styles.complementImage, styles.itemThumbFallback]}>
+                    <Ionicons name="restaurant-outline" size={moderateScale(20)} color={tokens.muted} />
+                  </View>
+                )}
                 <Text style={styles.complementName} numberOfLines={1}>{comp.name}</Text>
                 <View style={styles.complementFooter}>
                   <DishPrice price={comp.price} offerPrice={comp.offerPrice} discountPercent={comp.discountPercent} priceStyle={styles.complementPrice} hidePercent />
-                  <TouchableOpacity style={styles.complementAddBtn} onPress={() => addItem(comp, vendorId!)}>
+                  <TouchableOpacity
+                    style={styles.complementAddBtn}
+                    onPress={() => addItem(comp, vendorId!)}
+                    // 28pt button: hitSlop takes the touch target to 44pt.
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("app.a11y.addItem", { name: comp.name })}
+                  >
                     <Ionicons name="add" size={16} color={accent.accent} />
                   </TouchableOpacity>
                 </View>
@@ -136,6 +174,6 @@ export function CartContents(props: Props) {
       )}
 
       <CartBillSummary {...props} />
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }

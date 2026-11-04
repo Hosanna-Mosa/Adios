@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useDriverStore } from "@/store/driverStore";
-import { paymentFields } from "@/store/orderMapper";
+import { formatBookedHours, paymentFields } from "@/store/orderMapper";
 import { Button } from "@/components/ui/Button";
 import { styles } from "./IncomingOrderModal.styles";
 import { DeclineReasonList } from "./DeclineReasonList";
@@ -16,6 +16,7 @@ import {
   OfferMetrics,
   OfferPaymentMode,
   OfferRoute,
+  OfferTask,
 } from "./OfferSections";
 import { useIncomingOffer } from "../hooks/useIncomingOffer";
 import {
@@ -24,7 +25,9 @@ import {
   isHelperJob,
   isRideJob,
   offerTitle,
+  pickupApproach,
 } from "../utils/offer";
+import { outletKey } from "../orderStops";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { Box } from "@/components/ui/Box";
 import { ModalBox } from "@/components/ui/ModalBox";
@@ -34,6 +37,7 @@ export default function IncomingOrderModal() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { incomingOrder, acceptOrder, rejectOrder } = useDriverStore();
+  const driverLocation = useDriverStore((s) => s.driverLocation);
   const {
     isBroadcast,
     secondsLeft,
@@ -53,6 +57,9 @@ export default function IncomingOrderModal() {
     : offerTitle({ isReserved: incomingOrder.isReserved, isRide, isHelper });
   const formattedDate = formatReservedAt(incomingOrder.reservedAt);
   const offerPayment = paymentFields(incomingOrder);
+  // A helper offer's `duration` is the server's English "2 hrs"; bookedHours is the number.
+  const bookedHoursLabel =
+    isHelper && incomingOrder.bookedHours ? formatBookedHours(incomingOrder.bookedHours) : null;
 
   return (
     <ModalBox visible transparent animationType="none" onRequestClose={() => rejectOrder()}>
@@ -75,6 +82,9 @@ export default function IncomingOrderModal() {
             isReserved={incomingOrder.isReserved}
             scheduledFor={formattedDate}
             isHelper={isHelper}
+            bookedHoursLabel={bookedHoursLabel}
+            paymentMethod={incomingOrder.paymentMethod}
+            payableAmount={incomingOrder.payableAmount}
           />
 
           {isBroadcast ? (
@@ -99,15 +109,17 @@ export default function IncomingOrderModal() {
                 showsVerticalScrollIndicator={false}
               >
             <OfferMetrics
-              distance={incomingOrder.distance}
-              radius={incomingOrder.radius}
-              duration={incomingOrder.duration}
+              approach={pickupApproach(driverLocation, incomingOrder.stops)}
+              tripDistance={incomingOrder.distance}
+              tripDuration={bookedHoursLabel || incomingOrder.duration}
             />
 
-            <OfferRoute stops={incomingOrder.stops} />
+            {isHelper && <OfferTask description={incomingOrder.taskDescription} />}
+
+            <OfferRoute stops={incomingOrder.stops} pickupLabel={t(outletKey(incomingOrder, "jobs.restaurant"))} />
 
             {!isHelper && !isRide && (
-              <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} />
+              <OfferItems vendorName={incomingOrder.vendorName} items={foodItems} outletLabel={t(outletKey(incomingOrder, "jobs.restaurant"))} />
             )}
 
             <OfferPaymentMode
@@ -141,13 +153,8 @@ export default function IncomingOrderModal() {
                   const isReserved = incomingOrder.isReserved;
                   const accepted = await acceptOrder();
                   if (!accepted) return; // a food offer someone else took first
-                  if (!isReserved) {
-                    if (isHelper) {
-                      router.push({ pathname: "/chat", params: { orderId: incomingOrder.id } });
-                    } else {
-                      router.push("/active-order");
-                    }
-                  }
+                  // Helper tasks too: the task screen has the start OTP entry and a button to chat.
+                  if (!isReserved) router.push("/active-order");
                 }}
               />
             </Box>

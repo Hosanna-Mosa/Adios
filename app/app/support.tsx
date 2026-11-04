@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Linking, Platform } from "react-native";
+import { Linking } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,8 +12,9 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { SupportBody } from "@/features/support/components/SupportBody";
 import { createStyles } from "@/features/support/support.styles";
 import { getOrders } from "@/services/orders.service";
+import { WEB_TOP_OFFSET } from "@/constants/layout";
 
-// SERVICE_META and FAQS moved inside SupportScreen() as useMemo values — see
+// SERVICE_META moved inside SupportScreen() as useMemo values — see
 // ADIOS_MULTILINGUAL_DEVELOPMENT_PLAN.md, Section 11.
 
 // Same resolution rule used on the Orders screen: the list endpoint never
@@ -28,21 +29,16 @@ function resolveServiceKey(order: any): string {
 
 const ACTIVE_STATUSES = ["SEARCHING_DRIVER", "DRIVER_ASSIGNED", "PICKED_UP", "ON_THE_WAY", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP", "PICKING_ITEMS", "EN_ROUTE_DELIVERY", "ARRIVED_DELIVERY", "IN_TRANSIT", "driver_assigned", "confirmed", "pending"];
 
-function formatRelativeDate(iso: string): string {
+function formatRelativeDate(iso: string, t: (key: string, options?: Record<string, unknown>) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const time = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const isToday = d.toDateString() === now.toDateString();
-  if (isToday) return `Today, ${time}`;
+  if (isToday) return t("app.support.todayAt", { time });
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`;
+  if (d.toDateString() === yesterday.toDateString()) return t("app.support.yesterdayAt", { time });
   return d.toLocaleDateString([], { day: "numeric", month: "short" });
-}
-
-interface FAQItem {
-  question: string;
-  answer: string;
 }
 
 export default function SupportScreen() {
@@ -51,6 +47,7 @@ export default function SupportScreen() {
   const tokens = designTokens[theme];
   const styles = useMemo(() => createStyles(tokens), [theme, tokens]);
   const { t } = useTranslation();
+  const formatRelativeDateT = (iso: string) => formatRelativeDate(iso, t);
 
   const SERVICE_META: Record<string, { label: string; accent: keyof ThemeTokens["services"] }> = useMemo(() => ({
     food: { label: t("app.serviceMeta.food"), accent: "food" },
@@ -64,15 +61,7 @@ export default function SupportScreen() {
     packageDelivery: { label: t("app.serviceMeta.packageDelivery"), accent: "delivery" },
   }), [t]);
 
-  const FAQS: FAQItem[] = useMemo(() => [
-    { question: t("app.support.faqs.lateOrder.question"), answer: t("app.support.faqs.lateOrder.answer") },
-    { question: t("app.support.faqs.refunds.question"), answer: t("app.support.faqs.refunds.answer") },
-    { question: t("app.support.faqs.cancelOrder.question"), answer: t("app.support.faqs.cancelOrder.answer") },
-    { question: t("app.support.faqs.pinSafety.question"), answer: t("app.support.faqs.pinSafety.answer") },
-  ], [t]);
-
   const [recentOrder, setRecentOrder] = useState<any | null>(null);
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -89,28 +78,25 @@ export default function SupportScreen() {
   const recentTitle = recentOrder
     ? typeof recentOrder.vendor === "object" && recentOrder.vendor?.name
       ? recentOrder.vendor.name
-      : recentOrder.stops?.[0]?.address || "Order"
+      : recentOrder.stops?.[0]?.address || t("app.orders.orderFallback")
     : "";
 
-  const toggleFAQ = (index: number) => setExpandedFAQ(expandedFAQ === index ? null : index);
-
   return (
-    <ScreenShell style={{ paddingTop: insets.top + (Platform.OS === "web" ? 67 : 0) }}>
-      <Header title="Help & support" onBack={() => router.back()} />
+    <ScreenShell style={{ paddingTop: insets.top + WEB_TOP_OFFSET }}>
+      {/* Same 12pt top spacing as the chat headers (Orders uses 14), so the title sits
+          at the same height as on the screens around it. */}
+      <Header title={t("app.profile.menuItems.helpSupport")} onBack={() => router.back()} style={{ paddingTop: 12 }} />
 
       <SupportBody
-        FAQS={FAQS}
         Linking={Linking}
-        formatRelativeDate={formatRelativeDate}
+        formatRelativeDate={formatRelativeDateT}
         accent={accent}
-        expandedFAQ={expandedFAQ}
         insets={insets}
         isActive={isActive}
         meta={meta}
         recentOrder={recentOrder}
         recentTitle={recentTitle}
         styles={styles}
-        toggleFAQ={toggleFAQ}
         tokens={tokens}
       />
     </ScreenShell>

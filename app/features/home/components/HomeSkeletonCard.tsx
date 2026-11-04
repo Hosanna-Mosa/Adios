@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { Easing, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
+import { useThemeStore } from "@/contexts/themeStore";
 import { SkeletonBlock } from "./SkeletonBlock";
 
 // Moved out of app/(tabs)/index.tsx unchanged. Home-only for now: promote to
@@ -10,7 +11,9 @@ import { SkeletonBlock } from "./SkeletonBlock";
 
 export function HomeSkeletonCard({ tokens }: { tokens: ThemeTokens }) {
   const shimmer = useSharedValue(0);
-  const shimmerHighlight = "rgba(255,255,255,0.5)";
+  // A 50%-white sweep flashes like a glitch on dark mode's near-black blocks.
+  const theme = useThemeStore((s) => s.theme);
+  const shimmerHighlight = theme === "dark" ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.5)";
 
   useEffect(() => {
     shimmer.value = withRepeat(withTiming(1, { duration: 1300, easing: Easing.linear }), -1, false);

@@ -1,16 +1,17 @@
 import { StyleSheet } from "react-native";
-import Colors from "@/constants/colors";
-import { typography } from "@/constants/typography";
+import { type ThemeTokens } from "@/constants/colors";
+import { fontFamilies, typography } from "@/constants/typography";
 
 // Part of the ride-searching.styles stylesheet, kept under the 150-line file limit.
-// Values are unchanged; ride-searching.styles.ts composes this back together.
+// Migrated from the legacy `Colors` palette + raw fontWeight to `designTokens`
+// + named font families (BUG-098). Sizes/radii/spacing are unchanged.
 
-export const createServiceSummaryCardStyles = (colors: typeof Colors.light, insets: any) =>
+export const createServiceSummaryCardStyles = (tokens: ThemeTokens, insets: any) =>
   StyleSheet.create({
     serviceSummaryCard: {
       height: 52,
       borderRadius: 10,
-      backgroundColor: colors.surfaceSecondary,
+      backgroundColor: tokens.sunken,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -26,30 +27,32 @@ export const createServiceSummaryCardStyles = (colors: typeof Colors.light, inse
       width: 42,
       height: 38,
       borderRadius: 19,
-      backgroundColor: colors.surface,
+      backgroundColor: tokens.surface,
       alignItems: "center",
       justifyContent: "center",
     },
     serviceName: {
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
-      fontWeight: "900",
-      color: colors.text,
+      color: tokens.text,
     },
     serviceFare: {
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
-      fontWeight: "900",
-      color: colors.text,
+      color: tokens.text,
     },
     bookDashedLine: {
       borderTopWidth: 1,
       borderStyle: "dashed",
-      borderColor: colors.border,
+      borderColor: tokens.border,
       marginBottom: 10,
     },
     locationTitle: {
+      fontFamily: fontFamilies.heading.semibold,
       fontSize: typography.sizes.large,
-      fontWeight: "900",
-      color: colors.text,
+      lineHeight: typography.lineHeights.large,
+      letterSpacing: -0.2,
+      color: tokens.text,
       marginBottom: 9,
     },
     locationRows: {
@@ -66,25 +69,25 @@ export const createServiceSummaryCardStyles = (colors: typeof Colors.light, inse
       width: 14,
       height: 14,
       borderRadius: 7,
-      backgroundColor: colors.success,
+      backgroundColor: tokens.success,
       borderWidth: 4,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
     },
     locationDashes: {
       width: 1,
       height: 35,
       borderLeftWidth: 1,
       borderStyle: "dashed",
-      borderColor: colors.border,
+      borderColor: tokens.border,
       marginVertical: 2,
     },
     dropSmallDot: {
       width: 14,
       height: 14,
       borderRadius: 7,
-      backgroundColor: colors.error,
+      backgroundColor: tokens.error,
       borderWidth: 4,
-      borderColor: colors.surface,
+      borderColor: tokens.surface,
     },
     locationTextColumn: {
       flex: 1,
@@ -93,14 +96,15 @@ export const createServiceSummaryCardStyles = (colors: typeof Colors.light, inse
       minHeight: 51,
     },
     locationName: {
+      fontFamily: fontFamilies.body.bold,
       fontSize: typography.sizes.medium,
-      fontWeight: "900",
-      color: colors.text,
+      color: tokens.text,
       marginBottom: 2,
     },
     locationAddress: {
+      fontFamily: fontFamilies.body.regular,
       fontSize: typography.sizes.small,
       lineHeight: typography.lineHeights.small,
-      color: colors.textSecondary,
+      color: tokens.sec,
     },
   });

@@ -4,7 +4,7 @@ import { interpolate, useAnimatedStyle, useSharedValue, withRepeat, withSequence
 import { useLocalSearchParams } from "expo-router";
 import MapView from "@/components/maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Colors from "@/constants/colors";
+import { designTokens } from "@/constants/colors";
 import { createStyles } from "./ride-searching.styles";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -15,8 +15,8 @@ import { useThemeStore } from "@/contexts/themeStore";
 export function useRideSearchingInsets() {
   const insets = useSafeAreaInsets();
   const theme = useThemeStore((s) => s.theme);
-  const colors = Colors[theme];
-  const styles = React.useMemo(() => createStyles(colors, insets), [colors, insets]);
+  const tokens = designTokens[theme];
+  const styles = React.useMemo(() => createStyles(tokens, insets), [tokens, insets]);
   const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
   const setCurrentOrderId = useDeliveryStore((s) => s.setOrderId);
   const setGlobalServiceType = useDeliveryStore((s) => s.setServiceType);
@@ -58,5 +58,5 @@ export function useRideSearchingInsets() {
   }>();
   const [tripDetailsVisible, setTripDetailsVisible] = React.useState(false);
 
-  return { colors, styles, currentOrderId, setCurrentOrderId, setGlobalServiceType, setGlobalDriver, setGlobalStatus, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible, setTripDetailsVisible };
+  return { tokens, styles, currentOrderId, setCurrentOrderId, setGlobalServiceType, setGlobalDriver, setGlobalStatus, mapRef, progressBarStyle, dotStyle, params, tripDetailsVisible, setTripDetailsVisible };
 }

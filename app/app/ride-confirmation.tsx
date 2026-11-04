@@ -17,7 +17,7 @@ export default function RideConfirmationScreen() {
   confirmedReservation, dateOptions, pickupCoords, dropCoords, userLocation, nearbyDrivers,
   setMapReady, routeCoordinates, mapRef, validStops, pickupIsValid, dropIsValid, tripCoordinates,
   fitTripToMap, initialRegion, getDisplayName, handleShareRoute, handleAddStopFromMap,
-  handleRecenter, placeOrder, ENABLED_TIERS
+  handleRecenter, placeOrder, ENABLED_TIERS, setSheetHeight
   } = useRideConfirmation();
 
   if (confirmedReservation) {
@@ -85,6 +85,7 @@ export default function RideConfirmationScreen() {
         selectedTier={selectedTier}
         setSelectedTier={setSelectedTier}
         setShowDatePicker={setShowDatePicker}
+        setSheetHeight={setSheetHeight}
         styles={styles}
         tierFares={tierFares}
         tokens={tokens}

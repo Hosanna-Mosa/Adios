@@ -18,7 +18,7 @@ export { OrderDetailSheet } from "./OrderDetailSheet";
 export { QuickReplyBar } from "./QuickReplyBar";
 export { SafetyAlertCard } from "./SafetyAlertCard";
 export { ScheduledRideCard } from "./ScheduledRideCard";
-export { ServiceToggle } from "./ServiceToggle";
+export { ServiceIndicator } from "./ServiceIndicator";
 export { TaskAssignmentBanner } from "./TaskAssignmentBanner";
 export { ZoneGeofence } from "./ZoneGeofence";
 export { ZoneMapError, ZoneMapLoading } from "./ZoneMapStatus";

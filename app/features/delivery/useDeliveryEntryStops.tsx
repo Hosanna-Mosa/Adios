@@ -32,6 +32,9 @@ export function useDeliveryEntryStops() {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const mapRef = useRef<MapBackgroundRef>(null);
+  // Measured from DeliveryEntrySheet's onLayout, so the map's zoom controls can
+  // clear it instead of floating at a guessed position.
+  const [sheetHeight, setSheetHeight] = useState(0);
 
   const handleLocationUpdate = async (coords: { lat: number; lng: number }) => {
     setCurrentCoords(coords);
@@ -62,5 +65,5 @@ export function useDeliveryEntryStops() {
     }
   };
 
-  return { stops, route, price, currentLocation, currentCoords, removeStop, setStops, setRoute, calculatePrice, insets, tokens, accent, styles, isCalculating, setIsCalculating, isLocating, mapRef, handleLocationUpdate, handleRecenter };
+  return { stops, route, price, currentLocation, currentCoords, removeStop, setStops, setRoute, calculatePrice, insets, tokens, accent, styles, isCalculating, setIsCalculating, isLocating, mapRef, handleLocationUpdate, handleRecenter, sheetHeight, setSheetHeight };
 }

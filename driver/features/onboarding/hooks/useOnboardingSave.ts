@@ -51,7 +51,6 @@ function payloadFor(
       return {
         bankAccountNumber: docs.bankAccount,
         bankIfsc: docs.ifsc,
-        bankVerified: docs.bankVerified,
       };
     default:
       return null;

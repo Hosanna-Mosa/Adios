@@ -1,5 +1,6 @@
 import { ServiceType } from "../../database/models/Order";
 import SystemConfig from "../../database/models/SystemConfig";
+import { computeHelperQuote, HelperQuote, HelperRates, resolveHelperRates } from "./helper.pricing";
 
 interface FareBreakdown {
   baseFare: number;
@@ -52,13 +53,31 @@ export class PricingService {
   async getRateConfig(serviceType: ServiceType): Promise<RateConfig> {
     try {
       const config = await SystemConfig.findOne({ key: "global_settings" });
-      if (config && config.value?.rates?.[serviceType]) {
-        return config.value.rates[serviceType];
+      // The admin seed writes upper-case keys (HELPER, CAB_PRIME); ServiceType values are lower-case.
+      const rates = config?.value?.rates;
+      const saved = rates?.[serviceType] ?? rates?.[String(serviceType).toUpperCase()];
+      if (saved) {
+        return saved;
       }
     } catch (error) {
       console.error("Error reading system config, using default rates:", error);
     }
     return DEFAULT_RATES[serviceType] || DEFAULT_RATES[ServiceType.CAB];
+  }
+
+  /** Helper task rates (admin → Helper pricing) over the defaults. */
+  async getHelperRates(): Promise<HelperRates> {
+    try {
+      const config = await SystemConfig.findOne({ key: "global_settings" }).lean();
+      return resolveHelperRates((config as any)?.value?.helperRates);
+    } catch (error) {
+      console.error("Error reading helper rates, using defaults:", error);
+      return resolveHelperRates(undefined);
+    }
+  }
+
+  async quoteHelper(input: { hours: unknown; distanceKm?: number; surgeMultiplier?: number }): Promise<HelperQuote> {
+    return computeHelperQuote(input, await this.getHelperRates());
   }
 
   async calculateFareBreakdown(

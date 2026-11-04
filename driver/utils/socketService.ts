@@ -24,16 +24,18 @@ class SocketService {
     return SocketService.instance;
   }
 
-  public connect() {
-    if (!SOCKETS_ENABLED || this.socket) return;
-
-    let token = "";
+  private currentToken(): string {
     try {
       const store = require("../store/driverStore");
-      token = store.useDriverStore.getState().token || "";
+      return store.useDriverStore.getState().token || "";
     } catch (e) {
       console.warn("[SocketService] Failed to load token from driverStore:", e);
+      return "";
     }
+  }
+
+  public connect() {
+    if (!SOCKETS_ENABLED || this.socket) return;
 
     console.log(`[Driver Socket] Connecting to ${BASE_SOCKET_URL || "not configured"}/ws/v1/socket.io`);
 
@@ -41,7 +43,8 @@ class SocketService {
       transports: ["websocket", "polling"],
       autoConnect: true,
       path: "/ws/v1/socket.io",
-      auth: token ? { token } : undefined,
+      // Evaluated on every (re)connect, so a token renewed in the meantime is used.
+      auth: (cb) => cb({ token: this.currentToken() }),
     });
 
     this.socket.on("connect", () => {

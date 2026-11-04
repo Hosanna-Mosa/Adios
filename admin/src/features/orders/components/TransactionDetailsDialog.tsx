@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Transaction } from "../paymentsTypes";
-import { adminOrderStatusLabel } from "../adminOrderStatus";
+import { adminOrderStatusLabel } from "@/components/shared/adminOrderStatus";
 
 interface TransactionDetailsDialogProps {
   open: boolean;

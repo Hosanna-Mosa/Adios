@@ -3,6 +3,7 @@ import { SignupBody } from "@/features/auth/components/SignupBody";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useSignup } from "@/features/auth/useSignup";
 import type { PasswordStrength } from "@/features/auth/useSignup";
+import i18n from "@/i18n";
 import type { ThemeTokens } from "@/constants/colors";
 
 export default function SignupScreen() {
@@ -65,8 +66,8 @@ function strengthLabelColor(strength: PasswordStrength, tokens: ThemeTokens) {
 }
 
 function strengthLabelText(strength: PasswordStrength) {
-  if (strength === "weak") return "Weak";
-  if (strength === "fair") return "Fair";
-  if (strength === "good") return "Good";
+  if (strength === "weak") return i18n.t("app.auth.strength.weak");
+  if (strength === "fair") return i18n.t("app.auth.strength.fair");
+  if (strength === "good") return i18n.t("app.auth.strength.good");
   return "";
 }

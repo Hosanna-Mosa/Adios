@@ -1,11 +1,12 @@
 export default {
   expo: {
     name: 'Adios',
-    slug: 'flavour',
+    slug: 'adios',
+    owner: 'adios-one',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'flavour',
+    scheme: 'adios',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     // Root view (window) background, applied by expo-system-ui. It is what shows
@@ -22,8 +23,7 @@ export default {
     },
     ios: {
       supportsTablet: false,
-      bundleIdentifier: 'com.flavour.customer',
-      googleServicesFile: './GoogleService-Info.plist',
+      bundleIdentifier: 'com.adios.customer',
       config: {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
@@ -40,7 +40,7 @@ export default {
       associatedDomains: ['applinks:x-api.triozen.tech'],
     },
     android: {
-      package: 'com.flavour.customer',
+      package: 'com.adios.customer',
       googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/images/icon.png',
@@ -115,10 +115,11 @@ export default {
       // resolves even before a separate public website exists. Point
       // EXPO_PUBLIC_WEB_URL at the real site once there is one.
       webUrl: process.env.EXPO_PUBLIC_WEB_URL || 'https://x-api.triozen.tech',
-      // Previous (triozen-tech): b53cf032-dea6-4aff-835e-b3cd717e54a3
+      // EAS project adios-one/adios. Builds from older Expo accounts use different
+      // signing keys, so they cannot upgrade over these.
       eas: {
-        projectId: 'e3e714ab-ffe7-4ea4-bf62-b317be38497c',
+        projectId: '0deedafc-8f7e-46e4-9975-38ef4a257417',
       },
     },
   },
-};
+};

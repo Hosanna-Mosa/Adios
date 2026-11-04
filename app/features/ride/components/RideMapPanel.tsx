@@ -6,7 +6,6 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { moderateScale } from "react-native-size-matters";
 import { router } from "expo-router";
 import Animated from "react-native-reanimated";
 
@@ -16,6 +15,7 @@ import Animated from "react-native-reanimated";
 
 import type { Props } from "./RideMapPanel.props";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
+import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
 
 export function RideMapPanel(props: Props) {
   const { GOOGLE_MAPS_APIKEY, dropCoords, dropIsValid,
@@ -106,18 +106,34 @@ export function RideMapPanel(props: Props) {
         )}
       </MapView>
 
-      <Animated.View style={[styles.mapOverlay, { top: insets.top + 10 }]} entering={fadeIn(0)}>
-        <TouchableOpacity style={styles.circleBtn} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
-        </TouchableOpacity>
+      <Animated.View style={[styles.mapOverlay, { top: mapControlTop(insets) }]} entering={fadeIn(0)}>
+        <MapBackButton onPress={() => router.back()} />
         <View style={styles.toolGroup}>
-          <TouchableOpacity style={styles.toolCircleBtn} onPress={handleShareRoute}>
+          <TouchableOpacity
+            style={styles.toolCircleBtn}
+            onPress={handleShareRoute}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.ride.shareTrip")}
+          >
             <Ionicons name="share-social-outline" size={17} color={tokens.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.toolCircleBtn} onPress={handleRecenter}>
+          <TouchableOpacity
+            style={styles.toolCircleBtn}
+            onPress={handleRecenter}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.packageDelivery.recenter")}
+          >
             <Ionicons name="locate" size={17} color={tokens.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.toolCircleBtn} onPress={handleAddStopFromMap}>
+          <TouchableOpacity
+            style={styles.toolCircleBtn}
+            onPress={handleAddStopFromMap}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel={t("app.ride.addStop")}
+          >
             <Ionicons name="add" size={20} color={tokens.text} />
           </TouchableOpacity>
         </View>
@@ -126,7 +142,7 @@ export function RideMapPanel(props: Props) {
       <Animated.View style={styles.routeChip} entering={fadeIn(60)}>
         <Text style={styles.routeChipMain} numberOfLines={1}>{getDisplayName(params.pickupName)} → {getDisplayName(params.dropName)}</Text>
         {selectedFare && (
-          <Text style={styles.routeChipSub}>{selectedFare.distanceInKm.toFixed(1)} km · about {selectedFare.estimatedMinutes} min</Text>
+          <Text style={styles.routeChipSub}>{t("app.ride.etaSummary", { km: selectedFare.distanceInKm.toFixed(1), min: selectedFare.estimatedMinutes })}</Text>
         )}
       </Animated.View>
     </View>

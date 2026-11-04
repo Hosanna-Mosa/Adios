@@ -1,4 +1,5 @@
-import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { Image } from "expo-image";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
@@ -105,9 +106,12 @@ export function Store149Sheet({
                 onPress={() => { setSelectedItem(item); setIsSheetVisible(true); }}
               >
                 <View style={styles.cardImageWrap}>
+                  {/* expo-image like the rest of the app: cached, and fades in instead of popping. */}
                   <Image
                     source={item.images?.[0] ? { uri: item.images[0] } : undefined}
                     style={styles.cardImage}
+                    contentFit="cover"
+                    transition={200}
                   />
                 </View>
                 <View style={styles.cardBody}>
@@ -117,8 +121,8 @@ export function Store149Sheet({
                   </View>
                   <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.cardBrand} numberOfLines={1}>
-                    {item.brand || "Restaurant"}
-                    {typeof item.distanceKm === "number" ? ` · ${item.distanceKm} km away` : ""}
+                    {item.brand || t("app.food.restaurantFallback")}
+                    {typeof item.distanceKm === "number" ? ` · ${t("app.food.kmAway", { km: item.distanceKm })}` : ""}
                   </Text>
                   <View style={styles.cardPriceRow}>
                     <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
@@ -127,16 +131,33 @@ export function Store149Sheet({
                     </View>
                     {cartItem ? (
                       <View style={styles.qtyPill}>
-                        <TouchableOpacity onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)} style={styles.qtyBtn}>
+                        <TouchableOpacity
+                          onPress={() => updateCartQuantity(item._id, cartItem.quantity - 1)}
+                          style={styles.qtyBtn}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.decreaseQuantity")}
+                        >
                           <Feather name="minus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                         <Text style={styles.qtyText}>{cartItem.quantity}</Text>
-                        <TouchableOpacity onPress={handleAdd} style={styles.qtyBtn}>
+                        <TouchableOpacity
+                          onPress={handleAdd}
+                          style={styles.qtyBtn}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("app.food.increaseQuantity")}
+                        >
                           <Feather name="plus" size={moderateScale(12)} color={accent.accent} />
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <TouchableOpacity style={styles.addBtn} onPress={handleAdd}>
+                      <TouchableOpacity
+                        style={styles.addBtn}
+                        onPress={handleAdd}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("app.food.add")}
+                      >
                         <Feather name="plus" size={moderateScale(16)} color={accent.on} />
                       </TouchableOpacity>
                     )}

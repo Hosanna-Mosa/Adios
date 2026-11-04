@@ -49,7 +49,9 @@ export default function ActiveOrderScreen() {
 
   if (!currentOrder) return null;
 
-  const title = isRide
+  const title = currentOrder.packageDelivery
+    ? t("jobs.packageDeliveryActiveTask")
+    : isRide
     ? t("jobs.rideActiveTask")
     : isHelper
       ? t("jobs.helperActiveTask")

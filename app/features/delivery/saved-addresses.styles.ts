@@ -28,12 +28,16 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     addrLine: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 3 },
     addrInstructions: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 5 },
     addrContact: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 5 },
+    // Edit/delete icon buttons on each row, replacing the old single "⋯" that opened an options popup.
+    rowActions: { flexDirection: "row", gap: 6, flexShrink: 0 },
+    rowActionBtn: { width: moderateScale(32), height: moderateScale(32), borderRadius: moderateScale(16), alignItems: "center", justifyContent: "center" },
+    rowActionBtnEdit: { backgroundColor: accent.skin },
+    rowActionBtnDelete: { backgroundColor: tokens.errorSkin },
 
     recentRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 11, minHeight: 52 },
     recentRowDivider: { borderBottomWidth: 1, borderBottomColor: tokens.border },
     recentIcon: { width: 36, height: 36, borderRadius: 999, backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center", flexShrink: 0 },
     recentName: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
-    recentSave: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: accent.accent },
 
     emptyWrap: { alignItems: "center", paddingTop: 76, paddingHorizontal: 32 },
     emptyIconCircle: { width: 76, height: 76, borderRadius: 24, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", marginBottom: 20 },

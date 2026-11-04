@@ -5,7 +5,7 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 
 // The path a shared link uses — https://<host>/restaurant-menu/<vendorId>?item=<id>
-// and flavour://restaurant-menu/<vendorId>. It resolves the outlet and hands off
+// and adios://restaurant-menu/<vendorId>. It resolves the outlet and hands off
 // to app/restaurant-menu.tsx, which is driven by query params.
 export default function RestaurantMenuLink() {
   const { failed, goHome } = useRestaurantMenuLink();

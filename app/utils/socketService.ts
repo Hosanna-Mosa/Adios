@@ -22,22 +22,25 @@ class SocketService {
     return SocketService.instance;
   }
 
-  public connect() {
-    if (!SOCKETS_ENABLED || this.socket) return;
-
-    let token = "";
+  private currentToken(): string {
     try {
       const store = require("../contexts/authStore");
-      token = store.useAuthStore.getState().token || "";
+      return store.useAuthStore.getState().token || "";
     } catch (e) {
       console.warn("[SocketService] Failed to load token from authStore:", e);
+      return "";
     }
+  }
+
+  public connect() {
+    if (!SOCKETS_ENABLED || this.socket) return;
 
     this.socket = io(BASE_SOCKET_URL, {
       transports: ["websocket", "polling"],
       autoConnect: true,
       path: "/ws/v1/socket.io",
-      auth: token ? { token } : undefined,
+      // Evaluated on every (re)connect, so a token renewed in the meantime is used.
+      auth: (cb) => cb({ token: this.currentToken() }),
     });
 
     this.socket.on("connect", () => {
