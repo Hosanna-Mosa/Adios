@@ -15,8 +15,9 @@ export default function SavedAddressesScreen() {
   const {
   insets, tokens, accent, styles, addresses, loading, selectingId, deletingId, recentLocations,
   recentLoading, currentLocLoading, handleUseCurrentLocation, handleSelectRecentLocation,
-  handleSelectAddress, handleMoreOptions, parseInstructions, stripMeta, isEmpty,
+  handleSelectAddress, handleEditAddress, handleDeleteAddress, parseInstructions, stripMeta, isEmpty,
   loadError, retryAddresses
+
   } = useSavedAddresses();
 
   return (
@@ -62,7 +63,8 @@ export default function SavedAddressesScreen() {
             accent={accent}
             addresses={addresses}
             deletingId={deletingId}
-            handleMoreOptions={handleMoreOptions}
+            handleEditAddress={handleEditAddress}
+            handleDeleteAddress={handleDeleteAddress}
             handleSelectAddress={handleSelectAddress}
             loading={loading}
             parseInstructions={parseInstructions}

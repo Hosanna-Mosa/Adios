@@ -151,6 +151,8 @@ export interface DriverState {
   driverEmail: string;
   driverUserId: string | null;
   token: string | null;
+  /** One-use token that renews `token` when it expires (see utils/api/sessionRefresh.ts). */
+  refreshToken: string | null;
   isAuthenticated: boolean;
   /** True only once an admin has approved the driver (status "completed"). */
   hasCompletedOnboarding: boolean;
@@ -176,7 +178,9 @@ export interface DriverState {
   completeOrder: () => void;
   setIncomingOrder: (order: Order | null) => void;
   updateDriverLocation: (lat: number, lng: number) => void;
-  setAuthenticated: (name: string, phone: string, token: string, userId: string) => void;
+  setAuthenticated: (name: string, phone: string, token: string, userId: string, refreshToken?: string | null) => void;
+  /** Stores a renewed token pair after a silent refresh. */
+  setTokens: (tokens: { token: string; refreshToken: string }) => void;
   setOnboardingCompleted: () => void;
   /** Records the status the server returned, e.g. after submitting onboarding. */
   setOnboardingStatus: (status: DriverOnboardingStatus) => void;

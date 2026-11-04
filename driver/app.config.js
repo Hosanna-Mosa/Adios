@@ -1,11 +1,12 @@
 export default {
   expo: {
     name: 'Adios Driver',
-    slug: 'flavour-driver',
+    slug: 'adios-driver',
+    owner: 'adios-one',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'flavour-driver',
+    scheme: 'adios-driver',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {
@@ -15,13 +16,13 @@ export default {
     },
     ios: {
       supportsTablet: false,
-      bundleIdentifier: 'com.flavour.driver',
+      bundleIdentifier: 'com.adios.driver',
       config: {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
     },
     android: {
-      package: 'com.flavour.driver',
+      package: 'com.adios.driver',
       googleServicesFile: './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/images/icon.png',
@@ -89,11 +90,10 @@ export default {
       apiUrl: process.env.EXPO_PUBLIC_API_URL,
 
       // eas init cannot write to a dynamic config, so the id is set by hand.
-      // Signed-in account (hosanna4190). Previous (triozen-tech):
-      // 484db5ff-50ce-4d0e-8705-8876148638a7 — note that account's builds use
-      // different signing keys, so the two cannot upgrade over each other.
+      // EAS project adios-one/adios-driver. Builds from older Expo accounts use
+      // different signing keys, so they cannot upgrade over these.
       eas: {
-        projectId: '8105f2ed-0656-417f-9922-bbf9c40869a1',
+        projectId: '493315d7-7bdb-43ea-be55-8ccfc58fa8bd',
       },
     },
   },

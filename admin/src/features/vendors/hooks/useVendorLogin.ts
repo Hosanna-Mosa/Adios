@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { adminFetch, ApiError } from "@/lib/api-client";
 import { trackEvent } from "@/lib/analytics";
 import { socketService } from "@/lib/socketService";
+import { AUTH_REFRESH_HEADER } from "@/lib/sessionRefresh";
 import { startSession, SUPPORT_HOME, type PanelRole } from "@/lib/session";
 
 export type ForgotStep = "email" | "otp" | "reset" | "done";
@@ -13,12 +14,14 @@ export type ForgotStep = "email" | "otp" | "reset" | "done";
 // admin/support (/auth/login-password) nest the profile under `user`.
 interface VendorLoginResponse {
   token: string;
+  refreshToken?: string;
   name?: string;
   role?: string;
 }
 
 interface StaffLoginResponse {
   token: string;
+  refreshToken?: string;
   user: { _id: string; name: string; email?: string; role: string };
 }
 
@@ -89,11 +92,12 @@ export function useVendorLogin() {
       if (loginRole === "admin" || loginRole === "support") {
         const data = await adminFetch<StaffLoginResponse>("/auth/login-password", {
           method: "POST",
+          headers: AUTH_REFRESH_HEADER,
           body: JSON.stringify({ ...payload, role: loginRole === "admin" ? "ADMIN" : "SUPPORT" }),
         });
 
         trackEvent("login", { method: "password", panel_role: loginRole });
-        startSession(loginRole, data.token, data.user);
+        startSession(loginRole, data.token, data.user, data.refreshToken);
         socketService.disconnect();
 
         if (loginRole === "admin") {
@@ -111,6 +115,7 @@ export function useVendorLogin() {
       try {
         data = await adminFetch<VendorLoginResponse>("/vendors/login", {
           method: "POST",
+          headers: AUTH_REFRESH_HEADER,
           body: JSON.stringify(payload),
         });
       } catch (vendorError) {
@@ -120,12 +125,13 @@ export function useVendorLogin() {
         // 2. If restaurant fails, try Meat Center login
         data = await adminFetch<VendorLoginResponse>("/meat/login", {
           method: "POST",
+          headers: AUTH_REFRESH_HEADER,
           body: JSON.stringify(payload),
         });
       }
 
       trackEvent("login", { method: "password", panel_role: "vendor" });
-      startSession("vendor", data.token, data);
+      startSession("vendor", data.token, data, data.refreshToken);
       socketService.disconnect();
       toast.success(t("vendorAuth.welcomeBack", { name: data.name, defaultValue: "Welcome back, {{name}}" }));
       navigate(data.role === "meat_vendor" ? "/vendor/meat-menu" : "/vendor/dashboard");

@@ -53,9 +53,10 @@ export function HomeSearchOverlay(props: Props) {
         searchBackdropOpacity.value = withTiming(1, { duration: 350 });
         // autoFocus alone doesn't raise the keyboard for an input mounted inside a
         // Modal on Android — the window isn't focusable yet when it fires — so the
-        // sheet opened and the customer had to tap the field. Focus once the modal
-        // window is actually up instead.
-        requestAnimationFrame(() => inputRef.current?.focus());
+        // sheet opened and the customer had to tap the field. A single
+        // requestAnimationFrame (~16ms) wasn't enough either; the native Android
+        // modal window needs real time to become focusable, confirmed on-device.
+        setTimeout(() => inputRef.current?.focus(), 200);
       }}
     >
       <View style={{ flex: 1 }}>

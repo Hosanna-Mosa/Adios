@@ -1,5 +1,6 @@
 import { customFetch } from "@/utils/api/custom-fetch";
 import { ApiError } from "@/utils/api/http.errors";
+import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 import type { PartnerProfile, PartnerRole, PartnerSession, ProfileUpdate } from "@/types/models";
 
 // Sign-in, password reset and password change — the same endpoints and the
@@ -7,6 +8,8 @@ import type { PartnerProfile, PartnerRole, PartnerSession, ProfileUpdate } from 
 
 export interface LoginResponse extends PartnerSession {
   token: string;
+  /** Present when the server issued a short access token; renews it silently. */
+  refreshToken?: string;
 }
 
 const credentials = (identifier: string, password: string) => {
@@ -22,10 +25,10 @@ const credentials = (identifier: string, password: string) => {
 export async function loginPartner(identifier: string, password: string): Promise<LoginResponse> {
   const body = JSON.stringify(credentials(identifier, password));
   try {
-    return await customFetch<LoginResponse>("/vendors/login", { method: "POST", body });
+    return await customFetch<LoginResponse>("/vendors/login", { method: "POST", body, headers: AUTH_REFRESH_HEADER });
   } catch (vendorError) {
     if (vendorError instanceof ApiError && vendorError.status === 403) throw vendorError;
-    return customFetch<LoginResponse>("/meat/login", { method: "POST", body });
+    return customFetch<LoginResponse>("/meat/login", { method: "POST", body, headers: AUTH_REFRESH_HEADER });
   }
 }
 
@@ -62,7 +65,8 @@ export const changePassword = (role: PartnerRole, currentPassword: string, newPa
  * Best effort — revokes this token server-side so a leaked copy can't be reused.
  * Sign-out passes the Authorization header itself: the session is already cleared.
  */
-export const logoutSession = (headers?: HeadersInit) => customFetch("/auth/logout", { method: "POST", headers });
+export const logoutSession = (headers?: HeadersInit, refreshToken?: string | null) =>
+  customFetch("/auth/logout", { method: "POST", headers, ...(refreshToken ? { body: JSON.stringify({ refreshToken }) } : {}) });
 
 /** The signed-in outlet's own profile — name, contact, address, rating, open state. */
 export const getMyProfile = () => customFetch<PartnerProfile>("/vendors/me");
