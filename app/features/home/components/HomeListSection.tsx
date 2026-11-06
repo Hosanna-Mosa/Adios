@@ -8,7 +8,6 @@ import { HomeSkeletonCard } from "@/features/home/components/HomeSkeletonCard";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { AppTabBar } from "@/components/AppTabBar";
 import { staggerListItem } from "@/motion/presets";
-import { NoRidersNearbyState } from "@/features/home/components/NoRidersNearbyState";
 import { ServiceUnavailableState } from "@/features/home/components/ServiceUnavailableState";
 import { NoFilterMatchState } from "@/features/home/components/NoFilterMatchState";
 import { HomeEmptySearchContainer } from "@/features/home/components/HomeEmptySearchContainer";
@@ -21,10 +20,10 @@ import type { Props } from "./HomeListSection.props";
 
 export function HomeListSection(props: Props) {
   const { t } = useTranslation();
-  const { nearbyDriversCount, loadingDrivers, activeService, tabBarHeight, searchText,
-  setSearchText, loadingMore, isRetryingDrivers, setIsRetryingDrivers, setPage, setHasMore,
+  const { loadingDrivers, activeService, tabBarHeight, searchText,
+  setSearchText, loadingMore, setPage, setHasMore,
   tokens, accent, styles, cartVendorName, keyboardHeight, hasNoLocation, getCoords, fetchVendors,
-  fetchMeatCenters, fetch149StoreItems, checkNearbyDrivers, loadMore, showHomeSkeleton,
+  fetchMeatCenters, fetch149StoreItems, loadMore, showHomeSkeleton,
   visibleItems, onMainScroll, listData, activeFilterCount, clearAllFilters, isSearching,
   handleUseCurrentLocation, renderHeader, AnimatedFlashList } = props;
   return (
@@ -52,22 +51,6 @@ export function HomeListSection(props: Props) {
             <EmptySearchState
               accent={accent}
               searchText={searchText}
-              styles={styles}
-            />
-          );
-        }
-        {/* Checked ahead of the search-specific empty state: with no drivers online at
-            all, no search term is ever going to turn up a result, so "try these other
-            dishes instead" is actively misleading. This is the same "no riders nearby,
-            change location" state the plain (no search) empty list shows. */}
-        if (nearbyDriversCount === 0) {
-          return (
-            <NoRidersNearbyState
-              accent={accent}
-              checkNearbyDrivers={checkNearbyDrivers}
-              getCoords={getCoords}
-              isRetryingDrivers={isRetryingDrivers}
-              setIsRetryingDrivers={setIsRetryingDrivers}
               styles={styles}
             />
           );
@@ -137,7 +120,6 @@ export function HomeListSection(props: Props) {
         setPage(1);
         setHasMore(true);
         const { lat, lng } = await getCoords();
-        checkNearbyDrivers(lat, lng);
         if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
         else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
       }}

@@ -678,6 +678,9 @@
       "noSavedAddressesFound": "कोई सेव किया गया पता नहीं मिला."
     },
     "auth": {
+      "skip": "छोड़ें",
+      "loginToContinueTitle": "जारी रखने के लिए लॉग इन करें",
+      "loginToContinueMessage": "जारी रखने के लिए कृपया लॉग इन करें या खाता बनाएं.",
       "discardSignUp": "साइन अप छोड़ें?",
       "yourDetailsWontBeSaved": "आपका विवरण सेव नहीं होगा.",
       "keepEditing": "बदलाव जारी रखें",
@@ -1149,6 +1152,10 @@
       "body": "आपके कार्ट में {{from}} का सामान है। {{to}} से {{item}} जोड़ने पर कार्ट खाली हो जाएगा।"
     },
     "checkout": {
+      "notServiceableTitle": "हम अभी यहाँ डिलीवरी नहीं करते",
+      "notServiceableMessage": "यह पता हमारे सेवा क्षेत्र से बाहर है. ऑर्डर देने के लिए कृपया कोई दूसरा पता चुनें.",
+      "noDriversTitle": "कोई राइडर उपलब्ध नहीं",
+      "noDriversMessage": "अभी आपके पास कोई डिलीवरी राइडर ऑनलाइन नहीं है. कृपया थोड़ी देर बाद फिर कोशिश करें.",
       "checkout": "चेकआउट",
       "scheduleDelivery": "डिलीवरी शेड्यूल करें",
       "pickWhenYouWantYourFood": "चुनें कि आपका खाना कब डिलीवर हो",

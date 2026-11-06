@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export enum DriverPayoutStatus {
   PENDING = "pending",
@@ -52,5 +53,9 @@ const DriverPayoutSchema = new Schema(
 );
 
 DriverPayoutSchema.index({ driver: 1, createdAt: -1 });
+
+// Payout references and notes are stored encrypted (see plugins/encryptedFields.ts). Never
+// filter or aggregate on them: the stored value is ciphertext with a random IV.
+DriverPayoutSchema.plugin(encryptedFields, { paths: ["utr", "adminNote", "failureReason"] });
 
 export default mongoose.model<IDriverPayout>("DriverPayout", DriverPayoutSchema);

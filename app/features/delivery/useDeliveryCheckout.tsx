@@ -13,6 +13,7 @@ import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { showAlert } from "@/components/ui/AppAlert";
+import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/orderGate";
 
 // State, data loading and handlers for app/delivery/checkout.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -102,14 +103,16 @@ export function useDeliveryCheckout() {
   const stopCharges = price?.stopCharges ?? 0;
 
   const handleConfirm = async () => {
-    if (!user || !token) {
-      showAlert(t("app.delivery.loginRequired"), t("app.delivery.pleaseLogInToConfirmYour"));
-      return;
-    }
+    if (!requireLogin()) return;
     if (!price || stops.length === 0) return;
 
     setIsProcessing(true);
     try {
+      // Before any payment: nothing to charge for if no driver can take it.
+      const first = stops[0];
+      if (!(await ensureServiceable(first?.lat != null && first?.lng != null ? { lat: first.lat, lng: first.lng } : null))) return;
+      if (!(await ensureDriversOnline(first?.lat != null && first?.lng != null ? { lat: first.lat, lng: first.lng } : null))) return;
+
       // Online: the server stores this with the payment and places the order once Razorpay
       // confirms the money. Cash: it goes to /orders directly and the driver collects.
       const orderData = {

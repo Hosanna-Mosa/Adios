@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export type SupportBotLang = "en" | "te" | "hi";
 
@@ -38,5 +39,8 @@ const SupportBotQuerySchema: Schema = new Schema(
 SupportBotQuerySchema.index({ user: 1, createdAt: -1 });
 // Short-lived: only needed for the live answer, the limit window and escalation context.
 SupportBotQuerySchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
+
+// What the customer asked and the answer built for them are stored encrypted.
+SupportBotQuerySchema.plugin(encryptedFields, { paths: ["question", "answer"] });
 
 export default mongoose.model<ISupportBotQuery>("SupportBotQuery", SupportBotQuerySchema);
