@@ -3,6 +3,7 @@ import { AppTabBar } from "@/components/AppTabBar";
 import { Store149Sheet } from "@/features/food/components/Store149Sheet";
 import { Store149HeroHeader } from "@/features/food/components/Store149HeroHeader";
 import { ScreenShell } from "@/components/ui/ScreenShell";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Store149ItemSheet } from "@/features/food/components/Store149ItemSheet";
 import { useStore149 } from "@/features/food/useStore149";
 
@@ -11,7 +12,7 @@ export default function Store149Screen() {
   insets, tabBarHeight, cartItems, addCartItem, updateCartQuantity, store149Items, loading,
   selectedItem, setSelectedItem, isSheetVisible, setIsSheetVisible, activeCategory,
   setActiveCategory, tokens, accent, styles, lat, lng, outletCount, areaLabel, areaLine,
-  farthestKm, categories, visibleItems
+  farthestKm, categories, visibleItems, loadError, retry
   } = useStore149();
 
   return (
@@ -31,6 +32,9 @@ export default function Store149Screen() {
           styles={styles}
         />
 
+        {loadError && !loading && store149Items.length === 0 ? (
+          <ErrorState onRetry={retry} />
+        ) : (
         <Store149Sheet
           buildFoodItem={buildFoodItem}
           accent={accent}
@@ -52,6 +56,7 @@ export default function Store149Screen() {
           updateCartQuantity={updateCartQuantity}
           visibleItems={visibleItems}
         />
+        )}
       </ScrollView>
 
       <AppTabBar accent="food" />

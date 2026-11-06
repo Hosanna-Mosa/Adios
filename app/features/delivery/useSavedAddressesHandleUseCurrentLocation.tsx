@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { useDeliveryStore, type SelectedDeliveryAddress } from "@/contexts/deliveryStore";
 import { useHomeStore } from "@/contexts/homeStore";
 import { showAlert } from "@/components/ui/AppAlert";
@@ -14,11 +15,7 @@ export function useSavedAddressesHandleUseCurrentLocation(selectingId: any, setS
     if (currentLocLoading || selectingId) return;
     try {
       setCurrentLocLoading(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToUse"));
-        return;
-      }
+      if (!(await requestLocationPermission(t("app.delivery.pleaseEnableLocationServicesToUse")))) return;
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const [place] = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
       const addressLine = place

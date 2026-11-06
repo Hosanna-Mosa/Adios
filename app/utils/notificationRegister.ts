@@ -21,6 +21,17 @@ if (Constants.appOwnership !== "expo") {
   }
 }
 
+/** "unknown" when push isn't available (Expo Go) or the check itself fails — never treated as off. */
+export async function getPushPermissionStatus(): Promise<"granted" | "denied" | "undetermined" | "unknown"> {
+  if (!Notifications) return "unknown";
+  try {
+    const { status } = await Notifications.getPermissionsAsync();
+    return status === "granted" || status === "denied" || status === "undetermined" ? status : "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
 export async function registerForPushNotificationsAsync() {
   if (!Device.isDevice) {
     console.log("[PushNotifications] Skipped registration: must run on physical device");
