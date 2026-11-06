@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { useAuthStore } from "@/contexts/authStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { usePackageDeliveryStore } from "@/contexts/packageDeliveryStore";
 import { getPaymentMethod, usePaymentMethodStore } from "@/contexts/paymentMethodStore";
 import { createOrder } from "@/services/orders.service";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { showAlert } from "@/components/ui/AppAlert";
+import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/orderGate";
 import { createPackageDeliveryConfirmStyles } from "./packageDeliveryConfirm.styles";
 import { usePackageDeliveryTheme } from "./usePackageDeliveryTheme";
 import { usePackageDeliveryTrip } from "./usePackageDeliveryTrip";
@@ -50,13 +50,12 @@ export function usePackageDeliveryConfirm() {
 
   const book = async () => {
     if (!pickup || !drop || !canBook) return;
-    const { user, token } = useAuthStore.getState();
-    if (!user || !token) {
-      showAlert(t("app.delivery.loginRequired"), t("app.packageDelivery.loginToBook"));
-      return;
-    }
+    if (!requireLogin()) return;
     setBooking(true);
     try {
+      // Before any payment: nothing to charge for if no driver can take it.
+      if (!(await ensureServiceable({ lat: pickup.lat, lng: pickup.lng }))) return;
+      if (!(await ensureDriversOnline({ lat: pickup.lat, lng: pickup.lng }))) return;
       const isOnline = getPaymentMethod("packageDelivery") === "online";
       const orderBody = {
         serviceType: vehicle,

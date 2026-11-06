@@ -1,7 +1,6 @@
 import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
-import { router } from "expo-router";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { DishSearchResultItem } from "./DishSearchResultItem";
@@ -41,13 +40,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
   tokens,
 }: Props) {
   const { t } = useTranslation();
-  // Same source the main feed's own "no riders nearby" state reads â€” with no
-  // drivers online at all, no search term is ever going to turn up a result,
-  // so this takes priority over the plain "no results for X" message below.
-  const nearbyDriversCount = useHomeStore((s) => s.nearbyDriversCount);
-  const noDriversOnline = nearbyDriversCount === 0;
   const loadError = useHomeStore((s) => s.loadError);
-
   return (
     <>
     {!searchText ? (
@@ -114,17 +107,6 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
           ) : loadError ? (
             // The search request failed — "No results found" would be the wrong answer.
             <ErrorState />
-          ) : noDriversOnline ? (
-            <View style={styles.noServiceContainer}>
-              <View style={[styles.emptyIconCircle, { backgroundColor: accent.skin }]}>
-                <Ionicons name="bicycle-outline" size={26} color={accent.accent} />
-              </View>
-              <Text style={styles.noServiceTitle}>{t("app.home.noRidersAvailableNearby")}</Text>
-              <Text style={styles.noServiceSubtitle}>{t("app.home.allCaptainsNearbyAreOnTrips")}</Text>
-              <TouchableOpacity style={styles.noServiceSecondaryButton} onPress={() => router.push("/delivery/saved-addresses")}>
-                <Text style={styles.noServiceSecondaryButtonText}>{t("app.home.changeLocation")}</Text>
-              </TouchableOpacity>
-            </View>
           ) : (
             <View style={styles.emptySearchContainer}>
               <View style={styles.emptyIconCircle}>

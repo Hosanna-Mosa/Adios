@@ -4,6 +4,7 @@ import { createAddress, updateAddress } from "@/services/users.service";
 import { getPlaceDetails } from "@/services/places.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { showToast } from "@/components/ui/Toast";
+import { requireLogin } from "@/utils/orderGate";
 
 // Split out of useAddAddress so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -27,6 +28,8 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
   };
 
   const handleSave = async () => {
+    // Saved addresses live on the account, so a guest is asked to log in instead of hitting a 401.
+    if (!requireLogin()) return;
     if (!addressLine.trim()) {
       showAlert(t("app.delivery.missingInformation"), t("app.delivery.streetAddressIsRequired"));
       return;
@@ -97,6 +100,8 @@ export function useAddAddressHandleSelectSearchResult(router: any, params: any, 
       showToast(t("app.delivery.addressSaved"), "success");
     } catch (error: any) {
       console.error(error);
+      // A 401 here means the session is gone; the HTTP layer already sends the customer to Login.
+      if (error?.status === 401) return;
       showAlert(t("actions.error"), error.message || t("app.delivery.failedToSaveAddress"));
     } finally {
       setLoading(false);

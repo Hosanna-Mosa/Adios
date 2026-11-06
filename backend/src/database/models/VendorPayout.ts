@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 /** The smallest payout a vendor can request, in rupees. */
 export const MIN_VENDOR_PAYOUT_AMOUNT = 100;
@@ -53,5 +54,9 @@ const VendorPayoutSchema = new Schema(
 );
 
 VendorPayoutSchema.index({ vendor: 1, createdAt: -1 });
+
+// Payout references and notes are stored encrypted (see plugins/encryptedFields.ts). Never
+// filter or aggregate on them: the stored value is ciphertext with a random IV.
+VendorPayoutSchema.plugin(encryptedFields, { paths: ["utr", "adminNote", "failureReason"] });
 
 export default mongoose.model<IVendorPayout>("VendorPayout", VendorPayoutSchema);

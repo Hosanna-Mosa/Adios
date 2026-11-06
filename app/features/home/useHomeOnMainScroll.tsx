@@ -6,7 +6,7 @@ import { HOME_SKELETON_ITEMS } from "./useHome.shared";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, loadingDrivers: any, searchText: any, selectedAddress: any, setDistanceOption: any, setCustomDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, searchedDishes: any, selectedSort: any, setSelectedSort: any, filter99Store: any, setFilter99Store: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, showHomeSkeleton: any, filteredAndSortedItems: any, scrollY: any, isStickyVisibleShared: any, setIsStickyVisible: any) {
+export function useHomeOnMainScroll(restaurants: any, searchText: any, selectedAddress: any, setDistanceOption: any, setCustomDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, searchedDishes: any, selectedSort: any, setSelectedSort: any, filter99Store: any, setFilter99Store: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, showHomeSkeleton: any, filteredAndSortedItems: any, scrollY: any, isStickyVisibleShared: any, setIsStickyVisible: any) {
   const onMainScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
     const visible = event.contentOffset.y >= 330;
@@ -19,14 +19,8 @@ export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, l
   const listData = useMemo(() => {
     if (showHomeSkeleton) return HOME_SKELETON_ITEMS.map((item) => ({ ...item, isSkeleton: true }));
 
-    // The "no riders nearby" empty state only makes sense for the default browse
-    // recommendations — it must not also swallow an active search. nearbyDriversCount
-    // comes from a tight 5km driver-proximity check, while restaurant/dish search looks
-    // as far as 15km; a customer with no driver within 5km but a real, matching
-    // restaurant at 10km would otherwise see an empty list for a search that actually
-    // found something, which reads as "the restaurant isn't there" when it is.
+    // Outlets are listed whether or not a driver is online; that is checked at checkout.
     if (!searchText) {
-      if (!loadingDrivers && nearbyDriversCount === 0) return [];
       return filteredAndSortedItems.map((item: any) => ({ ...item, isRestaurant: true }));
     }
 
@@ -40,7 +34,7 @@ export function useHomeOnMainScroll(restaurants: any, nearbyDriversCount: any, l
       searchedDishes.forEach((d: any) => items.push({ ...d, isDish: true }));
     }
     return items;
-  }, [showHomeSkeleton, searchText, filteredAndSortedItems, searchedDishes, loadingDrivers, nearbyDriversCount]);
+  }, [showHomeSkeleton, searchText, filteredAndSortedItems, searchedDishes]);
 
   const areaLabel = selectedAddress?.label && selectedAddress.label !== "Other" ? selectedAddress.label : "Home";
   const areaLine = selectedAddress?.addressLine || selectedAddress?.city || "your area";

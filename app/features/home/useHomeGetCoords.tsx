@@ -1,11 +1,19 @@
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
+import { useAuthStore } from "@/contexts/authStore";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
+// Where Home lists outlets from for a guest with no GPS and no saved address, so they can still
+// explore. Browsing only: it is never stored as the delivery location, and checkout checks the
+// real address. Change it to the city you launch in.
+const GUEST_BROWSE_COORDS = { lat: 17.385, lng: 78.4867 };
+
 export function useHomeGetCoords(selectedAddress: any) {
+  const noCoords = () => (useAuthStore.getState().token ? { lat: null, lng: null } : GUEST_BROWSE_COORDS);
+
   const getCoords = async () => {
     if (selectedAddress) {
       const lat = selectedAddress.coordinates?.lat ?? selectedAddress.location?.coordinates?.[1];
@@ -54,7 +62,7 @@ export function useHomeGetCoords(selectedAddress: any) {
 
           if (!loc) {
             console.warn("Home Screen: Could not get any location");
-            return { lat: null, lng: null };
+            return noCoords();
           }
 
           const coords = { lat: loc.coords.latitude, lng: loc.coords.longitude };
@@ -82,7 +90,7 @@ export function useHomeGetCoords(selectedAddress: any) {
       console.warn("Home Screen: GPS fetch failed:", error);
     }
 
-    return { lat: null, lng: null };
+    return noCoords();
   };
 
   return { getCoords };

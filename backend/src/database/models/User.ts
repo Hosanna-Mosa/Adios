@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import bcrypt from "bcryptjs";
+import { encryptedFields } from "../plugins/encryptedFields";
 import { webPushSubscriptionSchema, IWebPushSubscription } from "./WebPushSubscription";
 
 export enum UserRole {
@@ -152,6 +153,21 @@ UserSchema.methods.matchPassword = async function (password: string) {
   if (!this.password) return false;
   return await bcrypt.compare(password, this.password);
 };
+
+// Saved addresses, booking contact and profile picture are stored encrypted (see
+// plugins/encryptedFields.ts). phone / email / username / geo stay plain: login and nearby
+// search look users up by them. Never filter, sort or aggregate on the encrypted paths.
+UserSchema.plugin(encryptedFields, {
+  paths: [
+    "addresses.addressLine",
+    "addresses.landmark",
+    "addresses.receiverName",
+    "addresses.receiverPhone",
+    "addresses.phone",
+    "bookingPreference.contactNumber",
+    "profilePic",
+  ],
+});
 
 UserSchema.index({ defaultLocation: "2dsphere" });
 UserSchema.index({ "addresses.location": "2dsphere" });
