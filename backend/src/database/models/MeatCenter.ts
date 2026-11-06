@@ -7,6 +7,8 @@ export interface IMeatCenter extends Document {
   phone: string;
   email: string;
   password: string;
+  // See Vendor.tokenVersion — same purpose, same IAM-002 fix.
+  tokenVersion?: number;
   location: {
     type: string;
     coordinates: number[]; // [longitude, latitude]
@@ -69,6 +71,7 @@ const MeatCenterSchema: Schema = new Schema(
     phone: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    tokenVersion: { type: Number, default: 0 },
     location: {
       type: { type: String, enum: ["Point"], default: "Point" },
       coordinates: { type: [Number], required: true },
