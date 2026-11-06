@@ -10,6 +10,7 @@ import { SPRING } from "@/motion/presets";
 import { createStyles } from "./AppTabBar.styles";
 import { ALL_TAB_KEYS } from "./AppTabBar";
 import * as Haptics from "expo-haptics";
+import { requireLogin } from "@/utils/orderGate";
 import type { TabKey } from "./AppTabBar";
 
 // State and animation wiring for AppTabBar, moved out so both files stay
@@ -61,6 +62,8 @@ export function useAppTabBar(active: any, accent: any, cartVendorName: any) {
   const handleTabPress = (key: TabKey, routeOrCart: string) => {
     if (key === active) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Orders and Account only mean something for a signed-in customer; a guest is sent to Login.
+    if ((key === "orders" || key === "account") && !requireLogin()) return;
     router.push(routeOrCart as any);
   };
 

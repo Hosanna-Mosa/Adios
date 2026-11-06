@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export interface IChatMessage extends Document {
   orderId: string;
@@ -24,5 +25,8 @@ const ChatMessageSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+// Message text is stored encrypted. Never search it with a query: the stored value is ciphertext.
+ChatMessageSchema.plugin(encryptedFields, { paths: ["text"] });
 
 export default mongoose.model<IChatMessage>("ChatMessage", ChatMessageSchema);

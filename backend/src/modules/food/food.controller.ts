@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import FoodItem from "../../database/models/FoodItem";
-import Vendor from "../../database/models/Vendor";
+import Vendor, { VENDOR_ENCRYPTED_PATHS } from "../../database/models/Vendor";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
 import { toPublicVendor } from "../../utils/publicProfile";
 import { CloudinaryService } from "../../services/cloudinary.service";
@@ -361,23 +361,21 @@ export const searchFoodItems = async (req: Request, res: Response) => {
 
     if (hasCoords) {
       const zonesService = new ZonesService();
+      // Outside every zone the search still runs, nearest first with no radius cap; the order is checked at checkout.
       const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
-      if (!activeZone) {
-        return res.json([]);
-      }
 
       const geoQuery: any = { partnerType: { $ne: "meat" } };
-      if (activeZone.type === "polygon" && activeZone.boundary) {
+      if (activeZone?.type === "polygon" && activeZone.boundary) {
         geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
       }
-      const maxDist = activeZone.type === "circle" && activeZone.radius ? Math.min(15000, activeZone.radius) : 15000;
+      const maxDist = !activeZone ? undefined : activeZone.type === "circle" && activeZone.radius ? Math.min(15000, activeZone.radius) : 15000;
 
       nearbyVendors = await Vendor.aggregate([
         {
           $geoNear: {
             near: { type: "Point", coordinates: [userLng, userLat] },
             distanceField: "distance",
-            maxDistance: maxDist,
+            ...(maxDist !== undefined && { maxDistance: maxDist }),
             spherical: true,
             key: "location",
             query: geoQuery,
@@ -387,7 +385,8 @@ export const searchFoodItems = async (req: Request, res: Response) => {
         // This public, unauthenticated endpoint attaches the full vendor document
         // to every dish hit as `vendorId` (see collect() below) — without this,
         // that included the vendor's bcrypt password hash and login email.
-        { $unset: "password" },
+        // aggregate() would also return the ciphertext of the encrypted owner/bank/KYC fields.
+        { $unset: ["password", ...VENDOR_ENCRYPTED_PATHS] },
       ]);
 
       if (nearbyVendors.length === 0) {
@@ -529,30 +528,30 @@ export const getStore149Items = async (req: Request, res: Response) => {
 
       if (Number.isFinite(userLat) && Number.isFinite(userLng)) {
         const zonesService = new ZonesService();
+        // Outside every zone the store still lists, nearest first with no radius cap; the order is checked at checkout.
         const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
-        if (!activeZone) {
-          return res.json([]);
-        }
 
         const geoQuery: any = { partnerType: { $ne: "meat" } };
-        if (activeZone.type === "polygon" && activeZone.boundary) {
+        if (activeZone?.type === "polygon" && activeZone.boundary) {
           geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
         }
 
-        const maxDist = activeZone.type === "circle" && activeZone.radius ? Math.min(15000, activeZone.radius) : 15000;
+        const maxDist = !activeZone ? undefined : activeZone.type === "circle" && activeZone.radius ? Math.min(15000, activeZone.radius) : 15000;
 
         vendors = await Vendor.aggregate([
           {
             $geoNear: {
               near: { type: "Point", coordinates: [userLng, userLat] },
               distanceField: "distance",
-              maxDistance: maxDist,
+              ...(maxDist !== undefined && { maxDistance: maxDist }),
               spherical: true,
               key: "location",
               query: geoQuery,
             },
           },
-          { $limit: 10 }
+          { $limit: 10 },
+          // Public route: aggregate() would return the ciphertext of the encrypted owner/bank/KYC fields.
+          { $unset: VENDOR_ENCRYPTED_PATHS },
         ]);
         // A closed restaurant's dishes can't be ordered, so they don't belong in the store.
         vendors = vendors.filter((vendor) => evaluateOutletOpenState(vendor).isOpen);

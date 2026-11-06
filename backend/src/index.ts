@@ -9,6 +9,9 @@ dotenv.config();
 import { getJwtSecret } from "./utils/jwtSecret";
 // Fail fast on boot rather than letting auth silently fall back to a hardcoded secret.
 getJwtSecret();
+import { assertFieldEncryptionConfigured } from "./utils/fieldCrypto";
+// Same for the personal-data key: without it every Driver read/write would fail at request time.
+assertFieldEncryptionConfigured();
 import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";

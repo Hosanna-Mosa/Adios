@@ -679,6 +679,9 @@
       "noSavedAddressesFound": "No saved addresses found."
     },
     "auth": {
+      "skip": "Skip",
+      "loginToContinueTitle": "Log in to continue",
+      "loginToContinueMessage": "Please log in or create an account to continue.",
       "discardSignUp": "Discard sign up?",
       "yourDetailsWontBeSaved": "Your details won't be saved.",
       "keepEditing": "Keep editing",
@@ -1151,6 +1154,10 @@
       "body": "Your cart has items from {{from}}. Adding {{item}} from {{to}} will empty it."
     },
     "checkout": {
+      "notServiceableTitle": "We don't deliver here yet",
+      "notServiceableMessage": "This address is outside our service area. Please choose another address to place your order.",
+      "noDriversTitle": "No riders available",
+      "noDriversMessage": "No delivery riders are online near you right now. Please try again in a little while.",
       "checkout": "Checkout",
       "scheduleDelivery": "Schedule delivery",
       "pickWhenYouWantYourFood": "Pick when you want your food delivered",

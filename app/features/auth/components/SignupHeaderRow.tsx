@@ -6,6 +6,7 @@ import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type SignupStyles } from "@/features/auth/signup.styles";
+import { SkipButton } from "@/components/shared/SkipButton";
 
 // Moved out of app/signup.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -27,7 +28,7 @@ export function SignupHeaderRow({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={[styles.headerRow, { paddingTop: insets.top + 4 }]}>
+    <View style={[styles.headerRow, { paddingTop: insets.top + 4, flexDirection: "row", alignItems: "center" }]}>
       <TouchableOpacity
         style={styles.backBtn}
         onPress={handleBack}
@@ -38,6 +39,7 @@ export function SignupHeaderRow({
       >
         <Ionicons name="chevron-back" size={moderateScale(22)} color={tokens.text} />
       </TouchableOpacity>
+      <SkipButton tokens={tokens} />
     </View>
   );
 }

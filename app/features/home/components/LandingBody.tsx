@@ -8,6 +8,7 @@ import { LandingForgotRow } from "./LandingForgotRow";
 import { PasswordField } from "./PasswordField";
 import { LandingLogoMark } from "./LandingLogoMark";
 import { Button } from "@/components/ui/Button";
+import { SkipButton } from "@/components/shared/SkipButton";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type LandingStyles } from "@/features/home/index.styles";
@@ -58,6 +59,10 @@ export function LandingBody({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
+      <View style={{ flexDirection: "row", marginRight: -12, marginTop: -16 }}>
+        <SkipButton tokens={tokens} />
+      </View>
+
       {/* Brand mark + headline, centered in the space above the form */}
       <Reanimated.View style={styles.heroBlock} entering={fadeInUp(0)}>
         <LandingLogoMark

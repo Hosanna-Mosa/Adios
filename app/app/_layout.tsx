@@ -87,6 +87,8 @@ if (apiUrl) {
   });
 }
 
+// A guest's 401 is ignored here on purpose: browsing is open, and the login prompt belongs to the
+// actions that need an account (checkout, saving an address), which call requireLogin themselves.
 setUnauthorizedHandler(() => {
   if (useAuthStore.getState().handleUnauthorized()) {
     router.replace("/login");
@@ -135,6 +137,7 @@ export default function RootLayout() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
+  const guestMode = useAuthStore((s) => s.guestMode);
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
   const introSplashDone = useIntroSplashStore((s) => s.introSplashDone);
   const segments = useSegments();
@@ -190,10 +193,14 @@ export default function RootLayout() {
     }
 
 
+    // A guest (Skip on Login / Sign up) may stay on any screen; the screens that
+    // need an account send them to Login themselves.
+    if (guestMode) return;
+
     if (!isAuthScreen) {
       router.replace("/login");
     }
-  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone]);
+  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone, guestMode]);
   usePushNotifications(token);
   useAnalytics();
 

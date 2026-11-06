@@ -499,51 +499,50 @@ export class DriverService {
       OrderStatus.CONFIRMED,
     ];
 
-    const areas = await Order.aggregate<{
-      _id: string;
-      address: string;
-      lat: number;
-      lng: number;
-      orderCount: number;
-    }>([
-      {
-        $match: {
-          createdAt: { $gte: since },
-          status: { $in: activeDemandStatuses },
-        },
-      },
-      { $unwind: "$stops" },
-      {
-        $match: {
-          "stops.type": { $in: [StopType.PICKUP, StopType.DROP] },
-          "stops.address": { $type: "string", $ne: "" },
-          "stops.location.coordinates.0": { $type: "number" },
-          "stops.location.coordinates.1": { $type: "number" },
-        },
-      },
-      {
-        $addFields: {
-          areaName: {
-            $trim: {
-              input: {
-                $arrayElemAt: [{ $split: ["$stops.address", ","] }, 0],
-              },
-            },
-          },
-        },
-      },
-      {
-        $group: {
-          _id: { $toLower: "$areaName" },
-          address: { $first: "$stops.address" },
-          lat: { $avg: { $arrayElemAt: ["$stops.location.coordinates", 1] } },
-          lng: { $avg: { $arrayElemAt: ["$stops.location.coordinates", 0] } },
-          orderCount: { $sum: 1 },
-        },
-      },
-      { $sort: { orderCount: -1 } },
-      { $limit: Math.max(1, Math.min(limit, 10)) },
-    ]);
+    // Grouped here, not in a Mongo pipeline: stop addresses are stored encrypted, so the database
+    // cannot split or group them. Two hours of searching orders is a small set.
+    const orders = await Order.find({
+      createdAt: { $gte: since },
+      status: { $in: activeDemandStatuses },
+    })
+      .select("stops")
+      .lean();
+
+    const groups = new Map<string, { _id: string; address: string; latSum: number; lngSum: number; orderCount: number }>();
+    for (const order of orders) {
+      for (const stop of order.stops || []) {
+        const [lng, lat] = stop.location?.coordinates || [];
+        if (
+          (stop.type !== StopType.PICKUP && stop.type !== StopType.DROP) ||
+          typeof stop.address !== "string" ||
+          stop.address === "" ||
+          typeof lng !== "number" ||
+          typeof lat !== "number"
+        ) {
+          continue;
+        }
+        const key = stop.address.split(",")[0].trim().toLowerCase();
+        const group = groups.get(key);
+        if (group) {
+          group.latSum += lat;
+          group.lngSum += lng;
+          group.orderCount += 1;
+        } else {
+          groups.set(key, { _id: key, address: stop.address, latSum: lat, lngSum: lng, orderCount: 1 });
+        }
+      }
+    }
+
+    const areas = [...groups.values()]
+      .sort((x, y) => y.orderCount - x.orderCount)
+      .slice(0, Math.max(1, Math.min(limit, 10)))
+      .map((g) => ({
+        _id: g._id,
+        address: g.address,
+        lat: g.latSum / g.orderCount,
+        lng: g.lngSum / g.orderCount,
+        orderCount: g.orderCount,
+      }));
 
     return areas.map((area, index) => {
       const surgeMultiplier = Math.min(2, 1 + area.orderCount * 0.1);
