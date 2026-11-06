@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import React from "react";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
@@ -81,7 +82,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
     };
 
     fetchStatus();
-    const stopPolling = setForegroundInterval(fetchStatus, 3000);
+    const interval = setForegroundInterval(fetchStatus, 3000);
 
     const onAccepted = (data: any) => {
       if (isForOrder(data, localOrderId)) goToAssigned(data?.driver);
@@ -104,7 +105,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
 
     return () => {
       cancelled = true;
-      stopPolling();
+      clearInterval(interval);
       socketService.off("order_accepted", onAccepted);
       socketService.off("order_status_update", onStatus);
       socketService.off("no_drivers_available", onNoDrivers);
@@ -144,11 +145,11 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
         // A failed poll is not worth surfacing; the socket is the primary path.
       }
     };
-    const stopPolling = setForegroundInterval(poll, 5000);
+    const interval = setForegroundInterval(poll, 5000);
 
     return () => {
       cancelled = true;
-      stopPolling();
+      clearInterval(interval);
       socketService.off("task_started", onTaskStarted);
       socketService.off("order_status_update", onStatus);
     };

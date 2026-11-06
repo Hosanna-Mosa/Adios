@@ -85,6 +85,14 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    /* Inter's clearer shapes (open digits, single-storey a) and crisper text on every screen. */
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings break evenly instead of leaving one word alone on the last line. */
+  h1, h2, h3 {
+    text-wrap: balance;
   }
 }
 
@@ -96,13 +104,14 @@
     @apply bg-card rounded-xl border border-border;
   }
   .page-header {
-    @apply text-2xl font-bold text-foreground;
+    @apply text-2xl font-bold tracking-tight leading-tight text-foreground;
   }
   .page-subtitle {
     @apply text-muted-foreground text-sm mt-1;
   }
+  /* Column titles stay on one line; a long one scrolls the table sideways instead of stacking. */
   .table-header-text {
-    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground;
+    @apply text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap;
   }
   .sidebar-active {
     @apply text-primary bg-sidebar-accent border-l-[3px] border-primary font-medium;

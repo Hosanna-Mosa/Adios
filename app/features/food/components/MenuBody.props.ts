@@ -20,6 +20,9 @@ export interface Props {
   isMeat: any;
   items: any[];
   loading: any;
+  /** The menu request failed; shown instead of "menu not available" when nothing loaded. */
+  loadError: boolean;
+  onRetry: () => void;
   loadingItems: any;
   metaLine1Parts: any;
   metaLine2Parts: any;

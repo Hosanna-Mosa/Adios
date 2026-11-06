@@ -1,4 +1,5 @@
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { router } from "expo-router";
 import { formatGeocodeAddress } from "./usePickupConfirmation.shared";
 import i18n from "@/i18n";
@@ -43,11 +44,7 @@ export function usePickupConfirmationRecenter(mapRef: any, params: any, confirme
 
   const useCurrentLocation = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        showAlert(i18n.t("app.ride.permissionDenied"), i18n.t("app.delivery.locationPermissionIsRequired"));
-        return;
-      }
+      if (!(await requestLocationPermission(i18n.t("app.delivery.locationPermissionIsRequired")))) return;
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const coords = {
         latitude: location.coords.latitude,

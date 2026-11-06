@@ -1918,11 +1918,29 @@ export class OrdersService {
     const driver = await Driver.findOne({ user: driverUserId });
     if (!driver) throw new Error("Driver profile not found");
 
+    // RBAC-003: each dispatch mode is the source of truth for who's actually
+    // been offered this order. These are read-only checks (nothing written
+    // yet) so a bogus decline on an order this driver was never offered is
+    // rejected before anything below records it or advances dispatch.
+    const { dispatchManager } = require("../../services/dispatch.manager");
+    const wasOffered =
+      order.dispatchMode === "broadcast"
+        ? foodDispatch.wasOfferedTo(order, driverUserId)
+        : dispatchManager.isCurrentCandidate(orderId, driverUserId);
+    if (!wasOffered) {
+      // RBAC-003 follow-up: this used to silently return the order
+      // unchanged, which left the HTTP layer with nothing to distinguish
+      // from a real success — an unauthorized decline attempt got a 200.
+      // Throwing here lets the controller map it to 403, same as acceptOrder
+      // already does for the equivalent case.
+      throw new Error("You were not offered this order");
+    }
+
     // Push the reason
     if (!order.declineReasons) {
       order.declineReasons = [];
     }
-    
+
     // Prevent duplicate declining from the same driver
     const alreadyDeclined = order.declineReasons.some(r => r.driverId === driver._id.toString());
     if (!alreadyDeclined) {
@@ -1937,7 +1955,7 @@ export class OrdersService {
         acc[r.reason] = (acc[r.reason] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      
+
       let mostCommonReason = "";
       let maxCount = 0;
       for (const [r, count] of Object.entries(reasonCounts)) {
@@ -1964,7 +1982,6 @@ export class OrdersService {
       await foodDispatch.declineOffer(order._id.toString(), driverUserId, reason);
     } else {
       // Trigger dispatch manager to pass order to next nearest driver in sequence
-      const { dispatchManager } = require("../../services/dispatch.manager");
       await dispatchManager.handleDriverDecline(orderId, driverUserId);
     }
 
@@ -1977,6 +1994,50 @@ export class OrdersService {
    * touched in the last 6 hours, and not a reserved ride still waiting for its time.
    * Populated like acceptOrder's answer, which is what the app maps.
    */
+  /**
+   * The orders this driver was assigned, newest first, one page at a time. `ongoing` = the job
+   * is still live; `past` = delivered / completed / cancelled. Orders nobody had assigned yet
+   * (searching, created) never belong to a driver, so they appear in neither list.
+   */
+  async getDriverOrders(driverUserId: string, scope: "ongoing" | "past", page: number, limit: number) {
+    const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
+    if (!driver) return { orders: [], page, hasMore: false };
+
+    const finished = [
+      OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
+      "completed", "cancelled",
+    ];
+    const notAssigned = [OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED];
+    const now = new Date();
+    const filter: any =
+      scope === "past"
+        ? { driver: driver._id, status: { $in: finished } }
+        : {
+            driver: driver._id,
+            status: { $nin: [...finished, ...notAssigned] },
+            // A scheduled ride the driver holds for later is not "ongoing" yet.
+            $nor: [{ isReserved: true, reservedAt: { $gt: now } }],
+          };
+
+    const rows: any[] = await Order.find(filter)
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit + 1)
+      .populate("user", "name phone")
+      .lean();
+    const hasMore = rows.length > limit;
+    const orders = rows.slice(0, limit);
+    const outlets = await this.outletSummaries(orders.map((order) => order.vendor));
+    return {
+      page,
+      hasMore,
+      orders: orders.map((order) => ({
+        ...order,
+        vendor: (order.vendor && outlets.get(String(order.vendor))) || order.vendor,
+      })),
+    };
+  }
+
   async getDriverActiveOrder(driverUserId: string) {
     const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
     if (!driver) return null;
@@ -2095,20 +2156,57 @@ export class OrdersService {
         status: OrderStatus.DRIVER_ASSIGNED,
       });
     } else {
-      if (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) {
+      if (
+        (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) ||
+        order.searchExhaustedAt
+      ) {
+        // RBAC-004 follow-up: a dispatch that ran out of candidates (every
+        // candidate declined or timed out) is just as unavailable as one
+        // that's already assigned or cancelled — searchExhaustedAt is the
+        // persisted record of that, since the in-memory dispatch session is
+        // deleted the moment candidates are exhausted and can't be relied on
+        // here. See the atomic claim below for the race-safe version of this
+        // same check.
         throw new Error("Order is no longer available");
       }
 
-      // Notify dispatch manager that order was accepted to stop cascade timers
+      // RBAC-003 follow-up: only the driver currently holding the offer may
+      // accept it. Checked before any write, so an unrelated driver gets a
+      // clear reason instead of silently succeeding or a generic error.
       const { dispatchManager } = require("../../services/dispatch.manager");
-      dispatchManager.handleDriverAccept(orderId, driverUserId);
+      const authorized = dispatchManager.handleDriverAccept(orderId, driverUserId);
+      if (!authorized) {
+        throw new Error("You were not offered this order");
+      }
 
       const session = await mongoose.startSession();
       session.startTransaction();
       try {
-        order.driver = driver._id;
-        order.status = OrderStatus.DRIVER_ASSIGNED;
-        await order.save({ session });
+        // Atomic claim: only succeeds if the order is still unassigned and in
+        // an acceptable status at the moment of the write, closing the race
+        // window a separate check-then-save would leave open (mirrors
+        // foodDispatch.claimOffer's pattern for broadcast orders).
+        //
+        // RBAC-004 follow-up: searchExhaustedAt: null is required in both
+        // branches — a dispatch that's genuinely run out of candidates must
+        // not be claimable by anyone, even though its order.driver/status
+        // alone still look identical to an order that's legitimately never
+        // been dispatched (e.g. isReserved). This is the real, race-safe
+        // enforcement; the earlier throw above is just the fast, common-case
+        // version of the same check.
+        const claimed = await Order.findOneAndUpdate(
+          {
+            _id: order._id,
+            driver: null,
+            searchExhaustedAt: null,
+            $or: [{ status: OrderStatus.SEARCHING_DRIVER }, { isReserved: true, status: OrderStatus.CREATED }],
+          },
+          { $set: { driver: driver._id, status: OrderStatus.DRIVER_ASSIGNED } },
+          { session }
+        );
+        if (!claimed) {
+          throw new Error("Order is no longer available");
+        }
 
         driver.isAvailable = false;
         await driver.save({ session });

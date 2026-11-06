@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { AlertTriangle, CheckCircle2, Hourglass, Loader2, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Hourglass, Landmark, Loader2, XCircle } from "lucide-react";
 
 // Rows served by GET /admin/refunds and GET /admin/payouts (backend: payments/admin.money.service.ts).
 
@@ -27,7 +27,8 @@ export interface RefundRow {
 }
 
 /** Backend statuses: pending = requested (not yet paid), processing = with RazorpayX. */
-export type PayoutStatus = "pending" | "processing" | "processed" | "failed";
+/** needs_bank_details = the admin could not pay the account on file and asked the driver for other details. */
+export type PayoutStatus = "pending" | "processing" | "processed" | "failed" | "needs_bank_details";
 
 export interface PayoutRow {
   id: string;
@@ -41,6 +42,8 @@ export interface PayoutRow {
   reference?: string;
   failureReason?: string;
   adminNote?: string;
+  /** Why other bank details were asked for (status needs_bank_details). */
+  bankIssue?: string;
   handledBy?: string;
   requestedAt: string;
   processedAt?: string;
@@ -62,6 +65,7 @@ export const payoutStatusStyles: Record<PayoutStatus, StatusStyle> = {
   processing: { labelKey: "money.statusWithRazorpayX", className: "bg-sky-500/10 text-sky-700 border-sky-200", icon: Loader2 },
   processed: { labelKey: "money.statPaid", className: "bg-emerald-500/10 text-emerald-700 border-emerald-200", icon: CheckCircle2 },
   failed: { labelKey: "money.statRejectedFailed", className: "bg-rose-500/10 text-rose-700 border-rose-200", icon: XCircle },
+  needs_bank_details: { labelKey: "money.statusNeedsBankDetails", className: "bg-violet-500/10 text-violet-700 border-violet-200", icon: Landmark },
 };
 
 export const rupees = (value: number | undefined) =>

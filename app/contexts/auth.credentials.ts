@@ -13,6 +13,24 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.a
 
 type Set = (partial: Partial<AuthState>) => void;
 
+/**
+ * Saves the session for the next launch. The customer is already signed in by the time
+ * this runs, so a full or failing disk must not turn a good login into a "Login failed"
+ * alert — it only means signing in again after the app is closed.
+ */
+async function persistSession(token: string, user: unknown, refreshToken?: string | null) {
+  try {
+    await Promise.all([
+      AsyncStorage.setItem("token", token),
+      AsyncStorage.setItem("user", JSON.stringify(user)),
+      refreshToken ? AsyncStorage.setItem("refreshToken", refreshToken) : AsyncStorage.removeItem("refreshToken"),
+    ]);
+  } catch (err) {
+    console.warn("Could not save the session to device storage:", err);
+  }
+}
+
+
 export const createCredentialActions = (set: Set) => ({
   requestOTP: async (phone: string) => {
     set({ loading: true, error: null });
@@ -51,11 +69,7 @@ export const createCredentialActions = (set: Set) => ({
 
       resetSessionExpiry();
       set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
-      ]);
+      await persistSession(data.token, data.user, data.refreshToken);
       // The signup screen hands its name through to this same call, so a name
       // here means the account was just created rather than signed back into.
       trackEvent(name ? "sign_up" : "login", { method: "otp" });
@@ -81,11 +95,8 @@ export const createCredentialActions = (set: Set) => ({
 
       resetSessionExpiry();
       set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
-      ]);
+      await persistSession(data.token, data.user, data.refreshToken);
+
       trackEvent("login", { method: "password" });
       return { success: true };
     } catch (err: any) {

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import type { OnboardingSectionKey } from "../onboardingSections";
+import { validateHomeAddress, validateLicenseExpiry, validatePersonName } from "@/utils/validation";
 import { validateAadhaarFormat, validateDLFormat, validateEmailFormat, validatePANFormat } from "../validators";
 import type { DocumentFields } from "./useDocumentFields";
 import type { IdentityFields } from "./useIdentityFields";
@@ -30,7 +31,7 @@ export function useOnboardingGates(
     () =>
       identity.digilockerVerified ||
       (identity.aadhaarVerified
-        ? validatePANFormat(identity.panNumber) && identity.panName.length >= 3
+        ? validatePANFormat(identity.panNumber) && validatePersonName(identity.panName) === null
         : identity.panVerified),
     [identity],
   );
@@ -42,11 +43,14 @@ export function useOnboardingGates(
       case "vehicle": return !!step1.vehicle;
       case "zone": return !!step1.preferredZone;
       case "homeAddress":
-        return !!step1.homeAddressLine && step1.homeLat !== null && step1.homeLng !== null;
+        return validateHomeAddress(step1.homeAddressLine, step1.homeLat !== null && step1.homeLng !== null) === null;
       case "aadhaar": return canProceedAadhaar();
       case "pan": return canProceedPAN();
       case "license":
-        return docs.dlVerified || (validateDLFormat(docs.dlNumber) && !!docs.dlExpiry);
+        return (
+          docs.dlVerified ||
+          (validateDLFormat(docs.dlNumber) && !!docs.dlExpiry && validateLicenseExpiry(docs.dlExpiryDate) === null)
+        );
       case "bank": return docs.bankVerified;
       case "selfie": return docs.selfieCaptured;
       default: return false;

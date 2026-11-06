@@ -75,11 +75,11 @@ export function useSupportBot() {
       if (stopped) return;
       if (Date.now() - startedAt > POLL_TIMEOUT_MS) setPhase("timeout");
     };
-    const stopPolling = setForegroundInterval(tick, POLL_MS);
+    const interval = setForegroundInterval(tick, POLL_MS);
     tick();
     return () => {
       stopped = true;
-      stopPolling();
+      clearInterval(interval);
     };
   }, [phase, queryId, intent?.key]);
 

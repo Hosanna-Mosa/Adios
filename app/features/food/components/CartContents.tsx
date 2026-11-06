@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { Image } from "expo-image";
 import { DishPrice } from "@/components/shared/DishPrice";
 import React from "react";
@@ -90,7 +91,7 @@ export function CartContents(props: Props) {
             <Animated.View key={item._id} entering={staggerListItem(idx)} style={[styles.itemRow, idx < items.length - 1 && styles.itemRowDivider]}>
               <View style={styles.itemThumbWrap}>
                 {item.images?.[0] ? (
-                  <Image source={{ uri: item.images[0] }} style={styles.itemThumb} contentFit="cover" transition={200} />
+                  <Image source={{ uri: optimizedImageUrl(item.images[0], 100) }} style={styles.itemThumb} contentFit="cover" transition={200} />
                 ) : (
                   <View style={[styles.itemThumb, styles.itemThumbFallback]}>
                     <Ionicons name="restaurant-outline" size={moderateScale(16)} color={tokens.muted} />

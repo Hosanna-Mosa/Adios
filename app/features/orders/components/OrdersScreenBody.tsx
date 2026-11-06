@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { OrdersBody } from "@/features/orders/components/OrdersBody";
 import { AppTabBar } from "@/components/AppTabBar";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { fadeInUp } from "@/motion/presets";
 import { ScheduledOrdersList } from "@/features/orders/components/ScheduledOrdersList";
 import { ActiveOrdersList } from "@/features/orders/components/ActiveOrdersList";
@@ -27,6 +28,9 @@ interface Props {
   loading: boolean;
   refreshing: boolean;
   onRefresh: () => void;
+  /** The last fetch failed; shown in place of the list when there are no orders to fall back on. */
+  loadError: boolean;
+  onRetry: () => void;
   serviceFilters: any;
   setServiceFilters: any;
   reorderingId: any;
@@ -50,6 +54,8 @@ export function OrdersScreenBody({
   loading,
   refreshing,
   onRefresh,
+  loadError,
+  onRetry,
   serviceFilters,
   setServiceFilters,
   reorderingId,
@@ -71,6 +77,8 @@ export function OrdersScreenBody({
       <OrdersBody
         styles={styles}
       />
+    ) : loadError && orders.length === 0 ? (
+      <ErrorState onRetry={onRetry} />
     ) : isEmpty ? (
       <OrdersEmptyWrap
         orders={orders}

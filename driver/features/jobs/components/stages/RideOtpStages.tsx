@@ -32,6 +32,7 @@ export function RideArrivedPickupStage() {
           label={t("jobs.enterStartRideOtp")}
           placeholder={t("jobs.enter4DigitRideOtp")}
           maxLength={8}
+          testCode={currentOrder.restaurantPickupCode || currentOrder.id.slice(-4)}
           value={verification.restaurantOTP}
           onChangeText={(val) => {
             verification.setRestaurantOTP(val);

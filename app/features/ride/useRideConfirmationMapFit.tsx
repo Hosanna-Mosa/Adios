@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import React from "react";
 import { RouteOptimizeResponse, decodePolyline } from "./useRideConfirmation.shared";
 import { optimizeRoute } from "@/services/places.service";
@@ -50,7 +51,8 @@ export function useRideConfirmationMapFit(params: any, selectedTier: any, pickup
       }
     };
     loadNearbyDrivers();
-    return setForegroundInterval(loadNearbyDrivers, 12000);
+    const interval = setForegroundInterval(loadNearbyDrivers, 12000);
+    return () => clearInterval(interval);
   }, [pickupCoords.latitude, pickupCoords.longitude, selectedTier]);
 
   return {  };

@@ -18,7 +18,8 @@ export default function RestaurantMenu() {
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
   highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, searchInputRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed, handleSearchIconPress
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed, handleSearchIconPress,
+  loadError, retryMenu
   } = useRestaurantMenu();
   const { t } = useTranslation();
   // The pinned category strip hangs directly off the solid header. A fixed guess
@@ -76,6 +77,8 @@ export default function RestaurantMenu() {
         isMeat={isMeat}
         items={items}
         loading={loading}
+        loadError={loadError}
+        onRetry={retryMenu}
         loadingItems={loadingItems}
         metaLine1Parts={metaLine1Parts}
         metaLine2Parts={metaLine2Parts}

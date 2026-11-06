@@ -221,6 +221,9 @@ export class VerificationService {
 
     vendor.onboardingStatus = "rejected";
     vendor.verificationReview = { rejectionReason: reason, reviewedAt: new Date() };
+    // The vendor's access situation just changed — an already-issued token
+    // should not keep working regardless of the new status. See IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     sendVendorDecisionEmail(vendor, { kind: "rejected", reason });
@@ -234,6 +237,8 @@ export class VerificationService {
 
     vendor.onboardingStatus = "resubmission_required";
     vendor.verificationReview = { requestedDocuments: unique, note, requestedAt: now, reviewedAt: now };
+    // Same reasoning as rejectVendor above — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     sendVendorDecisionEmail(vendor, { kind: "documents_requested", documents: unique, note });

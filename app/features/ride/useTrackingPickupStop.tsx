@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useEffect } from "react";
 import { router } from "expo-router";
 import { foodStageOf, nextDriverLocation, normalizeStatus } from "./useTracking.shared";
@@ -107,7 +108,8 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
     };
 
     fetchOrderDetails();
-    return setForegroundInterval(fetchOrderDetails, 7000);
+    const interval = setForegroundInterval(fetchOrderDetails, 7000);
+    return () => clearInterval(interval);
   }, [currentOrderId]);
 
   return { pickupStop };

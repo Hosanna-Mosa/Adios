@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { router } from "expo-router";
 import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -21,14 +22,14 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     socketService.connect();
     socketService.trackOrder(orderId);
 
-    let pollIntervalId: (() => void) | undefined;
+    let pollIntervalId: ReturnType<typeof setInterval> | undefined;
     let isTransitioned = false;
 
     const handleTransition = (driverData: any) => {
       if (isTransitioned) return;
       isTransitioned = true;
 
-      if (pollIntervalId) pollIntervalId();
+      if (pollIntervalId) clearInterval(pollIntervalId);
       if (timeoutTimer) clearTimeout(timeoutTimer);
 
       const { setDriver, setStatus } = useDeliveryStore.getState();
@@ -63,7 +64,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     const handleOrderCancelled = (reason?: string | null) => {
       if (isTransitioned) return;
       isTransitioned = true;
-      if (pollIntervalId) pollIntervalId();
+      if (pollIntervalId) clearInterval(pollIntervalId);
       if (timeoutTimer) clearTimeout(timeoutTimer);
       router.replace("/(tabs)");
       // The customer cancelled it themselves (from this screen's Cancel) — nothing to announce.
@@ -136,7 +137,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       timeoutTimer = setTimeout(async () => {
         if (isTransitioned) return;
         isTransitioned = true;
-        if (pollIntervalId) pollIntervalId();
+        if (pollIntervalId) clearInterval(pollIntervalId);
         showAlert(
           i18n.t("app.ride.noCaptainFound"),
           i18n.t("app.ride.sorryNoCaptainsAreAvailableTo"),
@@ -161,6 +162,6 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
       socketService.off("order_accepted", handleOrderAccepted);
       socketService.off("order_status_update", handleStatusUpdate);
       if (timeoutTimer) clearTimeout(timeoutTimer);
-      if (pollIntervalId) pollIntervalId();
+      if (pollIntervalId) clearInterval(pollIntervalId);
     };
 };

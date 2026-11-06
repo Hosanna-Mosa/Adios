@@ -19,12 +19,14 @@ export function EarningsStatsRow({
   return (
     <AnimatedBox entering={fadeInUp(180)} style={styles.bottomStats}>
       <Box style={styles.statCard}>
-        <AppText style={styles.statValue}>{onlineHours.toFixed(1)}h</AppText>
+        <AppText style={styles.statValue}>{(Number(onlineHours) || 0).toFixed(1)}h</AppText>
         <AppText style={styles.statLabel}>{t("earnings.onlineHours")}</AppText>
+        <AppText style={styles.statLabel}>{t("earnings.thisWeek", { defaultValue: "This week" })}</AppText>
       </Box>
       <Box style={styles.statCard}>
-        <AppText style={styles.statValue}>{totalDistance} km</AppText>
+        <AppText style={styles.statValue}>{Number(totalDistance) || 0} km</AppText>
         <AppText style={styles.statLabel}>{t("earnings.totalDistance")}</AppText>
+        <AppText style={styles.statLabel}>{t("earnings.thisWeek", { defaultValue: "This week" })}</AppText>
       </Box>
     </AnimatedBox>
   );

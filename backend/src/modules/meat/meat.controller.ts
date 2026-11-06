@@ -91,6 +91,8 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
     await revokeAllRefreshSessions(center._id.toString());
 
@@ -146,8 +148,8 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       phone: center.phone,
       role: "meat_vendor",
       ...(clientSupportsRefresh(req)
-        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor" })
-        : { token: generateToken(center._id.toString(), "meat_vendor") }),
+        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor", tokenVersion: center.tokenVersion ?? 0 })
+        : { token: generateToken(center._id.toString(), "meat_vendor", center.tokenVersion ?? 0) }),
     });
   } catch (error) {
     console.error("Error logging in meat center:", error);
@@ -661,6 +663,8 @@ export const changeMeatVendorPassword = async (req: AuthRequest, res: Response) 
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
     await revokeAllRefreshSessions(center._id.toString());
 
@@ -724,7 +728,11 @@ export const updateMeatCenter = async (req: Request, res: Response) => {
     if (name !== undefined) center.name = name;
     if (phone !== undefined) center.phone = phone;
     if (email !== undefined) center.email = email;
-    if (password) center.password = password; // pre-save hashes it
+    if (password) {
+      center.password = password; // pre-save hashes it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      center.tokenVersion = (center.tokenVersion ?? 0) + 1;
+    }
     if (location !== undefined) center.location = location;
     if (address !== undefined) center.address = address;
     if (image !== undefined) center.image = image;

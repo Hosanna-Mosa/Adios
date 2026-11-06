@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import React from "react";
 import { normalizeServiceType } from "./useRideSearching.shared";
 import { fetchNearbyDriverPins, type NearbyDriverPin } from "@/utils/nearbyDrivers";
@@ -43,11 +44,11 @@ export function useRideSearchingCancelReasonVisible(params: any) {
     };
 
     fetchOnlineDrivers();
-    const stopPolling = setForegroundInterval(fetchOnlineDrivers, 10000);
+    const interval = setForegroundInterval(fetchOnlineDrivers, 10000);
 
     return () => {
       active = false;
-      stopPolling();
+      clearInterval(interval);
     };
   }, [pickupCoords.latitude, pickupCoords.longitude, params.serviceId]);
 
