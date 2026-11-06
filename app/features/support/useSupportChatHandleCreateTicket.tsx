@@ -5,6 +5,7 @@ import { SupportTicket } from "./useSupportChat.shared";
 import i18n from "@/i18n";
 import { createSupportTicket } from "@/services/support.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useSupportChat so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.

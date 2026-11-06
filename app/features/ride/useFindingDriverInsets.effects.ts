@@ -7,6 +7,7 @@ import i18n from "@/i18n";
 import { cancelOrder, getOrderJson } from "@/services/orders.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { cancellationNotice } from "@/utils/cancellationNotice";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, setBookingConfirmed: any, setConfirmedDriver: any, setStops: any, setOrderSummary: any) => () => {
@@ -21,7 +22,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     socketService.connect();
     socketService.trackOrder(orderId);
 
-    let pollIntervalId: any;
+    let pollIntervalId: ReturnType<typeof setInterval> | undefined;
     let isTransitioned = false;
 
     const handleTransition = (driverData: any) => {

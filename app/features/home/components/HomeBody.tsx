@@ -80,6 +80,7 @@ export function HomeBody(props: Props) {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mealsScrollContent}>
                 {store149Items.map((item) => <Store149Card key={item._id} item={item} styles={styles} accent={accent} />)}
               </ScrollView>
+              <View style={styles.sectionEndRule} />
             </View>
           )}
 
