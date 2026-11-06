@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { AppState, StyleSheet, Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useTranslation } from "react-i18next";
 import Constants from "expo-constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -68,10 +69,15 @@ export function OfflineBanner() {
   useEffect(() => {
     mounted.current = true;
     ping();
-    const interval = setInterval(ping, CHECK_INTERVAL_MS);
+    const interval = setForegroundInterval(ping, CHECK_INTERVAL_MS);
+    // Skipped ticks leave the banner stale while backgrounded, so check once on return.
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") ping();
+    });
     return () => {
       mounted.current = false;
       clearInterval(interval);
+      sub.remove();
     };
   }, []);
 

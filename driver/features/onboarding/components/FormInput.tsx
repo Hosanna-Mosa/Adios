@@ -18,6 +18,7 @@ export function FormInput({
   maxLength,
   icon,
   autoCapitalize,
+  error,
 }: {
   label: string;
   value: string;
@@ -27,11 +28,13 @@ export function FormInput({
   maxLength?: number;
   icon?: keyof typeof Feather.glyphMap;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  /** Why the value is wrong; turns the border red and shows the text under the field. */
+  error?: string;
 }) {
   return (
     <Box style={inputStyles.group}>
       <AppText style={inputStyles.label}>{label}</AppText>
-      <Box style={inputStyles.container}>
+      <Box style={[inputStyles.container, error ? { borderColor: Colors.error } : null]}>
         {icon && <Feather name={icon} size={18} color={Colors.primary} />}
         <AppTextInput
           style={inputStyles.input}
@@ -44,6 +47,11 @@ export function FormInput({
           autoCapitalize={autoCapitalize || "none"}
         />
       </Box>
+      {error ? (
+        <AppText size="small" color={Colors.error} accessibilityRole="alert">
+          {error}
+        </AppText>
+      ) : null}
     </Box>
   );
 }

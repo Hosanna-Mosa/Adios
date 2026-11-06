@@ -64,7 +64,8 @@ export function useHomeSearchAndBanners(searchQuery: any, banners: any, setBanne
               const today = startupAdDayKey();
               const lastShown = await AsyncStorage.getItem(STARTUP_AD_LAST_SHOWN_KEY);
               if (lastShown !== today) {
-                await AsyncStorage.setItem(STARTUP_AD_LAST_SHOWN_KEY, today);
+                // If this can't be saved the ad just shows again next visit, which beats losing it.
+                await AsyncStorage.setItem(STARTUP_AD_LAST_SHOWN_KEY, today).catch(() => {});
                 setActiveStartupAd(startupAds[0]);
                 setHasShownStartupAd(true);
               }

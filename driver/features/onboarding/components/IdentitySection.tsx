@@ -92,7 +92,7 @@ export function IdentitySection(props: any) {
             label={t("onboarding.panNumber")}
             value={panNumber}
             onChangeText={(t) => setPanNumber(t.toUpperCase().slice(0, 10))}
-            placeholder="ABCDE1234F"
+            placeholder="ABCPE1234F"
             autoCapitalize="characters"
             icon="file-text"
           />

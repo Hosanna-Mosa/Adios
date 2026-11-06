@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { Text, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
@@ -78,7 +79,7 @@ export function DishSearchResultItem({ item, tokens, accent, styles }: { item: a
 
       <View style={styles.dishItemImageContainer}>
         <TouchableOpacity activeOpacity={0.85} onPress={handleNavigateToMenu}>
-          <Image source={item.images?.[0] ? { uri: item.images[0] } : null} style={styles.dishItemImage} contentFit="cover" transition={200} />
+          <Image source={item.images?.[0] ? { uri: optimizedImageUrl(item.images[0], 120) } : null} style={styles.dishItemImage} contentFit="cover" transition={200} />
         </TouchableOpacity>
         <View style={styles.dishAddButtonOverlay}>
           {soldOut ? (

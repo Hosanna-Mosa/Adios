@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { MapBackgroundRef } from "@/components/MapBackground";
@@ -52,8 +53,7 @@ export function useDeliveryEntryStops() {
   const handleRecenter = async () => {
     setIsLocating(true);
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
+      if (await requestLocationPermission()) {
         const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
         await handleLocationUpdate({ lat: loc.coords.latitude, lng: loc.coords.longitude });
         mapRef.current?.recenter();

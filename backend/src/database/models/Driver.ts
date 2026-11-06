@@ -176,6 +176,22 @@ const DriverSchema: Schema = new Schema(
 
 DriverSchema.index({ currentLocation: "2dsphere" });
 
+// Online time: a stretch starts when the status becomes ONLINE and ends when it stops being ONLINE; a
+// save of a driver who stays online (a location ping) keeps the stretch alive. Never blocks the save.
+DriverSchema.pre("save", async function () {
+  try {
+    const driver = this as unknown as IDriver;
+    const { markDriverOnline, markDriverOffline, touchDriverOnline } = await import("./DriverOnlineSession");
+    if (driver.isNew || driver.isModified("status")) {
+      if (driver.status === DriverStatus.ONLINE) await markDriverOnline(driver._id);
+      else if (!driver.isNew) await markDriverOffline(driver._id);
+    } else if (driver.status === DriverStatus.ONLINE) {
+      await touchDriverOnline(driver._id);
+    }
+  } catch (error) {
+    console.warn("[Driver] Could not record online time:", (error as Error)?.message);
+  }
+});
 // KYC and bank details are stored encrypted (see plugins/encryptedFields.ts). Never filter
 // or aggregate on these paths: the stored value is ciphertext with a random IV.
 export const DRIVER_ENCRYPTED_PATHS = [

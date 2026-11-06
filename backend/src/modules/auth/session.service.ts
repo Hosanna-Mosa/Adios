@@ -44,7 +44,7 @@ const isUserRole = (role: string) => (Object.values(UserRole) as string[]).inclu
 export function signAccessToken(subject: Subject, expiresIn = ACCESS_TOKEN_TTL): string {
   return isUserRole(subject.role)
     ? authService.generateToken(subject.subjectId, subject.role as UserRole, subject.tokenVersion ?? 0, expiresIn)
-    : generateToken(subject.subjectId, subject.role, expiresIn);
+    : generateToken(subject.subjectId, subject.role, subject.tokenVersion ?? 0, expiresIn);
 }
 
 async function createRefreshToken(subject: Subject, familyId: string): Promise<string> {
@@ -82,13 +82,21 @@ async function resolveSubject(record: { subjectId: string; role: string; tv: num
 
   if (record.role === "meat_vendor") {
     // Legacy meat centres have their own collection; newer ones are Vendors with partnerType "meat".
-    const center = await MeatCenter.exists({ _id: record.subjectId });
-    if (center) return { subjectId: record.subjectId, role: "meat_vendor" };
+    const center = await MeatCenter.findById(record.subjectId).select("tokenVersion").lean();
+    if (center) {
+      // Fetched fresh on every refresh — see IAM-002. A password reset or
+      // admin action bumps this, so a refresh token issued before that is
+      // rejected even if revokeAllRefreshSessions somehow missed it.
+      if ((record.tv ?? 0) !== (center.tokenVersion ?? 0)) throw invalid();
+      return { subjectId: record.subjectId, role: "meat_vendor", tokenVersion: center.tokenVersion ?? 0 };
+    }
   }
 
   const vendor = mongoose.Types.ObjectId.isValid(record.subjectId) ? await Vendor.findById(record.subjectId) : null;
   if (!vendor || getVendorAccessBlock(vendor)) throw invalid();
-  return { subjectId: record.subjectId, role: record.role };
+  // Same IAM-002 parity as the MeatCenter branch above.
+  if ((record.tv ?? 0) !== (vendor.tokenVersion ?? 0)) throw invalid();
+  return { subjectId: record.subjectId, role: record.role, tokenVersion: vendor.tokenVersion ?? 0 };
 }
 
 /**

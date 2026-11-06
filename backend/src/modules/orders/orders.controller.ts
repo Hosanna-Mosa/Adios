@@ -640,6 +640,9 @@ export class OrdersController {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
       }
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
@@ -704,6 +707,23 @@ export class OrdersController {
     }
   }
 
+  async driverOrders(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const scope = req.query.scope === "past" ? "past" : "ongoing";
+      const page = Math.max(1, parseInt(String(req.query.page), 10) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit), 10) || 20));
+      const result = await ordersService.getDriverOrders(userId, scope, page, limit);
+      return res.json({
+        ...result,
+        orders: result.orders.map((o: any) => withoutCustomerCodes(withoutDriverSecrets(o))),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async currentFoodOffer(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.userId;
@@ -731,6 +751,9 @@ export class OrdersController {
       await ordersService.declineOrder(id as string, driverUserId, reason);
       return res.json({ success: true, message: "Order declined successfully" });
     } catch (error: any) {
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }

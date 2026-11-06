@@ -25,6 +25,8 @@ export function useOrdersInsets() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // The last fetch failed. Only shown when there are no orders to fall back on.
+  const [loadError, setLoadError] = useState(false);
   const [serviceFilters, setServiceFilters] = useState<Set<string>>(new Set());
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [pendingServiceFilters, setPendingServiceFilters] = useState<Set<string>>(new Set());
@@ -42,8 +44,10 @@ export function useOrdersInsets() {
       if (!opts?.silent) setLoading(true);
       const data = await getOrders();
       if (data) setOrders(data);
+      setLoadError(false);
     } catch (err) {
       console.error("Fetch orders error:", err);
+      setLoadError(true);
     } finally {
       if (!opts?.silent) setLoading(false);
     }
@@ -72,5 +76,5 @@ export function useOrdersInsets() {
     [withKey, serviceFilters]
   );
 
-  return { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered };
+  return { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, refreshing, onRefresh, loadError, retryOrders: fetchOrders, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered };
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,15 @@ import { Colors } from "@/constants/colors";
 import { Button } from "@/components/ui/Button";
 import { TextField } from "@/components/ui/TextField";
 import { fadeInUp } from "@/motion/presets";
+import {
+  fieldMessage,
+  validateConfirmPassword,
+  validateEmail,
+  validateNewPassword,
+  validatePersonName,
+  validatePhone,
+  type ValidationCode,
+} from "@/utils/validation";
 import { AuthModeTabs, type AuthMode } from "./AuthModeTabs";
 import { styles } from "../auth.styles";
 import { Touchable } from "@/components/ui/Touchable";
@@ -50,6 +59,13 @@ export function AuthForm({
   onSendOTP,
 }: Props) {
   const { t } = useTranslation();
+  const signup = mode === "signup";
+
+  // A field is judged after the driver has left it once, so the form isn't red on arrival.
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const touch = (key: string) => () => setTouched((prev) => ({ ...prev, [key]: true }));
+  const error = (key: string, code: ValidationCode | null) => (touched[key] ? fieldMessage(t, code) : undefined);
+
   return (
     <Box style={styles.formSection}>
       <AuthModeTabs mode={mode} onSwitchMode={onSwitchMode} />
@@ -73,6 +89,9 @@ export function AuthForm({
             value={name}
             onChangeText={onNameChange}
             autoCapitalize="words"
+            maxLength={60}
+            onBlur={touch("name")}
+            error={error("name", validatePersonName(name))}
           />
         </AnimatedBox>
       )}
@@ -91,6 +110,9 @@ export function AuthForm({
             autoCorrect={false}
             autoComplete="email"
             textContentType="emailAddress"
+            maxLength={254}
+            onBlur={touch("email")}
+            error={error("email", validateEmail(email))}
           />
         </AnimatedBox>
       )}
@@ -109,6 +131,9 @@ export function AuthForm({
           value={phone}
           onChangeText={(t) => onPhoneChange(t.replace(/[^0-9]/g, "").slice(0, 10))}
           keyboardType="phone-pad"
+          maxLength={10}
+          onBlur={touch("phone")}
+          error={error("phone", validatePhone(phone))}
         />
       </AnimatedBox>
 
@@ -121,6 +146,10 @@ export function AuthForm({
           value={password}
           onChangeText={onPasswordChange}
           secureTextEntry
+          maxLength={64}
+          onBlur={touch("password")}
+          // Sign-in only needs a password; the strength rules are for choosing a new one.
+          error={error("password", signup ? validateNewPassword(password) : password ? null : "passwordRequired")}
         />
       </AnimatedBox>
 
@@ -134,6 +163,9 @@ export function AuthForm({
             value={confirmPassword}
             onChangeText={onConfirmPasswordChange}
             secureTextEntry
+            maxLength={64}
+            onBlur={touch("confirm")}
+            error={error("confirm", validateConfirmPassword(password, confirmPassword))}
           />
         </AnimatedBox>
       )}

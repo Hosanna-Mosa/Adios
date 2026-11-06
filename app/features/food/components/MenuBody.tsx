@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { Image } from "expo-image";
 import React from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
@@ -8,6 +9,7 @@ import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { MenuVegOnly } from "./MenuVegOnly";
 import { BestsellerBadge, NutritionLine } from "./DishHighlights";
 import { DishPrice } from "@/components/shared/DishPrice";
@@ -20,7 +22,7 @@ import { trackEvent } from "@/utils/analytics";
 import type { Props } from "./MenuBody.props";
 
 export function MenuBody(props: Props) {
-  const { accent, activeCategory, categoryPositions, categoryTabs, CategoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, id, isMeat, items, loading, loadingItems, name, orderingState, outletClosed, scrolledPast, scrollViewRef, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
+  const { accent, activeCategory, categoryPositions, categoryTabs, CategoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, id, isMeat, items, loading, loadError, onRetry, loadingItems, name, orderingState, outletClosed, scrolledPast, scrollViewRef, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   const { t } = useTranslation();
   return (
     <ScrollView
@@ -51,6 +53,8 @@ export function MenuBody(props: Props) {
 
       {loading ? (
         <ActivityIndicator size="large" color={accent.accent} style={{ marginTop: 60 }} />
+      ) : loadError && categoryTabs.length === 0 ? (
+        <ErrorState onRetry={onRetry} />
       ) : categoryTabs.length === 0 ? (
         <View style={styles.emptyMenu}>
           <Ionicons name="search-outline" size={48} color={tokens.muted} />
@@ -117,7 +121,7 @@ export function MenuBody(props: Props) {
 
                   <View style={styles.rowImageCol}>
                     <Image
-                      source={item.images?.[0] ? { uri: item.images[0] } : null}
+                      source={item.images?.[0] ? { uri: optimizedImageUrl(item.images[0], 120) } : null}
                       style={styles.rowImage}
                       contentFit="cover"
                       transition={200}

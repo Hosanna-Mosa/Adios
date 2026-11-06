@@ -1,5 +1,6 @@
 export { EarningsLoadingCard } from "./EarningsLoadingCard";
 export { BalanceCard } from "./BalanceCard";
+export { BankActionBanner } from "./BankActionBanner";
 export { CashOutButton } from "./CashOutButton";
 export { CashOutDialog } from "./CashOutDialog";
 export { EarningsChart } from "./EarningsChart";
