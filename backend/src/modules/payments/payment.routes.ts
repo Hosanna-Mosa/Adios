@@ -125,7 +125,7 @@ router.get("/checkout/:paymentId", limiter(30), async (req: Request, res: Respon
           order_id: payment.razorpayOrderId,
           amount: payment.amount,
           currency: payment.currency,
-          name: "Flavour",
+          name: "Adios",
           prefill: { name: user?.name, email: user?.email, contact: user?.phone },
           theme: { color: "#0EA5E9" },
           timeout: 25 * 60, // a little shorter than the 30-minute link

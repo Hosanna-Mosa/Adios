@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Flavour design system — canonical source of truth.
+// Adios design system — canonical source of truth.
 // driver/constants/colors.ts mirrors this file's shape (see header comment
 // there) with its own `brand` accent — app/ and driver/ are separate Expo
 // projects with no shared workspace, so the two files are kept in sync by

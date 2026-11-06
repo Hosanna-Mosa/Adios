@@ -165,7 +165,7 @@ export interface Payout {
   paidAt?: string;
   /** Bank reference (UTR) once paid. */
   reference?: string;
-  /** Why the Flavour team rejected it, when they did. */
+  /** Why the Adios team rejected it, when they did. */
   note?: string;
 }
 

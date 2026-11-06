@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "a7f3c1d2-8b44-4e90-9c21-digilocker0001",
-    "name": "Flavour — DigiLocker (sandbox)",
+    "name": "Adios — DigiLocker (sandbox)",
     "description": "End-to-end DigiLocker driver-KYC flow against the backend sandbox.\n\nRun the requests top to bottom — each one saves what the next needs (token, state, code, document URI), so you never copy/paste values by hand.\n\nBEFORE YOU START\n1. Backend running: `cd backend && npm run dev`\n2. Turn OFF redirect following: Settings (⚙) → General → 'Automatically follow redirects' = OFF.\n   Step 3.3 needs to read the `code` out of a 302 Location header; if Postman follows it, the code is consumed before you can see it.\n3. If your backend is not on http://localhost:5000, edit the `baseUrl` collection variable.\n\nRATE LIMITS\nDigiLocker routes allow 30 requests/min per user. A full 'Run collection' is about\nthat many, so the last few requests may come back 429 DIGILOCKER_RATE_LIMITED.\nThat is the limiter working, not a bug. To run the whole thing in one go, set\n`DIGILOCKER_RATE_LIMIT_MAX=500` in backend/.env and restart the server.\n\nYou can also hit 'Run collection' to execute everything at once as a test suite.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -385,7 +385,7 @@
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
                   "const html = pm.response.text();",
-                  "pm.test('Is the consent page', () => pm.expect(html).to.include('Share documents with Flavour'));",
+                  "pm.test('Is the consent page', () => pm.expect(html).to.include('Share documents with Adios'));",
                   "pm.test('Labelled as sandbox', () => pm.expect(html).to.include('Sandbox mode'));",
                   "pm.test('Offers the test personas', () => pm.expect(html).to.include('Ravi Teja Nandigam'));"
                 ]

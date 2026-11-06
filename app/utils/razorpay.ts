@@ -60,7 +60,7 @@ export const RazorpayIntegration = {
       }
     }
 
-    // The browser was closed (or "Return to Flavour" tapped) without a success redirect.
+    // The browser was closed (or "Return to Adios" tapped) without a success redirect.
     // The customer may still have paid — ask the server, which asks Razorpay.
     const { state } = await getCheckoutStatus(order_id);
     if (state === "paid" || state === "confirming") {

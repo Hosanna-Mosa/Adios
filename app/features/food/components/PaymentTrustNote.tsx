@@ -22,7 +22,7 @@ export function PaymentTrustNote({
     <View style={styles.trustRow}>
       <Ionicons name="lock-closed" size={moderateScale(14)} color={tokens.success} />
       <Text style={styles.trustText}>
-        {t("app.food.encryptedAndSecureTransactionFlavourNever")}
+        {t("app.food.encryptedAndSecureTransactionAdiosNever")}
       </Text>
     </View>
   );

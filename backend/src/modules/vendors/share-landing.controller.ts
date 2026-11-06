@@ -4,7 +4,7 @@ import FoodItem from "../../database/models/FoodItem";
 
 /**
  * Landing page for the links app/utils/shareLink.ts builds ("Check out this dish
- * at <outlet> on Flavour! https://<host>/restaurant-menu/<vendorId>?item=<itemId>").
+ * at <outlet> on Adios! https://<host>/restaurant-menu/<vendorId>?item=<itemId>").
  *
  * The same path is registered as an Android App Link / iOS Universal Link (see
  * app/app.config.js and the /.well-known handlers in src/index.ts), so once those
@@ -38,8 +38,8 @@ export const getRestaurantShareLanding = async (req: Request, res: Response) => 
     const item = itemId ? await FoodItem.findById(itemId).select("name price").lean() : null;
     const heading = item ? `${(item as any).name} at ${vendor.name}` : vendor.name;
     const sub = item
-      ? `₹${(item as any).price} · ${vendor.address || "Order on Flavour"}`
-      : vendor.address || "Order on Flavour";
+      ? `₹${(item as any).price} · ${vendor.address || "Order on Adios"}`
+      : vendor.address || "Order on Adios";
 
     // flavour:// is the app's own scheme (app.config.js `scheme`), so this opens
     // the right screen even where App Links verification isn't set up yet.
@@ -56,7 +56,7 @@ export const getRestaurantShareLanding = async (req: Request, res: Response) => 
 const page = (heading: string, sub: string, appLink?: string) => `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escapeHtml(heading)} · Flavour</title>
+<title>${escapeHtml(heading)} · Adios</title>
 <style>
   body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
          background:#FAF8F5; color:#1A1720; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; padding:24px; }
@@ -70,6 +70,6 @@ const page = (heading: string, sub: string, appLink?: string) => `<!doctype html
 <div class="card">
   <h1>${escapeHtml(heading)}</h1>
   <p>${escapeHtml(sub)}</p>
-  ${appLink ? `<a class="cta" href="${escapeHtml(appLink)}">Open in the Flavour app</a>` : ""}
+  ${appLink ? `<a class="cta" href="${escapeHtml(appLink)}">Open in the Adios app</a>` : ""}
   <a class="alt" href="https://play.google.com/store/apps/details?id=com.adios.customer">Get the app</a>
 </div></body></html>`;

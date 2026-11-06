@@ -43,7 +43,7 @@ export function OrdersEmptyWrap({
       <View style={styles.emptyIconCircle}><Ionicons name="receipt-outline" size={moderateScale(28)} color={tokens.brand} /></View>
       <Text style={styles.emptyTitle}>{t("app.orders.noOrdersYet")}</Text>
       <Text style={styles.emptySubtitle}>{t("app.orders.foodMeatRidesHelpersAndCourier")}</Text>
-      <Button title={t("app.orders.exploreFlavour")} onPress={() => router.replace("/(tabs)")} fullWidth />
+      <Button title={t("app.orders.exploreAdios")} onPress={() => router.replace("/(tabs)")} fullWidth />
     </Animated.View>
   );
 }

@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Flavour Driver colors — mirrors the semantic categories in the customer
+// Adios Driver colors — mirrors the semantic categories in the customer
 // app's design system (/Users/ravindra/Documents/Adios/app/constants/colors.ts
 // `designTokens`), with its own brand accent (cyan-teal, distinct from the
 // customer app's indigo — same relationship as Uber vs. Uber Driver). Kept

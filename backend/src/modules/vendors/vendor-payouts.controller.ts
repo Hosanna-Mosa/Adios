@@ -29,7 +29,7 @@ export const getMyPayouts = async (req: AuthRequest, res: Response) => {
       .select("commissionRate legal.bankAccount legal.ifsc legal.ifscVerified legal.accountType")
       .lean();
     if (!vendor) {
-      // Legacy meat centres (MeatCenter) aren't on VendorPayout — the Flavour team settles them.
+      // Legacy meat centres (MeatCenter) aren't on VendorPayout — the Adios team settles them.
       if (role === "meat_vendor" && (await MeatCenter.exists({ _id: id }))) {
         return res.json({ payoutsEnabled: false });
       }

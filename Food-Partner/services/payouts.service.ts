@@ -9,7 +9,7 @@ export const getPayoutSummary = () => customFetch<PayoutSummary>("/vendors/me/pa
 /**
  * Asks for `amount` rupees to be sent to the outlet's verified bank account.
  * The server re-checks the balance; the answer says whether the money went out
- * at once (RazorpayX) or waits for the Flavour team.
+ * at once (RazorpayX) or waits for the Adios team.
  */
 export const requestPayout = (amount: number) =>
   customFetch<PayoutRequestResult>("/vendors/payout", { method: "POST", body: JSON.stringify({ amount }) });

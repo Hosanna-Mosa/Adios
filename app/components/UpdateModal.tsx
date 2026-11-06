@@ -70,7 +70,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
           <Text style={styles.subtitle}>
             {forceUpdate
               ? t("app.UpdateModal.thisUpdateChangesHowYourAccount")
-              : t("app.UpdateModal.updateFlavourToGetTheLatest")}
+              : t("app.UpdateModal.updateAdiosToGetTheLatest")}
           </Text>
 
           <Button title={t("app.UpdateModal.updateNow")} onPress={handleUpdate} fullWidth />

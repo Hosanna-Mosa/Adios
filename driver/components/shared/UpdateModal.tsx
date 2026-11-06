@@ -41,7 +41,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
           </Box>
 
           <AppText style={styles.title}>{t("errors.newDriverAppVersion")}</AppText>
-          <AppText style={styles.subtitle}>{t("errors.updateFlavourDriverToContinue")}</AppText>
+          <AppText style={styles.subtitle}>{t("errors.updateAdiosDriverToContinue")}</AppText>
 
           {forceUpdate && (
             <Box style={styles.warningContainer}>

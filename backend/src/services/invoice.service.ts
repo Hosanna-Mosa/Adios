@@ -50,16 +50,16 @@ export class InvoiceService {
     if (order.serviceType === ServiceType.DELIVERY) {
       pickupColor = "orange";
       dropColor = "black";
-      pathColor = "0xff5200ff"; // Flavour Orange
+      pathColor = "0xff5200ff"; // Adios Orange
     } else if (order.serviceType === ServiceType.HELPER) {
       pickupColor = "purple";
       dropColor = "red";
-      pathColor = "0x6366f1ff"; // Flavour Tasks Indigo
+      pathColor = "0x6366f1ff"; // Adios Tasks Indigo
     } else {
       // Ride
       pickupColor = "green";
       dropColor = "red";
-      pathColor = "0x1e1b4bff"; // Flavour Rides Dark
+      pathColor = "0x1e1b4bff"; // Adios Rides Dark
     }
 
     let pathParam = "";
@@ -237,7 +237,7 @@ export class InvoiceService {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tax Invoice - Flavour</title>
+  <title>Tax Invoice - Adios</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 11px; color: #333333; margin: 0; padding: 20px; line-height: 1.4; }
     .invoice-container { width: 750px; margin: 0 auto; background-color: #ffffff; border: 1px solid #cccccc; padding: 20px; box-sizing: border-box; }
@@ -272,7 +272,7 @@ export class InvoiceService {
 <body>
   <div class="invoice-container">
     <div class="orange-header">
-      <div class="logo-text">Flavour</div>
+      <div class="logo-text">Adios</div>
     </div>
     
     <div class="title-center">TAX INVOICE</div>
@@ -302,7 +302,7 @@ export class InvoiceService {
         <div class="info-col">
           <div class="info-col-inner">
             <div style="font-weight: bold; margin-bottom: 8px; line-height: 1.3;">
-              Invoice issued by Flavour Limited (formerly known as Flavour Private Limited) on behalf of:
+              Invoice issued by Adios Limited (formerly known as Adios Private Limited) on behalf of:
             </div>
             <div style="margin-bottom: 6px;">
               <span class="field-label">Restaurant Name:</span>
@@ -441,7 +441,7 @@ export class InvoiceService {
       <div class="sig-right">
         <span style="font-size: 9px; color: #666666; display: block; margin-top: 25px;">
           Digitally Signed by<br/>
-          <strong>Flavour Limited</strong><br/>
+          <strong>Adios Limited</strong><br/>
           ${dateTime.split(",")[0]}
         </span>
       </div>
@@ -449,9 +449,9 @@ export class InvoiceService {
     
     <div class="eco-details">
       <span class="eco-title">Details of ECO under GST</span>
-      Name: Flavour Limited (formerly known as Flavour Private Limited)<br/>
+      Name: Adios Limited (formerly known as Adios Private Limited)<br/>
       Address: Plot No.131 Block B, Dwaraka Icon Sy No. 43/P, 44/P, 45, and 48, Kavuri Hills, Guttala Begumpet, Ranga Reddy District, Hyderabad, Telangana-500033<br/>
-      GSTIN: 36AAFCB7707D1ZV &nbsp;&nbsp;|&nbsp;&nbsp; Flavour FSSAI: 10016043001588
+      GSTIN: 36AAFCB7707D1ZV &nbsp;&nbsp;|&nbsp;&nbsp; Adios FSSAI: 10016043001588
     </div>
   </div>
 </body>
@@ -506,7 +506,7 @@ export class InvoiceService {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ride Invoice - Flavour Rides</title>
+  <title>Ride Invoice - Adios Rides</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 11px; color: #333333; margin: 0; padding: 20px; line-height: 1.4; }
     .page-container { width: 620px; margin: 0 auto 30px auto; background-color: #ffffff; border: 1px solid #dddddd; padding: 30px; box-sizing: border-box; }
@@ -554,8 +554,8 @@ export class InvoiceService {
           <div class="ride-id-text">Time of Ride: ${dateTime}</div>
         </td>
         <td>
-          <div class="logo-text">Flavour Rides</div>
-          <div class="logo-subtext">FLAVOUR GROUP</div>
+          <div class="logo-text">Adios Rides</div>
+          <div class="logo-subtext">ADIOS GROUP</div>
         </td>
       </tr>
     </table>
@@ -618,8 +618,8 @@ export class InvoiceService {
           <div class="ride-id-text">Ride ID: ${orderId}</div>
         </td>
         <td>
-          <div class="logo-text">Flavour Rides</div>
-          <div class="logo-subtext">FLAVOUR GROUP</div>
+          <div class="logo-text">Adios Rides</div>
+          <div class="logo-subtext">ADIOS GROUP</div>
         </td>
       </tr>
     </table>
@@ -691,7 +691,7 @@ export class InvoiceService {
     <div style="font-size: 9px; color: #94a3b8; text-align: right; margin-top: 2px;">(Inclusive of Taxes)</div>
 
     <div class="legal-footer">
-      This document is issued by Transport Service Provider and not by Flavour Private Limited (Flavour Rides). Flavour Rides acts only as an Electronic Commerce Operator for the transportation services.
+      This document is issued by Transport Service Provider and not by Adios Private Limited (Adios Rides). Adios Rides acts only as an Electronic Commerce Operator for the transportation services.
     </div>
   </div>
 
@@ -705,15 +705,15 @@ export class InvoiceService {
           <div class="ride-id-text">Ride ID: ${orderId}</div>
         </td>
         <td>
-          <div class="logo-text">Flavour Rides</div>
-          <div class="logo-subtext">FLAVOUR GROUP</div>
+          <div class="logo-text">Adios Rides</div>
+          <div class="logo-subtext">ADIOS GROUP</div>
         </td>
       </tr>
     </table>
 
     <div class="provider-section">
       <div class="provider-info">
-        <strong>Flavour Private Limited</strong><br/>
+        <strong>Adios Private Limited</strong><br/>
         D No 48-11-2-10 A, Shakamuri Shivayya Street,<br/>
         Currency Nagar, Vijaywada, Andhra Pradesh, 520008
       </div>
@@ -897,11 +897,11 @@ export class InvoiceService {
 <body>
   <div class="email-container">
     <div class="email-header">
-      <div class="email-header-logo">FLAVOUR</div>
+      <div class="email-header-logo">ADIOS</div>
     </div>
     <div class="email-body">
       <div class="greeting-text">
-        Greetings from Flavour,<br/>
+        Greetings from Adios,<br/>
         Your order was delivered${deliveredInText}! Rate this timely delivery <a href="#" style="color: #ff5200; text-decoration: none; font-weight: bold;">here</a>
       </div>
       
@@ -987,7 +987,7 @@ export class InvoiceService {
         </tr>
         ` : `
         <tr>
-          <td>Delivery Fee (FREE with Flavour One):</td>
+          <td>Delivery Fee (FREE with Adios One):</td>
           <td style="text-align: right; color: #16a34a; font-weight: bold;">FREE</td>
         </tr>
         `}
@@ -1005,7 +1005,7 @@ export class InvoiceService {
         ` : ''}
         ${discount > 0 ? `
         <tr style="color: #16a34a;">
-          <td>Extra discount (with Flavour One):</td>
+          <td>Extra discount (with Adios One):</td>
           <td style="text-align: right;">-₹ ${Number(discount).toFixed(2)}</td>
         </tr>
         ` : ''}
@@ -1029,7 +1029,7 @@ export class InvoiceService {
     </div>
     <div class="footer">
       Get the App: iOS | Android &nbsp;&nbsp;|&nbsp;&nbsp; Follow us: Facebook | Twitter<br/><br/>
-      &copy; 2026 Flavour. All rights reserved.<br/>
+      &copy; 2026 Adios. All rights reserved.<br/>
       Ground Floor, Embassy Tech Village, Outer Ring Rd, Devarabisanahalli, Varthur, Bengaluru, Karnataka - 560103
     </div>
   </div>
@@ -1225,17 +1225,17 @@ export class InvoiceService {
       if (order.serviceType === ServiceType.DELIVERY) {
         invoiceHtml = this.generateDeliveryInvoiceHtml(order);
         emailBodyHtml = this.generateDeliveryEmailHtml(order);
-        subject = `Your Flavour Tax Invoice for Order #${orderId}`;
-        filename = `Flavour_Tax_Invoice_${orderId}.pdf`;
+        subject = `Your Adios Tax Invoice for Order #${orderId}`;
+        filename = `Adios_Tax_Invoice_${orderId}.pdf`;
       } else if (order.serviceType === ServiceType.HELPER) {
         invoiceHtml = this.generateTaskInvoiceHtml(order);
         emailBodyHtml = this.generateTaskEmailHtml(order);
-        subject = `Your Flavour Task Summary for Task #${orderId}`;
-        filename = `Flavour_Task_Invoice_${orderId}.pdf`;
+        subject = `Your Adios Task Summary for Task #${orderId}`;
+        filename = `Adios_Task_Invoice_${orderId}.pdf`;
       } else {
         invoiceHtml = this.generateRideInvoiceHtml(order);
         emailBodyHtml = this.generateRideEmailHtml(order);
-        subject = `Your Flavour Ride Invoice for Trip #${orderId}`;
+        subject = `Your Adios Ride Invoice for Trip #${orderId}`;
         filename = `Ride_Invoice_${orderId}.pdf`;
       }
 
@@ -1310,7 +1310,7 @@ export class InvoiceService {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task Invoice - Flavour Tasks</title>
+  <title>Task Invoice - Adios Tasks</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 11px; color: #333333; margin: 0; padding: 20px; line-height: 1.4; }
     .page-container { width: 620px; margin: 0 auto 30px auto; background-color: #ffffff; border: 1px solid #dddddd; padding: 30px; box-sizing: border-box; }
@@ -1358,7 +1358,7 @@ export class InvoiceService {
           <div style="font-size: 9px; color: #666666; margin-top: 2px;">Date: ${dateTime}</div>
         </td>
         <td style="vertical-align: top; text-align: right;">
-          <div class="logo-text">FLAVOUR</div>
+          <div class="logo-text">ADIOS</div>
           <div class="logo-subtext">TASKS</div>
         </td>
       </tr>
@@ -1421,7 +1421,7 @@ export class InvoiceService {
           <div class="ride-id-text">Task ID: ${orderId}</div>
         </td>
         <td style="vertical-align: top; text-align: right;">
-          <div class="logo-text">FLAVOUR</div>
+          <div class="logo-text">ADIOS</div>
           <div class="logo-subtext">TASKS</div>
         </td>
       </tr>
@@ -1486,7 +1486,7 @@ export class InvoiceService {
     <div style="font-size: 9px; color: #94a3b8; text-align: right; margin-top: 2px;">(Inclusive of Taxes)</div>
 
     <div class="legal-footer">
-      This document is issued by the Helper Service Provider and not by Flavour Private Limited. Flavour acts only as an Electronic Commerce Operator.
+      This document is issued by the Helper Service Provider and not by Adios Private Limited. Adios acts only as an Electronic Commerce Operator.
     </div>
   </div>
 
@@ -1499,7 +1499,7 @@ export class InvoiceService {
           <div class="ride-id-text">Task ID: ${orderId}</div>
         </td>
         <td style="vertical-align: top; text-align: right;">
-          <div class="logo-text">FLAVOUR</div>
+          <div class="logo-text">ADIOS</div>
           <div class="logo-subtext">TASKS</div>
         </td>
       </tr>
@@ -1507,7 +1507,7 @@ export class InvoiceService {
 
     <div class="provider-section">
       <div class="provider-info">
-        <strong>Flavour Private Limited</strong><br/>
+        <strong>Adios Private Limited</strong><br/>
         Ground Floor, Embassy Tech Village, Outer Ring Rd,<br/>
         Devarabisanahalli, Varthur, Bengaluru, Karnataka - 560103
       </div>
@@ -1527,7 +1527,7 @@ export class InvoiceService {
       </tr>
       <tr>
         <td class="label-col">ECO Name</td>
-        <td class="val-col">Flavour Private Limited</td>
+        <td class="val-col">Adios Private Limited</td>
       </tr>
       <tr>
         <td class="label-col">ECO GSTIN</td>
@@ -1579,7 +1579,7 @@ export class InvoiceService {
     </div>
 
     <div class="legal-footer">
-      This invoice is issued by Flavour Private Limited for Electronic Commerce platform convenience services. Settlement is completed via ${paymentMethod}.
+      This invoice is issued by Adios Private Limited for Electronic Commerce platform convenience services. Settlement is completed via ${paymentMethod}.
     </div>
   </div>
 

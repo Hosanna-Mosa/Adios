@@ -9,9 +9,9 @@ This is **not** a single app — it's 6 independently-managed projects living si
 | Folder | What it is | Stack |
 |---|---|---|
 | `backend/` | REST + Socket.IO API used by all five clients below | Express 5 + TypeScript (commonjs), MongoDB/Mongoose, Redis + BullMQ, Socket.IO |
-| `app/` | Customer mobile app — branded "Flavour" (rides, package delivery, food/meat ordering, chat, support) | Expo Router 6, React Native 0.81, React 19, Zustand, TanStack Query |
-| `driver/` | Driver mobile app — branded "Flavour Driver" (KYC onboarding, live jobs, earnings, chat) | Same Expo/RN stack as `app/` |
-| `Food-Partner/` | Restaurant / meat-centre owner app — branded "Flavour Partner". The mobile version of the admin SPA's **vendor** role (orders + mark ready, scheduled requests, menu / meat inventory, change password) plus payouts and the customer app's support screens | Same Expo/RN stack as `app/` |
+| `app/` | Customer mobile app — branded "Adios" (rides, package delivery, food/meat ordering, chat, support) | Expo Router 6, React Native 0.81, React 19, Zustand, TanStack Query |
+| `driver/` | Driver mobile app — branded "Adios Driver" (KYC onboarding, live jobs, earnings, chat) | Same Expo/RN stack as `app/` |
+| `Food-Partner/` | Restaurant / meat-centre owner app — branded "Adios Partner". The mobile version of the admin SPA's **vendor** role (orders + mark ready, scheduled requests, menu / meat inventory, change password) plus payouts and the customer app's support screens | Same Expo/RN stack as `app/` |
 | `admin/` | One SPA serving **three roles** (admin / support / vendor) gated by separate `localStorage` tokens (`admin_token`, `support_token`, `vendor_token`) — see `RootRedirect` in `admin/src/App.tsx` | React 18 + Vite + shadcn/ui (Radix) + Tailwind 3, TanStack Query |
 | `frontend/` | Public partner website — vendor sign-up/onboarding + restaurant menu preview | React 19 + Vite + Tailwind 4, react-router-dom v7 |
 

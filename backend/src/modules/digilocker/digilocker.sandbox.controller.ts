@@ -179,9 +179,9 @@ function renderConsentPage(opts: { state: string; selectedId: string }): string 
     <strong>Sandbox mode.</strong> This is a simulated DigiLocker consent screen. No real government data is involved.
   </div>
 
-  <h1 style="margin:0 0 6px;font-size:19px;color:#202124">Share documents with Flavour</h1>
+  <h1 style="margin:0 0 6px;font-size:19px;color:#202124">Share documents with Adios</h1>
   <p style="margin:0 0 20px;color:#5f6368;font-size:14px;line-height:1.5">
-    Flavour is requesting access to your issued documents for KYC verification.
+    Adios is requesting access to your issued documents for KYC verification.
     Choose a test identity to continue as.
   </p>
 

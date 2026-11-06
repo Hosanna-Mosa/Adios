@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Flavour design system, partner edition.
+// Adios design system, partner edition.
 // Mirrors app/constants/colors.ts (the canonical source) token-for-token, so
 // the partner app reads as the same product the customer orders from. The
 // projects share no workspace, so the two files are kept in sync by
