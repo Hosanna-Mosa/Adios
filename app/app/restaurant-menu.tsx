@@ -8,11 +8,8 @@ import { shareRestaurant } from "@/utils/shareLink";
 import { RestaurantMenuSolidHeader } from "@/features/food/components/RestaurantMenuSolidHeader";
 import { RestaurantMenuHeroOverlay } from "@/features/food/components/RestaurantMenuHeroOverlay";
 import { useRestaurantMenu } from "@/features/food/useRestaurantMenu";
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { selectNoRidersOnline, useHomeStore } from "@/contexts/homeStore";
-import { showAlert } from "@/components/ui/AppAlert";
 
 export default function RestaurantMenu() {
   const {
@@ -24,18 +21,9 @@ export default function RestaurantMenu() {
   groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed, handleSearchIconPress
   } = useRestaurantMenu();
   const { t } = useTranslation();
-  const noRidersOnline = useHomeStore(selectNoRidersOnline);
   // The pinned category strip hangs directly off the solid header. A fixed guess
   // at its height left a sliver of menu showing between the two.
   const [solidHeaderHeight, setSolidHeaderHeight] = useState(0);
-
-  // Backstop for every entry point (cart, search, links): with no rider
-  // online nothing here can be delivered, so return to Home.
-  useEffect(() => {
-    if (!noRidersOnline) return;
-    showAlert(t("app.home.noRidersAvailableNearby"), t("app.home.allCaptainsNearbyAreOnTrips"));
-    router.replace("/(tabs)");
-  }, [noRidersOnline, t]);
 
   return (
     <View style={styles.container}>

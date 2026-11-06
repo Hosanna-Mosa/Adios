@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export interface INotification extends Document {
   user: mongoose.Types.ObjectId;
@@ -30,5 +31,9 @@ const NotificationSchema: Schema = new Schema(
 // Index to retrieve a user's notifications efficiently, sorted by newest first
 NotificationSchema.index({ user: 1, createdAt: -1 });
 NotificationSchema.index({ user: 1, isRead: 1 });
+
+// Notification text can name addresses and orders, so it is stored encrypted. `data` stays plain
+// because the scheduler queries it (data.orderId).
+NotificationSchema.plugin(encryptedFields, { paths: ["title", "body"] });
 
 export default mongoose.model<INotification>("Notification", NotificationSchema);

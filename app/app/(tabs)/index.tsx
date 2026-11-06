@@ -10,11 +10,11 @@ import { HomeFilterModal } from "@/features/home/components/HomeFilterModal";
 export default function HomeScreen() {
   const home = useHome();
   const {
-  accent, activeFilterCount, activeService, cartVendorName, checkNearbyDrivers, clearAllFilters,
+  accent, activeFilterCount, activeService, cartVendorName, clearAllFilters,
   fetch149StoreItems, fetchMeatCenters, fetchVendors, getCoords, handleUseCurrentLocation,
-  hasNoLocation, isRetryingDrivers, isSearching, isStickyVisible, keyboardHeight, listData,
-  loadMore, loadingDrivers, loadingMore, nearbyDriversCount, onMainScroll, renderHeader,
-  searchText, setHasMore, setIsRetryingDrivers, setPage, setSearchText, showHomeSkeleton, styles,
+  hasNoLocation, isSearching, isStickyVisible, keyboardHeight, listData,
+  loadMore, loadingDrivers, loadingMore, onMainScroll, renderHeader,
+  searchText, setHasMore, setPage, setSearchText, showHomeSkeleton, styles,
   tabBarHeight, tokens, visibleItems
   } = home;
 
@@ -25,15 +25,12 @@ export default function HomeScreen() {
       )}
 
       <HomeListSection
-        nearbyDriversCount={nearbyDriversCount}
         loadingDrivers={loadingDrivers}
         activeService={activeService}
         tabBarHeight={tabBarHeight}
         searchText={searchText}
         setSearchText={setSearchText}
         loadingMore={loadingMore}
-        isRetryingDrivers={isRetryingDrivers}
-        setIsRetryingDrivers={setIsRetryingDrivers}
         setPage={setPage}
         setHasMore={setHasMore}
         tokens={tokens}
@@ -46,7 +43,6 @@ export default function HomeScreen() {
         fetchVendors={fetchVendors}
         fetchMeatCenters={fetchMeatCenters}
         fetch149StoreItems={fetch149StoreItems}
-        checkNearbyDrivers={checkNearbyDrivers}
         loadMore={loadMore}
         showHomeSkeleton={showHomeSkeleton}
         visibleItems={visibleItems}

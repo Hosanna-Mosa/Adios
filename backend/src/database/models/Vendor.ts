@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import { encryptedFields } from "../plugins/encryptedFields";
 import { webPushSubscriptionSchema, IWebPushSubscription } from "./WebPushSubscription";
 import { WeeklyHours } from "../../utils/openingHours";
 
@@ -359,5 +360,28 @@ VendorSchema.methods.matchPassword = async function (enteredPassword: string) {
 
 // Crucial for proximity sorting
 VendorSchema.index({ location: "2dsphere" });
+
+// Owner identity, tax and bank details are stored encrypted (see plugins/encryptedFields.ts).
+// legal.fssaiNumber / legal.fssaiExpiry stay plain: the customer app shows the FSSAI licence.
+// Never filter or aggregate on these paths, and strip them from any aggregate() that is served
+// to clients (VENDOR_ENCRYPTED_PATHS), because aggregate() returns the ciphertext.
+export const VENDOR_ENCRYPTED_PATHS = [
+  "legal.panNumber",
+  "legal.panFileName",
+  "legal.gstin",
+  "legal.gstFileName",
+  "legal.fssaiFileName",
+  "legal.bankAccount",
+  "legal.ifsc",
+  "legal.chequeFileName",
+  "kyc.digilockerId",
+  "kyc.holderName",
+  "kyc.dob",
+  "kyc.gender",
+  "kyc.maskedAadhaar",
+  "kyc.panNumber",
+  "kyc.panName",
+];
+VendorSchema.plugin(encryptedFields, { paths: VENDOR_ENCRYPTED_PATHS });
 
 export default mongoose.model<IVendor>("Vendor", VendorSchema);

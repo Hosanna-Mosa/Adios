@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 import { scrubDriverSecrets, scrubVendorSecrets } from "../../utils/scrubSecrets";
 
 export enum ServiceType {
@@ -412,5 +413,22 @@ OrderSchema.index(
   { searchExhaustedAt: 1 },
   { partialFilterExpression: { serviceType: "helper", status: "SEARCHING_DRIVER" } },
 );
+
+// Refund text, stop addresses and contact details are stored encrypted (see plugins/encryptedFields.ts). Never filter or
+// aggregate on it: the stored value is ciphertext with a random IV.
+OrderSchema.plugin(encryptedFields, {
+  paths: [
+    "refundReference",
+    "refundNote",
+    "refundFailureReason",
+    // Where the customer is and who they are sending to / booking for.
+    "stops.address",
+    "bookingFor.contactNumber",
+    "packageDelivery.pickupContact.name",
+    "packageDelivery.pickupContact.phone",
+    "packageDelivery.dropContact.name",
+    "packageDelivery.dropContact.phone",
+  ],
+});
 
 export default mongoose.model<IOrder>("Order", OrderSchema);

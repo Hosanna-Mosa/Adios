@@ -10,6 +10,7 @@ const mockPayOnline = jest.fn();
 const mockDescribePaymentError = jest.fn();
 const mockGetPaymentMethod = jest.fn();
 const mockSetFoodStage = jest.fn();
+const mockEnsureDriversOnline = jest.fn();
 
 jest.mock("expo-router", () => ({ router: { push: (...a: any[]) => mockRouterPush(...a), replace: (...a: any[]) => mockRouterReplace(...a) } }));
 jest.mock("@/i18n", () => ({ __esModule: true, default: { t: (k: string) => k } }));
@@ -22,6 +23,7 @@ jest.mock("@/utils/razorpay", () => ({
 }));
 jest.mock("@/contexts/paymentMethodStore", () => ({ getPaymentMethod: (...a: any[]) => mockGetPaymentMethod(...a) }));
 jest.mock("@/contexts/deliveryStore", () => ({ useDeliveryStore: { getState: () => ({ setFoodStage: mockSetFoodStage }) } }));
+jest.mock("@/utils/orderGate", () => ({ ensureDriversOnline: (...a: any[]) => mockEnsureDriversOnline(...a), ensureServiceable: async () => true }));
 jest.mock("@/contexts/foodStage", () => ({ foodStageOf: () => "awaiting_restaurant" }));
 
 import { buildPlaceOrder } from "../useFoodCheckoutPlaceOrder.handlers";
@@ -75,6 +77,7 @@ function setup(overrides: Record<string, any> = {}) {
 beforeEach(() => {
   jest.clearAllMocks();
   mockGetPaymentMethod.mockReturnValue("cash");
+  mockEnsureDriversOnline.mockResolvedValue(true);
   mockGetVendor.mockResolvedValue({ address: "Spice Hut, Main Rd", location: { coordinates: [81.79, 17.01] } });
   mockCreateOrder.mockResolvedValue({ _id: "ADSF161026123456" });
   mockPayOnline.mockResolvedValue({ _id: "ADSF161026999999" });
@@ -116,6 +119,35 @@ describe("guards — nothing is ordered or charged", () => {
     await place();
     expect(mockShowAlert).toHaveBeenCalledWith("app.food.restaurantMissing", expect.any(String));
     expect(mockCreateOrder).not.toHaveBeenCalled();
+  });
+});
+
+describe("driver availability — checked before anything is charged", () => {
+  it("no driver online: nothing is created or charged, and the cart is kept", async () => {
+    mockEnsureDriversOnline.mockResolvedValue(false);
+    const { place, v } = setup();
+    await place();
+    expect(mockEnsureDriversOnline).toHaveBeenCalledWith({ lat: 17.01, lng: 81.79 });
+    expect(mockCreateOrder).not.toHaveBeenCalled();
+    expect(mockPayOnline).not.toHaveBeenCalled();
+    expect(v.clearCart).not.toHaveBeenCalled();
+    expect(v.setIsPlacingOrder).toHaveBeenLastCalledWith(false);
+  });
+
+  it("an online order is not charged when no driver is online", async () => {
+    mockGetPaymentMethod.mockReturnValue("online");
+    mockEnsureDriversOnline.mockResolvedValue(false);
+    const { place } = setup();
+    await place();
+    expect(mockPayOnline).not.toHaveBeenCalled();
+  });
+
+  it("a scheduled slot is dispatched later, so who is online now is not checked", async () => {
+    mockEnsureDriversOnline.mockResolvedValue(false);
+    const { place } = setup({ scheduledFor: new Date(Date.now() + 3 * 3600_000) });
+    await place();
+    expect(mockEnsureDriversOnline).not.toHaveBeenCalled();
+    expect(mockCreateOrder).toHaveBeenCalledTimes(1);
   });
 });
 
