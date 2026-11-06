@@ -7,18 +7,23 @@ import { styles } from "../chat.styles";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 
-/** Chat header: back, customer identity with online dot, and the call button. */
+/** Chat header: back, customer identity with online dot, refresh and the call button. */
 export function CustomerChatHeader({
   customerName,
   paddingTop,
   onBack,
   onCall,
+  onRefresh,
+  refreshing = false,
 }: {
   customerName: string;
   paddingTop: number;
   onBack: () => void;
   onCall: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -36,6 +41,7 @@ export function CustomerChatHeader({
           <AppText style={styles.headerStatus}>{t("jobs.customerOnline")}</AppText>
         </Box>
       </Box>
+      {onRefresh && <RefreshButton onPress={onRefresh} refreshing={refreshing} />}
       <Touchable style={styles.callBtn} onPress={onCall}>
         <Feather name="phone" size={20} color={Colors.brand} />
       </Touchable>

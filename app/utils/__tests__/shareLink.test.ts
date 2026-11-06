@@ -20,7 +20,7 @@ describe("shareRestaurant", () => {
     await shareRestaurant("v1", "Paradise");
 
     expect(spy).toHaveBeenCalledWith({
-      message: `Check out Paradise on Flavour! ${WEB}/restaurant-menu/v1`,
+      message: `Check out Paradise on Adios! ${WEB}/restaurant-menu/v1`,
       url: `${WEB}/restaurant-menu/v1`,
     });
   });
@@ -31,7 +31,7 @@ describe("shareRestaurant", () => {
     await shareRestaurant("v1", "Paradise", "i9", "Biryani");
 
     expect(spy).toHaveBeenCalledWith({
-      message: `Check out Biryani at Paradise on Flavour! ${WEB}/restaurant-menu/v1?item=i9`,
+      message: `Check out Biryani at Paradise on Adios! ${WEB}/restaurant-menu/v1?item=i9`,
       url: `${WEB}/restaurant-menu/v1?item=i9`,
     });
   });

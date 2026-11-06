@@ -17,6 +17,16 @@ import {
 // their other orders.
 
 export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: string | null, setDriver: any, setServiceType: any, setStatus: any, setCurrentTaskPrice: any, setRejectedCount: any, setTotalContacted: any, setStartOtp: any, setAssignedDriver: any, setSearchExhausted: any, setOrderPaymentMethod: any, clearTask: () => void) {
+  // Manual refresh: re-runs the step's effect, which fetches straight away.
+  const [tick, setTick] = React.useState(0);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const refresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setTick((n) => n + 1);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setRefreshing(false);
+  }, []);
+
   // One navigation / one notice per order, however many of poll and sockets report it.
   const handled = React.useRef<string | null>(null);
   React.useEffect(() => {
@@ -109,7 +119,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
       socketService.off("order_status_update", onStatus);
       socketService.off("no_drivers_available", onNoDrivers);
     };
-  }, [step, localOrderId, applySnapshot, goToAssigned, goToTracking, onCancelled, setSearchExhausted]);
+  }, [step, tick, localOrderId, applySnapshot, goToAssigned, goToTracking, onCancelled, setSearchExhausted]);
 
   React.useEffect(() => {
     if (step !== "assigned" || !localOrderId) return;
@@ -152,7 +162,7 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
       socketService.off("task_started", onTaskStarted);
       socketService.off("order_status_update", onStatus);
     };
-  }, [step, localOrderId, applySnapshot, goToTracking, onCancelled, setAssignedDriver, setStep]);
+  }, [step, tick, localOrderId, applySnapshot, goToTracking, onCancelled, setAssignedDriver, setStep]);
 
   // A raise (from this screen, a top-up settling, or another device) reaches the order room.
   React.useEffect(() => {
@@ -164,4 +174,6 @@ export function useHelperTaskLiveStatus(step: any, setStep: any, localOrderId: s
     socketService.on("order_price_update", onPriceUpdate);
     return () => socketService.off("order_price_update", onPriceUpdate);
   }, [localOrderId, setCurrentTaskPrice]);
+
+  return { refresh, refreshing };
 }

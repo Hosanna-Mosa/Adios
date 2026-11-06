@@ -18,7 +18,7 @@ export default function SupportChatScreen() {
   insets, tokens, accent, styles, viewMode, setViewMode, loading, allTickets, ticket, setTicket,
   inputText, setInputText, submittingReply, newCategory, setNewCategory, newTitle, setNewTitle,
   newMessage, setNewMessage, creatingTicket, flatListRef, handleCreateTicket, handleSendMessage,
-  handleResolve, handleReopen
+  handleResolve, handleReopen, refresh, refreshing
   } = useSupportChat();
   const { t } = useTranslation();
   const { unreadCount } = useSupportUnreadReplies(allTickets, ticket, viewMode === "chat");
@@ -55,6 +55,8 @@ export default function SupportChatScreen() {
           subtitle={`${t("app.support.case")}${ticket.ticketId} · ${STATUS_LABEL[ticket.status]}`}
           onBack={() => setViewMode("cases")}
           insets={insets}
+          onRefresh={refresh}
+          refreshing={refreshing}
         />
 
         <FlatList
@@ -111,6 +113,8 @@ export default function SupportChatScreen() {
         insets={insets}
         onAddPress={() => ticketListRef.current?.scrollToEnd({ animated: true })}
         tokens={tokens}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
 
       <SupportTicketList

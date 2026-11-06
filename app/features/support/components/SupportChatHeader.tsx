@@ -1,5 +1,7 @@
-import { TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { RefreshButton } from "@/components/ui/RefreshButton";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { Header } from "@/components/ui/Header";
@@ -20,9 +22,12 @@ interface Props {
    * (e.g. on the conversation view, which has nothing to raise). */
   onAddPress?: () => void;
   tokens?: ThemeTokens;
+  /** Shows a refresh control at the trailing edge. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
-export function SupportChatHeader({ title, subtitle, onBack, insets, onAddPress, tokens }: Props) {
+export function SupportChatHeader({ title, subtitle, onBack, insets, onAddPress, tokens, onRefresh, refreshing }: Props) {
   const { t } = useTranslation();
   return (
     <Header
@@ -33,7 +38,12 @@ export function SupportChatHeader({ title, subtitle, onBack, insets, onAddPress,
       accessibilityLabel={t("app.a11y.goBack")}
       style={{ paddingTop: insets.top + WEB_TOP_OFFSET + 12 }}
       right={
-        onAddPress && tokens ? (
+        (onRefresh || (onAddPress && tokens)) ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {onRefresh ? (
+              <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
+            ) : null}
+            {onAddPress && tokens ? (
           <TouchableOpacity
             onPress={onAddPress}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -46,6 +56,8 @@ export function SupportChatHeader({ title, subtitle, onBack, insets, onAddPress,
           >
             <Ionicons name="add" size={moderateScale(22)} color={tokens.onBrand} />
           </TouchableOpacity>
+            ) : null}
+          </View>
         ) : undefined
       }
     />

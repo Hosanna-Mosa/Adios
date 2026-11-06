@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/ui/Header";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { ResolveTicketPrompt } from "@/features/support/components/ResolveTicketPrompt";
 import { SupportCaseList } from "@/features/support/components/SupportCaseList";
@@ -18,6 +19,7 @@ export default function SupportChatScreen() {
   const s = useSupportChat();
   const { unreadCount } = useSupportUnreadReplies(s.allTickets, s.ticket, s.viewMode === "chat");
   const headerStyle = [s.styles.header, { paddingTop: s.insets.top + 12 }];
+  const refreshButton = <IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={s.refresh} loading={s.refreshing} />;
 
   if (s.loading) {
     return (
@@ -34,7 +36,7 @@ export default function SupportChatScreen() {
     return (
       <ScreenShell
         keyboardAvoiding
-        header={<Header bar title={t("support.partnerSupport")} subtitle={[`${t("support.case")} #${s.ticket.ticketId}`, status, s.ticket.orderId ? t("support.orderRef", { id: formatOrderId(s.ticket.orderId) }) : null].filter(Boolean).join(" · ")} onBack={s.backToCases} style={headerStyle} />}
+        header={<Header bar title={t("support.partnerSupport")} subtitle={[`${t("support.case")} #${s.ticket.ticketId}`, status, s.ticket.orderId ? t("support.orderRef", { id: formatOrderId(s.ticket.orderId) }) : null].filter(Boolean).join(" · ")} onBack={s.backToCases} style={headerStyle} right={refreshButton} />}
       >
         <SupportMessages messages={s.ticket.messages} listRef={s.flatListRef} styles={s.styles} accent={s.accent} tokens={s.tokens} />
         <SupportChatComposer
@@ -57,7 +59,7 @@ export default function SupportChatScreen() {
   return (
     <ScreenShell
       keyboardAvoiding
-      header={<Header bar title={t("support.yourCases")} onBack={() => router.back()} style={headerStyle} />}
+      header={<Header bar title={t("support.yourCases")} onBack={() => router.back()} style={headerStyle} right={refreshButton} />}
       scroll
       contentStyle={{ paddingBottom: s.insets.bottom + 24 }}
     >

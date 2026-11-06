@@ -1,6 +1,7 @@
 import { optimizedImageUrl } from "@/utils/imageUrl";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { Image } from "expo-image";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";

@@ -11,6 +11,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["ride"], insets: { bottom: number }) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: tokens.bg },
+    refreshBtn: { position: "absolute", right: 16, zIndex: 10 },
     sheet: {
       position: "absolute", left: 0, right: 0, bottom: 0,
       // Sizes to its content between these bounds rather than a fixed height:52%.

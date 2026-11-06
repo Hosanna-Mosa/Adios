@@ -27,6 +27,8 @@ export function TicketChatView({
   onReopen,
   onStartNew,
   onResolve,
+  onRefresh,
+  refreshing,
 }: {
   ticket: SupportTicket | null;
   flatListRef: React.RefObject<FlatList | null>;
@@ -40,6 +42,8 @@ export function TicketChatView({
   onReopen: () => void;
   onStartNew: () => void;
   onResolve: (approve: boolean) => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -53,6 +57,8 @@ export function TicketChatView({
         ticket={ticket}
         paddingTop={topInset}
         onBack={onBack}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
       />
 
       {/* Message List */}

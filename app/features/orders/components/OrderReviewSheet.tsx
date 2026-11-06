@@ -1,6 +1,7 @@
 import React from "react";
-import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Text, TextInput, View } from "react-native";
 import { Button } from "@/components/ui/Button";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
