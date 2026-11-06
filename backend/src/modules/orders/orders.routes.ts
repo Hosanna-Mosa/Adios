@@ -30,6 +30,8 @@ router.get("/driver/scheduled", authenticateToken, authorizeRole([UserRole.DRIVE
 router.get("/driver/food-offer", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.currentFoodOffer.bind(ordersController));
 // The job a driver is on — the app restores it after a restart. Before /:id so "driver" isn't read as an id.
 router.get("/driver/active", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverActiveOrder.bind(ordersController));
+// The driver's own order list (ongoing / past). Before /:id so "driver" isn't read as an id.
+router.get("/driver/orders", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverOrders.bind(ordersController));
 router.get("/", authenticateToken, ordersController.getUserOrders.bind(ordersController));
 router.get("/helper-quote", authenticateToken, validateRequest(helperQuoteSchema), ordersController.helperQuote.bind(ordersController));
 router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSchema), ordersController.estimateFare.bind(ordersController));

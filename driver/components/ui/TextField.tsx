@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, TextInputProps } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { Colors, radius } from "@/constants/colors";
@@ -7,6 +9,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 import { TIMING_FAST } from "@/motion/presets";
 import { AppTextInput } from "@/components/ui/AppTextInput";
 import { Box } from "@/components/ui/Box";
+import { Touchable } from "@/components/ui/Touchable";
 import { AppText } from "@/components/ui/AppText";
 
 interface Props extends TextInputProps {
@@ -16,8 +19,11 @@ interface Props extends TextInputProps {
 }
 
 /** Mirrors app/components/ui/TextField.tsx. */
-export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest }: Props) {
+export function TextField({ label, error, icon, style, onFocus, onBlur, secureTextEntry, ...rest }: Props) {
+  const { t } = useTranslation();
   const focus = useSharedValue(0);
+  // A password field gets an eye to show what was typed; every other field is unchanged.
+  const [revealed, setRevealed] = useState(false);
 
   const animatedBorder = useAnimatedStyle(() => ({
     borderColor: focus.value > 0.5 ? Colors.brand : error ? Colors.error : Colors.border,
@@ -31,6 +37,7 @@ export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest 
         {icon}
         <AppTextInput
           {...rest}
+          secureTextEntry={secureTextEntry && !revealed}
           placeholderTextColor={Colors.textMuted}
           style={[styles.input, style]}
           onFocus={(e) => {
@@ -42,6 +49,16 @@ export function TextField({ label, error, icon, style, onFocus, onBlur, ...rest 
             onBlur?.(e);
           }}
         />
+        {secureTextEntry ? (
+          <Touchable
+            onPress={() => setRevealed((v) => !v)}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 6 }}
+            accessibilityRole="button"
+            accessibilityLabel={revealed ? t("auth.hidePassword", { defaultValue: "Hide password" }) : t("auth.showPassword", { defaultValue: "Show password" })}
+          >
+            <Feather name={revealed ? "eye-off" : "eye"} size={18} color={Colors.textMuted} />
+          </Touchable>
+        ) : null}
       </Animated.View>
       {error ? <AppText style={styles.error}>{error}</AppText> : null}
     </Box>

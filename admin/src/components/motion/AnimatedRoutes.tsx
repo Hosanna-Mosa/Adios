@@ -2,6 +2,8 @@ import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { RequireAdmin, RequireAuth, RequireVendor } from "@/components/RequireAuth";
 import { RouteLoadingFallback } from "./RouteLoadingFallback";
+import { DashboardShell } from "@/components/layout/DashboardLayout";
+import { VendorShell } from "@/components/layout/VendorLayout";
 import { usePageViews } from "@/lib/analytics";
 import { SUPPORT_HOME } from "@/lib/session";
 
@@ -66,13 +68,15 @@ export function AnimatedRoutes() {
 
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
-      {/* key forces a fresh mount (and thus a fresh PageTransition entrance
-          animation) even when navigating between two params of the same
-          route, e.g. /users/1 -> /users/2 */}
-      <Routes location={location} key={location.pathname}>
+      {/* The sidebar/top bar live in the shell routes below and stay mounted
+          between pages; each shell keys its Outlet on the pathname so pages
+          still get a fresh mount (and entrance animation), even between two
+          params of one route, e.g. /users/1 -> /users/2 */}
+      <Routes location={location}>
         <Route path="/" element={<RootRedirect />} />
         <Route path="/vendor-login" element={<VendorLogin />} />
 
+        <Route element={<RequireAuth><DashboardShell /></RequireAuth>}>
         <Route path="/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
         <Route path="/live-orders" element={<RequireAdmin><LiveOrders /></RequireAdmin>} />
         <Route path="/live-orders/:id" element={<RequireAdmin><OrderDetail /></RequireAdmin>} />
@@ -101,11 +105,6 @@ export function AnimatedRoutes() {
         <Route path="/zones" element={<RequireAdmin><Zones /></RequireAdmin>} />
         <Route path="/banners" element={<RequireAdmin><Banners /></RequireAdmin>} />
 
-        <Route path="/vendor/dashboard" element={<RequireVendor><VendorDashboard /></RequireVendor>} />
-        <Route path="/vendor/scheduled-orders" element={<RequireVendor><VendorScheduledOrders /></RequireVendor>} />
-        <Route path="/vendor/menu" element={<RequireVendor><VendorMenu /></RequireVendor>} />
-        <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
-        <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
         <Route path="/coupons" element={<RequireAdmin><Coupons /></RequireAdmin>} />
         <Route path="/support-bot" element={<RequireAdmin><SupportBot /></RequireAdmin>} />
         <Route path="/offers" element={<RequireAdmin><Offers /></RequireAdmin>} />
@@ -113,6 +112,15 @@ export function AnimatedRoutes() {
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
         <Route path="/helper-pricing" element={<RequireAdmin><HelperPricing /></RequireAdmin>} />
+
+        </Route>
+        <Route element={<RequireVendor><VendorShell /></RequireVendor>}>
+        <Route path="/vendor/dashboard" element={<RequireVendor><VendorDashboard /></RequireVendor>} />
+        <Route path="/vendor/scheduled-orders" element={<RequireVendor><VendorScheduledOrders /></RequireVendor>} />
+        <Route path="/vendor/menu" element={<RequireVendor><VendorMenu /></RequireVendor>} />
+        <Route path="/vendor/meat-menu" element={<RequireVendor><VendorMeatMenu /></RequireVendor>} />
+        <Route path="/vendor/settings" element={<RequireVendor><VendorSettings /></RequireVendor>} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>

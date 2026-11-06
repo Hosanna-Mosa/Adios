@@ -661,6 +661,23 @@ export class OrdersController {
     }
   }
 
+  async driverOrders(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const scope = req.query.scope === "past" ? "past" : "ongoing";
+      const page = Math.max(1, parseInt(String(req.query.page), 10) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit), 10) || 20));
+      const result = await ordersService.getDriverOrders(userId, scope, page, limit);
+      return res.json({
+        ...result,
+        orders: result.orders.map((o: any) => withoutCustomerCodes(withoutDriverSecrets(o))),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async currentFoodOffer(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.userId;

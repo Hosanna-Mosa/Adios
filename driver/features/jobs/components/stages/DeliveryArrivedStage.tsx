@@ -21,6 +21,7 @@ export function DeliveryArrivedStage() {
         label={t("jobs.customerConfirmationOtp")}
         placeholder={t("jobs.enter4DigitOtp")}
         maxLength={4}
+        testCode={currentOrder.deliveryOtp}
         value={verification.customerOTP}
         onChangeText={(val) => {
           verification.setCustomerOTP(val);

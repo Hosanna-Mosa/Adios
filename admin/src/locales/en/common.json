@@ -256,6 +256,8 @@
     "meatPricing": "Meat Pricing",
     "zones": "Zones",
     "payments": "Payments",
+    "payouts": "Payouts",
+    "refunds": "Refunds",
     "analytics": "Analytics",
     "support": "Support",
     "supportCases": "Support Cases",
@@ -1446,7 +1448,17 @@
     "statusWithRazorpayX": "With RazorpayX",
     "submitMarkPaid": "Mark paid",
     "submitRecordRefund": "Record refund",
-    "submitRejectRequest": "Reject request"
+    "submitRejectRequest": "Reject request",
+    "statusNeedsBankDetails": "Waiting for bank details",
+    "filterWaitingBank": "Bank details",
+    "emptyPayoutsWaitingBank": "No payouts are waiting for new bank details.",
+    "askBankBtn": "Ask for bank details",
+    "bankIssueLine": "Asked driver for new details: {{reason}}",
+    "dialogAskBankTitle": "Ask the driver for bank details",
+    "dialogAskBankDesc": "Use this when you couldn't pay the account on file. The driver is notified and the amount stays reserved. When they save new details, this payout comes back to \"To pay\".",
+    "fieldBankProblem": "What was wrong?",
+    "fieldBankProblemPlaceholder": "e.g. Account number is invalid, or the payment bounced",
+    "submitAskBank": "Ask driver for bank details"
   },
   "offers": {
     "restaurantOffers": "Restaurant Offers",

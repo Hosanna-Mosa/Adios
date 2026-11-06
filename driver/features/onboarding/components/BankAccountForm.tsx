@@ -17,6 +17,8 @@ export function BankAccountForm({
   accountsMatch,
   ifsc,
   onIfscChange,
+  accountError,
+  ifscError,
 }: {
   accountNumber: string;
   onAccountNumberChange: (t: string) => void;
@@ -25,6 +27,9 @@ export function BankAccountForm({
   accountsMatch: boolean;
   ifsc: string;
   onIfscChange: (t: string) => void;
+  /** Shown under the account number / IFSC once there is something to judge. */
+  accountError?: string;
+  ifscError?: string;
 }) {
   const { t } = useTranslation();
   return (
@@ -36,6 +41,7 @@ export function BankAccountForm({
         onChangeText={onAccountNumberChange}
         placeholder={t("onboarding.enterAccountNumber")}
         keyboardType="number-pad"
+        error={accountError}
       />
 
       <BankField
@@ -61,6 +67,7 @@ export function BankAccountForm({
         onChangeText={onIfscChange}
         placeholder="SBIN0001234"
         autoCapitalize="characters"
+        error={ifscError}
       />
     </Box>
   );
