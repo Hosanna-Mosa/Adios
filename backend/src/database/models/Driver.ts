@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export enum DriverStatus {
   ONLINE = "ONLINE",
@@ -182,5 +183,22 @@ DriverSchema.pre("save", async function () {
     console.warn("[Driver] Could not record online time:", (error as Error)?.message);
   }
 });
+// KYC and bank details are stored encrypted (see plugins/encryptedFields.ts). Never filter
+// or aggregate on these paths: the stored value is ciphertext with a random IV.
+export const DRIVER_ENCRYPTED_PATHS = [
+  "aadhaarNumber",
+  "panNumber",
+  "panImage",
+  "dlNumber",
+  "dlFrontImage",
+  "dlBackImage",
+  "bankAccountNumber",
+  "bankIfsc",
+  "selfieImage",
+  "digilockerId",
+  "bankAccounts.accountNumber",
+  "bankAccounts.ifsc",
+];
+DriverSchema.plugin(encryptedFields, { paths: DRIVER_ENCRYPTED_PATHS });
 
 export default mongoose.model<IDriver>("Driver", DriverSchema);

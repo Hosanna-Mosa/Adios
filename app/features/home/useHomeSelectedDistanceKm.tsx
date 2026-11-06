@@ -1,12 +1,13 @@
 import { useEffect, useMemo } from "react";
 import { router } from "expo-router";
 import { useHomeStore } from "@/contexts/homeStore";
-import { buildCheckNearbyDrivers, buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
+import { useAuthStore } from "@/contexts/authStore";
+import { buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: any, setNearbyDriversCount: any, loading: any, setLoading: any, loadingDrivers: any, setLoadingDrivers: any, setStore149Items: any, activeService: any, setActiveService: any, searchQuery: any, setAppliedSearchTerm: any, loadingMore: any, setLoadingMore: any, isRetryingDrivers: any, page: any, setPage: any, hasMore: any, setHasMore: any, token: any, selectedAddress: any, isAddressLoaded: any, setHasNoLocation: any, addressResolveRef: any, hasRedirectedRef: any, setIsDistanceSheetOpen: any, distanceOption: any, customDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, distanceRefreshKey: any, setDistanceRefreshKey: any, setLoading149: any, selectedSort: any, filterMinRating: any, filterOpenNow: any, getCoords: any) {
+export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: any, loading: any, setLoading: any, loadingDrivers: any, setLoadingDrivers: any, setStore149Items: any, activeService: any, setActiveService: any, searchQuery: any, setAppliedSearchTerm: any, loadingMore: any, setLoadingMore: any, page: any, setPage: any, hasMore: any, setHasMore: any, selectedAddress: any, isAddressLoaded: any, setHasNoLocation: any, addressResolveRef: any, hasRedirectedRef: any, setIsDistanceSheetOpen: any, distanceOption: any, customDistance: any, appliedDistanceKm: any, setAppliedDistanceKm: any, distanceRefreshKey: any, setDistanceRefreshKey: any, setLoading149: any, selectedSort: any, filterMinRating: any, filterOpenNow: any, getCoords: any) {
   const selectedDistanceKm = distanceOption === "custom"
     ? Math.max(1, Number(customDistance) || 5)
     : Number(distanceOption);
@@ -37,13 +38,6 @@ export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: a
 
   const fetch149StoreItems = buildFetch149StoreItems(setStore149Items, setLoading149);
 
-  // `silent` skips the global loadingDrivers flag — that flag drives the
-  // full-screen skeleton, so flipping it for a button-level retry replaced
-  // the empty state with a flash of skeleton cards instead of just updating
-  // the button. The "Retry search" action passes silent:true and shows its
-  // own inline spinner via isRetryingDrivers instead.
-  const checkNearbyDrivers = buildCheckNearbyDrivers(setNearbyDriversCount, setLoadingDrivers, token);
-
   useEffect(() => {
     if (!isAddressLoaded) return;
 
@@ -71,7 +65,6 @@ export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: a
         setLoadingDrivers(true);
         try {
           const fetchPromise = Promise.all([
-            checkNearbyDrivers(lat, lng),
             activeService === "Meat"
               ? fetchMeatCenters(lat, lng, 1)
               : Promise.all([fetchVendors(lat, lng, 1), fetch149StoreItems(lat, lng)]),
@@ -95,7 +88,8 @@ export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: a
         setLoading(false);
         setLoadingDrivers(false);
 
-        if (!hasRedirectedRef.current) {
+        // A guest has no saved addresses to pick from, so they stay on Home instead of being pushed there.
+        if (!hasRedirectedRef.current && useAuthStore.getState().token) {
           hasRedirectedRef.current = true;
           router.push("/delivery/saved-addresses");
         }
@@ -135,5 +129,5 @@ export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: a
     setDistanceRefreshKey((value: any) => value + 1);
   };
 
-  return { serverFilterKey, fetchVendors, fetchMeatCenters, fetch149StoreItems, checkNearbyDrivers, loadMore, handleServiceSwitch, applyDistanceFilter };
+  return { serverFilterKey, fetchVendors, fetchMeatCenters, fetch149StoreItems, loadMore, handleServiceSwitch, applyDistanceFilter };
 }

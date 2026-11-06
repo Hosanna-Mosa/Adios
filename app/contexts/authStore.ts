@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { router } from "expo-router";
 
 // The API URL should be retrieved from app.json/Constants
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
@@ -16,7 +17,15 @@ export interface AuthState {
   error: string | null;
   /** True once initializeAuth() has completed — used to gate navigation */
   isInitialized: boolean;
+  /**
+   * True once the customer tapped Skip on Login/Sign up: they browse without an
+   * account and are asked to sign in only when an action needs one (placing an
+   * order, Orders, Account). In memory only, like languageConfirmed — a cold
+   * start shows Login (with Skip) again.
+   */
+  guestMode: boolean;
 
+  continueAsGuest: () => void;
   setUser: (user: any) => void;
   setToken: (token: string) => void;
   setTokens: (tokens: { token: string; refreshToken: string }) => Promise<void>;
@@ -46,6 +55,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   isInitialized: false,
+  guestMode: false,
+
+  continueAsGuest: () => set({ guestMode: true }),
 
   // Mirrored into AsyncStorage so the cached user initializeAuth() restores on
   // the next cold start isn't a stale copy from sign-in time. Without this,
@@ -69,8 +81,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   toggleFavorite: async (restaurantId: string) => {
     const { user, token } = get();
-    if (!user) return;
-    
+    // A guest has nothing to save favourites to: send them to sign in.
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
     const currentFavorites = user.favorites || [];
     const isFavorite = currentFavorites.includes(restaurantId);
     const newFavorites = isFavorite
@@ -98,7 +114,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   toggleFavoriteItem: async (itemId: string) => {
     const { user, token } = get();
-    if (!user) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
     const currentFavoriteItems = user.favoriteItems || [];
     const isFavorite = currentFavoriteItems.includes(itemId);
@@ -173,7 +192,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }).catch(() => {});
     }
 
-    set({ user: null, token: null, refreshToken: null, error: null, loading: false });
+      set({ user: null, token: null, refreshToken: null, error: null, loading: false, guestMode: false });
     try {
       await Promise.all([
         AsyncStorage.removeItem("token"),

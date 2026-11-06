@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export interface IReview extends Document {
   order: string;
@@ -28,5 +29,8 @@ const ReviewSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
+
+// Free-text review comments are stored encrypted; ratings and tags stay plain for averaging.
+ReviewSchema.plugin(encryptedFields, { paths: ["comment"] });
 
 export default mongoose.model<IReview>("Review", ReviewSchema);
