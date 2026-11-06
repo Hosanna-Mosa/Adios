@@ -1,13 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { router } from "expo-router";
 import { useHomeStore } from "@/contexts/homeStore";
-import { buildCheckNearbyDrivers, buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
+import { useAuthStore } from "@/contexts/authStore";
+import { buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
 import type { SetState, HomeService, DistanceOption, MutableRefObject } from "./useHome.shared";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: any[]) => any[])) => void, setMeatCenters: (v: any[] | ((prev: any[]) => any[])) => void, setNearbyDriversCount: (v: number) => void, loading: boolean, setLoading: (v: boolean) => void, loadingDrivers: boolean, setLoadingDrivers: (v: boolean) => void, setStore149Items: (v: any[]) => void, activeService: HomeService, setActiveService: (v: HomeService) => void, searchQuery: string, setAppliedSearchTerm: SetState<string>, loadingMore: boolean, setLoadingMore: SetState<boolean>, isRetryingDrivers: boolean, page: number, setPage: SetState<number>, hasMore: boolean, setHasMore: SetState<boolean>, token: any, selectedAddress: any, isAddressLoaded: boolean, setHasNoLocation: SetState<boolean>, addressResolveRef: MutableRefObject<(() => void) | null>, hasRedirectedRef: MutableRefObject<boolean>, setIsDistanceSheetOpen: SetState<boolean>, distanceOption: DistanceOption, customDistance: string, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, distanceRefreshKey: number, setDistanceRefreshKey: SetState<number>, setLoading149: SetState<boolean>, selectedSort: string, filterMinRating: number, filterOpenNow: boolean, getCoords: any) {
+export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: any[]) => any[])) => void, setMeatCenters: (v: any[] | ((prev: any[]) => any[])) => void, loading: boolean, setLoading: (v: boolean) => void, loadingDrivers: boolean, setLoadingDrivers: (v: boolean) => void, setStore149Items: (v: any[]) => void, activeService: HomeService, setActiveService: (v: HomeService) => void, searchQuery: string, setAppliedSearchTerm: SetState<string>, loadingMore: boolean, setLoadingMore: SetState<boolean>, page: number, setPage: SetState<number>, hasMore: boolean, setHasMore: SetState<boolean>, selectedAddress: any, isAddressLoaded: boolean, setHasNoLocation: SetState<boolean>, addressResolveRef: MutableRefObject<(() => void) | null>, hasRedirectedRef: MutableRefObject<boolean>, setIsDistanceSheetOpen: SetState<boolean>, distanceOption: DistanceOption, customDistance: string, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, distanceRefreshKey: number, setDistanceRefreshKey: SetState<number>, setLoading149: SetState<boolean>, selectedSort: string, filterMinRating: number, filterOpenNow: boolean, getCoords: any) {
   const selectedDistanceKm = distanceOption === "custom"
     ? Math.max(1, Number(customDistance) || 5)
     : Number(distanceOption);
@@ -38,13 +39,6 @@ export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: an
 
   const fetch149StoreItems = buildFetch149StoreItems(setStore149Items, setLoading149);
 
-  // `silent` skips the global loadingDrivers flag — that flag drives the
-  // full-screen skeleton, so flipping it for a button-level retry replaced
-  // the empty state with a flash of skeleton cards instead of just updating
-  // the button. The "Retry search" action passes silent:true and shows its
-  // own inline spinner via isRetryingDrivers instead.
-  const checkNearbyDrivers = buildCheckNearbyDrivers(setNearbyDriversCount, setLoadingDrivers, token);
-
   useEffect(() => {
     if (!isAddressLoaded) return;
 
@@ -72,7 +66,6 @@ export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: an
         setLoadingDrivers(true);
         try {
           const fetchPromise = Promise.all([
-            checkNearbyDrivers(lat, lng),
             activeService === "Meat"
               ? fetchMeatCenters(lat, lng, 1)
               : Promise.all([fetchVendors(lat, lng, 1), fetch149StoreItems(lat, lng)]),
@@ -96,7 +89,8 @@ export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: an
         setLoading(false);
         setLoadingDrivers(false);
 
-        if (!hasRedirectedRef.current) {
+        // A guest has no saved addresses to pick from, so they stay on Home instead of being pushed there.
+        if (!hasRedirectedRef.current && useAuthStore.getState().token) {
           hasRedirectedRef.current = true;
           router.push("/delivery/saved-addresses");
         }
@@ -136,5 +130,5 @@ export function useHomeSelectedDistanceKm(setRestaurants: (v: any[] | ((prev: an
     setDistanceRefreshKey((value: any) => value + 1);
   };
 
-  return { serverFilterKey, fetchVendors, fetchMeatCenters, fetch149StoreItems, checkNearbyDrivers, loadMore, handleServiceSwitch, applyDistanceFilter };
+  return { serverFilterKey, fetchVendors, fetchMeatCenters, fetch149StoreItems, loadMore, handleServiceSwitch, applyDistanceFilter };
 }

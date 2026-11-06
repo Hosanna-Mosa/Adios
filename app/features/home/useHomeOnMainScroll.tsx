@@ -7,7 +7,7 @@ import type { SetState, DistanceOption, SharedValue } from "./useHome.shared";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeOnMainScroll(restaurants: any[], nearbyDriversCount: number | null, loadingDrivers: boolean, searchText: string, selectedAddress: any, setDistanceOption: SetState<DistanceOption>, setCustomDistance: SetState<string>, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, searchedDishes: any[], selectedSort: string, setSelectedSort: SetState<string>, filter99Store: boolean, setFilter99Store: SetState<boolean>, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, showHomeSkeleton: boolean, filteredAndSortedItems: any[], scrollY: SharedValue<number>, isStickyVisibleShared: SharedValue<boolean>, setIsStickyVisible: SetState<boolean>) {
+export function useHomeOnMainScroll(restaurants: any[], searchText: string, selectedAddress: any, setDistanceOption: SetState<DistanceOption>, setCustomDistance: SetState<string>, appliedDistanceKm: number | null, setAppliedDistanceKm: SetState<number | null>, searchedDishes: any[], selectedSort: string, setSelectedSort: SetState<string>, filter99Store: boolean, setFilter99Store: SetState<boolean>, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, showHomeSkeleton: boolean, filteredAndSortedItems: any[], scrollY: SharedValue<number>, isStickyVisibleShared: SharedValue<boolean>, setIsStickyVisible: SetState<boolean>) {
   const onMainScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
     const visible = event.contentOffset.y >= 330;
@@ -20,14 +20,8 @@ export function useHomeOnMainScroll(restaurants: any[], nearbyDriversCount: numb
   const listData = useMemo(() => {
     if (showHomeSkeleton) return HOME_SKELETON_ITEMS.map((item) => ({ ...item, isSkeleton: true }));
 
-    // The "no riders nearby" empty state only makes sense for the default browse
-    // recommendations — it must not also swallow an active search. nearbyDriversCount
-    // comes from a tight 5km driver-proximity check, while restaurant/dish search looks
-    // as far as 15km; a customer with no driver within 5km but a real, matching
-    // restaurant at 10km would otherwise see an empty list for a search that actually
-    // found something, which reads as "the restaurant isn't there" when it is.
+    // Outlets are listed whether or not a driver is online; that is checked at checkout.
     if (!searchText) {
-      if (!loadingDrivers && nearbyDriversCount === 0) return [];
       return filteredAndSortedItems.map((item: any) => ({ ...item, isRestaurant: true }));
     }
 
@@ -41,7 +35,7 @@ export function useHomeOnMainScroll(restaurants: any[], nearbyDriversCount: numb
       searchedDishes.forEach((d: any) => items.push({ ...d, isDish: true }));
     }
     return items;
-  }, [showHomeSkeleton, searchText, filteredAndSortedItems, searchedDishes, loadingDrivers, nearbyDriversCount]);
+  }, [showHomeSkeleton, searchText, filteredAndSortedItems, searchedDishes]);
 
   const areaLabel = selectedAddress?.label && selectedAddress.label !== "Other" ? selectedAddress.label : "Home";
   const areaLine = selectedAddress?.addressLine || selectedAddress?.city || "your area";

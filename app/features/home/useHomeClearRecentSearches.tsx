@@ -18,7 +18,6 @@ export function useHomeClearRecentSearches(restaurants: any, meatCenters: any, a
   };
 
   const [loadingMore, setLoadingMore] = useState(false);
-  const [isRetryingDrivers, setIsRetryingDrivers] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const theme = useThemeStore((s) => s.theme);
@@ -60,5 +59,5 @@ export function useHomeClearRecentSearches(restaurants: any, meatCenters: any, a
     };
   }, []);
 
-  return { clearRecentSearches, loadingMore, setLoadingMore, isRetryingDrivers, setIsRetryingDrivers, page, setPage, hasMore, setHasMore, tokens, accent, styles, cartVendorName, keyboardHeight, searchBarAnimatedStyle };
+  return { clearRecentSearches, loadingMore, setLoadingMore, page, setPage, hasMore, setHasMore, tokens, accent, styles, cartVendorName, keyboardHeight, searchBarAnimatedStyle };
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import Vendor from "../../database/models/Vendor";
+import Vendor, { VENDOR_ENCRYPTED_PATHS } from "../../database/models/Vendor";
 import OTP from "../../database/models/OTP";
 import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.service";
 import type { AuthRequest } from "../../middleware/auth.middleware";
@@ -204,19 +204,16 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
       return res.json(allVendors.map((vendor) => ({ ...toAdminVendor(vendor), openState: evaluateOutletOpenState(vendor) })));
     }
 
-    // Zone Serviceability Check
+    // Browsing is open everywhere: outside every zone the outlets are still listed, nearest first,
+    // with no radius cap. Whether the address can actually be served is checked when the order is placed.
     const zonesService = new ZonesService();
     const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
-    if (!activeZone) {
-      console.log(`[API] Location [lat: ${userLat}, lng: ${userLng}] is outside all active zones. Returning 0 vendors.`);
-      return res.json([]);
-    }
 
     const maxDefaultRadius = 15000; // 15 km max default radius
     const radiusInMeters = radius ? Math.max(1000, Number(radius) || 0) : maxDefaultRadius;
     const skip = (Number(page) - 1) * Number(limit);
 
-    console.log(`[API] Fetching nearby vendors - Lat: ${userLat}, Lng: ${userLng}, Page: ${page} (Zone: ${activeZone.name})`);
+    console.log(`[API] Fetching nearby vendors - Lat: ${userLat}, Lng: ${userLng}, Page: ${page} (Zone: ${activeZone?.name ?? "none"})`);
 
     const sortMode = sort === "rating" || sort === "distance" ? sort : "default";
     const minRatingValue = Number(minRating);
@@ -239,7 +236,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     if (hasMinRating) {
       geoQuery.rating = { $gte: minRatingValue };
     }
-    if (activeZone.type === "polygon" && activeZone.boundary) {
+    if (activeZone?.type === "polygon" && activeZone.boundary) {
       geoQuery.location = {
         $geoWithin: {
           $geometry: activeZone.boundary
@@ -247,9 +244,35 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
       };
     }
 
-    const maxDist = activeZone.type === "circle" && activeZone.radius 
-      ? Math.min(radiusInMeters, activeZone.radius) 
-      : radiusInMeters;
+    let maxDist: number | undefined = !activeZone
+      ? undefined
+      : activeZone.type === "circle" && activeZone.radius
+        ? Math.min(radiusInMeters, activeZone.radius)
+        : radiusInMeters;
+
+    // Nothing within reach of this point (a zone with no outlet near the customer): list the
+    // nearest outlets anyway instead of an empty Home. Decided once per request, so every page
+    // agrees. Delivery range is checked at checkout.
+    if (maxDist !== undefined) {
+      const anyInReach = await Vendor.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [userLng, userLat] },
+            distanceField: "distance",
+            maxDistance: maxDist,
+            spherical: true,
+            key: "location",
+            query: geoQuery,
+          },
+        },
+        { $limit: 1 },
+        { $project: { _id: 1 } },
+      ]);
+      if (anyInReach.length === 0) {
+        maxDist = undefined;
+        delete geoQuery.location;
+      }
+    }
 
     // Open-now and search are derived server-side, so Mongo cannot page them:
     // those requests scan a bounded candidate set and page in memory instead.
@@ -264,7 +287,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
             coordinates: [userLng, userLat],
           },
           distanceField: "distance",
-          maxDistance: maxDist,
+          ...(maxDist !== undefined && { maxDistance: maxDist }),
           spherical: true,
           key: "location",
           query: geoQuery,
@@ -278,6 +301,9 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     } else {
       pipeline.push({ $skip: skip }, { $limit: Number(limit) });
     }
+    // This route is public and aggregate() returns stored values as they are (ciphertext for the
+    // encrypted owner/bank/KYC fields), so those fields are removed from what clients receive.
+    pipeline.push({ $unset: VENDOR_ENCRYPTED_PATHS });
 
     const candidates = await Vendor.aggregate(pipeline);
     const vendors = searchTerm ? await filterVendorsBySearch(candidates, searchTerm) : candidates;

@@ -6,6 +6,7 @@ import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { showAlert } from "@/components/ui/AppAlert";
+import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/orderGate";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -14,8 +15,13 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
   const { setOrderId, setServiceType, setStatus } = useDeliveryStore();
 
   const placeOrder = async (isReserved: boolean, reservedAt?: Date) => {
+    if (!requireLogin()) return;
     setBooking(true);
     try {
+      // Before any payment: the pickup must be inside a service area, reserved or not.
+      if (!(await ensureServiceable({ lat: pickupCoords.latitude, lng: pickupCoords.longitude }))) return;
+      // A reservation is for later, so who is online right now is irrelevant.
+      if (!isReserved && !(await ensureDriversOnline({ lat: pickupCoords.latitude, lng: pickupCoords.longitude }))) return;
       const orderStops = [
         { address: params.pickupName, latitude: pickupCoords.latitude, longitude: pickupCoords.longitude, type: "pickup" },
         ...stops.map((s: any) => ({ address: s.name, latitude: s.lat, longitude: s.lng, type: "stop" })),

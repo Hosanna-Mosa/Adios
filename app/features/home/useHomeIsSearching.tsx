@@ -8,7 +8,7 @@ import type { SetState, HomeService } from "./useHome.shared";
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeIsSearching(restaurants: any[], nearbyDriversCount: number | null, loading: boolean, loadingDrivers: boolean, store149Items: any[], activeService: HomeService, insets: EdgeInsets, searchText: string, searchQuery: string, appliedSearchTerm: string, setIsSearchActive: SetState<boolean>, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: ThemeTokens, accent: ServiceTokens, styles: HomeStyles, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: SetState<boolean>, appliedDistanceKm: number | null, setDistanceRefreshKey: SetState<number>, isSearchingDishes: boolean, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, setActiveFilterTab: SetState<string>, setIsFilterModalVisible: SetState<boolean>, handleServiceSwitch: any, showHomeSkeleton: boolean, visibleItems: any[], filteredAndSortedItems: any[], cuisineChips: any[], showCategories: boolean, noRidersNearby: boolean, greetingAds: any[], promoCards: any[], areaLabel: string, areaLine: string, activeFilterCount: number, loadingFlags: { bannersLoading: boolean; store149Loading: boolean; cuisinesLoading: boolean }) {
+export function useHomeIsSearching(restaurants: any[], loading: boolean, store149Items: any[], activeService: HomeService, insets: EdgeInsets, searchText: string, searchQuery: string, appliedSearchTerm: string, setIsSearchActive: SetState<boolean>, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: ThemeTokens, accent: ServiceTokens, styles: HomeStyles, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: SetState<boolean>, appliedDistanceKm: number | null, setDistanceRefreshKey: SetState<number>, isSearchingDishes: boolean, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, setActiveFilterTab: SetState<string>, setIsFilterModalVisible: SetState<boolean>, handleServiceSwitch: any, showHomeSkeleton: boolean, visibleItems: any[], filteredAndSortedItems: any[], cuisineChips: any[], showCategories: boolean, greetingAds: any[], promoCards: any[], areaLabel: string, areaLine: string, activeFilterCount: number, loadingFlags: { bannersLoading: boolean; store149Loading: boolean; cuisinesLoading: boolean }) {
   // True while the debounce or either search request is still in flight — the
   // window in which the list used to claim "No results found" prematurely.
   const isSearching =
@@ -31,8 +31,9 @@ export function useHomeIsSearching(restaurants: any[], nearbyDriversCount: numbe
     setDistanceRefreshKey((v: any) => v + 1);
   };
 
-  const hasRidersButNoVendors = !showHomeSkeleton && !loadingDrivers && (nearbyDriversCount ?? 0) > 0 && visibleItems.length === 0;
-  const shouldShowHeader = showCategories && !((!showHomeSkeleton && visibleItems.length === 0) && !hasRidersButNoVendors && !noRidersNearby);
+  // No outlets nearby: the intro and service tiles stay, the promo rails come down.
+  const hasRidersButNoVendors = !showHomeSkeleton && visibleItems.length === 0;
+  const shouldShowHeader = showCategories;
 
   // A plain element, computed once per render — not a function that builds one. FlashList's
   // ListHeaderComponent treats a *function* value as the header's component type, so a fresh
@@ -44,7 +45,6 @@ export function useHomeIsSearching(restaurants: any[], nearbyDriversCount: numbe
   const renderHeader = shouldShowHeader ? (
       <HomeBody
         hasRidersButNoVendors={hasRidersButNoVendors}
-        noRidersNearby={noRidersNearby}
         accent={accent}
         activeFilterCount={activeFilterCount}
         activeService={activeService}
