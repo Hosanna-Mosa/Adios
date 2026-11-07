@@ -1,4 +1,4 @@
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { fadeInUp } from "@/motion/presets";
 import { router } from "expo-router";
@@ -7,6 +7,7 @@ import { LandingForgotRow } from "./LandingForgotRow";
 import { PasswordField } from "./PasswordField";
 import { LandingLogoMark } from "./LandingLogoMark";
 import { Button } from "@/components/ui/Button";
+import { SkipButton } from "@/components/shared/SkipButton";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type LandingStyles } from "@/features/home/index.styles";
@@ -16,6 +17,7 @@ import { type LandingStyles } from "@/features/home/index.styles";
 
 interface Props {
   Reanimated: any;
+  handleContinueWithOtp: () => void;
   handleForgotPassword: () => void;
   handleSignIn: () => void;
   identifier: any;
@@ -23,6 +25,7 @@ interface Props {
   isPasswordVisible: boolean;
   loading: boolean;
   password: string;
+  sendingOtp: any;
   setIdentifier: any;
   setIsPasswordVisible: any;
   setPassword: any;
@@ -32,6 +35,7 @@ interface Props {
 
 export function LandingBody({
   Reanimated,
+  handleContinueWithOtp,
   handleForgotPassword,
   handleSignIn,
   identifier,
@@ -39,6 +43,7 @@ export function LandingBody({
   isPasswordVisible,
   loading,
   password,
+  sendingOtp,
   setIdentifier,
   setIsPasswordVisible,
   setPassword,
@@ -53,6 +58,10 @@ export function LandingBody({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
+      <View style={{ flexDirection: "row", marginRight: -12, marginTop: -16 }}>
+        <SkipButton tokens={tokens} />
+      </View>
+
       {/* Brand mark + headline, centered in the space above the form */}
       <Reanimated.View style={styles.heroBlock} entering={fadeInUp(0)}>
         <LandingLogoMark
@@ -96,6 +105,24 @@ export function LandingBody({
           loading={loading}
           fullWidth
           style={{ marginTop: 4 }}
+        />
+      </Reanimated.View>
+
+      {/* Divider */}
+      <Reanimated.View style={styles.dividerRow} entering={fadeInUp(160)}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.dividerText}>{t("app.home.or")}</Text>
+        <View style={styles.dividerLine} />
+      </Reanimated.View>
+
+      {/* OTP alternative */}
+      <Reanimated.View entering={fadeInUp(200)} style={{ marginTop: 16 }}>
+        <Button
+          title={t("app.home.continueWithOtpInstead")}
+          onPress={handleContinueWithOtp}
+          loading={sendingOtp}
+          variant="secondary"
+          fullWidth
         />
       </Reanimated.View>
 

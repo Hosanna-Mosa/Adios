@@ -1,6 +1,6 @@
 import { SocketManager } from "../sockets/socket.manager";
 import { NotificationService } from "./notification.service";
-import Order, { OrderStatus, ServiceType } from "../database/models/Order";
+import Order, { OrderStatus } from "../database/models/Order";
 import Driver, { DriverStatus } from "../database/models/Driver";
 
 export interface CandidateDriverInfo {
@@ -48,7 +48,7 @@ export class DispatchManagerService {
 
     if (!sortedCandidates || sortedCandidates.length === 0) {
       console.warn(`[DISPATCH MANAGER] No candidate drivers provided for order ${orderId}`);
-      this.notifyNoDriversAvailable(orderId, orderPayload?.customerUserId);
+      await this.notifyNoDriversAvailable(orderId, orderPayload?.customerUserId);
       return false;
     }
 
@@ -147,7 +147,11 @@ export class DispatchManagerService {
     // If candidate index exhausted, attempt fallback / notify no drivers
     if (session.currentIndex >= session.candidates.length) {
       console.log(`⚠️ [DISPATCH MANAGER] All ${session.candidates.length} candidate drivers declined or were unavailable for order ${orderId}`);
-      this.notifyNoDriversAvailable(orderId, session.orderPayload?.customerUserId);
+      // RBAC-004 follow-up: awaited, not fire-and-forget — acceptOrder relies
+      // on searchExhaustedAt being persisted before this session disappears,
+      // so a request racing the exhaustion itself can't sneak in before the
+      // flag actually lands.
+      await this.notifyNoDriversAvailable(orderId, session.orderPayload?.customerUserId);
       this.activeDispatches.delete(orderId);
       return;
     }
@@ -213,9 +217,12 @@ export class DispatchManagerService {
 
     const currentCandidate = session.candidates[session.currentIndex];
 
-    // Verify driver is the active candidate
-    if (currentCandidate && currentCandidate.driverUserId !== driverUserId) {
-      console.warn(`[DISPATCH MANAGER] Driver ${driverUserId} attempted to accept order ${orderId}, but active candidate is ${currentCandidate.driverUserId}`);
+    // RBAC-003 follow-up: only the driver currently holding the offer may
+    // accept it — otherwise an unrelated driver could claim an order they
+    // were never offered. Previously this only warned; now it blocks.
+    if (!currentCandidate || currentCandidate.driverUserId !== driverUserId) {
+      console.warn(`[DISPATCH MANAGER] Driver ${driverUserId} attempted to accept order ${orderId}, but active candidate is ${currentCandidate?.driverUserId}`);
+      return false;
     }
 
     if (session.timer) {
@@ -227,11 +234,33 @@ export class DispatchManagerService {
   }
 
   /**
+   * RBAC-003: read-only check, no state mutated — is this driver currently
+   * the one holding the offer for this order? Callers use this to decide
+   * whether a decline is legitimate before recording anything.
+   */
+  public isCurrentCandidate(orderId: string, driverUserId: string): boolean {
+    const session = this.activeDispatches.get(orderId);
+    if (!session) return false;
+    const currentCandidate = session.candidates[session.currentIndex];
+    return !!currentCandidate && currentCandidate.driverUserId === driverUserId;
+  }
+
+  /**
    * Handle when a driver declines the order
    */
   public async handleDriverDecline(orderId: string, driverUserId: string): Promise<boolean> {
     const session = this.activeDispatches.get(orderId);
     if (!session) return false;
+
+    // RBAC-003: only the driver currently holding the offer may decline it —
+    // otherwise an unrelated driver could force-advance the dispatch queue.
+    const currentCandidate = session.candidates[session.currentIndex];
+    if (!currentCandidate || currentCandidate.driverUserId !== driverUserId) {
+      console.warn(
+        `[DISPATCH MANAGER] Driver ${driverUserId} attempted to decline order ${orderId}, but active candidate is ${currentCandidate?.driverUserId}`
+      );
+      return false;
+    }
 
     console.log(`🛑 [DISPATCH DECLINE] Driver ${driverUserId} explicitly declined order ${orderId}`);
 
@@ -302,13 +331,29 @@ export class DispatchManagerService {
   /**
    * Helper to notify customer when no drivers are available
    */
-  private notifyNoDriversAvailable(orderId: string, customerUserId?: string) {
+  private async notifyNoDriversAvailable(orderId: string, customerUserId?: string) {
     // A helper task nobody took expires after a while unless the customer raises the price
     // (OrdersService.expireStaleHelperSearches). Saved, so the app shows it after a reopen too.
-    Order.updateOne(
-      { _id: orderId, serviceType: ServiceType.HELPER, status: OrderStatus.SEARCHING_DRIVER, searchExhaustedAt: null },
-      { $set: { searchExhaustedAt: new Date() } },
-    ).catch((err: any) => console.warn(`[DISPATCH MANAGER] Failed to record exhausted search for ${orderId}:`, err.message));
+    //
+    // RBAC-004 follow-up: this is also the only persisted signal that dispatch
+    // genuinely ran out of candidates, as opposed to an order that was never
+    // dispatched at all (e.g. isReserved). orders.service.ts's acceptOrder
+    // requires searchExhaustedAt to still be null before letting anyone claim
+    // the order — once a session is exhausted, no driver (former candidate or
+    // not) can accept it anymore, closing the gap a deleted in-memory session
+    // alone used to leave open. Previously written for HELPER only; every
+    // sequential-dispatch service type needs the same protection. Awaited
+    // (not fire-and-forget) so callers that depend on the flag already being
+    // persisted — like the exhaustion branch in offerNextDriver — can rely on
+    // it being there the instant this returns, not racing the write.
+    try {
+      await Order.updateOne(
+        { _id: orderId, status: OrderStatus.SEARCHING_DRIVER, searchExhaustedAt: null },
+        { $set: { searchExhaustedAt: new Date() } },
+      );
+    } catch (err: any) {
+      console.warn(`[DISPATCH MANAGER] Failed to record exhausted search for ${orderId}:`, err.message);
+    }
 
     if (!customerUserId) return;
     try {

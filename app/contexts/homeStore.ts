@@ -1,9 +1,7 @@
 import { create } from "zustand";
-import { useAuthStore } from "@/contexts/authStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { designTokens, type ServiceTokens } from "@/constants/colors";
 import { getNearbyMeatCentres, getNearbyVendors, getStore149 } from "@/services/catalog.service";
-import { getNearbyDriversWithHeaders } from "@/services/places.service";
 
 /** Server-side discovery filters that must survive a refetch (see /vendors/nearby). */
 export interface HomeFetchFilters {
@@ -15,17 +13,18 @@ export interface HomeFetchFilters {
 interface HomeState {
   restaurants: any[];
   meatCenters: any[];
-  nearbyDriversCount: number | null;
   loading: boolean;
   loadingDrivers: boolean;
+  /** The first-page restaurant / meat-centre request failed (as opposed to returning nothing). */
+  loadError: boolean;
   store149Items: any[];
   activeService: 'Food' | 'Meat';
   lastFetchedCoords: { lat: number; lng: number } | null;
   lastFetchedService: 'Food' | 'Meat' | null;
-  
+
+  setLoadError: (failed: boolean) => void;
   setRestaurants: (restaurants: any[] | ((prev: any[]) => any[])) => void;
   setMeatCenters: (meatCenters: any[] | ((prev: any[]) => any[])) => void;
-  setNearbyDriversCount: (count: number | null) => void;
   setLoading: (loading: boolean) => void;
   setLoadingDrivers: (loading: boolean) => void;
   setStore149Items: (items: any[]) => void;
@@ -43,32 +42,24 @@ const buildFilterParams = (filters?: HomeFetchFilters) => {
   return parts.join("");
 };
 
-/**
- * True only once the nearby-rider check has finished and found none. An
- * unknown count (not checked yet, e.g. a deep link straight to a restaurant)
- * is not treated as "no riders", so nothing is blocked on missing data.
- */
-export const selectNoRidersOnline = (state: Pick<HomeState, "loadingDrivers" | "nearbyDriversCount">) =>
-  !state.loadingDrivers && state.nearbyDriversCount === 0;
-
 export const useHomeStore = create<HomeState>((set, get) => ({
   restaurants: [],
   meatCenters: [],
-  nearbyDriversCount: null,
   loading: true,
   loadingDrivers: true,
+  loadError: false,
   store149Items: [],
   activeService: 'Food',
   lastFetchedCoords: null,
   lastFetchedService: null,
-  
+
+  setLoadError: (loadError) => set({ loadError }),
   setRestaurants: (val) => set((state) => ({
     restaurants: typeof val === 'function' ? val(state.restaurants) : val
   })),
   setMeatCenters: (val) => set((state) => ({
     meatCenters: typeof val === 'function' ? val(state.meatCenters) : val
   })),
-  setNearbyDriversCount: (nearbyDriversCount) => set({ nearbyDriversCount }),
   setLoading: (loading) => set({ loading }),
   setLoadingDrivers: (loadingDrivers) => set({ loadingDrivers }),
   setStore149Items: (store149Items) => set({ store149Items }),
@@ -77,51 +68,36 @@ export const useHomeStore = create<HomeState>((set, get) => ({
   fetchHomeData: async (lat, lng, activeService, appliedDistanceKm = null, filters) => {
     set({ loading: true, loadingDrivers: true });
     
-    // Get authorization token from authStore
-    const token = useAuthStore.getState().token;
     const radiusParam = appliedDistanceKm ? `&radius=${Math.round(appliedDistanceKm * 1000)}` : "";
     // Rating / open-now / distance ordering are resolved server-side, so they have to
     // ride along here too — otherwise changing the address silently drops them.
     const filterParams = buildFilterParams(filters);
     
     try {
-      // 1. Fetch drivers with exact same query params and headers as index.tsx
-      const driversHeaders: any = {};
-      if (token) {
-        driversHeaders["Authorization"] = `Bearer ${token}`;
-      }
-      const driversPromise = getNearbyDriversWithHeaders(`latitude=${lat}&longitude=${lng}&radius=5000`, driversHeaders)
-        .then((drivers) => {
-          set({ nearbyDriversCount: Array.isArray(drivers) ? drivers.length : 0 });
-        })
-        .catch((err) => {
-          console.error("Check drivers error in homeStore:", err);
-          set({ nearbyDriversCount: 0 });
-        })
-        .finally(() => {
-          set({ loadingDrivers: false });
-        });
+      // Outlets are listed whether or not a driver is online; availability is checked
+      // when an order is placed (utils/orderGate.ts).
+      set({ loadingDrivers: false });
 
-      // 2. Fetch main service data using the exact same endpoints as index.tsx
+      // Fetch main service data using the exact same endpoints as index.tsx
       let servicePromise;
       if (activeService === 'Meat') {
         servicePromise = getNearbyMeatCentres<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
           .then((data) => {
-            set({ meatCenters: Array.isArray(data) ? data : [] });
+            set({ meatCenters: Array.isArray(data) ? data : [], loadError: false });
           })
           .catch((err) => {
             console.error("Fetch meat centers error in homeStore:", err);
-            set({ meatCenters: [] });
+            set({ meatCenters: [], loadError: true });
           });
       } else {
         servicePromise = Promise.all([
           getNearbyVendors<any[]>(lat, lng, 1, `${radiusParam}${filterParams}`)
             .then((data) => {
-              set({ restaurants: Array.isArray(data) ? data : [] });
+              set({ restaurants: Array.isArray(data) ? data : [], loadError: false });
             })
             .catch((err) => {
               console.error("Fetch vendors error in homeStore:", err);
-              set({ restaurants: [] });
+              set({ restaurants: [], loadError: true });
             }),
           getStore149<any[]>(lat, lng)
             .then((data) => {

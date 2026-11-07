@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { DishPrice } from "@/components/shared/DishPrice";
@@ -24,7 +25,7 @@ export function ItemFavoriteCard({ item, index, tokens, styles, onUnfavorite }: 
         activeOpacity={0.85}
         onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item.vendorId, isMeat: isMeat ? "true" : "false", highlightDishId: item._id } })}
       >
-        <Image source={{ uri: item.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+        <Image source={{ uri: optimizedImageUrl(item.image, 120) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
       </TouchableOpacity>
       <View style={styles.cardBody}>
         <View style={styles.cardTitleRow}>

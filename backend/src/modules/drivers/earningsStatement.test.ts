@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { maskPan, renderStatementHtml, statementMonthRange, summarizeStatement, type StatementTrip } from "./earningsStatement";
+import { maskPan, parseStatementPeriod, renderStatementHtml, statementMonthRange, summarizeStatement, type StatementTrip } from "./earningsStatement";
 
 const now = new Date("2026-10-17T10:00:00Z");
 
@@ -60,4 +60,35 @@ test("the statement escapes everything it prints", () => {
   assert.ok(html.includes("&lt;script&gt;"));
   assert.ok(!html.includes("<b>x</b>"));
   assert.ok(html.includes("No cash-outs this month."));
+});
+
+const workStart = new Date("2026-03-10T05:00:00Z"); // 10 Mar 2026, IST
+
+test("a period must be real dates, in order, not future, and not before the driver started", () => {
+  const ok = parseStatementPeriod("2026-09-01", "2026-09-30", { workStart, now });
+  assert.ok(ok.ok);
+  if (ok.ok) {
+    assert.equal(ok.from.toISOString(), "2026-08-31T18:30:00.000Z");
+    assert.equal(ok.to.toISOString(), "2026-09-30T18:30:00.000Z");
+    assert.equal(ok.overOneYear, false);
+  }
+  for (const [from, to] of [
+    ["", "2026-09-30"], ["2026-02-30", "2026-09-30"], ["2026-9-1", "2026-09-30"], ["2026-09-30", "2026-09-01"],
+    ["2026-09-01", "2026-10-18"], ["2026-03-09", "2026-09-30"],
+  ]) {
+    assert.equal(parseStatementPeriod(from, to, { workStart, now }).ok, false, `${from}..${to}`);
+  }
+  assert.ok(parseStatementPeriod("2026-03-10", "2026-10-17", { workStart, now }).ok); // first day and today
+});
+
+test("more than one calendar year is flagged for email", () => {
+  const early = new Date("2020-01-01T00:00:00Z");
+  const flag = (from: string, to: string) => {
+    const p = parseStatementPeriod(from, to, { workStart: early, now });
+    return p.ok && p.overOneYear;
+  };
+  assert.equal(flag("2025-10-17", "2026-10-16"), false);
+  assert.equal(flag("2025-10-17", "2026-10-17"), false);
+  assert.equal(flag("2025-10-16", "2026-10-17"), true);
+  assert.equal(flag("2024-02-29", "2025-02-28"), false);
 });

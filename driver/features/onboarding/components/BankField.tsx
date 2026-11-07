@@ -17,6 +17,7 @@ export function BankField({
   placeholder,
   keyboardType,
   autoCapitalize,
+  error,
 }: {
   label: string;
   icon: keyof typeof Feather.glyphMap;
@@ -25,11 +26,12 @@ export function BankField({
   placeholder: string;
   keyboardType?: "default" | "number-pad";
   autoCapitalize?: "none" | "characters";
+  error?: string;
 }) {
   return (
     <Box style={styles.fieldGroup}>
       <AppText style={styles.label}>{label}</AppText>
-      <Box style={styles.inputContainer}>
+      <Box style={[styles.inputContainer, error ? { borderColor: Colors.error } : null]}>
         <Feather name={icon} size={18} color={Colors.primary} />
         <AppTextInput
           style={styles.input}
@@ -41,6 +43,7 @@ export function BankField({
           autoCapitalize={autoCapitalize}
         />
       </Box>
+      {error ? <AppText style={styles.errorText}>{error}</AppText> : null}
     </Box>
   );
 }

@@ -2,7 +2,6 @@
 
 export interface Props {
   hasRidersButNoVendors: any;
-  noRidersNearby: any;
   accent: any;
   activeFilterCount: any;
   activeService: any;

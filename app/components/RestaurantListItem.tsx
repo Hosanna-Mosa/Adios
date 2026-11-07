@@ -1,3 +1,4 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import React from "react";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
@@ -106,7 +107,7 @@ export function RestaurantListItem({
       accessibilityState={{ disabled: isClosed }}
     >
       <View style={styles.thumbWrap}>
-        <Image source={{ uri: image }} style={styles.thumb} contentFit="cover" transition={200} />
+        <Image source={{ uri: optimizedImageUrl(image, 120) }} style={styles.thumb} contentFit="cover" transition={200} />
         {isClosed && <View style={styles.thumbGreyscale} pointerEvents="none" />}
       </View>
       <View style={styles.body}>

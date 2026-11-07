@@ -5,6 +5,8 @@ export type CustomFetchOptions = RequestInit & {
 
 import { ApiError } from "./http.errors";
 import { looksLikeJson, parseErrorBody, parseSuccessBody } from "./http.body";
+import { trackRequestDuration } from "./slow-network";
+import i18n from "@/i18n";
 
 export { ApiError, ResponseParseError } from "./http.errors";
 
@@ -17,6 +19,9 @@ export type AuthTokenGetter = () => Promise<string | null> | string | null;
 export type UnauthorizedHandler = (response: Response) => void;
 
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
+
+/** How long a request may wait for the server's answer before it is given up on. */
+const REQUEST_TIMEOUT_MS = 30_000;
 
 // ---------------------------------------------------------------------------
 // Module-level configuration
@@ -165,7 +170,23 @@ export async function customFetch<T = unknown>(
   const requestInfo = { method, url: resolveUrl(input) };
 
   if (__DEV__) console.log(`[NETWORK] ${method} ${input}`);
-  const response = await fetch(input, { ...init, method, headers });
+  // File uploads are slow by nature, so only plain requests count toward the slow-network toast.
+  const stopTimer = options.isFormData ? () => {} : trackRequestDuration();
+  // On a dead or stalled connection fetch never settles by itself, which left screens
+  // on their spinner indefinitely. Uploads and calls that bring their own signal keep
+  // their own handling.
+  const timeout = options.isFormData || init.signal ? null : new AbortController();
+  const timeoutTimer = timeout ? setTimeout(() => timeout.abort(), REQUEST_TIMEOUT_MS) : null;
+  let response: Response;
+  try {
+    response = await fetch(input, { ...init, method, headers, ...(timeout ? { signal: timeout.signal } : {}) });
+  } catch (error: any) {
+    if (timeout?.signal.aborted) throw new Error(i18n.t("app.network.requestTimedOut"));
+    throw error;
+  } finally {
+    stopTimer();
+    if (timeoutTimer) clearTimeout(timeoutTimer);
+  }
   if (__DEV__) console.log(`[NETWORK] ${response.status} ${response.statusText} from ${input}`);
 
   if (!response.ok) {

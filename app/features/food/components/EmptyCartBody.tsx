@@ -9,8 +9,6 @@ import { CartHeader } from "./CartHeader";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CartStyles } from "@/features/food/cart.styles";
-import { selectNoRidersOnline, useHomeStore } from "@/contexts/homeStore";
-import { showAlert } from "@/components/ui/AppAlert";
 
 // Moved out of app/cart.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -41,16 +39,8 @@ export function EmptyCartBody({
   tokens,
 }: Props) {
   const { t } = useTranslation();
-  const noRidersOnline = useHomeStore(selectNoRidersOnline);
 
-  // Nothing can be delivered with no rider online, so don't open a restaurant
-  // just to strand the user there — say why and go back to Home.
   const openRestaurant = (id: string, name: string) => {
-    if (noRidersOnline) {
-      showAlert(t("app.home.noRidersAvailableNearby"), t("app.home.allCaptainsNearbyAreOnTrips"));
-      router.replace("/(tabs)");
-      return;
-    }
     router.push({ pathname: "/restaurant-menu", params: { id, name } });
   };
 

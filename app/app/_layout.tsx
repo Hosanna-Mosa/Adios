@@ -38,12 +38,15 @@ import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
 import { usePushNotifications } from "@/utils/usePushNotifications";
 import { useAnalytics } from "@/utils/useAnalytics";
 import { configureAnalytics } from "@/utils/analytics";
+import { installCrashReporting } from "@/utils/crashReporting";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
 import { useVersionGate } from "@/utils/useVersionGate";
 import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
 import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { SlowNetworkToast } from "@/components/SlowNetworkToast";
+import { SessionExpiredNotice } from "@/components/SessionExpiredNotice";
 import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
@@ -74,6 +77,8 @@ if (apiUrl) {
   configureAnalytics({ apiUrl, app: "customer", getToken: () => useAuthStore.getState().token });
 }
 
+installCrashReporting();
+
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized clears the session and returns true only for the first of
 // a burst of parallel 401s, so the sign-out and the redirect happen once.
@@ -87,6 +92,8 @@ if (apiUrl) {
   });
 }
 
+// A guest's 401 is ignored here on purpose: browsing is open, and the login prompt belongs to the
+// actions that need an account (checkout, saving an address), which call requireLogin themselves.
 setUnauthorizedHandler(() => {
   if (useAuthStore.getState().handleUnauthorized()) {
     router.replace("/login");
@@ -135,6 +142,7 @@ export default function RootLayout() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
+  const guestMode = useAuthStore((s) => s.guestMode);
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
   const introSplashDone = useIntroSplashStore((s) => s.introSplashDone);
   const segments = useSegments();
@@ -190,11 +198,15 @@ export default function RootLayout() {
     }
 
 
+    // A guest (Skip on Login / Sign up) may stay on any screen; the screens that
+    // need an account send them to Login themselves.
+    if (guestMode) return;
+
     // Terms & Privacy are linked from Sign up, so they open signed out too.
     if (!isAuthScreen && firstSegment !== "legal") {
       router.replace("/login");
     }
-  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone]);
+  }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone, guestMode]);
   usePushNotifications(token);
   useAnalytics();
 
@@ -213,6 +225,8 @@ export default function RootLayout() {
                 <RootLayoutNav />
                 <GlobalSocketHandler />
                 <OfflineBanner />
+                <SlowNetworkToast />
+                <SessionExpiredNotice />
                 <UpdateModal
                   visible={showUpdate}
                   forceUpdate={forceUpdate}

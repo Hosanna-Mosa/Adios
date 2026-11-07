@@ -24,6 +24,8 @@ export function useSavedAddressesInsets() {
   const setUser = useAuthStore((s) => s.setUser);
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  // The addresses request failed, as opposed to the account having none saved.
+  const [loadError, setLoadError] = useState(false);
   const [selectingId, setSelectingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -45,8 +47,10 @@ export function useSavedAddressesInsets() {
       const data = await getAddresses();
       setAddresses(data || []);
       if (user) setUser({ ...user, addresses: data || [] });
+      setLoadError(false);
     } catch (err) {
       console.error("Fetch addresses error:", err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -77,5 +81,5 @@ export function useSavedAddressesInsets() {
     }
   };
 
-  return { insets, tokens, accent, styles, user, setUser, addresses, setAddresses, loading, selectingId, setSelectingId, deletingId, setDeletingId, recentLocations, recentLoading, currentLocLoading, setCurrentLocLoading };
+  return { insets, tokens, accent, styles, user, setUser, addresses, setAddresses, loading, loadError, fetchAddresses, selectingId, setSelectingId, deletingId, setDeletingId, recentLocations, recentLoading, currentLocLoading, setCurrentLocLoading };
 }

@@ -6,6 +6,7 @@ import { AddAddressCenterMarker } from "@/features/delivery/components/AddAddres
 import { AddAddressUseCurrentWrap } from "@/features/delivery/components/AddAddressUseCurrentWrap";
 import { AddAddressSearchResults } from "@/features/delivery/components/AddAddressSearchResults";
 import { AddAddressSearchRow } from "@/features/delivery/components/AddAddressSearchRow";
+import { usePlaceSearchHasMessage } from "@/features/delivery/components/PlaceSearchMessage";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useAddAddress } from "@/features/delivery/useAddAddress";
 import { useMapStyle } from "@/components/useMapStyle";
@@ -21,6 +22,7 @@ export default function AddAddressScreen() {
   handleSave
   } = useAddAddress();
   const mapStyle = useMapStyle();
+  const searchHasMessage = usePlaceSearchHasMessage(searchResults.length > 0);
 
   return (
     <ScreenShell keyboardAvoiding>
@@ -49,7 +51,7 @@ export default function AddAddressScreen() {
             tokens={tokens}
           />
 
-          {searchResults.length > 0 && (
+          {(searchResults.length > 0 || searchHasMessage) && (
             <AddAddressSearchResults
               handleSelectSearchResult={handleSelectSearchResult}
               insets={insets}

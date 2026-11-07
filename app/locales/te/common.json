@@ -157,6 +157,7 @@
       "raiseANewTicket": "కొత్త టికెట్‌ను లేవనెత్తండి",
       "addATitleAndAShort": "ముందుగా ఒక శీర్షిక మరియు చిన్న వివరణను జోడించండి.",
       "messageNotSent": "సందేశం పంపబడలేదు",
+      "casesLoadFailed": "మీ కేసులను లోడ్ చేయలేకపోయాం. మీ కనెక్షన్ తనిఖీ చేయండి.",
       "todayAt": "ఈరోజు, {{time}}",
       "yesterdayAt": "నిన్న, {{time}}",
       "yesterday": "నిన్న",
@@ -279,6 +280,10 @@
       "failedToSignInPleaseCheck": "సైన్ ఇన్ కాలేకపోయాము. దయచేసి మీ వివరాలను తనిఖీ చేయండి.",
       "forgotPassword": "పాస్‌వర్డ్ మర్చిపోయారా",
       "passwordRecoveryInstructionsWillBeSent": "పాస్‌వర్డ్ రికవరీ సూచనలు మీ ఖాతాకు పంపబడతాయి.",
+      "phoneNumberNeeded": "ఫోన్ నంబర్ అవసరం",
+      "enterAValid10digitNumber": "చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి.",
+      "enterAValidPhoneOrEmail": "చెల్లుబాటు అయ్యే ఫోన్ నంబర్ లేదా ఈమెయిల్ నమోదు చేయండి.",
+      "enterYourPhoneNumberAboveTo": "OTPతో కొనసాగించడానికి పైన మీ ఫోన్ నంబర్‌ను నమోదు చేయండి.",
       "customizeDistance": "దూరాన్ని అనుకూలీకరించండి",
       "filteringWithinKm": "{{km}} కి.మీ లోపల ఫిల్టర్ చేస్తోంది",
       "showingAllNearbyOptions": "అన్ని సమీప ఎంపికలను చూపిస్తోంది",
@@ -319,6 +324,8 @@
       "useMyCurrentLocation": "నా ప్రస్తుత లొకేషన్‌ను ఉపయోగించండి",
       "enterAddressManually": "చిరునామాను మాన్యువల్‌గా నమోదు చేయండి",
       "noRidersAvailableNearby": "సమీపంలో రైడర్లు అందుబాటులో లేరు",
+      "recentlySearched": "ఇటీవల శోధించినవి",
+      "recommended": "సిఫార్సు చేసినవి",
       "allCaptainsNearbyAreOnTrips": "సమీపంలోని అందరు రైడర్‌లు ప్రస్తుతం ప్రయాణంలో ఉన్నారు. సాధారణంగా ఒకరు ఖాళీ అవ్వడానికి కొన్ని నిమిషాలు పడుతుంది.",
       "retrySearch": "మళ్లీ వెతకండి",
       "freshMeatDaily": "ప్రతిరోజూ తాజా మాంసం!",
@@ -443,7 +450,9 @@
         "biryani": "బిర్యానీ",
         "pizza": "పిజ్జా",
         "meals149": "₹149 మీల్స్"
-      }
+      },
+      "continueWithOtpInstead": "బదులుగా OTPతో కొనసాగించండి",
+      "or": "లేదా"
     },
     "profile": {
       "menuItems": {
@@ -509,6 +518,8 @@
       "invalidTime": "సరైన సమయం కాదు",
       "pleaseChooseAFutureDeliveryTime": "దయచేసి భవిష్యత్తులో డెలివరీ సమయాన్ని ఎంచుకోండి.",
       "orderFailed": "ఆర్డర్ విఫలమైంది",
+      "orderScheduled": "ఆర్డర్ షెడ్యూల్ చేయబడింది. రెస్టారెంట్ అంగీకరించిన తర్వాత మేము నిర్ధారిస్తాము.",
+      "restaurantDetailsFailed": "రెస్టారెంట్ వివరాలన్నీ లోడ్ చేయలేకపోయాం. మీ కనెక్షన్ తనిఖీ చేయండి.",
       "unableToPlaceYourOrder": "మీ ఆర్డర్‌ను ఉంచడం సాధ్యం కాలేదు.",
       "codeApplied": "{{code}} వర్తింపజేయబడింది",
       "haveAPromoCode": "ప్రోమో కోడ్ ఉందా?",
@@ -584,7 +595,6 @@
       "clearSearch": "శోధనను తొలగించండి",
       "share": "షేర్ చేయండి",
       "deliveryAmount": "₹{{amount}} డెలివరీ",
-      "soldOut": "అయిపోయింది",
       "fromVendor": "{{vendor}} నుండి",
       "minOrderFromPerKg": "₹{{amount}} / kg నుండి",
       "costForTwo": "ఇద్దరికి ₹{{amount}}",
@@ -747,6 +757,9 @@
       "noSavedAddressesFound": "సేవ్ చేసిన చిరునామాలు కనుగొనబడలేదు."
     },
     "auth": {
+      "skip": "దాటవేయి",
+      "loginToContinueTitle": "కొనసాగించడానికి లాగిన్ అవ్వండి",
+      "loginToContinueMessage": "కొనసాగించడానికి దయచేసి లాగిన్ అవ్వండి లేదా ఖాతా సృష్టించండి.",
       "discardSignUp": "సైన్ అప్‌ను తీసివేయాలా?",
       "yourDetailsWontBeSaved": "మీ వివరాలు సేవ్ చేయబడవు.",
       "keepEditing": "ఎడిటింగ్ కొనసాగించండి",
@@ -792,7 +805,20 @@
         "good": "బాగుంది"
       },
       "agreeToTermsAndPrivacy": "నేను <terms>నిబంధనలు</terms> మరియు <privacy>గోప్యతా విధానం</privacy>కు అంగీకరిస్తున్నాను.",
-      "resendCodeIn": "{{time}}లో కోడ్ మళ్ళీ పంపండి"
+      "resendCodeIn": "{{time}}లో కోడ్ మళ్ళీ పంపండి",
+      "callRequested": "కాల్ అభ్యర్థించబడింది",
+      "change": "మార్చండి",
+      "couldntResend": "మళ్లీ పంపలేకపోయాము",
+      "couldntSendCode": "కోడ్ పంపలేకపోయాము",
+      "didnapostGetIt": "అందుకోలేదా?",
+      "getACallInstead": "బదులుగా కాల్ పొందండి",
+      "pleaseTryAgainInAMoment": "దయచేసి కొద్ది సేపటిలో మళ్లీ ప్రయత్నించండి.",
+      "resend": "మళ్లీ పంపండి",
+      "thatCodeDidntWork": "ఆ కోడ్ పని చేయలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+      "verificationFailed": "ధృవీకరణ విఫలమైంది",
+      "verifyYourNumber": "మీ నంబర్‌ను ధృవీకరించండి",
+      "weSentA6digitCodeTo": "మేము 6-అంకెల కోడ్‌ను పంపాము",
+      "wellRingYouWithYourCode": "మేము మీ కోడ్‌తో త్వరలో మీకు కాల్ చేస్తాము."
     },
     "delivery": {
       "streetAddress": "వీధి చిరునామా",
@@ -888,6 +914,7 @@
       "invalidPhone": "చెల్లని ఫోన్ నంబర్",
       "enterAValid10digitReceiverPhone": "సరైన 10 అంకెల స్వీకర్త ఫోన్ నంబర్‌ను నమోదు చేయండి.",
       "failedToSaveAddress": "చిరునామాను సేవ్ చేయడంలో విఫలమైంది.",
+      "addressSaved": "చిరునామా సేవ్ చేయబడింది",
       "required": "అవసరం",
       "pleaseProvideAnAddressForThe": "దయచేసి పికప్ కోసం చిరునామాను అందించండి.",
       "itemsNeeded": "వస్తువులు అవసరం",
@@ -1207,6 +1234,10 @@
       "body": "మీ కార్ట్‌లో {{from}} నుండి వస్తువులు ఉన్నాయి. {{to}} నుండి {{item}} జోడిస్తే కార్ట్ ఖాళీ అవుతుంది."
     },
     "checkout": {
+      "notServiceableTitle": "మేము ఇంకా ఇక్కడ డెలివరీ చేయము",
+      "notServiceableMessage": "ఈ చిరునామా మా సేవా ప్రాంతం వెలుపల ఉంది. ఆర్డర్ చేయడానికి దయచేసి మరొక చిరునామాను ఎంచుకోండి.",
+      "noDriversTitle": "రైడర్లు అందుబాటులో లేరు",
+      "noDriversMessage": "ప్రస్తుతం మీ దగ్గర డెలివరీ రైడర్లు ఆన్‌లైన్‌లో లేరు. దయచేసి కొంతసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.",
       "checkout": "చెక్అవుట్",
       "scheduleDelivery": "డెలివరీని షెడ్యూల్ చేయండి",
       "pickWhenYouWantYourFood": "మీ ఆహారం ఎప్పుడు డెలివరీ కావాలో ఎంచుకోండి",
@@ -1283,6 +1314,27 @@
       "yourReservedRideWithVarStarts": "{{value}}తో మీ రిజర్వ్ చేసిన రైడ్ 15 నిమిషాల్లో ప్రారంభమవుతుంది!",
       "trackDriver": "డ్రైవర్‌ను ట్రాక్ చేయండి"
     },
+    "network": {
+      "requestTimedOut": "అభ్యర్థన సమయం ముగిసింది. మీ కనెక్షన్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+    },
+    "permissions": {
+      "openSettings": "సెట్టింగ్‌లు తెరవండి",
+      "locationTitle": "లొకేషన్ అనుమతి అవసరం",
+      "locationBody": "మీ ప్రస్తుత లొకేషన్ ఉపయోగించడానికి సెట్టింగ్‌లలో లొకేషన్ యాక్సెస్ అనుమతించండి.",
+      "notificationsOffTitle": "నోటిఫికేషన్లు ఆఫ్‌లో ఉన్నాయి",
+      "notificationsOffBody": "ఆర్డర్ మరియు చాట్ అప్‌డేట్‌లు పొందడానికి సెట్టింగ్‌లలో వాటిని ఆన్ చేయండి."
+    },
+    "ErrorState": {
+      "title": "దీన్ని లోడ్ చేయలేకపోయాం",
+      "subtitle": "మీ కనెక్షన్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.",
+      "retry": "మళ్లీ ప్రయత్నించండి"
+    },
+    "SessionExpiredNotice": {
+      "message": "మీ సెషన్ ముగిసింది. దయచేసి మళ్లీ సైన్ ఇన్ చేయండి."
+    },
+    "SlowNetworkToast": {
+      "message": "నెట్‌వర్క్ నెమ్మదిగా ఉంది — ఇది సాధారణం కంటే ఎక్కువ సమయం పడుతోంది"
+    },
     "OfflineBanner": {
       "youaposreOffline": "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు",
       "checking": "తనిఖీ చేస్తోంది…",
@@ -1300,6 +1352,7 @@
     "meat": {
       "selectLocation": "స్థానాన్ని ఎంచుకోండి",
       "meatCentersNearYou": "మీ సమీపంలోని మీట్ సెంటర్‌లు",
+      "noCentersSubtitle": "మీ శోధన లేదా ఫిల్టర్‌లకు సరిపోయే మీట్ సెంటర్‌లు లేవు.",
       "openNowCutFreshOnOrder": "ఇప్పుడు తెరిచి ఉంది · ఆర్డర్‌పై తాజాగా కోస్తారు",
       "searchCentersOrMeatType": "సెంటర్‌లు లేదా మీట్ రకం కోసం శోధించండి"
     },
@@ -1543,6 +1596,9 @@
       "subtitle": "మీ ఛార్జీని పెంచండి, మేము మీ అభ్యర్థనను మళ్లీ పంపుతాము — ఎక్కువ ఛార్జీ త్వరగా అంగీకరించబడుతుంది.",
       "addAmount": "ఛార్జీకి ₹{{amount}} జోడించండి",
       "couldntRaise": "ఛార్జీని పెంచలేకపోయాము"
+    },
+    "otp": {
+      "verifyContinue": "ధృవీకరించి కొనసాగించండి"
     }
   }
 }

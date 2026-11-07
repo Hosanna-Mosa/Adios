@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useEffect } from "react";
 import { socketService } from "@/utils/socketService";
 import { SupportTicket } from "./useSupportChat.shared";
@@ -17,7 +18,7 @@ export function useSupportChatHandleCreateTicket(setViewMode: any, setAllTickets
       setAllTickets((prev: any) => prev.map((t: any) => (t._id === updatedTicket._id ? updatedTicket : t)));
     };
     socketService.on("ticket_updated", handleTicketUpdate);
-    const interval = setInterval(() => fetchTickets(false), 4000);
+    const interval = setForegroundInterval(() => fetchTickets(false), 4000);
     return () => {
       clearInterval(interval);
       socketService.off("ticket_updated", handleTicketUpdate);

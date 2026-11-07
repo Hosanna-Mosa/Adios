@@ -15,7 +15,7 @@ export interface PromoCard {
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nearbyDriversCount: any, loadingDrivers: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any, bannersLoading = false) {
+export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, activeService: any, banners: any, carouselRef: any, bannerIndexRef: any, hasNoLocation: any, showHomeSkeleton: any, visibleItems: any, bannersLoading = false) {
   const { t } = useTranslation();
 
   // Pure display copy (not compared against anything), safe to translate
@@ -40,7 +40,6 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
   // "No riders nearby" replaces the restaurant list, not the whole screen: the
   // address row, service tiles and cuisine strip stay put and the notice renders
   // underneath them, so the customer can still switch service or area.
-  const noRidersNearby = !hasNoLocation && !showHomeSkeleton && !loadingDrivers && (nearbyDriversCount ?? 0) === 0;
   const showCategories = !hasNoLocation;
 
   const heroBanners = useMemo(
@@ -80,5 +79,5 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, nea
     opacity: interpolate(scrollY.value, [330, 350], [0, 1], "clamp"),
   }));
 
-  return { availableCuisines, cuisineChips, showCategories, noRidersNearby, greetingAds, promoCards, scrollY, isStickyVisibleShared, isStickyVisible, setIsStickyVisible, stickyHeaderAnimatedStyle };
+  return { availableCuisines, cuisineChips, showCategories, greetingAds, promoCards, scrollY, isStickyVisibleShared, isStickyVisible, setIsStickyVisible, stickyHeaderAnimatedStyle };
 }

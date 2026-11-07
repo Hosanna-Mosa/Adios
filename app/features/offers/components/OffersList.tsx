@@ -1,6 +1,7 @@
 import { FlatList, RefreshControl, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { type ServiceTokens, type ThemeTokens } from "@/constants/colors";
 import type { Offer } from "@/types/models";
 import { type OfferGroup } from "../offerFormat";
@@ -31,13 +32,7 @@ export function OffersList({ groups, isLoading, isError, isRefreshing, onRefresh
   if (isError) {
     return (
       <View style={styles.stateWrap}>
-        <EmptyState
-          icon="cloud-offline-outline"
-          title={t("app.offers.errorTitle")}
-          subtitle={t("app.offers.errorSubtitle")}
-          actionLabel={t("app.offers.retry")}
-          onAction={onRefresh}
-        />
+        <ErrorState title={t("app.offers.errorTitle")} subtitle={t("app.offers.errorSubtitle")} onRetry={onRefresh} />
       </View>
     );
   }

@@ -62,8 +62,8 @@ export const dlStyles = StyleSheet.create({
     gap: 12,
     backgroundColor: Colors.surface,
   },
-  dateText: { flex: 1, fontSize: typography.sizes.large, color: Colors.text },
-  datePlaceholder: { flex: 1, fontSize: typography.sizes.large, color: Colors.textMuted },
+  dateText: { flex: 1, fontSize: typography.sizes.medium, color: Colors.text },
+  datePlaceholder: { flex: 1, fontSize: typography.sizes.medium, color: Colors.textMuted },
   errorBox: {
     backgroundColor: "#fef2f2",
     padding: 12,

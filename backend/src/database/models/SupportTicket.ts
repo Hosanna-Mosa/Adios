@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export interface IChatMessage {
   sender: "user" | "admin" | "system";
@@ -97,6 +98,9 @@ const SupportTicketSchema: Schema = new Schema(
     },
   }
 );
+
+// What the customer wrote is stored encrypted. Never filter or search on these paths.
+SupportTicketSchema.plugin(encryptedFields, { paths: ["title", "message", "messages.text"] });
 
 SupportTicketSchema.index({ assignedTo: 1, status: 1 });
 

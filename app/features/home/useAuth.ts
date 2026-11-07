@@ -11,6 +11,7 @@ import { useIntroSplashStore } from "@/contexts/introSplashStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { showAlert } from "@/components/ui/AppAlert";
 import { useIntroSplash } from "./useIntroSplash";
+import { isValidIdentifier, toMobileNumber } from "@/features/auth/login.validation";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -33,8 +34,10 @@ export function useAuth() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
 
   const loginWithPassword = useAuthStore((s) => s.loginWithPassword);
+  const requestOTP = useAuthStore((s) => s.requestOTP);
   const loading = useAuthStore((s) => s.loading);
   const token = useAuthStore((s) => s.token);
   const isInitialized = useAuthStore((s) => s.isInitialized);
@@ -72,6 +75,10 @@ export function useAuth() {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPhoneNumberOr"));
       return;
     }
+    if (!isValidIdentifier(trimmed)) {
+      showAlert(t("actions.error"), t("app.home.enterAValidPhoneOrEmail"));
+      return;
+    }
     if (!password) {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPassword"));
       return;
@@ -90,11 +97,34 @@ export function useAuth() {
     showAlert(t("app.home.forgotPassword"), t("app.home.passwordRecoveryInstructionsWillBeSent"));
   };
 
+  const handleContinueWithOtp = async () => {
+    const trimmed = identifier.trim();
+    if (!trimmed.replace(/\D/g, "")) {
+      showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterYourPhoneNumberAboveTo"));
+      return;
+    }
+    const phone = toMobileNumber(trimmed);
+    if (!phone) {
+      showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterAValid10digitNumber"));
+      return;
+    }
+    setSendingOtp(true);
+    try {
+      await requestOTP(phone);
+      router.push({ pathname: "/otp", params: { phone } });
+    } catch (error: any) {
+      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
   // Show a loading indicator while auth state is being restored
 
   return {
   insets, showSplash, splashOpacity, introAnims, identifier,
-  setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible,
-  loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword
+  setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
+  loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
+  handleContinueWithOtp
   };
 }

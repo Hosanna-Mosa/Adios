@@ -66,7 +66,15 @@ const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, 
  */
 async function startDriverSessionOffline(user: { _id: unknown; role: UserRole }) {
   if (user.role !== UserRole.DRIVER) return;
-  await Driver.updateOne({ user: String(user._id) }, { $set: { status: DriverStatus.OFFLINE, isAvailable: false } });
+  const driver = await Driver.findOneAndUpdate(
+    { user: String(user._id) },
+    { $set: { status: DriverStatus.OFFLINE, isAvailable: false } },
+    { projection: { _id: 1 } },
+  ).lean();
+  if (driver) {
+    const { markDriverOffline } = await import("../../database/models/DriverOnlineSession");
+    await markDriverOffline(driver._id).catch((err) => console.warn("[auth] Could not close online time:", err?.message));
+  }
 }
 
 export class AuthService {

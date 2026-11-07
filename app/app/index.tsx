@@ -11,8 +11,9 @@ import { useLanguageStore } from "@/contexts/languageStore";
 export default function AuthScreen() {
   const {
   insets, showSplash, splashOpacity, introAnims, identifier,
-  setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible,
-  loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword
+  setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
+  loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
+  handleContinueWithOtp
   } = useAuth();
   const token = useAuthStore((s) => s.token);
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
@@ -46,6 +47,7 @@ export default function AuthScreen() {
     <ScreenShell keyboardAvoiding>
       <LandingBody
         Reanimated={Reanimated}
+        handleContinueWithOtp={handleContinueWithOtp}
         handleForgotPassword={handleForgotPassword}
         handleSignIn={handleSignIn}
         identifier={identifier}
@@ -53,6 +55,7 @@ export default function AuthScreen() {
         isPasswordVisible={isPasswordVisible}
         loading={loading}
         password={password}
+        sendingOtp={sendingOtp}
         setIdentifier={setIdentifier}
         setIsPasswordVisible={setIsPasswordVisible}
         setPassword={setPassword}

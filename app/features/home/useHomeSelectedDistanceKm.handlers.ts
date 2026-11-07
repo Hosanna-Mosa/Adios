@@ -1,5 +1,5 @@
+import { useHomeStore } from "@/contexts/homeStore";
 import { getNearbyMeatCentres, getNearbyVendors, getStore149 } from "@/services/catalog.service";
-import { getNearbyDriversWithHeaders } from "@/services/places.service";
 
 // Handlers lifted out of useHomeSelectedDistanceKm: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -24,8 +24,10 @@ export const buildFetchVendors = (discoveryParams: any, setRestaurants: any, set
           });
         }
       }
+      if (pageNum === 1) useHomeStore.getState().setLoadError(false);
     } catch (error) {
       console.error("Error fetching vendors:", error);
+      if (pageNum === 1) useHomeStore.getState().setLoadError(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -48,31 +50,13 @@ export const buildFetchMeatCenters = (discoveryParams: any, setMeatCenters: any,
           });
         }
       }
+      if (pageNum === 1) useHomeStore.getState().setLoadError(false);
     } catch (error) {
       console.error("Error fetching meat centers:", error);
+      if (pageNum === 1) useHomeStore.getState().setLoadError(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);
-    }
-  };
-
-export const buildCheckNearbyDrivers = (setNearbyDriversCount: any, setLoadingDrivers: any, token: any) =>
-  async (lat: number, lng: number, opts?: { silent?: boolean }) => {
-    try {
-      if (!opts?.silent) setLoadingDrivers(true);
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      // Same request (and URL handling) as homeStore's first load. This used to
-      // build the URL from EXPO_PUBLIC_API_URL by hand, missing /api/v1, so every
-      // refresh 404'd and a stale "riders available" count stuck around.
-      const drivers = await getNearbyDriversWithHeaders(`latitude=${lat}&longitude=${lng}&radius=5000`, headers);
-      setNearbyDriversCount(Array.isArray(drivers) ? drivers.length : 0);
-    } catch (error) {
-      console.error("Error checking nearby drivers:", error);
-      // Can't confirm any rider is online, so don't offer ordering on a stale count.
-      setNearbyDriversCount(0);
-    } finally {
-      if (!opts?.silent) setLoadingDrivers(false);
     }
   };
 

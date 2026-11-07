@@ -15,6 +15,7 @@ export function RestaurantOtpEntry({ style }: { style?: StyleProp<ViewStyle> }) 
       label={t(outletKey(currentOrder, "jobs.restaurantPickupCode"))}
       placeholder={t("jobs.enter4DigitPickupCode")}
       maxLength={8}
+      testCode={currentOrder.restaurantPickupCode || currentOrder.id.slice(-4)}
       value={verification.restaurantOTP}
       onChangeText={(val) => {
         verification.setRestaurantOTP(val);

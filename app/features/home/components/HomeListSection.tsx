@@ -7,8 +7,9 @@ import { DishSearchResultItem } from "@/features/home/components/DishSearchResul
 import { HomeSkeletonCard } from "@/features/home/components/HomeSkeletonCard";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import { AppTabBar } from "@/components/AppTabBar";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { useHomeStore } from "@/contexts/homeStore";
 import { staggerListItem } from "@/motion/presets";
-import { NoRidersNearbyState } from "@/features/home/components/NoRidersNearbyState";
 import { ServiceUnavailableState } from "@/features/home/components/ServiceUnavailableState";
 import { NoFilterMatchState } from "@/features/home/components/NoFilterMatchState";
 import { HomeEmptySearchContainer } from "@/features/home/components/HomeEmptySearchContainer";
@@ -21,12 +22,22 @@ import type { Props } from "./HomeListSection.props";
 
 export function HomeListSection(props: Props) {
   const { t } = useTranslation();
-  const { nearbyDriversCount, loadingDrivers, activeService, tabBarHeight, searchText,
-  setSearchText, loadingMore, isRetryingDrivers, setIsRetryingDrivers, setPage, setHasMore,
+  const { loadingDrivers, activeService, tabBarHeight, searchText,
+  setSearchText, loadingMore, setPage, setHasMore,
   tokens, accent, styles, cartVendorName, keyboardHeight, hasNoLocation, getCoords, fetchVendors,
-  fetchMeatCenters, fetch149StoreItems, checkNearbyDrivers, loadMore, showHomeSkeleton,
+  fetchMeatCenters, fetch149StoreItems, loadMore, showHomeSkeleton,
   visibleItems, onMainScroll, listData, activeFilterCount, clearAllFilters, isSearching,
   handleUseCurrentLocation, renderHeader, AnimatedFlashList } = props;
+  const loadError = useHomeStore((s) => s.loadError);
+
+  const reloadHome = async () => {
+    setPage(1);
+    setHasMore(true);
+    const { lat, lng } = await getCoords();
+    if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
+    else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
+  };
+
   return (
     <>
     <AnimatedFlashList
@@ -47,27 +58,14 @@ export function HomeListSection(props: Props) {
             />
           );
         }
+        // A failed request has to be said so: with nothing loaded, every empty state
+        // below ("no riders", "not available here") would be a wrong diagnosis.
+        if (loadError) return <ErrorState onRetry={reloadHome} />;
         if (isSearching) {
           return (
             <EmptySearchState
               accent={accent}
               searchText={searchText}
-              styles={styles}
-            />
-          );
-        }
-        {/* Checked ahead of the search-specific empty state: with no drivers online at
-            all, no search term is ever going to turn up a result, so "try these other
-            dishes instead" is actively misleading. This is the same "no riders nearby,
-            change location" state the plain (no search) empty list shows. */}
-        if (nearbyDriversCount === 0) {
-          return (
-            <NoRidersNearbyState
-              accent={accent}
-              checkNearbyDrivers={checkNearbyDrivers}
-              getCoords={getCoords}
-              isRetryingDrivers={isRetryingDrivers}
-              setIsRetryingDrivers={setIsRetryingDrivers}
               styles={styles}
             />
           );
@@ -133,14 +131,7 @@ export function HomeListSection(props: Props) {
       contentContainerStyle={[styles.mainScrollContent, { paddingBottom: keyboardHeight > 0 ? keyboardHeight + 140 : tabBarHeight + 24 }]}
       showsVerticalScrollIndicator={false}
       refreshing={false}
-      onRefresh={async () => {
-        setPage(1);
-        setHasMore(true);
-        const { lat, lng } = await getCoords();
-        checkNearbyDrivers(lat, lng);
-        if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
-        else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
-      }}
+      onRefresh={reloadHome}
       onScroll={onMainScroll}
       scrollEventThrottle={16}
     />

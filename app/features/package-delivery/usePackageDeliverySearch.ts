@@ -5,6 +5,7 @@ import { usePackageDeliveryStore, type PackageDeliveryPointKind } from "@/contex
 import { checkZone, getPlaceDetails, searchPlacesJsonBiased } from "@/services/places.service";
 import { getAddresses, type SavedAddress } from "@/services/users.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import { showOpenSettingsAlert } from "@/utils/permissions";
 import { createPackageDeliverySearchStyles } from "./packageDeliverySearch.styles";
 import { usePackageDeliveryTheme } from "./usePackageDeliveryTheme";
 import { locateDevice, toPhone10 } from "./packageDelivery.utils";
@@ -149,7 +150,7 @@ export function usePackageDeliverySearch() {
     withBusy("current", async () => {
       const here = await locateDevice();
       if (!here) {
-        showAlert(t("app.packageDelivery.locationOffTitle"), t("app.packageDelivery.locationOffBody"), undefined, "warning");
+        showOpenSettingsAlert(t("app.packageDelivery.locationOffTitle"), t("app.packageDelivery.locationOffBody"));
         return;
       }
       await goToDetails(here);

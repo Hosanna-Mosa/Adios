@@ -3,6 +3,7 @@ import i18n from "@/i18n";
 import { getVendor } from "@/services/catalog.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { useFoodPaymentStore } from "./foodPaymentStore";
+import { ensureDriversOnline, ensureServiceable } from "@/utils/orderGate";
 
 // Handlers lifted out of useFoodCheckoutPlaceOrder: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -65,6 +66,11 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       const outlet: any = await getVendor(vendorId).catch(() => null);
       const [outletLng, outletLat] = outlet?.location?.coordinates ?? [];
       const hasOutletPoint = Number.isFinite(outletLat) && Number.isFinite(outletLng);
+
+      // Before any payment: the delivery address must be inside a service area, scheduled or not.
+      if (!(await ensureServiceable({ lat: dropLat, lng: dropLng }))) return;
+      // A scheduled slot is dispatched later, so who is online now is irrelevant.
+      if (!scheduledFor && !(await ensureDriversOnline(hasOutletPoint ? { lat: outletLat, lng: outletLng } : { lat: dropLat, lng: dropLng }))) return;
 
       const orderItems = items.map((item: any) => ({
         id: item._id,

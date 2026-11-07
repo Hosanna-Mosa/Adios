@@ -12,6 +12,12 @@ import {
 } from "@/features/onboarding/components";
 import { styles } from "@/features/onboarding/payout-setup.styles";
 import { API_URL } from "@/utils/apiUrl";
+import {
+  fieldMessage,
+  validateAccountMatch,
+  validateBankAccount,
+  validateIfsc,
+} from "@/utils/validation";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
 import { ScrollBox } from "@/components/ui/ScrollBox";
 import { KeyboardView } from "@/components/ui/KeyboardView";
@@ -30,12 +36,13 @@ export default function PayoutSetupScreen() {
   const [ifsc, setIfsc] = useState(params.ifsc || "");
   const [saving, setSaving] = useState(false);
 
-  const accountsMatch = accountNumber === confirmAccount;
-  const canSave =
-    accountNumber.length >= 9 &&
-    accountsMatch &&
-    ifsc.length >= 8 &&
-    !saving;
+  const accountsMatch = validateAccountMatch(accountNumber, confirmAccount) === null;
+  const accountCode = validateBankAccount(accountNumber);
+  const ifscCode = validateIfsc(ifsc);
+  const canSave = !accountCode && accountsMatch && !!confirmAccount && !ifscCode && !saving;
+  // Judge a field only once there is something to judge, so the form isn't red on arrival.
+  const accountError = accountNumber.length >= 9 || /\D/.test(accountNumber) ? fieldMessage(translate, accountCode) : undefined;
+  const ifscError = ifsc.length >= 11 ? fieldMessage(translate, ifscCode) : undefined;
 
   const handleSave = async () => {
     if (!canSave) return;
@@ -110,6 +117,8 @@ export default function PayoutSetupScreen() {
             accountsMatch={accountsMatch}
             ifsc={ifsc}
             onIfscChange={(t) => setIfsc(t.toUpperCase().slice(0, 11))}
+            accountError={accountError}
+            ifscError={ifscError}
           />
         </ScrollBox>
 
