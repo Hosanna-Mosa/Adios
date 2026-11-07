@@ -6,6 +6,7 @@ import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
 import { HomeTopBar } from "./HomeTopBar";
 import type { Props } from "./HomeBody.props";
+import { RotatingPlaceholder } from "./RotatingPlaceholder";
 
 // The top of the home screen: address row, headline and the search bar that
 // opens the search overlay. Split out of HomeBody to stay under 150 lines;
@@ -19,6 +20,16 @@ export function HomeIntro(props: Props) {
   // second line (this one shows a single line), so breaks become spaces.
   const headline = (activeService === "Meat" ? t("app.home.freshMeatDaily") : t("app.home.cravingSomethingDelicious"))
     .replace(/\s*\n\s*/g, " ");
+
+  // The search hint rotates through a few lines about what you can find or do in the app.
+  const placeholderKeys = activeService === "Meat"
+    ? ["searchMuttonCurryCutPrawns", "searchMeatFresh", "searchMeatTry", "searchEverything"]
+    : ["searchBiryaniBawarchi", "searchFoodHungry", "searchFoodTry", "searchEverything"];
+  const placeholderPhrases = React.useMemo(
+    () => placeholderKeys.map((key) => t(`app.home.${key}`)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeService, t]
+  );
 
   // One line, as large as the width allows: the headline renders at the
   // extraLarge size and is scaled down only by exactly as much as it overflows.
@@ -68,11 +79,19 @@ export function HomeIntro(props: Props) {
 
       {/* Search bar */}
       <Animated.View style={searchBarAnimatedStyle}>
-        <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
-          <Ionicons name="search" size={moderateScale(16)} color={accent.accent} />
-          <Text style={styles.searchPlaceholder} numberOfLines={1}>
-            {activeService === "Meat" ? t("app.home.searchMuttonCurryCutPrawns") : t("app.home.searchBiryaniBawarchi")}
-          </Text>
+        <TouchableOpacity
+          style={styles.searchBar}
+          activeOpacity={0.85}
+          onPress={() => setIsSearchActive(true)}
+          accessibilityRole="search"
+          accessibilityLabel={t("app.home.searchForDishesRestaurants")}
+        >
+          <View style={styles.searchIconCircle}>
+            <Ionicons name="search" size={moderateScale(17)} color={accent.accent} />
+          </View>
+          <View style={{ flex: 1, overflow: "hidden", justifyContent: "center" }}>
+            <RotatingPlaceholder phrases={placeholderPhrases} style={styles.searchPlaceholder} />
+          </View>
         </TouchableOpacity>
       </Animated.View>
     </>

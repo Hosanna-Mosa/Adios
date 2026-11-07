@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { usePartnerTabBarHeight } from "@/components/PartnerTabBar";
 import { useToast } from "@/components/ui/Toast";
@@ -70,6 +71,9 @@ export function useMeatInventoryScreen() {
     );
   };
 
+  const addItem = () => router.push("/meat-item-form");
+  const editItem = (item: MeatItem) => router.push({ pathname: "/meat-item-form", params: { id: item._id } });
+
   const refresh = async () => {
     setRefreshing(true);
     await query.refetch().catch(() => {});
@@ -93,6 +97,8 @@ export function useMeatInventoryScreen() {
     toggleAvailability,
     editing,
     startEditing,
+    addItem,
+    editItem,
     cancelEditing: () => setEditing(null),
     priceInput,
     setPriceInput: (value: string) => {

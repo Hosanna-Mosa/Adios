@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
 import { type RideSearchingStyles } from "@/features/ride/ride-searching.styles";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
+import { useMapStyle } from "@/components/useMapStyle";
 import { MapBackButton } from "@/components/ui/MapBackButton";
 
 // Moved out of app/ride-searching.tsx. The JSX is unchanged; every value it used to read from
@@ -31,11 +32,13 @@ export function SearchingMap({
   pickupCoords,
   styles,
 }: Props) {
+  const mapStyle = useMapStyle();
   return (
     <View style={styles.mapArea}>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={{
           ...pickupCoords,

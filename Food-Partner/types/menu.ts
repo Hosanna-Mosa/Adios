@@ -66,6 +66,8 @@ export interface MeatItem {
   price: number;
   category: string;
   image?: string;
+  description?: string;
   isAvailable: boolean;
+  /** One of the standard items every centre starts with: name, weight and category are fixed. */
   isGlobalItem?: boolean;
 }

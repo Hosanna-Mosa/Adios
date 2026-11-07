@@ -18,6 +18,10 @@ export interface Props {
   startOtp: any;
   /** Package delivery: show the delivery OTP for the whole trip, to share with the receiver. */
   isPackageDelivery?: boolean;
+  /** Restaurant order: Order details + Cancel (until pickup) instead of the SOS "Help". */
+  isFoodOrder?: boolean;
+  canCancelFoodOrder?: boolean;
+  handleCancelFoodOrder?: () => void;
   status: any;
   stops: any;
   styles: any;

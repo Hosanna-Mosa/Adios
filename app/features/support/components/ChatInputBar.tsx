@@ -1,4 +1,5 @@
-import { Platform, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
+import { useKeyboardVisible } from "@/components/useKeyboardVisible";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
@@ -33,8 +34,11 @@ export function ChatInputBar({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  // The screen already lifts above the keyboard, so the home-indicator inset is
+  // only needed while the keyboard is closed.
+  const keyboardOpen = useKeyboardVisible();
   return (
-    <View style={[styles.inputBar, { paddingBottom: Platform.OS === "ios" ? insets.bottom + 34 : 38 }]}>
+    <View style={[styles.inputBar, { paddingBottom: keyboardOpen ? 12 : Math.max(insets.bottom, 12) }]}>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}

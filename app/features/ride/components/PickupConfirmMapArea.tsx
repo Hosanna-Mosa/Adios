@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type PickupConfirmationStyles } from "@/features/ride/pickup-confirmation.styles";
+import { useMapStyle } from "@/components/useMapStyle";
 import { MapBackButton } from "@/components/ui/MapBackButton";
 
 // Moved out of app/pickup-confirmation.tsx. The JSX is unchanged; what it read from the screen's
@@ -34,11 +35,13 @@ export function PickupConfirmMapArea({
   useCurrentLocation,
 }: Props) {
   const { t } = useTranslation();
+  const mapStyle = useMapStyle();
   return (
     <View style={styles.mapArea}>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={{
           ...pickupCoords,

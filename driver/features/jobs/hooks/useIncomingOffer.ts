@@ -23,7 +23,6 @@ export function useIncomingOffer() {
   const timerWidth = useSharedValue(100);
   const timerBarAnimatedStyle = useAnimatedStyle(() => ({ width: `${timerWidth.value}%` }));
   const [secondsLeft, setSecondsLeft] = React.useState(15);
-  const [showDeclineReasons, setShowDeclineReasons] = React.useState(false);
   const [sound, setSound] = React.useState<Audio.Sound>();
 
   async function playSound() {
@@ -62,7 +61,6 @@ export function useIncomingOffer() {
         setSecondsLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            setShowDeclineReasons(false);
             rejectOrder();
             return 0;
           }
@@ -82,5 +80,5 @@ export function useIncomingOffer() {
     timerWidth.value = withTiming((secondsLeft / total) * 100, { duration: 320 });
   }, [secondsLeft, incomingOrder, timerWidth]);
 
-  return { isBroadcast, secondsLeft, showDeclineReasons, setShowDeclineReasons, sheetAnimatedStyle, timerBarAnimatedStyle };
+  return { isBroadcast, secondsLeft, sheetAnimatedStyle, timerBarAnimatedStyle };
 }

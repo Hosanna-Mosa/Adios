@@ -15,7 +15,7 @@ import { calculateDynamicETA, nextDriverLocation, nextFoodStage, normalizeStatus
 // tracking) off the stack, so nothing stale is left underneath.
 export const goHomeFromTracking = () => router.dismissTo("/(tabs)");
 
-export function useTrackingHandleBack(status: any, setStatus: any, currentOrderId: any, stops: any, setDriver: any, isRide: any, isHelper: any, eta: any, setEta: any, setDeliveredAt: any, setHelperStatus: any, setDriverLocation: any, handleOrderCancelledByDriver: any, deliveryStop: any, pickupStop: any) {
+export function useTrackingHandleBack(status: any, setStatus: any, currentOrderId: any, stops: any, setDriver: any, isRide: any, isHelper: any, eta: any, setEta: any, setDeliveredAt: any, setHelperStatus: any, setDriverLocation: any, handleOrderCancelledByDriver: any, deliveryStop: any, pickupStop: any, isPackageDelivery = false) {
   // The socket subscription below is keyed on the order, so its handlers close over
   // whatever these were at mount. Reading them through a ref keeps the ETA measured
   // against the leg the ride is actually on.
@@ -108,8 +108,18 @@ export function useTrackingHandleBack(status: any, setStatus: any, currentOrderI
   // ---------------------------------------------------------------------
   // One expression rather than a `let` reassigned three times: identical
   // values and test order, but safe to compute alongside the rest of the state.
-  const bannerText =
-    foodStage === "awaiting_restaurant"
+  // A package delivery is a bike/auto order, but the banner talks about a delivery, not a trip.
+  const packageBanner =
+    status === "arrived_pickup"
+      ? i18n.t("app.packageDelivery.banner.partnerArrived")
+      : status === "en_route_delivery"
+      ? i18n.t("app.packageDelivery.banner.inProgress")
+      : status === "arrived_delivery"
+      ? i18n.t("app.packageDelivery.banner.arrivedAtDrop")
+      : i18n.t("app.packageDelivery.banner.partnerOnTheWay");
+  const bannerText = isPackageDelivery
+    ? packageBanner
+    : foodStage === "awaiting_restaurant"
       ? i18n.t("app.tracking.waitingForRestaurant")
       : foodStage === "preparing"
       ? i18n.t("app.tracking.restaurantPreparing")

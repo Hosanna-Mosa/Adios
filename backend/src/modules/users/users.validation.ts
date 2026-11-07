@@ -82,6 +82,13 @@ export const toggleFavoriteItemSchema = z.object({
   }),
 });
 
+export const deleteAccountSchema = z.object({
+  body: z.object({
+    password: z.string().optional(),
+    reason: z.string().max(500).optional(),
+  }),
+});
+
 export const updatePushTokenSchema = z.object({
   body: z.object({
     expoPushToken: z.string().min(1, "expoPushToken is required"),

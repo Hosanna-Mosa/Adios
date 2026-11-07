@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { KeyRound, Loader2, ShieldCheck, Trash2, UserPlus, Users } from "lucide-react";
+import { KeyRound, Loader2, Settings2, ShieldCheck, Trash2, UserPlus, Users } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,18 +13,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { SupportMemberDialog } from "./SupportMemberDialog";
+import { MemberPermissionsDialog } from "./MemberPermissionsDialog";
 import type { useSupportMembers } from "../hooks/useSupportMembers";
 import type { SupportMember } from "../types";
 
-type Props = Pick<ReturnType<typeof useSupportMembers>, "members" | "isLoading" | "resetPassword" | "removeMember"> & {
+type Props = Pick<ReturnType<typeof useSupportMembers>, "members" | "isLoading" | "resetPassword" | "setPermissions" | "removeMember"> & {
   onAddMember: () => void;
 };
 
 /** The admin-only "Support Team" tab on the Support page. */
-export function SupportTeamPanel({ members, isLoading, resetPassword, removeMember, onAddMember }: Props) {
+export function SupportTeamPanel({ members, isLoading, resetPassword, setPermissions, removeMember, onAddMember }: Props) {
   const { t, i18n } = useTranslation();
   const [resetTarget, setResetTarget] = useState<SupportMember | null>(null);
   const [removeTarget, setRemoveTarget] = useState<SupportMember | null>(null);
+  const [permissionsTarget, setPermissionsTarget] = useState<SupportMember | null>(null);
 
   const handleRemove = async () => {
     if (!removeTarget) return;
@@ -125,6 +127,13 @@ export function SupportTeamPanel({ members, isLoading, resetPassword, removeMemb
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-2">
                       <button
+                        onClick={() => setPermissionsTarget(member)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-lg text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        <Settings2 className="h-3.5 w-3.5" />
+                        {t("supportTools.permissions", "Permissions")}
+                      </button>
+                      <button
                         onClick={() => setResetTarget(member)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-lg text-xs font-semibold text-foreground hover:bg-muted/50 transition-colors"
                       >
@@ -145,6 +154,14 @@ export function SupportTeamPanel({ members, isLoading, resetPassword, removeMemb
             </tbody>
           </table>
         </div>
+      )}
+
+      {permissionsTarget && (
+        <MemberPermissionsDialog
+          member={permissionsTarget}
+          onClose={() => setPermissionsTarget(null)}
+          onSave={(permissions) => setPermissions.mutateAsync({ id: permissionsTarget._id, permissions })}
+        />
       )}
 
       {resetTarget && (

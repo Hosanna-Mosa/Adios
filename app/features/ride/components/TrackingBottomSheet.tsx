@@ -38,6 +38,10 @@ interface Props {
   deliveryOtp: any;
   startOtp: any;
   isPackageDelivery?: boolean;
+  /** Restaurant order: Order details + Cancel (until pickup) instead of the SOS "Help". */
+  isFoodOrder?: boolean;
+  canCancelFoodOrder?: boolean;
+  handleCancelFoodOrder?: () => void;
   totalPrice: number | null;
   handleSOS: () => void;
   handleShareTrip: () => void;
@@ -68,6 +72,9 @@ export function TrackingBottomSheet({
   deliveryOtp,
   startOtp,
   isPackageDelivery,
+  isFoodOrder,
+  canCancelFoodOrder,
+  handleCancelFoodOrder,
   totalPrice,
   handleSOS,
   handleShareTrip,
@@ -98,6 +105,9 @@ export function TrackingBottomSheet({
               setTripModalVisible={setTripModalVisible}
               startOtp={startOtp}
               isPackageDelivery={isPackageDelivery}
+              isFoodOrder={isFoodOrder}
+              canCancelFoodOrder={canCancelFoodOrder}
+              handleCancelFoodOrder={handleCancelFoodOrder}
               status={status}
               stops={stops}
               styles={styles}

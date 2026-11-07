@@ -23,6 +23,7 @@ interface Props {
   insets: EdgeInsets;
   isHelper: boolean;
   isRide: boolean;
+  isPackageDelivery?: boolean;
   stops: any[];
   styles: TrackingStyles;
   tokens: ThemeTokens;
@@ -40,6 +41,7 @@ export function TripCompleteScreen({
   insets,
   isHelper,
   isRide,
+  isPackageDelivery = false,
   stops,
   styles,
   tokens,
@@ -99,7 +101,7 @@ export function TripCompleteScreen({
           </>
         )}
 
-        <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} tokens={tokens} accent={accent} />
+        <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} isPackageDelivery={isPackageDelivery} tokens={tokens} accent={accent} />
         <View style={{ height: 8 }} />
       </ScrollView>
 

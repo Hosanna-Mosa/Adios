@@ -7,7 +7,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { usePushStore } from "@/contexts/pushStore";
 import { registerPushToken } from "@/services/outlet.service";
-import { parsePushPayload, pushTarget } from "@/utils/pushPayload";
+import { parsePushPayload, pushTargetFromData } from "@/utils/pushPayload";
 import { configureNotificationChannels, getPushTokenAsync, installForegroundHandler } from "@/utils/pushNotifications";
 import { alertNewOrder, alertScheduledRequest } from "./liveAlerts";
 
@@ -84,7 +84,7 @@ export function PushNotificationHandler() {
     const id = lastResponse.notification.request.identifier;
     if (handledResponse.current === id) return;
     handledResponse.current = id;
-    const target = pushTarget(parsePushPayload(lastResponse.notification.request.content.data));
+    const target = pushTargetFromData(lastResponse.notification.request.content.data);
     if (target) router.push(target);
   }, [lastResponse, token, inApp]);
 

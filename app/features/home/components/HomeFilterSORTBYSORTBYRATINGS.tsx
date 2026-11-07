@@ -4,6 +4,7 @@ import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { useTranslation } from "react-i18next";
 
 // Section of HomeFilterSORTBYSORTBY, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -33,17 +34,18 @@ export function HomeFilterSORTBYSORTBYRATINGS({
   styles,
   tokens,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <>
     {activeFilterTab === "Ratings" && (
       <View>
-        <Text style={styles.filterSectionTitle}>RATINGS</Text>
+        <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.ratings")}</Text>
         {[
-          { value: 0, label: "Show all" },
-          { value: 3, label: "Ratings 3.0+" },
-          { value: 3.5, label: "Ratings 3.5+" },
-          { value: 4, label: "Ratings 4.0+" },
-          { value: 4.5, label: "Ratings 4.5+" },
+          { value: 0, label: t("app.home.filterModal.showAll") },
+          { value: 3, label: t("app.home.filterModal.ratingsPlus", { value: "3.0" }) },
+          { value: 3.5, label: t("app.home.filterModal.ratingsPlus", { value: "3.5" }) },
+          { value: 4, label: t("app.home.filterModal.ratingsPlus", { value: "4.0" }) },
+          { value: 4.5, label: t("app.home.filterModal.ratingsPlus", { value: "4.5" }) },
         ].map((opt) => (
           <TouchableOpacity key={opt.value} style={styles.filterOptionRow} onPress={() => setFilterMinRating(opt.value)}>
             <Ionicons name={filterMinRating === opt.value ? "radio-button-on" : "radio-button-off"} size={moderateScale(18)} color={filterMinRating === opt.value ? accent.accent : tokens.muted} />
@@ -54,12 +56,12 @@ export function HomeFilterSORTBYSORTBYRATINGS({
     )}
     {activeFilterTab === "CostForTwo" && (
       <View>
-        <Text style={styles.filterSectionTitle}>COST FOR TWO</Text>
+        <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.costForTwo")}</Text>
         {[
-          { id: "all", label: "Show all" },
-          { id: "under300", label: "Less than ₹300" },
-          { id: "300to600", label: "₹300 – ₹600" },
-          { id: "over600", label: "More than ₹600" },
+          { id: "all", label: t("app.home.filterModal.showAll") },
+          { id: "under300", label: t("app.home.filterModal.cost.under300") },
+          { id: "300to600", label: t("app.home.filterModal.cost.between300And600") },
+          { id: "over600", label: t("app.home.filterModal.cost.over600") },
         ].map((opt) => (
           <TouchableOpacity key={opt.id} style={styles.filterOptionRow} onPress={() => setFilterCostRange(opt.id)}>
             <Ionicons name={filterCostRange === opt.id ? "radio-button-on" : "radio-button-off"} size={moderateScale(18)} color={filterCostRange === opt.id ? accent.accent : tokens.muted} />
@@ -70,11 +72,11 @@ export function HomeFilterSORTBYSORTBYRATINGS({
     )}
     {activeFilterTab === "VegNonVeg" && (
       <View>
-        <Text style={styles.filterSectionTitle}>DIETARY PREFERENCE</Text>
+        <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.dietaryPreference")}</Text>
         {[
-          { id: "all", label: "Show all" },
-          { id: "veg", label: "Pure veg" },
-          { id: "nonveg", label: "Non-veg" },
+          { id: "all", label: t("app.home.filterModal.showAll") },
+          { id: "veg", label: t("app.home.filterModal.diet.pureVeg") },
+          { id: "nonveg", label: t("app.home.filterModal.diet.nonVeg") },
         ].map((opt) => (
           <TouchableOpacity key={opt.id} style={styles.filterOptionRow} onPress={() => setFilterVegNonVeg(opt.id)}>
             <Ionicons name={filterVegNonVeg === opt.id ? "radio-button-on" : "radio-button-off"} size={moderateScale(18)} color={filterVegNonVeg === opt.id ? accent.accent : tokens.muted} />

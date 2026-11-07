@@ -14,12 +14,14 @@ export function OrderReviewCard({
   orderId,
   isRide,
   isHelper,
+  isPackageDelivery = false,
   tokens,
   accent,
 }: {
   orderId: string;
   isRide: boolean;
   isHelper: boolean;
+  isPackageDelivery?: boolean;
   tokens: ThemeTokens;
   accent: ThemeTokens["services"]["food"];
 }) {
@@ -35,12 +37,14 @@ export function OrderReviewCard({
   // Not in the module-level constants inventory (defined inline here, not as
   // a module const), but the same "freeform review tag, safe to translate"
   // reasoning as orders.tsx's REVIEW_TAGS applies.
-  const availableTags = useMemo(() => (isRide
+  const availableTags = useMemo(() => (isPackageDelivery
+    ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.carefulWithItems"), t("app.ride.reviewTags.fastDelivery"), t("app.ride.reviewTags.friendlyPartner")]
+    : isRide
     ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.smoothRide"), t("app.ride.reviewTags.politeCaptain"), t("app.ride.reviewTags.cleanVehicle"), t("app.ride.reviewTags.greatRoute")]
     : isHelper
       ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.carefulWithItems"), t("app.ride.reviewTags.polite"), t("app.ride.reviewTags.hardWorking")]
       : [t("app.ride.reviewTags.fastDelivery"), t("app.ride.reviewTags.freshAndHot"), t("app.ride.reviewTags.wellPackaged"), t("app.ride.reviewTags.friendlyPartner")]
-  ), [isRide, isHelper, t]);
+  ), [isRide, isHelper, isPackageDelivery, t]);
 
   useEffect(() => {
     if (!orderId) return;

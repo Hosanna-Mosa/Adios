@@ -38,7 +38,6 @@ export default function CartScreen() {
     return (
       <EmptyCartBody
         daysAgo={daysAgo}
-        lastOrder={lastOrder}
         lastVendorName={lastVendorName}
         accent={accent}
         insets={insets}

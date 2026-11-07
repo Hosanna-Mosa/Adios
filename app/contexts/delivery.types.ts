@@ -76,6 +76,8 @@ export interface DeliveryState {
   price: PriceBreakdown | null;
   status: OrderStatus;
   foodStage: FoodStage;
+  /** The current order is a package delivery (a bike/auto order with delivery wording). */
+  isPackageDelivery: boolean;
   /** Who cancelled the current order (backend `cancelReason`), once it is cancelled. */
   cancelReason: string | null;
   scheduling: "asap" | "scheduled";
@@ -113,6 +115,7 @@ export interface DeliveryState {
   calculatePrice: () => void;
   setStatus: (status: OrderStatus) => void;
   setFoodStage: (foodStage: FoodStage) => void;
+  setIsPackageDelivery: (isPackageDelivery: boolean) => void;
   setCancelReason: (cancelReason: string | null) => void;
   setRoute: (route: RouteInfo) => void;
   setStops: (stops: DeliveryStop[]) => void;

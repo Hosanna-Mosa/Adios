@@ -9,6 +9,7 @@ import { CustomerCard } from "@/features/orders/components/CustomerCard";
 import { DriverCard } from "@/features/orders/components/DriverCard";
 import { AcceptOrderFooter } from "@/features/orders/components/AcceptOrderFooter";
 import { MarkReadyFooter } from "@/features/orders/components/MarkReadyFooter";
+import { InvoiceRow } from "@/features/orders/components/InvoiceRow";
 import { OrderItemsCard } from "@/features/orders/components/OrderItemsCard";
 import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
 import { useOrderDetail } from "@/features/orders/useOrderDetail";
@@ -74,6 +75,7 @@ export default function OrderDetailScreen() {
         paymentStatus={d.order.paymentStatus}
         styles={d.styles}
       />
+      {d.canInvoice ? <InvoiceRow opening={d.openingInvoice} onPress={d.openInvoice} tokens={d.tokens} /> : null}
       <DriverCard
         hasDriver={d.hasDriver}
         awaitingAcceptance={d.needsAcceptance}

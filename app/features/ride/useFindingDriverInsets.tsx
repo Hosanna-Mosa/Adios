@@ -25,7 +25,7 @@ export function useFindingDriverInsets() {
   const [confirmedDriver, setConfirmedDriver] = useState<any>(null);
   const [stops, setStops] = useState<any[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<any[]>([]);
-  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean; packageDelivery?: boolean }>({});
+  const [orderSummary, setOrderSummary] = useState<{ totalPrice?: number; totalDistance?: number; duration?: number; serviceType?: string; hasOutlet?: boolean; packageDelivery?: boolean; isPackageDelivery?: boolean; isFoodOrder?: boolean; isReserved?: boolean; paidOnline?: boolean }>({});
   // Measured from FindingDriverSheet's onLayout, so the map's zoom controls can
   // clear it instead of floating at a guessed position.
   const [sheetHeight, setSheetHeight] = useState(0);

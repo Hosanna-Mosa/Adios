@@ -20,6 +20,7 @@ export const updateMyVendorProfileSchema = z.object({
       email: z.string().trim().email("Enter a valid email").optional(),
       address: z.string().trim().min(1, "Address cannot be empty").max(500).optional(),
       image: z.string().trim().max(2048).optional(),
+      coverImage: z.string().trim().max(2048).optional(),
       // Empty string or null removes the branch code.
       branchCode: z.string().trim().max(50).nullable().optional(),
       currentLocation: z
@@ -36,6 +37,25 @@ export const updateMyVendorProfileSchema = z.object({
         .optional(),
     }),
 });
+
+export const partnerOfferSchema = z.object({
+  body: z.object({
+    code: z.string().trim().min(3, "Code must be at least 3 characters").max(20).regex(/^[A-Za-z0-9]+$/, "Use letters and numbers only"),
+    discountType: z.enum(["PERCENTAGE", "FLAT"]),
+    discountValue: z.coerce.number().positive("Enter the discount"),
+    maxDiscount: z.coerce.number().positive().optional(),
+    minOrderValue: z.coerce.number().min(0).optional(),
+    expiryDate: z.string().optional(),
+    title: z.string().trim().max(60).optional(),
+  }),
+});
+
+export const partnerOfferActiveSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({ isActive: z.boolean() }),
+});
+
+export const partnerOfferIdSchema = z.object({ params: z.object({ id: z.string().min(1) }) });
 
 export const partnerPushTokenSchema = z.object({
   body: z.object({
