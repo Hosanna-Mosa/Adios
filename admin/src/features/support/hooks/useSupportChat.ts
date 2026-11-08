@@ -4,12 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
-import { socketService } from "@/lib/socketService";
+import { TICKETS_REFRESH_MS } from "./ticketsPolling";
 import type { Ticket } from "../types";
 
 /**
- * All state/query/socket logic for SupportChat.tsx (work queue item #14).
- * Reads the same /admin/tickets data and "ticket_updated" socket event as
+ * All state/query logic for SupportChat.tsx (work queue item #14).
+ * Reads (and polls) the same /admin/tickets data as
  * useSupportTickets (item #10) and useSupportIssues (item #12), but this
  * page additionally auto-redirects to the first active ticket when no
  * :id route param is given, and auto-scrolls the message pane -- distinct
@@ -24,9 +24,11 @@ export function useSupportChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch all support tickets
-  const { data: ticketsList = [], isLoading } = useQuery({
+  const { data: ticketsList = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["admin", "tickets"],
     queryFn: () => adminFetch<Ticket[]>("/admin/tickets"),
+    refetchInterval: TICKETS_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
 
   // Filter for ACTIVE (OPEN or PENDING_RESOLVE) tickets to display in the sidebar
@@ -42,27 +44,6 @@ export function useSupportChat() {
       navigate(`/support/chats/${activeTickets[0]._id}`, { replace: true });
     }
   }, [id, activeTickets, navigate]);
-
-  // Connect to Socket.io and listen for real-time support updates
-  useEffect(() => {
-    socketService.connect();
-
-    const adminData = JSON.parse(localStorage.getItem("admin_data") || "{}");
-    if (adminData._id) {
-      socketService.join(adminData._id, "ADMIN");
-    }
-
-    const handleTicketUpdate = (data: unknown) => {
-      console.log("[SOCKET] Ticket update received in Chat Hub:", data);
-      queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
-    };
-
-    socketService.on("ticket_updated", handleTicketUpdate);
-
-    return () => {
-      socketService.off("ticket_updated", handleTicketUpdate);
-    };
-  }, [queryClient]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -123,6 +104,8 @@ export function useSupportChat() {
     navigateToChat: (ticketId: string) => navigate(`/support/chats/${ticketId}`),
     activeTickets,
     isLoading,
+    isFetching,
+    refetch,
     selectedTicket,
     messagesEndRef,
     typedMessage,

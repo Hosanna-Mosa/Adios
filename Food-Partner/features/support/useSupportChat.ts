@@ -41,6 +41,14 @@ export function useSupportChat() {
   const [newMessage, setNewMessage] = useState("");
   const [newOrderId, setNewOrderId] = useState<string | null>(params.orderId ?? null);
   const flatListRef = useRef<FlatList<ChatMessage>>(null);
+  // Set only by the header's Refresh button, not by the 8 s poll.
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await query.refetch().catch(() => {});
+    setRefreshing(false);
+  };
 
   // The orders a new case can be about: today's and the latest from history, plus the
   // one the partner came from when it is older than those.
@@ -54,7 +62,7 @@ export function useSupportChat() {
   }, [liveOrders, history, params.orderId]);
 
   const allTickets = useMemo(() => query.data ?? [], [query.data]);
-  // Derived from the list, so a reply pushed over the socket shows up in the open chat.
+  // Derived from the list, so a reply picked up by the 8 s poll shows up in the open chat.
   const ticket = ticketId ? (allTickets.find((t) => t._id === ticketId) ?? null) : null;
 
   useEffect(() => {
@@ -137,6 +145,8 @@ export function useSupportChat() {
     viewMode,
     backToCases: () => setViewMode("cases"),
     loading: query.isLoading,
+    refreshing,
+    refresh,
     allTickets,
     ticket,
     openTicket,

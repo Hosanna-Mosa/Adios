@@ -6,6 +6,7 @@ import { styles } from "../support-chat.styles";
 import { TicketListItem } from "./TicketListItem";
 import type { SupportTicket } from "../types";
 import { ScreenHeader } from "@/components/shared/ScreenHeader";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
@@ -18,17 +19,26 @@ export function TicketListView({
   onBack,
   onOpenTicket,
   onStartNew,
+  onRefresh,
+  refreshing = false,
 }: {
   tickets: SupportTicket[];
   paddingTop: number;
   onBack: () => void;
   onOpenTicket: (ticket: SupportTicket) => void;
   onStartNew: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <Box style={[styles.root, { backgroundColor: Colors.background }]}>
-      <ScreenHeader title={t("support.supportSessions")} paddingTop={paddingTop} onBack={onBack} />
+      <ScreenHeader
+        title={t("support.supportSessions")}
+        paddingTop={paddingTop}
+        onBack={onBack}
+        right={onRefresh ? <RefreshButton onPress={onRefresh} refreshing={refreshing} /> : undefined}
+      />
 
       <List
         data={tickets}

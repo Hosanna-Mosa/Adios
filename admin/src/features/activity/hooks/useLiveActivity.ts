@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminFetch } from "@/lib/api-client";
-import type { ActivitySummary, LiveActivity } from "../types";
+import type { ActivitySummary, LiveActivity, TopItems } from "../types";
 
 export const WINDOW_OPTIONS = [15, 30, 60, 180] as const;
 export const DAY_OPTIONS = [7, 14, 30] as const;
+export const ITEM_DAY_OPTIONS = [7, 30, 90] as const;
 
 // The apps send their events every 10 s, so polling faster than this only
 // re-reads the same data.
@@ -29,5 +30,12 @@ export function useLiveActivity() {
     refetchInterval: SUMMARY_REFRESH_MS,
   });
 
-  return { minutes, setMinutes, days, setDays, live, summary };
+  const [itemDays, setItemDays] = useState<number>(30);
+  const topItems = useQuery({
+    queryKey: ["analytics", "top-items", itemDays],
+    queryFn: () => adminFetch<TopItems>(`/analytics/top-items?days=${itemDays}&limit=10`),
+    refetchInterval: SUMMARY_REFRESH_MS,
+  });
+
+  return { minutes, setMinutes, days, setDays, live, summary, itemDays, setItemDays, topItems };
 }

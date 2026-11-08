@@ -4,9 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { useDriverStore } from "@/store/driverStore";
-import { socketService } from "@/utils/socketService";
-import { formatCustomerChatMessage, formatStoredChatMessage } from "@/utils/chatMessages";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
+import { useOrderChat } from "@/features/jobs/hooks/useOrderChat";
 import {
   ChatMessageBubble,
   CustomerChatHeader,
@@ -33,10 +32,9 @@ export default function DriverChatScreen() {
   ];
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ orderId?: string }>();
-  const { currentOrder, driverUserId, activeChat, addChatMessage, setUnreadCount, setIsChatActive, token, setChatMessages } = useDriverStore();
+  const { currentOrder, activeChat, setUnreadCount, setIsChatActive, token } = useDriverStore();
   const [inputText, setInputText] = useState("");
   const flatListRef = useRef<FlatList>(null);
-  const [loadingHistory, setLoadingHistory] = useState(true);
   const [fetchedOrder, setFetchedOrder] = useState<{ id: string; customerName: string; customerPhone: string; serviceType?: string } | null>(null);
 
   // currentOrder isn't persisted (deliberately — it's meant to always come from a
@@ -75,85 +73,29 @@ export default function DriverChatScreen() {
   const taskStarted =
     !!currentOrder?.taskStartedAt || currentOrder?.status?.toLowerCase() === "in_progress";
 
+  // Thread + task confirmation, polled over REST.
+  const { loadingHistory, canStartTask, sendMessage, refresh, refreshing } = useOrderChat(
+    chatOrderId,
+    isHelper && isActiveJob,
+  );
+
   // A task only starts with the customer's start OTP, which the server checks — that
   // entry lives on the task screen. (The server tells the customer once it has started.)
   // dismissTo goes back to the task screen when chat was opened from it, rather than stacking a second one.
   const handleStartTask = () => router.dismissTo("/active-order");
 
-  // The conversation lives on the server; the store only holds what arrived over
-  // the socket this session. Without this the driver opened chat on an order they
-  // had already been messaging about and saw an empty thread.
-  useEffect(() => {
-    if (!chatOrderId || !token) {
-      setLoadingHistory(false);
-      return;
-    }
-    let cancelled = false;
-    setLoadingHistory(true);
-
-    fetch(`${apiUrl}/orders/${chatOrderId}/chat`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((history: any[]) => {
-        if (cancelled) return;
-        const stored = (history || []).map(formatStoredChatMessage).filter(Boolean) as any[];
-        const live = useDriverStore.getState().activeChat || [];
-        const seen = new Set(stored.map((m) => m.id));
-        setChatMessages?.([...stored, ...live.filter((m: any) => !seen.has(m.id))]);
-      })
-      .catch((err) => console.error("[Chat] Failed to load chat history:", err))
-      .finally(() => {
-        if (!cancelled) setLoadingHistory(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [chatOrderId, token]);
-
   useEffect(() => {
     setUnreadCount?.(0);
     setIsChatActive?.(true);
-
-    if (chatOrderId) {
-      socketService.trackOrder(chatOrderId);
-    }
-
-    const handleReceiveMessage = (data: any) => {
-      const formattedMsg = formatCustomerChatMessage(data);
-      if (!formattedMsg) return;
-
-      const currentMessages = useDriverStore.getState().activeChat;
-      if (!currentMessages.find((m: any) => m.id === formattedMsg.id)) {
-        addChatMessage?.(formattedMsg);
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
-      }
-    };
-
-    socketService.on("receive_message", handleReceiveMessage);
-
     return () => {
-      socketService.off("receive_message", handleReceiveMessage);
       setIsChatActive?.(false);
     };
-  }, [chatOrderId]);
+  }, [chatOrderId, setUnreadCount, setIsChatActive]);
 
   const handleSend = (text = inputText) => {
     if (!text.trim() || !chatOrder) return;
 
-    const messageText = text.trim();
-    const tempId = Date.now().toString();
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    addChatMessage?.({ text: messageText, from: "driver" as const, id: tempId, time });
-
-    socketService.emit("send_message", {
-      orderId: chatOrder.id,
-      senderId: driverUserId || "driver",
-      role: "DRIVER",
-      text: messageText,
-      id: tempId,
-    });
-
+    sendMessage(text.trim());
     setInputText("");
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
@@ -168,6 +110,8 @@ export default function DriverChatScreen() {
         customerName={chatOrder?.customerName || t("jobs.customer")}
         paddingTop={insets.top + (Platform.OS === "web" ? 67 : 0) + 12}
         onBack={() => router.back()}
+        onRefresh={refresh}
+        refreshing={refreshing}
         onCall={() => {
           // Was falling back to a hardcoded placeholder number ("1234567890")
           // whenever the customer's phone hadn't loaded yet, so the driver
@@ -181,7 +125,7 @@ export default function DriverChatScreen() {
       {/* Whether the customer confirmed comes from the order (and the global socket handler). */}
       {isHelper && isActiveJob && !taskStarted && (
         <TaskAssignmentBanner
-          customerConfirmed={!!currentOrder?.assignConfirmedAt}
+          customerConfirmed={canStartTask || !!currentOrder?.assignConfirmedAt}
           onStartTask={handleStartTask}
         />
       )}
