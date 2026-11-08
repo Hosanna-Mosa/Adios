@@ -1,7 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import Animated from "react-native-reanimated";
+import Animated, {
+  interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { moderateScale } from "react-native-size-matters";
@@ -10,6 +14,10 @@ import { type ServiceTokens } from "@/constants/colors";
 import { useCartStore } from "@/contexts/cartStore";
 import { getVendor } from "@/services/catalog.service";
 import { type AppTabBarStyles } from "./AppTabBar.styles";
+
+// How far (dp) the stripe has to be dragged up, or how fast a flick, to open checkout.
+const DRAG_OPEN_DISTANCE = 70;
+const DRAG_OPEN_VELOCITY = -900;
 
 /**
  * The cart summary that floats above the tab bar while the cart has items:
@@ -43,12 +51,42 @@ export function CartStripe({ bottom, styles, theme, cartAccent, itemCount, total
     retry: false,
   });
 
+  const openCheckout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    router.push({ pathname: "/cart", params: { autoCheckout: "1" } });
+  };
+
+  // Drag the stripe up to "drop" the checkout: it follows the finger (upward
+  // only), then springs back; past the threshold it opens checkout instead.
+  const dragY = useSharedValue(0);
+  const drag = Gesture.Pan()
+    .activeOffsetY([-8, 8])
+    .failOffsetX([-20, 20])
+    .onUpdate((e) => {
+      dragY.value = Math.min(0, e.translationY);
+    })
+    .onEnd((e) => {
+      const open = e.translationY < -DRAG_OPEN_DISTANCE || e.velocityY < DRAG_OPEN_VELOCITY;
+      if (open) runOnJS(openCheckout)();
+      dragY.value = withSpring(0, { damping: 18, stiffness: 220 });
+    });
+  const dragStyle = useAnimatedStyle(() => ({ transform: [{ translateY: dragY.value }] }));
+  const hintStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(dragY.value, [0, -DRAG_OPEN_DISTANCE], [0, 1], "clamp"),
+  }));
+
   const name = storeName || vendor?.name || cartVendorName || "Your cart";
   const image = storeImage || vendor?.image;
 
   return (
-    <Animated.View style={[styles.cartCardWrap, { bottom }]}>
+    <GestureDetector gesture={drag}>
+    <Animated.View style={[styles.cartCardWrap, { bottom }, dragStyle]}>
+      <Animated.View pointerEvents="none" style={[styles.cartDragHint, hintStyle]}>
+        <Ionicons name="chevron-up" size={moderateScale(14)} color={cartAccent.accent} />
+        <Text style={[styles.cartDragHintText, { color: cartAccent.accent }]}>Release to checkout</Text>
+      </Animated.View>
       <View style={styles.cartCard}>
+        <View style={styles.cartGrabHandle} />
         <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
         <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
           {image ? (
@@ -69,5 +107,6 @@ export function CartStripe({ bottom, styles, theme, cartAccent, itemCount, total
         </TouchableOpacity>
       </View>
     </Animated.View>
+    </GestureDetector>
   );
 }
