@@ -6,6 +6,7 @@ import i18n from "@/i18n";
 import { cancelOrder, getOrderJson } from "@/services/orders.service";
 import { showAlert } from "@/components/ui/AppAlert";
 import { cancellationNotice } from "@/utils/cancellationNotice";
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Lifted from useFindingDriverInsets; deps array stays with the call.
 /** Polls the order this often until a driver is assigned or it is cancelled. */
@@ -131,7 +132,7 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
     refreshRef.current = checkOrderStatus;
 
     checkOrderStatus();
-    pollIntervalId = setInterval(() => {
+    pollIntervalId = setForegroundInterval(() => {
       if (AppState.currentState === "active") checkOrderStatus();
     }, POLL_MS);
     const appStateSub = AppState.addEventListener("change", (next) => {
