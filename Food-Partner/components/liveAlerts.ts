@@ -8,7 +8,7 @@ import type { ScheduledRequestAlert } from "@/types/models";
 import { startOrderRing } from "@/utils/orderRing";
 
 // What happens when a new order or scheduled request arrives while the app is
-// open. The socket (GlobalSocketHandler) and a push received in the foreground
+// open. Polling (LiveOrderWatcher) and a push received in the foreground
 // (PushNotificationHandler) both land here, and the alert store's de-duplication
 // makes sure one order buzzes and rings once, whichever of the two comes first.
 

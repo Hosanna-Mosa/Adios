@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useRef } from "react";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCartInsets } from "./useCartInsets";
 import { useCartStore } from "@/contexts/cartStore";
 import { useCartMenuAndRecentOrders } from "./useCartMenuAndRecentOrders";
@@ -55,6 +55,19 @@ export function useCart() {
     }
     openCheckout();
   };
+
+  // The floating cart opens this screen with ?autoCheckout=1 when it is dragged
+  // up: carry straight on to checkout once the cart has loaded, one time only.
+  const { autoCheckout } = useLocalSearchParams<{ autoCheckout?: string }>();
+  const autoCheckoutDone = useRef(false);
+  useEffect(() => {
+    if (autoCheckout !== "1" || autoCheckoutDone.current) return;
+    if (cartStatus === "hydrating" || items.length === 0) return;
+    autoCheckoutDone.current = true;
+    router.setParams({ autoCheckout: undefined });
+    void goToCheckout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoCheckout, cartStatus, items.length]);
 
   return {
   insets, tabBarHeight, tokens, items, vendorId, updateQuantity: guardedUpdateQuantity, addItem: guardedAddItem, cartStatus, syncNotices,

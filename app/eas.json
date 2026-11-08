@@ -23,7 +23,7 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://x-api.triozen.tech/api/v1",
+        "EXPO_PUBLIC_API_URL": "https://adios-api.triozen.tech/api/v1",
         "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyD23mZxzw78gBlz6EGEZ6BMgCwc4fygJMA"
       }
     },

@@ -6,6 +6,7 @@ import * as Haptics from "expo-haptics";
 import { designTokens, gradients } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { usePressScale } from "@/motion/presets";
+import { trackTap } from "@/utils/analytics";
 import { createStyles, Size } from "./Button.styles";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
@@ -43,6 +44,11 @@ export function Button({
 
   const isDisabled = disabled || loading;
 
+  const handlePress = () => {
+    trackTap(title);
+    onPress?.();
+  };
+
   const handlePressIn = () => {
     if (isDisabled) return;
     if (variant === "primary" || variant === "danger") {
@@ -68,7 +74,7 @@ export function Button({
 
   return (
     <AnimatedPressable
-      onPress={isDisabled ? undefined : onPress}
+      onPress={isDisabled || !onPress ? undefined : handlePress}
       onPressIn={handlePressIn}
       onPressOut={onPressOut}
       disabled={isDisabled}

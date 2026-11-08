@@ -13,7 +13,7 @@ export default function TrackingScreen() {
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
-  handleBack, userLocCoords, bannerText, isFoodOrder, canCancelFoodOrder, handleCancelFoodOrder
+  handleBack, userLocCoords, bannerText, isFoodOrder, canCancelFoodOrder, handleCancelFoodOrder, refresh, refreshing
   } = useTracking();
   const { t } = useTranslation();
 
@@ -107,6 +107,8 @@ export default function TrackingScreen() {
         timeline={timeline}
         pickupLabel={pickupLabel}
         formatClock={formatClock}
+        onRefresh={refresh}
+        refreshing={refreshing}
       />
     </ScreenShell>
   );

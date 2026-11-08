@@ -34,6 +34,15 @@ export function useOrderDetail(orderId: string) {
   const [prepMinutes, setPrepMinutes] = useState(DEFAULT_PREP_MINUTES);
   const [openingInvoice, setOpeningInvoice] = useState(false);
   const order = query.data;
+  // Set only by a refresh the partner asked for — the 10 s background poll
+  // shouldn't spin the pull-to-refresh indicator or the header button.
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await query.refetch().catch(() => {});
+    setRefreshing(false);
+  };
 
   // The invoice is for a finished order; the link opens it in the browser, where it can be printed or saved as a PDF.
   const canInvoice = ["delivered", "completed"].includes(String(order?.status ?? "").toLowerCase());
@@ -105,7 +114,8 @@ export function useOrderDetail(orderId: string) {
     loading: query.isLoading && !order,
     error: query.isError && !order,
     refetch: query.refetch,
-    refreshing: query.isRefetching,
+    refreshing,
+    refresh,
     items: order ? orderItems(order) : [],
     customer: order ? customerOf(order) : null,
     driver: order ? driverOf(order) : null,

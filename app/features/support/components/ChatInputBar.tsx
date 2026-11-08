@@ -1,4 +1,5 @@
-import { TextInput, TouchableOpacity, View } from "react-native";
+import { Platform, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useKeyboardVisible } from "@/components/useKeyboardVisible";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";

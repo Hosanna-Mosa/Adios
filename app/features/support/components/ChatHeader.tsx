@@ -1,8 +1,10 @@
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { Header } from "@/components/ui/Header";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -22,6 +24,8 @@ interface Props {
   partnerLabel: string;
   status: string;
   tokens: ThemeTokens;
+  onRefresh: () => void;
+  refreshing: boolean;
 }
 
 export function ChatHeader({
@@ -33,6 +37,8 @@ export function ChatHeader({
   partnerLabel,
   status,
   tokens,
+  onRefresh,
+  refreshing,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -53,6 +59,8 @@ export function ChatHeader({
         </View>
       }
       right={
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
         <TouchableOpacity
           style={{
             width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19),
@@ -65,6 +73,7 @@ export function ChatHeader({
         >
           <Ionicons name="call" size={17} color={accent.on} />
         </TouchableOpacity>
+        </View>
       }
     />
   );

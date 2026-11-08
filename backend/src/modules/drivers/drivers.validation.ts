@@ -22,6 +22,8 @@ export const updateLocationSchema = z.object({
   body: z.object({
     latitude: z.coerce.number(),
     longitude: z.coerce.number(),
+    // Compass bearing, so a polling customer app can rotate the driver marker.
+    heading: z.coerce.number().min(0).max(360).optional(),
   }),
 });
 

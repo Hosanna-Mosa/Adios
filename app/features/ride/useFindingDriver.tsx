@@ -9,7 +9,7 @@ import { useFindingDriverRaiseFare } from "./useFindingDriverRaiseFare";
 // useFindingDriverShowCancelSheet() instead, since its labels call t().
 
 export function useFindingDriver() {
-  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight } = useFindingDriverInsets();
+  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight, refresh, refreshing } = useFindingDriverInsets();
   const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary, isRide);
 
   const { showRaiseFare, raising, raiseFare } = useFindingDriverRaiseFare(orderId, orderSummary, foodStage);
@@ -19,7 +19,7 @@ export function useFindingDriver() {
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
-  CANCEL_REASONS, foodStage, isRide, sheetHeight, setSheetHeight
+CANCEL_REASONS, foodStage, isRide, sheetHeight, setSheetHeight, refresh, refreshing
   };
 }
 

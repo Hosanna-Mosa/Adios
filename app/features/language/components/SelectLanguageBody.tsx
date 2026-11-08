@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
+import React, { useMemo } from "react";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { Pressable } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";

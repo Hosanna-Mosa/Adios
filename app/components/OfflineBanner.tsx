@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { AppState, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AppState, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useTranslation } from "react-i18next";
 import Constants from "expo-constants";

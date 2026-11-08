@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/contexts/authStore";
+import { trackEvent } from "@/utils/analytics";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -47,7 +48,15 @@ export function useHomeToken(searchText: any, setSearchQuery: any) {
       return;
     }
     const delayDebounceFn = setTimeout(() => setSearchQuery(trimmed), 400);
-    return () => clearTimeout(delayDebounceFn);
+    // Logged only once typing has settled, so "b", "bi", "bir"… don't each
+    // count as a search on the way to "biryani".
+    const trackSearch = trimmed.length >= 2
+      ? setTimeout(() => trackEvent("search", { search_term: trimmed.toLowerCase().slice(0, 50) }), 1500)
+      : null;
+    return () => {
+      clearTimeout(delayDebounceFn);
+      if (trackSearch) clearTimeout(trackSearch);
+    };
   }, [searchText]);
 
   return { token, selectedAddress, setSelectedAddress, isAddressLoaded, setIsAddressLoaded, hasNoLocation, setHasNoLocation, addressResolveRef, hasRedirectedRef, isDistanceSheetOpen, setIsDistanceSheetOpen, distanceOption, setDistanceOption, customDistance, setCustomDistance, appliedDistanceKm, setAppliedDistanceKm, distanceRefreshKey, setDistanceRefreshKey, searchedDishes, setSearchedDishes, isSearchingDishes, setIsSearchingDishes, loading149, setLoading149, selectedSort, setSelectedSort, filter99Store, setFilter99Store, filterFastDelivery, setFilterFastDelivery, filterOffers, setFilterOffers, filterMinRating, setFilterMinRating, filterOpenNow, setFilterOpenNow, filterCostRange, setFilterCostRange, filterVegNonVeg, setFilterVegNonVeg, selectedCuisines, setSelectedCuisines, activeFilterTab, setActiveFilterTab, isFilterModalVisible, setIsFilterModalVisible };

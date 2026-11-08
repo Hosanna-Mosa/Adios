@@ -1,23 +1,24 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
-import { socketService } from "@/lib/socketService";
+import { VENDOR_LIVE_REFRESH_MS } from "./useVendorLiveAlerts";
 import type { ScheduledRequest } from "../vendorScheduledOrdersTypes";
 
-/** All state/query/mutation/socket logic for VendorScheduledOrders.tsx (work queue item #18). */
+/** All state/query/mutation logic for VendorScheduledOrders.tsx (work queue item #18). */
 export function useVendorScheduledOrders() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const vendorData = JSON.parse(localStorage.getItem("vendor_data") || "{}");
   const [respondingId, setRespondingId] = useState<string | null>(null);
 
-  const { data: requests = [], isLoading, refetch } = useQuery({
+  const { data: requests = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["vendor-scheduled-orders", vendorData._id],
     queryFn: () => adminFetch<ScheduledRequest[]>(`/orders/scheduled-delivery/vendor/${vendorData._id}`),
     enabled: !!vendorData._id,
-    refetchInterval: 15000,
+    refetchInterval: VENDOR_LIVE_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
 
   const respondMutation = useMutation({
@@ -37,22 +38,6 @@ export function useVendorScheduledOrders() {
     },
   });
 
-  useEffect(() => {
-    if (!vendorData._id) return;
-
-    socketService.connect();
-    socketService.join(vendorData._id, "VENDOR");
-
-    const handleNewRequest = () => {
-      refetch();
-    };
-
-    socketService.on("scheduled_delivery_request", handleNewRequest);
-    return () => {
-      socketService.off("scheduled_delivery_request", handleNewRequest);
-    };
-  }, [vendorData._id, refetch]);
-
   const handleRespond = (requestId: string, accepted: boolean) => {
     setRespondingId(requestId);
     respondMutation.mutate({ requestId, accepted });
@@ -64,6 +49,8 @@ export function useVendorScheduledOrders() {
   return {
     requests,
     isLoading,
+    isFetching,
+    refetch,
     respondingId,
     isResponding: respondMutation.isPending,
     handleRespond,

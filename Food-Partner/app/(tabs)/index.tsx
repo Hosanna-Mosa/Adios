@@ -30,6 +30,8 @@ export default function DashboardScreen() {
         status={outletBadge}
         rating={rating}
         reviewCount={reviewCount}
+        onRefresh={refresh}
+        refreshing={refreshing}
         styles={styles}
         tokens={tokens}
       />

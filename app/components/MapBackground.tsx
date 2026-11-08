@@ -6,6 +6,7 @@ import { MapDriverMarkers } from '@/components/MapDriverMarkers';
 import { MapLocationMarkers } from '@/components/MapLocationMarkers';
 import { StyleSheet, View, ViewStyle, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {  } from "@/components/ui/TrackedTouchable";
 import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, Circle } from '@/components/maps';
 import { Feather } from '@expo/vector-icons';
 import { DeliveryStop } from '@/contexts/deliveryStore';
