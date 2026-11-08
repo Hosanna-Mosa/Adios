@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";

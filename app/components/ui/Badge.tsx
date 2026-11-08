@@ -1,5 +1,6 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Pressable } from "@/components/ui/TrackedTouchable";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens, radius, type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";

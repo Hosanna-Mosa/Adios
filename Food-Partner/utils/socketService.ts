@@ -6,6 +6,12 @@ import { socketBaseUrl } from "@/utils/env";
 // same "VENDOR" room so the backend's new_order_vendor /
 // order_status_update_vendor / scheduled_delivery_request / ticket_updated
 // events reach this device exactly as they reach the panel.
+//
+// Sockets are switched off: the app keeps itself current by polling instead
+// (LiveOrderWatcher plus each query's refetchInterval). The code stays so it can
+// be turned back on with EXPO_PUBLIC_ENABLE_SOCKETS=true; while it is off,
+// connect and join do nothing, and on/off only maintain the local listener map.
+const SOCKETS_ENABLED = process.env.EXPO_PUBLIC_ENABLE_SOCKETS === "true";
 
 type Listener = (data: any) => void;
 
@@ -20,6 +26,7 @@ class SocketService {
 
   /** Opens the connection with this session's token. A different token reconnects. */
   public connect(token: string) {
+    if (!SOCKETS_ENABLED) return;
     if (this.socket && this.token === token) return;
     this.closeSocket();
     this.token = token;
@@ -46,6 +53,7 @@ class SocketService {
   }
 
   public join(userId: string, role = "VENDOR") {
+    if (!SOCKETS_ENABLED) return;
     this.lastJoin = { userId, role };
     this.socket?.emit("join", this.lastJoin);
   }

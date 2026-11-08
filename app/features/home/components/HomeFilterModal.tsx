@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Modal, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";

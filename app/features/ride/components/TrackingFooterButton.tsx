@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 
 // One outline button for the tracking sheet footer. Replaces the four
 // TrackingFooterBtnOutline{,2,3,4} copies, which were the same button with a

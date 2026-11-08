@@ -1,39 +1,22 @@
-import { useEffect } from "react";
-import { socketService } from "@/utils/socketService";
-import type { SupportTicket } from "../types";
+import { useRef } from "react";
+import { usePolling } from "@/hooks/usePolling";
 
-/** Keeps an open ticket live: the agent's replies arrive over the socket. */
-export function useTicketLiveUpdates({
-  ticket,
-  setTicket,
-  setAllTickets,
-  fetchTickets,
-  flatListRef,
-}: {
-  ticket: SupportTicket | null;
-  setTicket: (updater: any) => void;
-  setAllTickets: (updater: any) => void;
-  fetchTickets: (showLoading?: boolean) => Promise<void> | void;
-  flatListRef: React.RefObject<any>;
-}) {
-  useEffect(() => {
-    fetchTickets(true);
+const POLL_MS = 4000;
 
-    socketService.connect();
-    const handleTicketUpdate = (updatedTicket: any) => {
-      console.log("[SOCKET] Partner support ticket updated:", updatedTicket);
-      setTicket((prev: any) => (prev && prev._id === updatedTicket._id ? updatedTicket : prev));
-      setAllTickets((prev: any) => prev.map((t: any) => (t._id === updatedTicket._id ? updatedTicket : t)));
-    };
-    socketService.on("ticket_updated", handleTicketUpdate);
+/** Keeps an open ticket live by polling GET /support/tickets (paused in the
+ * background). Returns a manual refresh for the header button. */
+export function useTicketLiveUpdates(fetchTickets: (showLoading?: boolean) => Promise<void> | void) {
+  // First load shows the spinner and picks the view; later polls refresh quietly.
+  const loaded = useRef(false);
+  const { refresh, refreshing } = usePolling(
+    () => {
+      const first = !loaded.current;
+      loaded.current = true;
+      return fetchTickets(first);
+    },
+    POLL_MS,
+    true,
+  );
 
-    const interval = setInterval(() => {
-      fetchTickets(false);
-    }, 4000);
-
-    return () => {
-      clearInterval(interval);
-      socketService.off("ticket_updated", handleTicketUpdate);
-    };
-  }, []);
+  return { refresh, refreshing };
 }

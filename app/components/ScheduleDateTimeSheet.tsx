@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, Modal, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, Platform, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { useScheduleDateTimeSheet } from "./useScheduleDateTimeSheet";
 

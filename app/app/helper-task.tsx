@@ -5,6 +5,7 @@ import { TaskAssignedPanel } from "@/features/delivery/components/TaskAssignedPa
 import { View, ScrollView, Linking } from "react-native";
 import { Stack } from "expo-router";
 import { Header } from "@/components/ui/Header";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { fadeIn } from "@/motion/presets";
 import { HelperTaskSection } from "@/features/delivery/components/HelperTaskSection";
 import { HelperTaskOfferBlock } from "@/features/delivery/components/HelperTaskOfferBlock";
@@ -22,7 +23,7 @@ export default function HelperTaskScreen() {
   startOtp, searchExhausted, searchStartedAt, totalHours, calculatedFare, quote, isQuoting, quoteError,
   suggestedLow, suggestedHigh, handleUseCurrentLocation, isResuming, localOrderId,
   handleSearch, selectResult, handleIncreasePrice, handleCancel, handleBack, goToOffer, createTask,
-  isProceedDisabled, activeDriver
+  isProceedDisabled, activeDriver, refresh, refreshing
   } = useHelperTask();
   const { t } = useTranslation();
 
@@ -35,6 +36,14 @@ export default function HelperTaskScreen() {
         onBack={handleBack}
         style={{ paddingTop: insets.top + 6, paddingBottom: 10 }}
         entering={fadeIn(0)}
+        right={step === "searching" || step === "assigned" ? (
+          <RefreshButton
+            style={{ marginLeft: "auto" }}
+            onPress={refresh}
+            refreshing={refreshing}
+            accessibilityLabel={t("actions.refresh")}
+          />
+        ) : null}
       />
 
       {isResuming && <FullScreenLoader color={accent.accent} style={{ flex: 1 }} />}

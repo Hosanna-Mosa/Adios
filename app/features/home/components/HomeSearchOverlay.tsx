@@ -1,5 +1,6 @@
 import React from "react";
-import { ActivityIndicator, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
