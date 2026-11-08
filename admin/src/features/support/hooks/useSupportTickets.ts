@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { adminFetch } from "@/lib/api-client";
-import { socketService } from "@/lib/socketService";
+import { TICKETS_REFRESH_MS } from "./ticketsPolling";
 import type { NewTicketForm, Ticket } from "../types";
 
 const EMPTY_NEW_TICKET: NewTicketForm = { title: "", category: "OPERATIONAL ISSUE", message: "", user: "Platform User" };
 
-/** All state/query/socket logic for Support.tsx (work queue item #10). */
+/** All state/query logic for Support.tsx (work queue item #10). */
 export function useSupportTickets() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -19,9 +19,11 @@ export function useSupportTickets() {
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
   const [typedMessage, setTypedMessage] = useState("");
 
-  const { data: ticketsList = [], isLoading } = useQuery({
+  const { data: ticketsList = [], isLoading, isFetching, refetch } = useQuery({
     queryKey: ["admin", "tickets"],
     queryFn: () => adminFetch<Ticket[]>("/admin/tickets"),
+    refetchInterval: TICKETS_REFRESH_MS,
+    refetchIntervalInBackground: false,
   });
 
   const createTicketMutation = useMutation({
@@ -64,27 +66,6 @@ export function useSupportTickets() {
     setActiveTicketId(selectedTicket._id);
   }
 
-  // Connect to Socket.io and listen for support updates
-  useEffect(() => {
-    socketService.connect();
-
-    const adminData = JSON.parse(localStorage.getItem("admin_data") || "{}");
-    if (adminData._id) {
-      socketService.join(adminData._id, "ADMIN");
-    }
-
-    const handleTicketUpdate = (data: unknown) => {
-      console.log("[SOCKET] Ticket update received:", data);
-      queryClient.invalidateQueries({ queryKey: ["admin", "tickets"] });
-    };
-
-    socketService.on("ticket_updated", handleTicketUpdate);
-
-    return () => {
-      socketService.off("ticket_updated", handleTicketUpdate);
-    };
-  }, [queryClient]);
-
   const handleSendMessage = () => {
     if (!typedMessage.trim() || !selectedTicket) return;
     updateTicketMutation.mutate({
@@ -122,6 +103,8 @@ export function useSupportTickets() {
     ticketsList,
     filteredTickets,
     isLoading,
+    isFetching,
+    refetch,
     selectedTicket,
     setActiveTicketId,
     isCreateOpen,

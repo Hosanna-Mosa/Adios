@@ -4,6 +4,9 @@ import Constants from "expo-constants";
 const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl || "";
 // Extract the base URL to prevent Socket.io from using the API path as a namespace
 const BASE_SOCKET_URL = SOCKET_URL.split("/api")[0] || SOCKET_URL;
+// Off by default: screens poll the REST API instead. Kept so sockets can be
+// switched back on with EXPO_PUBLIC_ENABLE_SOCKETS=true.
+const SOCKETS_ENABLED = process.env.EXPO_PUBLIC_ENABLE_SOCKETS === "true";
 
 class SocketService {
   private socket: Socket | null = null;
@@ -19,22 +22,25 @@ class SocketService {
     return SocketService.instance;
   }
 
-  public connect() {
-    if (this.socket) return;
-
-    let token = "";
+  private currentToken(): string {
     try {
       const store = require("../contexts/authStore");
-      token = store.useAuthStore.getState().token || "";
+      return store.useAuthStore.getState().token || "";
     } catch (e) {
       console.warn("[SocketService] Failed to load token from authStore:", e);
+      return "";
     }
+  }
+
+  public connect() {
+    if (!SOCKETS_ENABLED || this.socket) return;
 
     this.socket = io(BASE_SOCKET_URL, {
       transports: ["websocket", "polling"],
       autoConnect: true,
       path: "/ws/v1/socket.io",
-      auth: token ? { token } : undefined,
+      // Evaluated on every (re)connect, so a token renewed in the meantime is used.
+      auth: (cb) => cb({ token: this.currentToken() }),
     });
 
     this.socket.on("connect", () => {
@@ -50,6 +56,7 @@ class SocketService {
   }
 
   public trackOrder(orderId: string) {
+    if (!SOCKETS_ENABLED) return;
     this.trackedOrderId = orderId;
     if (!this.socket) {
       this.connect();
@@ -59,6 +66,7 @@ class SocketService {
   }
 
   public on(event: string, callback: (data: any) => void) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
@@ -68,6 +76,7 @@ class SocketService {
   }
 
   public emit(event: string, data: any) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.emit(event, data);
   }

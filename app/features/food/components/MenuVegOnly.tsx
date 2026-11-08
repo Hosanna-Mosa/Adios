@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -19,6 +20,7 @@ interface Props {
   name: string | string[];
   rating: any;
   reviews: any;
+  searchInputRef?: any;
   searchQuery: any;
   setSearchQuery: React.Dispatch<React.SetStateAction<any>>;
   setVegOnly: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,6 +38,7 @@ export function MenuVegOnly({
   name,
   rating,
   reviews,
+  searchInputRef,
   searchQuery,
   setSearchQuery,
   setVegOnly,
@@ -94,6 +97,7 @@ export function MenuVegOnly({
       <View style={styles.searchRow}>
         <Ionicons name="search" size={moderateScale(15)} color={tokens.sec} />
         <TextInput
+          ref={searchInputRef}
           style={styles.searchInput}
           placeholder={t("app.food.searchInVar", { value: name })}
           placeholderTextColor={tokens.muted}

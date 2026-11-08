@@ -29,7 +29,7 @@ export default function UpdateModal({ visible, forceUpdate, storeUrl, onDismiss 
       storeUrl?.trim() ||
       (Platform.OS === "ios"
         ? "https://apps.apple.com/app/flavour/id123456"
-        : "https://play.google.com/store/apps/details?id=com.flavour.customer");
+        : "https://play.google.com/store/apps/details?id=com.adios.customer");
 
     // market:// hands the listing straight to the Play Store app; the https
     // listing is the fallback for devices without Play Services.

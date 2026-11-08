@@ -199,3 +199,21 @@ export const declineOrderSchema = z.object({
     reason: z.string({ message: "Decline reason is required" }).trim().min(1, "Decline reason is required").max(300),
   }),
 });
+
+// POST /orders/:id/chat — the REST twin of the socket `send_message` event.
+export const sendChatMessageSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    text: z.string().trim().min(1, "Message text is required").max(2000, "Message is too long"),
+    // The sender's own id for the message, echoed back so it can match its optimistic copy.
+    clientId: z.string().trim().min(1).max(100).optional(),
+  }),
+});
+
+// POST /orders/:id/helper/status — the helper's short progress note to the customer.
+export const helperStatusSchema = z.object({
+  params: z.object({ id: z.string().min(1) }),
+  body: z.object({
+    text: z.string().trim().min(1, "Status text is required").max(200, "Status text is too long"),
+  }),
+});

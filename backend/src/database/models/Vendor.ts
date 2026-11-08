@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
+import { encryptedFields } from "../plugins/encryptedFields";
 import { webPushSubscriptionSchema, IWebPushSubscription } from "./WebPushSubscription";
 import { WeeklyHours } from "../../utils/openingHours";
 
@@ -52,6 +53,11 @@ export interface IVendor extends Document {
   // Short lock so two payout requests can't both pass the balance check.
   payoutLockUntil?: Date | null;
   partnerType?: "food" | "meat";
+  // Bumped on password change or an onboardingStatus change via admin update, so
+  // already-issued tokens (which carry the version they were minted with) stop
+  // passing authenticateToken's check once the account's access situation changes
+  // — mirrors User.tokenVersion. See IAM-002 in TESTING_REPORT/02_FINDINGS_REGISTER.md.
+  tokenVersion?: number;
   owner?: {
     name?: string;
     email?: string;
@@ -225,6 +231,7 @@ const VendorSchema: Schema = new Schema(
       enum: ["food", "meat"],
       default: "food",
     },
+    tokenVersion: { type: Number, default: 0 },
     owner: {
       name: { type: String },
       email: { type: String },
@@ -367,5 +374,28 @@ VendorSchema.methods.matchPassword = async function (enteredPassword: string) {
 
 // Crucial for proximity sorting
 VendorSchema.index({ location: "2dsphere" });
+
+// Owner identity, tax and bank details are stored encrypted (see plugins/encryptedFields.ts).
+// legal.fssaiNumber / legal.fssaiExpiry stay plain: the customer app shows the FSSAI licence.
+// Never filter or aggregate on these paths, and strip them from any aggregate() that is served
+// to clients (VENDOR_ENCRYPTED_PATHS), because aggregate() returns the ciphertext.
+export const VENDOR_ENCRYPTED_PATHS = [
+  "legal.panNumber",
+  "legal.panFileName",
+  "legal.gstin",
+  "legal.gstFileName",
+  "legal.fssaiFileName",
+  "legal.bankAccount",
+  "legal.ifsc",
+  "legal.chequeFileName",
+  "kyc.digilockerId",
+  "kyc.holderName",
+  "kyc.dob",
+  "kyc.gender",
+  "kyc.maskedAadhaar",
+  "kyc.panNumber",
+  "kyc.panName",
+];
+VendorSchema.plugin(encryptedFields, { paths: VENDOR_ENCRYPTED_PATHS });
 
 export default mongoose.model<IVendor>("Vendor", VendorSchema);

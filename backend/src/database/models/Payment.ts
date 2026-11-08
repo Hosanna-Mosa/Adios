@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 // One customer payment = one Razorpay order (RAZORPAY_INTEGRATION.md §6.7.2, reduced to what
 // the pay-at-checkout flow needs today). The order the customer is buying is stored here at
@@ -67,5 +68,10 @@ const PaymentSchema = new Schema(
   },
   { timestamps: true },
 );
+
+// The order being bought (addresses, contacts, items) and the error text are stored encrypted
+// (see plugins/encryptedFields.ts). razorpayOrderId / razorpayPaymentId stay plain: the webhook
+// and checkout look payments up by them. Never filter or aggregate on the encrypted fields.
+PaymentSchema.plugin(encryptedFields, { paths: ["lastError"], jsonPaths: ["orderData"] });
 
 export default mongoose.model<IPayment>("Payment", PaymentSchema);

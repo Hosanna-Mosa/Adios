@@ -15,8 +15,6 @@ export function useHomeRestaurants() {
   const setRestaurants = useHomeStore((s) => s.setRestaurants);
   const meatCenters = useHomeStore((s) => s.meatCenters);
   const setMeatCenters = useHomeStore((s) => s.setMeatCenters);
-  const nearbyDriversCount = useHomeStore((s) => s.nearbyDriversCount);
-  const setNearbyDriversCount = useHomeStore((s) => s.setNearbyDriversCount);
   const loading = useHomeStore((s) => s.loading);
   const setLoading = useHomeStore((s) => s.setLoading);
   const loadingDrivers = useHomeStore((s) => s.loadingDrivers);
@@ -52,5 +50,5 @@ export function useHomeRestaurants() {
     }
   }, [isSearchActive]);
 
-  return { restaurants, setRestaurants, meatCenters, setMeatCenters, nearbyDriversCount, setNearbyDriversCount, loading, setLoading, loadingDrivers, setLoadingDrivers, store149Items, setStore149Items, activeService, setActiveService, insets, tabBarHeight, searchText, setSearchText, searchQuery, setSearchQuery, appliedSearchTerm, setAppliedSearchTerm, setIsSearchActive, isSearchVisible, searchTranslateY, searchBackdropOpacity, recentSearches, setRecentSearches };
+  return { restaurants, setRestaurants, meatCenters, setMeatCenters, loading, setLoading, loadingDrivers, setLoadingDrivers, store149Items, setStore149Items, activeService, setActiveService, insets, tabBarHeight, searchText, setSearchText, searchQuery, setSearchQuery, appliedSearchTerm, setAppliedSearchTerm, setIsSearchActive, isSearchVisible, searchTranslateY, searchBackdropOpacity, recentSearches, setRecentSearches };
 }

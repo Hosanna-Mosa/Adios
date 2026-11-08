@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { DigiLockerDivider, DigiLockerField, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
 import { useOnboardingCtx } from "../../OnboardingContext";
+import { fieldMessage, validateAadhaar } from "@/utils/validation";
 import { validateAadhaarFormat } from "../../validators";
 import { AlternateIdLink } from "../AlternateIdLink";
 import { ConsentCheckbox } from "../ConsentCheckbox";
@@ -83,6 +84,13 @@ export function AadhaarSection() {
     );
   }
 
+  // Judged once all 12 digits are in, or as soon as the first digit is one Aadhaar never starts with.
+  const aadhaarDigits = identity.aadhaarNumber.replace(/\s/g, "");
+  const aadhaarError =
+    aadhaarDigits.length === 12 || /^[01]/.test(aadhaarDigits)
+      ? fieldMessage(t, validateAadhaar(aadhaarDigits))
+      : undefined;
+
   return (
     <FieldColumn gap={16}>
       {!identity.aadhaarVerified && !identity.panVerified && (
@@ -103,6 +111,7 @@ export function AadhaarSection() {
         keyboardType="number-pad"
         maxLength={14}
         icon="credit-card"
+        error={aadhaarError}
       />
       {identity.panVerified ? (
         <FormalityNotes aadhaarNumber={identity.aadhaarNumber} />

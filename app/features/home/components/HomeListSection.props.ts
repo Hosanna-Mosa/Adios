@@ -1,15 +1,12 @@
 // Props for HomeListSection, kept beside it so neither file passes 150 lines.
 
 export interface Props {
-  nearbyDriversCount: any;
   loadingDrivers: any;
   activeService: any;
   tabBarHeight: any;
   searchText: any;
   setSearchText: any;
   loadingMore: any;
-  isRetryingDrivers: any;
-  setIsRetryingDrivers: any;
   setPage: any;
   setHasMore: any;
   tokens: any;
@@ -22,7 +19,6 @@ export interface Props {
   fetchVendors: any;
   fetchMeatCenters: any;
   fetch149StoreItems: any;
-  checkNearbyDrivers: any;
   loadMore: any;
   showHomeSkeleton: any;
   visibleItems: any;

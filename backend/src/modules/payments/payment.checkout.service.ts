@@ -27,7 +27,7 @@ export class PaymentError extends AppError {
 
 // Only our own app may be sent back to. Expo Go / dev-client URLs are allowed outside production.
 const isAllowedReturnUrl = (url: string) => {
-  if (/^flavour:\/\//i.test(url)) return true;
+  if (/^(adios|flavour):\/\//i.test(url)) return true;
   if (!isDevEnv()) return false;
   return /^(exp|exps|exp\+[a-z0-9-]+):\/\//i.test(url);
 };
@@ -64,7 +64,7 @@ export class CheckoutService {
     if (amountPaise < MIN_AMOUNT_PAISE) {
       throw new PaymentError(400, "AMOUNT_TOO_LOW", "Amount must be at least ₹1");
     }
-    const returnUrl = input.returnUrl && isAllowedReturnUrl(input.returnUrl) ? input.returnUrl : "flavour://payment-result";
+    const returnUrl = input.returnUrl && isAllowedReturnUrl(input.returnUrl) ? input.returnUrl : "adios://payment-result";
 
     const user = await User.findById(input.userId).select("name email phone").lean();
     if (!user) throw new PaymentError(404, "NOT_FOUND", "User not found");
@@ -136,7 +136,7 @@ export class CheckoutService {
     const amountPaise = amount * 100;
     if (amountPaise < MIN_AMOUNT_PAISE) throw new PaymentError(400, "AMOUNT_TOO_LOW", "Amount must be at least ₹1");
 
-    const returnUrl = input.returnUrl && isAllowedReturnUrl(input.returnUrl) ? input.returnUrl : "flavour://payment-result";
+    const returnUrl = input.returnUrl && isAllowedReturnUrl(input.returnUrl) ? input.returnUrl : "adios://payment-result";
     const user = await User.findById(input.userId).select("name email phone").lean();
     if (!user) throw new PaymentError(404, "NOT_FOUND", "User not found");
 

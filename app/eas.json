@@ -24,7 +24,7 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://x-api.triozen.tech/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://adios-api.triozen.tech/api/v1"
       }
     },
     "production": {

@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { create } from "zustand";
@@ -23,7 +24,13 @@ import { createStyles, iconFor } from "./AppAlert.styles";
  * from plain handlers and hooks, exactly the way `Alert.alert` could. Mount
  * <AppAlert /> once at the app root (see app/_layout.tsx).
  */
-export type AlertButtonStyle = "default" | "cancel" | "destructive";
+export type AlertButtonStyle =
+  | "default"
+  | "cancel"
+  | "destructive"
+  // Delete-confirmation popup only — see AppAlert.styles.ts.
+  | "deleteSolid"
+  | "cancelSolid";
 export type AlertTone = "info" | "success" | "error" | "warning";
 
 export interface AlertButton {
@@ -110,11 +117,20 @@ export function AppAlert() {
                   styles.button,
                   button.style === "cancel" && styles.buttonCancel,
                   button.style === "destructive" && styles.buttonDestructive,
+                  button.style === "deleteSolid" && styles.buttonDeleteSolid,
+                  button.style === "cancelSolid" && styles.buttonCancelSolid,
                 ]}
                 activeOpacity={0.85}
                 onPress={() => handlePress(button)}
               >
-                <Text style={[styles.buttonText, button.style === "cancel" && styles.buttonTextCancel]}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    button.style === "cancel" && styles.buttonTextCancel,
+                    button.style === "deleteSolid" && styles.buttonTextDeleteSolid,
+                    button.style === "cancelSolid" && styles.buttonTextCancelSolid,
+                  ]}
+                >
                   {button.text}
                 </Text>
               </TouchableOpacity>

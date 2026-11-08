@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -49,7 +50,7 @@ export function HomeTopBar({
 
   return (
     <View style={[styles.topRow, { paddingTop: insets.top + 6 }]}>
-      {/* "Delivery to · Home · <address>" on one line, truncated at the end. */}
+      {/* Address line only, truncated at the end — no "Delivery to · Home" prefix. */}
       <TouchableOpacity
         style={[styles.addressBlock, styles.addressInlineRow]}
         activeOpacity={0.7}
@@ -58,9 +59,7 @@ export function HomeTopBar({
         accessibilityLabel={t("app.home.deliveryAddressAccessibilityLabel", { area: areaLine })}
       >
         <Text style={styles.addressInlineText} numberOfLines={1}>
-          <Text style={styles.addressInlineEyebrow}>{t("app.home.deliveryTo").toUpperCase()} </Text>
-          <Text style={styles.addressInlineLabel}>{areaLabel}</Text>
-          <Text style={styles.addressInlineLine}>{` · ${areaLine}`}</Text>
+          <Text style={styles.addressInlineLabel}>{areaLine}</Text>
         </Text>
         <Ionicons name="chevron-down" size={moderateScale(14)} color={tokens.sec} />
       </TouchableOpacity>

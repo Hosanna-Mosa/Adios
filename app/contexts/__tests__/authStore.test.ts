@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as SecureStore from "expo-secure-store";
 
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({ router: { push: (...a: any[]) => mockPush(...a) } }));
 jest.mock("@/services/cart.service", () => ({
   getCart: jest.fn(() => Promise.resolve({ vendorId: null, items: [] })),
   putCart: jest.fn(() => Promise.resolve({})),
@@ -17,10 +19,20 @@ import { useAuthStore } from "../authStore";
 import { resetSessionExpiry } from "../auth.session";
 
 beforeEach(async () => {
+  mockPush.mockClear();
   await AsyncStorage.clear();
   (SecureStore as any).__reset();
   resetSessionExpiry();
-  useAuthStore.setState({ user: null, token: null, loading: false, error: null, isInitialized: false });
+  useAuthStore.setState({ user: null, token: null, loading: false, error: null, isInitialized: false, guestMode: false });
+});
+
+describe("continueAsGuest", () => {
+  it("marks the session as a guest, and signing out clears it", async () => {
+    useAuthStore.getState().continueAsGuest();
+    expect(useAuthStore.getState().guestMode).toBe(true);
+    await useAuthStore.getState().logout();
+    expect(useAuthStore.getState().guestMode).toBe(false);
+  });
 });
 
 describe("setToken", () => {
@@ -83,8 +95,9 @@ describe("toggleFavorite", () => {
     expect(useAuthStore.getState().user.favorites).toEqual([]);
   });
 
-  it("is a no-op when nobody is signed in", async () => {
+  it("sends a guest to Login instead of saving anything", async () => {
     await useAuthStore.getState().toggleFavorite("r1");
     expect(useAuthStore.getState().user).toBeNull();
+    expect(mockPush).toHaveBeenCalledWith("/login");
   });
 });

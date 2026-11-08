@@ -31,7 +31,7 @@ export function StatCard({ icon, label, value, badge, badgeColor = "success", su
           </div>
         )}
         {badge && (
-          <span className={`text-xs font-semibold ${badgeStyles[badgeColor]}`}>
+          <span className={`text-xs font-semibold text-right ${badgeStyles[badgeColor]}`}>
             {badge}
           </span>
         )}
@@ -40,7 +40,7 @@ export function StatCard({ icon, label, value, badge, badgeColor = "success", su
         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
         </p>
-        <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+        <p className="text-2xl font-bold tracking-tight tabular-nums text-foreground mt-1">{value}</p>
         {subtitle && (
           <p className={`text-xs mt-1 ${badgeStyles[badgeColor]}`}>{subtitle}</p>
         )}

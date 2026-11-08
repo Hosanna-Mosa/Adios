@@ -79,7 +79,15 @@ const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, 
  */
 async function startDriverSessionOffline(user: { _id: unknown; role: UserRole }) {
   if (user.role !== UserRole.DRIVER) return;
-  await Driver.updateOne({ user: String(user._id) }, { $set: { status: DriverStatus.OFFLINE, isAvailable: false } });
+  const driver = await Driver.findOneAndUpdate(
+    { user: String(user._id) },
+    { $set: { status: DriverStatus.OFFLINE, isAvailable: false } },
+    { projection: { _id: 1 } },
+  ).lean();
+  if (driver) {
+    const { markDriverOffline } = await import("../../database/models/DriverOnlineSession");
+    await markDriverOffline(driver._id).catch((err) => console.warn("[auth] Could not close online time:", err?.message));
+  }
 }
 
 export class AuthService {
@@ -100,7 +108,7 @@ export class AuthService {
     return { success: true, message: "OTP sent successfully" };
   }
 
-  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string) {
+  async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string, accessTtl = "30d") {
     // Gated separately from requestOTP: a caller can post here without ever
     // asking for a code, and this is the step that mints the session.
     if (!isDummyOtpEnabled()) {
@@ -158,11 +166,11 @@ export class AuthService {
     }
 
     await startDriverSessionOffline(user);
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token, isNewUser: false };
   }
 
-  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole) {
+  async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole, accessTtl = "30d") {
     const query = {
       ...buildLoginIdentifierQuery(phoneOrEmail),
       role,
@@ -194,7 +202,7 @@ export class AuthService {
     }
 
     await startDriverSessionOffline(user);
-    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token };
   }
 
@@ -240,7 +248,7 @@ export class AuthService {
     return { success: true, message: "Signed out of all devices" };
   }
 
-  generateToken(userId: string, role: UserRole, tokenVersion = 0) {
+  generateToken(userId: string, role: UserRole, tokenVersion = 0, expiresIn = "30d") {
     return jwt.sign(
       // jti gives this specific token an identity distinct from every other
       // token this account holds, so POST /auth/logout can revoke just this
@@ -249,8 +257,9 @@ export class AuthService {
       { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
       // Staff sessions live in the admin panel's localStorage and can do far more
-      // with a leaked token, so they end after a working day. App sessions stay long.
-      { expiresIn: STAFF_SESSION_ROLES.includes(role) ? "12h" : "30d" }
+      // with a leaked token, so they end after a working day. App sessions stay long
+      // (30 days unless the client signs in with a refresh token and gets a shorter one).
+      { expiresIn: (STAFF_SESSION_ROLES.includes(role) && expiresIn === "30d" ? "12h" : expiresIn) as jwt.SignOptions["expiresIn"] }
     );
   }
 

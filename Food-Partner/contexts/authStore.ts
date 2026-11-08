@@ -5,7 +5,7 @@ import type { LoginResponse } from "@/services/auth.service";
 import { logoutSession } from "@/services/auth.service";
 import { removePushToken } from "@/services/outlet.service";
 import { usePushStore } from "./pushStore";
-import { clearToken, loadToken, saveToken } from "@/utils/secureToken";
+import { clearRefreshToken, clearToken, loadRefreshToken, loadToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
 
 // The signed-in outlet. Mirrors the web panel's vendor_token / vendor_data pair
 // (admin/src/lib/session.ts): the token in secure storage (utils/secureToken.ts),
@@ -15,11 +15,15 @@ const SESSION_KEY = "partner_session";
 
 export interface AuthState {
   token: string | null;
+  /** One-use token that renews `token` when it expires (see utils/api/sessionRefresh.ts). */
+  refreshToken: string | null;
   partner: PartnerSession | null;
   /** True once initializeAuth() has read storage — gates the first redirect. */
   isInitialized: boolean;
   initializeAuth: () => Promise<void>;
   signIn: (response: LoginResponse) => Promise<void>;
+  /** Stores a renewed token pair after a silent refresh. */
+  setTokens: (tokens: { token: string; refreshToken: string }) => Promise<void>;
   /** Refreshes the saved outlet details with what the database now says (GET /vendors/me). */
   updatePartner: (fields: Partial<Pick<PartnerSession, "name" | "email" | "phone">>) => void;
   signOut: () => Promise<void>;
@@ -34,19 +38,24 @@ export interface AuthState {
 let sessionExpiryHandled = false;
 
 const clearStorage = () =>
-  Promise.all([clearToken(), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
+  Promise.all([clearToken(), clearRefreshToken(), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: null,
+  refreshToken: null,
   partner: null,
   isInitialized: false,
 
   initializeAuth: async () => {
     try {
-      const [token, raw] = await Promise.all([loadToken(), AsyncStorage.getItem(SESSION_KEY)]);
+      const [token, raw, refreshToken] = await Promise.all([
+        loadToken(),
+        AsyncStorage.getItem(SESSION_KEY),
+        loadRefreshToken(),
+      ]);
       if (token && raw) {
-        // An expired token is caught by the first API call's 401, which signs out.
-        set({ token, partner: JSON.parse(raw) as PartnerSession });
+        // An expired token is renewed by the first API call's 401 (or, if that fails, signs out).
+        set({ token, refreshToken, partner: JSON.parse(raw) as PartnerSession });
       }
     } catch (error) {
       console.warn("[auth] Failed to restore the partner session", error);
@@ -55,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signIn: async ({ token, ...profile }) => {
+  signIn: async ({ token, refreshToken, ...profile }) => {
     sessionExpiryHandled = false;
     const partner: PartnerSession = {
       _id: profile._id,
@@ -65,8 +74,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       role: profile.role,
       partnerType: profile.partnerType,
     };
-    set({ token, partner });
-    await Promise.all([saveToken(token), AsyncStorage.setItem(SESSION_KEY, JSON.stringify(partner))]);
+    set({ token, refreshToken: refreshToken ?? null, partner });
+    await Promise.all([
+      saveToken(token),
+      AsyncStorage.setItem(SESSION_KEY, JSON.stringify(partner)),
+      refreshToken ? saveRefreshToken(refreshToken) : clearRefreshToken(),
+    ]);
+  },
+
+  setTokens: async ({ token, refreshToken }) => {
+    set({ token, refreshToken });
+    await Promise.all([saveToken(token), saveRefreshToken(refreshToken)]);
   },
 
   updatePartner: (fields) => {
@@ -79,7 +97,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
-    const token = get().token;
+    const { token, refreshToken } = get();
     if (token) {
       // Best effort, in order: this device stops ringing for the outlet, then the
       // token is revoked (which would make the first call 401). A device must never
@@ -88,16 +106,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const pushToken = usePushStore.getState().registeredToken;
       usePushStore.getState().setRegisteredToken(null);
       const stopAlerts = pushToken ? removePushToken(pushToken, headers).catch(() => {}) : Promise.resolve();
-      void stopAlerts.then(() => logoutSession(headers)).catch(() => {});
+      void stopAlerts.then(() => logoutSession(headers, refreshToken)).catch(() => {});
     }
-    set({ token: null, partner: null });
+    set({ token: null, refreshToken: null, partner: null });
     await clearStorage();
   },
 
   handleUnauthorized: () => {
     if (sessionExpiryHandled || !get().token) return false;
     sessionExpiryHandled = true;
-    set({ token: null, partner: null });
+    set({ token: null, refreshToken: null, partner: null });
     void clearStorage();
     return true;
   },

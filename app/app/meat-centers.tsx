@@ -6,7 +6,7 @@ import { useMeatCenters } from "@/features/meat/useMeatCenters";
 
 export default function MeatCentersScreen() {
   const {
-  insets, tokens, accent, styles, loading, loadingMore, setPage, setHasMore, meatCenters,
+  insets, tokens, accent, styles, loading, loadingMore, setPage, setHasMore, meatCenters, loadError,
   selectedAddress, selectedCategory, searchOpen, setSearchOpen, getCoords, fetchMeatCenters,
   loadMore, visibleCenters, renderHeader
   } = useMeatCenters();
@@ -34,6 +34,7 @@ export default function MeatCentersScreen() {
           getCoords={getCoords}
           loadMore={loadMore}
           loading={loading}
+          loadError={loadError}
           loadingMore={loadingMore}
           renderHeader={renderHeader}
           selectedCategory={selectedCategory}

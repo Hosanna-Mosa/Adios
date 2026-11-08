@@ -2,6 +2,7 @@
 import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { trackEvent } from "@/utils/analytics";
+import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 import { useLanguageStore } from "@/store/languageStore";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
 import { secureStateStorage } from "../secureStorage";
@@ -9,6 +10,7 @@ import { secureStateStorage } from "../secureStorage";
 type Actions = Pick<
   DriverState,
   | "setAuthenticated"
+  | "setTokens"
   | "setOnboardingCompleted"
   | "setOnboardingStatus"
   | "setIdentityVerified"
@@ -19,16 +21,19 @@ type Actions = Pick<
 >;
 
 export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actions => ({
-  setAuthenticated: (name: string, phone: string, token: string, userId: string) => {
+  setAuthenticated: (name: string, phone: string, token: string, userId: string, refreshToken: string | null = null) => {
     set({
       isAuthenticated: true,
       driverName: name,
       driverPhone: phone,
       token,
+      refreshToken,
       driverUserId: userId,
     });
     trackEvent("login", { method: "otp" });
   },
+
+  setTokens: ({ token, refreshToken }) => set({ token, refreshToken }),
 
   setOnboardingCompleted: () => set({ hasCompletedOnboarding: true }),
   setOnboardingStatus: (status) =>
@@ -86,8 +91,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
         const serverOnline = String(result.driver?.status || "").toUpperCase() === "ONLINE";
         const { isOnline, activeServices } = get();
         if (serverOnline && !isOnline) {
-          // goOnline, not a bare flag: it also re-establishes the socket the
-          // driver needs to actually receive dispatches.
+          // goOnline, not a bare flag: it also re-sends the driver's
+          // active services, which dispatch needs.
           await get().goOnline(activeServices.length ? activeServices : ["food", "ride"]);
         } else if (!serverOnline && isOnline) {
           set({ isOnline: false });
@@ -102,7 +107,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
   },
 
   logout: () => {
-    const { token } = get();
+    const { token, refreshToken } = get();
     // Best-effort, fire-and-forget: every caller of logout() treats it as
     // synchronous, so this cannot block sign-out on the network. Local
     // sign-out below happens either way — the device must never get stuck
@@ -110,7 +115,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
     if (token) {
       fetch(`${apiUrl}/auth/logout`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
       }).catch(() => {});
     }
 
@@ -130,6 +136,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
       driverEmail: "",
       driverUserId: null,
       token: null,
+      refreshToken: null,
       isOnline: false,
       currentOrder: null,
       incomingOrder: null,
@@ -139,7 +146,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
   loginWithPassword: async (phone: string, password: string) => {
     const response = await fetch(`${apiUrl}/auth/login-password`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
       body: JSON.stringify({ phone, password, role: "DRIVER" }),
     });
     const text = await response.text();
@@ -152,6 +159,7 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
       driverPhone: data.user.phone,
       driverUserId: data.user.id || data.user._id,
       token: data.token,
+      refreshToken: data.refreshToken ?? null,
     });
     trackEvent("login", { method: "password" });
 

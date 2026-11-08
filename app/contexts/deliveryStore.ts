@@ -187,7 +187,7 @@ const TERMINAL_ORDER_STATUSES: OrderStatus[] = ["delivered", "cancelled"];
  * they're on — the source for the active-order stripe above the tab bar. `currentOrderId`
  * on its own isn't enough to tell: nothing clears it once an order finishes (only the
  * next order overwrites it), so a completed/cancelled one is excluded by its terminal
- * `status` instead. `status` itself is kept live in the background by GlobalSocketHandler,
+ * `status` instead. `status` itself is kept live in the background by GlobalOrderPoller,
  * not just while the tracking screen happens to be open.
  */
 export const useActiveOrder = () => {

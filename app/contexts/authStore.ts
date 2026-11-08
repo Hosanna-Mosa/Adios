@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
-import { clearToken, loadToken, saveToken } from "@/utils/secureToken";
+import { clearRefreshToken, clearToken, loadRefreshToken, loadToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
+import { router } from "expo-router";
 
 // The API URL should be retrieved from app.json/Constants
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.apiUrl;
@@ -11,13 +12,27 @@ import { isSessionExpiryHandled, markSessionExpiryHandled, resetSessionExpiry } 
 export interface AuthState {
   user: any | null;
   token: string | null;
+  /** One-use token that renews `token` when it expires (see utils/api/sessionRefresh.ts). */
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
   /** True once initializeAuth() has completed — used to gate navigation */
   isInitialized: boolean;
+  /** Set when the server ended the session (401), so the sign-in screen can say why. Cleared once shown. */
+  sessionExpired: boolean;
+  clearSessionExpired: () => void;
+  /**
+   * True once the customer tapped Skip on Login/Sign up: they browse without an
+   * account and are asked to sign in only when an action needs one (placing an
+   * order, Orders, Account). In memory only, like languageConfirmed — a cold
+   * start shows Login (with Skip) again.
+   */
+  guestMode: boolean;
 
+  continueAsGuest: () => void;
   setUser: (user: any) => void;
   setToken: (token: string) => void;
+  setTokens: (tokens: { token: string; refreshToken: string }) => Promise<void>;
   logout: () => Promise<void>;
   /**
    * Called by the HTTP layer's 401 interceptor. Clears the session, and returns
@@ -40,9 +55,15 @@ export interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   token: null,
+  refreshToken: null,
   loading: false,
   error: null,
   isInitialized: false,
+  sessionExpired: false,
+  clearSessionExpired: () => set({ sessionExpired: false }),
+  guestMode: false,
+
+  continueAsGuest: () => set({ guestMode: true }),
 
   // Mirrored into AsyncStorage so the cached user initializeAuth() restores on
   // the next cold start isn't a stale copy from sign-in time. Without this,
@@ -55,14 +76,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setToken: (token) => {
     resetSessionExpiry();
-    set({ token });
+    set({ token, sessionExpired: false });
     saveToken(token).catch((err) => console.warn("Failed to persist token", err));
+  },
+
+  setTokens: async ({ token, refreshToken }) => {
+    set({ token, refreshToken });
+    await Promise.all([saveToken(token), saveRefreshToken(refreshToken)]);
   },
 
   toggleFavorite: async (restaurantId: string) => {
     const { user, token } = get();
-    if (!user) return;
-    
+    // A guest has nothing to save favourites to: send them to sign in.
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
     const currentFavorites = user.favorites || [];
     const isFavorite = currentFavorites.includes(restaurantId);
     const newFavorites = isFavorite
@@ -90,7 +120,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   toggleFavoriteItem: async (itemId: string) => {
     const { user, token } = get();
-    if (!user) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
 
     const currentFavoriteItems = user.favoriteItems || [];
     const isFavorite = currentFavoriteItems.includes(itemId);
@@ -124,14 +157,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
    */
   initializeAuth: async () => {
     try {
-      const [token, userStr] = await Promise.all([
+      const [token, userStr, refreshToken] = await Promise.all([
         loadToken(),
         AsyncStorage.getItem("user"),
+        loadRefreshToken(),
       ]);
 
       if (token && userStr) {
         const cachedUser = JSON.parse(userStr);
-        set({ token, user: cachedUser, isInitialized: true });
+        set({ token, refreshToken, user: cachedUser, isInitialized: true });
         void refreshProfileInBackground(token, set, get);
       } else {
         set({ isInitialized: true });
@@ -146,11 +180,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (isSessionExpiryHandled() || !get().token) return false;
     markSessionExpiryHandled();
     void get().logout();
+    set({ sessionExpired: true });
     return true;
   },
 
   logout: async () => {
-    const { token } = get();
+    const { token, refreshToken } = get();
 
     // Best-effort: tell the server this token is done so it can't be reused
     // if it leaks later. Local sign-out below happens regardless of whether
@@ -159,18 +194,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (token) {
       fetch(`${apiUrl}/auth/logout`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
       }).catch(() => {});
     }
 
-    set({ user: null, token: null, error: null, loading: false });
+      set({ user: null, token: null, refreshToken: null, error: null, loading: false, guestMode: false });
     try {
       await Promise.all([
         clearToken(),
+        clearRefreshToken(),
         AsyncStorage.removeItem("user"),
       ]);
     } finally {
-      set({ user: null, token: null, error: null, loading: false });
+      set({ user: null, token: null, refreshToken: null, error: null, loading: false });
     }
   },
 
@@ -215,9 +252,10 @@ async function refreshProfileInBackground(
       // expired or revoked token, or a user that no longer exists. A 403
       // means authenticated-but-not-permitted and a 404 means the route
       // moved; neither is a reason to throw the session away.
-      set({ token: null, user: null });
+        set({ token: null, refreshToken: null, user: null, sessionExpired: true });
       await Promise.all([
         clearToken(),
+        clearRefreshToken(),
         AsyncStorage.removeItem("user"),
       ]);
     }

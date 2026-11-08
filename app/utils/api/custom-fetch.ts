@@ -5,6 +5,7 @@ export type CustomFetchOptions = RequestInit & {
 
 import { ApiError } from "./http.errors";
 import { looksLikeJson, parseErrorBody, parseSuccessBody } from "./http.body";
+import { trackRequestDuration } from "./slow-network";
 
 export { ApiError, ResponseParseError } from "./http.errors";
 
@@ -184,6 +185,9 @@ export async function customFetch<T = unknown>(
     options.isFormData ? UPLOAD_TIMEOUT_MS : REQUEST_TIMEOUT_MS,
   );
 
+  // File uploads are slow by nature, so only plain requests count toward the slow-network toast.
+  const stopTimer = options.isFormData ? () => {} : trackRequestDuration();
+
   try {
     if (__DEV__) console.log(`[NETWORK] ${method} ${input}`);
     const response = await fetch(input, { ...init, method, headers, signal: controller.signal });
@@ -204,6 +208,7 @@ export async function customFetch<T = unknown>(
     if (timedOut) throw new TypeError("Network request failed");
     throw error;
   } finally {
+    stopTimer();
     clearTimeout(timer);
     callerSignal?.removeEventListener("abort", onCallerAbort);
   }

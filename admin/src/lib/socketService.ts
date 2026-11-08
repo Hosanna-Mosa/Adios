@@ -1,7 +1,14 @@
 import { io, Socket } from "socket.io-client";
 import { BASE_URL } from "./api-client";
+import { getAccessToken } from "./session";
 
 const SOCKET_URL = BASE_URL.replace("/api/v1", "");
+
+// Live updates are fetched by REST polling (plus a Refresh button on each live
+// page) rather than Socket.IO. The socket code is kept so it can be switched
+// back on with VITE_ENABLE_SOCKETS=true; while it is off, connect/join/on/emit
+// do nothing and never open a connection.
+const SOCKETS_ENABLED = import.meta.env.VITE_ENABLE_SOCKETS === "true";
 
 class SocketService {
   private socket: Socket | null = null;
@@ -18,19 +25,17 @@ class SocketService {
   }
 
   public connect() {
+    if (!SOCKETS_ENABLED) return;
     if (this.socket) return;
 
-    const token =
-      localStorage.getItem("admin_token") ||
-      localStorage.getItem("vendor_token") ||
-      localStorage.getItem("support_token");
     console.log(`[Vendor Socket] Connecting to ${SOCKET_URL}/ws/v1/socket.io`);
 
     this.socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
       autoConnect: true,
       path: "/ws/v1/socket.io",
-      auth: token ? { token } : undefined,
+      // Evaluated on every (re)connect, so a token renewed in the meantime is used.
+      auth: (cb) => cb({ token: getAccessToken()?.token ?? "" }),
     });
 
     this.socket.on("connect", () => {
@@ -57,23 +62,26 @@ class SocketService {
   }
 
   public join(userId: string, role: string = "VENDOR") {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.lastJoin = { userId, role };
     this.socket?.emit("join", { userId, role });
     console.log(`[Vendor Socket] Join room requested: userId=${userId}, role=${role}`);
   }
 
-  public on(event: string, callback: (data: unknown) => void) {
+  public on(event: string, callback: (data: any) => void) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.on(event, callback);
   }
 
-  public emit(event: string, data: unknown) {
+  public emit(event: string, data: any) {
+    if (!SOCKETS_ENABLED) return;
     if (!this.socket) this.connect();
     this.socket?.emit(event, data);
   }
 
-  public off(event: string, callback: (data: unknown) => void) {
+  public off(event: string, callback: (data: any) => void) {
     this.socket?.off(event, callback);
   }
 

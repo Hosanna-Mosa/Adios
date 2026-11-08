@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { DigiLockerField, DigiLockerPrompt } from "@/components/DigiLockerPrompt";
 import { useOnboardingCtx } from "../../OnboardingContext";
+import { fieldMessage, validatePan, validatePersonName } from "@/utils/validation";
 import { validatePANFormat } from "../../validators";
 import { AlternateIdLink } from "../AlternateIdLink";
 import { ConsentCheckbox } from "../ConsentCheckbox";
@@ -85,9 +86,10 @@ export function PanSection() {
         label={t("onboarding.panNumber")}
         value={identity.panNumber}
         onChangeText={(t) => identity.setPanNumber(t.toUpperCase().slice(0, 10))}
-        placeholder="ABCDE1234F"
+        placeholder="ABCPE1234F"
         autoCapitalize="characters"
         icon="file-text"
+        error={identity.panNumber.length === 10 ? fieldMessage(t, validatePan(identity.panNumber)) : undefined}
       />
       <FormInput
         label={t("onboarding.nameAsOnPanCard")}
@@ -96,6 +98,7 @@ export function PanSection() {
         placeholder={t("onboarding.enterFullName")}
         autoCapitalize="words"
         icon="user"
+        error={identity.panName.trim() ? fieldMessage(t, validatePersonName(identity.panName)) : undefined}
       />
       {identity.aadhaarVerified ? (
         <FormalityNotes panNumber={identity.panNumber} panName={identity.panName} />

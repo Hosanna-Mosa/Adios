@@ -5,11 +5,12 @@ const usesCleartextTraffic = /^http:\/\//i.test(process.env.EXPO_PUBLIC_API_URL 
 export default {
   expo: {
     name: 'Adios',
-    slug: 'flavour',
+    slug: 'adios',
+    owner: 'adios-one',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'flavour',
+    scheme: 'adios',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     // Root view (window) background, applied by expo-system-ui. It is what shows
@@ -26,7 +27,7 @@ export default {
     },
     ios: {
       supportsTablet: false,
-      bundleIdentifier: 'com.flavour.customer',
+      bundleIdentifier: 'com.adios.customer',
       config: {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
       },
@@ -46,7 +47,7 @@ export default {
       // Off on purpose: with predictive back on, Android 16 stops delivering the back
       // press to React Native's BackHandler, which the custom back handling relies on.
       predictiveBackGestureEnabled: false,
-      package: 'com.flavour.customer',
+      package: 'com.adios.customer',
       // Firebase config is not committed: EAS builds get it from the GOOGLE_SERVICES_JSON
       // file environment variable, local builds from the gitignored file next to this one.
       googleServicesFile: process.env.GOOGLE_SERVICES_JSON || './google-services.json',
@@ -114,8 +115,11 @@ export default {
       // Session token lives in the Android Keystore / iOS Keychain (utils/secureToken.ts).
       'expo-secure-store',
       '@react-native-community/datetimepicker',
-      './plugins/withFirebaseAndroidOnly',
       './plugins/withPortraitOnLargeScreens',
+      // Firebase (Analytics) on Android and iOS. CocoaPods rather than Swift
+      // Package Manager, with static frameworks, which Firebase's iOS pods need.
+      ['@react-native-firebase/app', { ios: { disableSPM: true } }],
+      ['expo-build-properties', { ios: { useFrameworks: 'static' } }],
       [
         'expo-notifications',
         {
@@ -135,9 +139,10 @@ export default {
       // resolves even before a separate public website exists. Point
       // EXPO_PUBLIC_WEB_URL at the real site once there is one.
       webUrl: process.env.EXPO_PUBLIC_WEB_URL || 'https://x-api.triozen.tech',
-      // Previous (triozen-tech): b53cf032-dea6-4aff-835e-b3cd717e54a3
+      // EAS project adios-one/adios. Builds from older Expo accounts use different
+      // signing keys, so they cannot upgrade over these.
       eas: {
-        projectId: 'e3e714ab-ffe7-4ea4-bf62-b317be38497c',
+        projectId: '0deedafc-8f7e-46e4-9975-38ef4a257417',
       },
     },
   },

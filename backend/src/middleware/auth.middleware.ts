@@ -2,14 +2,14 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import User, { UserRole } from "../database/models/User";
-import RevokedToken from "../database/models/RevokedToken";
 import Vendor from "../database/models/Vendor";
 import MeatCenter from "../database/models/MeatCenter";
+import RevokedToken from "../database/models/RevokedToken";
 
-// Tokens from /vendors/login and /meat/login: they carry a Vendor/MeatCenter _id.
-const PARTNER_ROLES = ["restaurant_vendor", "meat_vendor"];
 import { getJwtSecret } from "../utils/jwtSecret";
 import { ACCOUNT_BLOCKED_MESSAGE } from "../config/auth.config";
+
+const VENDOR_ROLES = new Set(["restaurant_vendor", "meat_vendor"]);
 
 export interface AuthRequest extends Request {
   user?: {
@@ -80,16 +80,23 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     } catch (error) {
       return next(error);
     }
-  } else if (PARTNER_ROLES.includes(payload?.role)) {
-    // A partner who deleted their account (or an outlet an admin removed) is
-    // signed out everywhere: the token outlives the outlet, so check it is still there.
+  } else if (VENDOR_ROLES.has(payload?.role)) {
+    // Vendor/meat-centre tokenVersion check — see IAM-002 in
+    // TESTING_REPORT/02_FINDINGS_REGISTER.md. A "meat_vendor" role can back
+    // onto either a Vendor (partnerType: "meat") or a legacy MeatCenter
+    // document; try Vendor first, same resolution order already used by
+    // GET /vendors/me (vendor-profile.controller.ts: getMyVendorProfile).
     if (!mongoose.Types.ObjectId.isValid(payload.userId)) {
       return res.status(401).json({ message: "Session no longer valid" });
     }
+
     try {
-      const live = { _id: payload.userId, deletedAt: { $exists: false } };
-      const outlet = (await Vendor.exists(live)) || (payload.role === "meat_vendor" && (await MeatCenter.exists(live)));
-      if (!outlet) {
+      const vendor = await Vendor.findById(payload.userId).select("tokenVersion deletedAt").lean();
+      const account =
+        vendor ?? (payload.role === "meat_vendor" ? await MeatCenter.findById(payload.userId).select("tokenVersion deletedAt").lean() : null);
+
+      // A partner who deleted their account (or an outlet an admin removed) is signed out everywhere.
+      if (!account || account.deletedAt || (payload.tv ?? 0) !== (account.tokenVersion ?? 0)) {
         return res.status(401).json({ message: "Session no longer valid" });
       }
     } catch (error) {

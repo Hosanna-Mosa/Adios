@@ -1,5 +1,6 @@
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
@@ -16,7 +17,7 @@ interface Props {
   insets: EdgeInsets;
   isFavorite: boolean;
   name: string | string[];
-  setScrolledPast: any;
+  onSearchPress: () => void;
   styles: RestaurantMenuStyles;
   toggleFavorite: any;
 }
@@ -27,7 +28,7 @@ export function RestaurantMenuHeroOverlay({
   insets,
   isFavorite,
   name,
-  setScrolledPast,
+  onSearchPress,
   styles,
   toggleFavorite,
 }: Props) {
@@ -53,7 +54,7 @@ export function RestaurantMenuHeroOverlay({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.circleBtn}
-          onPress={() => setScrolledPast(true)}
+          onPress={onSearchPress}
           accessibilityRole="button"
           accessibilityLabel={t("app.food.search")}
         >

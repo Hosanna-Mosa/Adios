@@ -5,7 +5,7 @@ const store = () => useOrderAlertStore.getState();
 beforeEach(() => store().reset());
 
 describe("order alerts", () => {
-  it("alerts an order once, even when the socket event and the push both arrive", () => {
+  it("alerts an order once, even when the poll and the push both find it", () => {
     expect(store().showNewOrder({ orderId: "o1", receivedAt: 1 })).toBe(true);
     store().dismissNewOrder();
     expect(store().showNewOrder({ orderId: "o1", receivedAt: 2 })).toBe(false);

@@ -1,6 +1,7 @@
 import React from "react";
 import { staggerListItem } from "@/motion/presets";
-import { ActivityIndicator, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { typography } from "@/constants/typography";

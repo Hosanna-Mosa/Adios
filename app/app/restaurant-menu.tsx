@@ -8,34 +8,23 @@ import { shareRestaurant } from "@/utils/shareLink";
 import { RestaurantMenuSolidHeader } from "@/features/food/components/RestaurantMenuSolidHeader";
 import { RestaurantMenuHeroOverlay } from "@/features/food/components/RestaurantMenuHeroOverlay";
 import { useRestaurantMenu } from "@/features/food/useRestaurantMenu";
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { selectNoRidersOnline, useHomeStore } from "@/contexts/homeStore";
-import { showAlert } from "@/components/ui/AppAlert";
 
 export default function RestaurantMenu() {
   const {
   id, name, image, rating, reviews, isMeat, insets, tabBarHeight, tokens, accent, styles, items,
   toggleFavorite, isFavorite, toggleFavoriteItem, isDishFavorite, loading, activeCategory,
   scrolledPast, setScrolledPast, searchQuery, setSearchQuery, vegOnly, setVegOnly,
-  highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, loadingItems,
+  highlightedItemId, selectedDishDetail, setSelectedDishDetail, scrollViewRef, searchInputRef, loadingItems,
   handleAddToCart, handleUpdateQuantity, categoryPositions, handleScroll, handleCategoryPress,
-  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed
+  groupedMenu, categoryTabs, metaLine1Parts, metaLine2Parts, orderingState, outletClosed, handleSearchIconPress,
+  loadError, retryMenu
   } = useRestaurantMenu();
   const { t } = useTranslation();
-  const noRidersOnline = useHomeStore(selectNoRidersOnline);
   // The pinned category strip hangs directly off the solid header. A fixed guess
   // at its height left a sliver of menu showing between the two.
   const [solidHeaderHeight, setSolidHeaderHeight] = useState(0);
-
-  // Backstop for every entry point (cart, search, links): with no rider
-  // online nothing here can be delivered, so return to Home.
-  useEffect(() => {
-    if (!noRidersOnline) return;
-    showAlert(t("app.home.noRidersAvailableNearby"), t("app.home.allCaptainsNearbyAreOnTrips"));
-    router.replace("/(tabs)");
-  }, [noRidersOnline, t]);
 
   return (
     <View style={styles.container}>
@@ -47,7 +36,7 @@ export default function RestaurantMenu() {
           insets={insets}
           isFavorite={isFavorite}
           name={name}
-          setScrolledPast={setScrolledPast}
+          onSearchPress={handleSearchIconPress}
           styles={styles}
           toggleFavorite={toggleFavorite}
         />
@@ -88,6 +77,8 @@ export default function RestaurantMenu() {
         isMeat={isMeat}
         items={items}
         loading={loading}
+        loadError={loadError}
+        onRetry={retryMenu}
         loadingItems={loadingItems}
         metaLine1Parts={metaLine1Parts}
         metaLine2Parts={metaLine2Parts}
@@ -97,6 +88,7 @@ export default function RestaurantMenu() {
         rating={rating}
         reviews={reviews}
         scrollViewRef={scrollViewRef}
+        searchInputRef={searchInputRef}
         scrolledPast={scrolledPast}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

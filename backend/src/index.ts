@@ -13,6 +13,9 @@ import { getAllowedOrigins, getTrustProxy, isDevEnv } from "./utils/env";
 // Same for CORS and proxy trust: a bad or missing value stops the boot here.
 const allowedOrigins = getAllowedOrigins();
 const trustProxy = getTrustProxy();
+import { assertFieldEncryptionConfigured } from "./utils/fieldCrypto";
+// Same for the personal-data key: without it every Driver read/write would fail at request time.
+assertFieldEncryptionConfigured();
 import { connectDB } from "./database/db";
 import { SocketManager } from "./sockets/socket.manager";
 import { globalErrorHandler } from "./middleware/error.middleware";
@@ -106,7 +109,7 @@ connectDB().then(async () => {
         apps: [],
         details: [
           {
-            appID: `${teamId}.com.flavour.customer`,
+            appID: `${teamId}.com.adios.customer`,
             paths: ["/restaurant-menu/*", "/restaurant-menu"],
           },
         ],
@@ -123,7 +126,7 @@ connectDB().then(async () => {
         relation: ["delegate_permission/common.handle_all_urls"],
         target: {
           namespace: "android_app",
-          package_name: "com.flavour.customer",
+          package_name: "com.adios.customer",
           sha256_cert_fingerprints: [fingerprint],
         },
       },

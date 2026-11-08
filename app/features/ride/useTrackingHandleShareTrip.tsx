@@ -8,7 +8,7 @@ export function useTrackingHandleShareTrip(status: any, currentOrderId: any, set
   const handleShareTrip = async () => {
     try {
       await Share.share({
-        message: `I'm on a Flavour ${isRide ? "ride" : "trip"}${driver?.name ? ` with ${driver.name}` : ""}. Heading to ${stops?.[stops.length - 1]?.address || "my destination"}.`,
+        message: `I'm on an Adios ${isRide ? "ride" : "trip"}${driver?.name ? ` with ${driver.name}` : ""}. Heading to ${stops?.[stops.length - 1]?.address || "my destination"}.`,
       });
     } catch {
       // user dismissed the share sheet

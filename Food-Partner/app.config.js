@@ -8,11 +8,12 @@ const usesCleartextTraffic = /^http:\/\//i.test(process.env.EXPO_PUBLIC_API_URL 
 export default {
   expo: {
     name: 'Adios Partner',
-    slug: 'flavour-partner',
+    slug: 'adios-partner',
+    owner: 'adios-one',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
-    scheme: 'flavourpartner',
+    scheme: 'adiospartner',
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     splash: {
@@ -22,7 +23,7 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.flavour.partner',
+      bundleIdentifier: 'com.adios.partner',
       infoPlist: {
         NSPhotoLibraryUsageDescription: 'Pick photos of your dishes to show customers on your menu.',
         NSCameraUsageDescription: 'Take photos of your dishes to show customers on your menu.',
@@ -33,7 +34,7 @@ export default {
       // Off on purpose: with predictive back on, Android 16 stops delivering the back
       // press to React Native's BackHandler, which the custom back handling relies on.
       predictiveBackGestureEnabled: false,
-      package: 'com.flavour.partner',
+      package: 'com.adios.partner',
       adaptiveIcon: {
         foregroundImage: './assets/images/icon.png',
         backgroundColor: '#ffffff',
@@ -111,7 +112,9 @@ export default {
       supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL,
       partnerWebUrl: process.env.EXPO_PUBLIC_PARTNER_WEB_URL,
       privacyPolicyUrl: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL,
-      ...(process.env.EAS_PROJECT_ID ? { eas: { projectId: process.env.EAS_PROJECT_ID } } : {}),
+      // EAS project adios-one/adios-partner. EAS_PROJECT_ID overrides it (e.g. for a fork).
+      // eas init cannot write to a dynamic config, so the id is set by hand.
+      eas: { projectId: process.env.EAS_PROJECT_ID || '6777335e-d3eb-4540-b9ef-81972508659d' },
     },
   },
 };

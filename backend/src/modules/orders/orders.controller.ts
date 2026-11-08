@@ -267,6 +267,37 @@ export class OrdersController {
     }
   }
 
+  /** POST /orders/:id/chat — same as the socket's send_message, for clients without a socket. */
+  async sendChatMessage(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { text, clientId } = req.body;
+      const message = await ordersService.sendChatMessage(String(req.params.id), req.user, text, clientId);
+      return res.status(201).json({ message });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/confirm-task — the customer confirms the helper's task. */
+  async confirmHelperTask(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.confirmHelperTask(String(req.params.id), req.user);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/status — the assigned helper's progress note for the customer. */
+  async updateHelperStatus(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.updateHelperStatus(String(req.params.id), req.user, req.body.text);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getInvoice(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -609,6 +640,9 @@ export class OrdersController {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
       }
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
@@ -661,6 +695,35 @@ export class OrdersController {
     }
   }
 
+  /** GET /orders/driver/offer — the sequential offer this driver holds, else its food offer, else null. */
+  async currentOffer(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const offer = await ordersService.getDriverOffer(userId);
+      return res.json({ offer });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async driverOrders(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const scope = req.query.scope === "past" ? "past" : "ongoing";
+      const page = Math.max(1, parseInt(String(req.query.page), 10) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit), 10) || 20));
+      const result = await ordersService.getDriverOrders(userId, scope, page, limit);
+      return res.json({
+        ...result,
+        orders: result.orders.map((o: any) => withoutCustomerCodes(withoutDriverSecrets(o))),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async currentFoodOffer(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.userId;
@@ -688,6 +751,9 @@ export class OrdersController {
       await ordersService.declineOrder(id as string, driverUserId, reason);
       return res.json({ success: true, message: "Order declined successfully" });
     } catch (error: any) {
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }

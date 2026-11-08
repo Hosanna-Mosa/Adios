@@ -3,14 +3,15 @@ import MeatCenter from "../../database/models/MeatCenter";
 import MeatItem from "../../database/models/MeatItem";
 import MeatGlobalPrice from "../../database/models/MeatGlobalPrice";
 import OTP from "../../database/models/OTP";
-import Vendor from "../../database/models/Vendor";
+import Vendor, { VENDOR_ENCRYPTED_PATHS } from "../../database/models/Vendor";
 import FoodItem from "../../database/models/FoodItem";
 import generateToken from "../../utils/generateToken";
+import { clientSupportsRefresh, revokeAllRefreshSessions, startSession } from "../auth/session.service";
 import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.service";
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import { ZonesService } from "../zones/zones.service";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
-import { toPublicVendor } from "../vendors/vendor.public";
+import { isVerifiedAdmin, toAdminVendor, toPublicVendor } from "../../utils/publicProfile";
 
 // Upper bound on documents scanned when open-now has to be filtered in memory
 // (the state is derived server-side, so Mongo cannot page it).
@@ -90,7 +91,10 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
+    await revokeAllRefreshSessions(center._id.toString());
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
   } catch (error) {
@@ -144,7 +148,9 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       email: center.email,
       phone: center.phone,
       role: "meat_vendor",
-      token: generateToken(center._id.toString(), "meat_vendor"),
+      ...(clientSupportsRefresh(req)
+        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor", tokenVersion: center.tokenVersion ?? 0 })
+        : { token: generateToken(center._id.toString(), "meat_vendor", center.tokenVersion ?? 0) }),
     });
   } catch (error) {
     console.error("Error logging in meat center:", error);
@@ -168,13 +174,13 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Latitude and Longitude must be valid numbers" });
     }
 
-    // Zone Serviceability Check
+    // Admins see the full record; everyone else a public view (no credentials, KYC or bank details).
+    const present = (await isVerifiedAdmin(req)) ? toAdminVendor : toPublicVendor;
+
+    // Browsing is open everywhere: outside every zone the centres are still listed, nearest first,
+    // with no radius cap. Whether the address can actually be served is checked when the order is placed.
     const zonesService = new ZonesService();
     const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
-    if (!activeZone) {
-      console.log(`[API] Location [lat: ${userLat}, lng: ${userLng}] is outside all active zones. Returning 0 meat centers.`);
-      return res.json([]);
-    }
 
     const pageNumber = Math.max(1, Number(page) || 1);
     const requestedLimit = Math.max(1, Number(limit) || 20);
@@ -203,14 +209,45 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     const centerGeoQuery: any = { deletedAt: { $exists: false } };
     const vendorGeoQuery: any = { partnerType: "meat", deletedAt: { $exists: false } };
 
-    if (activeZone.type === "polygon" && activeZone.boundary) {
+    if (activeZone?.type === "polygon" && activeZone.boundary) {
       centerGeoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
       vendorGeoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
     }
 
-    const effectiveMaxDistance = activeZone.type === "circle" && activeZone.radius
-      ? Math.min(radiusInMeters, activeZone.radius)
-      : radiusInMeters;
+    let effectiveMaxDistance = !activeZone
+      ? Infinity
+      : activeZone.type === "circle" && activeZone.radius
+        ? Math.min(radiusInMeters, activeZone.radius)
+        : radiusInMeters;
+
+    // Nothing within reach of this point: list the nearest centres anyway instead of an empty Home.
+    // Decided once per request, so every page agrees. Delivery range is checked at checkout.
+    if (Number.isFinite(effectiveMaxDistance)) {
+      const reachStage = (query: any): any[] => [
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [userLng, userLat] },
+            distanceField: "distance",
+            maxDistance: effectiveMaxDistance,
+            spherical: true,
+            key: "location",
+            query,
+          },
+        },
+        ...(Object.keys(matchStage).length > 0 ? [{ $match: matchStage }] : []),
+        { $limit: 1 },
+        { $project: { _id: 1 } },
+      ];
+      const [nearCenters, nearVendors] = await Promise.all([
+        MeatCenter.aggregate(reachStage(centerGeoQuery)),
+        Vendor.aggregate(reachStage(vendorGeoQuery)),
+      ]);
+      if (nearCenters.length === 0 && nearVendors.length === 0) {
+        effectiveMaxDistance = Infinity;
+        delete centerGeoQuery.location;
+        delete vendorGeoQuery.location;
+      }
+    }
 
     if (fetchAll) {
       const [centers, meatVendors] = await Promise.all([
@@ -232,7 +269,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
         const openState = evaluateOutletOpenState(center);
 
         return {
-          ...toPublicVendor(center),
+          ...present(center),
           role: "meat_vendor",
           partnerType: "meat",
           image: center.image || DEFAULT_MEAT_IMAGE,
@@ -270,7 +307,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
             coordinates: [userLng, userLat],
           },
           distanceField: "distance",
-          maxDistance: effectiveMaxDistance,
+          ...(Number.isFinite(effectiveMaxDistance) && { maxDistance: effectiveMaxDistance }),
           spherical: true,
           key: "location",
           query: centerGeoQuery,
@@ -298,7 +335,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
             coordinates: [userLng, userLat],
           },
           distanceField: "distance",
-          maxDistance: effectiveMaxDistance,
+          ...(Number.isFinite(effectiveMaxDistance) && { maxDistance: effectiveMaxDistance }),
           spherical: true,
           key: "location",
           query: vendorGeoQuery,
@@ -313,6 +350,8 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     if (!fetchAll) {
       vendorPipeline.push({ $limit: candidateLimit });
     }
+    // Public route: aggregate() would return the ciphertext of the encrypted owner/bank/KYC fields.
+    vendorPipeline.push({ $unset: VENDOR_ENCRYPTED_PATHS });
 
     const [centers, meatVendors] = await Promise.all([
       MeatCenter.aggregate(centerPipeline),
@@ -333,7 +372,7 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
       const openState = evaluateOutletOpenState(center);
 
       return {
-        ...toPublicVendor(center),
+        ...present(center),
         role: "meat_vendor",
         partnerType: "meat",
         image: center.image || DEFAULT_MEAT_IMAGE,
@@ -626,7 +665,10 @@ export const changeMeatVendorPassword = async (req: AuthRequest, res: Response) 
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
+    await revokeAllRefreshSessions(center._id.toString());
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
@@ -688,7 +730,11 @@ export const updateMeatCenter = async (req: Request, res: Response) => {
     if (name !== undefined) center.name = name;
     if (phone !== undefined) center.phone = phone;
     if (email !== undefined) center.email = email;
-    if (password) center.password = password; // pre-save hashes it
+    if (password) {
+      center.password = password; // pre-save hashes it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      center.tokenVersion = (center.tokenVersion ?? 0) + 1;
+    }
     if (location !== undefined) center.location = location;
     if (address !== undefined) center.address = address;
     if (image !== undefined) center.image = image;

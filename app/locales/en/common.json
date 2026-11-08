@@ -12,7 +12,8 @@
     "loading": "Loading...",
     "error": "Error",
     "continue": "Continue",
-    "ok": "OK"
+    "ok": "OK",
+    "refresh": "Refresh"
   },
   "app": {
     "schedulePill": {
@@ -70,7 +71,7 @@
         "arrivedDelivery": "Arrived",
         "delivered": "Completed"
       },
-      "safetyBanner": "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+      "safetyBanner": "Keep the conversation in Adios. Don't share your PIN with the {{partner}} before the {{context}} starts.",
       "contextTask": "task",
       "contextRide": "ride",
       "contextOrder": "order",
@@ -99,6 +100,8 @@
         "bookedByMistake": "Booked by mistake",
         "fareTooHigh": "Fare is too high",
         "foundAnotherRide": "Found another ride",
+        "priceTooHigh": "Price is too high",
+        "changedMind": "Changed my mind",
         "other": "Other"
       }
     },
@@ -141,7 +144,7 @@
       "assignTask": "Assign task",
       "messagesWithVarWillShowUpHere": "Messages with your {{value}} will show up here.",
       "messageVar": "Message {{value}}…",
-      "flavourSupport": "Flavour Support",
+      "flavourSupport": "Adios Support",
       "case": "Case #",
       "yourCases": "Your cases",
       "loadingYourCases": "Loading your cases…",
@@ -153,6 +156,7 @@
       "raiseANewTicket": "Raise a new ticket",
       "addATitleAndAShort": "Add a title and a short description first.",
       "messageNotSent": "Message not sent",
+      "casesLoadFailed": "Couldn't load your cases. Check your connection.",
       "todayAt": "Today, {{time}}",
       "yesterdayAt": "Yesterday, {{time}}",
       "yesterday": "Yesterday",
@@ -276,6 +280,8 @@
       "forgotPassword": "Forgot Password",
       "passwordRecoveryInstructionsWillBeSent": "Password recovery instructions will be sent to your account.",
       "phoneNumberNeeded": "Phone number needed",
+      "enterAValid10digitNumber": "Enter a valid 10-digit mobile number.",
+      "enterAValidPhoneOrEmail": "Enter a valid phone number or email.",
       "enterYourPhoneNumberAboveTo": "Enter your phone number above to continue with an OTP.",
       "customizeDistance": "Customize distance",
       "filteringWithinKm": "Filtering within {{km}} km",
@@ -319,6 +325,8 @@
       "useMyCurrentLocation": "Use my current location",
       "enterAddressManually": "Enter address manually",
       "noRidersAvailableNearby": "No riders available nearby",
+      "recentlySearched": "RECENTLY SEARCHED",
+      "recommended": "RECOMMENDED",
       "allCaptainsNearbyAreOnTrips": "All riders nearby are on trips right now. It's usually a few minutes before one frees up.",
       "retrySearch": "Retry search",
       "freshMeatDaily": "Fresh Meat Daily!",
@@ -331,7 +339,7 @@
       "freeDeliverySpecialOffers": "Free delivery / special offers",
       "goingSomewhere": "Going somewhere?",
       "pickARideToSeeLive": "Pick a ride to see live fares for your trip.",
-      "alsoOnFlavour": "Also on Flavour",
+      "alsoOnFlavour": "Also on Adios",
       "hireAHelper": "Hire a helper",
       "from80Hour": "From ₹80 / hour",
       "multistopCourierFrom39": "Multi-stop courier · from ₹39",
@@ -436,6 +444,8 @@
       "invalidTime": "Invalid time",
       "pleaseChooseAFutureDeliveryTime": "Please choose a future delivery time.",
       "orderFailed": "Order failed",
+      "orderScheduled": "Order scheduled. We'll confirm once the restaurant accepts.",
+      "restaurantDetailsFailed": "Couldn't load all the restaurant details. Check your connection.",
       "unableToPlaceYourOrder": "Unable to place your order.",
       "codeApplied": "{{code}} applied",
       "haveAPromoCode": "Have a promo code?",
@@ -555,7 +565,7 @@
       "searchInVar": "Search in {{value}}",
       "paying": "Paying",
       "upiCardsWalletsAndNetBanking": "UPI, cards, wallets and net banking — choose on the next step",
-      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.",
+      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Adios never sees or stores your card, UPI PIN or bank credentials.",
       "address": "Address",
       "navigateInGoogleMaps": "Navigate in Google Maps",
       "offers": "Offers",
@@ -676,6 +686,9 @@
       "noSavedAddressesFound": "No saved addresses found."
     },
     "auth": {
+      "skip": "Skip",
+      "loginToContinueTitle": "Log in to continue",
+      "loginToContinueMessage": "Please log in or create an account to continue.",
       "discardSignUp": "Discard sign up?",
       "yourDetailsWontBeSaved": "Your details won't be saved.",
       "keepEditing": "Keep editing",
@@ -828,6 +841,7 @@
       "invalidPhone": "Invalid phone",
       "enterAValid10digitReceiverPhone": "Enter a valid 10-digit receiver phone number.",
       "failedToSaveAddress": "Failed to save address.",
+      "addressSaved": "Address saved",
       "required": "Required",
       "pleaseProvideAnAddressForThe": "Please provide an address for the pickup.",
       "itemsNeeded": "Items needed",
@@ -844,7 +858,7 @@
       "contactedHelpersHavePassedSoFar": "contacted helpers have passed so far — consider raising your offer.",
       "attractHelpersFaster": "Attract helpers faster",
       "noSavedPlaces": "No saved places",
-      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Flavour gets one tap shorter.",
+      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Adios gets one tap shorter.",
       "addYourFirstAddress": "Add your first address",
       "whatDoYouNeed": "What do you need?",
       "suggestedOffer": "Suggested offer",
@@ -1113,6 +1127,7 @@
       "cancelledByAdios": "Order cancelled by Adios",
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
       "youCancelledThisOrder": "You cancelled this order.",
+      "noRidersAvailableNow": "Sorry, no riders are available right now. Please try again in a few minutes.",
       "noHelperAvailable": "No helper was available",
       "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it.",
       "etaMinutes": "{{min}} min"
@@ -1121,8 +1136,8 @@
       "couldntOpenTheStore": "Couldn't open the store",
       "updateRequired": "Update required",
       "newVersionAvailable": "New version available",
-      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Flavour.",
-      "updateFlavourToGetTheLatest": "Update Flavour to get the latest features and improvements.",
+      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Adios.",
+      "updateFlavourToGetTheLatest": "Update Adios to get the latest features and improvements.",
       "updateNow": "Update now",
       "noDismissRequiredRelease": "No dismiss — required release",
       "maybeLater": "Maybe later"
@@ -1147,6 +1162,10 @@
       "body": "Your cart has items from {{from}}. Adding {{item}} from {{to}} will empty it."
     },
     "checkout": {
+      "notServiceableTitle": "We don't deliver here yet",
+      "notServiceableMessage": "This address is outside our service area. Please choose another address to place your order.",
+      "noDriversTitle": "No riders available",
+      "noDriversMessage": "No delivery riders are online near you right now. Please try again in a little while.",
       "checkout": "Checkout",
       "scheduleDelivery": "Schedule delivery",
       "pickWhenYouWantYourFood": "Pick when you want your food delivered",
@@ -1235,10 +1254,26 @@
     },
     "mapPickingIsnapostAvailableOnWeb": "Map picking isn't available on web — use the mobile app.",
     "mapViewIsnapostAvailableOnWeb": "Map view isn't available on web — use the mobile app.",
-    "GlobalSocketHandler": {
-      "upcomingReservedRide": "Upcoming Reserved Ride!",
-      "yourReservedRideWithVarStarts": "Your reserved ride with {{value}} starts in 15 minutes!",
-      "trackDriver": "Track Driver"
+    "network": {
+      "requestTimedOut": "The request timed out. Check your connection and try again."
+    },
+    "permissions": {
+      "openSettings": "Open Settings",
+      "locationTitle": "Location permission needed",
+      "locationBody": "Allow location access in Settings to use your current location.",
+      "notificationsOffTitle": "Notifications are off",
+      "notificationsOffBody": "Turn them on in Settings to get order and chat updates."
+    },
+    "ErrorState": {
+      "title": "Couldn't load this",
+      "subtitle": "Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "SessionExpiredNotice": {
+      "message": "Your session expired. Please sign in again."
+    },
+    "SlowNetworkToast": {
+      "message": "Slow network — this is taking longer than usual"
     },
     "OfflineBanner": {
       "youaposreOffline": "You're offline",
@@ -1257,6 +1292,7 @@
     "meat": {
       "selectLocation": "Select location",
       "meatCentersNearYou": "Meat centers near you",
+      "noCentersSubtitle": "No meat centers match your search or filters.",
       "openNowCutFreshOnOrder": "open now · cut fresh on order",
       "searchCentersOrMeatType": "Search centers or meat type"
     },
@@ -1282,8 +1318,8 @@
       "couldntShare": "Couldn't share",
       "shareSheetDidntOpen": "The share sheet didn't open. Please try again.",
       "thisDish": "this dish",
-      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Flavour! {{url}}",
-      "checkOutVendor": "Check out {{name}} on Flavour! {{url}}"
+      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Adios! {{url}}",
+      "checkOutVendor": "Check out {{name}} on Adios! {{url}}"
     },
     "offers": {
       "title": "Offers for you",

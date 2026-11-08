@@ -35,7 +35,7 @@ interface DataTableProps<T> {
 }
 
 const DEFAULT_HEADER_CLASS = "table-header-text text-left px-6 py-3";
-const DEFAULT_CELL_CLASS = "px-6 py-4";
+const DEFAULT_CELL_CLASS = "px-6 py-4 align-middle";
 const DEFAULT_ROW_CLASS = "border-t border-border hover:bg-muted/30 transition-colors";
 const DEFAULT_HEADER_ROW_CLASS = "border-t border-border";
 const DEFAULT_STATE_CELL_CLASS = "px-6 py-10 text-center text-muted-foreground";
@@ -68,6 +68,8 @@ export function DataTable<T>({
   const resolvedLoadingLabel = loadingLabel ?? t("common.loadingEllipsis");
   const resolvedEmptyLabel = emptyLabel ?? t("common.noResultsFound");
   return (
+    // `relative` keeps rows that animate out positioned inside this box while it scrolls sideways.
+    <div className="relative w-full overflow-x-auto">
     <table className={tableClassName ?? "w-full"}>
       <thead className={theadClassName}>
         <tr className={headerRowClassName ?? DEFAULT_HEADER_ROW_CLASS}>
@@ -115,5 +117,6 @@ export function DataTable<T>({
         )}
       </tbody>
     </table>
+    </div>
   );
 }

@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
 import { bankStyles } from "../../onboarding.styles";
+import { fieldMessage, validateAccountMatch, validateBankAccount, validateIfsc } from "@/utils/validation";
 import { BankMismatchRow } from "../BankMismatchRow";
 import { BankNotice } from "../BankNotice";
 import { FormInput } from "../FormInput";
@@ -15,6 +16,9 @@ const digits = (t: string) => t.replace(/[^0-9]/g, "").slice(0, 18);
 export function BankSection() {
   const { t } = useTranslation();
   const { docs, handleVerifyBank } = useOnboardingCtx();
+  const accountCode = validateBankAccount(docs.bankAccount);
+  const ifscCode = validateIfsc(docs.ifsc);
+  const matches = validateAccountMatch(docs.bankAccount, docs.bankConfirm) === null;
 
   return (
     <Box style={bankStyles.wrap}>
@@ -31,6 +35,7 @@ export function BankSection() {
           placeholder={t("onboarding.enterAccountNumber")}
           keyboardType="number-pad"
           icon="credit-card"
+          error={docs.bankAccount.length >= 9 ? fieldMessage(t, accountCode) : undefined}
         />
         <FormInput
           label={t("onboarding.confirmAccountNumber")}
@@ -50,16 +55,13 @@ export function BankSection() {
           placeholder="SBIN0001234"
           autoCapitalize="characters"
           icon="map-pin"
+          error={docs.ifsc.length >= 11 ? fieldMessage(t, ifscCode) : undefined}
         />
         {!docs.bankVerified ? (
           <PrimaryButton
             title={t("onboarding.saveBankAccount")}
             onPress={handleVerifyBank}
-            disabled={
-              docs.bankAccount.length < 9 ||
-              docs.bankAccount !== docs.bankConfirm ||
-              docs.ifsc.length < 8
-            }
+            disabled={!!accountCode || !matches || !docs.bankConfirm || !!ifscCode}
             icon="shield"
           />
         ) : (

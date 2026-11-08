@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import Vendor from "../../database/models/Vendor";
+import Vendor, { VENDOR_ENCRYPTED_PATHS } from "../../database/models/Vendor";
 import OTP from "../../database/models/OTP";
 import { sendEmail, generateOTP, getOTPEmailHtml } from "../../services/email.service";
 import type { AuthRequest } from "../../middleware/auth.middleware";
@@ -12,6 +12,7 @@ import { RazorpayXError } from "../payments/razorpayx.client";
 import { applyRazorpayXPayout } from "../payments/payout.status";
 import FoodItem from "../../database/models/FoodItem";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
+import { isVerifiedAdmin, toAdminVendor, toPublicVendor } from "../../utils/publicProfile";
 import { getOutletOrderingState } from "../../utils/outletOrderingState";
 import { AppError } from "../../utils/errors";
 import { sendVendorDecisionEmail } from "../verification/verification.emails";
@@ -25,7 +26,6 @@ import {
   missingDocumentFields,
   toVendorKycFields,
 } from "./vendor-verification.service";
-import { toPublicVendor } from "./vendor.public";
 import { UserRole } from "../../database/models/User";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -176,7 +176,10 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
+    await revokeAllRefreshSessions(vendor._id.toString());
 
     res.json({ message: "Password reset successfully. You can now sign in with your new password." });
   } catch (error) {
@@ -196,30 +199,24 @@ export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
     const userLat = parseFloat(lat as string);
     const userLng = parseFloat(lng as string);
 
-    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors, with the KYC and bank
-    // details the Vendors page reviews. Signed-in admins only (the route runs
-    // optionalAuth) — anyone else sending 0,0 falls through to the zone check.
-    if (userLat === 0 && userLng === 0 && req.user?.role === UserRole.ADMIN) {
-      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } })
-        .select("-password")
-        .sort({ createdAt: -1 })
-        .lean();
-      return res.json(allVendors.map((vendor) => ({ ...vendor, openState: evaluateOutletOpenState(vendor) })));
+    // Admin Panel bypass: lat=0 & lng=0 fetches all vendors. Only for a verified admin session;
+    // anyone else asking for 0,0 falls through to the normal zone check (no zone covers it).
+    if (userLat === 0 && userLng === 0 && (await isVerifiedAdmin(req))) {
+      console.log(`[API] Fetching ALL vendors for Admin Panel`);
+      const allVendors = await Vendor.find({ partnerType: { $ne: "meat" } }).sort({ createdAt: -1 }).lean();
+      return res.json(allVendors.map((vendor) => ({ ...toAdminVendor(vendor), openState: evaluateOutletOpenState(vendor) })));
     }
 
-    // Zone Serviceability Check
+    // Browsing is open everywhere: outside every zone the outlets are still listed, nearest first,
+    // with no radius cap. Whether the address can actually be served is checked when the order is placed.
     const zonesService = new ZonesService();
     const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
-    if (!activeZone) {
-      console.log(`[API] Location [lat: ${userLat}, lng: ${userLng}] is outside all active zones. Returning 0 vendors.`);
-      return res.json([]);
-    }
 
     const maxDefaultRadius = 15000; // 15 km max default radius
     const radiusInMeters = radius ? Math.max(1000, Number(radius) || 0) : maxDefaultRadius;
     const skip = (Number(page) - 1) * Number(limit);
 
-    console.log(`[API] Fetching nearby vendors - Lat: ${userLat}, Lng: ${userLng}, Page: ${page} (Zone: ${activeZone.name})`);
+    console.log(`[API] Fetching nearby vendors - Lat: ${userLat}, Lng: ${userLng}, Page: ${page} (Zone: ${activeZone?.name ?? "none"})`);
 
     const sortMode = sort === "rating" || sort === "distance" ? sort : "default";
     const minRatingValue = Number(minRating);
@@ -244,7 +241,7 @@ export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
     if (hasMinRating) {
       geoQuery.rating = { $gte: minRatingValue };
     }
-    if (activeZone.type === "polygon" && activeZone.boundary) {
+    if (activeZone?.type === "polygon" && activeZone.boundary) {
       geoQuery.location = {
         $geoWithin: {
           $geometry: activeZone.boundary
@@ -252,9 +249,35 @@ export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
       };
     }
 
-    const maxDist = activeZone.type === "circle" && activeZone.radius 
-      ? Math.min(radiusInMeters, activeZone.radius) 
-      : radiusInMeters;
+    let maxDist: number | undefined = !activeZone
+      ? undefined
+      : activeZone.type === "circle" && activeZone.radius
+        ? Math.min(radiusInMeters, activeZone.radius)
+        : radiusInMeters;
+
+    // Nothing within reach of this point (a zone with no outlet near the customer): list the
+    // nearest outlets anyway instead of an empty Home. Decided once per request, so every page
+    // agrees. Delivery range is checked at checkout.
+    if (maxDist !== undefined) {
+      const anyInReach = await Vendor.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [userLng, userLat] },
+            distanceField: "distance",
+            maxDistance: maxDist,
+            spherical: true,
+            key: "location",
+            query: geoQuery,
+          },
+        },
+        { $limit: 1 },
+        { $project: { _id: 1 } },
+      ]);
+      if (anyInReach.length === 0) {
+        maxDist = undefined;
+        delete geoQuery.location;
+      }
+    }
 
     // Open-now and search are derived server-side, so Mongo cannot page them:
     // those requests scan a bounded candidate set and page in memory instead.
@@ -269,7 +292,7 @@ export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
             coordinates: [userLng, userLat],
           },
           distanceField: "distance",
-          maxDistance: maxDist,
+          ...(maxDist !== undefined && { maxDistance: maxDist }),
           spherical: true,
           key: "location",
           query: geoQuery,
@@ -283,6 +306,9 @@ export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
     } else {
       pipeline.push({ $skip: skip }, { $limit: Number(limit) });
     }
+    // This route is public and aggregate() returns stored values as they are (ciphertext for the
+    // encrypted owner/bank/KYC fields), so those fields are removed from what clients receive.
+    pipeline.push({ $unset: VENDOR_ENCRYPTED_PATHS });
 
     const candidates = await Vendor.aggregate(pipeline);
     const vendors = searchTerm ? await filterVendorsBySearch(candidates, searchTerm) : candidates;
@@ -334,7 +360,8 @@ export const getVendorById = async (req: Request, res: Response) => {
     // openState carries today's window and the full week so the details screen can
     // show real timings instead of a hardcoded "Open now".
     const openState = evaluateOutletOpenState(vendor);
-    res.json({ ...toPublicVendor(vendor), openState, isOpen: openState.isOpen });
+    const visible = (await isVerifiedAdmin(req)) ? toAdminVendor(vendor) : toPublicVendor(vendor);
+    res.json({ ...visible, openState, isOpen: openState.isOpen });
   } catch (error) {
     console.error("Error fetching vendor:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -359,6 +386,7 @@ export const getOutletOrderingStatus = async (req: Request, res: Response) => {
 };
 
 import generateToken from "../../utils/generateToken";
+import { clientSupportsRefresh, revokeAllRefreshSessions, startSession } from "../auth/session.service";
 
 export const loginVendor = async (req: Request, res: Response) => {
   try {
@@ -386,17 +414,18 @@ export const loginVendor = async (req: Request, res: Response) => {
         return res.status(403).json(block);
       }
 
+      const vendorRole = vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor";
+      const refresh = clientSupportsRefresh(req);
       res.json({
         _id: vendor._id,
         name: vendor.name,
         email: vendor.email,
         phone: vendor.phone,
-        role: vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor",
+        role: vendorRole,
         partnerType: vendor.partnerType || "food",
-        token: generateToken(
-          vendor._id.toString(),
-          vendor.partnerType === "meat" ? "meat_vendor" : "restaurant_vendor"
-        ),
+        ...(refresh
+          ? await startSession({ subjectId: vendor._id.toString(), role: vendorRole, tokenVersion: vendor.tokenVersion ?? 0 })
+          : { token: generateToken(vendor._id.toString(), vendorRole, vendor.tokenVersion ?? 0) }),
       });
     } else {
       res.status(401).json({ message: "Invalid email/phone or password" });
@@ -623,10 +652,13 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
     // (name, address, bank account) and, by sending portalPassword, reset their
     // portal password and sign in as them.
     const existing = await Vendor.findOne(matchQuery)
-      .select("onboardingStatus password")
+      .select("onboardingStatus onboardingSource password")
       .lean();
 
-    if (existing && existing.onboardingStatus && existing.onboardingStatus !== "draft") {
+    // Only a draft this form started can be resumed. Admin-created vendors keep
+    // the default "draft" status while live, so the status check alone would
+    // still let anyone overwrite them; onboardingSource marks the form's own records.
+    if (existing && (existing.onboardingStatus !== "draft" || existing.onboardingSource !== "partner_website")) {
       return res.status(409).json({
         message:
           "An account already exists for this phone number or email. Please sign in to the partner portal, or contact support to update your details.",
@@ -823,7 +855,10 @@ export const changeVendorPassword = async (req: AuthRequest, res: Response) => {
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
+    await revokeAllRefreshSessions(vendor._id.toString());
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
@@ -882,7 +917,11 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (name !== undefined) vendor.name = name;
     if (email !== undefined) vendor.email = email;
     if (phone !== undefined) vendor.phone = phone;
-    if (password) vendor.password = password; // pre-save hook will hash it
+    if (password) {
+      vendor.password = password; // pre-save hook will hash it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+    }
     if (googlePlaceId !== undefined) vendor.googlePlaceId = googlePlaceId;
     if (location !== undefined) vendor.location = location;
     if (address !== undefined) vendor.address = address;
@@ -895,7 +934,15 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (deliveryFee !== undefined) vendor.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) vendor.minOrderValue = minOrderValue;
     const previousOnboardingStatus = vendor.onboardingStatus;
-    if (onboardingStatus !== undefined) vendor.onboardingStatus = onboardingStatus;
+    if (onboardingStatus !== undefined) {
+      vendor.onboardingStatus = onboardingStatus;
+      if (onboardingStatus !== previousOnboardingStatus) {
+        // The vendor's access situation just changed (e.g. approved -> rejected) —
+        // an already-issued token should not keep working regardless of the new
+        // status. See IAM-002.
+        vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+      }
+    }
     if (commissionRate !== undefined) vendor.commissionRate = commissionRate;
 
     await vendor.save();

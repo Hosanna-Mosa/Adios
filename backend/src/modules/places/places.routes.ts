@@ -7,7 +7,7 @@ import { nearbyPlacesSchema, autocompleteSchema, placeDetailsSchema, reverseGeoc
 
 const router = Router();
 
-// Every route here is a billed Google Maps call.
+// No token required (some screens search before sign-in), but every call is rate limited.
 router.use(optionalAuth, mapsRateLimiter);
 
 router.get("/nearby", validateRequest(nearbyPlacesSchema), PlacesController.getNearbyPlaces);

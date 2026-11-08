@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -20,7 +21,7 @@ import { CuisineStripSkeleton, GreetingAdSkeleton, MealsRailSkeleton, PromoCarou
 import type { Props } from "./HomeBody.props";
 
 export function HomeBody(props: Props) {
-  const { hasRidersButNoVendors, noRidersNearby, accent, activeFilterCount, activeService, appliedDistanceKm,
+  const { hasRidersButNoVendors, accent, activeFilterCount, activeService, appliedDistanceKm,
   areaLabel, areaLine, bannerIndexRef, bannerScrollX, carouselRef, cuisineChips, filterCostRange,
   filterFastDelivery, filterMinRating, filterOffers, filterOpenNow, filterVegNonVeg,
   filteredAndSortedItems, greetingAds, handleServiceSwitch, insets, onBannerScroll, promoCards,
@@ -34,7 +35,7 @@ export function HomeBody(props: Props) {
     <View>
       <HomeIntro {...props} />
 
-      {/* Service tiles: Food/Meat toggle + Ride/Task launchers */}
+      {/* Service tiles: Food/Meat/Ride/Package/Helper, 5 equal cards, all real 3D art */}
       <ServiceTiles
         styles={styles}
         tokens={tokens}
@@ -63,12 +64,10 @@ export function HomeBody(props: Props) {
             <GreetingAdCard key={banner._id || index} banner={banner} styles={styles} />
           ))}
 
-          {/* Nothing in the ₹149 store can be delivered with no rider on shift,
-              so the rail comes down with the rest of the ordering surface. */}
-          {activeService === "Food" && !noRidersNearby && store149Loading && store149Items.length === 0 && (
+          {activeService === "Food" && store149Loading && store149Items.length === 0 && (
             <MealsRailSkeleton tokens={tokens} />
           )}
-          {activeService === "Food" && !noRidersNearby && store149Items.length > 0 && (
+          {activeService === "Food" && store149Items.length > 0 && (
             <View style={styles.sectionBlock}>
               <View style={styles.sectionHeadRow}>
                 <View style={styles.sectionHeadLeft}>
@@ -85,10 +84,7 @@ export function HomeBody(props: Props) {
             </View>
           )}
 
-          {/* With no rider online nothing can be ordered, so the veg toggle,
-              filter chips (incl. the 149 Store filter) and the cuisine strip
-              come down along with the ₹149 rail above. */}
-          {activeService === "Food" && !noRidersNearby && (
+          {activeService === "Food" && (
             <View style={styles.vegOnlyRow}>
               <View style={styles.vegOnlyLeft}>
                 <View style={styles.vegOnlyIcon}><View style={styles.vegOnlyDot} /></View>
@@ -109,7 +105,6 @@ export function HomeBody(props: Props) {
           )}
 
           {/* Filter chips — quick filters differ per service, "Filter" always opens the full modal */}
-          {!noRidersNearby && (
           <FilterChips
             styles={styles}
             accent={accent}
@@ -132,11 +127,10 @@ export function HomeBody(props: Props) {
             setSelectedCuisines={setSelectedCuisines}
             setFilterCostRange={setFilterCostRange}
           />
-          )}
 
           {/* Browse by cuisine (Food) / meat type (Meat, no eyebrow label in the mockup) */}
-          {!noRidersNearby && cuisinesLoading && <CuisineStripSkeleton tokens={tokens} />}
-          {!noRidersNearby && !cuisinesLoading && (
+          {cuisinesLoading && <CuisineStripSkeleton tokens={tokens} />}
+          {!cuisinesLoading && (
             <CuisineStrip
               styles={styles}
               activeService={activeService}
@@ -150,16 +144,11 @@ export function HomeBody(props: Props) {
           {filteredAndSortedItems.length > 0 && (
             <View style={styles.listHeadingBlock}>
               <Text style={activeService === "Meat" ? styles.listHeadingMeat : styles.listHeading}>{activeService === "Meat" ? t("app.home.meatCenters") : t("app.home.allRestaurants")}</Text>
-              {/* The count is a promise none of those outlets can keep while no
-                  rider is online, so it is left off rather than contradicting the
-                  notice right below it. */}
-              {!noRidersNearby && (
-                <Text style={styles.listHeadingMeta}>
-                  {appliedDistanceKm
-                    ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`
-                    : `${filteredAndSortedItems.length} outlets near ${areaLabel}`}
-                </Text>
-              )}
+              <Text style={styles.listHeadingMeta}>
+                {appliedDistanceKm
+                  ? `${filteredAndSortedItems.length} outlets within ${appliedDistanceKm} km`
+                  : `${filteredAndSortedItems.length} outlets near ${areaLabel}`}
+              </Text>
             </View>
           )}
         </>

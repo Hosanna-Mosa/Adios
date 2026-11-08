@@ -22,6 +22,8 @@ export function useMeatCentersInsets() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [meatCenters, setMeatCenters] = useState<any[]>([]);
+  // The first-page request failed, as opposed to returning no centres.
+  const [loadError, setLoadError] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [activeQuickFilters, setActiveQuickFilters] = useState<Set<QuickFilter>>(new Set());
@@ -58,13 +60,15 @@ export function useMeatCentersInsets() {
         setHasMore(data.length >= 20);
         setMeatCenters((prev) => (pageNum === 1 ? data : [...prev, ...data]));
       }
+      if (pageNum === 1) setLoadError(false);
     } catch (error) {
       console.error("Error fetching meat centers:", error);
+      if (pageNum === 1) setLoadError(true);
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
   };
 
-  return { insets, tokens, accent, styles, loading, loadingMore, page, setPage, hasMore, setHasMore, meatCenters, selectedAddress, setSelectedAddress, selectedCategory, setSelectedCategory, activeQuickFilters, setActiveQuickFilters, searchOpen, setSearchOpen, searchText, setSearchText, getCoords, fetchMeatCenters };
+  return { insets, tokens, accent, styles, loading, loadingMore, page, setPage, hasMore, setHasMore, meatCenters, loadError, selectedAddress, setSelectedAddress, selectedCategory, setSelectedCategory, activeQuickFilters, setActiveQuickFilters, searchOpen, setSearchOpen, searchText, setSearchText, getCoords, fetchMeatCenters };
 }

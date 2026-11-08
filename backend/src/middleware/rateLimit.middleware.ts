@@ -37,7 +37,7 @@ export const analyticsRateLimiter = rateLimit({
 // one call a second.
 export const mapsRateLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: (req) => ((req as AuthRequest).user?.userId ? 60 : 120),
+  max: (req) => ((req as AuthRequest).user?.userId ? 120 : 300),
   keyGenerator: (req) => {
     const userId = (req as AuthRequest).user?.userId;
     return userId ? `user:${userId}` : ipKeyGenerator(req.ip ?? "");
@@ -55,4 +55,15 @@ export const onboardingRateLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many attempts, please try again later" },
+});
+
+// POST /auth/refresh runs every ~15 minutes per signed-in device, so it needs far more room than
+// the login limiter. The token itself is the credential; this only caps guessing and runaway loops.
+export const refreshRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: process.env.NODE_ENV === "production" ? 120 : 1000,
+  keyGenerator: (req) => ipKeyGenerator(req.ip ?? ""),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please slow down" },
 });

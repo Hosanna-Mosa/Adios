@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
@@ -7,7 +8,7 @@ import { getNearbyDrivers } from "@/services/places.service";
 // Split out of useFindingDriver so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnlineDrivers: any, orderSummary: any) {
+export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnlineDrivers: any, orderSummary: any, isRide: boolean) {
   const { t } = useTranslation();
 
   const TIER_LABEL: Record<string, string> = useMemo(() => ({
@@ -17,13 +18,15 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     cab_prime: t("app.rideTierNames.cabPrime"),
   }), [t]);
 
+  // "Fare"/"ride" wording only makes sense for an actual ride order — a Meat/Food/
+  // package order gets price- and order-appropriate reasons instead.
   const CANCEL_REASONS = useMemo(() => [
     t("app.findingDriver.cancelReasons.waitingTooLong"),
     t("app.findingDriver.cancelReasons.bookedByMistake"),
-    t("app.findingDriver.cancelReasons.fareTooHigh"),
-    t("app.findingDriver.cancelReasons.foundAnotherRide"),
+    isRide ? t("app.findingDriver.cancelReasons.fareTooHigh") : t("app.findingDriver.cancelReasons.priceTooHigh"),
+    isRide ? t("app.findingDriver.cancelReasons.foundAnotherRide") : t("app.findingDriver.cancelReasons.changedMind"),
     t("app.findingDriver.cancelReasons.other"),
-  ], [t]);
+  ], [t, isRide]);
 
   const [showCancelSheet, setShowCancelSheet] = useState(false);
   const [cancelReason, setCancelReason] = useState<string | null>(null);
@@ -80,7 +83,7 @@ export function useFindingDriverShowCancelSheet(orderId: any, stops: any, setOnl
     };
 
     fetchOnlineDrivers();
-    const interval = setInterval(fetchOnlineDrivers, 10000);
+    const interval = setForegroundInterval(fetchOnlineDrivers, 10000);
     return () => { active = false; clearInterval(interval); };
   }, [stops]);
 

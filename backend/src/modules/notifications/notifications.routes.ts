@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { NotificationsController } from "./notifications.controller";
-import { authenticateToken } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
+import { UserRole } from "../../database/models/User";
 import { validateRequest } from "../../middleware/validation.middleware";
 import {
   listNotificationsSchema,
@@ -19,8 +20,9 @@ router.patch("/read-all", authenticateToken, controller.markAllAsRead.bind(contr
 router.patch("/:id/read", authenticateToken, validateRequest(notificationIdParamSchema), controller.markAsRead.bind(controller));
 router.delete("/:id", authenticateToken, validateRequest(notificationIdParamSchema), controller.deleteNotification.bind(controller));
 
-router.post("/trigger-commute", authenticateToken, controller.triggerCommute.bind(controller));
-router.post("/check-abandoned", authenticateToken, controller.checkAbandoned.bind(controller));
+// Test / maintenance triggers that notify many users: admin only.
+router.post("/trigger-commute", authenticateToken, authorizeRole([UserRole.ADMIN]), controller.triggerCommute.bind(controller));
+router.post("/check-abandoned", authenticateToken, authorizeRole([UserRole.ADMIN]), controller.checkAbandoned.bind(controller));
 
 // Browser Web Push (admin/support/vendor dashboard) — role-agnostic, keyed off whatever the
 // JWT's userId resolves to (a User for admin/support, a Vendor for vendor logins).

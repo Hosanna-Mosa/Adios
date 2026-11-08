@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
+import { RefreshButton } from "@/components/ui/RefreshButton";
 import { goHomeFromTracking } from "../useTrackingHandleBack";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -17,6 +18,8 @@ interface Props {
   status: string;
   styles: TrackingStyles;
   tokens: ThemeTokens;
+  onRefresh: () => void;
+  refreshing: boolean;
 }
 
 export function TrackingTopBar({
@@ -27,6 +30,8 @@ export function TrackingTopBar({
   status,
   styles,
   tokens,
+  onRefresh,
+  refreshing,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -39,8 +44,7 @@ export function TrackingTopBar({
           {status === "arrived_pickup" || status === "arrived_delivery" ? bannerText : `${bannerText} · ${t("app.ride.etaMinutes", { min: eta })}`}
         </Text>
       </View>
-      {/* Balances the 44pt back button so the chip stays centred. */}
-      <View style={{ width: 44 }} />
+      <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
     </View>
   );
 }

@@ -51,7 +51,7 @@ export const zoneSelectorStyles = StyleSheet.create({
     justifyContent: "center",
   },
   selectedCopy: { flex: 1 },
-  selectedName: { fontSize: typography.sizes.large, fontWeight: "700", color: Colors.infoDark },
+  selectedName: { fontSize: typography.sizes.medium, fontWeight: "700", color: Colors.infoDark },
   selectedDesc: { fontSize: typography.sizes.small, color: Colors.infoMid, marginTop: 2 },
   selectedLink: { fontSize: typography.sizes.small, fontWeight: "700", color: Colors.primary, marginTop: 8 },
 });

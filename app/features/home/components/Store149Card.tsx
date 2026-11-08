@@ -1,4 +1,6 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { optimizedImageUrl } from "@/utils/imageUrl";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -39,7 +41,7 @@ export function Store149Card({ item, styles, accent }: Props) {
     <View style={styles.mealCard}>
       <View style={styles.mealImageWrap}>
         <Image
-          source={item.images?.[0] ? { uri: item.images[0] } : null}
+          source={item.images?.[0] ? { uri: optimizedImageUrl(item.images[0], 200) } : null}
           style={styles.mealImage}
           contentFit="cover"
           transition={200}

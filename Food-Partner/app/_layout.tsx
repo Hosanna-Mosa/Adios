@@ -20,8 +20,8 @@ import "@/constants/applyFontPatch";
 import i18n from "@/i18n";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
-import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { LiveOrderWatcher } from "@/components/LiveOrderWatcher";
 import { PushNotificationHandler } from "@/components/PushNotificationHandler";
 import { NewOrderBanner } from "@/components/shared/NewOrderBanner";
 import { ScheduledRequestSheet } from "@/components/shared/ScheduledRequestSheet";
@@ -31,11 +31,22 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { useThemeStore } from "@/contexts/themeStore";
 import { setAuthTokenGetter, setBaseUrl, setUnauthorizedHandler } from "@/utils/api/custom-fetch";
+import { configureSessionRefresh } from "@/utils/api/sessionRefresh";
 import { env } from "@/utils/env";
 
 if (env.apiUrl) setBaseUrl(env.apiUrl);
 
 setAuthTokenGetter(() => useAuthStore.getState().token);
+
+// Renews the short access token silently; only a refresh the server rejects reaches the handler below.
+if (env.apiUrl) {
+  configureSessionRefresh({
+    apiUrl: env.apiUrl,
+    getToken: () => useAuthStore.getState().token,
+    getRefreshToken: () => useAuthStore.getState().refreshToken,
+    onTokens: (tokens) => useAuthStore.getState().setTokens(tokens),
+  });
+}
 
 // The API answers 401 — and only 401 — for a missing, expired or revoked token.
 // handleUnauthorized returns true only for the first of a burst of parallel 401s,
@@ -128,8 +139,8 @@ export default function RootLayout() {
             <KeyboardProvider>
               <ToastProvider>
                 <RootLayoutNav />
-                <GlobalSocketHandler />
                 <OfflineBanner />
+                <LiveOrderWatcher />
                 <PushNotificationHandler />
                 <NewOrderBanner />
                 <ScheduledRequestSheet />

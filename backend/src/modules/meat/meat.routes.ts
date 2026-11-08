@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken, authorizeRole } from "../../middleware/auth.middleware";
+import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import {
   getNearbyMeatCenters,
@@ -38,7 +38,8 @@ import {
 const router = Router();
 
 router.post("/login", authRateLimiter, validateRequest(loginMeatCenterSchema), loginMeatCenter);
-router.get("/nearby", validateRequest(nearbyMeatCentersSchema), getNearbyMeatCenters);
+// optionalAuth: signed-in admins get the full records; everyone else a public view.
+router.get("/nearby", optionalAuth, validateRequest(nearbyMeatCentersSchema), getNearbyMeatCenters);
 router.post("/", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(createMeatCenterSchema), createMeatCenter);
 router.put("/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(updateMeatCenterSchema), updateMeatCenter);
 router.delete("/:id", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(meatCenterIdParamSchema), deleteMeatCenter);

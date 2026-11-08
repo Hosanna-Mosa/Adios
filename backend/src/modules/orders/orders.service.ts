@@ -12,7 +12,7 @@ import { SocketManager } from "../../sockets/socket.manager";
 import { QueueManager } from "../../services/queue.service";
 import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
-import { ConflictError, NotFoundError, ValidationError } from "../../utils/errors";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
 import { CouponsService } from "../coupons/coupons.service";
 import { CartService } from "../cart/cart.service";
@@ -1406,7 +1406,142 @@ export class OrdersService {
     const isParty = order.user?.toString() === requestingUserId || driverUserId === requestingUserId;
     if (!isParty) throw new Error("Unauthorized to view this chat");
 
-    return ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 });
+    const messages = await ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 }).lean();
+    // `id` is what the live message carried (the sender's clientId), so a client polling
+    // this list can match it against the optimistic copy it already shows.
+    return messages.map((m: any) => ({ ...m, id: m.clientId || m._id.toString(), from: m.role }));
+  }
+
+  /**
+   * Post a chat message on an order: saved, relayed to the order's socket room and pushed
+   * to the other party. Used by POST /orders/:id/chat and the socket `send_message` event.
+   * Who may post, and the role stored with the message, come from the caller's verified
+   * relation to the order — never from what the client says it is.
+   */
+  async sendChatMessage(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string, clientId?: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    // Support may read an order but not speak in its chat (same as SocketManager.canActOnOrder).
+    if (relation === "staff" && actor?.role === "SUPPORT") {
+      throw new ForbiddenError("Support can view orders but not post in their chat.");
+    }
+
+    const body = String(text ?? "").trim();
+    if (!body) throw new ValidationError("Message text is required");
+    if (body.length > 2000) throw new ValidationError("Message is too long");
+
+    // Stored roles predate this method: the customer app sent "user", the driver app "driver".
+    const from = relation === "driver" ? "driver" : relation === "customer" ? "user" : relation === "vendor" ? "vendor" : "admin";
+    const canonicalOrderId = order._id.toString();
+
+    let driverUserId: string | undefined;
+    if (order.driver) {
+      const drv = await Driver.findById(order.driver).select("user").lean();
+      driverUserId = drv?.user?.toString();
+    }
+
+    // A vendor / admin token's subject is already an ObjectId; this only guards odd tokens.
+    let senderId = actor!.userId!;
+    if (!mongoose.Types.ObjectId.isValid(senderId)) {
+      senderId = (relation === "driver" ? driverUserId : order.user?.toString()) || "";
+    }
+    if (!mongoose.Types.ObjectId.isValid(senderId)) throw new ValidationError("Could not resolve the message sender");
+
+    const _id = new mongoose.Types.ObjectId();
+    const id = clientId || _id.toString();
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const saved = await ChatMessage.create({ _id, orderId: canonicalOrderId, clientId: id, senderId, role: from, text: body, time });
+
+    const payload = { id, text: body, from, time, senderId };
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "receive_message", payload, "OrdersService.sendChatMessage");
+
+    // Push the other party so an out-of-app message isn't missed (fire-and-forget).
+    const recipientUserId = from === "driver" ? order.user?.toString() : driverUserId;
+    if (recipientUserId && recipientUserId !== actor?.userId) {
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: recipientUserId,
+          title: "New message 💬",
+          body: body.length > 120 ? `${body.slice(0, 117)}...` : body,
+          type: "transactional",
+          category: "chat",
+          data: { orderId: canonicalOrderId, deepLink: { screen: "/chat", params: { orderId: canonicalOrderId } } },
+        })
+        .catch((err: any) => console.error("[CHAT] Failed to send chat push notification:", err));
+    }
+
+    return { ...payload, createdAt: saved.createdAt };
+  }
+
+  /**
+   * The sequential offer this driver holds right now, else the food broadcast offer, else
+   * null. Polled by the driver app in place of the socket's `new_order`.
+   */
+  async getDriverOffer(driverUserId: string) {
+    const now = new Date();
+    const order: any = await Order.findOne({
+      "currentOffer.driverUserId": driverUserId,
+      "currentOffer.expiresAt": { $gt: now },
+      status: OrderStatus.SEARCHING_DRIVER,
+      driver: null,
+    })
+      .sort({ "currentOffer.offeredAt": -1 })
+      .select("currentOffer")
+      .lean();
+
+    if (order?.currentOffer) {
+      const expiresAt = new Date(order.currentOffer.expiresAt);
+      return {
+        ...(order.currentOffer.payload || {}),
+        expiresAt: expiresAt.toISOString(),
+        secondsLeft: Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / 1000)),
+      };
+    }
+
+    return foodDispatch.currentOfferFor(driverUserId);
+  }
+
+  /** Helper task: the customer confirms the task they assigned. Idempotent. */
+  async confirmHelperTask(orderId: string, actor: { userId?: string; role?: string } | undefined) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "customer") throw new ForbiddenError("Only the customer can confirm this task.");
+    if (order.helperTaskConfirmedAt) return { helperTaskConfirmedAt: order.helperTaskConfirmedAt };
+
+    const helperTaskConfirmedAt = new Date();
+    await Order.updateOne({ _id: order._id, helperTaskConfirmedAt: { $exists: false } }, { $set: { helperTaskConfirmedAt } });
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "assign_task_confirmed", { orderId: canonicalOrderId }, "OrdersService.confirmHelperTask");
+    return { helperTaskConfirmedAt };
+  }
+
+  /** Helper task: the assigned helper posts a short progress note for the customer. */
+  async updateHelperStatus(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "driver") throw new ForbiddenError("Only the assigned helper can post task updates.");
+
+    const helperStatusText = String(text ?? "").trim();
+    if (!helperStatusText) throw new ValidationError("Status text is required");
+    const helperStatusAt = new Date();
+    await Order.updateOne({ _id: order._id }, { $set: { helperStatusText, helperStatusAt } });
+
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "helper_status_update", { orderId: canonicalOrderId, text: helperStatusText }, "OrdersService.updateHelperStatus");
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: order.user.toString(),
+        title: "Task update",
+        body: helperStatusText,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          kind: "helper_status",
+          orderId: canonicalOrderId,
+          deepLink: { screen: "/tracking", params: { orderId: canonicalOrderId } },
+        },
+      })
+      .catch((err: any) => console.error("[orders.service] Failed to push a helper status update:", err));
+
+    return { helperStatusText, helperStatusAt };
   }
 
   async increaseOrderPrice(orderId: string, amount: number, userId: string) {
@@ -1625,6 +1760,11 @@ export class OrdersService {
 
     // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
     if (status === OrderStatus.CANCELLED) {
+      // Stop any running driver search and withdraw the offer on screen now,
+      // rather than leaving it up until the offer timer runs out.
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      dispatchManager.handleCustomerCancel(order._id.toString());
+
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
       if (order.dispatchMode === "broadcast") await foodDispatch.cancelDispatch(order._id.toString());
       else {
@@ -1810,7 +1950,8 @@ export class OrdersService {
   }
 
   async getUserOrders(userId: string) {
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    // lean() skips toJSON, so drop the driver-side offer here (see the Order transform).
+    const orders = await Order.find({ user: userId }).select("-currentOffer").sort({ createdAt: -1 }).lean();
     const outlets = await this.outletSummaries(orders.map((order: any) => order.vendor));
     return orders.map((order: any) => ({
       ...order,
@@ -1919,11 +2060,29 @@ export class OrdersService {
     const driver = await Driver.findOne({ user: driverUserId });
     if (!driver) throw new Error("Driver profile not found");
 
+    // RBAC-003: each dispatch mode is the source of truth for who's actually
+    // been offered this order. These are read-only checks (nothing written
+    // yet) so a bogus decline on an order this driver was never offered is
+    // rejected before anything below records it or advances dispatch.
+    const { dispatchManager } = require("../../services/dispatch.manager");
+    const wasOffered =
+      order.dispatchMode === "broadcast"
+        ? foodDispatch.wasOfferedTo(order, driverUserId)
+        : dispatchManager.isCurrentCandidate(orderId, driverUserId);
+    if (!wasOffered) {
+      // RBAC-003 follow-up: this used to silently return the order
+      // unchanged, which left the HTTP layer with nothing to distinguish
+      // from a real success — an unauthorized decline attempt got a 200.
+      // Throwing here lets the controller map it to 403, same as acceptOrder
+      // already does for the equivalent case.
+      throw new Error("You were not offered this order");
+    }
+
     // Push the reason
     if (!order.declineReasons) {
       order.declineReasons = [];
     }
-    
+
     // Prevent duplicate declining from the same driver
     const alreadyDeclined = order.declineReasons.some(r => r.driverId === driver._id.toString());
     if (!alreadyDeclined) {
@@ -1938,7 +2097,7 @@ export class OrdersService {
         acc[r.reason] = (acc[r.reason] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
-      
+
       let mostCommonReason = "";
       let maxCount = 0;
       for (const [r, count] of Object.entries(reasonCounts)) {
@@ -1965,7 +2124,6 @@ export class OrdersService {
       await foodDispatch.declineOffer(order._id.toString(), driverUserId, reason);
     } else {
       // Trigger dispatch manager to pass order to next nearest driver in sequence
-      const { dispatchManager } = require("../../services/dispatch.manager");
       await dispatchManager.handleDriverDecline(orderId, driverUserId);
     }
 
@@ -1978,6 +2136,50 @@ export class OrdersService {
    * touched in the last 6 hours, and not a reserved ride still waiting for its time.
    * Populated like acceptOrder's answer, which is what the app maps.
    */
+  /**
+   * The orders this driver was assigned, newest first, one page at a time. `ongoing` = the job
+   * is still live; `past` = delivered / completed / cancelled. Orders nobody had assigned yet
+   * (searching, created) never belong to a driver, so they appear in neither list.
+   */
+  async getDriverOrders(driverUserId: string, scope: "ongoing" | "past", page: number, limit: number) {
+    const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
+    if (!driver) return { orders: [], page, hasMore: false };
+
+    const finished = [
+      OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
+      "completed", "cancelled",
+    ];
+    const notAssigned = [OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED];
+    const now = new Date();
+    const filter: any =
+      scope === "past"
+        ? { driver: driver._id, status: { $in: finished } }
+        : {
+            driver: driver._id,
+            status: { $nin: [...finished, ...notAssigned] },
+            // A scheduled ride the driver holds for later is not "ongoing" yet.
+            $nor: [{ isReserved: true, reservedAt: { $gt: now } }],
+          };
+
+    const rows: any[] = await Order.find(filter)
+      .sort({ updatedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit + 1)
+      .populate("user", "name phone")
+      .lean();
+    const hasMore = rows.length > limit;
+    const orders = rows.slice(0, limit);
+    const outlets = await this.outletSummaries(orders.map((order) => order.vendor));
+    return {
+      page,
+      hasMore,
+      orders: orders.map((order) => ({
+        ...order,
+        vendor: (order.vendor && outlets.get(String(order.vendor))) || order.vendor,
+      })),
+    };
+  }
+
   async getDriverActiveOrder(driverUserId: string) {
     const driver = await Driver.findOne({ user: driverUserId }).select("_id").lean();
     if (!driver) return null;
@@ -2096,20 +2298,57 @@ export class OrdersService {
         status: OrderStatus.DRIVER_ASSIGNED,
       });
     } else {
-      if (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) {
+      if (
+        (order.status !== OrderStatus.SEARCHING_DRIVER && !(order.isReserved && order.status === OrderStatus.CREATED)) ||
+        order.searchExhaustedAt
+      ) {
+        // RBAC-004 follow-up: a dispatch that ran out of candidates (every
+        // candidate declined or timed out) is just as unavailable as one
+        // that's already assigned or cancelled — searchExhaustedAt is the
+        // persisted record of that, since the in-memory dispatch session is
+        // deleted the moment candidates are exhausted and can't be relied on
+        // here. See the atomic claim below for the race-safe version of this
+        // same check.
         throw new Error("Order is no longer available");
       }
 
-      // Notify dispatch manager that order was accepted to stop cascade timers
+      // RBAC-003 follow-up: only the driver currently holding the offer may
+      // accept it. Checked before any write, so an unrelated driver gets a
+      // clear reason instead of silently succeeding or a generic error.
       const { dispatchManager } = require("../../services/dispatch.manager");
-      dispatchManager.handleDriverAccept(orderId, driverUserId);
+      const authorized = dispatchManager.handleDriverAccept(orderId, driverUserId);
+      if (!authorized) {
+        throw new Error("You were not offered this order");
+      }
 
       const session = await mongoose.startSession();
       session.startTransaction();
       try {
-        order.driver = driver._id;
-        order.status = OrderStatus.DRIVER_ASSIGNED;
-        await order.save({ session });
+        // Atomic claim: only succeeds if the order is still unassigned and in
+        // an acceptable status at the moment of the write, closing the race
+        // window a separate check-then-save would leave open (mirrors
+        // foodDispatch.claimOffer's pattern for broadcast orders).
+        //
+        // RBAC-004 follow-up: searchExhaustedAt: null is required in both
+        // branches — a dispatch that's genuinely run out of candidates must
+        // not be claimable by anyone, even though its order.driver/status
+        // alone still look identical to an order that's legitimately never
+        // been dispatched (e.g. isReserved). This is the real, race-safe
+        // enforcement; the earlier throw above is just the fast, common-case
+        // version of the same check.
+        const claimed = await Order.findOneAndUpdate(
+          {
+            _id: order._id,
+            driver: null,
+            searchExhaustedAt: null,
+            $or: [{ status: OrderStatus.SEARCHING_DRIVER }, { isReserved: true, status: OrderStatus.CREATED }],
+          },
+          { $set: { driver: driver._id, status: OrderStatus.DRIVER_ASSIGNED } },
+          { session }
+        );
+        if (!claimed) {
+          throw new Error("Order is no longer available");
+        }
 
         driver.isAvailable = false;
         await driver.save({ session });

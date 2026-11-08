@@ -1,10 +1,13 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { encryptedFields } from "../plugins/encryptedFields";
 
 export enum DriverPayoutStatus {
   PENDING = "pending",
   PROCESSING = "processing",
   PROCESSED = "processed",
   FAILED = "failed",
+  /** The admin could not pay the bank account on file and asked the driver for other details. The amount stays reserved. */
+  NEEDS_BANK_DETAILS = "needs_bank_details",
 }
 
 export interface IDriverPayout extends Document {
@@ -24,6 +27,8 @@ export interface IDriverPayout extends Document {
   /** The admin who marked it paid or rejected it. */
   handledBy?: mongoose.Types.ObjectId;
   adminNote?: string;
+  /** Why the admin asked for other bank details (status needs_bank_details). */
+  bankIssue?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,10 +52,15 @@ const DriverPayoutSchema = new Schema(
     method: { type: String, enum: ["razorpayx", "manual"] },
     handledBy: { type: Schema.Types.ObjectId, ref: "User" },
     adminNote: { type: String },
+    bankIssue: { type: String },
   },
   { timestamps: true },
 );
 
 DriverPayoutSchema.index({ driver: 1, createdAt: -1 });
+
+// Payout references and notes are stored encrypted (see plugins/encryptedFields.ts). Never
+// filter or aggregate on them: the stored value is ciphertext with a random IV.
+DriverPayoutSchema.plugin(encryptedFields, { paths: ["utr", "adminNote", "failureReason"] });
 
 export default mongoose.model<IDriverPayout>("DriverPayout", DriverPayoutSchema);

@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "497005977520",
-    "project_id": "flavour-71159",
-    "storage_bucket": "flavour-71159.firebasestorage.app"
+    "project_number": "240109092670",
+    "project_id": "adios-4c6e1",
+    "storage_bucket": "adios-4c6e1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:497005977520:android:da1387f48c50cfd0284075",
+        "mobilesdk_app_id": "1:240109092670:android:98aeb4f8cba0e32d96b66f",
         "android_client_info": {
-          "package_name": "com.flavour.customer"
+          "package_name": "com.adios.customer"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAM4vzv3AQZuSoYOb5j8ai2yrZNYMMM_2c"
+          "current_key": "AIzaSyD1fc9SxVpEHPwOgXiqjBmDGLtFzVoO1Mc"
         }
       ],
       "services": {
@@ -26,15 +26,15 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:497005977520:android:c50200895a630c23284075",
+        "mobilesdk_app_id": "1:240109092670:android:634d118fcb64b0d696b66f",
         "android_client_info": {
-          "package_name": "com.flavour.driver"
+          "package_name": "com.adios.driver"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAM4vzv3AQZuSoYOb5j8ai2yrZNYMMM_2c"
+          "current_key": "AIzaSyD1fc9SxVpEHPwOgXiqjBmDGLtFzVoO1Mc"
         }
       ],
       "services": {

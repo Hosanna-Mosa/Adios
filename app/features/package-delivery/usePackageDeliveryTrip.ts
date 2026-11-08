@@ -1,3 +1,4 @@
+import { setForegroundInterval } from "@/utils/foregroundInterval";
 import { useEffect, useState } from "react";
 import type { PackageDeliveryPoint, PackageDeliveryVehicle } from "@/contexts/packageDeliveryStore";
 import { estimateFare } from "@/services/orders.service";
@@ -87,7 +88,7 @@ export function usePackageDeliveryTrip(pickup: PackageDeliveryPoint | null, drop
       }
     };
     load();
-    const timer = setInterval(load, DRIVER_REFRESH_MS);
+    const timer = setForegroundInterval(load, DRIVER_REFRESH_MS);
     return () => { cancelled = true; clearInterval(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickup?.lat, pickup?.lng]);

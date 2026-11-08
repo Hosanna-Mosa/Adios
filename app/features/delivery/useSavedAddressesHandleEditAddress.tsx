@@ -20,10 +20,10 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
   const handleDeleteAddress = (id: string) => {
     if (selectingId || deletingId) return;
     showAlert(t("app.delivery.deleteAddress"), t("app.delivery.areYouSureRemoveAddress"), [
-      { text: t("actions.cancel"), style: "cancel" },
+      { text: t("actions.cancel"), style: "cancelSolid" },
       {
         text: t("app.delivery.deleteWord"),
-        style: "destructive",
+        style: "deleteSolid",
         onPress: async () => {
           try {
             setDeletingId(id);
@@ -43,14 +43,6 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
     ]);
   };
 
-  const handleMoreOptions = (addr: any) => {
-    showAlert(addr.label || t("app.ride.addressFallback"), undefined, [
-      { text: t("app.delivery.editWord"), onPress: () => handleEditAddress(addr) },
-      { text: t("app.delivery.deleteWord"), style: "destructive", onPress: () => handleDeleteAddress(addr._id) },
-      { text: t("actions.cancel"), style: "cancel" },
-    ]);
-  };
-
   const parseInstructions = (addressLine: string) => {
     const match = addressLine?.match(/\(Instructions: (.*?)\)/);
     return match ? match[1] : null;
@@ -59,5 +51,5 @@ export function useSavedAddressesHandleEditAddress(user: any, setUser: any, addr
 
   const isEmpty = !loading && addresses.length === 0;
 
-  return { handleMoreOptions, parseInstructions, stripMeta, isEmpty };
+  return { handleEditAddress, handleDeleteAddress, parseInstructions, stripMeta, isEmpty };
 }
