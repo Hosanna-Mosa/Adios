@@ -43,8 +43,8 @@ const router = Router();
 
 // optionalAuth: signed-in admins get the full records (lat=0&lng=0 list); everyone else a public view.
 router.get("/nearby", optionalAuth, validateRequest(nearbyVendorsSchema), getNearbyVendors);
-router.get("/search-google", validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
-router.get("/place-details/:placeId", validateRequest(placeDetailsParamSchema), getPlaceDetails);
+router.get("/search-google", mapsRateLimiter, validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
+router.get("/place-details/:placeId", mapsRateLimiter, validateRequest(placeDetailsParamSchema), getPlaceDetails);
 // The signed-in outlet's own profile (partner app). Registered before /:id so "me" is never read as an id.
 router.get("/me", authenticateToken, getMyVendorProfile);
 router.put("/me", authenticateToken, validateRequest(updateMyVendorProfileSchema), updateMyVendorProfile);

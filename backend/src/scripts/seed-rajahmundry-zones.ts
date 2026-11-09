@@ -334,7 +334,7 @@ async function seedZones() {
     console.log(`Removed ${cleanupResult.deletedCount} old zone entries.`);
 
     console.log(`Inserting ${allNewZones.length} operational zones...`);
-    const createdZones = await Zone.create(allNewZones);
+    const createdZones = await Zone.create(allNewZones as any[]);
     console.log(`✅ Successfully seeded ${createdZones.length} zones!`);
     
     for (const z of createdZones) {

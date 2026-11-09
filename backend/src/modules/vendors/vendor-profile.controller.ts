@@ -1,8 +1,9 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import type { Model } from "mongoose";
 import type { AuthRequest } from "../../middleware/auth.middleware";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
+import { deleteOwnPartnerAccount } from "./partner-account-deletion.service";
 import { DAY_KEYS, evaluateOutletOpenState, weeklyHoursFromOperations, type DayHours, type WeeklyHours } from "../../utils/openingHours";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
@@ -242,5 +243,20 @@ export const removeMyPushToken = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error("Error removing partner push token:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * POST /api/v1/vendors/me/delete — the Partner app's "Delete account": anonymises
+ * the signed-in outlet (see partner-account-deletion.service). A blocked deletion
+ * answers with a `code` (ACTIVE_ORDER, BALANCE_REMAINING…) the app explains.
+ */
+export const deleteMyPartnerAccount = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const partner = partnerOf(req);
+    if (!partner) return res.status(403).json({ message: "Only partner accounts can be deleted here" });
+    return res.json(await deleteOwnPartnerAccount(partner.id, partner.role, req.body.password));
+  } catch (error) {
+    next(error);
   }
 };

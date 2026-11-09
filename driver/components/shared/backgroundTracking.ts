@@ -3,6 +3,7 @@ import * as TaskManager from "expo-task-manager";
 import { Colors } from "@/constants/colors";
 import i18n from "@/i18n";
 import { BACKGROUND_LOCATION_TASK } from "./backgroundLocationTask";
+import { confirmBackgroundLocationDisclosure } from "./backgroundLocationDisclosure";
 
 /** Turn background location on when the driver goes online, off when they
  * go offline. Asks for the background permission only when actually needed. */
@@ -21,6 +22,11 @@ export async function syncBackgroundTracking(isOnline: boolean) {
     const { status: bgCheck } = await Location.getBackgroundPermissionsAsync();
     let bgStatus = bgCheck;
     if (bgStatus !== "granted") {
+      // In-app disclosure first (Play policy); no system prompt unless the driver agrees.
+      if (!(await confirmBackgroundLocationDisclosure())) {
+        console.warn("[LocationHandler] Background location disclosure declined.");
+        return;
+      }
       const requested = await Location.requestBackgroundPermissionsAsync();
       bgStatus = requested.status;
     }

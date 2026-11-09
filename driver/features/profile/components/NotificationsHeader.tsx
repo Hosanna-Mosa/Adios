@@ -21,7 +21,7 @@ export function NotificationsHeader({
   const { t } = useTranslation();
   return (
     <Box style={styles.header}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
       </Touchable>
       <AppText style={styles.headerTitle}>{t("profile.notifications")}</AppText>

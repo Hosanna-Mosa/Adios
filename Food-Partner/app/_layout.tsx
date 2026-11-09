@@ -20,6 +20,7 @@ import "@/constants/applyFontPatch";
 import i18n from "@/i18n";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RootLayoutNav } from "@/components/RootLayoutNav";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { LiveOrderWatcher } from "@/components/LiveOrderWatcher";
 import { PushNotificationHandler } from "@/components/PushNotificationHandler";
 import { NewOrderBanner } from "@/components/shared/NewOrderBanner";
@@ -138,6 +139,7 @@ export default function RootLayout() {
             <KeyboardProvider>
               <ToastProvider>
                 <RootLayoutNav />
+                <OfflineBanner />
                 <LiveOrderWatcher />
                 <PushNotificationHandler />
                 <NewOrderBanner />

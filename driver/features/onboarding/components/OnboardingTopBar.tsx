@@ -22,7 +22,7 @@ export function OnboardingTopBar({
   return (
     <Box style={styles.topBar}>
       {canGoBack ? (
-        <Touchable onPress={onBack} style={styles.topBarBtn}>
+        <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} onPress={onBack} style={styles.topBarBtn}>
           <Feather name="arrow-left" size={20} color={Colors.text} />
         </Touchable>
       ) : (

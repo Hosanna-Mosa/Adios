@@ -37,6 +37,13 @@ export const updateMyVendorProfileSchema = z.object({
     }),
 });
 
+/** POST /vendors/me/delete — the partner's current password confirms the deletion. */
+export const deleteMyPartnerAccountSchema = z.object({
+  body: z.object({
+    password: z.string().min(1, "Password is required").max(128),
+  }),
+});
+
 export const partnerPushTokenSchema = z.object({
   body: z.object({
     // The same shape NotificationService.sendPushNotificationsBatch accepts.
@@ -106,11 +113,103 @@ export const updateVendorSchema = z.object({
 });
 
 // Vendor onboarding is saved incrementally (draft/submitted) across a
-// multi-step form — genuinely open-ended, validated server-side via
-// requireFields() when status is "submitted". See onboarding.validation.ts
-// for the same pattern on the driver side.
+// multi-step form, so almost every field is optional and completeness is
+// checked by requireFields() when status is "submitted". The route is public,
+// so this still pins every field to its type and a sane size: no objects where
+// text belongs, no 50,000-row menus. Unknown keys are dropped. Mirrors the
+// payload built in frontend/src/features/onboarding/hooks/useOnboardingForm.ts.
+const onboardingText = (max: number) => z.string().max(max).nullish();
+// Form inputs arrive as strings or numbers depending on the field widget.
+const onboardingScalar = z.union([z.string().max(64), z.number(), z.boolean()]).nullish();
+const onboardingFile = z.object({ name: z.string().max(255) }).nullish();
+const onboardingTimeSlot = z.object({ open: z.string().max(10), close: z.string().max(10) });
+
 export const saveVendorOnboardingSchema = z.object({
-  body: z.record(z.string(), z.any()),
+  body: z.object({
+    status: onboardingText(20),
+    partnerType: onboardingText(20),
+    restaurantName: onboardingText(120),
+    cuisines: z.array(z.string().max(60)).max(30).nullish(),
+    ownerName: onboardingText(120),
+    ownerEmail: onboardingText(254),
+    email: onboardingText(254),
+    portalPassword: onboardingText(128),
+    ownerPhone: onboardingText(20),
+    phone: onboardingText(20),
+    primaryContact: onboardingText(20),
+    sameAsOwner: z.boolean().nullish(),
+    googlePlaceId: onboardingText(255),
+    image: onboardingText(2048),
+    location: z.object({ lat: z.number().min(-90).max(90).nullish(), lng: z.number().min(-180).max(180).nullish() }).nullish(),
+    address: z
+      .object({
+        shopNo: onboardingText(120),
+        floor: onboardingText(60),
+        area: onboardingText(200),
+        city: onboardingText(100),
+        landmark: onboardingText(200),
+        formattedAddress: onboardingText(500),
+      })
+      .nullish(),
+    selectedDays: z.array(z.string().max(12)).max(7).nullish(),
+    timeSlots: z.array(onboardingTimeSlot).max(20).nullish(),
+    dayTimeSlots: z.record(z.string().max(12), z.array(onboardingTimeSlot).max(10)).nullish(),
+    menuSetupMode: onboardingText(20),
+    menuReferenceFile: onboardingFile,
+    menuUploadValid: z.boolean().nullish(),
+    menuUploadRows: z
+      .array(
+        z.object({
+          category: onboardingText(100),
+          itemName: onboardingText(200),
+          price: onboardingScalar,
+          description: onboardingText(1000),
+          type: onboardingText(30),
+          isBestseller: onboardingScalar,
+          image: onboardingFile,
+        })
+      )
+      .max(1000)
+      .nullish(),
+    menuCategories: z
+      .array(
+        z.object({
+          name: onboardingText(100),
+          items: z
+            .array(
+              z.object({
+                name: onboardingText(200),
+                price: onboardingScalar,
+                description: onboardingText(1000),
+                isVeg: onboardingScalar,
+                isBestseller: onboardingScalar,
+                photo: onboardingFile,
+              })
+            )
+            .max(500)
+            .nullish(),
+        })
+      )
+      .max(100)
+      .nullish(),
+    panNumber: onboardingText(20),
+    panFile: onboardingFile,
+    gstin: onboardingText(20),
+    gstFile: onboardingFile,
+    gstExempt: z.boolean().nullish(),
+    fssaiNumber: onboardingText(20),
+    fssaiExpiry: onboardingText(40),
+    fssaiFile: onboardingFile,
+    bankAccount: onboardingText(34),
+    bankConfirm: onboardingText(34),
+    accountType: onboardingText(20),
+    ifsc: onboardingText(11),
+    chequeFile: onboardingFile,
+    digilockerSessionId: onboardingText(128),
+    digilockerKey: onboardingText(256),
+    acceptedTos: z.boolean().nullish(),
+    signature: onboardingText(200),
+  }),
 });
 
 /** POST /vendors/onboarding/digilocker/session */

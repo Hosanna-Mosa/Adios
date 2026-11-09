@@ -132,7 +132,8 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       $or: [...(email ? [{ email }] : []), ...(phone ? [{ phone }] : [])],
     });
 
-    if (!center) {
+    // A deleted account has no password left to compare against.
+    if (!center || center.deletedAt || !center.password) {
       return res.status(401).json({ message: "Invalid email/phone or password" });
     }
 
@@ -204,8 +205,9 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     }
 
     // Spatial query parameters enforcing active zone
-    const centerGeoQuery: any = {};
-    const vendorGeoQuery: any = { partnerType: "meat" };
+    // A deleted partner account (partner-account-deletion.service) never reaches customers.
+    const centerGeoQuery: any = { deletedAt: { $exists: false } };
+    const vendorGeoQuery: any = { partnerType: "meat", deletedAt: { $exists: false } };
 
     if (activeZone?.type === "polygon" && activeZone.boundary) {
       centerGeoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };

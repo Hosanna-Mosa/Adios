@@ -9,6 +9,7 @@ import { moderateScale } from "react-native-size-matters";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { designTokens } from "@/constants/colors";
+import { COMPACT_MAX_FONT_SCALE } from "@/constants/typography";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useVendorOrders } from "@/queries/orders.queries";
 import { needsAction } from "@/utils/orderStatus";
@@ -90,11 +91,11 @@ export function PartnerTabBar({ state, navigation, descriptors }: BottomTabBarPr
                 <Ionicons name={focused ? tab.activeIcon : tab.icon} size={moderateScale(21)} color={focused ? tokens.brand : tokens.muted} />
                 {route.name === "orders" && pending > 0 ? (
                   <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{pending > 9 ? "9+" : pending}</Text>
+                    <Text style={styles.badgeText} maxFontSizeMultiplier={COMPACT_MAX_FONT_SCALE}>{pending > 9 ? "9+" : pending}</Text>
                   </View>
                 ) : null}
               </View>
-              <Text style={[styles.label, focused && styles.labelActive]} numberOfLines={1}>
+              <Text style={[styles.label, focused && styles.labelActive]} numberOfLines={1} maxFontSizeMultiplier={COMPACT_MAX_FONT_SCALE}>
                 {tab.label}
               </Text>
             </TouchableOpacity>

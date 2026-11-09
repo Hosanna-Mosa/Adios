@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 import * as dotenv from "dotenv";
+import { maskEmail } from "../utils/logMask";
+import { isDevEnv } from "../utils/env";
 
 dotenv.config();
 
@@ -23,11 +25,14 @@ interface SendEmailOptions {
 
 export async function sendEmail({ to, subject, text, html, attachments }: SendEmailOptions) {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.warn("⚠️  SMTP not configured — printing email to console instead:");
+    // The body is printed only on a dev box, where it is how a developer reads a
+    // password-reset code. Anywhere else it holds that same code, so it stays out
+    // of the logs and the recipient is masked.
+    console.warn("⚠️  SMTP not configured — email not sent:");
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log(`To: ${to}`);
+    console.log(`To: ${isDevEnv() ? to : maskEmail(to)}`);
     console.log(`Subject: ${subject}`);
-    console.log(`Body: ${text || "(HTML content)"}`);
+    if (isDevEnv()) console.log(`Body: ${text || "(HTML content)"}`);
     console.log(`Has Attachments: ${attachments ? attachments.length : 0}`);
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     return;

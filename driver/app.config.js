@@ -7,7 +7,10 @@ export default {
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'adios-driver',
-    userInterfaceStyle: 'automatic',
+    // Light only: the driver palette has no dark variant, so following the system
+    // setting would turn the keyboard and system dialogs dark over a light app.
+    userInterfaceStyle: 'light',
+
     newArchEnabled: true,
     splash: {
       image: './assets/images/splash-icon.png',
@@ -22,8 +25,13 @@ export default {
       },
     },
     android: {
+      // Off on purpose: with predictive back on, Android 16 stops delivering the back
+      // press to React Native's BackHandler, which the custom back handling relies on.
+      predictiveBackGestureEnabled: false,
       package: 'com.adios.driver',
-      googleServicesFile: './google-services.json',
+      // Firebase config is not committed: EAS builds get it from the GOOGLE_SERVICES_JSON
+      // file environment variable, local builds from the gitignored file next to this one.
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON || './google-services.json',
       adaptiveIcon: {
         foregroundImage: './assets/images/icon.png',
         backgroundColor: '#ffffff',
@@ -39,6 +47,17 @@ export default {
         'ACCESS_BACKGROUND_LOCATION',
         'android.permission.POST_NOTIFICATIONS',
         'android.permission.RECEIVE_BOOT_COMPLETED',
+      ],
+      // Never requested, even if a library's manifest asks for them: no app records
+      // audio or picks video.
+      blockedPermissions: [
+        'android.permission.RECORD_AUDIO',
+        'android.permission.READ_MEDIA_AUDIO',
+        'android.permission.READ_MEDIA_VIDEO',
+        // From the Expo project template; nothing here draws over other apps or
+        // writes to shared storage (files go to the app cache and the share sheet).
+        'android.permission.SYSTEM_ALERT_WINDOW',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
       ],
     },
     notification: {
@@ -67,6 +86,9 @@ export default {
       ],
       'expo-font',
       'expo-web-browser',
+      // Session token lives in the Android Keystore / iOS Keychain (store/secureStorage.ts).
+      'expo-secure-store',
+      './plugins/withPortraitOnLargeScreens',
       // Firebase (Analytics) on Android and iOS. CocoaPods rather than Swift
       // Package Manager, with static frameworks, which Firebase's iOS pods need.
       ['@react-native-firebase/app', { ios: { disableSPM: true } }],
@@ -82,6 +104,8 @@ export default {
         'expo-image-picker',
         {
           cameraPermission: 'Allow Driver App to use your camera to take your onboarding profile photo.',
+          // Photos only, never video — so no microphone permission.
+          microphonePermission: false,
         },
       ],
     ],

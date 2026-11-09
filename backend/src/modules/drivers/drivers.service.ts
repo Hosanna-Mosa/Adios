@@ -14,6 +14,7 @@ import { NotificationService } from "../../services/notification.service";
 import { onlineSessionsWithin } from "../../database/models/DriverOnlineSession";
 import { onlineHoursWithin } from "./onlineTime";
 import { istYmd, maskPan, parseStatementPeriod, renderStatementHtml, statementMonthRange, summarizeStatement, type StatementPayout, type StatementTrip } from "./earningsStatement";
+import { maskPhone } from "../../utils/logMask";
 
 export interface HighDemandArea {
   id: string;
@@ -140,10 +141,9 @@ export class DriverService {
       const allOnlineDrivers = await Driver.find({ status: DriverStatus.ONLINE }).populate("user");
       console.log(`🟢 ONLINE DRIVERS AVAILABLE IN BACKEND: ${allOnlineDrivers.length}`);
       allOnlineDrivers.forEach(d => {
-        const userName = (d.user as any)?.name || "Unknown";
-        const userPhone = (d.user as any)?.phone || "No Phone";
+        const userPhone = maskPhone((d.user as any)?.phone);
         const driverZoneName = d.preferredZone ? (zoneMap.get(d.preferredZone.toString()) || "Unknown Zone") : "No Zone Assigned";
-        console.log(`   🚗 Driver: ${userName} (${userPhone}) | ID: ${d._id} | Vehicle: ${d.vehicleType || "N/A"} | Zone: "${driverZoneName}"`);
+        console.log(`   🚗 Driver: ${userPhone} | ID: ${d._id} | Vehicle: ${d.vehicleType || "N/A"} | Zone: "${driverZoneName}"`);
       });
     } catch (err: any) {
       console.error("Error querying online drivers for logging:", err.message);
@@ -323,7 +323,7 @@ export class DriverService {
 
     console.log(`[DRIVER SEARCH FINAL] Matched: ${results.length} driver(s) via ${matchedStageName || "No Stage Match"}`);
     results.forEach((d) => {
-      console.log(` -> Matched Driver: ${d._id}, Name: ${d.user?.name}, Phone: ${d.user?.phone}, vehicleType: ${d.vehicleType}, status: ${d.status}`);
+      console.log(` -> Matched Driver: ${d._id}, Phone: ${maskPhone(d.user?.phone)}, vehicleType: ${d.vehicleType}, status: ${d.status}`);
     });
 
     return results;

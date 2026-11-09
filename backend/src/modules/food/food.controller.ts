@@ -9,6 +9,7 @@ import { AuthRequest } from "../../middleware/auth.middleware";
 import { UserRole } from "../../database/models/User";
 import { bulkFoodRowSchema } from "./food.validation";
 import { getDishOrderCounts, withComputedDishFields } from "./food.service";
+import { toPublicVendor } from "../vendors/vendor.public";
 
 const cloudinaryService = new CloudinaryService();
 
@@ -364,7 +365,7 @@ export const searchFoodItems = async (req: Request, res: Response) => {
       // Outside every zone the search still runs, nearest first with no radius cap; the order is checked at checkout.
       const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
 
-      const geoQuery: any = { partnerType: { $ne: "meat" } };
+      const geoQuery: any = { partnerType: { $ne: "meat" }, deletedAt: { $exists: false } };
       if (activeZone?.type === "polygon" && activeZone.boundary) {
         geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
       }
@@ -410,6 +411,8 @@ export const searchFoodItems = async (req: Request, res: Response) => {
     if (!hasCoords) {
       menuVendors = await Vendor.find({
         partnerType: { $ne: "meat" },
+        // A deleted partner account (partner-account-deletion.service) never reaches customers.
+        deletedAt: { $exists: false },
         $or: [
           { name: { $in: patterns } },
           { categories: { $in: patterns } },
@@ -531,7 +534,7 @@ export const getStore149Items = async (req: Request, res: Response) => {
         // Outside every zone the store still lists, nearest first with no radius cap; the order is checked at checkout.
         const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
 
-        const geoQuery: any = { partnerType: { $ne: "meat" } };
+        const geoQuery: any = { partnerType: { $ne: "meat" }, deletedAt: { $exists: false } };
         if (activeZone?.type === "polygon" && activeZone.boundary) {
           geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
         }

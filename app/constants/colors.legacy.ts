@@ -10,7 +10,7 @@ export default {
   light: {
     text: "#1A1720",
     textSecondary: "#56505E",
-    textMuted: "#8B8494",
+    textMuted: "#6E6877",
     background: "#FAF8F5",
     surface: "#ffffff",
     surfaceSecondary: "#F0ECE6",
@@ -26,7 +26,7 @@ export default {
     success: "#16794F",
     warning: "#92600A",
     error: "#C22A1E",
-    tabIconDefault: "#8B8494",
+    tabIconDefault: "#6E6877",
     tabIconSelected: "#E8720C",
     shadow: "rgba(20, 16, 30, 0.06)",
     overlay: "rgba(20, 16, 30, 0.4)",

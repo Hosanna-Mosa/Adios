@@ -15,13 +15,17 @@ import {
   sendChatMessageSchema,
   helperStatusSchema,
   helperQuoteSchema,
+  validateCouponSchema,
+  increasePriceSchema,
+  updateStatusSchema,
+  declineOrderSchema,
 } from "./orders.validation";
 
 const router = Router();
 const ordersController = new OrdersController();
 
 // Create order - simplifying route to / for easier frontend integration
-router.post("/validate-coupon", authenticateToken, ordersController.validateCoupon.bind(ordersController));
+router.post("/validate-coupon", authenticateToken, validateRequest(validateCouponSchema), ordersController.validateCoupon.bind(ordersController));
 router.post("/", authenticateToken, validateRequest(createOrderSchema), ordersController.create.bind(ordersController));
 router.post("/scheduled-delivery-request", authenticateToken, validateRequest(requestScheduledDeliverySchema), ordersController.requestScheduledDelivery.bind(ordersController));
 router.get("/scheduled", authenticateToken, authorizeRole([UserRole.ADMIN]), ordersController.getScheduledOrders.bind(ordersController));
@@ -52,9 +56,9 @@ router.post("/:id/invoice-link", authenticateToken, ordersController.invoiceLink
 router.get("/:id/invoice/view", ordersController.viewInvoice.bind(ordersController));
 router.patch("/:id/schedule", authenticateToken, authorizeRole([UserRole.ADMIN]), validateRequest(scheduleDecisionSchema), ordersController.respondToOrderSchedule.bind(ordersController));
 router.post("/:id/reorder", authenticateToken, ordersController.reorder.bind(ordersController));
-router.patch("/:id/increase-price", authenticateToken, ordersController.increasePrice.bind(ordersController));
-router.post("/:id/decline", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.decline.bind(ordersController));
-router.patch("/:id/status", authenticateToken, ordersController.updateStatus.bind(ordersController));
+router.patch("/:id/increase-price", authenticateToken, validateRequest(increasePriceSchema), ordersController.increasePrice.bind(ordersController));
+router.post("/:id/decline", authenticateToken, authorizeRole([UserRole.DRIVER]), validateRequest(declineOrderSchema), ordersController.decline.bind(ordersController));
+router.patch("/:id/status", authenticateToken, validateRequest(updateStatusSchema), ordersController.updateStatus.bind(ordersController));
 router.post("/:id/confirm-assign", authenticateToken, ordersController.confirmAssign.bind(ordersController));
 router.post("/:id/accept", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.accept.bind(ordersController));
 router.post("/:id/restaurant-accept", authenticateToken, validateRequest(restaurantAcceptSchema), ordersController.restaurantAccept.bind(ordersController));

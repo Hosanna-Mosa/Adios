@@ -7,6 +7,8 @@ export const updateProfileSchema = z.object({
     email: z.string().email("Invalid email").optional(),
     phone: z.string().optional(),
     bio: z.string().optional(),
+    /** Required only when phone or email actually changes (see UsersController.updateProfile). */
+    currentPassword: z.string().max(128).optional(),
   }),
 });
 
@@ -85,5 +87,12 @@ export const toggleFavoriteItemSchema = z.object({
 export const updatePushTokenSchema = z.object({
   body: z.object({
     expoPushToken: z.string().min(1, "expoPushToken is required"),
+  }),
+});
+
+/** POST /users/me/delete — the current password, when the account has one. */
+export const deleteAccountSchema = z.object({
+  body: z.object({
+    password: z.string().max(128).optional(),
   }),
 });
