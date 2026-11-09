@@ -82,7 +82,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     tabBubble: { position: "absolute", left: 0, top: 4, bottom: 4, borderRadius: 999 },
     tabBubbleLight: {
       backgroundColor: "rgba(255,255,255,0.55)",
-      shadowColor: "#14101E", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 2,
+      shadowColor: "#171717", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 2,
     },
     tabBubbleDark: { backgroundColor: "rgba(255,255,255,0.06)" },
     tabBubbleGlass: { ...StyleSheet.absoluteFillObject, borderRadius: 999, overflow: "hidden", borderWidth: 1 },
@@ -143,7 +143,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     modalHeadRow: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
     modalTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text },
     modalPrice: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 4 },
-    modalFavoriteBtn: { padding: 4 },
+    modalFavoriteBtn: { width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20), borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center", marginLeft: 8 },
     modalDesc: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 12 },
     modalSoldOut: { marginTop: 18, alignSelf: "flex-start", backgroundColor: tokens.sunken, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9 },
     modalAddBtn: { marginTop: 18, backgroundColor: accent.accent, borderRadius: 14, paddingVertical: 15, alignItems: "center" },

@@ -8,7 +8,7 @@ import { typography } from "@/constants/typography";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type RideConfirmationStyles } from "@/features/ride/ride-confirmation.styles";
-import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
+import { RidePayRow } from "./RidePaymentSheet";
 
 // Moved out of app/ride-confirmation.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -42,6 +42,7 @@ export function TripChooserSheet({
   placeOrder,
   selectedFare,
   selectedTier,
+  setSelectedTier,
   setShowDatePicker,
   setSheetHeight,
   styles,
@@ -55,7 +56,6 @@ export function TripChooserSheet({
   // switchable list, making the customer choose a second time. Now it just
   // shows what was already picked; there's nothing to tap here.
   const tier = ENABLED_TIERS.find((option) => option.id === selectedTier);
-  const fare = tierFares[selectedTier];
 
   return (
     <Animated.View
@@ -73,22 +73,45 @@ export function TripChooserSheet({
 
       <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
         <View style={{ gap: 8 }}>
-          <View style={[styles.tierRow, styles.tierRowSelected]}>
-            <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{tier?.icon}</Text></View>
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.tierName}>{tier?.name}</Text>
-              <Text style={styles.tierMeta}>
-                {tier?.capacity}{fare ? ` · ${t("app.ride.minutesAway", { min: fare.estimatedMinutes })}` : ""}
-              </Text>
-            </View>
-            <View style={{ alignItems: "flex-end" }}>
-              {loadingFares && !fare ? (
-                <ActivityIndicator size="small" color={accent.accent} />
-              ) : (
-                <Text style={styles.tierPrice}>{fare ? `₹${Math.round(fare.fareBreakdown.total)}` : "—"}</Text>
-              )}
-            </View>
-          </View>
+          {ENABLED_TIERS.map((option) => {
+            const optionFare = tierFares[option.id];
+            const selected = option.id === selectedTier;
+            // The quickest trip among the vehicles that have a fare gets the badge.
+            const fastest = !!optionFare && ENABLED_TIERS.every((o) => !tierFares[o.id] || tierFares[o.id].estimatedMinutes >= optionFare.estimatedMinutes);
+            const dropAt = optionFare ? new Date(Date.now() + optionFare.estimatedMinutes * 60_000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).toLowerCase() : "";
+            return (
+              <TouchableOpacity
+                key={option.id}
+                style={[styles.tierRow, selected && styles.tierRowSelected]}
+                onPress={() => setSelectedTier(option.id)}
+                activeOpacity={0.85}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+              >
+                <View style={styles.tierIconCircle}><Text style={{ fontSize: typography.sizes.large }}>{option.icon}</Text></View>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <Text style={styles.tierName}>{option.name}</Text>
+                    {fastest && (
+                      <View style={{ backgroundColor: tokens.successSkin, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 1 }}>
+                        <Text style={{ fontSize: typography.sizes.small, color: tokens.success }}>{t("app.ride.fastest", "FASTEST")}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.tierMeta}>
+                    {option.capacity}{optionFare ? ` · ${t("app.ride.tripMinutes", { min: optionFare.estimatedMinutes, defaultValue: "{{min}} min trip" })} · ${t("app.ride.dropAt", { time: dropAt, defaultValue: "Drop {{time}}" })}` : ""}
+                  </Text>
+                </View>
+                <View style={{ alignItems: "flex-end" }}>
+                  {loadingFares && !optionFare ? (
+                    <ActivityIndicator size="small" color={accent.accent} />
+                  ) : (
+                    <Text style={styles.tierPrice}>{optionFare ? `₹${Math.round(optionFare.fareBreakdown.total)}` : "—"}</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         <TouchableOpacity style={styles.scheduleRow} onPress={() => setShowDatePicker(true)} activeOpacity={0.85}>
@@ -103,7 +126,7 @@ export function TripChooserSheet({
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-        <PaymentMethodSelector flow="ride" accent={accent} disabled={booking} style={{ marginBottom: 12 }} />
+        <RidePayRow total={selectedFare?.fareBreakdown?.total ?? 0} insets={insets} disabled={booking} />
         <TouchableOpacity
           style={[styles.bookBtn, (booking || !selectedFare) && { opacity: 0.6 }]}
           disabled={booking || !selectedFare}

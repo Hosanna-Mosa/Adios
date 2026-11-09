@@ -1,5 +1,4 @@
 import React from "react";
-import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenShell } from "@/components/ui/ScreenShell";
@@ -36,9 +35,7 @@ export default function LanguageSettingsScreen() {
         style={{ paddingTop: insets.top + 4 }}
       />
       {/* The current language is marked, so the user sees what they'd be changing from. */}
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
-      </View>
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
     </ScreenShell>
   );
 }

@@ -7,9 +7,11 @@ import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceKey } from "@/constants/colors";
 import { type OrdersStyles } from "../orders.styles";
-import { clockTime, destination, itemCount, liveSteps, outletName, serviceIcon } from "../orderCardHelpers";
-import { ActiveOrderSteps } from "./ActiveOrderSteps";
-import { OrderThumb } from "./OrderThumb";
+import { stepper } from "../orderCardHelpers";
+import { OrderSteps } from "@/components/shared/OrderSteps";
+import { CardThumb } from "./CardThumb";
+import { OrderCardBody } from "./OrderCardBody";
+import { StatusPill } from "./StatusPill";
 
 interface Props {
   activeStatusCaption: (order: any, serviceKey: string) => string;
@@ -19,76 +21,44 @@ interface Props {
   tokens: ThemeTokens;
 }
 
-const RIDE_KEYS = ["bike", "auto", "cab", "cab_prime"];
-
 /** A helper task nobody has started yet lives on the helper screen (raise the price, cancel, start OTP). */
 const HELPER_PRE_START = ["CREATED", "SEARCHING_DRIVER", "DRIVER_ASSIGNED"];
 
 /**
- * One card per live order, read top to bottom: what it is (outlet or service,
- * items, when it was placed, price), where it stands (live caption over the same
- * checklist the tracking screen shows), and where it's going, with Track beside it.
- * The whole card opens tracking — or, for a helper task that hasn't started, the helper screen.
+ * One white card per live order: picture and details on top (with the current step as a
+ * blue pill), the step-by-step tracker underneath. The whole card opens tracking — or,
+ * for a helper task that hasn't started, the helper screen.
  */
-export function ActiveOrdersList({ activeStatusCaption, SERVICE_META, active, styles, tokens }: Props) {
+export function ActiveOrdersList({ active, styles, tokens }: Props) {
   const { t } = useTranslation();
   return (
-    <View style={styles.section}>
-      <Text style={styles.sectionLabel}>{t("app.orders.activeNow")}</Text>
+    <View>
+      <View style={[styles.band, { backgroundColor: tokens.successSkin }]}>
+        <View style={styles.liveDot} />
+        <Text style={styles.bandText}>{t("app.orders.activeLabel", "Active")}</Text>
+      </View>
       {active.map((order, index) => {
         const key: string = order.__serviceKey;
-        const meta = SERVICE_META[key];
-        const accent = tokens.services[meta?.accent || "ride"];
-        const isOutlet = key === "food" || key === "meat";
         const opensHelperScreen = key === "helper" && HELPER_PRE_START.includes(String(order.status || "").toUpperCase());
         const openTracking = () =>
           router.push({ pathname: opensHelperScreen ? "/helper-task" : "/tracking", params: { orderId: order._id } });
-
-        const count = isOutlet ? itemCount(order) : 0;
-        const placed = clockTime(order.createdAt);
-        const subLine = [
-          count ? t("app.orders.itemCount", { count }) : meta?.label,
-          placed ? t("app.orders.placedAt", { time: placed }) : null,
-        ].filter(Boolean).join(" · ");
-
-        const dest = destination(order, key);
-        const destLabel = key === "helper"
-          ? t("app.orders.taskLocation")
-          : RIDE_KEYS.includes(key) ? t("app.orders.dropAt") : t("app.orders.deliveringTo");
+        const steps = stepper(order, key);
 
         return (
           <Animated.View key={order._id} entering={staggerListItem(index)}>
-            <TouchableOpacity style={styles.activeCard} activeOpacity={0.9} onPress={openTracking} accessibilityRole="button" accessibilityHint={t("app.orders.trackOrder")}>
-              <View style={styles.activeTop}>
-                <OrderThumb order={order} icon={serviceIcon(key)} background={accent.skin} color={accent.accent} styles={styles} />
-                <View style={styles.titleWrap}>
-                  <Text style={styles.activeTitle} numberOfLines={1}>{isOutlet ? outletName(order) : meta?.label}</Text>
-                  <Text style={styles.activeSub} numberOfLines={1}>{subLine}</Text>
-                </View>
-                <Text style={styles.activePrice}>₹{Math.round(order.totalPrice || 0)}</Text>
+            <TouchableOpacity style={styles.orderCard} activeOpacity={0.9} onPress={openTracking} accessibilityRole="button" accessibilityHint={t("app.orders.trackOrder")}>
+              <View style={styles.orderTop}>
+                <CardThumb order={order} serviceKey={key} background={tokens.sunken} styles={styles} />
+                <OrderCardBody
+                  order={order}
+                  serviceKey={key}
+                  styles={styles}
+                  tokens={tokens}
+                  badge={<StatusPill label={steps.labels[steps.current]} color={tokens.info} background={tokens.infoSkin} icon="ring" styles={styles} />}
+                />
+                <Ionicons name="chevron-forward" size={moderateScale(16)} color={tokens.text} style={styles.cardChevron} />
               </View>
-
-              <View style={[styles.liveBox, { backgroundColor: accent.skin }]}>
-                <Text style={[styles.liveCaption, { color: accent.accent }]} numberOfLines={1}>
-                  {activeStatusCaption(order, key)}
-                </Text>
-                <ActiveOrderSteps steps={liveSteps(order, key)} accent={accent} tokens={tokens} />
-              </View>
-
-              <View style={styles.activeFoot}>
-                <Ionicons name={key === "helper" ? "location-outline" : "flag-outline"} size={moderateScale(18)} color={tokens.muted} />
-                <View style={styles.titleWrap}>
-                  <Text style={styles.footLabel}>{destLabel}</Text>
-                  <Text style={styles.footAddress} numberOfLines={1}>{dest || "—"}</Text>
-                </View>
-                {/* Part of the card, not a second button: the card already opens tracking,
-                    and a touchable inside it gave double press feedback. flexShrink 0 so it
-                    no longer squeezes the address down to a few characters. */}
-                <View style={[styles.trackPill, { backgroundColor: accent.accent, flexShrink: 0 }]}>
-                  <Ionicons name="navigate" size={moderateScale(15)} color={accent.on} />
-                  <Text style={[styles.trackPillText, { color: accent.on }]} numberOfLines={1}>{t("app.orders.trackOrder")}</Text>
-                </View>
-              </View>
+              <OrderSteps steps={steps} tokens={tokens} />
             </TouchableOpacity>
           </Animated.View>
         );

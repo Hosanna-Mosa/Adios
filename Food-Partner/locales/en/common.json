@@ -218,6 +218,7 @@
     "items_one": "1 item in this order",
     "items_other": "{{count}} items in this order",
     "noItems": "No items listed for this order.",
+    "cookingRequest": "Customer's note",
     "total": "Total amount",
     "paidOnline": "Paid online",
     "cashOnDelivery": "Cash on delivery",

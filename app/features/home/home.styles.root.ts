@@ -50,10 +50,17 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   headlineMeasure: { position: "absolute", left: 0, top: 0, width: 4000, opacity: 0 },
   headlineMeasureText: { alignSelf: "flex-start" },
 
+  // The search bar and the mic button beside it share one row.
+  searchRow: { flexDirection: "row", alignItems: "center", gap: 10, marginHorizontal: 16, marginTop: 14 },
   searchBar: {
-    flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
+    flex: 1, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
     borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), height: moderateScale(48),
-    paddingHorizontal: 14, marginHorizontal: 16, marginTop: 14,
+    paddingHorizontal: 14,
+  },
+  micButton: {
+    width: moderateScale(48), height: moderateScale(48), borderRadius: moderateScale(24),
+    backgroundColor: tokens.brandSkin, borderWidth: 1, borderColor: tokens.border,
+    alignItems: "center", justifyContent: "center",
   },
   searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.sec },
 

@@ -38,4 +38,7 @@ export interface Props {
   timeline: any;
   pickupLabel: any;
   formatClock: any;
+  vendorName?: string | null;
+  vendorPartnerType?: string | null;
+  serviceType?: string | null;
 }

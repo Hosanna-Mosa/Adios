@@ -30,7 +30,12 @@ export function OrderItemsCard({ items, total, paymentMethod, paymentStatus, sty
         {items.map((line, index) => (
           <View key={`${line.name}-${index}`} style={[styles.itemRow, index < items.length - 1 && styles.itemDivider]}>
             <Text style={styles.qty}>{line.quantity}×</Text>
-            <Text style={styles.itemName}>{line.name}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.itemName}>{line.name}</Text>
+              {line.cookingRequest ? (
+                <Text style={styles.muted}>{t("orderDetail.cookingRequest")}: {line.cookingRequest}</Text>
+              ) : null}
+            </View>
             <Text style={styles.itemPrice}>{formatCurrency(line.price * line.quantity)}</Text>
           </View>
         ))}

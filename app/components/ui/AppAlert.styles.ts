@@ -79,19 +79,19 @@ export const createStyles = (tokens: ThemeTokens) =>
     // separate from the generic cancel/destructive styles above so the rest of
     // the app's alerts (logout, clear cart, etc.) are unaffected.
     buttonDeleteSolid: {
-      backgroundColor: "#DC2626",
+      backgroundColor: "#D90000",
     },
     buttonTextDeleteSolid: {
       fontFamily: fontFamilies.body.bold,
       color: "#FFFFFF",
     },
     buttonCancelSolid: {
-      backgroundColor: "#E5E7EB",
+      backgroundColor: "#E8E5E7",
       minHeight: moderateScale(48),
     },
     buttonTextCancelSolid: {
       fontFamily: fontFamilies.body.semibold,
-      color: "#374151",
+      color: "#171717",
     },
   });
 

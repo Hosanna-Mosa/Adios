@@ -1,7 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { router } from "expo-router";
 import { useHomeStore } from "@/contexts/homeStore";
-import { useAuthStore } from "@/contexts/authStore";
 import { buildFetch149StoreItems, buildFetchMeatCenters, buildFetchVendors } from "./useHomeSelectedDistanceKm.handlers";
 
 // Split out of useHome so each file stays small. Kept in the original call
@@ -88,11 +86,8 @@ export function useHomeSelectedDistanceKm(setRestaurants: any, setMeatCenters: a
         setLoading(false);
         setLoadingDrivers(false);
 
-        // A guest has no saved addresses to pick from, so they stay on Home instead of being pushed there.
-        if (!hasRedirectedRef.current && useAuthStore.getState().token) {
-          hasRedirectedRef.current = true;
-          router.push("/delivery/saved-addresses");
-        }
+        // No location: Home shows the location sheet (LocationPromptSheet) over itself, with
+        // enable / saved address / search choices, instead of pushing a screen.
       }
 
       if (addressResolveRef.current) {

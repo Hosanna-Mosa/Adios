@@ -218,6 +218,7 @@
     "items_one": "इस ऑर्डर में 1 आइटम",
     "items_other": "इस ऑर्डर में {{count}} आइटम",
     "noItems": "इस ऑर्डर में कोई आइटम नहीं है।",
+    "cookingRequest": "ग्राहक का नोट",
     "total": "कुल राशि",
     "paidOnline": "ऑनलाइन भुगतान हुआ",
     "cashOnDelivery": "कैश ऑन डिलीवरी",

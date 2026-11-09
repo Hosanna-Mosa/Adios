@@ -17,8 +17,10 @@ export function useOTPInsets() {
   // the create-account form — carrying them through lets verifyOTP finish
   // registration as soon as the real code checks out, instead of the old
   // flow where "Create account" skipped OTP verification entirely.
-  const { phone, name, email, password } = useLocalSearchParams<{
+  const { phone, name, email, password, via } = useLocalSearchParams<{
     phone: string;
+    // "email" when the code was emailed (login with email); otherwise it went to `phone`.
+    via?: string;
     name?: string;
     email?: string;
     password?: string;
@@ -31,6 +33,8 @@ export function useOTPInsets() {
 
   const verifyOTP = useAuthStore((s) => s.verifyOTP);
   const requestOTP = useAuthStore((s) => s.requestOTP);
+  const verifyEmailOTP = useAuthStore((s) => s.verifyEmailOTP);
+  const requestEmailOTP = useAuthStore((s) => s.requestEmailOTP);
   const loading = useAuthStore((s) => s.loading);
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
@@ -90,5 +94,5 @@ export function useOTPInsets() {
     }
   };
 
-  return { insets, phone, name, email, password, otp, setOtp, focusedIndex, setFocusedIndex, secondsLeft, setSecondsLeft, resending, setResending, inputs, verifyOTP, requestOTP, loading, tokens, accent, styles, handleChange };
+  return { insets, phone, name, email, password, via, verifyEmailOTP, requestEmailOTP, otp, setOtp, focusedIndex, setFocusedIndex, secondsLeft, setSecondsLeft, resending, setResending, inputs, verifyOTP, requestOTP, loading, tokens, accent, styles, handleChange };
 }

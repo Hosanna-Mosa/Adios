@@ -37,7 +37,10 @@ export function useHomeOnMainScroll(restaurants: any, searchText: any, selectedA
   }, [showHomeSkeleton, searchText, filteredAndSortedItems, searchedDishes]);
 
   const areaLabel = selectedAddress?.label && selectedAddress.label !== "Other" ? selectedAddress.label : "Home";
-  const areaLine = selectedAddress?.addressLine || selectedAddress?.city || "your area";
+  // The header shows only the name the address was saved under (Home, Work, "Friend's house"...),
+  // never the full address line. An unnamed address (e.g. current location) falls back to its city.
+  const savedName = selectedAddress?.label && selectedAddress.label !== "Other" ? selectedAddress.label : "";
+  const areaLine = savedName || selectedAddress?.city || "your area";
 
   const activeFilterCount = [
     filter99Store, filterFastDelivery, filterOffers, filterMinRating > 0, filterOpenNow,

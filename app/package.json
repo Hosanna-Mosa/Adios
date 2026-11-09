@@ -79,6 +79,7 @@
     "expo-device": "~8.0.10",
     "expo-navigation-bar": "~5.0.10",
     "expo-notifications": "~0.32.17",
+    "expo-speech-recognition": "^58.0.1",
     "i18next": "^26.4.2",
     "lottie-react-native": "~7.3.1",
     "react": "19.1.0",

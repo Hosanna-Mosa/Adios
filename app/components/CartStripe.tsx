@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -43,14 +44,25 @@ export function CartStripe({ bottom, styles, theme, cartAccent, itemCount, total
     retry: false,
   });
 
+  const { t } = useTranslation();
   const name = storeName || vendor?.name || cartVendorName || "Your cart";
   const image = storeImage || vendor?.image;
+
+  const openMenu = () => {
+    if (vendorId) router.push({ pathname: "/restaurant-menu", params: { id: vendorId, name } });
+  };
+  const confirmClear = () => {
+    Alert.alert(t("app.cart.clearTitle", "Clear your cart?"), t("app.cart.clearBody", "This removes everything you added from {{name}}.", { name }), [
+      { text: t("actions.cancel", "Cancel"), style: "cancel" },
+      { text: t("app.cart.clear", "Clear"), style: "destructive", onPress: () => useCartStore.getState().clearCart() },
+    ]);
+  };
 
   return (
     <Animated.View style={[styles.cartCardWrap, { bottom }]}>
       <View style={styles.cartCard}>
         <SafeBlurView intensity={90} tint={theme === "dark" ? "dark" : "light"} style={StyleSheet.absoluteFillObject} />
-        <TouchableOpacity style={styles.cartRow} activeOpacity={0.85} onPress={() => router.push("/cart")}>
+        <View style={styles.cartRow}>
           {image ? (
             <Image source={{ uri: image }} style={styles.cartThumb} contentFit="cover" transition={150} />
           ) : (
@@ -60,13 +72,22 @@ export function CartStripe({ bottom, styles, theme, cartAccent, itemCount, total
           )}
           <View style={styles.cartInfo}>
             <Text style={styles.cartVendor} numberOfLines={1}>{name}</Text>
-            <Text style={styles.cartMeta} numberOfLines={1}>
-              <Text style={styles.cartPrice}>₹{totalPrice}</Text>
-              {` · ${itemCount} ${itemCount === 1 ? "item" : "items"}`}
-            </Text>
+            <TouchableOpacity onPress={openMenu} hitSlop={8} accessibilityRole="link">
+              <Text style={[styles.cartMeta, { textDecorationLine: "underline", color: cartAccent.accent }]} numberOfLines={1}>
+                {t("app.cart.viewFullMenu", "View full menu")}
+              </Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.cartCta}>View cart</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.cartViewBtn} activeOpacity={0.85} onPress={() => router.push("/cart")} accessibilityRole="button">
+            <Text style={styles.cartViewTitle}>{t("app.cart.viewCart", "View Cart")}</Text>
+            <Text style={styles.cartViewMeta} numberOfLines={1}>
+              {itemCount} {itemCount === 1 ? "item" : "items"} • ₹{totalPrice}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cartTrash} onPress={confirmClear} hitSlop={6} accessibilityRole="button" accessibilityLabel={t("app.cart.clear", "Clear")}>
+            <Ionicons name="trash-outline" size={moderateScale(18)} color={cartAccent.accent} />
+          </TouchableOpacity>
+        </View>
       </View>
     </Animated.View>
   );

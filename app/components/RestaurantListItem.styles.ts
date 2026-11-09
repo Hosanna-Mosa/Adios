@@ -20,8 +20,11 @@ export const createStyles = (tokens: ThemeTokens, accentColor: string) => StyleS
     marginBottom: 16,
     ...elevation.sm,
   },
+  // A closed outlet is shown in black and white (no "Closed" pill). `filter` needs the new
+  // architecture (on) and Android 12+; older Android falls back to the dimming alone.
   cardClosed: {
-    opacity: 0.7,
+    opacity: 0.75,
+    filter: [{ grayscale: 1 }],
   },
   thumb: {
     width: moderateScale(116),

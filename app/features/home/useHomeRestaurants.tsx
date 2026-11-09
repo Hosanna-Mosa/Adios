@@ -3,6 +3,7 @@ import { Dimensions } from "react-native";
 import { Easing, runOnJS, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useHomeStore } from "@/contexts/homeStore";
+import { useVoiceSearchStore } from "@/contexts/voiceSearchStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 
 // Split out of useHome so each file stays small. Kept in the original call
@@ -49,6 +50,15 @@ export function useHomeRestaurants() {
       });
     }
   }, [isSearchActive]);
+
+  // A spoken search (mic beside the search bar): fill the box and open the search overlay.
+  const voiceText = useVoiceSearchStore((s) => s.pendingText);
+  useEffect(() => {
+    if (!voiceText) return;
+    setSearchText(voiceText);
+    setIsSearchActive(true);
+    useVoiceSearchStore.getState().clear();
+  }, [voiceText]);
 
   return { restaurants, setRestaurants, meatCenters, setMeatCenters, loading, setLoading, loadingDrivers, setLoadingDrivers, store149Items, setStore149Items, activeService, setActiveService, insets, tabBarHeight, searchText, setSearchText, searchQuery, setSearchQuery, appliedSearchTerm, setAppliedSearchTerm, setIsSearchActive, isSearchVisible, searchTranslateY, searchBackdropOpacity, recentSearches, setRecentSearches };
 }

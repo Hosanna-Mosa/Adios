@@ -18,20 +18,20 @@ export const SlideToConfirm: React.FC<SlideToConfirmProps> = ({ onConfirm, title
   } = useSlideToConfirm(onConfirm);
 
   return (
-    <View style={[styles.container, { borderColor: '#F6CFA4', backgroundColor: '#FDF0E2' }]}>
+    <View style={[styles.container, { borderColor: '#F2C9D6', backgroundColor: '#FCEEF2' }]}>
       {/* Background track */}
-      <View style={[styles.track, { backgroundColor: '#FDF0E2' }]}>
+      <View style={[styles.track, { backgroundColor: '#FCEEF2' }]}>
         <Animated.View style={[styles.guideRow, { opacity: textOpacity }]}>
-          <Text style={[styles.title, { color: '#C25F0A', marginRight: 8 }]}>{title}</Text>
+          <Text style={[styles.title, { color: '#860132', marginRight: 8 }]}>{title}</Text>
           <View style={styles.chevronsContainer}>
             <Animated.View style={{ opacity: opacities[0] }}>
-              <Feather name="chevron-right" size={16} color="#F3924A" />
+              <Feather name="chevron-right" size={16} color="#D98BA6" />
             </Animated.View>
             <Animated.View style={{ opacity: opacities[1], marginLeft: -4 }}>
-              <Feather name="chevron-right" size={16} color="#C25F0A" />
+              <Feather name="chevron-right" size={16} color="#860132" />
             </Animated.View>
             <Animated.View style={{ opacity: opacities[2], marginLeft: -4 }}>
-              <Feather name="chevron-right" size={16} color="#8A4407" />
+              <Feather name="chevron-right" size={16} color="#5E0122" />
             </Animated.View>
           </View>
         </Animated.View>

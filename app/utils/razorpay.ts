@@ -75,9 +75,15 @@ export const RazorpayIntegration = {
  * cash order posts to /orders), open Razorpay, and return the order the server placed once
  * the payment was confirmed. Throws PaymentFlowError / ApiError — see describePaymentError.
  */
-export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown): Promise<T> {
-  return checkoutAndVerify<T>(await createPaymentOrder(amount, orderData));
+export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown, method?: OnlineMethod): Promise<T> {
+  const checkout = await createPaymentOrder(amount, orderData);
+  // Opens the hosted page on the method the customer chose (the server ignores anything unknown).
+  if (method) checkout.checkoutUrl = `${checkout.checkoutUrl}${checkout.checkoutUrl.includes("?") ? "&" : "?"}m=${method}`;
+  return checkoutAndVerify<T>(checkout);
 }
+
+/** Which family of methods Razorpay's page should open on. */
+export type OnlineMethod = "upi" | "card" | "wallet" | "netbanking" | "paylater";
 
 /**
  * Raises the price of a helper task that was paid online: the customer pays `amount` (the

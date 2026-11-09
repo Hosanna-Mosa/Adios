@@ -8,6 +8,7 @@ import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
 import { MenuVegOnly } from "./MenuVegOnly";
+import { MenuFab } from "./MenuFab";
 import { BestsellerBadge, NutritionLine } from "./DishHighlights";
 import { DishPrice } from "@/components/shared/DishPrice";
 import { outletClosedLabel } from "@/components/shared/outletClosed";
@@ -21,6 +22,7 @@ export function MenuBody(props: Props) {
   const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, orderingState, outletClosed, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   const { t } = useTranslation();
   return (
+    <>
     <ScrollView
       ref={scrollViewRef}
       contentContainerStyle={{ paddingBottom: tabBarHeight + 40 }}
@@ -155,5 +157,17 @@ export function MenuBody(props: Props) {
         ))
       )}
     </ScrollView>
+
+    {/* Bottom right: jump to any category. */}
+    <MenuFab
+      categories={categoryTabs}
+      counts={Object.fromEntries(categoryTabs.map((c: string) => [c, groupedMenu[c]?.length ?? 0]))}
+      activeCategory={activeCategory}
+      onPick={handleCategoryPress}
+      bottom={tabBarHeight + 12}
+      tokens={tokens}
+      accent={accent}
+    />
+    </>
   );
 }

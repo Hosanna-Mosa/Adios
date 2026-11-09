@@ -2,7 +2,7 @@ export interface VendorOrderStop {
   type: string;
   address?: string;
   items?: {
-    lines?: { name: string; quantity: number; price: number }[];
+    lines?: { name: string; quantity: number; price: number; cookingRequest?: string }[];
     deliveryAddress?: { formattedAddress?: string };
   };
 }

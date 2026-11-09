@@ -16,6 +16,7 @@ export const toWire = (items: CartItem[]) =>
     isVeg: item.isVeg !== false,
     images: Array.isArray(item.images) ? item.images.filter((url) => typeof url === "string") : [],
     quantity: Math.max(1, Math.round(Number(item.quantity) || 1)),
+    ...(item.cookingRequest ? { cookingRequest: item.cookingRequest } : {}),
   }));
 
 export const fromWire = (rows: any[]): CartItem[] =>
@@ -33,5 +34,6 @@ export const fromWire = (rows: any[]): CartItem[] =>
           ? [String(row.image)]
           : [],
       quantity: Math.max(1, Math.round(Number(row?.quantity) || 1)),
+      ...(typeof row?.cookingRequest === "string" && row.cookingRequest ? { cookingRequest: row.cookingRequest } : {}),
     }))
     .filter((item) => !!item._id);

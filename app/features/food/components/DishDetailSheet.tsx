@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -9,6 +10,9 @@ import { type RestaurantMenuStyles } from "../restaurant-menu.styles";
 import { DishImageCarousel } from "./DishImageCarousel";
 import { BestsellerBadge, NutritionLine } from "./DishHighlights";
 import { DishPrice } from "@/components/shared/DishPrice";
+import { useCartStore } from "@/contexts/cartStore";
+import { effectivePrice } from "@/utils/pricing";
+import { CookingRequestCard } from "./CookingRequestCard";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -30,6 +34,8 @@ interface Props {
   styles: RestaurantMenuStyles;
   toggleFavoriteItem: any;
   tokens: ThemeTokens;
+  /** A meat centre: the note box asks about the cut instead of cooking. */
+  isMeat?: boolean;
 }
 
 export function DishDetailSheet({
@@ -48,11 +54,19 @@ export function DishDetailSheet({
   styles,
   toggleFavoriteItem,
   tokens,
+  isMeat = false,
 }: Props) {
   const { t } = useTranslation();
+  // The note lives in the cart store: on the dish once it is in the cart, as a draft before.
+  const dishId = selectedDishDetail?._id as string | undefined;
+  const note = useCartStore((st) => (dishId ? st.items.find((i) => i._id === dishId)?.cookingRequest ?? st.draftNotes[dishId] ?? "" : ""));
+  const setItemNote = useCartStore((st) => st.setItemNote);
+  // How many to add when the dish is not in the cart yet; each dish opens on 1.
+  const [qty, setQty] = useState(1);
+  useEffect(() => { setQty(1); }, [dishId]);
   return (
     <Modal visible={!!selectedDishDetail} transparent animationType="slide" statusBarTranslucent>
-      <View style={styles.modalBackdrop}>
+      <KeyboardAvoidingView behavior="padding" style={styles.modalBackdrop}>
         <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setSelectedDishDetail(null)} />
         {selectedDishDetail && (
           <View style={styles.modalSheet}>
@@ -71,15 +85,7 @@ export function DishDetailSheet({
             >
               <Ionicons name="close" size={22} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.modalCloseBtn, { right: undefined, left: 16 }]}
-              onPress={() => shareRestaurant(id as string, name as string, selectedDishDetail._id, selectedDishDetail.name)}
-              accessibilityRole="button"
-              accessibilityLabel={t("app.food.share")}
-            >
-              <Ionicons name="share-outline" size={20} color="#fff" />
-            </TouchableOpacity>
-            <ScrollView style={styles.modalScrollBody} contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator={false}>
+            <ScrollView style={styles.modalScrollBody} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalContent} showsVerticalScrollIndicator={false}>
               <View style={styles.modalHeadRow}>
                 <View style={[styles.dietIcon, { borderColor: selectedDishDetail.isVeg ? tokens.veg : tokens.nonveg }]}>
                   {selectedDishDetail.isVeg ? (
@@ -112,8 +118,18 @@ export function DishDetailSheet({
                     color={isDishFavorite(selectedDishDetail._id) ? accent.accent : tokens.sec}
                   />
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalFavoriteBtn}
+                  onPress={() => shareRestaurant(id as string, name as string, selectedDishDetail._id, selectedDishDetail.name)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("app.food.share")}
+                >
+                  <Ionicons name="arrow-redo-outline" size={moderateScale(20)} color={tokens.text} />
+                </TouchableOpacity>
               </View>
               <Text style={styles.modalDesc}>{selectedDishDetail.description}</Text>
+              <CookingRequestCard value={note} onChange={(v) => setItemNote(selectedDishDetail._id, v)} isMeat={isMeat} tokens={tokens} />
             </ScrollView>
             <View style={[styles.modalFooter, { paddingBottom: insets.bottom + 20 }]}>
               {selectedDishDetail.isAvailable === false ? (
@@ -143,14 +159,37 @@ export function DishDetailSheet({
                   </TouchableOpacity>
                 </View>
               ) : (
-                <TouchableOpacity style={styles.modalAddBtn} activeOpacity={0.85} onPress={() => handleAddToCart(selectedDishDetail)}>
-                  <Text style={styles.modalAddBtnText}>{t("app.food.addToCart")}</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12, marginTop: 18 }}>
+                  <View style={[styles.modalQtyRow, { marginTop: 0 }]}>
+                    <TouchableOpacity
+                      style={styles.modalQtyBtn}
+                      onPress={() => setQty((q) => Math.max(1, q - 1))}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("app.food.decreaseQuantity")}
+                    >
+                      <Feather name="minus" size={16} color={accent.accent} />
+                    </TouchableOpacity>
+                    <Text style={styles.modalQtyText}>{qty}</Text>
+                    <TouchableOpacity
+                      style={styles.modalQtyBtn}
+                      onPress={() => setQty((q) => Math.min(20, q + 1))}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("app.food.increaseQuantity")}
+                    >
+                      <Feather name="plus" size={16} color={accent.accent} />
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity style={[styles.modalAddBtn, { flex: 1, marginTop: 0 }]} activeOpacity={0.85} onPress={() => handleAddToCart(selectedDishDetail, qty)}>
+                    <Text style={styles.modalAddBtnText}>{t("app.food.addItem", "Add item")} ₹{Math.round(effectivePrice(selectedDishDetail) * qty)}</Text>
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
           </View>
         )}
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

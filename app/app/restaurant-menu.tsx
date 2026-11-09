@@ -112,6 +112,7 @@ export default function RestaurantMenu() {
         selectedDishDetail={selectedDishDetail}
         setSelectedDishDetail={setSelectedDishDetail}
         styles={styles}
+        isMeat={isMeat === "true"}
         toggleFavoriteItem={toggleFavoriteItem}
         tokens={tokens}
       />

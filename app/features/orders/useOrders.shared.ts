@@ -19,24 +19,22 @@ export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
  * `label` is the English fallback; render `t(labelKey)` (the same
  * app.serviceMeta.* keys SERVICE_META uses).
  */
-export const SERVICE_CHIPS: { label: string; labelKey: string; accent: ServiceKey; keys: string[] }[] = [
-  { label: "Food", labelKey: "app.serviceMeta.food", accent: "food", keys: ["food"] },
-  { label: "Meat", labelKey: "app.serviceMeta.meat", accent: "meat", keys: ["meat"] },
-  { label: "Ride", labelKey: "app.serviceMeta.ride", accent: "ride", keys: RIDE_TYPES },
-  { label: "Package delivery", labelKey: "app.serviceMeta.packageDelivery", accent: "delivery", keys: ["packageDelivery"] },
-  { label: "Task", labelKey: "app.serviceMeta.task", accent: "task", keys: ["helper"] },
-  { label: "Delivery", labelKey: "app.serviceMeta.delivery", accent: "delivery", keys: ["delivery"] },
+export const SERVICE_CHIPS: { label: string; labelKey: string; accent: ServiceKey; keys: string[]; icon: string }[] = [
+  { label: "Food", labelKey: "app.serviceMeta.food", accent: "food", keys: ["food"], icon: "restaurant-outline" },
+  { label: "Meat", labelKey: "app.serviceMeta.meat", accent: "meat", keys: ["meat"], icon: "nutrition-outline" },
+  { label: "Ride", labelKey: "app.serviceMeta.ride", accent: "ride", keys: RIDE_TYPES, icon: "car-outline" },
+  // Plain "delivery" orders (no outlet) are courier parcels, so they share the Package chip.
+  { label: "Package", labelKey: "app.orders.chips.package", accent: "delivery", keys: ["packageDelivery", "delivery"], icon: "cube-outline" },
+  { label: "Helpers", labelKey: "app.orders.chips.helpers", accent: "task", keys: ["helper"], icon: "person-outline" },
 ];
 
 /** A chip is on only when every service key behind it is selected. */
 export const isChipActive = (filters: Set<string>, keys: string[]) => keys.every((k) => filters.has(k));
 
-export const toggleChipKeys = (filters: Set<string>, keys: string[]) => {
-  const next = new Set(filters);
-  if (isChipActive(filters, keys)) keys.forEach((k) => next.delete(k));
-  else keys.forEach((k) => next.add(k));
-  return next;
-};
+// One service at a time: choosing a chip replaces the current choice, and choosing the chosen
+// one again goes back to "All" (an empty set). A chip's several keys (Ride) stay together.
+export const toggleChipKeys = (filters: Set<string>, keys: string[]) =>
+  isChipActive(filters, keys) && filters.size === keys.length ? new Set<string>() : new Set(keys);
 
 export function isTerminalOrder(order: any): boolean {
   return TERMINAL_STATUSES.includes(String(order?.status || "").toUpperCase());

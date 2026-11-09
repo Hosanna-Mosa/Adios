@@ -1,4 +1,6 @@
+import { useCallback } from "react";
 import { HomeSearchLayer } from "@/features/home/components/HomeSearchLayer";
+import { LocationPromptSheet } from "./LocationPromptSheet";
 import { HomeSheetsAndAds } from "@/features/home/components/HomeSheetsAndAds";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -38,6 +40,8 @@ interface Props {
   clearDistanceFilter: () => void;
   listData: any;
   isSearching: boolean;
+  hasNoLocation: boolean;
+  setDistanceRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function HomeOverlays({
@@ -71,7 +75,10 @@ export function HomeOverlays({
   clearDistanceFilter,
   listData,
   isSearching,
+  hasNoLocation,
+  setDistanceRefreshKey,
 }: Props) {
+  const refreshLocation = useCallback(() => setDistanceRefreshKey((v) => v + 1), [setDistanceRefreshKey]);
   return (
     <>
     <HomeSearchLayer
@@ -111,6 +118,7 @@ export function HomeOverlays({
       applyDistanceFilter={applyDistanceFilter}
       clearDistanceFilter={clearDistanceFilter}
     />
+    <LocationPromptSheet hasNoLocation={hasNoLocation} insets={insets} tokens={tokens} refreshLocation={refreshLocation} />
     </>
   );
 }

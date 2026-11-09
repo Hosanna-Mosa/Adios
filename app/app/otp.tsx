@@ -15,7 +15,7 @@ import { useOTP } from "@/features/auth/useOTP";
 
 export default function OTPScreen() {
   const {
-  insets, phone, name, otp, focusedIndex, setFocusedIndex, secondsLeft, resending, inputs,
+  insets, phone, name, email, emailLogin, otp, focusedIndex, setFocusedIndex, secondsLeft, resending, inputs,
   loading, tokens, accent, styles, handleChange, handleKeyPress, handleVerify, handleResend,
   handleCallInstead, isFilled
   } = useOTP();
@@ -43,6 +43,7 @@ export default function OTPScreen() {
         <OtpHeroBlock
           formatPhone={formatPhone}
           phone={phone}
+          email={emailLogin ? email : undefined}
           styles={styles}
         />
 
@@ -76,12 +77,15 @@ export default function OTPScreen() {
           />
         </Animated.View>
 
-        <Animated.View entering={fadeInUp(400)}>
-          <OtpCallRow
-            handleCallInstead={handleCallInstead}
-            styles={styles}
-          />
-        </Animated.View>
+        {/* A call can only read out an SMS code, so it is not offered for an emailed one. */}
+        {!emailLogin && (
+          <Animated.View entering={fadeInUp(400)}>
+            <OtpCallRow
+              handleCallInstead={handleCallInstead}
+              styles={styles}
+            />
+          </Animated.View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );

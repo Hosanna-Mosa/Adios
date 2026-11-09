@@ -165,3 +165,11 @@ export const restaurantAcceptSchema = z.object({
       .max(prepMinutesMax, `Prep time can be at most ${prepMinutesMax} minutes`),
   }),
 });
+
+export const rideHistoryRequestSchema = z.object({
+  body: z.object({
+    from: z.string().min(8, "Choose a from date"),
+    to: z.string().min(8, "Choose a to date"),
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  }),
+});

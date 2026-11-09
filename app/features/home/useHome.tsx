@@ -48,7 +48,7 @@ export function useHome() {
   fetch149StoreItems, loadMore, handleServiceSwitch, applyDistanceFilter,
   clearDistanceFilter, showHomeSkeleton, visibleItems, filteredAndSortedItems, availableCuisines,
   isStickyVisible, stickyHeaderAnimatedStyle, onMainScroll, listData, areaLabel,
-  activeFilterCount, clearAllFilters, isSearching, handleUseCurrentLocation, renderHeader
+  activeFilterCount, clearAllFilters, isSearching, handleUseCurrentLocation, renderHeader, setDistanceRefreshKey
   };
 }
 

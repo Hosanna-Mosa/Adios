@@ -1,122 +1,134 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
-import { radius } from "@/constants/colors";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { moderateScale } from "react-native-size-matters";
+import { elevation } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import type { ThemeTokens } from "@/constants/colors";
 import type { SupportedLanguage } from "@/contexts/languageStore";
-import { Button } from "@/components/ui/Button";
+import { LanguageIllustration } from "./LanguageIllustration";
 
 // Each option leads with its own native script — deliberately not run through t() —
-// so a Telugu/Hindi speaker can find their language without first having to read
-// English; the English name underneath helps everyone else.
-const OPTIONS: { code: SupportedLanguage; nativeLabel: string; englishLabel: string; glyph: string }[] = [
-  { code: "en", nativeLabel: "English", englishLabel: "English", glyph: "A" },
-  { code: "te", nativeLabel: "తెలుగు", englishLabel: "Telugu", glyph: "తె" },
-  { code: "hi", nativeLabel: "हिन्दी", englishLabel: "Hindi", glyph: "हि" },
+// so a Telugu/Hindi speaker can find their language without first having to read English.
+const OPTIONS: { code: SupportedLanguage; label: string; englishLabel: string; glyph: string }[] = [
+  { code: "en", label: "English", englishLabel: "English", glyph: "EN" },
+  { code: "te", label: "తెలుగు", englishLabel: "Telugu", glyph: "అ" },
+  { code: "hi", label: "हिंदी", englishLabel: "Hindi", glyph: "अ" },
 ];
 
 interface Props {
   tokens: ThemeTokens;
-  /** Kept for callers; the cards no longer blur, so the theme isn't read here. */
+  /** Kept for callers; the screen reads its colours from `tokens`. */
   theme?: string;
   onSelect: (code: SupportedLanguage) => void;
   /** The language drawn as chosen. */
   selectedLanguage?: SupportedLanguage | null;
-  /** Present only on the language gate (select-language.tsx): a Continue button,
-   * disabled until a language is chosen. Language settings applies the choice at once. */
+  /** Present only on the language gate (select-language.tsx): a Continue button, grey until a
+   * language is chosen. Language settings applies the choice at once and has none. */
   onContinue?: () => void;
 }
 
 /**
- * Language picker: radio cards with pressed feedback, a radio role and selected state,
- * marked in the brand accent like the rest of the app (it used success green), and a
- * real Continue button rather than a fourth option-looking pill.
+ * The language screen: burgundy speech-bubble artwork over a white sheet holding the three
+ * radio cards (the chosen one tinted pink with a filled radio) and, on the gate, Continue.
  */
 export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onContinue }: Props) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const canContinue = !!selectedLanguage;
 
   return (
-    <View style={styles.content}>
-      <Text style={[styles.heading, { color: tokens.text }]}>{t("app.language.chooseYourLanguage")}</Text>
-      <Text style={[styles.subheading, { color: tokens.sec }]}>{t("app.language.youCanChangeThisLater")}</Text>
-
-      <View style={styles.options} accessibilityRole="radiogroup">
-        {OPTIONS.map((option) => {
-          const isSelected = selectedLanguage === option.code;
-          return (
-            <Pressable
-              key={option.code}
-              onPress={() => onSelect(option.code)}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: isSelected, checked: isSelected }}
-              accessibilityLabel={option.nativeLabel === option.englishLabel ? option.nativeLabel : `${option.nativeLabel}, ${option.englishLabel}`}
-              style={({ pressed }) => [
-                styles.card,
-                { borderColor: tokens.border, backgroundColor: tokens.surface },
-                isSelected && { borderColor: tokens.brand, backgroundColor: tokens.brandSkin },
-                pressed && !isSelected && { backgroundColor: tokens.sunken },
-              ]}
-            >
-              <View style={[styles.glyph, { backgroundColor: isSelected ? tokens.brand : tokens.sunken }]}>
-                <Text style={[styles.glyphText, { color: isSelected ? tokens.onBrand : tokens.text }]}>{option.glyph}</Text>
-              </View>
-              <View style={styles.labels}>
-                <Text style={[styles.cardLabel, { color: tokens.text }]} numberOfLines={1}>{option.nativeLabel}</Text>
-                {option.nativeLabel !== option.englishLabel && (
-                  <Text style={[styles.cardSubLabel, { color: tokens.sec }]} numberOfLines={1}>{option.englishLabel}</Text>
-                )}
-              </View>
-              <View style={[styles.radio, { borderColor: isSelected ? tokens.brand : tokens.borderStrong }]}>
-                {isSelected && <View style={[styles.radioDot, { backgroundColor: tokens.brand }]} />}
-              </View>
-            </Pressable>
-          );
-        })}
+    <LinearGradient colors={[tokens.brandSkin, tokens.bg]} style={styles.root}>
+      <View style={styles.art}>
+        <LanguageIllustration tokens={tokens} />
       </View>
 
-      {onContinue && (
-        <Button title={t("actions.continue")} onPress={onContinue} disabled={!selectedLanguage} fullWidth style={{ marginTop: 28 }} />
-      )}
-    </View>
+      <View style={[styles.sheet, elevation.md, { backgroundColor: tokens.surface, paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
+        <Text style={[styles.heading, { color: tokens.brand }]}>{t("app.language.selectAppLanguage", "Select App Language")}</Text>
+
+        <View style={styles.options} accessibilityRole="radiogroup">
+          {OPTIONS.map((option) => {
+            const isSelected = selectedLanguage === option.code;
+            const isEnglish = option.code === "en";
+            return (
+              <Pressable
+                key={option.code}
+                onPress={() => onSelect(option.code)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: isSelected, checked: isSelected }}
+                accessibilityLabel={option.label === option.englishLabel ? option.label : `${option.label}, ${option.englishLabel}`}
+                style={({ pressed }) => [
+                  styles.card,
+                  { borderColor: tokens.border, backgroundColor: tokens.surface },
+                  isSelected && { borderColor: tokens.brand, backgroundColor: tokens.brandSkin },
+                  pressed && !isSelected && { backgroundColor: tokens.sunken },
+                ]}
+              >
+                <View style={[styles.glyph, { backgroundColor: isEnglish ? tokens.border : tokens.brandSkin }]}>
+                  <Text style={[styles.glyphText, { color: isEnglish ? tokens.text : tokens.brand }]}>{option.glyph}</Text>
+                </View>
+                <Text style={[styles.cardLabel, { color: tokens.text }]} numberOfLines={1}>{option.label}</Text>
+                <View style={[styles.radio, { borderColor: isSelected ? tokens.brand : tokens.borderStrong }]}>
+                  {isSelected && <View style={[styles.radioDot, { backgroundColor: tokens.brand }]} />}
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {onContinue && (
+          <Pressable
+            onPress={onContinue}
+            disabled={!canContinue}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !canContinue }}
+            style={({ pressed }) => [
+              styles.continueBtn,
+              { backgroundColor: canContinue ? tokens.brand : tokens.muted },
+              pressed && canContinue && { backgroundColor: tokens.brandPressed },
+            ]}
+          >
+            <Text style={[styles.continueText, { color: tokens.onBrand }]}>{t("actions.continue")}</Text>
+          </Pressable>
+        )}
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 24,
+  root: { flex: 1 },
+  art: { flex: 1, alignItems: "center", justifyContent: "center", paddingTop: 16 },
+  sheet: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: 22,
+    paddingHorizontal: 16,
   },
   heading: {
     fontFamily: fontFamilies.heading.bold,
-    fontSize: typography.sizes.extraLarge,
-    lineHeight: typography.lineHeights.extraLarge,
+    fontSize: typography.sizes.large,
+    lineHeight: typography.lineHeights.large,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 14,
   },
-  subheading: {
-    fontFamily: fontFamilies.body.regular,
-    fontSize: typography.sizes.medium,
-    lineHeight: typography.lineHeights.medium,
-    textAlign: "center",
-    marginBottom: 28,
-  },
-  options: {
-    gap: 12,
-  },
+  options: { gap: 8 },
   card: {
-    minHeight: 68,
-    borderRadius: radius.md,
+    minHeight: moderateScale(56),
+    borderRadius: 14,
     borderWidth: 1.5,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     gap: 14,
   },
   glyph: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.sm,
+    width: moderateScale(38),
+    height: moderateScale(38),
+    borderRadius: moderateScale(19),
     alignItems: "center",
     justifyContent: "center",
   },
@@ -124,29 +136,33 @@ const styles = StyleSheet.create({
     fontFamily: fontFamilies.body.bold,
     fontSize: typography.sizes.medium,
   },
-  labels: {
-    flex: 1,
-  },
   cardLabel: {
+    flex: 1,
     fontFamily: fontFamilies.body.semibold,
-    fontSize: typography.sizes.large,
-  },
-  cardSubLabel: {
-    fontFamily: fontFamilies.body.regular,
-    fontSize: typography.sizes.small,
-    marginTop: 2,
+    fontSize: typography.sizes.medium,
   },
   radio: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.pill,
+    width: moderateScale(24),
+    height: moderateScale(24),
+    borderRadius: moderateScale(12),
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
   },
   radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.pill,
+    width: moderateScale(12),
+    height: moderateScale(12),
+    borderRadius: moderateScale(6),
+  },
+  continueBtn: {
+    marginTop: 20,
+    minHeight: moderateScale(52),
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  continueText: {
+    fontFamily: fontFamilies.body.bold,
+    fontSize: typography.sizes.medium,
   },
 });

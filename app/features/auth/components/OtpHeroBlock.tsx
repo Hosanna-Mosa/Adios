@@ -11,21 +11,26 @@ import { type OtpStyles } from "@/features/auth/otp.styles";
 interface Props {
   formatPhone: any;
   phone: string;
+  /** Set when the code was emailed: the screen then talks about the address, not the phone. */
+  email?: string;
   styles: OtpStyles;
 }
 
 export function OtpHeroBlock({
   formatPhone,
   phone,
+  email,
   styles,
 }: Props) {
   const { t } = useTranslation();
   return (
     <Animated.View style={styles.heroBlock} entering={fadeInUp(0)}>
-      <Text style={styles.headline} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>{t("app.auth.verifyYourNumber")}</Text>
+      <Text style={styles.headline} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.85}>
+        {email ? t("app.auth.verifyYourEmail", "Verify your email") : t("app.auth.verifyYourNumber")}
+      </Text>
       <Text style={styles.subhead}>
         {t("app.auth.weSentA6digitCodeTo")}{" "}
-        <Text style={styles.subheadStrong}>+91 {formatPhone(phone || "")}</Text>.{" "}
+        <Text style={styles.subheadStrong}>{email ? email : `+91 ${formatPhone(phone || "")}`}</Text>.{" "}
         <Text style={styles.subheadLink} onPress={() => router.back()}>
           {t("app.auth.change")}
         </Text>

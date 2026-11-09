@@ -1,30 +1,29 @@
 import { Text, TouchableOpacity } from "react-native";
 import { useTranslation } from "react-i18next";
-import { type OrdersStyles } from "@/features/orders/orders.styles";
-
-// Moved out of app/(tabs)/orders.tsx. The JSX is unchanged; what it read from the screen's
-// scope is now a prop of the same name.
+import { Ionicons } from "@expo/vector-icons";
+import { moderateScale } from "react-native-size-matters";
+import { type ThemeTokens } from "@/constants/colors";
+import { type OrdersStyles } from "../orders.styles";
 
 interface Props {
   serviceFilters: any;
   setServiceFilters: any;
   styles: OrdersStyles;
+  tokens: ThemeTokens;
 }
 
-export function OrdersAllChip({
-  serviceFilters,
-  setServiceFilters,
-  styles,
-}: Props) {
+export function OrdersAllChip({ serviceFilters, setServiceFilters, styles, tokens }: Props) {
   const { t } = useTranslation();
+  const isActive = serviceFilters.size === 0;
   return (
     <TouchableOpacity
-      style={[styles.chip, serviceFilters.size === 0 && styles.chipActive]}
+      style={[styles.chip, isActive && styles.chipActive]}
       onPress={() => setServiceFilters(new Set())}
       accessibilityRole="button"
-      accessibilityState={{ selected: serviceFilters.size === 0 }}
+      accessibilityState={{ selected: isActive }}
     >
-      <Text style={[styles.chipText, serviceFilters.size === 0 && styles.chipTextActive]}>{t("app.orders.all")}</Text>
+      <Ionicons name="cube-outline" size={moderateScale(20)} color={isActive ? tokens.onBrand : tokens.brand} />
+      <Text style={[styles.chipText, isActive && styles.chipTextActive]} numberOfLines={1}>{t("app.orders.all")}</Text>
     </TouchableOpacity>
   );
 }

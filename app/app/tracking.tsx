@@ -13,7 +13,7 @@ export default function TrackingScreen() {
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
-  handleBack, userLocCoords, bannerText
+  handleBack, userLocCoords, bannerText, vendorPartnerType, serviceType
   } = useTracking();
   const { t } = useTranslation();
 
@@ -101,6 +101,9 @@ export default function TrackingScreen() {
         timeline={timeline}
         pickupLabel={pickupLabel}
         formatClock={formatClock}
+        vendorName={vendorName}
+        vendorPartnerType={vendorPartnerType}
+        serviceType={serviceType}
       />
     </ScreenShell>
   );

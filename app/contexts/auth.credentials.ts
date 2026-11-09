@@ -13,7 +13,77 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.a
 
 type Set = (partial: Partial<AuthState>) => void;
 
+/** Stores a signed-in session in the store and on disk. */
+async function saveSession(set: Set, data: { user: any; token: string; refreshToken?: string }) {
+  resetSessionExpiry();
+  set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
+  await Promise.all([
+    AsyncStorage.setItem("token", data.token),
+    AsyncStorage.setItem("user", JSON.stringify(data.user)),
+    data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
+  ]);
+}
+
+/** POSTs to an /auth endpoint and returns the parsed body, throwing the server's message on failure. */
+async function postAuth(path: string, body: object, fallback: string) {
+  const response = await fetch(`${apiUrl}/auth/${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...AUTH_REFRESH_HEADER },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || fallback);
+  return data;
+}
+
 export const createCredentialActions = (set: Set) => ({
+  /** Emails a 6-digit login code to the address. */
+  requestEmailOTP: async (email: string) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await postAuth("request-email-otp", { email }, "Something went wrong");
+      set({ loading: false });
+      return { success: true, message: data.message as string };
+    } catch (err: any) {
+      set({ loading: false, error: err.message });
+      throw err;
+    }
+  },
+
+  /** Checks the emailed code: signs an existing account in, or returns a sign-up ticket for a new address. */
+  verifyEmailOTP: async (email: string, code: string) => {
+    set({ loading: true, error: null });
+    try {
+      const data = await postAuth("verify-email-otp", { email, code }, "Verification failed");
+      if (data.isNewUser) {
+        set({ loading: false });
+        return { success: true, isNewUser: true, ticket: data.ticket as string };
+      }
+      await saveSession(set, data);
+      set({ loading: false });
+      trackEvent("login", { method: "email_otp" });
+      return { success: true, isNewUser: false };
+    } catch (err: any) {
+      set({ loading: false, error: err.message });
+      throw err;
+    }
+  },
+
+  /** Finishes a sign-up with a ticket from a verified phone (needs `name`) or email (needs `phone`). */
+  completeSignup: async (ticket: string, input: { name?: string; phone?: string }, method: "otp" | "email_otp") => {
+    set({ loading: true, error: null });
+    try {
+      const data = await postAuth("complete-signup", { ticket, ...input }, "Couldn't create your account");
+      await saveSession(set, data);
+      set({ loading: false });
+      trackEvent("sign_up", { method });
+      return { success: true };
+    } catch (err: any) {
+      set({ loading: false, error: err.message });
+      throw err;
+    }
+  },
+
   requestOTP: async (phone: string) => {
     set({ loading: true, error: null });
     try {
@@ -46,7 +116,7 @@ export const createCredentialActions = (set: Set) => ({
       if (!response.ok) throw new Error(data.message || "Verification failed");
 
       if (data.isNewUser) {
-        return { success: true, isNewUser: true };
+        return { success: true, isNewUser: true, ticket: data.ticket as string | undefined };
       }
 
       resetSessionExpiry();

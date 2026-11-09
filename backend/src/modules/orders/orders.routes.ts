@@ -13,6 +13,7 @@ import {
   vendorOrdersQuerySchema,
   restaurantAcceptSchema,
   helperQuoteSchema,
+  rideHistoryRequestSchema,
 } from "./orders.validation";
 
 const router = Router();
@@ -31,6 +32,7 @@ router.get("/driver/food-offer", authenticateToken, authorizeRole([UserRole.DRIV
 // The job a driver is on — the app restores it after a restart. Before /:id so "driver" isn't read as an id.
 router.get("/driver/active", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverActiveOrder.bind(ordersController));
 router.get("/", authenticateToken, ordersController.getUserOrders.bind(ordersController));
+router.post("/ride-history-request", authenticateToken, validateRequest(rideHistoryRequestSchema), ordersController.rideHistoryRequest.bind(ordersController));
 router.get("/helper-quote", authenticateToken, validateRequest(helperQuoteSchema), ordersController.helperQuote.bind(ordersController));
 router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSchema), ordersController.estimateFare.bind(ordersController));
 router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQuerySchema), ordersController.getVendorOrders.bind(ordersController));

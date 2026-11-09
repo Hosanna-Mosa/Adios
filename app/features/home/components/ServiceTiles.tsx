@@ -47,7 +47,7 @@ export function ServiceTiles({
         <Text style={[styles.serviceCardLabel, activeService === "Meat" && { color: tokens.services.meat.accent }]} numberOfLines={1}>Meat</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.serviceCard} onPress={() => router.push("/all-services")} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.serviceCard} onPress={() => router.push("/ride-home")} activeOpacity={0.85}>
         <Text style={styles.serviceCardArrow}>↗</Text>
         <Image source={RIDE_3D} style={styles.serviceCardImage} resizeMode="contain" />
         <Text style={styles.serviceCardLabel} numberOfLines={1}>Ride</Text>

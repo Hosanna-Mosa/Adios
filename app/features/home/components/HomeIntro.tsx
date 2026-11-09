@@ -4,7 +4,9 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
 import { moderateScale } from "react-native-size-matters";
+import { isVoiceSearchAvailable } from "@/utils/useVoiceRecognition";
 import { HomeTopBar } from "./HomeTopBar";
+import { VoiceSearchSheet } from "./VoiceSearchSheet";
 import type { Props } from "./HomeBody.props";
 
 // The top of the home screen: address row, headline and the search bar that
@@ -15,6 +17,8 @@ export function HomeIntro(props: Props) {
   const { accent, activeService, areaLabel, areaLine, insets, searchBarAnimatedStyle,
   setIsDistanceSheetOpen, setIsSearchActive, styles, tokens } = props;
   const { t } = useTranslation();
+  const [voiceOpen, setVoiceOpen] = React.useState(false);
+  const voiceAvailable = React.useMemo(() => isVoiceSearchAvailable(), []);
   // A line break in a translation would put the rest of the headline on a hidden
   // second line (this one shows a single line), so breaks become spaces.
   const headline = (activeService === "Meat" ? t("app.home.freshMeatDaily") : t("app.home.cravingSomethingDelicious"))
@@ -67,14 +71,27 @@ export function HomeIntro(props: Props) {
       </View>
 
       {/* Search bar */}
-      <Animated.View style={searchBarAnimatedStyle}>
+      <Animated.View style={[styles.searchRow, searchBarAnimatedStyle]}>
         <TouchableOpacity style={styles.searchBar} activeOpacity={0.85} onPress={() => setIsSearchActive(true)}>
           <Ionicons name="search" size={moderateScale(16)} color={accent.accent} />
           <Text style={styles.searchPlaceholder} numberOfLines={1}>
             {activeService === "Meat" ? t("app.home.searchMuttonCurryCutPrawns") : t("app.home.searchBiryaniBawarchi")}
           </Text>
         </TouchableOpacity>
+        {/* Voice search through the phone's own recognizer. Where there is none (Expo Go, or a
+            build made before the speech module was added) it opens search with the keyboard up,
+            where the keyboard's own mic can dictate, as before. */}
+        <TouchableOpacity
+          style={styles.micButton}
+          activeOpacity={0.8}
+          onPress={() => (voiceAvailable ? setVoiceOpen(true) : setIsSearchActive(true))}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.home.voiceSearch", "Search by voice")}
+        >
+          <Ionicons name="mic-outline" size={moderateScale(22)} color={accent.accent} />
+        </TouchableOpacity>
       </Animated.View>
+      <VoiceSearchSheet visible={voiceOpen} onClose={() => setVoiceOpen(false)} insets={insets} tokens={tokens} />
     </>
   );
 }

@@ -3,13 +3,16 @@ import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
 import { authenticateToken } from "../../middleware/auth.middleware";
 import { authRateLimiter, refreshRateLimiter } from "../../middleware/rateLimit.middleware";
-import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema } from "./auth.validation";
+import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema, requestEmailOtpSchema, verifyEmailOtpSchema, completeSignupSchema } from "./auth.validation";
 
 const router = Router();
 const authController = new AuthController();
 
 router.post("/request-otp", authRateLimiter, validateRequest(requestOtpSchema), authController.requestOTP.bind(authController));
 router.post("/verify-otp", authRateLimiter, validateRequest(verifyOtpSchema), authController.verifyOTP.bind(authController));
+router.post("/request-email-otp", authRateLimiter, validateRequest(requestEmailOtpSchema), authController.requestEmailOTP.bind(authController));
+router.post("/verify-email-otp", authRateLimiter, validateRequest(verifyEmailOtpSchema), authController.verifyEmailOTP.bind(authController));
+router.post("/complete-signup", authRateLimiter, validateRequest(completeSignupSchema), authController.completeSignup.bind(authController));
 router.post("/login-password", authRateLimiter, validateRequest(loginWithPasswordSchema), authController.loginWithPassword.bind(authController));
 router.post("/refresh", refreshRateLimiter, authController.refresh.bind(authController));
 router.post("/logout", authController.logout.bind(authController));

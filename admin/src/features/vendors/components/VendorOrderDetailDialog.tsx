@@ -11,7 +11,7 @@ interface VendorOrderDetailDialogProps {
   onOpenChange: (open: boolean) => void;
   order: VendorOrder | null;
   getStatusDisplay: (status: string, order?: VendorOrder) => StatusDisplay;
-  getOrderItems: (order: VendorOrder) => { name: string; quantity: number; price: number }[];
+  getOrderItems: (order: VendorOrder) => { name: string; quantity: number; price: number; cookingRequest?: string }[];
   onMarkAsReady: (orderId: string) => void;
   onAccept: (orderId: string, prepMinutes: number) => void;
   onReject: (orderId: string) => void;
@@ -119,7 +119,12 @@ export function VendorOrderDetailDialog({
                   <div key={idx} className="flex justify-between items-center py-2 text-sm first:pt-0 last:pb-0">
                     <div className="flex gap-2">
                       <span className="font-bold text-primary">{item.quantity}x</span>
-                      <span className="font-medium text-foreground">{item.name}</span>
+                      <div>
+                        <span className="font-medium text-foreground">{item.name}</span>
+                        {item.cookingRequest && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{t("vendorDashboard.cookingRequest")}: {item.cookingRequest}</p>
+                        )}
+                      </div>
                     </div>
                     <span className="font-semibold">₹{item.price * item.quantity}</span>
                   </div>

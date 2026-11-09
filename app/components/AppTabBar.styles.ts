@@ -8,7 +8,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 
 const SIDE_MARGIN = moderateScale(16);
 
-export const CART_CARD_HEIGHT = moderateScale(68);
+export const CART_CARD_HEIGHT = moderateScale(76);
 
 export const TAB_PILL_HEIGHT = moderateScale(62);
 
@@ -94,6 +94,25 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens, cart: S
     paddingVertical: 9,
     borderRadius: radius.pill,
     overflow: "hidden",
+  },
+  cartViewBtn: {
+    minWidth: moderateScale(108),
+    borderRadius: moderateScale(12),
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: cart.accent,
+  },
+  cartViewTitle: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: cart.on },
+  cartViewMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: cart.on, marginTop: 1 },
+  cartTrash: {
+    width: moderateScale(34),
+    height: moderateScale(34),
+    borderRadius: moderateScale(17),
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: tokens.sunken,
   },
   tabRow: {
     flex: 1,

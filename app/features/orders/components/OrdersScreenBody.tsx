@@ -40,6 +40,8 @@ interface Props {
   SCHEDULE_PILL: any;
   SERVICE_META: any;
   activeStatusCaption: any;
+  /** A search is active (the lists above are already filtered by it). */
+  searching?: boolean;
 }
 
 export function OrdersScreenBody({
@@ -63,6 +65,7 @@ export function OrdersScreenBody({
   SCHEDULE_PILL,
   SERVICE_META,
   activeStatusCaption,
+  searching,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -71,35 +74,34 @@ export function OrdersScreenBody({
       <OrdersBody
         styles={styles}
       />
-    ) : isEmpty ? (
-      <OrdersEmptyWrap
-        orders={orders}
-        styles={styles}
-        tokens={tokens}
-      />
     ) : (
       <ScrollView
-        contentContainerStyle={{ paddingBottom: tabBarHeight + 24 }}
+        contentContainerStyle={{ paddingBottom: tabBarHeight + 24, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tokens.brand} />}
       >
-        <Animated.ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow} entering={fadeInUp(40)}>
+        <Animated.View style={styles.chipsRow} entering={fadeInUp(40)}>
           <OrdersAllChip
             serviceFilters={serviceFilters}
             setServiceFilters={setServiceFilters}
             styles={styles}
+            tokens={tokens}
           />
           {SERVICE_CHIPS.map((chip) => (
             <OrdersServiceChip
               key={chip.label}
               label={t(chip.labelKey, { defaultValue: chip.label })}
+              icon={chip.icon}
               serviceKeys={chip.keys}
               isActive={isChipActive(serviceFilters, chip.keys)}
               setServiceFilters={setServiceFilters}
               styles={styles}
+              tokens={tokens}
             />
           ))}
-        </Animated.ScrollView>
+        </Animated.View>
 
         {scheduled.length > 0 && (
           <ScheduledOrdersList
@@ -124,8 +126,8 @@ export function OrdersScreenBody({
 
         {scheduled.length === 0 && active.length === 0 && past.length === 0 && (
           <OrdersEmptyWrap
-            orders={orders}
-            filtered
+            serviceFilters={serviceFilters}
+            searching={searching}
             styles={styles}
             tokens={tokens}
           />

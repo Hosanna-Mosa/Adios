@@ -11,7 +11,7 @@ export { TimelineStep } from "./useTracking.shared";
 // still run exactly as they did inline.
 
 export function useTracking() {
-  const { status, setStatus, currentOrderId, setOrderId, setServiceType, route, setRoute, stops, setStops, driver, setDriver, unreadCount, resetDelivery, insets, params, tokens, isRide, isHelper, vendorName, setVendorName, setVendorPartnerType, accent, styles, eta, setEta } = useTrackingStatus();
+  const { status, setStatus, currentOrderId, setOrderId, setServiceType, route, setRoute, stops, setStops, driver, setDriver, unreadCount, resetDelivery, insets, params, tokens, isRide, isHelper, vendorName, setVendorName, vendorPartnerType, setVendorPartnerType, serviceType, accent, styles, eta, setEta } = useTrackingStatus();
   const { orderCreatedAt, setOrderCreatedAt, deliveredAt, setDeliveredAt, tripModalVisible, setTripModalVisible, helperStatus, setHelperStatus, deliveryOtp, setDeliveryOtp, startOtp, setStartOtp, isPackageDelivery, setIsPackageDelivery, driverLocation, setDriverLocation, radius, setRadius, totalPrice, setTotalPrice, mapRef, cancellationAlerted, handleOrderCancelledByDriver, handleSOS } = useTrackingOrderCreatedAt(currentOrderId, resetDelivery);
   const { handleShareTrip, deliveryStop } = useTrackingHandleShareTrip(status, currentOrderId, setOrderId, stops, driver, params, isRide, cancellationAlerted, handleOrderCancelledByDriver);
   const { pickupStop } = useTrackingPickupStop(setStatus, currentOrderId, setServiceType, setRoute, stops, setStops, setDriver, setVendorName, setVendorPartnerType, setEta, setOrderCreatedAt, setDeliveredAt, setDeliveryOtp, setStartOtp, setDriverLocation, setRadius, setTotalPrice, handleOrderCancelledByDriver, setIsPackageDelivery);
@@ -19,7 +19,7 @@ export function useTracking() {
 
   return {
   status, currentOrderId, route, stops, driver, unreadCount, insets, tokens, isRide, isHelper,
-  vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
+  vendorName, vendorPartnerType, serviceType, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
   handleBack, userLocCoords, bannerText

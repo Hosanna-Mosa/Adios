@@ -1,5 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -33,7 +35,10 @@ export function StickyHeader({
       style={[styles.stickyHeader, { paddingTop: insets.top + 8 }, stickyHeaderAnimatedStyle]}
     >
       <View style={styles.stickyRow}>
-        <Text style={styles.stickyAddress} numberOfLines={1}>{areaLabel}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", flexShrink: 1, gap: moderateScale(4) }}>
+          <Ionicons name="location-sharp" size={moderateScale(16)} color={tokens.brand} />
+          <Text style={[styles.stickyAddress, { flex: 0, flexShrink: 1 }]} numberOfLines={1}>{areaLabel}</Text>
+        </View>
         <View style={styles.stickyActions}>
           <View style={styles.stickyTogglePill}>
             <TouchableOpacity

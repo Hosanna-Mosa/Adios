@@ -87,6 +87,7 @@
     "noDeliveryAddressSpecified": "డెలివరీ చిరునామా పేర్కొనబడలేదు",
     "itemsInOrder": "ఆర్డర్‌లోని అంశాలు",
     "noItemsSpecifiedInStops": "స్టాప్‌లలో అంశాలు పేర్కొనబడలేదు",
+    "cookingRequest": "కస్టమర్ నోట్",
     "totalAmount": "మొత్తం మొత్తం",
     "assignedDriver": "కేటాయించిన డ్రైవర్",
     "assignedDriverFallback": "కేటాయించిన డ్రైవర్",

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
+import { describePaymentError, payOnlineAndPlaceOrder, type OnlineMethod } from "@/utils/razorpay";
 import i18n from "@/i18n";
 import { createOrder } from "@/services/orders.service";
 import { getVendor } from "@/services/catalog.service";
@@ -13,7 +13,7 @@ import { ensureDriversOnline, ensureServiceable } from "@/utils/orderGate";
 // over, rebuilt every render exactly as the inline versions were.
 
 export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vendorId: any, items: any, clearCart: any, user: any, token: any, setOrderId: any, setStatus: any, setServiceType: any, selectedAddress: any, setIsPlacingOrder: any, appliedPromo: any, vendorName: any, scheduledFor: any, setShowScheduleSheet: any, subtotal: any, deliveryFee: any, activeTip: any, discount: any, total: any, receiverName: any, receiverPhone: any, addressIssue: any) =>
-  async () => {
+  async (onlineMethod?: OnlineMethod) => {
     if (getItemCount() === 0) {
       showAlert(i18n.t("app.food.cartIsEmpty"), i18n.t("app.food.pleaseAddAtLeastOneItem"));
       return;
@@ -83,6 +83,8 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
         image: item.images?.[0],
         isVeg: item.isVeg,
         category: item.category,
+        // The customer's note for the kitchen on this dish, if they wrote one.
+        ...(item.cookingRequest ? { cookingRequest: item.cookingRequest } : {}),
       }));
 
       const orderDataPayload = {
@@ -128,7 +130,7 @@ export const buildPlaceOrder = (params: any, theme: any, getItemCount: any, vend
       // Cash: the order is placed straight away and the driver collects on delivery.
       const placedOrder: any =
         getPaymentMethod("food") === "online"
-          ? await payOnlineAndPlaceOrder(total, orderDataPayload)
+          ? await payOnlineAndPlaceOrder(total, orderDataPayload, onlineMethod)
           : await createOrder({ ...orderDataPayload, paymentMethod: "cash" });
       const finalOrderId: string = placedOrder._id || placedOrder.id;
 

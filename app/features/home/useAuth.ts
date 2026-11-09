@@ -21,13 +21,17 @@ export function useAuth() {
 
   // Arrival Animation States for "ADIOS". Timing and layout follow letters.length,
   // so the word can change without touching the animation below.
-  const [showSplash, setShowSplash] = useState(true);
+  // The splash plays once per cold start. app/index.tsx remounts when the language screen
+  // sends the user back to "/", and a second splash there is what this guards against.
+  const splashAlreadyPlayed = useIntroSplashStore.getState().introSplashDone;
+  const [showSplash, setShowSplash] = useState(!splashAlreadyPlayed);
   const splashOpacity = React.useRef(new Animated.Value(1)).current;
   const letters = ["A", "D", "I", "O", "S"];
   const translateAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
   const opacityAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
 
   useEffect(() => {
+    if (splashAlreadyPlayed) return;
     // Set up spring arrival animations from opposite vertical directions
     const animations = letters.map((_, idx) => {
       const isOdd = idx % 2 !== 0;
@@ -61,11 +65,14 @@ export function useAuth() {
       useIntroSplashStore.getState().setIntroSplashDone();
     });
   }, []);
-  const [introPlayed, setIntroPlayed] = useState(false);
+  const [introPlayed, setIntroPlayed] = useState(splashAlreadyPlayed);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
+  const requestEmailOTP = useAuthStore((s) => s.requestEmailOTP);
 
   const loginWithPassword = useAuthStore((s) => s.loginWithPassword);
   const requestOTP = useAuthStore((s) => s.requestOTP);
@@ -142,12 +149,30 @@ export function useAuth() {
     }
   };
 
+  // "Continue with email": the code is emailed, and the OTP screen verifies it against the address.
+  const handleContinueWithEmail = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(trimmed)) {
+      showAlert(t("actions.error"), t("app.auth.enterValidEmail", "Enter a valid email address."));
+      return;
+    }
+    setSendingEmailOtp(true);
+    try {
+      await requestEmailOTP(trimmed);
+      router.push({ pathname: "/otp", params: { email: trimmed, via: "email" } });
+    } catch (error: any) {
+      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
   // Show a loading indicator while auth state is being restored
 
   return {
   insets, showSplash, splashOpacity, letters, translateAnim, opacityAnim, identifier,
   setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
   loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
-  handleContinueWithOtp
+  handleContinueWithOtp, email, setEmail, sendingEmailOtp, handleContinueWithEmail
   };
 }

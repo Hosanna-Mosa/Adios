@@ -10,11 +10,11 @@ import { getInvoiceLink } from "@/services/orders.service";
 import { type OrdersStyles } from "../orders.styles";
 
 /**
- * "Invoice" on a delivered / completed order: asks the backend for a short-lived link
- * and opens it in the in-app browser, whose menu can share, print or save it as a PDF.
- * (The backend already generated invoices; the app never offered them.)
+ * "View Bill" / "View Receipt" on a delivered / completed order: asks the backend for a
+ * short-lived link and opens it in the in-app browser, whose menu can share, print or
+ * save it as a PDF.
  */
-export function InvoiceAction({ orderId, styles, tokens }: { orderId: string; styles: OrdersStyles; tokens: ThemeTokens }) {
+export function InvoiceAction({ orderId, label, styles, tokens }: { orderId: string; label: string; styles: OrdersStyles; tokens: ThemeTokens }) {
   const { t } = useTranslation();
   const [opening, setOpening] = useState(false);
 
@@ -31,13 +31,13 @@ export function InvoiceAction({ orderId, styles, tokens }: { orderId: string; st
   };
 
   return (
-    <TouchableOpacity style={styles.rowAction} onPress={open} disabled={opening} hitSlop={8} accessibilityRole="button">
+    <TouchableOpacity style={styles.cardAction} onPress={open} disabled={opening} hitSlop={8} accessibilityRole="button">
       {opening ? (
-        <ActivityIndicator size="small" color={tokens.sec} />
+        <ActivityIndicator size="small" color={tokens.brand} />
       ) : (
         <>
-          <Ionicons name="document-text-outline" size={moderateScale(14)} color={tokens.sec} />
-          <Text style={styles.rowActionText}>{t("app.orders.invoice")}</Text>
+          <Ionicons name="document-text-outline" size={moderateScale(16)} color={tokens.brand} />
+          <Text style={styles.cardActionText}>{label}</Text>
         </>
       )}
     </TouchableOpacity>

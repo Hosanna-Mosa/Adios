@@ -6,13 +6,13 @@ import { useOTPHandleKeyPress } from "./useOTPHandleKeyPress";
 // still run exactly as they did inline.
 
 export function useOTP() {
-  const { insets, phone, name, email, password, otp, setOtp, focusedIndex, setFocusedIndex, secondsLeft, setSecondsLeft, resending, setResending, inputs, verifyOTP, requestOTP, loading, tokens, accent, styles, handleChange } = useOTPInsets();
-  const { handleKeyPress, handleVerify, handleResend, handleCallInstead, isFilled } = useOTPHandleKeyPress(phone, name, email, password, otp, setOtp, secondsLeft, setSecondsLeft, setResending, inputs, verifyOTP, requestOTP);
+  const { insets, phone, name, email, password, via, verifyEmailOTP, requestEmailOTP, otp, setOtp, focusedIndex, setFocusedIndex, secondsLeft, setSecondsLeft, resending, setResending, inputs, verifyOTP, requestOTP, loading, tokens, accent, styles, handleChange } = useOTPInsets();
+  const emailLogin = via === "email";
+  const { handleKeyPress, handleVerify, handleResend, handleCallInstead, isFilled } = useOTPHandleKeyPress(phone, name, email, password, otp, setOtp, secondsLeft, setSecondsLeft, setResending, inputs, verifyOTP, requestOTP, emailLogin, verifyEmailOTP, requestEmailOTP);
 
   return {
-  insets, phone, name, otp, focusedIndex, setFocusedIndex, secondsLeft, resending, inputs,
+  insets, phone, name, email, emailLogin, otp, focusedIndex, setFocusedIndex, secondsLeft, resending, inputs,
   loading, tokens, accent, styles, handleChange, handleKeyPress, handleVerify, handleResend,
   handleCallInstead, isFilled
   };
 }
-

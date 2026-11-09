@@ -1,4 +1,5 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -6,7 +7,7 @@ import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CheckoutStyles } from "@/features/food/checkout.styles";
-import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
+import { PaymentOptionsBody } from "./PaymentOptionsBody";
 import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
@@ -39,6 +40,13 @@ export function CheckoutFooter({
   total,
 }: Props) {
   const { t } = useTranslation();
+  // "Proceed to pay" opens the list of ways to pay; picking one places the order that way.
+  const [choosing, setChoosing] = useState(false);
+  const proceed = () => setChoosing(true);
+  const onPay = (online?: any) => {
+    setChoosing(false);
+    placeOrder(online);
+  };
   return (
     <View
       style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}
@@ -55,22 +63,25 @@ export function CheckoutFooter({
           <Text style={styles.changeLink}>{t("app.food.fix")}</Text>
         </TouchableOpacity>
       )}
-      <PaymentMethodSelector flow="food" accent={accent} disabled={isPlacingOrder} style={{ marginBottom: 12 }} />
       <TouchableOpacity
         style={[styles.placeOrderBtn, (isPlacingOrder || !!addressIssue) && styles.placeOrderBtnDisabled]}
         activeOpacity={0.9}
-        onPress={placeOrder}
+        onPress={proceed}
         disabled={isPlacingOrder || !!addressIssue}
       >
         {isPlacingOrder ? (
           <ActivityIndicator size="small" color={accent.on} />
         ) : (
           <>
-            <Text style={styles.placeOrderBtnText}>{scheduledFor ? t("app.food.scheduleOrder") : t("app.food.placeOrder")}</Text>
+            <Text style={styles.placeOrderBtnText}>{t("app.food.proceedToPay", "Proceed to pay")}</Text>
             <Text style={styles.placeOrderBtnPrice}>· ₹{formatINR(total)}</Text>
           </>
         )}
       </TouchableOpacity>
+
+      <Modal visible={choosing} animationType="slide" onRequestClose={() => setChoosing(false)}>
+        <PaymentOptionsBody total={total} processing={isPlacingOrder} insets={insets} tokens={tokens} onPay={onPay} onBack={() => setChoosing(false)} />
+      </Modal>
     </View>
   );
 }

@@ -17,6 +17,7 @@ import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flo
 import { helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { PricingService } from "../pricing/pricing.service";
 import { ZonesService } from "../zones/zones.service";
+import { emailRideHistory } from "./rideHistory.service";
 import { INVOICE_LINK_TTL_SECONDS, invoiceTokenAllows, isInvoiceable, signInvoiceToken } from "./invoice.link";
 
 /**
@@ -164,6 +165,18 @@ export class OrdersController {
   }
 
   /** GET /orders/helper-quote — the fare and the offer range for a helper task. */
+  /** Emails the signed-in customer's ride history for a date range (rides older than the app shows). */
+  async rideHistoryRequest(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("Unauthorized");
+      const { from, to, email } = req.body;
+      return res.json(await emailRideHistory(userId, { from, to, email }));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async helperQuote(req: Request, res: Response, next: NextFunction) {
     try {
       const { pickupLat, pickupLng, dropLat, dropLng, hours } = req.query as Record<string, string | undefined>;

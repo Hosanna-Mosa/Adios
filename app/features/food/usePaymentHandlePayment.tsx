@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { describePaymentError, payOnlineAndPlaceOrder } from "@/utils/razorpay";
+import { describePaymentError, payOnlineAndPlaceOrder, type OnlineMethod } from "@/utils/razorpay";
 import { createOrder } from "@/services/orders.service";
 import { getPaymentMethod } from "@/contexts/paymentMethodStore";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
@@ -13,7 +13,7 @@ import { ensureDriversOnline, ensureServiceable, requireLogin } from "@/utils/or
 
 export function usePaymentHandlePayment(params: any, theme: any, items: any, vendorId: any, clearCart: any, setOrderId: any, setStatus: any, setServiceType: any, user: any, token: any, selectedAddress: any, setProcessing: any, vendor: any, subtotal: any, deliveryFee: any, tip: any, discount: any, couponCode: any, total: any, vendorName: any) {
   const { t } = useTranslation();
-  const handlePayment = async () => {
+  const handlePayment = async (onlineMethod?: OnlineMethod) => {
     if (!requireLogin()) return;
     if (!vendorId || items.length === 0) {
       showAlert(t("app.food.cartIsEmpty"), t("app.food.pleaseAddItemsBeforePaying"));
@@ -86,7 +86,7 @@ export function usePaymentHandlePayment(params: any, theme: any, items: any, ven
 
       const finalOrder: any =
         getPaymentMethod("food") === "online"
-          ? await payOnlineAndPlaceOrder(total, orderData)
+          ? await payOnlineAndPlaceOrder(total, orderData, onlineMethod)
           : await createOrder({ ...orderData, paymentMethod: "cash" });
       setOrderId(finalOrder._id || finalOrder.id);
       // A restaurant order waits for the restaurant before any rider is searched for.

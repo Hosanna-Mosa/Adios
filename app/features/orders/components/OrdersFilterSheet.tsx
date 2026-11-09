@@ -62,7 +62,7 @@ export function OrdersFilterSheet({
                   style={[styles.filterOptionRow, isSelected && { borderColor: accent.accent, backgroundColor: accent.skin }]}
                   onPress={() => toggleServiceFilter(chip.keys)}
                 >
-                  <View style={[styles.checkbox, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}>
+                  <View style={[styles.checkbox, { borderRadius: 99 }, isSelected && { backgroundColor: accent.accent, borderColor: accent.accent }]}>
                     {isSelected && <Ionicons name="checkmark" size={13} color={accent.on} />}
                   </View>
                   <Text style={styles.filterOptionLabel}>{t(chip.labelKey, { defaultValue: chip.label })}</Text>

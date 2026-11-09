@@ -24,6 +24,8 @@ export interface OrderItemLine {
   name: string;
   quantity: number;
   price: number;
+  /** The customer's note for the kitchen on this dish (e.g. "Don't make it too spicy"). */
+  cookingRequest?: string;
 }
 
 export interface OrderStop {
