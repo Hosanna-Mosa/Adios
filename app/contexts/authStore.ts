@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { clearRefreshToken, clearToken, loadRefreshToken, loadToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
 import { router } from "expo-router";
 
 // The API URL should be retrieved from app.json/Constants
@@ -17,6 +18,9 @@ export interface AuthState {
   error: string | null;
   /** True once initializeAuth() has completed — used to gate navigation */
   isInitialized: boolean;
+  /** Set when the server ended the session (401), so the sign-in screen can say why. Cleared once shown. */
+  sessionExpired: boolean;
+  clearSessionExpired: () => void;
   /**
    * True once the customer tapped Skip on Login/Sign up: they browse without an
    * account and are asked to sign in only when an action needs one (placing an
@@ -58,6 +62,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   loading: false,
   error: null,
   isInitialized: false,
+  sessionExpired: false,
+  clearSessionExpired: () => set({ sessionExpired: false }),
   guestMode: false,
 
   continueAsGuest: () => set({ guestMode: true }),
@@ -73,13 +79,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setToken: (token) => {
     resetSessionExpiry();
-    set({ token });
-    AsyncStorage.setItem("token", token);
+    set({ token, sessionExpired: false });
+    saveToken(token).catch((err) => console.warn("Failed to persist token", err));
   },
 
   setTokens: async ({ token, refreshToken }) => {
     set({ token, refreshToken });
-    await Promise.all([AsyncStorage.setItem("token", token), AsyncStorage.setItem("refreshToken", refreshToken)]);
+    await Promise.all([saveToken(token), saveRefreshToken(refreshToken)]);
   },
 
   toggleFavorite: async (restaurantId: string) => {
@@ -147,7 +153,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   /**
    * Called once on app start (inside _layout.tsx).
-   * Reads the persisted token & user from AsyncStorage and marks
+   * Reads the persisted token (secure storage) & user (AsyncStorage) and marks
    * isInitialized=true as soon as they are read, so the layout can redirect
    * without waiting on the network. The saved profile is then refreshed in
    * the background (see refreshProfileInBackground below).
@@ -155,9 +161,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeAuth: async () => {
     try {
       const [token, userStr, refreshToken] = await Promise.all([
-        AsyncStorage.getItem("token"),
+        loadToken(),
         AsyncStorage.getItem("user"),
-        AsyncStorage.getItem("refreshToken"),
+        loadRefreshToken(),
       ]);
 
       if (token && userStr) {
@@ -177,6 +183,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (isSessionExpiryHandled() || !get().token) return false;
     markSessionExpiryHandled();
     void get().logout();
+    set({ sessionExpired: true });
     return true;
   },
 
@@ -198,8 +205,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ user: null, token: null, refreshToken: null, error: null, loading: false, guestMode: false });
     try {
       await Promise.all([
-        AsyncStorage.removeItem("token"),
-        AsyncStorage.removeItem("refreshToken"),
+        clearToken(),
+        clearRefreshToken(),
         AsyncStorage.removeItem("user"),
       ]);
     } finally {
@@ -248,10 +255,10 @@ async function refreshProfileInBackground(
       // expired or revoked token, or a user that no longer exists. A 403
       // means authenticated-but-not-permitted and a 404 means the route
       // moved; neither is a reason to throw the session away.
-      set({ token: null, refreshToken: null, user: null });
+        set({ token: null, refreshToken: null, user: null, sessionExpired: true });
       await Promise.all([
-        AsyncStorage.removeItem("token"),
-        AsyncStorage.removeItem("refreshToken"),
+        clearToken(),
+        clearRefreshToken(),
         AsyncStorage.removeItem("user"),
       ]);
     }

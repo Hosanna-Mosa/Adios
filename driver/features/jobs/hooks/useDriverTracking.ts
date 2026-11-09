@@ -2,7 +2,7 @@ import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
 import type MapView from "react-native-maps";
 
-import { socketService } from "@/utils/socketService";
+import { LOCATION_FAST_INTERVAL_MS, syncDriverLocation } from "@/utils/locationSync";
 import { fitMapToCoords, stopCoords, type LatLng } from "../mapFit";
 
 /** Live GPS + compass for the driver marker, plus the initial map framing. */
@@ -26,6 +26,10 @@ export function useDriverTracking(
     let locationSub: Location.LocationSubscription | null = null;
     let headingSub: Location.LocationSubscription | null = null;
 
+    // Set on unmount: the screen can close while a permission/GPS call is still pending,
+    // and the subscriptions made after that would never be removed.
+    let cancelled = false;
+
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -33,7 +37,15 @@ export function useDriverTracking(
         return;
       }
 
-      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      let loc: Location.LocationObject;
+      try {
+        loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      } catch (posErr) {
+        // GPS switched off or no fix yet: don't leave an unhandled rejection behind.
+        console.warn("[Location] Could not get a position:", posErr);
+        return;
+      }
+      if (cancelled) return;
       const initialLoc = { lat: loc.coords.latitude, lng: loc.coords.longitude };
       setDriverLocation(initialLoc);
       if (typeof loc.coords.heading === "number" && loc.coords.heading >= 0) {
@@ -71,17 +83,23 @@ export function useDriverTracking(
       if (p) coords.push(p);
       if (d) coords.push(d);
 
+      if (cancelled) {
+        locationSub?.remove();
+        headingSub?.remove();
+        return;
+      }
       setTimeout(() => fitMapToCoords(mapRef.current, coords, initialLoc, 0.03, 500), 500);
-    })();
+    })().catch((err) => console.warn("[Location] Tracking setup failed:", err));
 
     return () => {
+      cancelled = true;
       locationSub?.remove();
       headingSub?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrder]);
 
-  // Throttle broadcasting compass heading changes.
+  // Report position + heading during the job (the shared helper throttles).
   const lastHeadingSent = useRef<number>(0);
   const lastHeadingTime = useRef<number>(Date.now());
   useEffect(() => {
@@ -93,15 +111,11 @@ export function useDriverTracking(
     ) {
       lastHeadingSent.current = driverHeading;
       lastHeadingTime.current = now;
-      socketService.emit("driver_location_update", {
-        driverId: driverPhone || "driver-123",
-        lat: driverLocation.lat,
-        lng: driverLocation.lng,
-        heading: driverHeading,
-        orderId: currentOrder.id,
+      syncDriverLocation(driverLocation.lat, driverLocation.lng, driverHeading, {
+        minIntervalMs: LOCATION_FAST_INTERVAL_MS,
       });
     }
-  }, [driverHeading, driverLocation, currentOrder, driverPhone]);
+  }, [driverHeading, driverLocation, currentOrder]);
 
   return { driverLocation, setDriverLocation, driverHeading, setDriverHeading, mapRef };
 }

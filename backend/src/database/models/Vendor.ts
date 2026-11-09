@@ -53,6 +53,11 @@ export interface IVendor extends Document {
   // Short lock so two payout requests can't both pass the balance check.
   payoutLockUntil?: Date | null;
   partnerType?: "food" | "meat";
+  // Bumped on password change or an onboardingStatus change via admin update, so
+  // already-issued tokens (which carry the version they were minted with) stop
+  // passing authenticateToken's check once the account's access situation changes
+  // — mirrors User.tokenVersion. See IAM-002 in TESTING_REPORT/02_FINDINGS_REGISTER.md.
+  tokenVersion?: number;
   owner?: {
     name?: string;
     email?: string;
@@ -74,6 +79,8 @@ export interface IVendor extends Document {
     formattedAddress?: string;
   };
   image: string;
+  /** Wide banner shown at the top of the outlet's page; set from the partner app. */
+  coverImage?: string;
   rating: number;
   reviews: string;
   categories: string[];
@@ -143,6 +150,8 @@ export interface IVendor extends Document {
    * NOT move the searchable `location` pin.
    */
   currentLocation?: { lat: number; lng: number; address?: string };
+  /** Set when the partner deleted their own account; the record is anonymised (see partner-account-deletion.service). */
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -224,6 +233,7 @@ const VendorSchema: Schema = new Schema(
       enum: ["food", "meat"],
       default: "food",
     },
+    tokenVersion: { type: Number, default: 0 },
     owner: {
       name: { type: String },
       email: { type: String },
@@ -252,6 +262,7 @@ const VendorSchema: Schema = new Schema(
       formattedAddress: { type: String },
     },
     image: { type: String },
+    coverImage: { type: String },
     rating: { type: Number, default: 0 },
     reviews: { type: String, default: "0" },
     categories: { type: [String], default: [] },
@@ -334,8 +345,20 @@ const VendorSchema: Schema = new Schema(
     expoPushTokens: { type: [String], default: [] },
     branchCode: { type: String, trim: true },
     currentLocation: { type: currentLocationSchema, default: undefined },
+    deletedAt: { type: Date },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Never send the bcrypt hash to a client. Orders populate their vendor and
+    // are serialized through res.json for customers and drivers alike. .lean()
+    // reads skip this — public endpoints run theirs through toPublicVendor.
+    toJSON: {
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret.password;
+        return ret;
+      },
+    },
+  }
 );
 
 // Hash password before saving

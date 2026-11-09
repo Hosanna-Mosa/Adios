@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,8 +6,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { adminFetch } from "@/lib/api-client";
-import { socketService } from "@/lib/socketService";
 import { ensureWebPushSubscribed } from "@/lib/webPush";
+
+// How often the bell re-reads the list and unread count while the tab is
+// visible — in place of the old "new_notification" socket event.
+const NOTIFICATIONS_REFRESH_MS = 30_000;
 
 interface NotificationItem {
   _id: string;
@@ -42,7 +45,12 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
 
-  const fetchAll = async () => {
+  // Skips a poll while the previous one is still in flight, so a slow
+  // network never stacks requests up.
+  const isFetchingRef = useRef(false);
+  const fetchAll = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const [list, count] = await Promise.all([
         adminFetch<NotificationItem[]>("/notifications"),
@@ -52,21 +60,29 @@ export function NotificationBell() {
       setUnreadCount(count?.unreadCount || 0);
     } catch (err) {
       console.error("[NotificationBell] Failed to fetch notifications:", err);
+    } finally {
+      isFetchingRef.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAll();
     ensureWebPushSubscribed();
 
-    socketService.connect();
-    const handleNew = (notification: NotificationItem) => {
-      setItems((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
+    // Poll only while the tab is visible, and catch up straight away when the
+    // user comes back to it.
+    const interval = window.setInterval(() => {
+      if (!document.hidden) fetchAll();
+    }, NOTIFICATIONS_REFRESH_MS);
+    const handleVisibilityChange = () => {
+      if (!document.hidden) fetchAll();
     };
-    socketService.on("new_notification", handleNew);
-    return () => socketService.off("new_notification", handleNew);
-  }, []);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchAll]);
 
   const handleOpenItem = async (item: NotificationItem) => {
     if (!item.isRead) {

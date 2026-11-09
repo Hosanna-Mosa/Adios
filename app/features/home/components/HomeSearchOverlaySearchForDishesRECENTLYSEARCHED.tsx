@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import Animated, { Easing, withTiming } from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
@@ -8,6 +9,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { useHomeStore } from "@/contexts/homeStore";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 // Section of HomeSearchOverlaySearchForDishes, split out to keep every file under 150 lines.
 // The JSX is unchanged and the props keep the parent's types.
@@ -38,6 +41,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
   tokens,
 }: Props) {
   const { t } = useTranslation();
+  const loadError = useHomeStore((s) => s.loadError);
   return (
     <>
     {!searchText ? (
@@ -45,7 +49,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
         {recentSearches.length > 0 && (
           <View style={{ marginBottom: 24 }}>
             <View style={styles.searchSectionHeadRow}>
-              <Text style={styles.searchSectionTitle}>RECENTLY SEARCHED</Text>
+              <Text style={styles.searchSectionTitle}>{t("app.home.recentlySearched")}</Text>
               <TouchableOpacity onPress={clearRecentSearches}><Text style={styles.searchClearLink}>{t("app.home.clear")}</Text></TouchableOpacity>
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
@@ -59,7 +63,7 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
           </View>
         )}
         <View style={{ marginBottom: 24 }}>
-          <Text style={styles.searchSectionTitle}>RECOMMENDED</Text>
+          <Text style={styles.searchSectionTitle}>{t("app.home.recommended")}</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
             {["Biryani", "Pizza", "Burger", "Chinese", "Desserts"].map((rec, i) => (
               <TouchableOpacity key={i} style={styles.searchSuggestChip} onPress={() => setSearchText(rec)}>
@@ -101,6 +105,9 @@ export function HomeSearchOverlaySearchForDishesRECENTLYSEARCHED({
               <Text style={styles.emptySearchTitle}>{t("app.home.searching")}</Text>
               <Text style={styles.emptySearchSubtitle}>{t("app.home.lookingForVarAcrossNearbyMenus", { value: searchText.trim() })}</Text>
             </View>
+          ) : loadError ? (
+            // The search request failed — "No results found" would be the wrong answer.
+            <ErrorState />
           ) : (
             <View style={styles.emptySearchContainer}>
               <View style={styles.emptyIconCircle}>

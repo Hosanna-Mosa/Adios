@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as Location from "expo-location";
-import { showAlert } from "@/components/ui/AppAlert";
+import { showPermissionAlert } from "@/components/ui/AppAlert";
 import { useToast } from "@/components/ui/Toast";
 import type { OutletLocation } from "@/types/models";
 
@@ -29,7 +29,7 @@ export function useCurrentLocation() {
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted) {
-        showAlert(t("editProfile.locationPermissionTitle"), t("editProfile.locationPermission"), undefined, "warning");
+        showPermissionAlert(t("editProfile.locationPermissionTitle"), t("editProfile.locationPermission"));
         return null;
       }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });

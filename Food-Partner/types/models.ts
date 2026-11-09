@@ -82,7 +82,7 @@ export interface ScheduledRequest {
   createdAt: string;
 }
 
-/** Pushed over the socket when a customer asks for a scheduled delivery. */
+/** A new scheduled-delivery request, as the alert sheet shows it — built from a polled request or a push. */
 export interface ScheduledRequestAlert {
   requestId: string;
   customerName?: string;
@@ -116,6 +116,7 @@ export interface SupportTicket {
 export interface PartnerProfile extends PartnerSession {
   address?: string;
   image?: string;
+  coverImage?: string; // wide banner at the top of the outlet's page
   /** Average customer rating; 0 until the outlet has reviews. */
   rating?: number;
   /** Review count — stored as a string on the backend model. */
@@ -151,6 +152,7 @@ export interface ProfileUpdate {
   email?: string;
   address?: string;
   image?: string;
+  coverImage?: string;
   branchCode?: string | null;
   currentLocation?: OutletLocation | null;
   openingHours?: WeekHours;
@@ -195,8 +197,3 @@ export interface PayoutRequestResult {
   message: string;
   payout: { id: string; amount: number; status: PayoutStatus };
 }
-
-/** What a push notification's `data` carries — set by backend orders.service.ts. */
-export type PushPayload =
-  | { kind: "new_order"; orderId: string; customerName?: string; totalPrice?: number }
-  | { kind: "scheduled_request"; requestId: string; customerName?: string; customerPhone?: string; scheduledFor?: string };

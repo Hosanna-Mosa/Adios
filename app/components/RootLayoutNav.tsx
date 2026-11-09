@@ -38,7 +38,6 @@ export function RootLayoutNav() {
         <Stack.Screen name="delivery/entry" />
         <Stack.Screen name="delivery/add-stop" />
         <Stack.Screen name="delivery/checkout" />
-        <Stack.Screen name="cart" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="checkout" />
         <Stack.Screen name="payment" />
         {/* Back from tracking goes Home (see goHomeFromTracking); a swipe would pop

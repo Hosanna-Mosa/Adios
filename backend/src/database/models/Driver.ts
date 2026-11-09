@@ -36,6 +36,13 @@ export interface IDriver extends Document {
     type: string;
     coordinates: number[];
   };
+  // When the driver's app last reported a location (socket or REST). A
+  // minimised app keeps posting over REST with no live socket, so dispatch uses
+  // this to tell "backgrounded but alive" apart from "app killed".
+  lastLocationAt?: Date;
+  // Compass bearing (0-360) from the latest location ping, so a polling customer
+  // app can rotate the driver marker without the socket relay.
+  heading?: number;
   // Onboarding fields
   onboardingStatus: OnboardingStatus;
   gender?: "male" | "female";
@@ -116,6 +123,8 @@ const DriverSchema: Schema = new Schema(
         default: [0, 0],
       },
     },
+    lastLocationAt: { type: Date },
+    heading: { type: Number },
     // Onboarding fields
     onboardingStatus: {
       type: String,
@@ -167,6 +176,22 @@ const DriverSchema: Schema = new Schema(
 
 DriverSchema.index({ currentLocation: "2dsphere" });
 
+// Online time: a stretch starts when the status becomes ONLINE and ends when it stops being ONLINE; a
+// save of a driver who stays online (a location ping) keeps the stretch alive. Never blocks the save.
+DriverSchema.pre("save", async function () {
+  try {
+    const driver = this as unknown as IDriver;
+    const { markDriverOnline, markDriverOffline, touchDriverOnline } = await import("./DriverOnlineSession");
+    if (driver.isNew || driver.isModified("status")) {
+      if (driver.status === DriverStatus.ONLINE) await markDriverOnline(driver._id);
+      else if (!driver.isNew) await markDriverOffline(driver._id);
+    } else if (driver.status === DriverStatus.ONLINE) {
+      await touchDriverOnline(driver._id);
+    }
+  } catch (error) {
+    console.warn("[Driver] Could not record online time:", (error as Error)?.message);
+  }
+});
 // KYC and bank details are stored encrypted (see plugins/encryptedFields.ts). Never filter
 // or aggregate on these paths: the stored value is ciphertext with a random IV.
 export const DRIVER_ENCRYPTED_PATHS = [

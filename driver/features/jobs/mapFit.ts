@@ -57,6 +57,9 @@ export function calculateBearing(lat1: number, lng1: number, lat2: number, lng2:
 }
 
 export function stopCoords(stop: any): LatLng | null {
-  if (!stop) return null;
-  return { latitude: Number(stop.lat), longitude: Number(stop.lng) };
+  if (!stop || stop.lat == null || stop.lng == null) return null;
+  const latitude = Number(stop.lat);
+  const longitude = Number(stop.lng);
+  // A NaN coordinate handed to the native map crashes the app on Android.
+  return Number.isFinite(latitude) && Number.isFinite(longitude) ? { latitude, longitude } : null;
 }

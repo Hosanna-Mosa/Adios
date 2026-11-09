@@ -37,8 +37,12 @@ import {
   ShieldCheck,
   BadgeCheck,
   BadgePercent,
+  UtensilsCrossed,
   HandHelping,
   Bot,
+  ScrollText,
+  Megaphone,
+  FileDown,
   PackageSearch,
 } from "lucide-react";
 
@@ -64,7 +68,11 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.zones"), url: "/zones", icon: Map },
     { title: t("sidebar.helperPricing"), url: "/helper-pricing", icon: HandHelping },
     { title: t("sidebar.payments"), url: "/payments", icon: CreditCard },
+    { title: t("sidebar.payouts"), url: "/payouts", icon: Banknote },
+    { title: t("sidebar.refunds"), url: "/refunds", icon: Undo2 },
     { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
+    { title: t("sidebar.liveActivity"), url: "/live-activity", icon: Activity },
+    { title: t("sidebar.itemInsights"), url: "/item-insights", icon: UtensilsCrossed },
     { title: t("sidebar.support"), url: "/support", icon: Headphones },
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
@@ -74,6 +82,9 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
     { title: t("sidebar.banners"), url: "/banners", icon: Image },
+    { title: t("sidebar.broadcasts"), url: "/broadcasts", icon: Megaphone },
+    { title: t("sidebar.reports"), url: "/reports", icon: FileDown },
+    { title: t("sidebar.auditLog"), url: "/audit-log", icon: ScrollText },
   ];
 }
 
@@ -120,6 +131,12 @@ export function AppSidebar() {
     "/restaurant-verification": vendorQueue?.counts.submitted || 0,
   };
 
+  // The most specific entry wins, so "/support/chats" lights up Active Chats and not Support too.
+  const activeUrl = visibleNavItems
+    .map((item) => item.url)
+    .filter((url) => location.pathname === url || location.pathname.startsWith(`${url}/`))
+    .sort((x, y) => y.length - x.length)[0];
+
   const handleLogout = () => {
     logoutOnServer();
     clearSession();
@@ -146,28 +163,28 @@ export function AppSidebar() {
 
         <motion.nav
           className="mt-2 flex flex-col gap-0.5"
-          initial="hidden"
+          initial={false}
           animate="visible"
           variants={staggerContainer}
         >
           {visibleNavItems.map((item) => {
-            const isActive = location.pathname.startsWith(item.url);
+            const isActive = item.url === activeUrl;
             return (
               <motion.div key={item.url} variants={fadeInUp}>
                 <Link
                   to={item.url}
-                  className={`flex items-center justify-between pl-6 pr-4 py-2.5 text-sm transition-colors rounded-r-full mr-4 ${
+                  className={`flex items-center justify-between gap-2 pl-6 pr-4 py-2.5 text-sm leading-snug transition-colors rounded-r-full mr-4 ${
                     isActive
                       ? "bg-brand-teal-soft text-brand-teal font-bold"
                       : "text-sidebar-foreground hover:bg-muted/50 font-medium"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
+                  <div className="flex min-w-0 items-center gap-3">
+                    <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? "text-brand-teal" : "text-muted-foreground"}`} />
                     <span>{item.title}</span>
                   </div>
                   {badgeCounts[item.url] > 0 && (
-                    <span className="text-[10px] font-bold bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
+                    <span className="shrink-0 text-[10px] font-bold tabular-nums bg-brand-teal-tint text-brand-teal px-2 py-0.5 rounded-full border border-brand-teal/10">
                       {badgeCounts[item.url]}
                     </span>
                   )}

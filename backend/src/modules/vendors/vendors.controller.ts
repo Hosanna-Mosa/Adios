@@ -26,47 +26,33 @@ import {
   missingDocumentFields,
   toVendorKycFields,
 } from "./vendor-verification.service";
+import { UserRole } from "../../database/models/User";
 
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const toSearchTokens = (term: string) => term.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 6);
-
-const matchesAnyToken = (value: unknown, tokens: string[]) => {
-  if (typeof value !== "string" || !value) return false;
-  const haystack = value.toLowerCase();
-  return tokens.some((token) => haystack.includes(token));
-};
-
-/** Vendor identity match — name, cuisines and address. */
-const vendorTextMatches = (vendor: any, tokens: string[]) =>
-  matchesAnyToken(vendor?.name, tokens) ||
-  matchesAnyToken(vendor?.address, tokens) ||
-  (Array.isArray(vendor?.categories) &&
-    vendor.categories.some((category: unknown) => matchesAnyToken(category, tokens)));
+/** Vendor identity — name, address and cuisines. */
+const vendorIdentityFields = (vendor: any): unknown[] => [
+  vendor?.name,
+  vendor?.address,
+  ...(Array.isArray(vendor?.categories) ? vendor.categories : []),
+];
 
 /**
  * Menus captured during onboarding live on the vendor document instead of the
- * FoodItem collection, so a dish word has to be looked for in both places.
+ * FoodItem collection, so a dish has to be looked for in both places. A dish
+ * matches when every typed word starts a word in it or in the vendor's identity.
  */
 const onboardedMenuMatches = (vendor: any, tokens: string[]) => {
   const operations = vendor?.operations || {};
   const menuCategories = Array.isArray(operations.menuCategories) ? operations.menuCategories : [];
   const uploadedRows = Array.isArray(operations.menuUploadRows) ? operations.menuUploadRows : [];
-
-  const categoryMatch = menuCategories.some(
-    (category: any) =>
-      matchesAnyToken(category?.name, tokens) ||
-      (Array.isArray(category?.items) &&
-        category.items.some(
-          (item: any) => matchesAnyToken(item?.name, tokens) || matchesAnyToken(item?.description, tokens)
-        ))
-  );
+  const identity = vendorIdentityFields(vendor);
 
   return (
-    categoryMatch ||
-    uploadedRows.some(
-      (row: any) => matchesAnyToken(row?.itemName, tokens) || matchesAnyToken(row?.category, tokens)
-    )
+    menuCategories.some((category: any) =>
+      Array.isArray(category?.items) && category.items.length > 0
+        ? category.items.some((item: any) => allTokensIn([item?.name, item?.description, category?.name, ...identity], tokens))
+        : allTokensIn([category?.name, ...identity], tokens)
+    ) ||
+    uploadedRows.some((row: any) => allTokensIn([row?.itemName, row?.category, ...identity], tokens))
   );
 };
 
@@ -82,16 +68,25 @@ const filterVendorsBySearch = async (vendors: any[], term: string) => {
   const menuMatches = await FoodItem.find({
     vendorId: { $in: vendors.map((vendor) => vendor._id) },
     isAvailable: true,
+    // Broad prefilter (any word, anywhere); allTokensIn below is the real test.
     $or: [{ name: { $in: patterns } }, { category: { $in: patterns } }, { description: { $in: patterns } }],
   })
-    .select("vendorId")
+    .select("vendorId name category description")
     .lean();
 
-  const vendorIdsWithMatchingDish = new Set(menuMatches.map((item: any) => String(item.vendorId)));
+  const vendorsById = new Map(vendors.map((vendor) => [String(vendor._id), vendor]));
+  const vendorIdsWithMatchingDish = new Set(
+    menuMatches
+      .filter((item: any) => {
+        const vendor = vendorsById.get(String(item.vendorId));
+        return allTokensIn([item.name, item.category, item.description, ...vendorIdentityFields(vendor)], tokens);
+      })
+      .map((item: any) => String(item.vendorId))
+  );
 
   return vendors.filter(
     (vendor) =>
-      vendorTextMatches(vendor, tokens) ||
+      allTokensIn(vendorIdentityFields(vendor), tokens) ||
       vendorIdsWithMatchingDish.has(String(vendor._id)) ||
       onboardedMenuMatches(vendor, tokens)
   );
@@ -113,7 +108,8 @@ export const forgotVendorPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await Vendor.findOne({ email }).collation({ locale: "en", strength: 2 });
+    if (!vendor) console.warn(`[forgot-password] no restaurant account with email "${email}"`);
     if (vendor) {
       // Generate OTP and save
       const otp = generateOTP();
@@ -169,12 +165,14 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
     await otpRecord.save();
 
     // Update password
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await Vendor.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (!vendor) {
       return res.status(404).json({ message: "Account not found" });
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
     await revokeAllRefreshSessions(vendor._id.toString());
 
@@ -185,7 +183,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const getNearbyVendors = async (req: Request, res: Response) => {
+export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
   try {
     const { lat, lng, page = 1, limit = 20, radius, minRating, sort, openNow, search } = req.query;
 
@@ -224,6 +222,8 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     // Build spatial match query enforcing active zone boundaries
     const geoQuery: any = {
       partnerType: { $ne: "meat" },
+      // A deleted partner account (partner-account-deletion.service) never reaches customers.
+      deletedAt: { $exists: false },
       // Applications still in review (or turned down) must not reach customers.
       // Admin-created and legacy vendors carry no onboardingSource and are unaffected.
       $nor: [
@@ -351,7 +351,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
 export const getVendorById = async (req: Request, res: Response) => {
   try {
     const vendor = await Vendor.findById(req.params.id).lean();
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+    if (!vendor || vendor.deletedAt) return res.status(404).json({ message: "Vendor not found" });
     // openState carries today's window and the full week so the details screen can
     // show real timings instead of a hardcoded "Open now".
     const openState = evaluateOutletOpenState(vendor);
@@ -419,8 +419,8 @@ export const loginVendor = async (req: Request, res: Response) => {
         role: vendorRole,
         partnerType: vendor.partnerType || "food",
         ...(refresh
-          ? await startSession({ subjectId: vendor._id.toString(), role: vendorRole })
-          : { token: generateToken(vendor._id.toString(), vendorRole) }),
+          ? await startSession({ subjectId: vendor._id.toString(), role: vendorRole, tokenVersion: vendor.tokenVersion ?? 0 })
+          : { token: generateToken(vendor._id.toString(), vendorRole, vendor.tokenVersion ?? 0) }),
       });
     } else {
       res.status(401).json({ message: "Invalid email/phone or password" });
@@ -647,10 +647,13 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
     // (name, address, bank account) and, by sending portalPassword, reset their
     // portal password and sign in as them.
     const existing = await Vendor.findOne(matchQuery)
-      .select("onboardingStatus password")
+      .select("onboardingStatus onboardingSource password")
       .lean();
 
-    if (existing && existing.onboardingStatus && existing.onboardingStatus !== "draft") {
+    // Only a draft this form started can be resumed. Admin-created vendors keep
+    // the default "draft" status while live, so the status check alone would
+    // still let anyone overwrite them; onboardingSource marks the form's own records.
+    if (existing && (existing.onboardingStatus !== "draft" || existing.onboardingSource !== "partner_website")) {
       return res.status(409).json({
         message:
           "An account already exists for this phone number or email. Please sign in to the partner portal, or contact support to update your details.",
@@ -714,6 +717,7 @@ export const saveVendorOnboarding = async (req: Request, res: Response) => {
 };
 
 import axios from "axios";
+import { allTokensIn, escapeRegex, toSearchTokens } from "../food/food.search";
 
 export const searchGooglePlaces = async (req: Request, res: Response) => {
   try {
@@ -847,6 +851,8 @@ export const changeVendorPassword = async (req: AuthRequest, res: Response) => {
     }
 
     vendor.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
     await revokeAllRefreshSessions(vendor._id.toString());
 
@@ -907,7 +913,11 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (name !== undefined) vendor.name = name;
     if (email !== undefined) vendor.email = email;
     if (phone !== undefined) vendor.phone = phone;
-    if (password) vendor.password = password; // pre-save hook will hash it
+    if (password) {
+      vendor.password = password; // pre-save hook will hash it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+    }
     if (googlePlaceId !== undefined) vendor.googlePlaceId = googlePlaceId;
     if (location !== undefined) vendor.location = location;
     if (address !== undefined) vendor.address = address;
@@ -920,7 +930,15 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (deliveryFee !== undefined) vendor.deliveryFee = deliveryFee;
     if (minOrderValue !== undefined) vendor.minOrderValue = minOrderValue;
     const previousOnboardingStatus = vendor.onboardingStatus;
-    if (onboardingStatus !== undefined) vendor.onboardingStatus = onboardingStatus;
+    if (onboardingStatus !== undefined) {
+      vendor.onboardingStatus = onboardingStatus;
+      if (onboardingStatus !== previousOnboardingStatus) {
+        // The vendor's access situation just changed (e.g. approved -> rejected) —
+        // an already-issued token should not keep working regardless of the new
+        // status. See IAM-002.
+        vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
+      }
+    }
     if (commissionRate !== undefined) vendor.commissionRate = commissionRate;
 
     await vendor.save();
@@ -1105,4 +1123,3 @@ export const requestVendorPayout = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-

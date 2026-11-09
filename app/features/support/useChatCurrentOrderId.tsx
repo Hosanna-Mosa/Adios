@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { socketService } from "@/utils/socketService";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import { RIDE_TYPES, createStyles, toChatMessage } from "./useChat.shared";
 import i18n from "@/i18n";
@@ -52,7 +51,7 @@ export function useChatCurrentOrderId() {
   const orderId = params.orderId || currentOrderId;
   const hydratedFor = useRef<string | null>(null);
 
-  // The server records the confirmation and tells the helper (assign_task_confirmed).
+  // The server records the confirmation and tells the helper.
   const handleAssignTask = async () => {
     if (!orderId) return;
     setTaskAssigned(true);
@@ -64,16 +63,6 @@ export function useChatCurrentOrderId() {
       showAlert(i18n.t("actions.error"), i18n.t("app.chat.couldNotConfirmTask"));
     }
   };
-
-  // Confirmed from another device (or this one, echoed back) — only for this order.
-  useEffect(() => {
-    if (!orderId) return;
-    const onConfirmed = (data: any) => {
-      if (data?.orderId && String(data.orderId) === String(orderId)) setTaskAssigned(true);
-    };
-    socketService.on("assign_task_confirmed", onConfirmed);
-    return () => socketService.off("assign_task_confirmed", onConfirmed);
-  }, [orderId]);
 
   useEffect(() => {
     if (!orderId) {
@@ -112,8 +101,8 @@ export function useChatCurrentOrderId() {
       .then((history) => {
         if (cancelled) return;
         const stored = (history || []).map(toChatMessage);
-        // Anything that arrived over the socket while this was in flight stays:
-        // merged by id, which the server now persists as `clientId`.
+        // Anything sent or polled while this was in flight stays: merged by id,
+        // which the server returns as the sender's clientId.
         const live = useDeliveryStore.getState().activeChat;
         const seen = new Set(stored.map((m) => m.id));
         setChatMessages([...stored, ...live.filter((m: any) => !seen.has(m.id))]);

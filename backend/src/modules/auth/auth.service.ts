@@ -8,7 +8,17 @@ import EmailOtp from "../../database/models/EmailOtp";
 import { sendEmail } from "../../services/email.service";
 import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
-import { isSelfSignupRole, isAdminPhone, OTP_ROLE_NOT_ALLOWED_MESSAGE, ACCOUNT_BLOCKED_MESSAGE } from "../../config/auth.config";
+import {
+  isSelfSignupRole,
+  isAdminPhone,
+  isDummyOtpEnabled,
+  OTP_ROLE_NOT_ALLOWED_MESSAGE,
+  OTP_UNAVAILABLE_MESSAGE,
+  ACCOUNT_BLOCKED_MESSAGE,
+} from "../../config/auth.config";
+import { deleteOwnAccount } from "../users/account-deletion.service";
+import { deleteOwnPartnerAccount, findPartnerBySignIn } from "../vendors/partner-account-deletion.service";
+import { maskPhone } from "../../utils/logMask";
 
 function buildLoginIdentifierQuery(identifier: string) {
   const trimmed = identifier.trim();
@@ -51,6 +61,9 @@ function buildLoginIdentifierQuery(identifier: string) {
 // email addresses are registered.
 const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
 
+/** Roles that sign in to the admin panel; their sessions are kept short (generateToken). */
+const STAFF_SESSION_ROLES: readonly UserRole[] = [UserRole.ADMIN, UserRole.SUPPORT];
+
 // A cost-10 bcrypt digest of 24 random bytes whose preimage was never recorded,
 // so no password can ever match it. Comparing against it when the account does
 // not exist keeps the failure path in the same timing band as a wrong password,
@@ -68,7 +81,15 @@ const EMAIL_TAKEN_MESSAGE = "This email is already registered. Sign in instead, 
  */
 async function startDriverSessionOffline(user: { _id: unknown; role: UserRole }) {
   if (user.role !== UserRole.DRIVER) return;
-  await Driver.updateOne({ user: String(user._id) }, { $set: { status: DriverStatus.OFFLINE, isAvailable: false } });
+  const driver = await Driver.findOneAndUpdate(
+    { user: String(user._id) },
+    { $set: { status: DriverStatus.OFFLINE, isAvailable: false } },
+    { projection: { _id: 1 } },
+  ).lean();
+  if (driver) {
+    const { markDriverOffline } = await import("../../database/models/DriverOnlineSession");
+    await markDriverOffline(driver._id).catch((err) => console.warn("[auth] Could not close online time:", err?.message));
+  }
 }
 
 // ── Email login codes and sign-up tickets ──────────────────────────────────────────
@@ -97,6 +118,11 @@ function nameFromEmail(email: string) {
 
 export class AuthService {
   async requestOTP(phone: string, email?: string) {
+    // No SMS provider is wired up yet, so outside dev there is no OTP to send.
+    if (!isDummyOtpEnabled()) {
+      throw new AppError(503, OTP_UNAVAILABLE_MESSAGE);
+    }
+
     // Checked before the OTP step so a sign-up with a taken email fails here,
     // not after the user has typed the code.
     if (email && (await User.exists({ email }))) {
@@ -104,13 +130,19 @@ export class AuthService {
     }
 
     // Dummy mode — log and return success (no SMS sent)
-    console.log(`[DUMMY AUTH] OTP requested for ${phone}. Any 6-digit code will work.`);
+    console.log(`[DUMMY AUTH] OTP requested for ${maskPhone(phone)}. Any 6-digit code will work.`);
     return { success: true, message: "OTP sent successfully" };
   }
 
   async verifyOTP(phone: string, _code: string, role: UserRole, name?: string, password?: string, email?: string, accessTtl = "30d") {
+    // Gated separately from requestOTP: a caller can post here without ever
+    // asking for a code, and this is the step that mints the session.
+    if (!isDummyOtpEnabled()) {
+      throw new AppError(503, OTP_UNAVAILABLE_MESSAGE);
+    }
+
     // Dummy mode — ANY code is accepted. No DB lookup needed.
-    console.log(`[DUMMY AUTH] Verifying OTP for ${phone}. Code: ${_code} — accepted.`);
+    console.log(`[DUMMY AUTH] Verifying OTP for ${maskPhone(phone)} — accepted.`);
 
     // verifyOtpSchema already rejects privileged roles; repeated here so the
     // guarantee survives a caller that reaches the service another way.
@@ -158,7 +190,7 @@ export class AuthService {
       await user.save();
 
       // Driver record will be created on first onboarding save (getOrCreateDriver)
-      console.log(`[DUMMY AUTH] New user created: ${name} (${phone}) with password and email ${email || ""}`);
+      console.log(`[DUMMY AUTH] New user created: ${user._id} (${maskPhone(phone)})`);
     }
 
     await startDriverSessionOffline(user);
@@ -278,6 +310,22 @@ export class AuthService {
     return { user, token, isNewUser: false };
   }
 
+  /** Customer sign-up without OTP: creates a USER account and signs it in. */
+  async register(name: string, phone: string, password: string, email?: string) {
+    if (await User.exists(buildLoginIdentifierQuery(phone))) {
+      throw new AppError(409, "This phone number is already registered. Sign in instead.");
+    }
+    if (email && (await User.exists({ email }))) {
+      throw new AppError(409, EMAIL_TAKEN_MESSAGE);
+    }
+
+    const user = new User({ name, phone, email, password, role: UserRole.USER });
+    await user.save();
+
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0);
+    return { user, token };
+  }
+
   async loginWithPassword(phoneOrEmail: string, password: string, role: UserRole, accessTtl = "30d") {
     const query = {
       ...buildLoginIdentifierQuery(phoneOrEmail),
@@ -314,6 +362,34 @@ export class AuthService {
     return { user, token };
   }
 
+  /**
+   * The web deletion request: proves ownership with the same credentials as
+   * sign-in, then anonymises the account. Fails the same way, and in the same
+   * time, for an unknown account as for a wrong password (see loginWithPassword).
+   */
+  async deleteAccountWithPassword(phoneOrEmail: string, password: string, role: UserRole | "PARTNER") {
+    if (role === "PARTNER") {
+      // Restaurant and meat-centre partners: their own collections, their own sign-in.
+      const found = await findPartnerBySignIn(phoneOrEmail);
+      const isMatch = found?.outlet.password
+        ? await found.outlet.matchPassword(password)
+        : await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+      if (!found || !isMatch || found.outlet.deletedAt) {
+        throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
+      }
+      return deleteOwnPartnerAccount(String(found.outlet._id), found.role, password);
+    }
+
+    const user = await User.findOne({ ...buildLoginIdentifierQuery(phoneOrEmail), role });
+    const isMatch = user?.password
+      ? await user.matchPassword(password)
+      : await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+    if (!user || !isMatch || user.deletedAt) {
+      throw new UnauthorizedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+    return deleteOwnAccount(String(user._id), password);
+  }
+
   async logoutAll(userId: string) {
     const user = await User.findByIdAndUpdate(
       userId,
@@ -336,7 +412,10 @@ export class AuthService {
       // logoutAll's tokenVersion bump does.
       { userId, role, tv: tokenVersion, jti: crypto.randomUUID() },
       getJwtSecret(),
-      { expiresIn: expiresIn as jwt.SignOptions["expiresIn"] } // 30 days unless the client signs in with a refresh token
+      // Staff sessions live in the admin panel's localStorage and can do far more
+      // with a leaked token, so they end after a working day. App sessions stay long
+      // (30 days unless the client signs in with a refresh token and gets a shorter one).
+      { expiresIn: (STAFF_SESSION_ROLES.includes(role) && expiresIn === "30d" ? "12h" : expiresIn) as jwt.SignOptions["expiresIn"] }
     );
   }
 

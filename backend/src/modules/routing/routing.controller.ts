@@ -7,7 +7,6 @@ export class RoutingController {
   async optimize(req: Request, res: Response) {
     const { origin, stops } = req.body;
 
-    console.log("Optimize Route Payload:", req.body);
     if (!origin || !stops || !Array.isArray(stops)) {
       return res.status(400).json({ message: "Origin coordinates and mapping are required" });
     }

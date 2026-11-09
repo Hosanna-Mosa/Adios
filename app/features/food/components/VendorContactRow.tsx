@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
 import { type RestaurantDetailsStyles } from "../restaurant-details.styles";
@@ -23,7 +24,7 @@ export function VendorContactRow({ vendor, onCall, onEmail, tokens, styles }: Pr
       {vendor?.phone && (
         <TouchableOpacity style={styles.contactCard} activeOpacity={0.85} onPress={() => onCall(vendor.phone)}>
           <Feather name="phone" size={15} color={tokens.sec} />
-          <View style={{ minWidth: 0 }}>
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.contactLabel}>Phone</Text>
             <Text style={styles.contactValue} numberOfLines={1}>{vendor.phone}</Text>
           </View>
@@ -32,9 +33,11 @@ export function VendorContactRow({ vendor, onCall, onEmail, tokens, styles }: Pr
       {vendor?.email && (
         <TouchableOpacity style={styles.contactCard} activeOpacity={0.85} onPress={() => onEmail(vendor.email!)}>
           <Feather name="mail" size={15} color={tokens.sec} />
-          <View style={{ minWidth: 0 }}>
+          {/* flex: 1 keeps a long address inside the card; the middle is elided so both
+              the name and the domain stay readable. */}
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.contactLabel}>Email</Text>
-            <Text style={styles.contactValue} numberOfLines={1}>{vendor.email}</Text>
+            <Text style={styles.contactValue} numberOfLines={1} ellipsizeMode="middle">{vendor.email}</Text>
           </View>
         </TouchableOpacity>
       )}

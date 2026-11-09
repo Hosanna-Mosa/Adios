@@ -198,7 +198,7 @@ describe("an online order", () => {
     mockGetPaymentMethod.mockReturnValue("online");
     const { place, v } = setup();
     await place();
-    expect(mockPayOnline).toHaveBeenCalledWith(256, expect.objectContaining({ serviceType: "delivery" }));
+    expect(mockPayOnline).toHaveBeenCalledWith(256, expect.objectContaining({ serviceType: "delivery" }), undefined);
     expect(mockPayOnline.mock.calls[0][1]).not.toHaveProperty("paymentMethod");
     expect(mockCreateOrder).not.toHaveBeenCalled();
     expect(v.setOrderId).toHaveBeenCalledWith("ADSF161026999999");

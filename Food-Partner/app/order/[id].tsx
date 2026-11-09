@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FullScreenLoader } from "@/components/ui/FullScreenLoader";
 import { Header } from "@/components/ui/Header";
+import { IconButton } from "@/components/ui/IconButton";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { Button } from "@/components/ui/Button";
 import { CustomerCard } from "@/features/orders/components/CustomerCard";
 import { DriverCard } from "@/features/orders/components/DriverCard";
 import { AcceptOrderFooter } from "@/features/orders/components/AcceptOrderFooter";
 import { MarkReadyFooter } from "@/features/orders/components/MarkReadyFooter";
+import { InvoiceRow } from "@/features/orders/components/InvoiceRow";
 import { OrderItemsCard } from "@/features/orders/components/OrderItemsCard";
 import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
 import { useOrderDetail } from "@/features/orders/useOrderDetail";
@@ -17,7 +19,13 @@ export default function OrderDetailScreen() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const d = useOrderDetail(String(id ?? ""));
-  const header = <Header title={t("orderDetail.title")} onBack={() => router.back()} />;
+  const header = (
+    <Header
+      title={t("orderDetail.title")}
+      onBack={() => router.back()}
+      right={<IconButton icon="refresh" accessibilityLabel={t("actions.refresh")} onPress={d.refresh} loading={d.refreshing} />}
+    />
+  );
 
   if (d.loading || !d.order) {
     return (
@@ -60,7 +68,7 @@ export default function OrderDetailScreen() {
       style={{ paddingTop: d.insets.top + 8 }}
       scroll
       refreshing={d.refreshing}
-      onRefresh={() => d.refetch()}
+      onRefresh={d.refresh}
       header={header}
       contentStyle={[d.styles.content, { paddingBottom: 24 + (footer ? 0 : d.insets.bottom) }]}
       footer={footer}
@@ -74,6 +82,7 @@ export default function OrderDetailScreen() {
         paymentStatus={d.order.paymentStatus}
         styles={d.styles}
       />
+      {d.canInvoice ? <InvoiceRow opening={d.openingInvoice} onPress={d.openInvoice} tokens={d.tokens} /> : null}
       <DriverCard
         hasDriver={d.hasDriver}
         awaitingAcceptance={d.needsAcceptance}

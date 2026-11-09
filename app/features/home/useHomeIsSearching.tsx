@@ -1,10 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { requestLocationPermission } from "@/utils/permissions";
 import { HomeBody } from "./components/HomeBody";
+import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
+import { type EdgeInsets } from "react-native-safe-area-context";
+import { type HomeStyles } from "./home.styles";
+import type { SetState, HomeService } from "./useHome.shared";
 
 // Split out of useHome so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
 
-export function useHomeIsSearching(restaurants: any, loading: any, store149Items: any, activeService: any, insets: any, searchText: any, searchQuery: any, appliedSearchTerm: any, setIsSearchActive: any, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: any, accent: any, styles: any, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: any, appliedDistanceKm: any, setDistanceRefreshKey: any, isSearchingDishes: any, filterFastDelivery: any, setFilterFastDelivery: any, filterOffers: any, setFilterOffers: any, filterMinRating: any, setFilterMinRating: any, filterOpenNow: any, setFilterOpenNow: any, filterCostRange: any, setFilterCostRange: any, filterVegNonVeg: any, setFilterVegNonVeg: any, selectedCuisines: any, setSelectedCuisines: any, setActiveFilterTab: any, setIsFilterModalVisible: any, handleServiceSwitch: any, showHomeSkeleton: any, visibleItems: any, filteredAndSortedItems: any, cuisineChips: any, showCategories: any, greetingAds: any, promoCards: any, areaLabel: any, areaLine: any, activeFilterCount: any, loadingFlags: { bannersLoading: boolean; store149Loading: boolean; cuisinesLoading: boolean }) {
+export function useHomeIsSearching(restaurants: any[], loading: boolean, store149Items: any[], activeService: HomeService, insets: EdgeInsets, searchText: string, searchQuery: string, appliedSearchTerm: string, setIsSearchActive: SetState<boolean>, carouselRef: any, bannerScrollX: any, bannerIndexRef: any, onBannerScroll: any, tokens: ThemeTokens, accent: ServiceTokens, styles: HomeStyles, searchBarAnimatedStyle: any, setSelectedAddress: any, setIsDistanceSheetOpen: SetState<boolean>, appliedDistanceKm: number | null, setDistanceRefreshKey: SetState<number>, isSearchingDishes: boolean, filterFastDelivery: boolean, setFilterFastDelivery: SetState<boolean>, filterOffers: boolean, setFilterOffers: SetState<boolean>, filterMinRating: number, setFilterMinRating: SetState<number>, filterOpenNow: boolean, setFilterOpenNow: SetState<boolean>, filterCostRange: string, setFilterCostRange: SetState<string>, filterVegNonVeg: string, setFilterVegNonVeg: SetState<string>, selectedCuisines: string[], setSelectedCuisines: SetState<string[]>, setActiveFilterTab: SetState<string>, setIsFilterModalVisible: SetState<boolean>, handleServiceSwitch: any, showHomeSkeleton: boolean, visibleItems: any[], filteredAndSortedItems: any[], cuisineChips: any[], showCategories: boolean, greetingAds: any[], promoCards: any[], areaLabel: string, areaLine: string, activeFilterCount: number, loadingFlags: { bannersLoading: boolean; store149Loading: boolean; cuisinesLoading: boolean }) {
   // True while the debounce or either search request is still in flight — the
   // window in which the list used to claim "No results found" prematurely.
   const isSearching =
@@ -17,6 +22,9 @@ export function useHomeIsSearching(restaurants: any, loading: any, store149Items
   // Re-attempts GPS from scratch: drops any saved address and the cached
   // "user denied GPS" flag, then nudges the address-loading effect to re-run.
   const handleUseCurrentLocation = async () => {
+    // Without this, a blocked permission made the button do nothing: the effect below
+    // re-ran, found location still denied, and put the same empty state back.
+    if (!(await requestLocationPermission())) return;
     try {
       await AsyncStorage.removeItem("gps_permission_denied");
       await AsyncStorage.removeItem("active_address");

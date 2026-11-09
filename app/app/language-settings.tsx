@@ -17,8 +17,8 @@ import { router } from "expo-router";
 export default function LanguageSettingsScreen() {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const language = useLanguageStore((s) => s.language);
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
@@ -28,11 +28,11 @@ export default function LanguageSettingsScreen() {
   };
 
   return (
-    <ScreenShell>
+    <ScreenShell style={{ paddingTop: insets.top }}>
       <Header
         title={t("app.profile.menuItems.language")}
-        onBack={() => router.back()}
-        style={{ paddingTop: insets.top + 4 }}
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
+        style={{ paddingTop: 12, paddingBottom: 12 }}
       />
       {/* The current language is marked, so the user sees what they'd be changing from. */}
       <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />

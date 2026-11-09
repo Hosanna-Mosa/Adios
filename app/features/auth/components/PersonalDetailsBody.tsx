@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { PersonalDetailsPhoneField } from "./PersonalDetailsPhoneField";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
+import { useKeyboardVisible } from "@/components/useKeyboardVisible";
 
 // Moved out of app/personal-details.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -17,7 +18,11 @@ interface Props {
   blurField: (field: string, value: string) => () => void;
   editField: any;
   email: string;
-  errors: Partial<Record<"name" | "username" | "email", string>>;
+  /** True once the email differs from the saved one — the API then needs the current password. */
+  emailChanged: boolean;
+  currentPassword: string;
+  setCurrentPassword: (value: string) => void;
+  errors: Partial<Record<"name" | "username" | "email" | "currentPassword", string>>;
   handleSave: () => void;
   insets: EdgeInsets;
   name: string;
@@ -36,6 +41,9 @@ export function PersonalDetailsBody({
   blurField,
   editField,
   email,
+  emailChanged,
+  currentPassword,
+  setCurrentPassword,
   errors,
   handleSave,
   insets,
@@ -51,9 +59,10 @@ export function PersonalDetailsBody({
 }: Props) {
   const { t } = useTranslation();
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const keyboardOpen = useKeyboardVisible();
   return (
     <>
-    <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 }} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
       <View style={{ gap: 12 }}>
         <Animated.View entering={staggerListItem(0)}>
           <Text style={styles.label}>{t("app.auth.fullName")}</Text>
@@ -103,6 +112,26 @@ export function PersonalDetailsBody({
           />
           {!!errors.email && <Text style={styles.fieldError}>{errors.email}</Text>}
         </Animated.View>
+        {emailChanged && (
+          <Animated.View entering={staggerListItem(0)}>
+            <Text style={styles.label}>{t("app.personaldetails.currentPassword")}</Text>
+            <TextInput
+              style={[styles.field, errors.currentPassword && styles.fieldInvalid]}
+              value={currentPassword}
+              onChangeText={editField("currentPassword", setCurrentPassword)}
+              placeholder={t("app.personaldetails.currentPasswordPlaceholder")}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete="current-password"
+              placeholderTextColor={tokens.muted}
+            />
+            {errors.currentPassword ? (
+              <Text style={styles.fieldError}>{errors.currentPassword}</Text>
+            ) : (
+              <Text style={styles.phoneHint}>{t("app.personaldetails.currentPasswordHint")}</Text>
+            )}
+          </Animated.View>
+        )}
         <Animated.View entering={staggerListItem(3)}>
           <Text style={styles.label}>{t("app.auth.phone")}</Text>
           <PersonalDetailsPhoneField
@@ -114,7 +143,7 @@ export function PersonalDetailsBody({
       </View>
     </ScrollView>
 
-    <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
+    <View style={[styles.footer, { paddingBottom: keyboardOpen ? 14 : insets.bottom + 14 }]}>
       <Button title={t("app.auth.updateProfile")} onPress={handleSave} loading={saving} fullWidth />
     </View>
     </>

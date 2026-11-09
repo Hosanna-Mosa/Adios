@@ -1,6 +1,7 @@
 import React from "react";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -60,6 +61,19 @@ export function RouteInputCard({
   const { t } = useTranslation();
   const isFocused = (type: string, id?: string) =>
     focusedInput?.type === type && (id === undefined || focusedInput?.id === id);
+  // With nothing focused, the first empty field is the active one: Pickup until
+  // it is set, then Drop. (Drop used to be highlighted even with no pickup.)
+  const defaultField: "pickup" | "drop" = pickup ? "drop" : "pickup";
+  const isActive = (type: "pickup" | "drop") => isFocused(type) || (!focusedInput && defaultField === type);
+
+  // Put the cursor in that field when the screen opens. Read through a ref: a
+  // pickup passed in the route params is set a moment after mount.
+  const pickupSetRef = React.useRef(pickup);
+  pickupSetRef.current = pickup;
+  React.useEffect(() => {
+    const timer = setTimeout(() => (pickupSetRef.current ? dropRef : pickupRef).current?.focus?.(), 500);
+    return () => clearTimeout(timer);
+  }, [pickupRef, dropRef]);
 
   const ClearButton = ({ type }: { type: "pickup" | "drop" }) => (
     <TouchableOpacity
@@ -89,8 +103,8 @@ export function RouteInputCard({
       </View>
 
       <View style={styles.inputsContainer}>
-        <View style={[styles.fieldSlot, isFocused("pickup") && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, isFocused("pickup") && { color: accent.accent }]}>{t("app.ride.pickupLabel")}</Text>
+        <View style={[styles.fieldSlot, isActive("pickup") && styles.fieldSlotActive]}>
+          <Text style={[styles.fieldLabel, isActive("pickup") && { color: accent.accent }]}>{t("app.ride.pickupLabel")}</Text>
           <GooglePlacesAutocomplete
             ref={pickupRef}
             placeholder={t("app.ride.pickupLocationPlaceholder")}
@@ -149,15 +163,15 @@ export function RouteInputCard({
                 enablePoweredByContainer={false}
                 debounce={200}
               />
-              <TouchableOpacity style={styles.clearFieldBtn} onPress={() => handleRemoveStop(stop.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <TouchableOpacity style={styles.clearFieldBtn} onPress={() => handleRemoveStop(stop.id)} accessibilityRole="button" accessibilityLabel={t("app.a11y.removeStop", { name: String(index + 1) })} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Ionicons name="close-circle" size={moderateScale(18)} color={tokens.muted} />
               </TouchableOpacity>
             </View>
           </View>
         ))}
 
-        <View style={[styles.fieldSlot, (isFocused("drop") || !focusedInput) && styles.fieldSlotActive]}>
-          <Text style={[styles.fieldLabel, (isFocused("drop") || !focusedInput) && { color: accent.accent }]}>{t("app.ride.dropLabel")}</Text>
+        <View style={[styles.fieldSlot, isActive("drop") && styles.fieldSlotActive]}>
+          <Text style={[styles.fieldLabel, isActive("drop") && { color: accent.accent }]}>{t("app.ride.dropLabel")}</Text>
           <GooglePlacesAutocomplete
             ref={dropRef}
             placeholder={t("app.ride.searchDestination")}

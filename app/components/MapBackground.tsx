@@ -6,6 +6,7 @@ import { MapDriverMarkers } from '@/components/MapDriverMarkers';
 import { MapLocationMarkers } from '@/components/MapLocationMarkers';
 import { StyleSheet, View, ViewStyle, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {  } from "@/components/ui/TrackedTouchable";
 import MapView, { PROVIDER_GOOGLE, type Region, type MapType, Marker, Polyline, Circle } from '@/components/maps';
 import { Feather } from '@expo/vector-icons';
 import { DeliveryStop } from '@/contexts/deliveryStore';
@@ -15,6 +16,7 @@ import Colors, { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { styles } from "@/components/MapBackground.styles";
 import { decodePolyline } from "@/components/mapBackground.utils";
+import { useMapStyle } from "@/components/useMapStyle";
 
 
 interface Props {
@@ -102,6 +104,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     validRouteStops, getRegionForLocation,
   } = useMapCamera({ ref, initialRegion, stops, driverLocation });
 
+  const mapStyle = useMapStyle();
+
   useMapEffects({
     initialRegion, stops, polyline, driverLocation, userLocation, onLocationUpdate,
     radiusCenter, radiusMeters, region, setRegion, setAutoRoutePolyline,
@@ -114,6 +118,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
       <MapView
         ref={internalMapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={region}
         onRegionChangeComplete={(r) => { setRegion(r); onRegionSettled?.(r); }}

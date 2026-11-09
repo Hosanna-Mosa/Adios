@@ -13,12 +13,13 @@ import { rupees } from "@/features/money/moneyTypes";
 export default function Payouts() {
   const { t } = useTranslation();
   const {
-    payouts, filtered, isLoading, filter, setFilter, paying, setPaying, rejecting, setRejecting,
-    markPaid, reject, toPayCount, toPayTotal, paidCount, rejectedCount,
+    payouts, filtered, isLoading, filter, setFilter, paying, setPaying, rejecting, setRejecting, askingBank, setAskingBank,
+    markPaid, reject, askBank, waitingBankCount, toPayCount, toPayTotal, paidCount, rejectedCount,
   } = usePayouts();
 
   const EMPTY: Record<PayoutFilter, string> = {
     pending: t("money.emptyPayoutsPending"),
+    needs_bank_details: t("money.emptyPayoutsWaitingBank"),
     processed: t("money.emptyPayoutsProcessed"),
     failed: t("money.emptyPayoutsFailed"),
     ALL: t("money.emptyPayoutsAll"),
@@ -59,13 +60,14 @@ export default function Payouts() {
           onChange={setFilter}
           options={[
             { value: "pending", label: t("money.statToPayLabel"), count: toPayCount },
+            { value: "needs_bank_details", label: t("money.filterWaitingBank"), count: waitingBankCount },
             { value: "processed", label: t("money.statPaid"), count: paidCount },
             { value: "failed", label: t("money.filterRejected"), count: rejectedCount },
             { value: "ALL", label: t("money.filterAll"), count: payouts.length },
           ]}
         />
 
-        <PayoutsTable rows={filtered} isLoading={isLoading} emptyLabel={EMPTY[filter]} onMarkPaid={setPaying} onReject={setRejecting} />
+        <PayoutsTable rows={filtered} isLoading={isLoading} emptyLabel={EMPTY[filter]} onMarkPaid={setPaying} onReject={setRejecting} onAskBank={setAskingBank} />
       </div>
 
       <ReferenceDialog
@@ -80,6 +82,20 @@ export default function Payouts() {
         submitLabel={t("money.submitMarkPaid")}
         isSubmitting={markPaid.isPending}
         onSubmit={(reference, note) => paying && markPaid.mutate({ row: paying, reference, note })}
+      />
+
+      <ReferenceDialog
+        open={!!askingBank}
+        onOpenChange={(open) => !open && setAskingBank(null)}
+        title={t("money.dialogAskBankTitle")}
+        description={t("money.dialogAskBankDesc")}
+        summary={summary(askingBank)}
+        fieldLabel={t("money.fieldBankProblem")}
+        fieldPlaceholder={t("money.fieldBankProblemPlaceholder")}
+        submitLabel={t("money.submitAskBank")}
+        multiline
+        isSubmitting={askBank.isPending}
+        onSubmit={(reason) => askingBank && askBank.mutate({ row: askingBank, reason })}
       />
 
       <ReferenceDialog

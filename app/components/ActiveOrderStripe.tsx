@@ -1,5 +1,6 @@
 import React from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { SafeBlurView } from "@/components/ui/SafeBlurView";
 import { Ionicons } from "@expo/vector-icons";
@@ -49,7 +50,7 @@ export function ActiveOrderStripe({ bottom }: Props) {
   const { t } = useTranslation();
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const { isActive, orderId, serviceType, status, driver, foodStage } = useActiveOrder();
+  const { isActive, orderId, serviceType, status, driver, foodStage, isPackageDelivery } = useActiveOrder();
 
   const isRide = RIDE_TYPES.includes(String(serviceType).toLowerCase());
   const isHelper = serviceType === "helper";
@@ -58,7 +59,9 @@ export function ActiveOrderStripe({ bottom }: Props) {
 
   if (!isActive || !orderId) return null;
 
-  const title = isRide
+  const title = isPackageDelivery
+    ? t("app.activeOrderStripe.deliveryInProgress")
+    : isRide
     ? t("app.activeOrderStripe.rideInProgress")
     : isHelper
       ? t("app.activeOrderStripe.taskInProgress")

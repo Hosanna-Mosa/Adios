@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useDeliveryStore } from "@/contexts/deliveryStore";
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { showAlert } from "@/components/ui/AppAlert";
 import type { HelperQuote } from "@/services/orders.service";
 
@@ -26,11 +27,7 @@ export function useHelperTaskSuggestedLow(quote: HelperQuote | null, setPickupLo
         setIsPickupValid(true);
         return;
       }
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.pleaseEnableLocationServicesToFind"));
-        return;
-      }
+      if (!(await requestLocationPermission(t("app.delivery.pleaseEnableLocationServicesToFind")))) return;
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const coords = { lat: location.coords.latitude, lng: location.coords.longitude };
       setPickupCoords(coords);

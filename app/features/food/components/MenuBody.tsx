@@ -1,17 +1,21 @@
+import { optimizedImageUrl } from "@/utils/imageUrl";
 import { Image } from "expo-image";
 import React from "react";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { router } from "expo-router";
 import { moderateScale } from "react-native-size-matters";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { MenuVegOnly } from "./MenuVegOnly";
 import { MenuFab } from "./MenuFab";
 import { BestsellerBadge, NutritionLine } from "./DishHighlights";
 import { DishPrice } from "@/components/shared/DishPrice";
 import { outletClosedLabel } from "@/components/shared/outletClosed";
+import { trackEvent } from "@/utils/analytics";
 
 // Moved out of app/restaurant-menu.tsx. The JSX is unchanged; every value it used to read
 // from the screen's scope is now a prop of the same name.
@@ -19,7 +23,7 @@ import { outletClosedLabel } from "@/components/shared/outletClosed";
 import type { Props } from "./MenuBody.props";
 
 export function MenuBody(props: Props) {
-  const { CategoryTabs, accent, activeCategory, categoryPositions, categoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, items, loading, loadingItems, name, orderingState, outletClosed, scrollViewRef, scrolledPast, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
+  const { accent, activeCategory, categoryPositions, categoryTabs, CategoryTabs, groupedMenu, handleAddToCart, handleCategoryPress, handleScroll, handleUpdateQuantity, highlightedItemId, id, isMeat, items, loading, loadError, onRetry, loadingItems, name, orderingState, outletClosed, scrolledPast, scrollViewRef, searchQuery, setSelectedDishDetail, styles, tabBarHeight, tokens, vegOnly } = props;
   const { t } = useTranslation();
   return (
     <>
@@ -51,6 +55,8 @@ export function MenuBody(props: Props) {
 
       {loading ? (
         <ActivityIndicator size="large" color={accent.accent} style={{ marginTop: 60 }} />
+      ) : loadError && categoryTabs.length === 0 ? (
+        <ErrorState onRetry={onRetry} />
       ) : categoryTabs.length === 0 ? (
         <View style={styles.emptyMenu}>
           <Ionicons name="search-outline" size={48} color={tokens.muted} />
@@ -77,7 +83,20 @@ export function MenuBody(props: Props) {
                 <Animated.View key={item._id} entering={staggerListItem(idx)}>
                 <TouchableOpacity
                   activeOpacity={0.85}
-                  onPress={() => setSelectedDishDetail(item)}
+                  onPress={() => {
+                    trackEvent("select_item", {
+                      item_id: item._id,
+                      item_name: item.name,
+                      item_category: item.category,
+                      price: item.price,
+                      is_veg: item.isVeg,
+                      vendor_id: id,
+                      vendor_name: name,
+                      is_meat: isMeat === "true" || isMeat === true,
+                      source: "menu",
+                    });
+                    setSelectedDishDetail(item);
+                  }}
                   style={[
                     styles.menuRow,
                     idx < groupedMenu[category].length - 1 && styles.menuRowDivider,
@@ -104,7 +123,7 @@ export function MenuBody(props: Props) {
 
                   <View style={styles.rowImageCol}>
                     <Image
-                      source={item.images?.[0] ? { uri: item.images[0] } : null}
+                      source={item.images?.[0] ? { uri: optimizedImageUrl(item.images[0], 120) } : null}
                       style={styles.rowImage}
                       contentFit="cover"
                       transition={200}

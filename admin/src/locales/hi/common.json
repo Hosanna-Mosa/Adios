@@ -230,6 +230,7 @@
     "failedToChangePassword": "पासवर्ड बदलने में विफल"
   },
   "common": {
+    "refresh": "रीफ्रेश करें",
     "cancel": "रद्द करें",
     "confirm": "पुष्टि करें",
     "savingEllipsis": "सेव हो रहा है...",
@@ -257,7 +258,11 @@
     "meatPricing": "मीट मूल्य निर्धारण",
     "zones": "ज़ोन",
     "payments": "भुगतान",
+    "payouts": "भुगतान अनुरोध",
+    "refunds": "रिफ़ंड",
     "analytics": "एनालिटिक्स",
+    "liveActivity": "लाइव गतिविधि",
+    "itemInsights": "आइटम इनसाइट्स",
     "support": "सपोर्ट",
     "supportCases": "सपोर्ट केस",
     "activeChats": "सक्रिय चैट",
@@ -272,6 +277,9 @@
     "signOut": "साइन आउट",
     "helperPricing": "हेल्पर मूल्य निर्धारण",
     "supportBot": "सपोर्ट बॉट",
+    "broadcasts": "पुश ब्रॉडकास्ट",
+    "reports": "रिपोर्ट",
+    "auditLog": "ऑडिट लॉग",
     "supportOrders": "ऑर्डर"
   },
   "notifications": {
@@ -1447,7 +1455,17 @@
     "statusWithRazorpayX": "RazorpayX के पास",
     "submitMarkPaid": "भुगतान हुआ चिह्नित करें",
     "submitRecordRefund": "रिफंड दर्ज करें",
-    "submitRejectRequest": "अनुरोध अस्वीकार करें"
+    "submitRejectRequest": "अनुरोध अस्वीकार करें",
+    "statusNeedsBankDetails": "बैंक विवरण का इंतज़ार",
+    "filterWaitingBank": "बैंक विवरण",
+    "emptyPayoutsWaitingBank": "कोई भुगतान नए बैंक विवरण का इंतज़ार नहीं कर रहा।",
+    "askBankBtn": "बैंक विवरण मांगें",
+    "bankIssueLine": "ड्राइवर से नया विवरण मांगा: {{reason}}",
+    "dialogAskBankTitle": "ड्राइवर से बैंक विवरण मांगें",
+    "dialogAskBankDesc": "जब फ़ाइल में दिए खाते में भुगतान न हो सके तब इसका उपयोग करें। ड्राइवर को सूचना जाएगी और राशि सुरक्षित रहेगी। नया विवरण सेव होते ही यह भुगतान फिर से \"भुगतान करना है\" में आ जाएगा।",
+    "fieldBankProblem": "क्या गड़बड़ थी?",
+    "fieldBankProblemPlaceholder": "जैसे: खाता संख्या गलत है, या भुगतान वापस आ गया",
+    "submitAskBank": "ड्राइवर से बैंक विवरण मांगें"
   },
   "offers": {
     "restaurantOffers": "रेस्टोरेंट ऑफ़र",

@@ -9,6 +9,7 @@ import {
   verifyPayment,
   type CreatePaymentOrderResponse,
 } from "@/services/payments.service";
+import { trackEvent } from "@/utils/analytics";
 import { showPaymentOutcome } from "@/contexts/paymentOutcomeStore";
 
 // Razorpay checkout in the phone's browser (Chrome Custom Tab on Android, an in-app Safari
@@ -76,6 +77,34 @@ export const RazorpayIntegration = {
  * the payment was confirmed. Throws PaymentFlowError / ApiError — see describePaymentError.
  */
 export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown, method?: OnlineMethod): Promise<T> {
+  const body = orderData as { serviceType?: string; isReserved?: boolean; scheduledFor?: unknown } | null;
+  const params = {
+    service_type: body?.serviceType,
+    value: amount,
+    currency: "INR",
+    payment: "online",
+    scheduled: !!(body?.isReserved || body?.scheduledFor),
+  };
+  try {
+    const order = await payAndPlace<T>(amount, orderData, method);
+    // Same order_placed the cash path sends (services/orders.service.ts), plus
+    // purchase for the money actually taken.
+    trackEvent("order_placed", params);
+    trackEvent("purchase", params);
+    return order;
+  } catch (error) {
+    const reason =
+      error instanceof PaymentFlowError
+        ? error.code.toLowerCase()
+        : error instanceof ApiError
+          ? String((error.data as { code?: string } | null)?.code ?? "api_error").toLowerCase()
+          : "error";
+    trackEvent("payment_failed", { ...params, reason });
+    throw error;
+  }
+}
+
+async function payAndPlace<T>(amount: number, orderData: unknown, method?: OnlineMethod): Promise<T> {
   const checkout = await createPaymentOrder(amount, orderData);
   // Opens the hosted page on the method the customer chose (the server ignores anything unknown).
   if (method) checkout.checkoutUrl = `${checkout.checkoutUrl}${checkout.checkoutUrl.includes("?") ? "&" : "?"}m=${method}`;

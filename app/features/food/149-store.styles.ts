@@ -43,7 +43,7 @@ export const createStyles = (tokens: ThemeTokens, accent: ServiceTokens) => Styl
   cardOriginalPrice: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.sec, textDecorationLine: "line-through" },
   addBtn: { width: moderateScale(32), height: moderateScale(32), borderRadius: moderateScale(10), backgroundColor: accent.accent, alignItems: "center", justifyContent: "center" },
   qtyPill: { flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: tokens.sunken, borderRadius: moderateScale(10), paddingHorizontal: 6, paddingVertical: 4 },
-  qtyBtn: { padding: 3 },
+  qtyBtn: { padding: 3, minWidth: moderateScale(24), minHeight: moderateScale(24), alignItems: "center", justifyContent: "center" },
   qtyText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, color: tokens.text },
 
   emptyState: { alignItems: "center", paddingVertical: 48, paddingHorizontal: 12 },

@@ -35,6 +35,12 @@ export function useSupportMembers() {
       }),
   });
 
+  const setPermissions = useMutation({
+    mutationFn: ({ id, permissions }: { id: string; permissions: string[] }) =>
+      adminFetch(`/admin/support-members/${id}/permissions`, { method: "PUT", body: JSON.stringify({ permissions }) }),
+    onSuccess: invalidate,
+  });
+
   const removeMember = useMutation({
     mutationFn: (id: string) => adminFetch(`/admin/support-members/${id}`, { method: "DELETE" }),
     onSuccess: invalidate,
@@ -46,6 +52,7 @@ export function useSupportMembers() {
     isLoading: membersQuery.isLoading,
     createMember,
     resetPassword,
+    setPermissions,
     removeMember,
   };
 }

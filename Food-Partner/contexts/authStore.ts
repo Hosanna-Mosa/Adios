@@ -5,13 +5,13 @@ import type { LoginResponse } from "@/services/auth.service";
 import { logoutSession } from "@/services/auth.service";
 import { removePushToken } from "@/services/outlet.service";
 import { usePushStore } from "./pushStore";
+import { clearRefreshToken, clearToken, loadRefreshToken, loadToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
 
 // The signed-in outlet. Mirrors the web panel's vendor_token / vendor_data pair
-// (admin/src/lib/session.ts), persisted in AsyncStorage instead of localStorage.
+// (admin/src/lib/session.ts): the token in secure storage (utils/secureToken.ts),
+// the outlet details in AsyncStorage.
 
-const TOKEN_KEY = "partner_token";
 const SESSION_KEY = "partner_session";
-const REFRESH_KEY = "partner_refresh_token";
 
 export interface AuthState {
   token: string | null;
@@ -38,7 +38,7 @@ export interface AuthState {
 let sessionExpiryHandled = false;
 
 const clearStorage = () =>
-  Promise.all([AsyncStorage.removeItem(TOKEN_KEY), AsyncStorage.removeItem(REFRESH_KEY), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
+  Promise.all([clearToken(), clearRefreshToken(), AsyncStorage.removeItem(SESSION_KEY)]).catch(() => {});
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   token: null,
@@ -49,9 +49,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeAuth: async () => {
     try {
       const [token, raw, refreshToken] = await Promise.all([
-        AsyncStorage.getItem(TOKEN_KEY),
+        loadToken(),
         AsyncStorage.getItem(SESSION_KEY),
-        AsyncStorage.getItem(REFRESH_KEY),
+        loadRefreshToken(),
       ]);
       if (token && raw) {
         // An expired token is renewed by the first API call's 401 (or, if that fails, signs out).
@@ -76,15 +76,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     };
     set({ token, refreshToken: refreshToken ?? null, partner });
     await Promise.all([
-      AsyncStorage.setItem(TOKEN_KEY, token),
+      saveToken(token),
       AsyncStorage.setItem(SESSION_KEY, JSON.stringify(partner)),
-      refreshToken ? AsyncStorage.setItem(REFRESH_KEY, refreshToken) : AsyncStorage.removeItem(REFRESH_KEY),
+      refreshToken ? saveRefreshToken(refreshToken) : clearRefreshToken(),
     ]);
   },
 
   setTokens: async ({ token, refreshToken }) => {
     set({ token, refreshToken });
-    await Promise.all([AsyncStorage.setItem(TOKEN_KEY, token), AsyncStorage.setItem(REFRESH_KEY, refreshToken)]);
+    await Promise.all([saveToken(token), saveRefreshToken(refreshToken)]);
   },
 
   updatePartner: (fields) => {

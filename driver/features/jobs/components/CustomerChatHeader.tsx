@@ -7,23 +7,28 @@ import { styles } from "../chat.styles";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 
-/** Chat header: back, customer identity with online dot, and the call button. */
+/** Chat header: back, customer identity with online dot, refresh and the call button. */
 export function CustomerChatHeader({
   customerName,
   paddingTop,
   onBack,
   onCall,
+  onRefresh,
+  refreshing = false,
 }: {
   customerName: string;
   paddingTop: number;
   onBack: () => void;
   onCall: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <Box style={[styles.header, { paddingTop }]}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={22} color={Colors.text} />
       </Touchable>
       <Box style={styles.headerCenter}>
@@ -36,7 +41,8 @@ export function CustomerChatHeader({
           <AppText style={styles.headerStatus}>{t("jobs.customerOnline")}</AppText>
         </Box>
       </Box>
-      <Touchable style={styles.callBtn} onPress={onCall}>
+      {onRefresh && <RefreshButton onPress={onRefresh} refreshing={refreshing} />}
+      <Touchable accessibilityLabel={t("a11y.callCustomer")} hitSlop={8} style={styles.callBtn} onPress={onCall}>
         <Feather name="phone" size={20} color={Colors.brand} />
       </Touchable>
     </Box>

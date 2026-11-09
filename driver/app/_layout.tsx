@@ -11,7 +11,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { LocationHandler } from "@/components/shared/LocationHandler";
-import { GlobalSocketHandler } from "@/components/shared/GlobalSocketHandler";
+import { OfflineBanner } from "@/components/shared/OfflineBanner";
+import { ActiveOrderPoller } from "@/components/shared/ActiveOrderPoller";
 import UpdateModal from "@/components/shared/UpdateModal";
 import { ToastProvider } from "@/components/ui/Toast";
 import "@/utils/networkLogger";
@@ -62,6 +63,7 @@ function RootLayoutNav() {
       <Stack.Screen name="digilocker-callback" options={{ headerShown: false, animation: "none" }} />
       <Stack.Screen name="identity-verify" options={{ headerShown: false, animation: "slide_from_bottom" }} />
       <Stack.Screen name="zone-map" options={{ headerShown: false, animation: "slide_from_bottom" }} />
+      <Stack.Screen name="order-details" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: "fade" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
@@ -86,7 +88,8 @@ export default function RootLayout() {
             <ToastProvider>
               <RootLayoutNav />
               <LocationHandler />
-              <GlobalSocketHandler />
+              <OfflineBanner />
+              <ActiveOrderPoller />
               <UpdateModal
                 visible={showUpdate}
                 forceUpdate={forceUpdate}

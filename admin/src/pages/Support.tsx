@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Headphones, UserPlus, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { useSupportTickets } from "@/features/support/hooks/useSupportTickets";
 import { TicketStatusTabs } from "@/features/support/components/TicketStatusTabs";
 import { TicketList } from "@/features/support/components/TicketList";
@@ -9,6 +10,7 @@ import { SupportChatPanel } from "@/features/support/components/SupportChatPanel
 import { useSupportMembers } from "@/features/support/hooks/useSupportMembers";
 import { SupportMemberDialog } from "@/features/support/components/SupportMemberDialog";
 import { SupportTeamPanel } from "@/features/support/components/SupportTeamPanel";
+import { SupportMetricsBar } from "@/features/support/components/SupportMetricsBar";
 
 export default function Support() {
   const { t } = useTranslation();
@@ -18,6 +20,8 @@ export default function Support() {
     ticketsList,
     filteredTickets,
     isLoading,
+    isFetching,
+    refetch,
     selectedTicket,
     setActiveTicketId,
     typedMessage,
@@ -26,7 +30,7 @@ export default function Support() {
     handleResolve,
     handleReopen,
   } = useSupportTickets();
-  const { isAdmin, members, isLoading: membersLoading, createMember, resetPassword, removeMember } = useSupportMembers();
+  const { isAdmin, members, isLoading: membersLoading, createMember, resetPassword, setPermissions, removeMember } = useSupportMembers();
   const [pageTab, setPageTab] = useState<"tickets" | "team">("tickets");
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
 
@@ -38,7 +42,8 @@ export default function Support() {
             <h1 className="page-header">{t("support.supportResolution")}</h1>
             <p className="page-subtitle">{t("support.manageCustomerQueriesDesc")}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <RefreshButton onRefresh={() => refetch()} isRefreshing={isFetching} label={t("common.refresh")} />
             {isAdmin && (
               <button
                 onClick={() => setIsAddMemberOpen(true)}
@@ -50,6 +55,8 @@ export default function Support() {
             )}
           </div>
         </div>
+
+        <SupportMetricsBar />
 
         {isAdmin && (
           <div className="inline-flex rounded-xl border border-border bg-card p-1 gap-1">
@@ -76,6 +83,7 @@ export default function Support() {
             members={members}
             isLoading={membersLoading}
             resetPassword={resetPassword}
+            setPermissions={setPermissions}
             removeMember={removeMember}
             onAddMember={() => setIsAddMemberOpen(true)}
           />

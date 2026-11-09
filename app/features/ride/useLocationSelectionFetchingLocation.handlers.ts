@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { checkZone, searchPlacesJsonBiased } from "@/services/places.service";
 import { showAlert } from "@/components/ui/AppAlert";
+import i18n from "@/i18n";
 
 // Handlers lifted out of useLocationSelectionFetchingLocation: factories over the values they closed
 // over, rebuilt every render exactly as the inline versions were.
@@ -13,18 +14,15 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
     const placeId = data.place_id || data.id || details?.place_id;
     const placeName = data.structured_formatting?.main_text || data.name || addrName?.split(",")?.[0]?.trim();
 
-    if (lat && lng) {
+    // Only the pickup has to be in a service zone: the driver is found near the pickup and
+    // takes the trip to wherever the drop is (the server checks the pickup alone too).
+    if (type === 'pickup' && lat && lng) {
       try {
         const checkRes = await checkZone(lat, lng);
         if (!checkRes || !checkRes.inZone) {
-          showAlert("No Service", `No service at current ${type} location.`);
-          if (type === 'pickup') {
-            pickupRef.current?.setAddressText("");
-            setPickup(null);
-          } else {
-            dropRef.current?.setAddressText("");
-            setDrop(null);
-          }
+          showAlert("No Service", "No service at current pickup location.");
+          pickupRef.current?.setAddressText("");
+          setPickup(null);
           setFieldTextFor(type, "");
           return;
         }
@@ -50,6 +48,9 @@ export const buildHandleSelection = (pickupRef: any, dropRef: any, saveRecentPla
 
     const currentPickup = type === 'pickup' ? { name: addrName, lat, lng } : pickup;
     const currentDrop = type === 'drop' ? { name: addrName, lat, lng } : drop;
+
+    // Pickup first, then drop: once the pickup is set, move the cursor on to the drop field.
+    if (type === 'pickup' && !currentDrop) dropRef.current?.focus?.();
 
     if (currentPickup && currentDrop && currentPickup.lat && currentDrop.lat) {
         setIsNavigating(true);
@@ -97,7 +98,7 @@ export const buildHandleSearch = (setSearchResults: any, setIsSearching: any, se
       console.error("Search error:", e);
       if (requestId === searchRequestIdRef.current) {
         setSearchResults([]);
-        setSearchError("Could not load places. Check your connection and try again.");
+        setSearchError(i18n.t("app.packageDelivery.searchFailed"));
       }
     } finally {
       if (requestId === searchRequestIdRef.current) {

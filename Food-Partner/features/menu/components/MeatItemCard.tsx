@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { IconButton } from "@/components/ui/IconButton";
 import { ListRow } from "@/components/ui/ListRow";
 import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import type { ThemeTokens } from "@/constants/colors";
@@ -16,12 +17,13 @@ interface Props {
   toggling: boolean;
   onToggle: (isAvailable: boolean) => void;
   onEditPrice: () => void;
+  onEdit: () => void;
   styles: MeatStyles;
   tokens: ThemeTokens;
 }
 
 /** One meat item's stock switch and selling price — the panel's VendorMeatMenuItemCard. */
-export function MeatItemCard({ item, toggling, onToggle, onEditPrice, styles, tokens }: Props) {
+export function MeatItemCard({ item, toggling, onToggle, onEditPrice, onEdit, styles, tokens }: Props) {
   const { t } = useTranslation();
   const meat = tokens.services.meat;
   return (
@@ -43,6 +45,7 @@ export function MeatItemCard({ item, toggling, onToggle, onEditPrice, styles, to
             <Badge label={item.isAvailable ? t("menu.inStock") : t("menu.outOfStock")} tone={item.isAvailable ? "success" : "error"} />
           </View>
         </View>
+        <IconButton icon="create-outline" size={34} color={tokens.brand} background={tokens.brandSkin} accessibilityLabel={t("meat.editItem", { name: item.name })} onPress={onEdit} />
         <ToggleSwitch value={item.isAvailable} onValueChange={onToggle} disabled={toggling} accessibilityLabel={t("menu.availabilityFor", { name: item.name })} />
       </View>
       <ListRow

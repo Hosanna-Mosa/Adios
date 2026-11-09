@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -62,7 +63,8 @@ export function CuisineStrip({
               key={cuisine}
               style={styles.cuisineItem}
               activeOpacity={0.8}
-              onPress={() => setSelectedCuisines(isSelected ? selectedCuisines.filter((c) => c !== cuisine) : [...selectedCuisines, cuisine])}
+              // One cuisine at a time: picking another replaces it; tapping it again clears it.
+              onPress={() => setSelectedCuisines(isSelected ? [] : [cuisine])}
             >
               <View style={[styles.cuisineCircle, isSelected && { borderColor: accent.accent, borderWidth: 2 }]}>
                 <Image

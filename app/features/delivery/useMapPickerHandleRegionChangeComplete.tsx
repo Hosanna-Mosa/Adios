@@ -1,4 +1,5 @@
 import * as Location from "expo-location";
+import { requestLocationPermission } from "@/utils/permissions";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import i18n from "@/i18n";
@@ -33,11 +34,7 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
   const handleUseCurrentLocation = async () => {
     try {
       setRecentering(true);
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        showAlert(t("app.delivery.permissionDenied"), t("app.delivery.locationPermissionIsRequired"));
-        return;
-      }
+      if (!(await requestLocationPermission(t("app.delivery.locationPermissionIsRequired")))) return;
       const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const nextRegion = { ...region, latitude: location.coords.latitude, longitude: location.coords.longitude };
       mapRef.current?.animateToRegion(nextRegion, 350);
@@ -50,18 +47,21 @@ export function useMapPickerHandleRegionChangeComplete(params: any, serviceId: a
   };
 
   const handleConfirm = async () => {
-    setLoading(true);
-    try {
-      const checkRes = await checkZone(region.latitude, region.longitude);
-      if (!checkRes || !checkRes.inZone) {
-        const stepLabel = step === "pickup" ? i18n.t("app.delivery.pickupWord") : i18n.t("app.delivery.dropWord");
-        showAlert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: stepLabel }));
-        return;
+    // Only the pickup has to be in a service zone: the driver is found near the pickup and
+    // takes the trip to wherever the drop is (the server checks the pickup alone too).
+    if (step === "pickup") {
+      setLoading(true);
+      try {
+        const checkRes = await checkZone(region.latitude, region.longitude);
+        if (!checkRes || !checkRes.inZone) {
+          showAlert(t("app.delivery.noService"), t("app.delivery.noServiceAtCurrentVarLocation", { value: i18n.t("app.delivery.pickupWord") }));
+          return;
+        }
+      } catch (err) {
+        console.error("Zone check failed:", err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Zone check failed:", err);
-    } finally {
-      setLoading(false);
     }
 
     const currentData = { name: address, lat: region.latitude, lng: region.longitude };

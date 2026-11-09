@@ -7,18 +7,25 @@ import { fontFamilies, typography } from "@/constants/typography";
 
 export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
 
-/** One stored ChatMessage document as the chat list renders it. `clientId` is the
- * id the sender's socket payload used, so history lines up with live messages.
+/** One stored ChatMessage document as the chat list renders it. `id` is the
+ * sender's clientId when there was one, so history lines up with optimistic sends.
  * `date` is the server's real `createdAt` (Mongoose timestamps), kept separately
  * from `timestamp` (a locale time-of-day string with no date in it) so the date
  * divider can compare real days instead of always reading as today. */
 export const toChatMessage = (m: any) => ({
-  id: String(m.clientId || m._id),
+  id: String(m.id || m.clientId || m._id),
   text: m.text,
-  sender: (m.role === "driver" ? "driver" : "customer") as "driver" | "customer",
+  sender: (m.role === "driver" || m.from === "driver" ? "driver" : "customer") as "driver" | "customer",
   timestamp: m.time,
   date: m.createdAt,
 });
+
+/** `incoming` appended to `current`, skipping ids already shown. */
+export const mergeChatMessages = <T extends { id: string }>(current: T[], incoming: T[]) => {
+  const seen = new Set(current.map((m) => m.id));
+  const added = incoming.filter((m) => !seen.has(m.id));
+  return { merged: added.length ? [...current, ...added] : current, added };
+};
 
 export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"]["food"]) =>
   StyleSheet.create({

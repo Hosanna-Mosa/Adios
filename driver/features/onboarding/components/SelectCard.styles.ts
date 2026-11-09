@@ -25,9 +25,9 @@ export const selectStyles = StyleSheet.create({
   },
   iconWrapSelected: { backgroundColor: Colors.primary },
   textWrap: { flex: 1 },
-  label: { fontSize: typography.sizes.large, fontWeight: "600", color: Colors.text },
+  label: { fontSize: typography.sizes.medium, fontWeight: "600", color: Colors.text },
   labelSelected: { color: Colors.primaryDark },
-  desc: { fontSize: typography.sizes.medium, color: Colors.textMuted, marginTop: 2 },
+  desc: { fontSize: typography.sizes.small, color: Colors.textMuted, marginTop: 2 },
   descSelected: { color: Colors.primaryDark },
   radio: {
     width: 24,

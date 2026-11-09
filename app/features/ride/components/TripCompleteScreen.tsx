@@ -1,5 +1,6 @@
 import { OrderReviewCard } from "./OrderReviewCard";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
@@ -23,6 +24,7 @@ interface Props {
   insets: EdgeInsets;
   isHelper: boolean;
   isRide: boolean;
+  isPackageDelivery?: boolean;
   stops: any[];
   styles: TrackingStyles;
   tokens: ThemeTokens;
@@ -40,6 +42,7 @@ export function TripCompleteScreen({
   insets,
   isHelper,
   isRide,
+  isPackageDelivery = false,
   stops,
   styles,
   tokens,
@@ -99,7 +102,7 @@ export function TripCompleteScreen({
           </>
         )}
 
-        <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} tokens={tokens} accent={accent} />
+        <OrderReviewCard orderId={currentOrderId || ""} isRide={isRide} isHelper={isHelper} isPackageDelivery={isPackageDelivery} tokens={tokens} accent={accent} />
         <View style={{ height: 8 }} />
       </ScrollView>
 

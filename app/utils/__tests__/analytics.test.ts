@@ -1,8 +1,8 @@
 import { AppState } from "react-native";
 
 // The backend queue in utils/analytics: what reaches POST /analytics/events,
-// and when. Firebase is out of scope — under Jest Platform.OS is "ios", where
-// the Firebase half is a no-op by design.
+// and when. Firebase is out of scope — Jest has no Firebase native module,
+// so the Firebase half switches itself off.
 
 type Analytics = typeof import("../analytics");
 
@@ -148,5 +148,29 @@ describe("analytics backend queue", () => {
     const sent = sentBatches().flat();
     expect(sent).toHaveLength(100);
     expect(sent[0].props.i).toBe(20);
+  });
+});
+
+describe("trackTap", () => {
+  it("logs a button_tap with the label and the current screen, numbers masked", async () => {
+    const a = load();
+    a.configureAnalytics({ apiUrl: "https://api.test/api/v1", app: "customer", getToken: () => null });
+    a.trackScreen("restaurant-menu");
+    a.trackTap("  Book Bike ·\n ₹69.50 ");
+    await jest.advanceTimersByTimeAsync(10_000);
+
+    const tap = sentBatches().flat().find((e: any) => e.name === "button_tap");
+    expect(tap.props).toEqual({ button: "Book Bike · ₹#", screen: "restaurant-menu" });
+  });
+
+  it("hides labels that look like an email and names empty ones", async () => {
+    const a = load();
+    a.configureAnalytics({ apiUrl: "https://api.test/api/v1", app: "customer", getToken: () => null });
+    a.trackTap("me@example.com");
+    a.trackTap("   ");
+    await jest.advanceTimersByTimeAsync(10_000);
+
+    const taps = sentBatches().flat().filter((e: any) => e.name === "button_tap");
+    expect(taps.map((e: any) => e.props.button)).toEqual(["(hidden)", "(unlabelled)"]);
   });
 });

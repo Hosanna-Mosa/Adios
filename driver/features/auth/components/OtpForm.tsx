@@ -42,7 +42,7 @@ export function OtpForm({
   const { t } = useTranslation();
   return (
     <AnimatedBox style={[styles.formSection, animatedStyle]}>
-      <Touchable style={styles.backButton} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backButton} onPress={onBack}>
         <Feather name="arrow-left" size={20} color={Colors.text} />
       </Touchable>
 
@@ -58,7 +58,7 @@ export function OtpForm({
             ref={(r) => { otpRefs.current[idx] = r; }}
             style={[styles.otpBox, digit ? styles.otpBoxFilled : null]}
             value={digit}
-            onChangeText={(t) => onOtpChange(t.slice(-1), idx)}
+            onChangeText={(t) => onOtpChange(t.replace(/\D/g, "").slice(-1), idx)}
             onKeyPress={(e) => onKeyPress(e, idx)}
             keyboardType="number-pad"
             maxLength={1}

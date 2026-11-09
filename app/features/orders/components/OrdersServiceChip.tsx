@@ -1,6 +1,7 @@
-import { Text, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { type ThemeTokens } from "@/constants/colors";
 import { type OrdersStyles } from "../orders.styles";
 import { toggleChipKeys } from "../useOrders.shared";

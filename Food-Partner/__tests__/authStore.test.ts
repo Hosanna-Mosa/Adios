@@ -6,6 +6,18 @@ import { removePushToken } from "@/services/outlet.service";
 jest.mock("@react-native-async-storage/async-storage", () =>
   jest.requireActual("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
+jest.mock("expo-secure-store", () => {
+  const store: Record<string, string> = {};
+  return {
+    setItemAsync: jest.fn(async (key: string, value: string) => {
+      store[key] = value;
+    }),
+    getItemAsync: jest.fn(async (key: string) => store[key] ?? null),
+    deleteItemAsync: jest.fn(async (key: string) => {
+      delete store[key];
+    }),
+  };
+});
 jest.mock("@/services/auth.service", () => ({ logoutSession: jest.fn(() => Promise.resolve()) }));
 jest.mock("@/services/outlet.service", () => ({ removePushToken: jest.fn(() => Promise.resolve()) }));
 

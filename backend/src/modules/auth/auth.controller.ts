@@ -137,6 +137,16 @@ export class AuthController {
     }
   }
 
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, phone, email, password } = req.body;
+      const result = await authService.register(name, phone, password, email);
+      return res.status(201).json(result);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { phone, email, password, role } = req.body;
@@ -148,6 +158,15 @@ export class AuthController {
         return res.json({ ...result, ...session });
       }
       return res.json(result);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
+  async deleteAccount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { phone, password, role } = req.body;
+      return res.json(await authService.deleteAccountWithPassword(phone, password, role as UserRole));
     } catch (error: any) {
       next(error);
     }

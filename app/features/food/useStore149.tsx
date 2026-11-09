@@ -56,6 +56,10 @@ export function useStore149() {
   const lat = selectedAddress?.coordinates?.lat ?? selectedAddress?.location?.coordinates?.[1] ?? currentCoords?.lat ?? null;
   const lng = selectedAddress?.coordinates?.lng ?? selectedAddress?.location?.coordinates?.[0] ?? currentCoords?.lng ?? null;
 
+  // The request failed, as opposed to no outlet running the ₹149 menu nearby.
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
   useEffect(() => {
     if (lat == null || lng == null) {
       setLoading(false);
@@ -67,15 +71,17 @@ export function useStore149() {
         setLoading(true);
         const data = await getStore149(lat, lng);
         if (!cancelled && Array.isArray(data)) setStore149Items(data);
+        if (!cancelled) setLoadError(false);
       } catch (error) {
         console.error("Error fetching 149 store items:", error);
+        if (!cancelled) setLoadError(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
     fetchItems();
     return () => { cancelled = true; };
-  }, [lat, lng]);
+  }, [lat, lng, reloadKey]);
 
   const outletCount = useMemo(() => new Set(store149Items.map((i) => i.vendorId)).size, [store149Items]);
   const areaLabel = selectedAddress?.label && selectedAddress.label !== "Other" ? selectedAddress.label : "Home";
@@ -98,6 +104,6 @@ export function useStore149() {
   insets, tabBarHeight, cartItems, addCartItem, updateCartQuantity, store149Items, loading,
   selectedItem, setSelectedItem, isSheetVisible, setIsSheetVisible, activeCategory,
   setActiveCategory, tokens, accent, styles, lat, lng, outletCount, areaLabel, areaLine,
-  farthestKm, categories, visibleItems
+  farthestKm, categories, visibleItems, loadError, retry: () => setReloadKey((k) => k + 1)
   };
 }

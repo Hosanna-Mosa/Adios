@@ -4,6 +4,8 @@ import { FadeIn } from "@/components/motion/FadeIn";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChatMessageList } from "./ChatMessageList";
 import { ChatComposer } from "./ChatComposer";
+import { InternalNotes } from "./InternalNotes";
+import { PriorityBadge, PriorityMenuItems, SlaBadge } from "./TicketMeta";
 import type { Ticket } from "../types";
 
 interface SupportChatPanelProps {
@@ -53,6 +55,10 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
             <p className="text-xs text-muted-foreground">
               {ticket.title} • <span className="text-primary font-medium">{ticket.category}</span>
             </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <PriorityBadge priority={ticket.priority} />
+              <SlaBadge sla={ticket.sla} status={ticket.status} />
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -69,12 +75,15 @@ export function SupportChatPanel({ ticket, typedMessage, onTypedMessageChange, o
               <DropdownMenuItem onClick={onReopen} className="cursor-pointer">
                 {t("support.reopenCase")}
               </DropdownMenuItem>
+              <PriorityMenuItems ticketId={ticket._id} current={ticket.priority} />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
       <ChatMessageList messages={ticket.messages} />
+
+      <InternalNotes ticketId={ticket._id} notes={ticket.internalNotes} />
 
       <ChatComposer value={typedMessage} onChange={onTypedMessageChange} onSend={onSend} placeholderName={ticket.user} />
     </FadeIn>

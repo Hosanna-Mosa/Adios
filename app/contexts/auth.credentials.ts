@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
 import { trackEvent } from "@/utils/analytics";
+import { clearRefreshToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
 import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 
 // The three credential exchanges: request an OTP, verify one, and sign in with
@@ -13,15 +14,28 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL || Constants.expoConfig?.extra?.a
 
 type Set = (partial: Partial<AuthState>) => void;
 
+/**
+ * Saves the session for the next launch. The customer is already signed in by the time
+ * this runs, so a full or failing disk must not turn a good login into a "Login failed"
+ * alert — it only means signing in again after the app is closed.
+ */
+async function persistSession(token: string, user: unknown, refreshToken?: string | null) {
+  try {
+    await Promise.all([
+      saveToken(token),
+      AsyncStorage.setItem("user", JSON.stringify(user)),
+      refreshToken ? saveRefreshToken(refreshToken) : clearRefreshToken(),
+    ]);
+  } catch (err) {
+    console.warn("Could not save the session to device storage:", err);
+  }
+}
+
 /** Stores a signed-in session in the store and on disk. */
 async function saveSession(set: Set, data: { user: any; token: string; refreshToken?: string }) {
   resetSessionExpiry();
   set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
-  await Promise.all([
-    AsyncStorage.setItem("token", data.token),
-    AsyncStorage.setItem("user", JSON.stringify(data.user)),
-    data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
-  ]);
+  await persistSession(data.token, data.user, data.refreshToken);
 }
 
 /** POSTs to an /auth endpoint and returns the parsed body, throwing the server's message on failure. */
@@ -35,6 +49,7 @@ async function postAuth(path: string, body: object, fallback: string) {
   if (!response.ok) throw new Error(data.message || fallback);
   return data;
 }
+
 
 export const createCredentialActions = (set: Set) => ({
   /** Emails a 6-digit login code to the address. */
@@ -121,11 +136,7 @@ export const createCredentialActions = (set: Set) => ({
 
       resetSessionExpiry();
       set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
-      ]);
+      await persistSession(data.token, data.user, data.refreshToken);
       // The signup screen hands its name through to this same call, so a name
       // here means the account was just created rather than signed back into.
       trackEvent(name ? "sign_up" : "login", { method: "otp" });
@@ -151,11 +162,7 @@ export const createCredentialActions = (set: Set) => ({
 
       resetSessionExpiry();
       set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
-      await Promise.all([
-        AsyncStorage.setItem("token", data.token),
-        AsyncStorage.setItem("user", JSON.stringify(data.user)),
-        data.refreshToken ? AsyncStorage.setItem("refreshToken", data.refreshToken) : AsyncStorage.removeItem("refreshToken"),
-      ]);
+      await persistSession(data.token, data.user, data.refreshToken);
       trackEvent("login", { method: "password" });
       return { success: true };
     } catch (err: any) {

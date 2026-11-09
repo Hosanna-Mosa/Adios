@@ -4,7 +4,7 @@ import Driver, {
   IDriver,
   OnboardingStatus,
 } from "../../database/models/Driver";
-import Vendor, { VendorResubmittableDocument } from "../../database/models/Vendor";
+import Vendor, { VendorOnboardingStatus, VendorResubmittableDocument } from "../../database/models/Vendor";
 import { NotificationService } from "../../services/notification.service";
 import { sendDriverDecisionEmail, sendVendorDecisionEmail } from "./verification.emails";
 import { NotFoundError } from "../../utils/errors";
@@ -91,7 +91,7 @@ export class VerificationService {
     const statuses = status === "all" ? [...DRIVER_REVIEW_STATUSES] : [status];
 
     const [drivers, counts] = await Promise.all([
-      Driver.find({ onboardingStatus: { $in: statuses } })
+      Driver.find({ onboardingStatus: { $in: statuses as OnboardingStatus[] } })
         .populate("user", "name phone email profilePic createdAt")
         .populate("preferredZone", "name")
         .sort({ submittedForReviewAt: -1, updatedAt: -1 })
@@ -179,7 +179,7 @@ export class VerificationService {
     const statuses = status === "all" ? [...VENDOR_REVIEW_STATUSES] : [status];
 
     const [vendors, counts] = await Promise.all([
-      Vendor.find({ onboardingStatus: { $in: statuses } })
+      Vendor.find({ onboardingStatus: { $in: statuses as VendorOnboardingStatus[] } })
         .select("-password -webPushSubscriptions -operations")
         .sort({ submittedAt: -1, updatedAt: -1 })
         .limit(500)
@@ -221,6 +221,9 @@ export class VerificationService {
 
     vendor.onboardingStatus = "rejected";
     vendor.verificationReview = { rejectionReason: reason, reviewedAt: new Date() };
+    // The vendor's access situation just changed — an already-issued token
+    // should not keep working regardless of the new status. See IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     sendVendorDecisionEmail(vendor, { kind: "rejected", reason });
@@ -234,6 +237,8 @@ export class VerificationService {
 
     vendor.onboardingStatus = "resubmission_required";
     vendor.verificationReview = { requestedDocuments: unique, note, requestedAt: now, reviewedAt: now };
+    // Same reasoning as rejectVendor above — see IAM-002.
+    vendor.tokenVersion = (vendor.tokenVersion ?? 0) + 1;
     await vendor.save();
 
     sendVendorDecisionEmail(vendor, { kind: "documents_requested", documents: unique, note });

@@ -331,7 +331,7 @@ export default function DigiLockerVerifyScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <TouchableOpacity accessibilityLabel={t("a11y.back")}
           onPress={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)"))}
           hitSlop={12}
           style={styles.backBtn}
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   backBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontSize: 17, fontWeight: "700", color: Colors.text },
+  headerTitle: { fontSize: 15, fontWeight: "700", color: Colors.text },
 
   sandboxBanner: {
     flexDirection: "row",
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   heroTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
     color: Colors.text,
     textAlign: "center",
@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  primaryBtnText: { color: Colors.white, fontSize: 17, fontWeight: "700" },
+  primaryBtnText: { color: Colors.white, fontSize: 15, fontWeight: "700" },
 
   secondaryLink: { alignItems: "center", paddingVertical: 14 },
   secondaryLinkText: { fontSize: 14, color: Colors.textSecondary, fontWeight: "500" },

@@ -18,6 +18,7 @@ export default function SupportChatScreen() {
     newMessage, setNewMessage, creatingTicket,
     flatListRef, supportFetch, fetchTickets,
     handleCreateTicket, handleSendMessage,
+    refreshTickets, refreshingTickets,
   } = useSupportChat();
 
   if (loading) {
@@ -33,6 +34,8 @@ export default function SupportChatScreen() {
         tickets={allTickets}
         paddingTop={insets.top + 16}
         onBack={() => router.back()}
+        onRefresh={refreshTickets}
+        refreshing={refreshingTickets}
         onOpenTicket={(t) => {
           setTicket(t);
           setViewMode("chat");
@@ -75,6 +78,8 @@ export default function SupportChatScreen() {
       submittingReply={submittingReply}
       onBack={() => (allTickets.length > 0 ? setViewMode("list") : router.back())}
       onSend={handleSendMessage}
+      onRefresh={refreshTickets}
+      refreshing={refreshingTickets}
       onReopen={async () => {
         try {
           setLoading(true);

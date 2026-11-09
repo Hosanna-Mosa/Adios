@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
@@ -19,6 +20,10 @@ interface Props {
   setCancelReason: React.Dispatch<React.SetStateAction<any>>;
   setShowCancelSheet: React.Dispatch<React.SetStateAction<any>>;
   showCancelSheet: boolean;
+  /** Package delivery: delivery-partner wording instead of ride wording. */
+  isPackageDelivery?: boolean;
+  /** Restaurant order: order wording instead of ride wording. */
+  isFoodOrder?: boolean;
   styles: FindingDriverStyles;
 }
 
@@ -33,6 +38,8 @@ export function CancelRideSheet({
   setShowCancelSheet,
   showCancelSheet,
   styles,
+  isPackageDelivery = false,
+  isFoodOrder = false,
 }: Props) {
   const { t } = useTranslation();
   return (
@@ -42,7 +49,7 @@ export function CancelRideSheet({
         <View style={[styles.cancelSheet, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.cancelSheetTitle}>{t("app.ride.whyDoYouWantToCancel")}</Text>
-          <Text style={styles.cancelSheetSub}>{t("app.ride.noCancellationFeeWeHavenapostAssigned")}</Text>
+          <Text style={styles.cancelSheetSub}>{isFoodOrder ? t("app.foodOrder.noFeeNoPartnerYet") : isPackageDelivery ? t("app.packageDelivery.noFeeNoPartnerYet") : t("app.ride.noCancellationFeeWeHavenapostAssigned")}</Text>
 
           <View style={{ gap: 8, marginBottom: 18 }}>
             {CANCEL_REASONS.map((reason) => {
@@ -72,11 +79,17 @@ export function CancelRideSheet({
               accessibilityState={{ disabled: !cancelReason }}
             >
               <Text style={styles.cancelSheetCancelBtnText}>
-                {isRide ? t("app.ride.cancelRideLower") : t("app.ride.cancelOrderLower")}
+                {isFoodOrder
+                  ? t("app.foodOrder.cancelOrder")
+                  : isPackageDelivery
+                    ? t("app.packageDelivery.cancelDelivery")
+                    : isRide
+                      ? t("app.ride.cancelRideLower")
+                      : t("app.ride.cancelOrderLower")}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.cancelSheetKeepBtn, { backgroundColor: accent.accent }]} onPress={() => setShowCancelSheet(false)} activeOpacity={0.9}>
-              <Text style={[styles.cancelSheetKeepBtnText, { color: accent.on }]}>{t("app.ride.keepSearching")}</Text>
+              <Text style={[styles.cancelSheetKeepBtnText, { color: accent.on }]}>{isFoodOrder ? t("app.foodOrder.keepOrder") : t("app.ride.keepSearching")}</Text>
             </TouchableOpacity>
           </View>
         </View>

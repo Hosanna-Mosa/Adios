@@ -16,6 +16,7 @@ import mongoose from "mongoose";
 import { isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
 import { helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { PricingService } from "../pricing/pricing.service";
+import { hasPermission } from "../support/support.permissions";
 import { ZonesService } from "../zones/zones.service";
 import { emailRideHistory } from "./rideHistory.service";
 import { INVOICE_LINK_TTL_SECONDS, invoiceTokenAllows, isInvoiceable, signInvoiceToken } from "./invoice.link";
@@ -259,8 +260,9 @@ export class OrdersController {
       // The tracking screen names the restaurant and draws it (and the delivery home)
       // as such. Added alongside `vendor`, which stays the bare id other callers expect.
       if (json.vendor) json.outlet = await outletSummary(json.vendor);
-      // A package delivery's OTP is the receiver's to give — never the driver's to read.
-      if (relation === "driver" && isPackageDeliveryOrder(json)) delete json.deliveryOtp;
+      // A package delivery's OTP is the receiver's to give, and a food / meat order's the
+      // customer's — never the driver's to read.
+      if (relation === "driver" && (isPackageDeliveryOrder(json) || json.vendor)) delete json.deliveryOtp;
       return res.json(json);
     } catch (error) {
       next(error);
@@ -275,6 +277,37 @@ export class OrdersController {
 
       const messages = await ordersService.getChatHistory(id as string, userId);
       return res.json(messages);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/chat — same as the socket's send_message, for clients without a socket. */
+  async sendChatMessage(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { text, clientId } = req.body;
+      const message = await ordersService.sendChatMessage(String(req.params.id), req.user, text, clientId);
+      return res.status(201).json({ message });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/confirm-task — the customer confirms the helper's task. */
+  async confirmHelperTask(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.confirmHelperTask(String(req.params.id), req.user);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /** POST /orders/:id/helper/status — the assigned helper's progress note for the customer. */
+  async updateHelperStatus(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const result = await ordersService.updateHelperStatus(String(req.params.id), req.user, req.body.text);
+      return res.json(result);
     } catch (error) {
       next(error);
     }
@@ -503,6 +536,9 @@ export class OrdersController {
       if (relation === "staff" && req.user?.role === UserRole.SUPPORT) {
         throw new ForbiddenError("Support can view orders but not change them.");
       }
+      if (relation === "staff" && req.user?.role === UserRole.SUPPORT && isCancel && !(await hasPermission(req, "cancel_orders"))) {
+        throw new ForbiddenError("Your support account does not have permission to cancel orders. Ask an admin.");
+      }
       if (relation === "customer" && !isCancel) {
         throw new ForbiddenError("You can only cancel your own order.");
       }
@@ -526,17 +562,17 @@ export class OrdersController {
         if (storedCash && !orderObj.cashCollected) {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
-        // Restaurant / meat-shop orders and rides finish without the customer's OTP
-        // (a ride still starts with its PIN); package deliveries and helper tasks still need it.
+        // Restaurant / meat-shop orders, package deliveries and helper tasks all finish with the
+        // customer's (or receiver's) OTP; only rides end without one (they start with a PIN).
         // A package delivery is stored as a bike/auto ride, but it always ends with the
         // receiver's OTP — that is the only proof the package reached the right person.
         const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        // `current.vendor` is the raw outlet id. orderObj's is populated from Vendor only, so a
-        // legacy MeatCenter outlet came back null and its orders were asked for an OTP the
-        // driver app (rightly) never shows for outlet orders.
-        const isOutletOrder = !!current.vendor;
-        if (orderObj && orderObj.deliveryOtp && !isOutletOrder && (!isRide || isPackageDelivery)) {
+        // Rides end without a code (they start with a PIN); every other order — package, helper,
+        // and food / meat from an outlet — is completed with the customer's own delivery code.
+        // `orderObj.vendor` is not used here: it is populated from Vendor only, so a legacy
+        // MeatCenter outlet reads as null — the rule must not depend on it.
+        if (orderObj && orderObj.deliveryOtp && (!isRide || isPackageDelivery)) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError(
               isPackageDelivery
@@ -622,6 +658,9 @@ export class OrdersController {
       if (error.message === "Order is no longer available") {
         return next(new ConflictError(error.message));
       }
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }
@@ -674,6 +713,35 @@ export class OrdersController {
     }
   }
 
+  /** GET /orders/driver/offer — the sequential offer this driver holds, else its food offer, else null. */
+  async currentOffer(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const offer = await ordersService.getDriverOffer(userId);
+      return res.json({ offer });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async driverOrders(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) throw new UnauthorizedError("User is not authenticated");
+      const scope = req.query.scope === "past" ? "past" : "ongoing";
+      const page = Math.max(1, parseInt(String(req.query.page), 10) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit), 10) || 20));
+      const result = await ordersService.getDriverOrders(userId, scope, page, limit);
+      return res.json({
+        ...result,
+        orders: result.orders.map((o: any) => withoutCustomerCodes(withoutDriverSecrets(o))),
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async currentFoodOffer(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const userId = req.user?.userId;
@@ -701,6 +769,9 @@ export class OrdersController {
       await ordersService.declineOrder(id as string, driverUserId, reason);
       return res.json({ success: true, message: "Order declined successfully" });
     } catch (error: any) {
+      if (error.message === "You were not offered this order") {
+        return next(new ForbiddenError(error.message));
+      }
       if (error.message === "Driver profile not found" || error.message === "Order not found") {
         return next(new NotFoundError(error.message));
       }

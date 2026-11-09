@@ -26,6 +26,8 @@ const DYNAMIC_KEYS = [
   "vehicle.bike", "vehicle.auto", "vehicle.car",
   ...["mon", "tue", "wed", "thu", "fri", "sat", "sun"].map((d) => `hours.days.${d}`),
   ...["markReady", "soldOut", "scheduled", "pickupCode", "payouts", "password"].flatMap((k) => [`support.faqs.${k}.q`, `support.faqs.${k}.a`]),
+  ...["removed", "menu", "records", "signedOut", "final"].map((k) => `deleteAccount.points.${k}`),
+  ...["PASSWORD_INCORRECT", "ACTIVE_ORDER", "SCHEDULED_PENDING", "PAYOUT_PENDING", "BALANCE_REMAINING"].map((k) => `deleteAccount.blocked.${k}`),
 ];
 
 const flatten = (obj, prefix = "", out = {}) => {

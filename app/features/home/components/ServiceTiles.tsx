@@ -1,7 +1,9 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { router } from "expo-router";
 import { type ThemeTokens } from "@/constants/colors";
 import { type HomeStyles } from "@/features/home/home.styles";
+import { useTranslation } from "react-i18next";
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; what it used to read from
 // the screen's scope is now passed in as props.
@@ -27,6 +29,7 @@ export function ServiceTiles({
   activeService,
   handleServiceSwitch,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.serviceCardsRow}>
       <TouchableOpacity
@@ -62,6 +65,7 @@ export function ServiceTiles({
         <Image source={HELPER_3D} style={styles.serviceCardImage} resizeMode="contain" />
         <Text style={styles.serviceCardLabel} numberOfLines={1}>Helper</Text>
       </TouchableOpacity>
+      
     </View>
   );
 }

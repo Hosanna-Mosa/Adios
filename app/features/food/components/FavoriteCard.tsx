@@ -1,4 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { optimizedImageUrl } from "@/utils/imageUrl";
+import { StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,9 +37,11 @@ export function FavoriteCard({
       <TouchableOpacity
         style={styles.cardThumb}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel={item.name}
         onPress={() => router.push({ pathname: "/restaurant-menu", params: { id: item._id, name: item.name, image: item.image || "", isMeat: isMeat ? "true" : "false" } })}
       >
-        <Image source={{ uri: item.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+        <Image source={{ uri: optimizedImageUrl(item.image, 120) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
       </TouchableOpacity>
       <View style={styles.cardBody}>
         <View style={styles.cardTitleRow}>

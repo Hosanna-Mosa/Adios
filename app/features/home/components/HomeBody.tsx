@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -80,6 +81,7 @@ export function HomeBody(props: Props) {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.mealsScrollContent}>
                 {store149Items.map((item) => <Store149Card key={item._id} item={item} styles={styles} accent={accent} />)}
               </ScrollView>
+              <View style={styles.sectionEndRule} />
             </View>
           )}
 
@@ -92,6 +94,10 @@ export function HomeBody(props: Props) {
               <TouchableOpacity
                 style={[styles.vegSwitchTrack, filterVegNonVeg === "veg" && { backgroundColor: tokens.veg }]}
                 activeOpacity={0.85}
+                accessibilityRole="switch"
+                accessibilityLabel={t("app.home.vegOnly")}
+                accessibilityState={{ checked: filterVegNonVeg === "veg" }}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
                 onPress={() => setFilterVegNonVeg(filterVegNonVeg === "veg" ? "all" : "veg")}
               >
                 <View style={[styles.vegSwitchThumb, filterVegNonVeg === "veg" && { alignSelf: "flex-end" }]} />

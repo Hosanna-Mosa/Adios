@@ -80,6 +80,11 @@ export interface Order {
   /** Broadcast offers only: this rider's distance to the restaurant and the ride there. */
   distanceToPickupMeters?: number;
   etaMinutes?: number;
+  /** Sequential offers: when the server withdraws this offer (ISO), and the seconds left when it was fetched. */
+  expiresAt?: string;
+  secondsLeft?: number;
+  /** Server's offer window in seconds (25 for rides). */
+  offerTimeoutSeconds?: number;
   /** Helper tasks only: hours the customer booked (the server's `duration`). */
   bookedHours?: number;
   /** Helper tasks only: what the customer wants done (stops[0].items.instructions). */
@@ -170,7 +175,8 @@ export interface DriverState {
   acceptOrder: () => Promise<boolean>;
   /** Brings back the job the server has this driver on (lost when the app restarts). */
   restoreActiveOrder: () => Promise<void>;
-  rejectOrder: (reason?: string) => void;
+  /** `timedOut`: the offer countdown ran out (logged separately from a real decline). */
+  rejectOrder: (reason?: string, options?: { timedOut?: boolean }) => void;
   updateStep: (step: number) => void;
   updateOrderStatus: (status: OrderStatus, otp?: string) => Promise<void>;
   /** Records the cash the driver received; the backend checks it against the order total. */

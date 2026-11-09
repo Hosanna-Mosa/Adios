@@ -1,9 +1,11 @@
 import React from "react";
-import { StyleSheet, TouchableOpacity, View, type StyleProp, type ViewStyle } from "react-native";
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View, type StyleProp, type ViewStyle } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
+
+const MIN_TOUCH = 48;
 
 interface Props {
   icon: keyof typeof Ionicons.glyphMap;
@@ -16,21 +18,27 @@ interface Props {
   /** Shows a small dot, e.g. an unread indicator. */
   dot?: boolean;
   disabled?: boolean;
+  /** Swaps the icon for a spinner and blocks presses, e.g. while a refresh is running. */
+  loading?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
 /** A round icon-only button — the header back chip's shape, for any action. */
-export function IconButton({ icon, onPress, accessibilityLabel, size = 40, color, background, dot, disabled, style }: Props) {
+export function IconButton({ icon, onPress, accessibilityLabel, size = 40, color, background, dot, disabled, loading, style }: Props) {
   const theme = useThemeStore((s) => s.theme);
   const tokens = designTokens[theme];
   const d = moderateScale(size);
+  // Grow the touch area (not the drawn circle) to the 48dp minimum.
+  const slop = Math.max(0, (MIN_TOUCH - d) / 2);
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
+      hitSlop={slop}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
       style={[
         styles.base,
         {
@@ -39,12 +47,16 @@ export function IconButton({ icon, onPress, accessibilityLabel, size = 40, color
           borderRadius: d / 2,
           backgroundColor: background ?? tokens.surface,
           borderColor: tokens.border,
-          opacity: disabled ? 0.5 : 1,
+          opacity: disabled && !loading ? 0.5 : 1,
         },
         style,
       ]}
     >
-      <Ionicons name={icon} size={d * 0.5} color={color ?? tokens.text} />
+      {loading ? (
+        <ActivityIndicator size="small" color={color ?? tokens.text} />
+      ) : (
+        <Ionicons name={icon} size={d * 0.5} color={color ?? tokens.text} />
+      )}
       {dot ? <View style={[styles.dot, { backgroundColor: tokens.error, borderColor: tokens.surface }]} /> : null}
     </TouchableOpacity>
   );

@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useOnboardingCtx } from "../../OnboardingContext";
-import { validateEmailFormat } from "../../validators";
+import { fieldMessage, validateEmail } from "@/utils/validation";
 import { FieldColumn } from "../FieldColumn";
 import { FormInput } from "../FormInput";
 import { AppText } from "@/components/ui/AppText";
@@ -12,7 +12,7 @@ import { Colors } from "@/constants/colors";
 export function EmailSection() {
   const { t } = useTranslation();
   const { step1 } = useOnboardingCtx();
-  const showError = step1.email.trim().length > 0 && !validateEmailFormat(step1.email);
+  const error = step1.email.trim().length > 0 ? fieldMessage(t, validateEmail(step1.email)) : undefined;
 
   return (
     <FieldColumn gap={8}>
@@ -25,11 +25,11 @@ export function EmailSection() {
         autoCapitalize="none"
         icon="mail"
       />
-      {showError && (
-        <AppText size="small" color={Colors.error}>
-          {t("onboarding.invalidEmail", "Enter a valid email address.")}
+      {error ? (
+        <AppText size="small" color={Colors.error} accessibilityRole="alert">
+          {error}
         </AppText>
-      )}
+      ) : null}
     </FieldColumn>
   );
 }

@@ -30,6 +30,7 @@ const initialState = {
   price: null,
   status: "pending" as OrderStatus,
   foodStage: null as FoodStage,
+  isPackageDelivery: false,
   cancelReason: null as string | null,
   scheduling: "asap" as const,
   loadType: "mixed" as const,
@@ -76,7 +77,7 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
     set((state) =>
       state.currentOrderId === currentOrderId
         ? { currentOrderId }
-        : { currentOrderId, activeChat: [], unreadCount: 0, foodStage: null, cancelReason: null }
+        : { currentOrderId, activeChat: [], unreadCount: 0, foodStage: null, cancelReason: null, isPackageDelivery: false }
     ),
   setServiceType: (serviceType) => set({ serviceType }),
   setDriver: (driver) => set({ driver }),
@@ -165,6 +166,7 @@ export const useDeliveryStore = create<DeliveryState>((set, get) => ({
 
   setStatus: (status) => set({ status }),
   setFoodStage: (foodStage) => set({ foodStage }),
+  setIsPackageDelivery: (isPackageDelivery) => set({ isPackageDelivery }),
   setCancelReason: (cancelReason) => set({ cancelReason }),
   setRoute: (route) => set({ route }),
   setStops: (stops) => set({ stops }),
@@ -187,7 +189,7 @@ const TERMINAL_ORDER_STATUSES: OrderStatus[] = ["delivered", "cancelled"];
  * they're on — the source for the active-order stripe above the tab bar. `currentOrderId`
  * on its own isn't enough to tell: nothing clears it once an order finishes (only the
  * next order overwrites it), so a completed/cancelled one is excluded by its terminal
- * `status` instead. `status` itself is kept live in the background by GlobalSocketHandler,
+ * `status` instead. `status` itself is kept live in the background by GlobalOrderPoller,
  * not just while the tracking screen happens to be open.
  */
 export const useActiveOrder = () => {
@@ -196,6 +198,7 @@ export const useActiveOrder = () => {
   const serviceType = useDeliveryStore((s) => s.serviceType);
   const driver = useDeliveryStore((s) => s.driver);
   const foodStage = useDeliveryStore((s) => s.foodStage);
+  const isPackageDelivery = useDeliveryStore((s) => s.isPackageDelivery);
   const isActive = !!orderId && !TERMINAL_ORDER_STATUSES.includes(status);
-  return { isActive, orderId, serviceType, status, driver, foodStage };
+  return { isActive, orderId, serviceType, status, driver, foodStage, isPackageDelivery };
 };

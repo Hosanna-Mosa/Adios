@@ -16,14 +16,14 @@ import { PACKAGE_DELIVERY_SERVICE_TYPES, packageDeliverySchema } from "./orders.
 export const isPackageDeliveryOrder = (order: any): boolean => !!order?.packageDelivery;
 
 /**
- * An order as its driver may see it. A package delivery's `deliveryOtp` is the receiver's
- * to give, so it is never sent to the driver — the backend checks what they type instead.
+ * An order as its driver may see it. A package delivery's or food / meat order's `deliveryOtp` is
+ * the receiver's / customer's to give, so it is never sent to the driver — the backend checks what they type instead.
  * Other orders pass unchanged. Takes a document or plain object; returns plain JSON.
  */
 export function withoutDriverSecrets<T = any>(order: any): T {
   if (!order) return order;
   const json = typeof order.toJSON === "function" ? order.toJSON() : { ...order };
-  if (isPackageDeliveryOrder(json)) delete json.deliveryOtp;
+  if (isPackageDeliveryOrder(json) || json.vendor) delete json.deliveryOtp;
   return json;
 }
 

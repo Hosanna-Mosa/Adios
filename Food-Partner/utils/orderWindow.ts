@@ -1,7 +1,7 @@
 import type { PartnerOrder } from "@/types/models";
 
-// How the outlet's orders are windowed: a small "live" set kept fresh by the
-// socket (today's orders plus anything still in progress), and the history
+// How the outlet's orders are windowed: a small "live" set kept fresh by
+// polling (today's orders plus anything still in progress), and the history
 // before today, loaded a page at a time as the partner scrolls.
 
 /** Midnight at the start of the device's today — where the live set begins and history ends. */

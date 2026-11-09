@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeBlurView } from "./SafeBlurView";
@@ -33,6 +34,7 @@ export function Header({
   blurThreshold = 40,
   transparent = false,
 }: Props) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const scrollLinkedStyle = useAnimatedStyle(() => {
@@ -52,7 +54,7 @@ export function Header({
 
       <Box style={styles.row}>
         {showBack && onBack ? (
-          <PressBox hitSlop={12} onPress={onBack} style={styles.iconBtn}>
+          <PressBox accessibilityLabel={t("a11y.back")} hitSlop={12} onPress={onBack} style={styles.iconBtn}>
             <Ionicons name="chevron-back" size={moderateScale(22)} color={Colors.text} />
           </PressBox>
         ) : (

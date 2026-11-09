@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, type LayoutChangeEvent } from "react-native";
+import { ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeBlurView } from "@/components/ui/SafeBlurView";

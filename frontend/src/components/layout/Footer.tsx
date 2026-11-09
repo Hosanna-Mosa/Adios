@@ -105,7 +105,9 @@ function MarketingFooter() {
               <li>
                 <a
                   className="hover:text-brand-kinetic transition-colors"
-                  href="#privacy"
+                  // The published policy (VITE_PRIVACY_POLICY_URL); the in-page anchor
+                  // only until it exists.
+                  href={import.meta.env.VITE_PRIVACY_POLICY_URL || "#privacy"}
                 >
                   {t("footer.privacyPolicy")}
                 </a>

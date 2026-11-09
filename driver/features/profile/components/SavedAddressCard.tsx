@@ -54,10 +54,10 @@ export function SavedAddressCard({
         {address.phone && <AppText style={styles.addressPhone}>{address.phone}</AppText>}
       </Box>
       <Box style={styles.addressActions}>
-        <Touchable style={styles.actionBtn} onPress={onEdit}>
+        <Touchable accessibilityLabel={t("a11y.editAddress")} hitSlop={8} style={styles.actionBtn} onPress={onEdit}>
           <Feather name="edit-2" size={18} color={Colors.primary} />
         </Touchable>
-        <Touchable style={styles.actionBtn} onPress={onDelete}>
+        <Touchable accessibilityLabel={t("a11y.deleteAddress")} hitSlop={8} style={styles.actionBtn} onPress={onDelete}>
           <Feather name="trash-2" size={18} color={Colors.error} />
         </Touchable>
       </Box>

@@ -6,8 +6,10 @@ import { AddAddressCenterMarker } from "@/features/delivery/components/AddAddres
 import { AddAddressUseCurrentWrap } from "@/features/delivery/components/AddAddressUseCurrentWrap";
 import { AddAddressSearchResults } from "@/features/delivery/components/AddAddressSearchResults";
 import { AddAddressSearchRow } from "@/features/delivery/components/AddAddressSearchRow";
+import { usePlaceSearchHasMessage } from "@/features/delivery/components/PlaceSearchMessage";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useAddAddress } from "@/features/delivery/useAddAddress";
+import { useMapStyle } from "@/components/useMapStyle";
 
 export default function AddAddressScreen() {
   const {
@@ -19,6 +21,8 @@ export default function AddAddressScreen() {
   handleUseCurrentLocation, onRegionChangeComplete, handleSearch, handleSelectSearchResult,
   handleSave
   } = useAddAddress();
+  const mapStyle = useMapStyle();
+  const searchHasMessage = usePlaceSearchHasMessage(searchResults.length > 0);
 
   return (
     <ScreenShell keyboardAvoiding>
@@ -29,6 +33,7 @@ export default function AddAddressScreen() {
             provider={Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
             style={StyleSheet.absoluteFill}
             initialRegion={region}
+            customMapStyle={mapStyle}
             onRegionChangeComplete={onRegionChangeComplete}
             showsUserLocation
             showsMyLocationButton={false}
@@ -46,7 +51,7 @@ export default function AddAddressScreen() {
             tokens={tokens}
           />
 
-          {searchResults.length > 0 && (
+          {(searchResults.length > 0 || searchHasMessage) && (
             <AddAddressSearchResults
               handleSelectSearchResult={handleSelectSearchResult}
               insets={insets}

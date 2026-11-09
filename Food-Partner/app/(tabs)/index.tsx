@@ -18,9 +18,10 @@ export default function DashboardScreen() {
   return (
     <ScreenShell
       scroll
+      style={{ paddingTop: insets.top }}
       refreshing={refreshing}
       onRefresh={refresh}
-      contentStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: tabBarHeight }]}
+      contentStyle={[styles.content, { paddingTop: 12, paddingBottom: tabBarHeight }]}
     >
       <DashboardHeader
         name={profile?.name ?? ""}
@@ -29,6 +30,8 @@ export default function DashboardScreen() {
         status={outletBadge}
         rating={rating}
         reviewCount={reviewCount}
+        onRefresh={refresh}
+        refreshing={refreshing}
         styles={styles}
         tokens={tokens}
       />

@@ -7,10 +7,13 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useAppTabBarHeight } from "@/components/AppTabBar";
 import { resolveServiceKey } from "./useOrders.shared";
 import { getOrders } from "@/services/orders.service";
-import { socketService } from "@/utils/socketService";
+import { usePolling } from "@/utils/usePolling";
 
 // Split out of useOrders so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
+
+/** Silent re-fetch while the tab is on screen, so finished orders drop their Track button. */
+const POLL_MS = 15000;
 
 export function useOrdersInsets() {
   const insets = useSafeAreaInsets();
@@ -22,6 +25,8 @@ export function useOrdersInsets() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // The last fetch failed. Only shown when there are no orders to fall back on.
+  const [loadError, setLoadError] = useState(false);
   const [serviceFilters, setServiceFilters] = useState<Set<string>>(new Set());
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [pendingServiceFilters, setPendingServiceFilters] = useState<Set<string>>(new Set());
@@ -39,32 +44,25 @@ export function useOrdersInsets() {
       if (!opts?.silent) setLoading(true);
       const data = await getOrders();
       if (data) setOrders(data);
+      setLoadError(false);
     } catch (err) {
       console.error("Fetch orders error:", err);
+      setLoadError(true);
     } finally {
       if (!opts?.silent) setLoading(false);
     }
   }, []);
 
+  const [focused, setFocused] = useState(false);
   useFocusEffect(
     React.useCallback(() => {
       fetchOrders();
+      setFocused(true);
+      return () => setFocused(false);
     }, [fetchOrders])
   );
 
-  // A status change fires this into the customer's own socket room regardless
-  // of which order it's for (see orders.service.ts#updateOrderStatus) — unlike
-  // "order_status_update", which is scoped to whichever single order the
-  // tracking screen currently has joined. Without this, a ride that finished
-  // while the customer was already sitting on this tab kept its "Track order"
-  // button until the next time the tab regained focus — nothing here told the
-  // already-fetched list that anything had changed.
-  React.useEffect(() => {
-    socketService.connect();
-    const onOrderListUpdate = () => fetchOrders({ silent: true });
-    socketService.on("customer_order_list_update", onOrderListUpdate);
-    return () => socketService.off("customer_order_list_update", onOrderListUpdate);
-  }, [fetchOrders]);
+  usePolling(() => fetchOrders({ silent: true }), POLL_MS, { enabled: focused, immediate: false });
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -78,5 +76,5 @@ export function useOrdersInsets() {
     [withKey, serviceFilters]
   );
 
-  return { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered };
+  return { insets, tabBarHeight, tokens, styles, orders, setOrders, loading, refreshing, onRefresh, loadError, retryOrders: fetchOrders, serviceFilters, setServiceFilters, showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters, reorderingId, setReorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating, reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, setSubmittingReview, withKey, filtered };
 }

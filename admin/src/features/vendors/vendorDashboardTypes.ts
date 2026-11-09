@@ -28,6 +28,8 @@ export interface VendorOrder {
   cancelReason?: string | null;
   prepMinutes?: number | null;
   foodReadyAt?: string | null;
+  /** A booking for a later slot — the vendor isn't alerted about it as a new order. */
+  isReserved?: boolean;
 }
 
 /** Prep times a restaurant can quote when accepting a food order, in minutes. */

@@ -21,37 +21,37 @@ async function findTestOrders() {
   const orderWithChat = await Order.findById(chatOrderId).populate("user").populate("driver").lean();
 
   // 2. Food order
-  const foodOrder = await Order.findOne({ serviceType: "delivery", vendor: { $exists: true, $ne: null } })
+  const foodOrder = await Order.findOne(<any>{ serviceType: "delivery", vendor: { $exists: true, $ne: null } })
     .populate("user")
     .populate("vendor")
     .populate("driver")
     .lean();
 
   // 3. Ride order
-  const rideOrder = await Order.findOne({ serviceType: { $in: ["bike", "auto", "cab_economy", "cab_premium"] }, packageDelivery: { $exists: false } })
+  const rideOrder = await Order.findOne(<any>{ serviceType: { $in: ["bike", "auto", "cab_economy", "cab_premium"] }, packageDelivery: { $exists: false } })
     .populate("user")
     .populate("driver")
     .lean();
 
   // 4. Package delivery
-  const packageOrder = await Order.findOne({ packageDelivery: { $exists: true, $ne: null } })
+  const packageOrder = await Order.findOne(<any>{ packageDelivery: { $exists: true, $ne: null } })
     .populate("user")
     .populate("driver")
     .lean();
 
   // 5. Helper task
-  const helperOrder = await Order.findOne({ serviceType: "helper" })
+  const helperOrder = await Order.findOne(<any>{ serviceType: "helper" })
     .populate("user")
     .populate("driver")
     .lean();
 
   // 6. Cancelled order with reason
-  const cancelledOrder = await Order.findOne({ status: { $in: ["CANCELLED", "cancelled"] }, cancelReason: { $exists: true, $ne: null } })
+  const cancelledOrder = await Order.findOne(<any>{ status: { $in: ["CANCELLED", "cancelled"] }, cancelReason: { $exists: true, $ne: null } })
     .populate("user")
     .lean();
 
   // 7. Refunded order
-  const refundedOrder = await Order.findOne({
+  const refundedOrder = await Order.findOne(<any>{
     $or: [
       { refundStatus: { $exists: true, $ne: null } },
       { razorpayRefundId: { $exists: true, $ne: null } },

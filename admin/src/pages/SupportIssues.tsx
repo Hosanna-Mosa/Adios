@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 import { useSupportIssues } from "@/features/support/hooks/useSupportIssues";
 import { SupportIssuesStats } from "@/features/support/components/SupportIssuesStats";
 import { TicketControlsBar } from "@/features/support/components/TicketControlsBar";
@@ -15,6 +16,8 @@ export default function SupportIssues() {
     ticketsList,
     filteredTickets,
     isLoading,
+    isFetching,
+    refetch,
     isCreateOpen,
     setIsCreateOpen,
     newTicket,
@@ -38,7 +41,8 @@ export default function SupportIssues() {
             <h1 className="page-header">{t("support.supportCases")}</h1>
             <p className="page-subtitle">{t("support.trackFilterResolveDesc")}</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            <RefreshButton onRefresh={() => refetch()} isRefreshing={isFetching} label={t("common.refresh")} />
             {/* "Export Logs" claimed "System audit support logs exported as
                 CSV!" and exported nothing — no such export exists on the
                 backend, so the decorative button was removed. */}

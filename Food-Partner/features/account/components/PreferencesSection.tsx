@@ -10,10 +10,11 @@ interface Props {
   toggleTheme: () => void;
   languageName: string;
   tokens: ThemeTokens;
+  onTestNotification: () => void;
 }
 
 /** Dark mode and language. */
-export function PreferencesSection({ isDark, toggleTheme, languageName, tokens }: Props) {
+export function PreferencesSection({ isDark, toggleTheme, languageName, tokens, onTestNotification }: Props) {
   const { t } = useTranslation();
   return (
     <ListGroup title={t("account.preferences")} delay={100}>
@@ -24,7 +25,8 @@ export function PreferencesSection({ isDark, toggleTheme, languageName, tokens }
         right={<ToggleSwitch value={isDark} onValueChange={toggleTheme} onColor={tokens.brand} accessibilityLabel={t("account.darkMode")} />}
         divider
       />
-      <ListRow icon="language-outline" label={t("account.language")} description={languageName} onPress={() => router.push("/language-settings")} />
+      <ListRow icon="language-outline" label={t("account.language")} description={languageName} onPress={() => router.push("/language-settings")} divider />
+      <ListRow icon="notifications-outline" label={t("notifications.testTitle")} description={t("notifications.testHint")} onPress={onTestNotification} />
     </ListGroup>
   );
 }

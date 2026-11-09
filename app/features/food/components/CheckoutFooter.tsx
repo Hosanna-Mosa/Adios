@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,7 +12,8 @@ import { PaymentOptionsBody } from "./PaymentOptionsBody";
 import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
-// from the screen's scope is now a prop of the same name.
+// from the screen's scope is now a prop of the same name. Cash or online is chosen on the
+// next screen (app/payment.tsx), so this only proceeds to it.
 
 interface Props {
   accent: ServiceTokens;
@@ -34,7 +36,6 @@ export function CheckoutFooter({
   insets,
   isPlacingOrder,
   placeOrder,
-  scheduledFor,
   styles,
   tokens,
   total,

@@ -3,7 +3,7 @@ import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
 import { authenticateToken } from "../../middleware/auth.middleware";
 import { authRateLimiter, refreshRateLimiter } from "../../middleware/rateLimit.middleware";
-import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema, requestEmailOtpSchema, verifyEmailOtpSchema, completeSignupSchema } from "./auth.validation";
+import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema, requestEmailOtpSchema, verifyEmailOtpSchema, completeSignupSchema, registerSchema, deleteAccountWithPasswordSchema } from "./auth.validation";
 
 const router = Router();
 const authController = new AuthController();
@@ -13,8 +13,11 @@ router.post("/verify-otp", authRateLimiter, validateRequest(verifyOtpSchema), au
 router.post("/request-email-otp", authRateLimiter, validateRequest(requestEmailOtpSchema), authController.requestEmailOTP.bind(authController));
 router.post("/verify-email-otp", authRateLimiter, validateRequest(verifyEmailOtpSchema), authController.verifyEmailOTP.bind(authController));
 router.post("/complete-signup", authRateLimiter, validateRequest(completeSignupSchema), authController.completeSignup.bind(authController));
+router.post("/register", authRateLimiter, validateRequest(registerSchema), authController.register.bind(authController));
 router.post("/login-password", authRateLimiter, validateRequest(loginWithPasswordSchema), authController.loginWithPassword.bind(authController));
 router.post("/refresh", refreshRateLimiter, authController.refresh.bind(authController));
+// Web account-deletion request (partner site /delete-account); throttled like sign-in.
+router.post("/delete-account", authRateLimiter, validateRequest(deleteAccountWithPasswordSchema), authController.deleteAccount.bind(authController));
 router.post("/logout", authController.logout.bind(authController));
 router.post("/logout-all", authenticateToken, authController.logoutAll.bind(authController));
 router.get("/version-check", authController.versionCheck.bind(authController));

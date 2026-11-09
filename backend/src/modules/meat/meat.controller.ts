@@ -29,7 +29,7 @@ export const forgotMeatVendorPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const center = await MeatCenter.findOne({ email });
+    const center = await MeatCenter.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (center) {
       // Generate OTP and save
       const otp = generateOTP();
@@ -85,12 +85,14 @@ export const resetMeatVendorPassword = async (req: Request, res: Response) => {
     await otpRecord.save();
 
     // Update password
-    const center = await MeatCenter.findOne({ email });
+    const center = await MeatCenter.findOne({ email }).collation({ locale: "en", strength: 2 });
     if (!center) {
       return res.status(404).json({ message: "Account not found" });
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this reset — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
     await revokeAllRefreshSessions(center._id.toString());
 
@@ -130,7 +132,8 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       $or: [...(email ? [{ email }] : []), ...(phone ? [{ phone }] : [])],
     });
 
-    if (!center) {
+    // A deleted account has no password left to compare against.
+    if (!center || center.deletedAt || !center.password) {
       return res.status(401).json({ message: "Invalid email/phone or password" });
     }
 
@@ -146,8 +149,8 @@ export const loginMeatCenter = async (req: Request, res: Response) => {
       phone: center.phone,
       role: "meat_vendor",
       ...(clientSupportsRefresh(req)
-        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor" })
-        : { token: generateToken(center._id.toString(), "meat_vendor") }),
+        ? await startSession({ subjectId: center._id.toString(), role: "meat_vendor", tokenVersion: center.tokenVersion ?? 0 })
+        : { token: generateToken(center._id.toString(), "meat_vendor", center.tokenVersion ?? 0) }),
     });
   } catch (error) {
     console.error("Error logging in meat center:", error);
@@ -202,8 +205,9 @@ export const getNearbyMeatCenters = async (req: Request, res: Response) => {
     }
 
     // Spatial query parameters enforcing active zone
-    const centerGeoQuery: any = {};
-    const vendorGeoQuery: any = { partnerType: "meat" };
+    // A deleted partner account (partner-account-deletion.service) never reaches customers.
+    const centerGeoQuery: any = { deletedAt: { $exists: false } };
+    const vendorGeoQuery: any = { partnerType: "meat", deletedAt: { $exists: false } };
 
     if (activeZone?.type === "polygon" && activeZone.boundary) {
       centerGeoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
@@ -661,6 +665,8 @@ export const changeMeatVendorPassword = async (req: AuthRequest, res: Response) 
     }
 
     center.password = newPassword;
+    // Invalidates every token issued before this change — see IAM-002.
+    center.tokenVersion = (center.tokenVersion ?? 0) + 1;
     await center.save();
     await revokeAllRefreshSessions(center._id.toString());
 
@@ -698,6 +704,63 @@ export const updateMeatItemPrice = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const MEAT_PARTNER_ROLES = ["meat_vendor"];
+
+/** POST /meat/items — a meat partner adds an item to their own inventory. */
+export const createMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!MEAT_PARTNER_ROLES.includes(String(req.user?.role))) return res.status(403).json({ message: "Only meat partners can add meat items" });
+    const { name, weight, price, category, image, description, isAvailable } = req.body;
+    const duplicate = await MeatItem.exists({ meatCenterId: req.user!.userId, name, weight }).collation({ locale: "en", strength: 2 });
+    if (duplicate) return res.status(409).json({ message: "You already have an item with this name and weight" });
+    const item = await MeatItem.create({
+      meatCenterId: req.user!.userId, name, weight, price, category, image: image || undefined, description: description || undefined,
+      isAvailable: isAvailable ?? true, isGlobalItem: false,
+    });
+    res.status(201).json(item);
+  } catch (error) {
+    console.error("Error adding meat item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/**
+ * PUT /meat/items/:itemId — edit an own item. The standard items every centre starts with keep
+ * their name, weight and category (the admin prices them by name); price, photo, description and
+ * availability can still be changed.
+ */
+export const updateMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    const item = await MeatItem.findById(req.params.itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (req.user?.userId !== item.meatCenterId.toString()) return res.status(403).json({ message: "Access denied: you do not own this item" });
+
+    const body = req.body as Record<string, unknown>;
+    const editable = item.isGlobalItem ? ["price", "image", "description", "isAvailable"] : ["name", "weight", "price", "category", "image", "description", "isAvailable"];
+    for (const field of editable) if (body[field] !== undefined) (item as any)[field] = body[field];
+    await item.save();
+    res.json(item);
+  } catch (error) {
+    console.error("Error updating meat item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+/** DELETE /meat/items/:itemId — remove an own item (not one of the standard items). */
+export const deleteMyMeatItem = async (req: AuthRequest, res: Response) => {
+  try {
+    const item = await MeatItem.findById(req.params.itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+    if (req.user?.userId !== item.meatCenterId.toString()) return res.status(403).json({ message: "Access denied: you do not own this item" });
+    if (item.isGlobalItem) return res.status(400).json({ message: "Standard items can't be deleted — mark them unavailable instead" });
+    await item.deleteOne();
+    res.json({ message: "Item deleted" });
+  } catch (error) {
+    console.error("Error deleting meat item:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const updateMeatCenter = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -724,7 +787,11 @@ export const updateMeatCenter = async (req: Request, res: Response) => {
     if (name !== undefined) center.name = name;
     if (phone !== undefined) center.phone = phone;
     if (email !== undefined) center.email = email;
-    if (password) center.password = password; // pre-save hashes it
+    if (password) {
+      center.password = password; // pre-save hashes it
+      // An admin-reset password should kill existing sessions too — same reasoning as IAM-002.
+      center.tokenVersion = (center.tokenVersion ?? 0) + 1;
+    }
     if (location !== undefined) center.location = location;
     if (address !== undefined) center.address = address;
     if (image !== undefined) center.image = image;
@@ -762,4 +829,3 @@ export const deleteMeatCenter = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
