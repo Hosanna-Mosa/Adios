@@ -3,7 +3,6 @@ import React from "react";
 import { RouteOptimizeResponse, decodePolyline } from "./useRideConfirmation.shared";
 import { optimizeRoute } from "@/services/places.service";
 import { fetchNearbyDriverPins } from "@/utils/nearbyDrivers";
-import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useRideConfirmation so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.

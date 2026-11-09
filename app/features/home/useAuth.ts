@@ -10,6 +10,7 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useIntroSplashStore } from "@/contexts/introSplashStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { showAlert } from "@/components/ui/AppAlert";
+import { useIntroSplash } from "./useIntroSplash";
 import { isValidIdentifier, toMobileNumber } from "@/features/auth/login.validation";
 
 // State, data loading and handlers for app/index.tsx.
@@ -20,48 +21,15 @@ export function useAuth() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  // Arrival Animation States for "ADIOS". Timing and layout follow letters.length,
-  // so the word can change without touching the animation below.
+  // The intro splash (see useIntroSplash). When it finishes, the routing gate
+  // in app/_layout.tsx may redirect (to select-language, login, or tabs)
+  // without cutting the animation short.
   const [showSplash, setShowSplash] = useState(true);
   const splashOpacity = React.useRef(new Animated.Value(1)).current;
-  const letters = ["A", "D", "I", "O", "S"];
-  const translateAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
-  const opacityAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
-
-  useEffect(() => {
-    // Set up spring arrival animations from opposite vertical directions
-    const animations = letters.map((_, idx) => {
-      const isOdd = idx % 2 !== 0;
-      translateAnim[idx].setValue(isOdd ? -450 : 450);
-      opacityAnim[idx].setValue(0);
-
-      return Animated.parallel([
-        Animated.spring(translateAnim[idx], {
-          toValue: 0,
-          tension: 40,
-          friction: 6.5,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim[idx], {
-          toValue: 1,
-          duration: 900,
-          useNativeDriver: true,
-        })
-      ]);
-    });
-
-    Animated.sequence([
-      Animated.delay(200),
-      Animated.stagger(120, animations),
-      Animated.delay(1200), // Let the complete name rest in the center
-    ]).start(() => {
-      setIntroPlayed(true);
-      // Lets app/_layout.tsx's routing gate know the splash has fully played,
-      // so it can safely redirect (to select-language, login, or tabs)
-      // without cutting this animation short.
-      useIntroSplashStore.getState().setIntroSplashDone();
-    });
-  }, []);
+  const introAnims = useIntroSplash(() => {
+    setIntroPlayed(true);
+    useIntroSplashStore.getState().setIntroSplashDone();
+  });
   const [introPlayed, setIntroPlayed] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -154,7 +122,7 @@ export function useAuth() {
   // Show a loading indicator while auth state is being restored
 
   return {
-  insets, showSplash, splashOpacity, letters, translateAnim, opacityAnim, identifier,
+  insets, showSplash, splashOpacity, introAnims, identifier,
   setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
   loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
   handleContinueWithOtp

@@ -1,4 +1,4 @@
-import { type RefObject } from "react";
+import { type RefObject, useState } from "react";
 import { ActivityIndicator, Dimensions, FlatList, ScrollView, Text, TextInput, View } from "react-native";
 import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
@@ -35,8 +35,10 @@ interface Props {
 }
 
 export function HomeSearchOverlaySearchForDishes(props: Props) {
-  const { addRecentSearch, inputRef, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
+  const { accent, addRecentSearch, inputRef, insets, searchSheetAnimatedStyle, searchText, setIsSearchActive, setSearchText, styles, tokens } = props;
   const { t } = useTranslation();
+  // autoFocus below means the field opens focused.
+  const [focused, setFocused] = useState(true);
   return (
     <Animated.View
       style={[
@@ -53,8 +55,10 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
       </View>
 
       <View style={styles.searchSheetInputRow}>
-        <View style={styles.searchSheetInputWrap}>
-          <Ionicons name="search" size={moderateScale(18)} color={tokens.muted} />
+        <View style={[styles.searchSheetInputWrap, focused && styles.searchSheetInputWrapFocused]}>
+          <View style={[styles.searchSheetIconCircle, focused && styles.searchSheetIconCircleFocused]}>
+            <Ionicons name="search" size={moderateScale(17)} color={focused ? accent.accent : tokens.muted} />
+          </View>
           <TextInput
             ref={inputRef}
             style={styles.searchSheetInput}
@@ -63,6 +67,9 @@ export function HomeSearchOverlaySearchForDishes(props: Props) {
             value={searchText}
             onChangeText={setSearchText}
             autoFocus
+            autoCorrect={false}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             returnKeyType="search"
             onSubmitEditing={() => addRecentSearch(searchText)}
           />

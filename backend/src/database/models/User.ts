@@ -52,6 +52,8 @@ export interface IUser extends Document, IUserMethods {
   favoriteItems?: Types.ObjectId[];
   isBlocked?: boolean;
   tokenVersion?: number;
+  /** SUPPORT members only: what the member may do. Unset = the original abilities (support.permissions.ts). */
+  supportPermissions?: string[];
   expoPushToken?: string;
   webPushSubscriptions?: IWebPushSubscription[];
   /** Set when the person deleted their own account; the record is anonymised (see account-deletion.service). */
@@ -71,6 +73,7 @@ const UserSchema: Schema = new Schema(
     // Bumped by POST /auth/logout-all. Every JWT carries the value it was minted
     // with as `tv`; authenticateToken rejects a token whose `tv` has fallen behind.
     tokenVersion: { type: Number, default: 0 },
+    supportPermissions: { type: [String], default: undefined },
     expoPushToken: { type: String },
     webPushSubscriptions: [webPushSubscriptionSchema],
     deletedAt: { type: Date },

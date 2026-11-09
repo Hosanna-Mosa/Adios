@@ -29,13 +29,11 @@ export function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
         <Stack.Screen name="index" options={{ animation: "fade" }} />
         <Stack.Screen name="login" options={{ animation: "fade" }} />
-        <Stack.Screen name="otp" />
         <Stack.Screen name="signup" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
         <Stack.Screen name="delivery/entry" />
         <Stack.Screen name="delivery/add-stop" />
         <Stack.Screen name="delivery/checkout" />
-        <Stack.Screen name="cart" options={{ animation: "slide_from_bottom" }} />
         <Stack.Screen name="checkout" />
         <Stack.Screen name="payment" />
         {/* Back from tracking goes Home (see goHomeFromTracking); a swipe would pop

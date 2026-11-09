@@ -15,7 +15,7 @@ import type { Props } from "./TrackingSheetBody.props";
 
 export function TrackingSheetBody(props: Props) {
   const { accent, deliveryOtp, deliveryStop, driver, eta, formatClock, handleSOS, handleShareTrip,
-  helperStatus, isHelper, isRide, isPackageDelivery, orderCreatedAt, pickupLabel,
+  helperStatus, isHelper, isRide, isPackageDelivery, isFoodOrder, canCancelFoodOrder, handleCancelFoodOrder, orderCreatedAt, pickupLabel,
   setTripModalVisible, startOtp, status, stops, styles, timeline, tokens, unreadCount } = props;
   const { t } = useTranslation();
   // A package delivery's OTP goes to the receiver, who gives it to the captain at the drop.
@@ -29,6 +29,7 @@ export function TrackingSheetBody(props: Props) {
         accent={accent}
         isHelper={isHelper}
         isRide={isRide}
+        isPackageDelivery={isPackageDelivery}
         styles={styles}
       />
     ) : (
@@ -139,13 +140,26 @@ export function TrackingSheetBody(props: Props) {
               onPress={() => setTripModalVisible(true)}
               styles={styles}
             />
-            <TrackingFooterButton
-              label={t("app.ride.help")}
-              onPress={handleSOS}
-              tone="danger"
-              styles={styles}
-              tokens={tokens}
-            />
+            {/* A food order has no emergency: its second action is Cancel, until the food is picked up. */}
+            {isFoodOrder ? (
+              canCancelFoodOrder && handleCancelFoodOrder ? (
+                <TrackingFooterButton
+                  label={t("app.foodOrder.cancelOrder")}
+                  onPress={handleCancelFoodOrder}
+                  tone="danger"
+                  styles={styles}
+                  tokens={tokens}
+                />
+              ) : null
+            ) : (
+              <TrackingFooterButton
+                label={t("app.ride.help")}
+                onPress={handleSOS}
+                tone="danger"
+                styles={styles}
+                tokens={tokens}
+              />
+            )}
           </View>
         )}
         <View style={{ height: 12 }} />

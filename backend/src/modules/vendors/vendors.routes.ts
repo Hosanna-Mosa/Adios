@@ -3,7 +3,7 @@ import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware
 import { UserRole } from "../../database/models/User";
 import { getNearbyVendors, getVendorById, createVendor, searchGooglePlaces, getPlaceDetails, loginVendor, saveVendorOnboarding, changeVendorPassword, forgotVendorPassword, resetVendorPassword, updateVendor, deleteVendor, requestVendorPayout, getOutletOrderingStatus } from "./vendors.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { authRateLimiter } from "../../middleware/rateLimit.middleware";
+import { authRateLimiter, mapsRateLimiter } from "../../middleware/rateLimit.middleware";
 import {
   forgotVendorPasswordSchema,
   resetVendorPasswordSchema,
@@ -23,6 +23,9 @@ import {
   resubmitVendorDocumentsSchema,
   setMyOpenStateSchema,
   partnerPushTokenSchema,
+  partnerOfferSchema,
+  partnerOfferActiveSchema,
+  partnerOfferIdSchema,
   updateMyVendorProfileSchema,
 } from "./vendors.validation";
 import {
@@ -36,7 +39,9 @@ import {
   resubmitOnboardingDocuments,
   startOnboardingDigilocker,
 } from "./vendor-verification.controller";
-import { getMyVendorProfile, registerMyPushToken, removeMyPushToken, setMyOpenState, updateMyVendorProfile } from "./vendor-profile.controller";
+import { getMyAnalytics } from "./vendor-analytics.controller";
+import { createMyOffer, deleteMyOffer, listMyOffers, setMyOfferActive } from "./vendor-offers.controller";
+import { getMyVendorProfile, registerMyPushToken, removeMyPushToken, sendMyTestPush, setMyOpenState, updateMyVendorProfile } from "./vendor-profile.controller";
 import { getMyPayouts } from "./vendor-payouts.controller";
 
 const router = Router();
@@ -50,7 +55,13 @@ router.get("/me", authenticateToken, getMyVendorProfile);
 router.put("/me", authenticateToken, validateRequest(updateMyVendorProfileSchema), updateMyVendorProfile);
 router.put("/me/open", authenticateToken, validateRequest(setMyOpenStateSchema), setMyOpenState);
 router.get("/me/payouts", authenticateToken, getMyPayouts);
+router.get("/me/analytics", authenticateToken, getMyAnalytics);
+router.get("/me/offers", authenticateToken, listMyOffers);
+router.post("/me/offers", authenticateToken, validateRequest(partnerOfferSchema), createMyOffer);
+router.put("/me/offers/:id/active", authenticateToken, validateRequest(partnerOfferActiveSchema), setMyOfferActive);
+router.delete("/me/offers/:id", authenticateToken, validateRequest(partnerOfferIdSchema), deleteMyOffer);
 router.post("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), registerMyPushToken);
+router.post("/me/test-push", authenticateToken, sendMyTestPush);
 router.delete("/me/push-token", authenticateToken, validateRequest(partnerPushTokenSchema), removeMyPushToken);
 router.get("/:id", optionalAuth, validateRequest(vendorIdParamSchema), getVendorById);
 // Restaurants and meat centres alike — the customer menu reads it before adding to the cart.

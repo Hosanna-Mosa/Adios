@@ -45,5 +45,5 @@ export function useHelperTaskSuggestedLow(quote: HelperQuote | null, setPickupLo
     }
   };
 
-  return { suggestedLow, suggestedHigh, handleUseCurrentLocation, refresh, refreshing };
+  return { suggestedLow, suggestedHigh, handleUseCurrentLocation };
 }

@@ -3,13 +3,14 @@ import { AuthController } from "./auth.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
 import { authenticateToken } from "../../middleware/auth.middleware";
 import { authRateLimiter, refreshRateLimiter } from "../../middleware/rateLimit.middleware";
-import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema, deleteAccountWithPasswordSchema } from "./auth.validation";
+import { requestOtpSchema, verifyOtpSchema, loginWithPasswordSchema, registerSchema, deleteAccountWithPasswordSchema } from "./auth.validation";
 
 const router = Router();
 const authController = new AuthController();
 
 router.post("/request-otp", authRateLimiter, validateRequest(requestOtpSchema), authController.requestOTP.bind(authController));
 router.post("/verify-otp", authRateLimiter, validateRequest(verifyOtpSchema), authController.verifyOTP.bind(authController));
+router.post("/register", authRateLimiter, validateRequest(registerSchema), authController.register.bind(authController));
 router.post("/login-password", authRateLimiter, validateRequest(loginWithPasswordSchema), authController.loginWithPassword.bind(authController));
 router.post("/refresh", refreshRateLimiter, authController.refresh.bind(authController));
 // Web account-deletion request (partner site /delete-account); throttled like sign-in.

@@ -6,7 +6,6 @@ import { optimizeRoute } from "@/services/places.service";
 import { decodePolyline } from "@/components/mapBackground.utils";
 import { PACKAGE_DELIVERY_VEHICLES, distanceKm } from "./packageDelivery.utils";
 import { fetchNearbyDriverPins } from "@/utils/nearbyDrivers";
-import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // What the confirm step shows about the trip: a fare per vehicle, the road route, and
 // the captains online around the pickup (refreshed while the screen is open).

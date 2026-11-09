@@ -9,7 +9,6 @@ import {
   ASSIGNED_STATUSES, DEAD_STATUSES, DONE_STATUSES, SEARCHING_STATUSES, STARTED_STATUSES,
   isForOrder, orderPrice, toHelperDriver,
 } from "./useHelperTask.shared";
-import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // The searching and assigned steps follow the server: a poll of GET /orders/:id
 // (the source of truth, and what catches up after the app was backgrounded) plus

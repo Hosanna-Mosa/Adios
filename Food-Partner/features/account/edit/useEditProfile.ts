@@ -7,6 +7,7 @@ import { useTokens } from "@/contexts/themeStore";
 import { usePartnerProfile, useUpdateProfile } from "@/queries/profile.queries";
 import type { OutletLocation, PartnerProfile, ProfileUpdate } from "@/types/models";
 import { errorMessage } from "@/utils/errorMessage";
+import { useProfileImages } from "./useProfileImages";
 import { createEditStyles } from "./editProfile.styles";
 import { useCurrentLocation } from "./useCurrentLocation";
 
@@ -60,6 +61,7 @@ export function useEditProfile() {
   const { profile, loaded, failed } = usePartnerProfile();
   const save = useUpdateProfile();
   const location = useCurrentLocation();
+  const images = useProfileImages();
   const [initial, setInitial] = useState<ProfileForm>(() => fromProfile(loaded ? profile : null));
   const [form, setForm] = useState<ProfileForm>(initial);
   const [errors, setErrors] = useState<ProfileErrors>({});
@@ -111,6 +113,8 @@ export function useEditProfile() {
     insets,
     tokens,
     styles,
+    profile,
+    images,
     loading: !hydrated,
     form,
     update,

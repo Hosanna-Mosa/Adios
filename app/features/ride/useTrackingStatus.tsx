@@ -52,5 +52,5 @@ export function useTrackingStatus() {
   // estimate (the order's route time, then the driver's live position).
   const [eta, setEta] = useState<number | null>(null);
 
-  return { status, setStatus, currentOrderId, setOrderId, setServiceType, route, setRoute, stops, setStops, driver, setDriver, unreadCount, resetDelivery, insets, params, tokens, isRide, isHelper, vendorName, setVendorName, setVendorPartnerType, accent, styles, eta, setEta };
+  return { status, setStatus, currentOrderId, setOrderId, setServiceType, route, setRoute, stops, setStops, driver, setDriver, unreadCount, resetDelivery, insets, params, tokens, isRide, isHelper, vendorName, setVendorName, vendorPartnerType, setVendorPartnerType, accent, styles, eta, setEta };
 }

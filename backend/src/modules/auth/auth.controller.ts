@@ -98,6 +98,16 @@ export class AuthController {
     }
   }
 
+  async register(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, phone, email, password } = req.body;
+      const result = await authService.register(name, phone, password, email);
+      return res.status(201).json(result);
+    } catch (error: any) {
+      next(error);
+    }
+  }
+
   async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { phone, email, password, role } = req.body;

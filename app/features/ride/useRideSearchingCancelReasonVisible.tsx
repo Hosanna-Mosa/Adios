@@ -2,7 +2,6 @@ import { setForegroundInterval } from "@/utils/foregroundInterval";
 import React from "react";
 import { normalizeServiceType } from "./useRideSearching.shared";
 import { fetchNearbyDriverPins, type NearbyDriverPin } from "@/utils/nearbyDrivers";
-import { setForegroundInterval } from "@/utils/foregroundInterval";
 
 // Split out of useRideSearching so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.

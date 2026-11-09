@@ -3,6 +3,7 @@ import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { type ThemeTokens } from "@/constants/colors";
 import { type ProfileStyles } from "@/features/profile/profile.styles";
+import { router } from "expo-router";
 
 // Moved out of app/(tabs)/profile.tsx. The JSX is unchanged; what it read from the screen's
 // scope is now a prop of the same name.
@@ -24,8 +25,13 @@ export function ProfileSignOutAllBtn({
 }: Props) {
   const { t } = useTranslation();
   return (
-    <TouchableOpacity style={styles.signOutAllBtn} onPress={handleSignOutAllDevices} disabled={signingOutAll || loading} activeOpacity={0.8}>
-      {signingOutAll ? <ActivityIndicator size="small" color={tokens.sec} /> : <Text style={styles.signOutAllBtnText}>{t("app.profile.signOutOfAllDevicesButton")}</Text>}
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity style={styles.signOutAllBtn} onPress={handleSignOutAllDevices} disabled={signingOutAll || loading} activeOpacity={0.8}>
+        {signingOutAll ? <ActivityIndicator size="small" color={tokens.sec} /> : <Text style={styles.signOutAllBtnText}>{t("app.profile.signOutOfAllDevicesButton")}</Text>}
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.deleteAccountBtn} onPress={() => router.push("/delete-account")} disabled={signingOutAll || loading} activeOpacity={0.8}>
+        <Text style={styles.deleteAccountBtnText}>{t("app.deleteAccount.title")}</Text>
+      </TouchableOpacity>
+    </>
   );
 }

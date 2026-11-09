@@ -20,8 +20,25 @@ export const createStyles = (tokens: ThemeTokens, accentColor: string) => StyleS
     marginBottom: 16,
     ...elevation.sm,
   },
+  // A closed outlet is disabled outright: faded card and a black-and-white photo.
   cardClosed: {
-    opacity: 0.7,
+    opacity: 0.55,
+  },
+  thumbWrap: {
+    borderRadius: radius.md,
+    overflow: "hidden",
+    flexShrink: 0,
+  },
+  // "saturation" blend with a colourless layer keeps the photo's light and dark
+  // but drops its colour, i.e. greyscale (new-architecture mixBlendMode).
+  thumbGreyscale: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#000000",
+    mixBlendMode: "saturation",
   },
   thumb: {
     width: moderateScale(116),

@@ -79,6 +79,8 @@ export interface IVendor extends Document {
     formattedAddress?: string;
   };
   image: string;
+  /** Wide banner shown at the top of the outlet's page; set from the partner app. */
+  coverImage?: string;
   rating: number;
   reviews: string;
   categories: string[];
@@ -260,6 +262,7 @@ const VendorSchema: Schema = new Schema(
       formattedAddress: { type: String },
     },
     image: { type: String },
+    coverImage: { type: String },
     rating: { type: Number, default: 0 },
     reviews: { type: String, default: "0" },
     categories: { type: [String], default: [] },

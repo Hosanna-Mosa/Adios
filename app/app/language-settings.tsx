@@ -1,5 +1,4 @@
 import React from "react";
-import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScreenShell } from "@/components/ui/ScreenShell";
@@ -18,8 +17,8 @@ import { router } from "expo-router";
 export default function LanguageSettingsScreen() {
   const { theme } = useThemeStore();
   const tokens = designTokens[theme];
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const language = useLanguageStore((s) => s.language);
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
@@ -29,16 +28,13 @@ export default function LanguageSettingsScreen() {
   };
 
   return (
-    <ScreenShell>
+    <ScreenShell style={{ paddingTop: insets.top }}>
       <Header
         title={t("app.profile.menuItems.language")}
-        onBack={() => router.back()}
-        style={{ paddingTop: insets.top + 4 }}
+        onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
+        style={{ paddingTop: 12, paddingBottom: 12 }}
       />
-      {/* The current language is marked, so the user sees what they'd be changing from. */}
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
-      </View>
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} showHero={false} />
     </ScreenShell>
   );
 }

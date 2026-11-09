@@ -10,6 +10,7 @@ import { SupportChatPanel } from "@/features/support/components/SupportChatPanel
 import { useSupportMembers } from "@/features/support/hooks/useSupportMembers";
 import { SupportMemberDialog } from "@/features/support/components/SupportMemberDialog";
 import { SupportTeamPanel } from "@/features/support/components/SupportTeamPanel";
+import { SupportMetricsBar } from "@/features/support/components/SupportMetricsBar";
 
 export default function Support() {
   const { t } = useTranslation();
@@ -29,7 +30,7 @@ export default function Support() {
     handleResolve,
     handleReopen,
   } = useSupportTickets();
-  const { isAdmin, members, isLoading: membersLoading, createMember, resetPassword, removeMember } = useSupportMembers();
+  const { isAdmin, members, isLoading: membersLoading, createMember, resetPassword, setPermissions, removeMember } = useSupportMembers();
   const [pageTab, setPageTab] = useState<"tickets" | "team">("tickets");
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
 
@@ -54,6 +55,8 @@ export default function Support() {
             )}
           </div>
         </div>
+
+        <SupportMetricsBar />
 
         {isAdmin && (
           <div className="inline-flex rounded-xl border border-border bg-card p-1 gap-1">
@@ -80,6 +83,7 @@ export default function Support() {
             members={members}
             isLoading={membersLoading}
             resetPassword={resetPassword}
+            setPermissions={setPermissions}
             removeMember={removeMember}
             onAddMember={() => setIsAddMemberOpen(true)}
           />

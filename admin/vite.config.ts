@@ -58,6 +58,8 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     contentSecurityPolicy(loadEnv(mode, process.cwd(), "VITE_").VITE_API_URL),
   ].filter(Boolean),
+  // Production builds ship without console.* calls; `npm run dev` keeps them.
+  esbuild: mode === "production" ? { drop: ["console", "debugger"] } : undefined,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

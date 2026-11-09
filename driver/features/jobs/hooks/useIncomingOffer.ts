@@ -100,5 +100,5 @@ export function useIncomingOffer() {
     timerWidth.value = withTiming((secondsLeft / totalSeconds.current) * 100, { duration: 320 });
   }, [secondsLeft, incomingOrder, timerWidth]);
 
-  return { isBroadcast, secondsLeft, showDeclineReasons, setShowDeclineReasons, sheetAnimatedStyle, timerBarAnimatedStyle };
+  return { isBroadcast, secondsLeft, sheetAnimatedStyle, timerBarAnimatedStyle };
 }

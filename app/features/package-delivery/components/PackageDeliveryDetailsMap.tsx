@@ -7,6 +7,7 @@ import { RIDE_STOP_ANCHOR, rideStopMarker } from "@/components/mapBackground.uti
 import type { ThemeTokens } from "@/constants/colors";
 import type { PackageDeliveryPointKind } from "@/contexts/packageDeliveryStore";
 import type { PackageDeliveryDetailsStyles } from "../packageDeliveryDetails.styles";
+import { useMapStyle } from "@/components/useMapStyle";
 
 // A still map of the chosen place, so the customer can see the pin is where they meant.
 
@@ -21,12 +22,14 @@ interface Props {
 
 export function PackageDeliveryDetailsMap({ kind, lat, lng, styles, tokens, onBack }: Props) {
   const { t } = useTranslation();
+  const mapStyle = useMapStyle();
   const valid = Number.isFinite(lat) && Number.isFinite(lng);
   return (
     <View style={styles.mapWrap}>
       {valid && (
         <MapView
           provider={PROVIDER_GOOGLE}
+          customMapStyle={mapStyle}
           style={StyleSheet.absoluteFill}
           // Nudged north so the pin sits above the sheet that overlaps the map's bottom edge.
           initialRegion={{ latitude: lat - 0.0012, longitude: lng, latitudeDelta: 0.008, longitudeDelta: 0.008 }}

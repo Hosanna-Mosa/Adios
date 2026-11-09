@@ -16,6 +16,7 @@ import Colors, { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { styles } from "@/components/MapBackground.styles";
 import { decodePolyline } from "@/components/mapBackground.utils";
+import { useMapStyle } from "@/components/useMapStyle";
 
 
 interface Props {
@@ -97,6 +98,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
     validRouteStops, getRegionForLocation,
   } = useMapCamera({ ref, initialRegion, stops, driverLocation });
 
+  const mapStyle = useMapStyle();
+
   useMapEffects({
     initialRegion, stops, polyline, driverLocation, userLocation, onLocationUpdate,
     radiusCenter, radiusMeters, region, setRegion, setAutoRoutePolyline,
@@ -109,6 +112,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
       <MapView
         ref={internalMapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={region}
         onRegionChangeComplete={(r) => setRegion(r)}

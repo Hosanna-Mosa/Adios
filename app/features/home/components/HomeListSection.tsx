@@ -34,7 +34,6 @@ export function HomeListSection(props: Props) {
     setPage(1);
     setHasMore(true);
     const { lat, lng } = await getCoords();
-    checkNearbyDrivers(lat, lng);
     if (activeService === "Meat") fetchMeatCenters(lat, lng, 1);
     else { fetchVendors(lat, lng, 1); fetch149StoreItems(lat, lng); }
   };

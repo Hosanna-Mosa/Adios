@@ -5,6 +5,7 @@ import { MetricsRow } from "@/features/dashboard/components/MetricsRow";
 import { DeliveryPerformanceChart } from "@/features/dashboard/components/DeliveryPerformanceChart";
 import { LiveActivityLog } from "@/features/dashboard/components/LiveActivityLog";
 import { ActiveManifestsTable } from "@/features/dashboard/components/ActiveManifestsTable";
+import { FleetMap } from "@/features/dashboard/components/FleetMap";
 
 export default function Dashboard() {
   const { t } = useTranslation();
@@ -28,9 +29,8 @@ export default function Dashboard() {
   return (
     <DashboardLayout searchPlaceholder={t("dashboard.searchPlaceholder")}>
       <div className="space-y-6">
-        {/* "Generate Report", the fleet map with its two hardcoded pins, and the
-            "System Insight" card (a fixed "18% more efficient" claim plus a
-            canned fleet report) were removed — none was backed by real data. */}
+        {/* The fleet map shows real driver positions (GET /admin/fleet). "Generate Report" is the
+            Reports page, and the old fixed "System Insight" card stays removed — it was not data. */}
         <div>
           <h1 className="page-header">{t("dashboard.operationalOverview")}</h1>
           <p className="page-subtitle">{t("dashboard.realTimeSupplyChainMetrics")}</p>
@@ -42,6 +42,8 @@ export default function Dashboard() {
           <DeliveryPerformanceChart timeScale={timeScale} onTimeScaleChange={setTimeScale} barData={barData} weeklyBarData={weeklyBarData} />
           <LiveActivityLog activityLog={activityLog} isLoading={isLoading} getActivityIcon={getActivityIcon} />
         </div>
+
+        <FleetMap />
 
         <ActiveManifestsTable
           manifests={visibleManifests}

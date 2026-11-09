@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { generatePassword } from "../hooks/useSupportMembers";
+import { MemberPermissions } from "./MemberPermissions";
+import { DEFAULT_PERMISSIONS, type SupportPermission } from "../supportExtras";
 import type { NewSupportMemberForm, SupportMember } from "../types";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,6 +43,7 @@ export function SupportMemberDialog({ mode, open, onOpenChange, onSubmit, member
   const [showPassword, setShowPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState<NewSupportMemberForm | null>(null);
+  const [permissions, setPermissions] = useState<SupportPermission[]>(DEFAULT_PERMISSIONS);
 
   const isReset = mode === "reset";
 
@@ -48,6 +51,7 @@ export function SupportMemberDialog({ mode, open, onOpenChange, onSubmit, member
     if (!next) {
       // Forget the password as soon as the dialog closes.
       setForm(EMPTY_FORM);
+      setPermissions(DEFAULT_PERMISSIONS);
       setSaved(null);
       setShowPassword(false);
     }
@@ -74,7 +78,7 @@ export function SupportMemberDialog({ mode, open, onOpenChange, onSubmit, member
 
     const payload = isReset
       ? { name: member.name, email: member.email, password: form.password }
-      : { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password };
+      : { name: form.name.trim(), email: form.email.trim().toLowerCase(), password: form.password, permissions };
 
     setIsSaving(true);
     try {
@@ -178,6 +182,13 @@ export function SupportMemberDialog({ mode, open, onOpenChange, onSubmit, member
                   </button>
                 </div>
               </div>
+
+              {!isReset && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">{t("supportTools.whatCanTheyDo", "What can they do?")}</p>
+                  <MemberPermissions value={permissions} onChange={setPermissions} />
+                </div>
+              )}
 
               <Button type="submit" className="w-full h-11 mt-2" disabled={isSaving}>
                 {isSaving ? (

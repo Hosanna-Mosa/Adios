@@ -118,14 +118,14 @@ export function SignupBody({
               components={{
                 terms: (
                   <Text
-                    style={[styles.legalHighlight, !!TERMS_URL && { textDecorationLine: "underline" }]}
-                    onPress={TERMS_URL ? () => openLegalPage(TERMS_URL) : undefined}
+                    style={[styles.legalHighlight, { textDecorationLine: "underline" }]}
+                    onPress={TERMS_URL ? () => openLegalPage(TERMS_URL) : () => router.push("/legal")}
                   />
                 ),
                 privacy: (
                   <Text
-                    style={[styles.legalHighlight, !!PRIVACY_POLICY_URL && { textDecorationLine: "underline" }]}
-                    onPress={PRIVACY_POLICY_URL ? () => openLegalPage(PRIVACY_POLICY_URL) : undefined}
+                    style={[styles.legalHighlight, { textDecorationLine: "underline" }]}
+                    onPress={PRIVACY_POLICY_URL ? () => openLegalPage(PRIVACY_POLICY_URL) : () => router.push({ pathname: "/legal", params: { doc: "privacy" } })}
                   />
                 ),
               }}
