@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import FoodItem from "../../database/models/FoodItem";
 import Vendor, { VENDOR_ENCRYPTED_PATHS } from "../../database/models/Vendor";
 import { evaluateOutletOpenState } from "../../utils/openingHours";
-import { toPublicVendor } from "../../utils/publicProfile";
 import { CloudinaryService } from "../../services/cloudinary.service";
 import { ZonesService } from "../zones/zones.service";
 import { AuthRequest } from "../../middleware/auth.middleware";
@@ -10,6 +9,7 @@ import { UserRole } from "../../database/models/User";
 import { bulkFoodRowSchema } from "./food.validation";
 import { getDishOrderCounts, withComputedDishFields } from "./food.service";
 import { dishMatches, escapeRegex, scoreDish, toSearchTokens, vendorMatches } from "./food.search";
+import { toPublicVendor } from "../vendors/vendor.public";
 
 const cloudinaryService = new CloudinaryService();
 
@@ -323,7 +323,7 @@ export const searchFoodItems = async (req: Request, res: Response) => {
       // Outside every zone the search still runs, nearest first with no radius cap; the order is checked at checkout.
       const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
 
-      const geoQuery: any = { partnerType: { $ne: "meat" } };
+      const geoQuery: any = { partnerType: { $ne: "meat" }, deletedAt: { $exists: false } };
       if (activeZone?.type === "polygon" && activeZone.boundary) {
         geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
       }
@@ -369,6 +369,8 @@ export const searchFoodItems = async (req: Request, res: Response) => {
     if (!hasCoords) {
       menuVendors = await Vendor.find({
         partnerType: { $ne: "meat" },
+        // A deleted partner account (partner-account-deletion.service) never reaches customers.
+        deletedAt: { $exists: false },
         $or: [
           { name: { $in: patterns } },
           { categories: { $in: patterns } },
@@ -492,7 +494,7 @@ export const getStore149Items = async (req: Request, res: Response) => {
         // Outside every zone the store still lists, nearest first with no radius cap; the order is checked at checkout.
         const activeZone = await zonesService.getZoneForCoordinates(userLat, userLng);
 
-        const geoQuery: any = { partnerType: { $ne: "meat" } };
+        const geoQuery: any = { partnerType: { $ne: "meat" }, deletedAt: { $exists: false } };
         if (activeZone?.type === "polygon" && activeZone.boundary) {
           geoQuery.location = { $geoWithin: { $geometry: activeZone.boundary } };
         }

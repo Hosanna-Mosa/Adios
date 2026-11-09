@@ -60,6 +60,6 @@ export const getFavouriteItems = () => customFetch<MenuItem[]>("/users/favorite-
 
 export const signOutAllDevices = () => customFetch("/auth/logout-all", { method: "POST" });
 
-/** Permanently deletes the signed-in customer's account; the server archives a copy first. */
-export const deleteAccount = (body: { password: string; reason?: string }) =>
-  customFetch("/users/me", { method: "DELETE", body: JSON.stringify(body) });
+/** Anonymises this account (POST /users/me/delete). Orders and invoices are kept, without the person's details. */
+export const deleteAccount = (password: string) =>
+  customFetch<{ success: boolean }>("/users/me/delete", { method: "POST", body: JSON.stringify({ password }) });

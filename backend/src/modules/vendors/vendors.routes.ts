@@ -3,7 +3,7 @@ import { authenticateToken, authorizeRole, optionalAuth } from "../../middleware
 import { UserRole } from "../../database/models/User";
 import { getNearbyVendors, getVendorById, createVendor, searchGooglePlaces, getPlaceDetails, loginVendor, saveVendorOnboarding, changeVendorPassword, forgotVendorPassword, resetVendorPassword, updateVendor, deleteVendor, requestVendorPayout, getOutletOrderingStatus } from "./vendors.controller";
 import { validateRequest } from "../../middleware/validation.middleware";
-import { authRateLimiter } from "../../middleware/rateLimit.middleware";
+import { authRateLimiter, mapsRateLimiter } from "../../middleware/rateLimit.middleware";
 import {
   forgotVendorPasswordSchema,
   resetVendorPasswordSchema,
@@ -48,8 +48,8 @@ const router = Router();
 
 // optionalAuth: signed-in admins get the full records (lat=0&lng=0 list); everyone else a public view.
 router.get("/nearby", optionalAuth, validateRequest(nearbyVendorsSchema), getNearbyVendors);
-router.get("/search-google", validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
-router.get("/place-details/:placeId", validateRequest(placeDetailsParamSchema), getPlaceDetails);
+router.get("/search-google", mapsRateLimiter, validateRequest(searchGooglePlacesSchema), searchGooglePlaces);
+router.get("/place-details/:placeId", mapsRateLimiter, validateRequest(placeDetailsParamSchema), getPlaceDetails);
 // The signed-in outlet's own profile (partner app). Registered before /:id so "me" is never read as an id.
 router.get("/me", authenticateToken, getMyVendorProfile);
 router.put("/me", authenticateToken, validateRequest(updateMyVendorProfileSchema), updateMyVendorProfile);

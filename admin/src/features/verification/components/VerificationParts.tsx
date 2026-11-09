@@ -110,7 +110,9 @@ export function DetailRow({ label, value, verified }: { label: string; value?: R
 
 /** An uploaded image (Cloudinary URL), opened in a new tab. */
 export function DocumentImage({ label, url }: { label: string; url?: string }) {
-  if (!url) return null;
+  // The URL comes from the applicant's own submission, and React 18 still runs a
+  // javascript: href on click — only real http(s) links are rendered.
+  if (!url || !/^https?:\/\//i.test(url)) return null;
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className="group block">
       <img src={url} alt={label} className="h-24 w-full rounded-xl border border-border object-cover group-hover:opacity-90" />

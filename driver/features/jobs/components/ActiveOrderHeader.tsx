@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
@@ -22,16 +23,17 @@ export function ActiveOrderHeader({
   onRefresh?: () => void;
   refreshing?: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Box style={styles.header}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={24} color={Colors.text} />
       </Touchable>
       <AppText style={styles.headerTitle}>{title}</AppText>
       <Box style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         {onRefresh && <RefreshButton onPress={onRefresh} refreshing={refreshing} />}
         {/* original was [styles.backBtn, {…overrides}] — keep both layers */}
-        <Touchable style={[styles.backBtn, styles.sosBtn]} onPress={onSOS}>
+        <Touchable accessibilityLabel={t("a11y.sos")} hitSlop={8} style={[styles.backBtn, styles.sosBtn]} onPress={onSOS}>
           <Ionicons name="alert-circle" size={18} color={Colors.white} />
         </Touchable>
       </Box>

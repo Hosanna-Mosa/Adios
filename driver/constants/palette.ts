@@ -44,7 +44,7 @@ export const Colors = {
   // Text
   text: "#1A1720",
   textSecondary: "#56505E",
-  textMuted: "#8B8494",
+  textMuted: "#6E6877",
 
   // Functional
   white: "#FFFFFF",
@@ -56,12 +56,12 @@ export const Colors = {
 
   // Status
   online: "#16794F",
-  offline: "#8B8494",
+  offline: "#6E6877",
 
   // Tab Bar
   tabBar: "#FFFFFF",
   tabActive: "#00B4C6",
-  tabInactive: "#8B8494",
+  tabInactive: "#6E6877",
 
   // Surge Zone
   surge: "#00E5FF",

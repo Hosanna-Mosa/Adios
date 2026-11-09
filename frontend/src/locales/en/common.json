@@ -1,4 +1,26 @@
 {
+  "deleteAccount": {
+    "title": "Delete your Flavour account",
+    "description": "For customers, drivers and partners of the Flavour apps. Sign in with the phone number or email and password you use in the app.",
+    "points": {
+      "removed": "Your name, phone number, email, saved addresses and profile photo are removed.",
+      "driver": "For drivers, your Aadhaar, PAN, driving licence, bank details and document photos are deleted too.",
+      "partner": "For partners, your owner details, KYC, PAN, bank account, signature, documents and menu are deleted and your outlet stops appearing to customers. The outlet name, address, GSTIN and FSSAI number stay on past invoices.",
+      "records": "Past orders, trips, invoices and payouts are kept without your details, because we must keep them for tax and accounting.",
+      "final": "You are signed out everywhere. This can't be undone, but you can sign up again later."
+    },
+    "accountType": "Which app do you use?",
+    "customerApp": "Flavour (customer)",
+    "driverApp": "Flavour Driver",
+    "partnerApp": "Flavour Partner",
+    "confirm": "I understand my account will be deleted and this can't be undone.",
+    "deleting": "Deleting…",
+    "submit": "Delete my account",
+    "noPassword": "Can't sign in with a password?",
+    "emailUs": "Email us to delete your account",
+    "doneTitle": "Your account has been deleted",
+    "doneDescription": "Your details have been removed and you have been signed out of the app on every device."
+  },
   "header": {
     "services": "Services",
     "experience": "Experience",

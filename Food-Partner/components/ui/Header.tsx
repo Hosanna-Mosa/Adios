@@ -76,6 +76,7 @@ export function Header({
           style={styles.backBtn}
           onPress={onBack}
           disabled={backDisabled}
+          hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel}
         >

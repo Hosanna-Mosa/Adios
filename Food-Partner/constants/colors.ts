@@ -47,7 +47,7 @@ export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
     borderStrong: "#CFC8BC",
     text: "#1A1720",
     sec: "#56505E",
-    muted: "#8B8494",
+    muted: "#6E6877",
     success: "#16794F",
     successSkin: "#E3F5EC",
     warning: "#92600A",

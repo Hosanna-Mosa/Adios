@@ -26,6 +26,7 @@ import {
   missingDocumentFields,
   toVendorKycFields,
 } from "./vendor-verification.service";
+import { UserRole } from "../../database/models/User";
 
 /** Vendor identity — name, address and cuisines. */
 const vendorIdentityFields = (vendor: any): unknown[] => [
@@ -182,7 +183,7 @@ export const resetVendorPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const getNearbyVendors = async (req: Request, res: Response) => {
+export const getNearbyVendors = async (req: AuthRequest, res: Response) => {
   try {
     const { lat, lng, page = 1, limit = 20, radius, minRating, sort, openNow, search } = req.query;
 
@@ -221,6 +222,8 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
     // Build spatial match query enforcing active zone boundaries
     const geoQuery: any = {
       partnerType: { $ne: "meat" },
+      // A deleted partner account (partner-account-deletion.service) never reaches customers.
+      deletedAt: { $exists: false },
       // Applications still in review (or turned down) must not reach customers.
       // Admin-created and legacy vendors carry no onboardingSource and are unaffected.
       $nor: [
@@ -348,7 +351,7 @@ export const getNearbyVendors = async (req: Request, res: Response) => {
 export const getVendorById = async (req: Request, res: Response) => {
   try {
     const vendor = await Vendor.findById(req.params.id).lean();
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
+    if (!vendor || vendor.deletedAt) return res.status(404).json({ message: "Vendor not found" });
     // openState carries today's window and the full week so the details screen can
     // show real timings instead of a hardcoded "Open now".
     const openState = evaluateOutletOpenState(vendor);

@@ -58,7 +58,7 @@ export function AddressFormPane(props: Props) {
   return (
     <View style={{ flex: 1 }}>
       <Animated.View style={[styles.header, { paddingTop: insets.top + 6 }]} entering={fadeIn(0)}>
-        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} hitSlop={4} accessibilityRole="button" accessibilityLabel={t("app.a11y.back")}>
+        <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")}>
           <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{isEditMode ? t("app.delivery.editAddress") : t("app.delivery.addAddress")}</Text>

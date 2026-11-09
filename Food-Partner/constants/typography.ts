@@ -49,3 +49,9 @@ export const typography = {
 };
 
 export type TypographySize = keyof typeof typography.sizes;
+
+// Text follows the phone's font-size setting everywhere except two compact
+// spots: the count badges pinned to an icon (tab bar, tiles, segment counts),
+// where an uncapped "12" outgrows the icon it labels, and the tab bar labels,
+// whose fixed-height pill sets every screen's bottom inset.
+export const COMPACT_MAX_FONT_SCALE = 1.3;

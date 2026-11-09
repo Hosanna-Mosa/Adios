@@ -1,124 +1,173 @@
-import { gzipSync } from "zlib";
 import User, { UserRole } from "../../database/models/User";
+import Driver, { DriverStatus } from "../../database/models/Driver";
 import Order, { OrderStatus } from "../../database/models/Order";
-import Payment from "../../database/models/Payment";
-import Review from "../../database/models/Review";
-import SupportTicket from "../../database/models/SupportTicket";
-import ChatMessage from "../../database/models/ChatMessage";
-import SupportBotQuery from "../../database/models/SupportBotQuery";
-import Notification from "../../database/models/Notification";
 import Cart from "../../database/models/Cart";
-import ScheduledDeliveryRequest from "../../database/models/ScheduledDeliveryRequest";
-import DeletedAccountArchive from "../../database/models/DeletedAccountArchive";
+import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPayout";
+import cloudinary from "../../utils/cloudinary";
 import { AppError, ForbiddenError, NotFoundError } from "../../utils/errors";
 
-const FINISHED_STATUSES: string[] = [
+/**
+ * Self-service account deletion for customers and drivers (Google Play requires
+ * one, in the app and on the web).
+ *
+ * The account is anonymised rather than erased: orders, invoices, payments,
+ * payouts and earnings must be kept for tax and accounting, and they stay — but
+ * every field that identifies the person is cleared, every session ends, and
+ * the phone number and email are released so they can sign up again.
+ */
+
+// Orders in any other status are still running for one of the parties.
+const FINISHED_ORDER_STATUSES: string[] = [
   OrderStatus.COMPLETED,
   OrderStatus.DELIVERED,
   OrderStatus.DELIVERED_LC,
   OrderStatus.CANCELLED,
+  "completed",
+  "cancelled",
 ];
 
-// An order nobody has touched for a day (an abandoned online-payment checkout,
-// say) is not "in progress" and must not trap the customer in their account.
-const STALE_ORDER_MS = 24 * 60 * 60 * 1000;
+export const DELETED_USER_NAME = "Deleted user";
 
-export const ACTIVE_ORDER_MESSAGE =
-  "You have an order in progress. Please wait for it to finish or cancel it before deleting your account.";
+/** Why an account can't be deleted yet; the apps branch on `code`. */
+export class AccountDeletionBlockedError extends AppError {
+  constructor(public readonly code: string, message: string, statusCode = 409) {
+    super(statusCode, message);
+  }
+}
 
 /**
- * Deletes a customer account (DELETE /users/me).
- *
- * 1. Writes a complete safety copy to DeletedAccountArchive. Nothing is changed
- *    unless that write succeeds.
- * 2. Anonymises the User row in place rather than removing it: orders, payments
- *    and reviews keep pointing at it, so admin screens, driver earnings and
- *    vendor payouts carry on working. The phone number is released so it can
- *    be used for a new account.
- * 3. Bumps tokenVersion, which ends every session on every device.
- * 4. Removes data that only served the live account: cart and notifications.
+ * Best effort: an uploaded image's public id from its Cloudinary URL, or null.
+ * The path after /upload/ is [transformations/][v<version>/]<public id>.<ext>.
+ * Stored URLs are upload secure_urls, which always carry the version segment;
+ * without one, only comma-joined transformation segments ("c_fill,w_200") are
+ * skipped, so a folder named like "kyc_docs" is never mistaken for one.
  */
-export async function deleteCustomerAccount(userId: string, password: string | undefined, reason?: string) {
+export function cloudinaryPublicId(url: unknown): string | null {
+  const match = String(url ?? "").match(/^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/(.+)$/i);
+  if (!match) return null;
+  const segments = match[1].split("?")[0].split("/");
+  const version = segments.findIndex((segment) => /^v\d+$/.test(segment));
+  const idSegments = version >= 0 ? segments.slice(version + 1) : segments.filter((segment) => !segment.includes(","));
+  const id = idSegments.join("/").replace(/\.[a-z0-9]+$/i, "");
+  return id || null;
+}
+
+export async function destroyImages(urls: unknown[]) {
+  const ids = urls.map(cloudinaryPublicId).filter((id): id is string => !!id);
+  await Promise.all(
+    ids.map((id) =>
+      cloudinary.uploader.destroy(id).catch((err: any) => {
+        // Not fatal: the record no longer points at the image either way.
+        console.warn(`[account-deletion] Could not delete image ${id}:`, err?.message || err);
+      })
+    )
+  );
+}
+
+/**
+ * Anonymises the account. `password` is the account's current password — a
+ * stolen session or an unlocked phone must not be enough to wipe an account.
+ */
+export async function deleteOwnAccount(userId: string, password: string | undefined) {
   const user = await User.findById(userId);
-  if (!user) throw new NotFoundError("User not found");
-  if (user.role !== UserRole.USER) {
-    throw new ForbiddenError("Only customer accounts can be deleted from the app. Please contact support.");
+  if (!user || user.deletedAt) throw new NotFoundError("Account not found");
+
+  if (user.role !== UserRole.USER && user.role !== UserRole.DRIVER) {
+    throw new ForbiddenError("Staff accounts are removed by an administrator.");
   }
 
-  // Accounts created before passwords were required have none to check.
   if (user.password) {
     if (!password || !(await user.matchPassword(password))) {
-      // 400, not 401: the app's HTTP layer signs the user out on any 401.
-      throw new AppError(400, "Incorrect password");
+      // 403, not 401: the apps sign the user out on any 401.
+      throw new AccountDeletionBlockedError("PASSWORD_INCORRECT", "Current password is incorrect", 403);
     }
   }
 
-  const now = Date.now();
+  const driver = user.role === UserRole.DRIVER ? await Driver.findOne({ user: user._id }) : null;
+
   const activeOrder = await Order.exists({
-    user: user._id,
-    status: { $nin: FINISHED_STATUSES },
-    $or: [{ updatedAt: { $gt: new Date(now - STALE_ORDER_MS) } }, { scheduledFor: { $gt: new Date(now) } }],
-  });
-  if (activeOrder) throw new AppError(409, ACTIVE_ORDER_MESSAGE);
+    status: { $nin: FINISHED_ORDER_STATUSES },
+    $or: [{ user: user._id }, ...(driver ? [{ driver: driver._id }] : [])],
+  } as any);
+  if (activeOrder) {
+    throw new AccountDeletionBlockedError(
+      "ACTIVE_ORDER",
+      "You have an order in progress. Delete your account once it is completed or cancelled."
+    );
+  }
 
-  const [orders, payments, reviews, supportTickets, chatMessages, supportBotQueries, notifications, cart, scheduledDeliveryRequests] =
-    await Promise.all([
-      Order.find({ user: user._id }).lean(),
-      Payment.find({ user: user._id }).lean(),
-      Review.find({ user: user._id }).lean(),
-      SupportTicket.find({ userId: user._id }).lean(),
-      ChatMessage.find({ senderId: String(user._id) }).lean(),
-      SupportBotQuery.find({ user: user._id }).lean(),
-      Notification.find({ user: user._id }).lean(),
-      Cart.findOne({ user: user._id }).lean(),
-      ScheduledDeliveryRequest.find({ customer: user._id }).lean(),
-    ]);
+  if (driver) {
+    const pendingPayout = await DriverPayout.exists({
+      driver: driver._id,
+      status: { $in: [DriverPayoutStatus.PENDING, DriverPayoutStatus.PROCESSING] },
+    });
+    if (pendingPayout) {
+      throw new AccountDeletionBlockedError(
+        "PAYOUT_PENDING",
+        "A payout to your bank account is still being processed. Try again once it has completed."
+      );
+    }
+  }
 
-  const related = { orders, payments, reviews, supportTickets, chatMessages, supportBotQueries, notifications, scheduledDeliveryRequests };
-  const counts: Record<string, number> = Object.fromEntries(Object.entries(related).map(([key, rows]) => [key, rows.length]));
-  counts.cart = cart ? 1 : 0;
+  const images: unknown[] = [user.profilePic];
 
-  // toObject without the toJSON transform, so the copy is complete (password hash included).
-  const snapshot = { archivedAt: new Date(now).toISOString(), user: user.toObject(), ...related, cart };
-
-  await DeletedAccountArchive.create({
-    originalUserId: user._id,
-    name: user.name,
-    phone: user.phone,
-    email: user.email,
-    reason: reason?.trim() || undefined,
-    deletedAt: new Date(now),
-    counts,
-    snapshot: gzipSync(Buffer.from(JSON.stringify(snapshot))),
-  });
+  if (driver) {
+    images.push(driver.panImage, driver.dlFrontImage, driver.dlBackImage, driver.selfieImage);
+    await Driver.updateOne(
+      { _id: driver._id },
+      {
+        $set: { status: DriverStatus.OFFLINE, isAvailable: false, bankAccounts: [] },
+        $unset: {
+          gender: 1,
+          currentLocation: 1,
+          aadhaarNumber: 1,
+          panNumber: 1,
+          panImage: 1,
+          digilockerId: 1,
+          dlNumber: 1,
+          dlExpiry: 1,
+          dlVehicleClass: 1,
+          dlFrontImage: 1,
+          dlBackImage: 1,
+          bankAccountNumber: 1,
+          bankIfsc: 1,
+          selfieImage: 1,
+        },
+      }
+    );
+  }
 
   await User.updateOne(
     { _id: user._id },
     {
       $set: {
-        name: "Deleted user",
-        phone: `deleted_${user._id}`,
-        isBlocked: true,
-        deletedAt: new Date(now),
+        name: DELETED_USER_NAME,
+        // Required and unique, so it can't be blank — and the real number is
+        // released for a fresh sign-up.
+        phone: `deleted-${user._id}`,
         addresses: [],
         favorites: [],
         favoriteItems: [],
         webPushSubscriptions: [],
+        // Ends every session this account holds (see authenticateToken).
+        tokenVersion: (user.tokenVersion ?? 0) + 1,
+        isBlocked: true,
+        deletedAt: new Date(),
       },
       $unset: {
-        email: "",
-        username: "",
-        profilePic: "",
-        password: "",
-        expoPushToken: "",
-        bookingPreference: "",
-        defaultLocation: "",
+        email: 1,
+        username: 1,
+        password: 1,
+        profilePic: 1,
+        defaultLocation: 1,
+        bookingPreference: 1,
+        expoPushToken: 1,
       },
-      $inc: { tokenVersion: 1 },
     }
   );
 
-  await Promise.all([Cart.deleteOne({ user: user._id }), Notification.deleteMany({ user: user._id })]);
+  await Cart.deleteOne({ user: user._id }).catch(() => {});
+  await destroyImages(images);
 
   return { success: true };
 }

@@ -51,13 +51,13 @@ export interface IUser extends Document, IUserMethods {
   favorites?: Types.ObjectId[];
   favoriteItems?: Types.ObjectId[];
   isBlocked?: boolean;
-  /** Set when the customer deleted their account; the row is kept anonymised. */
-  deletedAt?: Date;
   tokenVersion?: number;
   /** SUPPORT members only: what the member may do. Unset = the original abilities (support.permissions.ts). */
   supportPermissions?: string[];
   expoPushToken?: string;
   webPushSubscriptions?: IWebPushSubscription[];
+  /** Set when the person deleted their own account; the record is anonymised (see account-deletion.service). */
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,14 +70,13 @@ const UserSchema: Schema = new Schema(
     phone: { type: String, required: true, unique: true },
     profilePic: { type: String },
     isBlocked: { type: Boolean, default: false },
-    // Set by DELETE /users/me. The full pre-deletion copy is in DeletedAccountArchive.
-    deletedAt: { type: Date },
     // Bumped by POST /auth/logout-all. Every JWT carries the value it was minted
     // with as `tv`; authenticateToken rejects a token whose `tv` has fallen behind.
     tokenVersion: { type: Number, default: 0 },
     supportPermissions: { type: [String], default: undefined },
     expoPushToken: { type: String },
     webPushSubscriptions: [webPushSubscriptionSchema],
+    deletedAt: { type: Date },
     role: {
       type: String,
       enum: Object.values(UserRole),

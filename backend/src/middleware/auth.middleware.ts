@@ -5,6 +5,7 @@ import User, { UserRole } from "../database/models/User";
 import Vendor from "../database/models/Vendor";
 import MeatCenter from "../database/models/MeatCenter";
 import RevokedToken from "../database/models/RevokedToken";
+
 import { getJwtSecret } from "../utils/jwtSecret";
 import { ACCOUNT_BLOCKED_MESSAGE } from "../config/auth.config";
 
@@ -90,11 +91,12 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     }
 
     try {
-      const vendor = await Vendor.findById(payload.userId).select("tokenVersion").lean();
+      const vendor = await Vendor.findById(payload.userId).select("tokenVersion deletedAt").lean();
       const account =
-        vendor ?? (payload.role === "meat_vendor" ? await MeatCenter.findById(payload.userId).select("tokenVersion").lean() : null);
+        vendor ?? (payload.role === "meat_vendor" ? await MeatCenter.findById(payload.userId).select("tokenVersion deletedAt").lean() : null);
 
-      if (!account || (payload.tv ?? 0) !== (account.tokenVersion ?? 0)) {
+      // A partner who deleted their account (or an outlet an admin removed) is signed out everywhere.
+      if (!account || account.deletedAt || (payload.tv ?? 0) !== (account.tokenVersion ?? 0)) {
         return res.status(401).json({ message: "Session no longer valid" });
       }
     } catch (error) {

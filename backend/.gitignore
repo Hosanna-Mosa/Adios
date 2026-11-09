@@ -45,3 +45,11 @@ yarn-error.*
 /*.ts
 /*.js
 !/eslint.config.js
+
+# data dumps and logs — these hold customer phone numbers, addresses and OTPs
+# and must never be committed
+*.log
+*backup*.json
+*-dump*.json
+*.sql
+*.bson
