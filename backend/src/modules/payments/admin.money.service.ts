@@ -1,5 +1,5 @@
 import Order, { OrderStatus } from "../../database/models/Order";
-import DriverPayout from "../../database/models/DriverPayout";
+import DriverPayout, { DriverPayoutStatus } from "../../database/models/DriverPayout";
 import VendorPayout from "../../database/models/VendorPayout";
 import { AdminMoneyError, RefundService } from "./refund.service";
 import { notifyPayoutOwner } from "./payout.status";
@@ -19,9 +19,9 @@ type PayoutKind = "driver" | "vendor";
 const OPEN_PAYOUT = (id: string) => ({
   _id: id,
   $or: [
-    { status: "pending" },
-    { status: "needs_bank_details" },
-    { status: "processing", razorpayPayoutId: { $in: [null, ""] } },
+    { status: DriverPayoutStatus.PENDING },
+    { status: DriverPayoutStatus.NEEDS_BANK_DETAILS },
+    { status: DriverPayoutStatus.PROCESSING, razorpayPayoutId: { $in: [null, ""] } },
   ],
 });
 const payoutModels = { driver: DriverPayout, vendor: VendorPayout } as const;
