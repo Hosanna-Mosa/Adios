@@ -64,7 +64,7 @@ export function StepKycDocuments({
   return (
     <div>
       {showHeading && (
-        <div className="mb-8 border-b border-gray-100 pb-4">
+        <div className="mb-8 border-b border-surface-container pb-4">
           <h1 className="font-display text-2xl lg:text-3xl font-bold mb-1">
             {t("onboarding.documentsAndLegalVerification")}
           </h1>
@@ -111,7 +111,7 @@ export function StepKycDocuments({
             </h2>
           </div>
 
-          <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
             {/* PAN */}
             {show("pan") && (
               <div>
@@ -132,15 +132,15 @@ export function StepKycDocuments({
                   }
                   placeholder="e.g. ABCDE1234F"
                   maxLength={10}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
                 />
                 {panVerifiedViaDigilocker ? (
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 border border-green-200">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success-soft border border-success/30">
                     <Icon
                       name="check_circle"
-                      className="text-base text-green-600"
+                      className="text-base text-success"
                     />
-                    <span className="text-xs font-medium text-green-700">
+                    <span className="text-xs font-medium text-success">
                       {t(
                         "onboarding.digilocker.panVerified",
                         "PAN verified with DigiLocker — no copy needed.",
@@ -171,7 +171,9 @@ export function StepKycDocuments({
             {/* GST */}
             {show("gst") && (
               <div
-                className={show("pan") ? "border-t border-gray-100 pt-5" : ""}
+                className={
+                  show("pan") ? "border-t border-surface-container pt-5" : ""
+                }
               >
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-semibold">
@@ -200,7 +202,7 @@ export function StepKycDocuments({
                       }
                       placeholder="e.g. 22AAAAA0000A1Z5"
                       maxLength={15}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
+                      className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-3"
                     />
                     <FileUploader
                       label={t("onboarding.uploadGstCertificate")}
@@ -210,8 +212,8 @@ export function StepKycDocuments({
                   </>
                 )}
                 {gstExempt && (
-                  <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                    <p className="text-xs font-medium text-blue-700">
+                  <div className="p-4 rounded-xl bg-soft border border-primary/20">
+                    <p className="text-xs font-medium text-primary">
                       {t("onboarding.gstExemptNoted", {
                         value: isMeatPartner
                           ? t("onboarding.meatCenterLower")
@@ -240,7 +242,7 @@ export function StepKycDocuments({
             </h2>
           </div>
 
-          <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold mb-2">
@@ -257,7 +259,7 @@ export function StepKycDocuments({
                   }
                   placeholder={t("onboarding.fourteenDigitLicenseNumber")}
                   maxLength={14}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                 />
               </div>
               <div>
@@ -269,7 +271,7 @@ export function StepKycDocuments({
                   type="date"
                   value={fssaiExpiry}
                   onChange={(e) => setFssaiExpiry(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                 />
               </div>
             </div>
@@ -300,7 +302,7 @@ export function StepKycDocuments({
             </h2>
           </div>
 
-          <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold mb-2">
@@ -316,7 +318,7 @@ export function StepKycDocuments({
                     )
                   }
                   placeholder={t("onboarding.enterAccountNumber")}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                 />
               </div>
               <div>
@@ -335,14 +337,14 @@ export function StepKycDocuments({
                   placeholder={t("onboarding.reEnterAccountNumberPlaceholder")}
                   className={`w-full px-4 py-3 rounded-xl border bg-white outline-none focus:ring-2 transition-all text-sm ${
                     bankConfirm && bankAccount !== bankConfirm
-                      ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                      ? "border-danger/30 focus:border-danger/70 focus:ring-danger-soft"
                       : bankConfirm && bankAccount === bankConfirm
-                        ? "border-green-300 focus:border-green-400 focus:ring-green-100"
-                        : "border-gray-200 focus:border-brand-kinetic focus:ring-brand-kinetic/10"
+                        ? "border-success/30 focus:border-success/70 focus:ring-success-soft"
+                        : "border-surface-container focus:border-brand-kinetic focus:ring-brand-kinetic/10"
                   }`}
                 />
                 {bankConfirm && bankAccount !== bankConfirm && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p className="text-xs text-danger mt-1">
                     {t("onboarding.accountNumbersDoNotMatch")}
                   </p>
                 )}
@@ -361,7 +363,7 @@ export function StepKycDocuments({
                   className={`flex-1 px-5 py-3 rounded-xl border text-sm font-semibold transition-all ${
                     accountType === "savings"
                       ? "bg-brand-kinetic text-white border-brand-kinetic"
-                      : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                      : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
                   }`}
                 >
                   <Icon name="savings" className="text-lg block mx-auto mb-1" />
@@ -373,7 +375,7 @@ export function StepKycDocuments({
                   className={`flex-1 px-5 py-3 rounded-xl border text-sm font-semibold transition-all ${
                     accountType === "current"
                       ? "bg-brand-kinetic text-white border-brand-kinetic"
-                      : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                      : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
                   }`}
                 >
                   <Icon
@@ -404,10 +406,10 @@ export function StepKycDocuments({
                 }
                 placeholder="e.g. HDFC0001234"
                 maxLength={11}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
               {ifsc.length === 11 && !IFSC_PATTERN.test(ifsc) && (
-                <p className="text-xs text-red-500 mt-1">
+                <p className="text-xs text-danger mt-1">
                   {t(
                     "onboarding.invalidIfsc",
                     "Enter a valid IFSC code (e.g. HDFC0001234).",
@@ -416,7 +418,7 @@ export function StepKycDocuments({
               )}
             </div>
 
-            <div className="border-t border-gray-100 pt-5">
+            <div className="border-t border-surface-container pt-5">
               <FileUploader
                 label={t("onboarding.uploadCancelledCheque")}
                 desc={t("onboarding.uploadCancelledChequeDesc")}

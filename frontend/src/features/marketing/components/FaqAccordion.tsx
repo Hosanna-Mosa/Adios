@@ -17,7 +17,7 @@ export function FaqAccordion() {
   ];
 
   return (
-    <section className="py-20 lg:py-28 bg-surface-container-low/30">
+    <section id="faq" className="scroll-mt-20 py-20 lg:py-28 bg-background">
       <div className="container max-w-[800px] mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">

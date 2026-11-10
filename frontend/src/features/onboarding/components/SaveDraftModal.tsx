@@ -23,8 +23,8 @@ export function SaveDraftModal({ form }: Props) {
       <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
         {draftSaved ? (
           <div className="text-center py-6">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <Icon name="check_circle" className="text-3xl text-green-600" />
+            <div className="w-16 h-16 rounded-full bg-success-soft flex items-center justify-center mx-auto mb-4">
+              <Icon name="check_circle" className="text-3xl text-success" />
             </div>
             <h3 className="font-display text-xl font-bold mb-2">
               {t("onboarding.draftSaved")}
@@ -45,7 +45,7 @@ export function SaveDraftModal({ form }: Props) {
               </h3>
               <button
                 onClick={() => setShowSaveModal(false)}
-                className="text-gray-400 hover:text-on-surface"
+                className="text-inactive hover:text-on-surface"
               >
                 <Icon name="close" className="text-xl" />
               </button>
@@ -61,12 +61,12 @@ export function SaveDraftModal({ form }: Props) {
               value={saveEmail}
               onChange={(e) => setSaveEmail(e.target.value)}
               placeholder="your@email.com"
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-5"
+              className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm mb-5"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSaveModal(false)}
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
+                className="flex-1 px-4 py-3 rounded-xl border border-surface-container text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
               >
                 {t("onboarding.cancel")}
               </button>

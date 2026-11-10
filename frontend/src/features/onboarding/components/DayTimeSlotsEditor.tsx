@@ -19,7 +19,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
     removeTimeSlot,
   } = form;
   return (
-    <div className="border-t border-gray-100 pt-5">
+    <div className="border-t border-surface-container pt-5">
       <div className="flex items-center justify-between mb-3">
         <label className="text-sm font-semibold">
           {t("onboarding.openingAndClosingHours")}
@@ -43,7 +43,7 @@ export function DayTimeSlotsEditor({ form }: Props) {
             className={`px-4 py-2 rounded-lg text-xs font-semibold border transition-all ${
               activeTimingDay === day
                 ? "bg-brand-kinetic text-white border-brand-kinetic"
-                : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
             }`}
           >
             {dayLabel(day)}
@@ -69,14 +69,17 @@ export function DayTimeSlotsEditor({ form }: Props) {
               <button
                 type="button"
                 onClick={() => removeTimeSlot(activeTimingDay, i)}
-                className="pb-2.5 text-gray-400 hover:text-red-500 transition-colors"
+                className="pb-2.5 text-inactive hover:text-danger transition-colors"
               >
                 <Icon name="remove_circle" className="text-lg" />
               </button>
             )}
             <div className="pb-2.5">
               <span className="text-[10px] text-secondary-app/60 font-medium">
-                {t("onboarding.slotN", { value: i + 1, defaultValue: "Slot {{value}}" })}
+                {t("onboarding.slotN", {
+                  value: i + 1,
+                  defaultValue: "Slot {{value}}",
+                })}
               </span>
             </div>
           </div>

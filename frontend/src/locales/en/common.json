@@ -22,12 +22,8 @@
     "doneDescription": "Your details have been removed and you have been signed out of the app on every device."
   },
   "header": {
-    "services": "Services",
-    "experience": "Experience",
-    "logistics": "Logistics",
-    "partners": "Partners",
     "downloadApp": "Download App",
-    "backToHome": "Back to Home"
+    "faq": "FAQ"
   },
   "footer": {
     "tagline": "High-end culinary and mobility logistics for the modern professional.",
@@ -40,7 +36,6 @@
     "helpCenter": "Help Center",
     "safetyProtocols": "Safety Protocols",
     "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
     "download": "Download",
     "downloadOnThe": "Download on the",
     "appStore": "App Store",
@@ -49,9 +44,19 @@
     "copyright": "© 2026 Adios Technologies Inc. All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms",
-    "security": "Security",
     "contactSupport": "Contact Support",
-    "minimalCopyright": "© 2024 Adios Technologies Inc. All rights reserved."
+    "minimalCopyright": "© 2024 Adios Technologies Inc. All rights reserved.",
+    "aboutAdios": "About Adios",
+    "whoWeAre": "Who we are",
+    "howItWorks": "How it works",
+    "services": "Services",
+    "forPartners": "For partners",
+    "rideWithUs": "Ride with Adios",
+    "socialLinks": "Social links",
+    "legalNote": "By continuing past this page, you agree to our Terms and Conditions, Cookie Policy and Privacy Policy.",
+    "legal": "Legal",
+    "termsAndConditions": "Terms and Conditions",
+    "cookiePolicy": "Cookie Policy"
   },
   "notFound": {
     "title": "Page not found",
@@ -63,88 +68,11 @@
     "description": "Something went wrong on our end. You can try refreshing or head back home.",
     "tryAgain": "Try again"
   },
-  "hero": {
-    "food": "Food",
-    "rides": "Rides",
-    "foodEyebrow": "A Lifestyle Ecosystem",
-    "foodHeadlineLine1": "Adios: Movement",
-    "foodHeadlineLine2": "and Taste, Refined.",
-    "foodSubtitle": "Navigate your day with executive-level precision. From world-class dining to seamless transportation and expert logistics, your world is now delivered and driven.",
-    "rideEyebrow": "Executive Mobility",
-    "rideHeadlineLine1": "Executive Motion,",
-    "rideHeadlineLine2": "Redefined.",
-    "rideSubtitle": "Professional transportation at your command. From airport transfers to city commutes, experience the gold standard of travel.",
-    "refinedHamburgerTasteAlt": "Refined Hamburger Taste",
-    "executiveMobilityVehicleAlt": "Executive Mobility Vehicle"
-  },
-  "featureGrid": {
-    "foodTitle": "One Platform, Refined Life",
-    "foodSubtitle": "Adios integrates three essential pillars of the modern lifestyle into a single, seamless executive experience.",
-    "rideTitle": "Movement, Restructured",
-    "rideSubtitle": "Our custom mobility workflows ensure you travel with max efficiency and zero friction.",
-    "culinaryExcellenceTitle": "Culinary Excellence",
-    "culinaryExcellenceDesc": "Access a curated selection of the city's finest kitchens. Every meal is handled with white-glove care from chef to table.",
-    "executiveMotionTitle": "Executive Motion",
-    "executiveMotionDesc": "Premium transportation for the discerning professional. Professional chauffeurs and high-end vehicles at your command.",
-    "swiftLogisticsTitle": "Swift Logistics",
-    "swiftLogisticsDesc": "Secure, real-time package delivery and personal tasks managed by our elite logistics network with total discretion.",
-    "airportTransfersTitle": "Airport Transfers",
-    "airportTransfersDesc": "Punctual, stress-free transit to and from major hubs. Real-time flight tracking ensures we're always there before you land.",
-    "cityCommutesTitle": "City Commutes",
-    "cityCommutesDesc": "Reliable point-to-point travel within the metropolitan core. Turn transit time into productive working minutes.",
-    "hourlyHireTitle": "Hourly Hire",
-    "hourlyHireDesc": "Dedicated vehicle and chauffeur at your disposal for multi-stop meetings or full-day itineraries."
-  },
-  "experienceShowcase": {
-    "deliveryAddress": "DELIVERY ADDRESS",
-    "executiveSuite": "Executive Suite 402",
-    "tasks": "Tasks",
-    "greeting": "Good Evening, Julian",
-    "allFood": "All Food",
-    "michelin": "Michelin",
-    "artisan": "Artisan",
-    "pureVeg": "PURE VEG",
-    "burgerClub": "The Burger Club",
-    "reviewsCount": "(1.2k+ reviews)",
-    "deliveryTime": "15-20 min",
-    "searchPlaceholder": "Order, book, or ship anything",
-    "commandYourLifestyle": "Command Your Lifestyle",
-    "commandYourLifestyleDesc": "Unlock the full power of Adios with our unified mobile interface. Switch effortlessly between services—book a black car for your evening, order a gourmet meal for your arrival, or have documents delivered across town—all within a single, secure ecosystem.",
-    "unifiedServiceHub": "Unified Service Hub",
-    "unifiedServiceHubFoodDesc": "One app for all your movement, culinary, and logistical needs.",
-    "unifiedServiceHubRideDesc": "One elite app for all your executive movement and transit needs.",
-    "globalPriorityAccess": "Global Priority Access",
-    "globalPriorityAccessDesc": "Elite status across all service tiers for consistent excellence.",
-    "intelligentRouting": "Intelligent Routing",
-    "intelligentRoutingDesc": "Predictive scheduling that anticipates your next move.",
-    "theExperience": "The Experience",
-    "privateFleetLine1": "Your Private Fleet,",
-    "privateFleetLine2": "One Tap Away.",
-    "globalPriorityStandards": "Global Priority Standards",
-    "globalPriorityStandardsDesc": "Experience a consistent standard of chauffeur excellence across all service tiers.",
-    "intelligentPredictiveRouting": "Intelligent Predictive Routing",
-    "intelligentPredictiveRoutingDesc": "Our AI anticipates your schedule, suggesting airport transfers or city commutes when you need them most.",
-    "selectVehicle": "Select Vehicle",
-    "carsAvailable": "3 cars available",
-    "executiveSedan": "Executive Sedan",
-    "executiveSedanModels": "BMW 5-Series or Mercedes E-Class",
-    "confirmEliteRide": "Confirm Elite Ride",
-    "burgerAlt": "Burger"
-  },
-  "ctaBand": {
-    "stepIntoTheWorld": "Step Into the World of Adios",
-    "stepIntoTheWorldDesc": "Elevate your standards. Join a community of discerning individuals who value time, quality, and the art of living well.",
-    "servingGlobalHubs": "Serving major global hubs. Movement, Taste, and Logistics, Refined.",
-    "readyForNextLevel": "Ready for the Next Level?",
-    "readyForNextLevelDesc": "Join the exclusive circle of executives who trust Adios for their daily mobility and culinary needs.",
-    "getStarted": "Get Started",
-    "contactSales": "Contact Sales"
-  },
   "benefitsGrid": {
     "title": "Why Partner with Adios?",
     "subtitle": "Everything you need to grow your business and delight your customers.",
     "boostRevenueTitle": "Boost Your Revenue",
-    "boostRevenueDesc": "Join 500K+ partners and tap into a city-wide customer base hungry for your offerings.",
+    "boostRevenueDesc": "Tap into a city-wide customer base hungry for your offerings.",
     "realTimeAnalyticsTitle": "Real-Time Analytics",
     "realTimeAnalyticsDesc": "Get powerful insights on orders, peak hours, and customer preferences to grow your business.",
     "fastOnboardingTitle": "Fast Onboarding",
@@ -180,7 +108,7 @@
   },
   "partnerCta": {
     "title": "Ready to Grow with Us?",
-    "subtitle": "Join 500K+ partners and start reaching more customers today.",
+    "subtitle": "Start reaching more customers in your city today.",
     "getStartedNow": "Get Started Now"
   },
   "partnerTypeCards": {
@@ -198,12 +126,6 @@
     "subtitle": "Join India's fastest-growing urban platform. Whether you run a restaurant, a fleet, or a service — we help you reach more customers and earn more.",
     "getStartedToday": "Get Started Today",
     "seeHowItWorks": "See How It Works"
-  },
-  "partnerStats": {
-    "registeredPartners": "Registered Partners",
-    "citiesCovered": "Cities Covered",
-    "ordersProcessed": "Orders Processed",
-    "partnerRating": "Partner Rating"
   },
   "menu": {
     "allCategories": "All",
@@ -573,5 +495,197 @@
   },
   "languageSwitcher": {
     "changeLanguage": "Change language"
+  },
+  "video": {
+    "play": "Play background video",
+    "pause": "Pause background video"
+  },
+  "home": {
+    "hero": {
+      "headline": "Food, fresh meat, rides, parcels and helpers — one app for your whole city",
+      "subtitle": "Order from restaurants you love, book a bike or cab in seconds, send packages across town, or hire a helper for the job at hand.",
+      "getApp": "Get the app",
+      "scrollDown": "Scroll to services",
+      "quick": {
+        "food": "Food",
+        "meat": "Fresh meat",
+        "rides": "Rides",
+        "parcel": "Parcel",
+        "helper": "Helper"
+      }
+    },
+    "services": {
+      "title": "Everything you need, delivered",
+      "subtitle": "Five services, one account, live tracking on every order.",
+      "food": {
+        "title": "Order food",
+        "desc": "Biryani, dosa, pizza and more from top local restaurants.",
+        "cta": "Order now",
+        "alt": "A plate of biryani"
+      },
+      "meat": {
+        "title": "Fresh meat",
+        "desc": "Cleaned and cut to order by trusted meat centres near you.",
+        "cta": "Shop meat",
+        "alt": "Fresh cuts of meat on a board"
+      },
+      "rides": {
+        "title": "Book a ride",
+        "desc": "Bike taxis and cabs that reach you in minutes, at fair fares.",
+        "cta": "Book a ride",
+        "alt": "A motorcycle on an open road"
+      },
+      "parcel": {
+        "title": "Send a parcel",
+        "desc": "Same-day pickup and drop for documents, keys and packages.",
+        "cta": "Send now",
+        "alt": "A delivery rider on a city street"
+      },
+      "helper": {
+        "title": "Hire a helper",
+        "desc": "Extra hands for shifting, cleaning, queues and loading — at a price you offer.",
+        "cta": "Hire now",
+        "alt": "A spray bottle and cleaning gloves on a shelf"
+      }
+    },
+    "helper": {
+      "eyebrow": "Helper on demand",
+      "title": "Need an extra pair of hands?",
+      "subtitle": "Book a verified helper nearby for everyday jobs. Describe the task, set your offer, and someone close by picks it up.",
+      "imageAlt": "Packed moving boxes ready for shifting",
+      "badgeOtpTitle": "OTP to start, PIN to finish",
+      "badgeOtpDesc": "The task only starts when your helper arrives",
+      "tasks": {
+        "shifting": "Shifting",
+        "cleaning": "Cleaning",
+        "queueErrands": "Queue & errands",
+        "loading": "Loading"
+      },
+      "steps": {
+        "describe": {
+          "title": "Describe the task",
+          "desc": "Choose the task type, where it is, and how long you need help."
+        },
+        "offer": {
+          "title": "Set your offer",
+          "desc": "Start from a suggested fair price — raise it anytime to find a helper faster."
+        },
+        "match": {
+          "title": "A nearby helper accepts",
+          "desc": "Track them live, share the OTP when they arrive, and confirm with a PIN when the job is done."
+        }
+      },
+      "cta": "Hire a helper in the app"
+    },
+    "collections": {
+      "title": "Collections",
+      "subtitle": "Hand-picked favourites, based on what your city is ordering.",
+      "prev": "Previous collections",
+      "next": "Next collections",
+      "items": {
+        "biryani": {
+          "title": "Biryani house",
+          "tagline": "Dum, Hyderabadi & more"
+        },
+        "southIndian": {
+          "title": "South Indian breakfast",
+          "tagline": "Idli, dosa & vada"
+        },
+        "curries": {
+          "title": "North Indian curries",
+          "tagline": "Rich gravies & naan"
+        },
+        "streetFood": {
+          "title": "Street snacks",
+          "tagline": "Samosa, chaat & rolls"
+        },
+        "pizza": {
+          "title": "Pizza night",
+          "tagline": "Wood-fired & loaded"
+        },
+        "grills": {
+          "title": "Grills & kebabs",
+          "tagline": "Smoky, char-grilled"
+        },
+        "healthy": {
+          "title": "Healthy bowls",
+          "tagline": "Light, fresh, protein-rich"
+        },
+        "desserts": {
+          "title": "Sweet tooth",
+          "tagline": "Desserts & bakes"
+        }
+      }
+    },
+    "how": {
+      "title": "How Adios works",
+      "subtitle": "From craving to doorstep in three simple steps.",
+      "choose": {
+        "title": "Choose what you need",
+        "desc": "Pick a restaurant, a meat centre, a ride, a parcel pickup or a helper — all from one home screen."
+      },
+      "track": {
+        "title": "Track it live",
+        "desc": "Follow your rider on the map, chat with them, and get an accurate arrival time."
+      },
+      "enjoy": {
+        "title": "Enjoy & reorder",
+        "desc": "Pay how you like, get a clear bill, and reorder your favourites in one tap."
+      }
+    },
+    "earn": {
+      "title": "Grow with Adios",
+      "subtitle": "Reach more customers or earn on your own schedule.",
+      "partner": {
+        "title": "Add your restaurant",
+        "desc": "List your restaurant or meat centre and start receiving orders from customers nearby.",
+        "cta": "Partner with us"
+      },
+      "driver": {
+        "title": "Ride with Adios",
+        "desc": "Deliver food and parcels, drive rides or take helper jobs. Flexible hours, weekly payouts.",
+        "cta": "Get the driver app"
+      }
+    },
+    "download": {
+      "title": "Get the Adios app",
+      "subtitle": "Everything on this page, in your pocket — with live tracking, offers and quick reorders.",
+      "perk1": "Live tracking for every order and ride",
+      "perk2": "Exclusive in-app offers and coupons",
+      "perk3": "Bills, receipts and invoices in one place",
+      "mock": {
+        "deliverTo": "Deliver to",
+        "home": "Home",
+        "search": "Search dishes, restaurants…",
+        "orderTitle": "Chicken Biryani × 2",
+        "orderMeta": "Today, 1:20 PM · ₹480",
+        "delivered": "Delivered",
+        "rideTitle": "Bike ride to office",
+        "rideMeta": "Arriving in 3 min",
+        "onTheWay": "On the way",
+        "reorder": "Reorder"
+      }
+    }
+  },
+  "legal": {
+    "breadcrumb": "Legal",
+    "pageTitle": {
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy"
+    },
+    "audienceLabel": "Who this applies to",
+    "audience": {
+      "customers": "For customers",
+      "partners": "For drivers, riders & helpers",
+      "restaurants": "For restaurants & meat shops"
+    },
+    "kind": {
+      "terms": "Terms and Conditions",
+      "terms-of-use": "Terms of Use"
+    },
+    "contents": "On this page",
+    "englishOnly": "These documents are published in English. If there is any inconsistency with a translation, the English version prevails.",
+    "loadFailed": "We couldn't load this document. Please refresh the page."
   }
 }

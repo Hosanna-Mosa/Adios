@@ -30,12 +30,12 @@ export function DigilockerVerificationCard({
     ];
 
     return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
+      <div className="rounded-2xl border border-success/30 bg-success-soft p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Icon name="verified_user" className="text-2xl text-green-600" />
+            <Icon name="verified_user" className="text-2xl text-success" />
             <div>
-              <p className="text-sm font-bold text-green-800">
+              <p className="text-sm font-bold text-success">
                 {t(
                   "onboarding.digilocker.verified",
                   "Identity verified with DigiLocker",
@@ -86,7 +86,7 @@ export function DigilockerVerificationCard({
   const waiting = status === "starting" || status === "pending";
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5">
+    <div className="rounded-2xl border border-surface-container bg-white p-5">
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 shrink-0 rounded-xl bg-brand-kinetic/10 flex items-center justify-center">
           <Icon name="fingerprint" className="text-xl text-brand-kinetic" />
@@ -108,8 +108,8 @@ export function DigilockerVerificationCard({
       </div>
 
       {waiting ? (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3">
-          <span className="flex items-center gap-2 text-xs font-medium text-blue-700">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-soft border border-primary/20 px-4 py-3">
+          <span className="flex items-center gap-2 text-xs font-medium text-primary">
             <Icon name="progress_activity" className="text-base animate-spin" />
             {t(
               "onboarding.digilocker.waiting",
@@ -119,7 +119,7 @@ export function DigilockerVerificationCard({
           <button
             type="button"
             onClick={reset}
-            className="text-xs font-semibold text-blue-700 hover:underline"
+            className="text-xs font-semibold text-primary hover:underline"
           >
             {t("onboarding.digilocker.cancel", "Cancel")}
           </button>
@@ -136,7 +136,7 @@ export function DigilockerVerificationCard({
       )}
 
       {status === "failed" && error && (
-        <p className="mt-3 text-xs font-medium text-red-600">{error}</p>
+        <p className="mt-3 text-xs font-medium text-danger">{error}</p>
       )}
     </div>
   );

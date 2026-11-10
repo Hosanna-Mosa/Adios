@@ -1,12 +1,12 @@
 import { Component, ErrorInfo, lazy, ReactNode, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Layout from "./routes/__root";
 import { RouteLoadingFallback } from "@/components/motion/RouteLoadingFallback";
 import { AppDialogHost } from "@/components/shared/AppDialogHost";
 
 const Home = lazy(() => import("./routes/index"));
-const PartnerPage = lazy(() => import("./routes/partner"));
+const LegalPage = lazy(() => import("./routes/legal"));
 const PartnerOnboarding = lazy(() => import("./routes/partner-onboarding"));
 const PartnerResubmit = lazy(() => import("./routes/partner-resubmit"));
 const RestaurantMenuFront = lazy(() => import("./routes/restaurant-menu"));
@@ -110,12 +110,25 @@ export default function App() {
       <AppDialogHost />
       <Suspense fallback={<RouteLoadingFallback />}>
         <Routes>
-          <Route element={<Layout variant="marketing" />}>
+          <Route element={<Layout />}>
             <Route index element={<Home />} />
+            <Route path="legal/:type" element={<LegalPage />} />
           </Route>
-          <Route element={<Layout variant="minimal" />}>
-            <Route path="partner" element={<PartnerPage />} />
-          </Route>
+          {/* The partner pitch now lives on the home page; keep old links working. */}
+          <Route path="partner" element={<Navigate to="/#partner" replace />} />
+          {/* Short links to the legal pages */}
+          <Route
+            path="terms"
+            element={<Navigate to="/legal/terms" replace />}
+          />
+          <Route
+            path="privacy"
+            element={<Navigate to="/legal/privacy" replace />}
+          />
+          <Route
+            path="cookies"
+            element={<Navigate to="/legal/cookies" replace />}
+          />
           <Route path="partner/onboarding" element={<PartnerOnboarding />} />
           <Route path="partner/resubmit" element={<PartnerResubmit />} />
           <Route path="restaurant-menu/:id" element={<RestaurantMenuFront />} />

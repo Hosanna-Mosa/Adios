@@ -1,0 +1,3214 @@
+[
+  {
+    "title": "Adios User Privacy Policy",
+    "meta": [
+      "Applies to: customers using the Adios customer mobile application and Adios websites (the \"Adios App\")",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026",
+      "Data Fiduciary: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          [
+            "This Privacy Policy explains what personal data we collect when you use Adios to order food and meat, book rides, send packages and book helpers, why we collect it, who we share it with, how long we keep it and the rights you have. We have written it to meet the Digital Personal Data Protection Act, 2023 and the Digital Personal Data Protection Rules, 2025 (\"DPDP law\"), the Information Technology Act, 2000 and the rules made under it. In short: we use your data to deliver your Orders safely, take payments, support you and keep the platform secure. We do not sell your personal data.",
+            false
+          ]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. Who we are and how to contact us",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "1.1 Adios Private Limited (\"Adios\", \"we\", \"us\") operates the Adios App and is the Data Fiduciary for the personal data described in this Policy.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "1.2 For any question about this Policy or your personal data, contact ________ at ________, or our Grievance Officer (Section 13).",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "1.3 This Policy applies to customers. Separate privacy policies apply to drivers and delivery partners (Adios Driver Privacy Policy) and to restaurants and meat shops (Adios Food Partner Privacy Policy).",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-who-we-are-and-how-to-contact-us"
+      },
+      {
+        "title": "2. Personal data we collect",
+        "blocks": [
+          {
+            "type": "h3",
+            "runs": [["2.1 Data you give us", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Account and contact data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: name, mobile number, email address, password (stored only in hashed form), preferred language",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you sign up or update your profile", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Profile photo", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Examples: the photograph you choose to upload", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["When: optional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Addresses", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: saved addresses with labels (home, work, others), landmarks, delivery instructions, map coordinates",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you add an address or place an Order", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Order data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: items ordered, Merchant, pickup and drop points, stops, scheduled times, notes and instructions, coupons applied",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you place an Order", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Ride data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Examples: pickup and drop, vehicle type, the Ride PIN", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you book a Ride", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data about other people", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: name and mobile number of a person you book a Ride for, or of the sender or recipient of a package",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you provide it", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Helper Booking data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: task description, hours, your price offer and any raises",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you book a helper", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Communications", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: in-app chat with Service Partners, support tickets and chats, support bot questions, emails and feedback",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you contact a Service Partner or us", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Ratings and reviews", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: star ratings, tags and comments about Merchants and Service Partners",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: after an Order", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Complaint evidence", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: descriptions of issues with an Order, and any photographs you send to support",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["When: when you raise a complaint", false]]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.2 Data collected automatically", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Precise location", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Examples: GPS location of your device ", false],
+              ["while the Adios App is in use", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: to show nearby Merchants and services, set pickup and drop points, check whether we serve your area, and calculate fares and estimated times",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Recent and saved locations", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Examples: recently used pickup and drop locations", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: to make re-booking quicker", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Device data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: device model, operating system and version, app version, language, a push-notification token",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: to deliver notifications, ensure compatibility, enforce mandatory updates and prevent fraud",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Usage data", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Examples: screens viewed and actions taken (for example, \"order placed\", \"ride searched\"), session identifiers, timestamps",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: to understand and improve the Adios App and detect problems; see the Cookie Policy",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Technical logs", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Examples: IP address, request logs, error logs", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: security, fraud prevention and troubleshooting", false]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "The customer Adios App does not request background location, and does not access your contacts, microphone or SMS.",
+                true
+              ],
+              [
+                " It opens your photo library only when you choose a profile photo, and uploads only the photo you select. When you tap \"Call\" on an Order, calls with the Service Partner are connected through a masked number, so neither of you sees the other's real phone number. Calls to a Merchant open your phone's dialler with the Merchant's number. Adios does not record calls.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.3 Data from other sources", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Service Partners", true],
+              [
+                ": live location of the Service Partner during your Order, status updates, Verification Code confirmations, cash collected, delivery confirmation and any incident reports",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Merchants", true],
+              [
+                ": Order acceptance, preparation status and responses to complaints",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Payment gateway (Razorpay): payment status, transaction identifiers, the payment method type and refund status. We do ",
+                false
+              ],
+              ["not", true],
+              [
+                " receive your full card number, CVV, UPI PIN or banking passwords",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Google Maps Platform", true],
+              [
+                ": addresses, place details and routes that correspond to locations you search for or select",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "2-personal-data-we-collect"
+      },
+      {
+        "title": "3. How we use your personal data",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Create and manage your account, verify your mobile number and keep you signed in",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: account data, device data", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: your consent; performance of the service you asked for",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Show Merchants, menus and services available near you", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: location, addresses", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Basis under DPDP law: consent", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Process Orders: share them with Merchants, dispatch and match Service Partners, enable pickup and delivery, run Rides and Helper Bookings",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data used: order, ride, helper and address data, location",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: consent and the specified purpose for which you provided the data",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Calculate prices, fares, surge, taxes and discounts; issue invoices",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: order data, location, coupons", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: as above, and legal obligation for tax invoices",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Process payments, refunds and top-ups through our payment gateway",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: payment status, order data", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Basis under DPDP law: as above", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Live tracking, ETAs, Ride PINs, delivery OTPs and helper codes",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: order data, Service Partner location", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Basis under DPDP law: as above", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Customer support, complaints, refunds and grievances", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data used: communications, order data, complaint evidence",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: as above, and legal obligation (consumer protection and IT law)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Safety: SOS, incident investigation, and action against misconduct",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: order data, location, communications", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: consent; legitimate uses permitted by DPDP law, including responding to emergencies and threats to safety",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Fraud, abuse and security monitoring; enforcing our Terms",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Data used: account, device, usage and order data, logs", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: legitimate uses and legal obligation (including security safeguards required by DPDP law and CERT-In directions)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Service notifications (Order updates, arrival alerts, refund notices, security alerts)",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: account data, push token", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Basis under DPDP law: performance of the service", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Promotional messages about offers and new services", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: account data, order history", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Basis under DPDP law: your consent, which you may withdraw at any time (Section 9)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Product analytics and improvement", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: usage and device data", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Basis under DPDP law: consent (see the Cookie Policy)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Compliance with law, court orders and lawful requests from authorities",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data used: as required", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Basis under DPDP law: legal obligation", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not use your personal data for automated decisions that produce legal or similarly significant effects on you without human review. We use automated systems to match Orders with nearby Service Partners, estimate fares and detect suspected fraud.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "3-how-we-use-your-personal-data"
+      },
+      {
+        "title": "4. Who we share your personal data with",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We share personal data only as needed for the purposes in Section 3.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Merchants", true],
+              [" (restaurants and meat shops)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What they receive: your name, contact number, the items ordered, Order notes and Order status",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to prepare and hand over your Order and contact you about it",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Service Partners", true],
+              [" offered your Order", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What they receive: the pickup and drop area, the service type, distance and earnings for the job",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: to decide whether to accept", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["The Service Partner who accepts your Order", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What they receive: your name, contact number, pickup and drop addresses and pins, Order details, payment method and amount to collect (for cash), your rating, and in-app chat",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: to complete the Order and contact you", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Recipients and other passengers", true],
+              [" you name", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What they receive: the Service Partner's name, vehicle type and live location, and the delivery code you share with them",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: to receive the package or take the Ride", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Payment gateway", true],
+              [" (Razorpay)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What they receive: Order amount, transaction references, and your contact details where required",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: to process payments and refunds", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Service providers acting for us (Data Processors)", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["What they receive: the minimum data they need", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to host our systems (Render and MongoDB Atlas), send one-time passwords by SMS (2Factor), send push notifications (Expo, Google Firebase Cloud Messaging, Apple Push Notification service), provide maps and location services (Google Maps Platform), analytics (Google Firebase Analytics), image and file storage (Cloudinary), email delivery (Google Gmail) and customer support tools",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Group companies and successors", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["What they receive: data relevant to the transaction", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: in a merger, acquisition or sale of assets, subject to this Policy",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Government and law enforcement", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["What they receive: data required by law", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to comply with law, court orders and lawful requests, or to protect the safety of any person",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We require our Data Processors to process personal data only on our instructions, keep it secure and delete it when no longer needed.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not sell your personal data, and we do not share it with third parties for their own marketing.",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["Merchants and Service Partners", true],
+              [
+                " may use your contact details only to fulfil your Order. They must not store them afterwards or use them for any other purpose. Please report any misuse to us.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-who-we-share-your-personal-data-with"
+      },
+      {
+        "title": "5. Transfers outside India",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We store our main databases in India. Some of our service providers (for example, Render, which runs our application servers, Google Firebase, Expo and Cloudinary) may process data on servers outside India. We transfer personal data outside India only where permitted by DPDP law and not to any country restricted by the Central Government, and we require appropriate safeguards from these providers.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "5-transfers-outside-india"
+      },
+      {
+        "title": "6. How long we keep your personal data",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We keep personal data only as long as needed for the purposes in Section 3, or as required by law. When it is no longer needed, we delete it or anonymise it.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Account and profile data", true],
+              [
+                ": while your account is active, and for 90 days after closure",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Order, payment and invoice records", true],
+              [
+                ": 8 years from the date of the Order, to meet tax, accounting and consumer-law requirements",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Saved and recent addresses", true],
+              [": until you delete them or close your account", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["In-app chat with Service Partners", true],
+              [": 180 days after Order completion", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Support tickets and grievance records", true],
+              [": 3 years after closure of the ticket", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Support bot questions", true],
+              [": 30 days", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Product analytics events held by Adios", true],
+              [": 90 days", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["One-time passwords", true],
+              [": until expiry (a few minutes)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Security and access logs", true],
+              [": 1 year, as required by the DPDP Rules, 2025", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data relating to a dispute, fraud investigation or legal claim",
+                true
+              ],
+              [
+                ": until the matter is finally resolved If you have not used your account for 24 months, we may close it and delete or",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "anonymise your data after giving you at least 30 days' notice.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "6-how-long-we-keep-your-personal-data"
+      },
+      {
+        "title": "7. How we protect your personal data",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We use reasonable security safeguards appropriate to the nature of the data, including:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["encryption of data in transit (HTTPS/TLS);", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["field-level encryption of sensitive data at rest;", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["hashing of passwords;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "role-based access controls, so staff see only the data they need;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["logging of access to support data;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "session controls, including the ability to sign out of all devices;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["monitoring for unauthorised access;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "contractual security obligations on our service providers.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "No system is completely secure. Please keep your account credentials safe (see the Terms of Use).",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "7-how-we-protect-your-personal-data"
+      },
+      {
+        "title": "8. Personal data breaches",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "If a personal data breach affects you, we will inform you without delay, in clear language, of what happened, its likely consequences, what we are doing about it and what you can do to protect yourself, together with a contact person. We will also report the breach to the Data Protection Board of India and to CERT-In within the timelines required by law.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "8-personal-data-breaches"
+      },
+      {
+        "title": "9. Your rights and choices",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [["9.1 Under DPDP law, you have the right to:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["access", true],
+              [
+                " a summary of the personal data we hold about you and the processing activities, and the identities of the persons with whom it has been shared;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["correct, complete or update", true],
+              [" inaccurate or incomplete data;", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["erase", true],
+              [
+                " personal data that is no longer needed, subject to legal retention requirements;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["withdraw consent", true],
+              [
+                " at any time, with the same ease with which you gave it. This does not affect processing already carried out, but it may mean we can no longer provide some or all of the Services;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["nominate", true],
+              [
+                " another person to exercise your rights in the event of your death or incapacity;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["grievance redressal", true],
+              [
+                ", by complaining to us and, if you are not satisfied, to the Data Protection Board of India.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["9.2 ", false],
+              ["How to exercise your rights.", true],
+              [
+                " Use ________, or email ________ from your registered email address or with your registered mobile number. We may verify your identity before acting. We will respond as soon as possible and in any case within 90 days, or any shorter period required by law.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["9.3 ", false],
+              ["Your choices.", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Edit your profile and addresses in the Adios App.", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Turn off location or notifications in your device settings.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Opt out of promotional notifications in ________ or by contacting us.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Opt out of analytics as described in the Cookie Policy.", false]
+            ]
+          }
+        ],
+        "id": "9-your-rights-and-choices"
+      },
+      {
+        "title": "10. Deleting your account",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "10.1 You can request deletion of your account in the Adios App at Profile → Delete account, or on the web at adios.one/delete-account without needing to install or open the app.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [["10.2 Before deletion, we will:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["complete or cancel any active Orders;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["settle any outstanding refunds or amounts due.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "10.3 When we delete your account, we delete or irreversibly anonymise your profile, saved addresses and other personal data within 90 days, and instruct our service providers to delete the personal data they hold for us. We keep only:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Order, payment and invoice records needed for tax and accounting law, for the periods in Section 6;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "records needed for an open complaint, dispute, fraud investigation or legal claim;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["security logs required by law.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "These retained records are kept securely, used only for those purposes, and deleted at the end of the retention period.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "10-deleting-your-account"
+      },
+      {
+        "title": "11. Children",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "The Adios App is intended for adults aged 18 and over. We do not knowingly create accounts for children or process children's personal data for tracking, behavioural monitoring or targeted advertising. If you book a Ride or a delivery that involves a child, you confirm that you are the child's parent or lawful guardian, or are acting with their consent. If you believe a child has created an account, contact ________ and we will delete it.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "11-children"
+      },
+      {
+        "title": "12. Changes to this Policy",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We may update this Policy to reflect changes in the Services or the law. We will post the updated Policy in the Adios App with a new \"Last updated\" date. If we make material changes, or begin using your data for a new purpose that requires your consent, we will notify you in advance and ask for your consent where required.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "12-changes-to-this-policy"
+      },
+      {
+        "title": "13. Grievance Officer and Data Protection Board",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["13.1 ", false],
+              ["Grievance Officer:", true],
+              [
+                " ________, Grievance Officer, Adios Private Limited, Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh. Email: grievances@adios.one. Phone: +91 xxxxxxxxxx. Hours: Monday to Saturday, 9 AM to 6 PM.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "13.2 We will acknowledge your grievance promptly and resolve it within the period required by law, and in any case within 90 days.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "13.3 If you are not satisfied with our response, you may complain to the Data Protection Board of India through its online portal, after exhausting our grievance redressal process.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "13-grievance-officer-and-data-protection-board"
+      }
+    ],
+    "id": "customers-privacy",
+    "audience": "customers",
+    "kind": "privacy"
+  },
+  {
+    "title": "Adios Driver Privacy Policy",
+    "meta": [
+      "Applies to: drivers, riders, delivery partners and helpers who register on or use the Adios Driver app",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026",
+      "Data Fiduciary: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          [
+            "This Policy explains how Adios collects and uses your personal data when you register and work as a Service Partner. That includes your identity and KYC documents, your bank details, your location while you are online, and your Job and earnings records. It also explains who sees your data and the rights you have under the Digital Personal Data Protection Act, 2023 and the Digital Personal Data Protection Rules, 2025. ",
+            false
+          ],
+          ["Your location is tracked only while you are online.", true]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. Who we are",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Adios Private Limited (\"Adios\", \"we\") operates the Adios Driver app and is the Data Fiduciary for your personal data. Contact for privacy questions: ________. Grievance Officer: Section 12.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-who-we-are"
+      },
+      {
+        "title": "2. Personal data we collect",
+        "blocks": [
+          {
+            "type": "h3",
+            "runs": [["2.1 Registration, identity and KYC", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Contact and profile", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: name, mobile number, email address, gender, profile photograph",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: account, communications, displaying your name to Customers",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Identity verification via DigiLocker (if you choose it)", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: with your consent, we fetch your name, date of birth, gender, masked Aadhaar number, and PAN and driving licence details and documents from your DigiLocker account",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to verify your identity and documents from the issuing authority",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Driving licence", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: licence number, vehicle class, expiry date, and front and back images (used only for verification and not stored afterwards)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to confirm you are licensed to drive the vehicle type; expired licences are blocked from Jobs",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["PAN", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: PAN number and image (used only for verification and not stored afterwards)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: identity verification and tax compliance", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Live selfie", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: a photograph taken with your phone camera during onboarding",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to match you to your identity documents and prevent impersonation; it is not shown to Customers",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Vehicle", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: vehicle type (bike, auto, car) and vehicle registration number",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: matching Jobs to your vehicle and showing it to Customers",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Background verification", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: police or criminal-record verification through the police or an authorised background-check agency, with your separate consent; we share your name, date of birth, address and identity details for this check",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: safety of Customers", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Admin review records", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: review notes, requests for further documents, approval or rejection reasons",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: onboarding decisions and audit", false]]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.2 Bank and payout data", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Bank account number and IFSC (you may save more than one account), the account holder name returned by the bank verification, and payout references (such as the UTR number). These are used to pay you and to verify that the account is in your name.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.3 Location data", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["While you are online", true],
+              [
+                ", the Driver app collects your precise GPS location every few seconds (approximately every 10 seconds or 10 metres of movement), ",
+                false
+              ],
+              [
+                "including when the app is closed or not in use (in the background)",
+                true
+              ],
+              [", with a persistent notification on your phone.", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Location is used to:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["offer you nearby Jobs;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["calculate distances and fares;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "show your live position to the Customer and Merchant for your active Job;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["assign you to zones and high-demand areas;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["support safety and incident investigations; and", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["resolve fare and delivery disputes.", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["When you go offline, location collection stops.", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["We store your ", false],
+              ["current", true],
+              [" location (overwritten with each update) and the ", false],
+              ["route of each Job", true],
+              [
+                ". We do not keep a continuous history of your movements outside Jobs. Job routes are kept for 180 days.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.4 Jobs, earnings and cash", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Job offers shown, accepted and declined; Job details; Verification Code confirmations; timestamps; cash collected and the confirmation of collection; earnings; incentives; deductions; Cash Dues; payouts; and earnings statements.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.5 Communications, ratings and support", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "In-app chat with Customers, support tickets and chats, SOS alerts and incident reports, ratings and feedback from Customers about you, and your ratings of Customers.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.6 Device and usage data", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Device model, OS and app version, push-notification token, app events and diagnostics (through Google Firebase Analytics and Adios's own analytics), IP address and security logs. See the Driver Cookie and Tracking Technologies Policy.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.7 Data we do not collect", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "The Driver app does not access your contacts, SMS, call logs or microphone. It does not record calls.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "2-personal-data-we-collect"
+      },
+      {
+        "title": "3. Aadhaar",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "3.1 Providing your Aadhaar number is voluntary. You can verify your identity through DigiLocker, or by another method we make available (PAN, driving licence and video KYC).",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [["3.2 Where you use Aadhaar:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "we use it only to verify your identity, with your explicit consent;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["we do not use it for any other purpose;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["we display only the masked number (last four digits);", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "we store only the masked Aadhaar number and the verification result, and never your full Aadhaar number;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "we never publish it or share it with Customers or Merchants.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "3.3 Aadhaar and PAN verification is carried out only through DigiLocker, the Government of India's digital document service. We do not use any other verification provider. DigiLocker access is controlled by you, through the consent screen of the DigiLocker service.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "3-aadhaar"
+      },
+      {
+        "title": "4. How we use your personal data",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Registering you, verifying your identity, licence and documents, and deciding on your application",
+                true
+              ],
+              [
+                " (legal basis: consent; legal obligations under the Motor Vehicle Aggregator Guidelines and State rules)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Offering, allocating and managing Jobs; navigation; live tracking for Customers and Merchants",
+                true
+              ],
+              [
+                " (legal basis: consent and the specified purpose of providing the service)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Calculating and paying your earnings, incentives and payouts; settling Cash Dues",
+                true
+              ],
+              [" (legal basis: as above; legal obligations (tax))", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Customer support, complaints, ratings and quality management",
+                true
+              ],
+              [" (legal basis: as above)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Safety: SOS, incident investigation, and responding to emergencies",
+                true
+              ],
+              [
+                " (legal basis: consent; legitimate uses under DPDP law, including medical emergencies and threats to safety)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Fraud prevention: detecting GPS spoofing, account sharing, fake Jobs and incentive abuse",
+                true
+              ],
+              [
+                " (legal basis: legitimate uses; security safeguards required by law)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Account actions, appeals and disputes", true],
+              [
+                " (legal basis: as above; establishing and defending legal claims)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Compliance with tax, transport and social security laws, and lawful requests from authorities",
+                true
+              ],
+              [" (legal basis: legal obligation)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Service notifications (Job offers, payouts, document expiry)",
+                true
+              ],
+              [" (legal basis: performance of the service)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Analytics and improving the Driver app", true],
+              [
+                " (legal basis: consent (see the Cookie and Tracking Technologies Policy))",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Job allocation is automated, based on factors such as distance, availability, vehicle type and service type. Account suspensions and deactivations are reviewed by a person (see the Driver Terms and Conditions).",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-how-we-use-your-personal-data"
+      },
+      {
+        "title": "5. Who we share your personal data with",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              ["Customers", true],
+              [" for your active Job", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: your first name, vehicle type and vehicle registration number, rating, live location and a masked phone number for calls",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: so they can identify you, track the Job and contact you",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Merchants", true],
+              [" for your active pickup", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: your name and mobile number", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: to hand over the Order", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Recipients of packages", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: your name and live location (through the sender's tracking link or details)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: to receive the package", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Identity verification and KYC providers", true],
+              [" (DigiLocker)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: your Aadhaar/PAN number or DigiLocker consent, and documents",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: identity and document verification", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Payout provider", true],
+              [" (RazorpayX) and banks", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: name, bank account, IFSC, payout amounts", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: paying you", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data Processors", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: the minimum necessary data", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: hosting (Render and MongoDB Atlas), SMS one-time passwords (2Factor), document and image storage (Cloudinary), maps (Google), push notifications (Expo, Google, Apple), analytics (Google Firebase), email (Google Gmail)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Insurers", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: Not applicable – Adios does not currently arrange insurance",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: administering cover and claims", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Government authorities", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: as required by law, such as transport departments, tax authorities, social security portals and law enforcement, on lawful request",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: legal compliance and safety", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not sell your personal data. Customers and Merchants are bound by our terms to use your contact details only for the relevant Job.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "5-who-we-share-your-personal-data-with"
+      },
+      {
+        "title": "6. Transfers outside India",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Our main databases are hosted in India. Some service providers (such as Render, which runs our application servers, Google Firebase, Expo and Cloudinary) may process data outside India. We transfer personal data abroad only as permitted by DPDP law and not to any country restricted by the Central Government.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "6-transfers-outside-india"
+      },
+      {
+        "title": "7. Retention",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              ["KYC documents and verification records", true],
+              [
+                ": while your account is active and for 3 years after your account is closed, to meet legal, safety and dispute requirements",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Rejected applications", true],
+              [": 6 months after rejection", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Job, earnings, cash, payout and tax records", true],
+              [": 8 years (to meet tax and accounting laws)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Bank details", true],
+              [
+                ": while your account is active, and with payout records thereafter",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Current location", true],
+              [": overwritten continuously while you are online", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Job routes", true],
+              [": 180 days", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Chat with Customers", true],
+              [": 180 days after the Job", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Safety incidents, SOS records, investigations and appeals",
+                true
+              ],
+              [": 3 years, or until any legal proceedings end", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Product analytics held by Adios", true],
+              [": 90 days", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Security logs", true],
+              [
+                ": at least one year, as required by the DPDP Rules, 2025",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "When data is no longer needed, we delete it or anonymise it.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "7-retention"
+      },
+      {
+        "title": "8. Security",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We protect your data with reasonable security safeguards, including:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["encryption of data in transit;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "field-level encryption of KYC data (Aadhaar, PAN and licence numbers, document references, selfie reference) and bank details at rest;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["role-based access limited to authorised staff;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "we do not keep images of your identity documents after verification; we store only the verified details;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["monitoring and logging.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "If a personal data breach affects you, we will inform you and the Data Protection Board of India as required by law.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "8-security"
+      },
+      {
+        "title": "9. Your rights",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [["9.1 You have the rights to:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["access a summary of your data;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["correct and update it;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["erase it (subject to legal retention);", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["withdraw consent;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["nominate another person to exercise your rights; and", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["seek grievance redressal.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "To exercise them, use ________ or email ________. We will respond within 90 days, or any shorter period required by law.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["9.2 ", false],
+              ["Withdrawing consent.", true],
+              [
+                " If you withdraw consent for location tracking while online, or for identity verification, you will not be able to receive Jobs, because these are essential to the service.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["9.3 ", false],
+              ["Account deletion.", true],
+              [
+                " You can request deletion in the Driver app at Profile → Delete account, or on the web at adios.one/delete-account without needing to install or open the Driver app. We will:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["settle your Wallet Balance and any Cash Dues;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["close any open investigations;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["delete or anonymise your data within 90 days.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We also instruct our service providers to delete the personal data they hold for us. We keep only the records in Section 7 that we must keep by law or for pending disputes:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["earnings, payout and tax records, for 8 years;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["KYC verification records, for 3 years;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["safety incident records, for 3 years;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["security logs, for at least one year.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "These are kept securely, used only for those purposes, and then deleted.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "9-your-rights"
+      },
+      {
+        "title": "10. Children",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "You must be 18 or older to register as a Service Partner. We do not knowingly collect data from children through the Driver app.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "10-children"
+      },
+      {
+        "title": "11. Changes",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We will notify you in the Driver app before material changes to this Policy take effect, and will seek your consent where required.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "11-changes"
+      },
+      {
+        "title": "12. Grievance Officer and Data Protection Board",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Grievance Officer: ________, Grievance Officer, Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh. Email: grievances@adios.one. Phone: +91 xxxxxxxxxx. If you are not satisfied with our response, you may complain to the Data Protection Board of India.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "12-grievance-officer-and-data-protection-board"
+      }
+    ],
+    "id": "partners-privacy",
+    "audience": "partners",
+    "kind": "privacy"
+  },
+  {
+    "title": "Adios Food Partner Privacy Policy",
+    "meta": [
+      "Applies to: owners, authorised signatories and staff of restaurants and meat shops using the Adios Partner app, partner web portal and partner website",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026",
+      "Data Fiduciary: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          [
+            "This Policy explains how Adios handles the personal data of individuals connected with Food Partners. That includes the owner or authorised signatory who completes onboarding and KYC, and staff who use the Partner Platform. It also describes the business information we display publicly. It is written to meet the Digital Personal Data Protection Act, 2023 and the Digital Personal Data Protection Rules, 2025. Business information that is not personal data (such as an outlet's GSTIN or FSSAI number) is handled under the Food Partner Terms and Conditions, but we describe it here too so you have a complete picture.",
+            false
+          ]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. Who we are",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Adios Private Limited (\"Adios\") is the Data Fiduciary for the personal data described in this Policy. Privacy contact: ________. Grievance Officer: Section 12.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-who-we-are"
+      },
+      {
+        "title": "2. Data we collect",
+        "blocks": [
+          {
+            "type": "h3",
+            "runs": [["2.1 Onboarding (partner website)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Contact person", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Details: name, mobile number, email address", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: communication, account creation, one-time password verification",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Owner or signatory KYC (via DigiLocker, with your consent)",
+                true
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: name, date of birth, gender and masked Aadhaar number as shared by DigiLocker; DigiLocker ID; documents you choose to share",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Why: to verify the identity of the person entering into the agreement",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Tax and legal documents", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: PAN number, PAN name and copy; GSTIN and certificate, or GST exemption; FSSAI licence or registration number, expiry date and certificate",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: legal compliance, verification and tax", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Bank details", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: account holder name, account number, IFSC, account type, cancelled cheque",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: paying settlements", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Signature", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: your digital signature, and the date and time of accepting the agreement",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: evidence of agreement", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Outlet details", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: outlet name, address, map location, Google place reference, phone, opening hours, categories, photographs",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: listing your outlet", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Menu", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Details: items, prices, photographs and uploaded menu files or images",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Why: creating your menu", false]]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.2 Using the Partner Platform", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Account credentials (your password is stored only in hashed form) and session data.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Order handling data: acceptance, rejection and ready times; scheduled-request responses; cancellation reasons.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Payout requests and statements.", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Support tickets and chats.", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["The device push-notification token for the Partner app.", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Location of your device, only when you tap \"use my current location\" to set the outlet address.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Photographs you take or select for dishes.", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Technical logs (IP address, request and error logs).", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "On the partner web portal only: usage analytics (see the Cookie and Tracking Technologies Policy).",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "h3",
+            "runs": [["2.3 What the Partner app does not collect", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "The Partner app does not include an analytics SDK. It does not collect background location, and does not access your contacts, SMS or microphone.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "2-data-we-collect"
+      },
+      {
+        "title": "3. How we use the data",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Verifying the business and its owner or signatory, and approving the listing",
+                true
+              ],
+              [
+                " (legal basis: consent; legal obligations (e-commerce seller information, food safety, tax))",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Creating and operating the outlet account; sending Orders and alerts",
+                true
+              ],
+              [" (legal basis: the specified purpose of the agreement)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Calculating and paying settlements; issuing statements and tax documents",
+                true
+              ],
+              [" (legal basis: the agreement; legal obligation)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Displaying seller information to Customers, as required by the Consumer Protection (E-Commerce) Rules, 2020",
+                true
+              ],
+              [" (legal basis: legal obligation)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Customer complaints, quality monitoring and food safety investigations",
+                true
+              ],
+              [
+                " (legal basis: the agreement; legitimate uses; legal obligation)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Converting uploaded menu files into menu items using automated text extraction",
+                true
+              ],
+              [" (legal basis: the agreement (you review the result))", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Fraud prevention and platform security", true],
+              [
+                " (legal basis: legitimate uses; security safeguards required by law)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Communications about Orders, payouts, document expiry and policy changes",
+                true
+              ],
+              [" (legal basis: the agreement)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Usage analytics on the web portal", true],
+              [" (legal basis: consent)", false]
+            ]
+          }
+        ],
+        "id": "3-how-we-use-the-data"
+      },
+      {
+        "title": "4. What we show publicly",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "On your outlet page in the Adios customer app and on shared menu links, we display:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["your outlet name, address, location and photographs;", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["your menu, prices and opening hours;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["ratings and reviews; and", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "your FSSAI licence or registration number and its expiry date.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not publicly display the owner's personal KYC data, PAN, bank details or signature.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-what-we-show-publicly"
+      },
+      {
+        "title": "5. Who we share data with",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Customers", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: public outlet information (Section 4); outlet phone number for an active Order",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: ordering and contact about the Order", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Service Partners", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Data: outlet name, address, location and phone number", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: Order pickup", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["DigiLocker (Government of India)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: your consent request and the documents you choose to share",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: identity verification", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Payment and payout providers (Razorpay; RazorpayX) and banks",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: bank details, settlement amounts", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: payments and bank verification", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data Processors", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: the minimum data necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: hosting (Render and MongoDB Atlas), SMS one-time passwords (2Factor), file and image storage (Cloudinary), maps and place search (Google), automated menu text extraction (Google Gemini API, for menu files you upload), push notifications (Expo, Google, Apple), email (Google Gmail), web analytics (Google Firebase)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Government authorities", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: as required by law, such as GST and income tax authorities, food safety authorities and law enforcement",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: legal compliance", false]]
+          },
+          {
+            "type": "p",
+            "runs": [["We do not sell personal data.", false]]
+          }
+        ],
+        "id": "5-who-we-share-data-with"
+      },
+      {
+        "title": "6. Customer data that you receive",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "When you receive Customer data to fulfil Orders, you must use it only for that purpose and protect it, as set out in the Food Partner Terms and Conditions. The Adios User Privacy Policy explains to Customers what is shared with you.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "6-customer-data-that-you-receive"
+      },
+      {
+        "title": "7. Transfers outside India",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Our main databases are hosted in India. Some service providers (for example, Render, which runs our application servers, Google, Expo and Cloudinary) may process data outside India. We transfer personal data abroad only as permitted by DPDP law and not to any country restricted by the Central Government.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "7-transfers-outside-india"
+      },
+      {
+        "title": "8. Retention",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              ["KYC, agreement and signature records", true],
+              [
+                ": for the term of the agreement and 3 years after it ends",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Tax documents, settlements, statements and invoices", true],
+              [": 8 years (to meet tax and accounting laws)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Rejected or abandoned applications", true],
+              [": 6 months", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["DigiLocker consent sessions that are not completed", true],
+              [": deleted automatically after expiry", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Order records", true],
+              [": 8 years", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Support records", true],
+              [": 3 years", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Web portal analytics", true],
+              [": 2 months", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Security logs", true],
+              [
+                ": at least one year, as required by the DPDP Rules, 2025",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "8-retention"
+      },
+      {
+        "title": "9. Security",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["We use reasonable security safeguards, including:", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["encryption of data in transit;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "field-level encryption at rest of PAN, GSTIN, bank details, KYC details and document references;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["hashed passwords;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["session revocation when a password is changed;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["role-based access controls; and", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["monitoring.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not keep images of identity documents after verification; we store only the verified details. If a personal data breach affects you, we will notify you and the Data Protection Board of India as required by law.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "9-security"
+      },
+      {
+        "title": "10. Your rights",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [["You may:", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["access a summary of your personal data;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["correct or update it;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "request erasure, subject to legal retention and the terms of the agreement;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["withdraw consent;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["nominate another person to exercise your rights; and", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["raise a grievance.", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "To exercise these rights, contact ________ or use the Account section of the Partner app. We will respond within 90 days, or any shorter period required by law. Withdrawing consent to KYC processing, or requesting erasure of data needed to operate the outlet, will mean the outlet can no longer be listed. To delete your account, see Section 11.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "10-your-rights"
+      },
+      {
+        "title": "11. Deleting your account",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["11.1 ", false],
+              ["How to request deletion.", true],
+              [
+                " You can request deletion of your Food Partner account and its associated personal data:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["in the Partner app", true],
+              [", at Account → Security → Delete account; or", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["on the web", true],
+              [
+                ", at adios.one/delete-account, without needing to install or open the Partner app; or",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "by emailing ________ from your registered email address.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["11.2 ", false],
+              ["What happens.", true],
+              [" We will:", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["stop listing your outlet;", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "complete any pending Orders and settle any balance due to you; and",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "within 90 days, delete the personal data of the owner, signatory and staff (contact details, KYC details, signature, login credentials and push tokens), together with your outlet photographs and menu files.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We also instruct our service providers to delete the personal data they hold for us.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["11.3 ", false],
+              ["What we keep, and why.", true],
+              [
+                " Some records must be kept for a limited period after deletion:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "settlement, invoice and tax records, for 8 years, to meet tax and accounting laws;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "the signed agreement and KYC verification record, for 3 years, to establish or defend legal claims;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "records connected with an open complaint, dispute or investigation, until it is resolved;",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "security logs, for at least one year, as required by the DPDP Rules, 2025.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "These records are kept securely, are used only for these purposes, and are deleted at the end of the period.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "11-deleting-your-account"
+      },
+      {
+        "title": "12. Grievance Officer and Data Protection Board",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Grievance Officer: ________, Grievance Officer, Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh. Email: grievances@adios.one. Phone: +91 xxxxxxxxxx. If you are not satisfied with our response, you may complain to the Data Protection Board of India.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "12-grievance-officer-and-data-protection-board"
+      },
+      {
+        "title": "13. Changes",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We will notify Food Partners of material changes to this Policy through the Partner Platform or by email before they take effect.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "13-changes"
+      }
+    ],
+    "id": "restaurants-privacy",
+    "audience": "restaurants",
+    "kind": "privacy"
+  }
+]

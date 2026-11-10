@@ -20,7 +20,7 @@ interface Credentials {
 }
 
 const inputClass =
-  "w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm";
+  "w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm";
 
 /**
  * Where a restaurant / meat-center applicant uploads the documents an admin
@@ -107,7 +107,7 @@ export default function PartnerResubmit() {
     <div className="min-h-screen bg-onboarding-surface px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link
-          to="/partner"
+          to="/#partner"
           className="font-display text-lg font-extrabold text-brand-kinetic tracking-tighter"
         >
           ADIOS
@@ -115,8 +115,8 @@ export default function PartnerResubmit() {
 
         {resubmitted ? (
           <div className="mt-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-8">
-              <Icon name="check_circle" className="text-5xl text-green-600" />
+            <div className="w-20 h-20 rounded-full bg-success-soft flex items-center justify-center mx-auto mb-8">
+              <Icon name="check_circle" className="text-5xl text-success" />
             </div>
             <h1 className="font-display text-3xl font-bold mb-4">
               {t("resubmit.doneTitle", "Documents resubmitted")}
@@ -137,7 +137,7 @@ export default function PartnerResubmit() {
         ) : !application ? (
           <form
             onSubmit={handleSignIn}
-            className="mt-10 bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 space-y-5"
+            className="mt-10 bg-white rounded-2xl border border-surface-container p-6 sm:p-8 space-y-5"
           >
             <div>
               <h1 className="font-display text-2xl font-bold mb-1">
@@ -174,7 +174,7 @@ export default function PartnerResubmit() {
               />
             </div>
             {error && (
-              <p className="text-xs font-medium text-red-600">{error}</p>
+              <p className="text-xs font-medium text-danger">{error}</p>
             )}
             <button
               type="submit"
@@ -235,7 +235,7 @@ export default function PartnerResubmit() {
             />
 
             {error && (
-              <p className="mb-4 text-sm font-medium text-red-600">{error}</p>
+              <p className="mb-4 text-sm font-medium text-danger">{error}</p>
             )}
             <button
               type="button"

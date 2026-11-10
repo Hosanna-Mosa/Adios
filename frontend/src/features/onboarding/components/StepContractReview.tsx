@@ -51,7 +51,7 @@ export function StepContractReview({ form }: Props) {
           </h2>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-surface-container p-6">
           <div className="space-y-4">
             {[
               {
@@ -77,7 +77,7 @@ export function StepContractReview({ form }: Props) {
             ].map((item) => (
               <div
                 key={item.label}
-                className="flex items-start gap-4 py-3 border-b border-gray-50 last:border-0"
+                className="flex items-start gap-4 py-3 border-b border-surface-soft last:border-0"
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-brand-kinetic mt-2 shrink-0" />
                 <div>
@@ -107,11 +107,11 @@ export function StepContractReview({ form }: Props) {
 
         <div className="space-y-5">
           {/* Terms of Service */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-surface-container p-6">
             <label className="block text-sm font-semibold mb-3">
               {t("onboarding.termsOfService")}
             </label>
-            <div className="h-48 overflow-y-auto bg-gray-50 rounded-xl p-4 text-xs text-secondary-app leading-relaxed border border-gray-100">
+            <div className="h-48 overflow-y-auto bg-surface-soft rounded-xl p-4 text-xs text-secondary-app leading-relaxed border border-surface-container">
               <p className="font-semibold text-on-surface mb-2">
                 {t("onboarding.contractTitle")}
               </p>
@@ -183,7 +183,7 @@ export function StepContractReview({ form }: Props) {
           </div>
 
           {/* Acceptance Checkbox */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-surface-container p-6">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -204,7 +204,7 @@ export function StepContractReview({ form }: Props) {
           </div>
 
           {/* E-Signature */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-surface-container p-6">
             <label className="block text-sm font-semibold mb-2">
               {t("onboarding.digitalSignature")}{" "}
               <span className="text-brand-kinetic">*</span>
@@ -217,7 +217,7 @@ export function StepContractReview({ form }: Props) {
               value={signature}
               onChange={(e) => setSignature(e.target.value)}
               placeholder={t("onboarding.typeFullLegalName")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm font-semibold"
+              className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm font-semibold"
             />
             {signature && (
               <div className="mt-4 p-4 rounded-xl bg-brand-kinetic/5 border border-brand-kinetic/10 text-center">
@@ -283,7 +283,7 @@ export function StepContractReview({ form }: Props) {
           ].map((item) => (
             <div
               key={item.label}
-              className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between"
+              className="bg-white rounded-xl border border-surface-container p-4 flex items-center justify-between"
             >
               <div>
                 <p className="text-xs text-secondary-app font-semibold uppercase tracking-wider">
@@ -294,7 +294,7 @@ export function StepContractReview({ form }: Props) {
                   {item.detail}
                 </p>
               </div>
-              <span className="text-green-600">
+              <span className="text-success">
                 <Icon name="check_circle" className="text-xl" />
               </span>
             </div>

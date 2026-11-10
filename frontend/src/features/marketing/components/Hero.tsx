@@ -1,232 +1,111 @@
 import { useTranslation } from "react-i18next";
-import { Icon } from "../../../components/shared/Icon";
-import { LazyImage } from "../../../components/shared/LazyImage";
-import { FadeIn } from "../../../components/motion/FadeIn";
+import { motion } from "framer-motion";
+import { Icon } from "@/components/shared/Icon";
+import { BackgroundVideo } from "@/components/shared/BackgroundVideo";
 
-const burgerHeroImg =
-  "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80";
-const carHeroImg = "/bike_taxi_hero.png";
+const HERO_SOURCES = [
+  { src: "/videos/hero-desktop.webm", type: "video/webm" as const },
+  { src: "/videos/hero-desktop.mp4", type: "video/mp4" as const },
+];
+const HERO_MOBILE_SOURCES = [
+  { src: "/videos/hero-mobile.mp4", type: "video/mp4" as const },
+];
 
-type Props = {
-  activeMode: "food" | "ride";
-  setActiveMode: (mode: "food" | "ride") => void;
-};
+/** Quick links in the white pill under the headline — each jumps to its card. */
+const QUICK_LINKS = [
+  { key: "food", icon: "restaurant", href: "#service-food" },
+  { key: "meat", icon: "set_meal", href: "#service-meat" },
+  { key: "rides", icon: "two_wheeler", href: "#service-rides" },
+  { key: "parcel", icon: "package_2", href: "#service-parcel" },
+  { key: "helper", icon: "handyman", href: "#helper" },
+] as const;
 
-export function Hero({ activeMode, setActiveMode }: Props) {
+export function Hero() {
   const { t } = useTranslation();
+
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-white">
-      {/* Desktop-only full-bleed shaded background images */}
-      <div className="hidden lg:block absolute inset-x-0 bottom-0 top-[100px] z-0 pointer-events-none">
-        {/* Food background on the right */}
-        <div
-          className={`absolute top-0 right-0 w-1/2 h-full transition-all duration-1000 transform ${
-            activeMode === "food"
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 translate-x-12"
-          }`}
-        >
-          <LazyImage
-            src={burgerHeroImg}
-            alt={t("hero.refinedHamburgerTasteAlt")}
-            className="w-full h-full object-cover"
-            wrapperClassName="w-full h-full"
-          />
-          {/* Smooth transition from the left (white) to transparent */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/20 to-transparent" />
-        </div>
+    <section
+      aria-labelledby="hero-heading"
+      className="relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden bg-brand-dark text-white"
+    >
+      <BackgroundVideo
+        sources={HERO_SOURCES}
+        mobileSources={HERO_MOBILE_SOURCES}
+        poster="/videos/hero-poster.jpg"
+        className="-z-10"
+        overlayClassName="bg-gradient-to-b from-black/60 via-black/35 to-brand-dark/85"
+      />
 
-        {/* Rides background on the left */}
-        <div
-          className={`absolute top-0 left-0 w-1/2 h-full transition-all duration-1000 transform ${
-            activeMode === "ride"
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-12"
-          }`}
+      <div className="mx-auto w-full max-w-4xl px-4 pb-16 pt-28 text-center sm:px-6">
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="font-display text-6xl font-black tracking-tight sm:text-7xl md:text-8xl"
         >
-          <LazyImage
-            src={carHeroImg}
-            alt={t("hero.executiveMobilityVehicleAlt")}
-            className="w-full h-full object-cover"
-            wrapperClassName="w-full h-full"
-          />
-          {/* Smooth transition from the right (white) to transparent */}
-          <div className="absolute inset-0 bg-gradient-to-l from-white via-white/20 to-transparent" />
-        </div>
+          Adios
+        </motion.p>
+
+        <motion.h1
+          id="hero-heading"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mx-auto mt-4 max-w-3xl font-display text-2xl font-semibold leading-snug sm:text-3xl md:text-4xl"
+        >
+          {t("home.hero.headline")}
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mx-auto mt-4 max-w-xl text-base text-white/80 sm:text-lg"
+        >
+          {t("home.hero.subtitle")}
+        </motion.p>
+
+        {/* Zomato-style white pill: service shortcuts + primary CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mx-auto mt-10 flex max-w-4xl flex-col gap-2 rounded-2xl bg-white p-2 text-on-surface shadow-2xl shadow-black/30 md:flex-row md:items-center md:rounded-full"
+        >
+          <div className="grid flex-1 grid-cols-3 gap-1 md:flex md:gap-0">
+            {QUICK_LINKS.map((link, i) => (
+              <a
+                key={link.key}
+                href={link.href}
+                className={`group flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition-colors hover:bg-soft hover:text-primary md:rounded-full ${
+                  i > 0 ? "md:border-l md:border-surface-container" : ""
+                }`}
+              >
+                <Icon
+                  name={link.icon}
+                  className="text-xl text-primary transition-transform group-hover:scale-110"
+                />
+                {t(`home.hero.quick.${link.key}`)}
+              </a>
+            ))}
+          </div>
+          <a
+            href="#download"
+            className="flex items-center justify-center gap-2 rounded-xl bg-brand-action px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-brand-action/90 active:scale-[0.98] md:rounded-full"
+          >
+            <Icon name="download" className="text-lg" />
+            {t("home.hero.getApp")}
+          </a>
+        </motion.div>
       </div>
 
-      {/* State Toggle Buttons */}
-      <div className="absolute top-28 left-1/2 -translate-x-1/2 z-30">
-        <div className="bg-surface-container p-1 rounded-lg flex items-center gap-1 shadow-sm border border-secondary-fixed-dim">
-          <button
-            onClick={() => setActiveMode("food")}
-            className={`px-8 py-2.5 rounded font-semibold text-xs uppercase tracking-wider transition-all duration-300 ${
-              activeMode === "food"
-                ? "bg-primary text-white shadow-md"
-                : "text-secondary-app hover:text-primary"
-            }`}
-          >
-            {t("hero.food")}
-          </button>
-          <button
-            onClick={() => setActiveMode("ride")}
-            className={`px-8 py-2.5 rounded font-semibold text-xs uppercase tracking-wider transition-all duration-300 ${
-              activeMode === "ride"
-                ? "bg-brand-kinetic text-on-surface shadow-md"
-                : "text-secondary-app hover:text-primary"
-            }`}
-          >
-            {t("hero.rides")}
-          </button>
-        </div>
-      </div>
-
-      {/* Hero Content Container (Flips columns layout with transitions) */}
-      <FadeIn className="max-w-[1440px] mx-auto w-full px-10 md:px-20 grid grid-cols-1 lg:grid-cols-2 items-center gap-16 relative z-10 min-h-[80vh] lg:min-h-screen pt-32 lg:pt-0">
-        {/* Column 1 (Left) - Displays Food Text in Food mode, Rides Image in Ride mode */}
-        <div className="relative h-[420px] lg:h-[550px] flex flex-col justify-center">
-          {/* Food Mode Left Content: Text Block */}
-          <div
-            className={`absolute inset-0 flex flex-col justify-center transition-all duration-700 transform ${
-              activeMode === "food"
-                ? "opacity-100 translate-x-0 pointer-events-auto"
-                : "opacity-0 -translate-x-12 pointer-events-none"
-            }`}
-          >
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-kinetic mb-4 block font-display text-left">
-              {t("hero.foodEyebrow")}
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary leading-[1.1] mb-6 font-display tracking-tight text-left">
-              {t("hero.foodHeadlineLine1")} <br />
-              {t("hero.foodHeadlineLine2")}
-            </h1>
-            <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              {t("hero.foodSubtitle")}
-            </p>
-
-            {/* App Store Badges */}
-            <div className="flex gap-4">
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-on-surface text-white px-5 py-2.5 rounded hover:bg-primary transition-all"
-              >
-                <Icon name="grid_view" className="text-xl" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    {t("footer.downloadOnThe")}
-                  </span>
-                  <span className="text-[15px] font-bold mt-0.5">
-                    {t("footer.appStore")}
-                  </span>
-                </div>
-              </a>
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-on-surface text-white px-5 py-2.5 rounded hover:bg-primary transition-all"
-              >
-                <Icon name="play_arrow" className="text-xl" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    {t("footer.getItOn")}
-                  </span>
-                  <span className="text-[15px] font-bold mt-0.5">
-                    {t("footer.googlePlay")}
-                  </span>
-                </div>
-              </a>
-            </div>
-          </div>
-
-          {/* Rides Mode Left Content: Image Block (Sleek Car on Left) */}
-          <div
-            className={`absolute inset-0 rounded-2xl shadow-xl overflow-hidden transition-all duration-700 transform lg:hidden ${
-              activeMode === "ride"
-                ? "opacity-100 translate-x-0 pointer-events-auto"
-                : "opacity-0 -translate-x-12 pointer-events-none"
-            }`}
-          >
-            <LazyImage
-              src={carHeroImg}
-              alt={t("hero.executiveMobilityVehicleAlt")}
-              className="w-full h-full object-cover"
-              wrapperClassName="w-full h-full"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          </div>
-        </div>
-
-        {/* Column 2 (Right) - Displays Food Image in Food mode, Rides Text in Ride mode */}
-        <div className="relative h-[420px] lg:h-[550px] flex flex-col justify-center">
-          {/* Food Mode Right Content: Image Block (Premium Burger on Right) */}
-          <div
-            className={`absolute inset-0 rounded-2xl shadow-xl overflow-hidden transition-all duration-700 transform lg:hidden ${
-              activeMode === "food"
-                ? "opacity-100 translate-x-0 pointer-events-auto"
-                : "opacity-0 translate-x-12 pointer-events-none"
-            }`}
-          >
-            <LazyImage
-              src={burgerHeroImg}
-              alt={t("hero.refinedHamburgerTasteAlt")}
-              className="w-full h-full object-cover"
-              wrapperClassName="w-full h-full"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          </div>
-
-          {/* Rides Mode Right Content: Text Block */}
-          <div
-            className={`absolute inset-0 flex flex-col justify-center transition-all duration-700 transform ${
-              activeMode === "ride"
-                ? "opacity-100 translate-x-0 pointer-events-auto"
-                : "opacity-0 translate-x-12 pointer-events-none"
-            }`}
-          >
-            <span className="text-xs uppercase tracking-[0.2em] font-bold text-brand-kinetic mb-4 block font-display text-left">
-              {t("hero.rideEyebrow")}
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary leading-[1.1] mb-6 font-display tracking-tight text-left">
-              {t("hero.rideHeadlineLine1")} <br />
-              {t("hero.rideHeadlineLine2")}
-            </h1>
-            <p className="text-secondary-app text-base md:text-lg mb-8 max-w-lg leading-relaxed font-body text-left">
-              {t("hero.rideSubtitle")}
-            </p>
-
-            {/* App Store Badges */}
-            <div className="flex gap-4">
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-on-surface text-white px-5 py-2.5 rounded hover:bg-primary transition-all"
-              >
-                <Icon name="grid_view" className="text-xl" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    {t("footer.downloadOnThe")}
-                  </span>
-                  <span className="text-[15px] font-bold mt-0.5">
-                    {t("footer.appStore")}
-                  </span>
-                </div>
-              </a>
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-on-surface text-white px-5 py-2.5 rounded hover:bg-primary transition-all"
-              >
-                <Icon name="play_arrow" className="text-xl" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[9px] uppercase tracking-wider text-neutral-400 font-medium">
-                    {t("footer.getItOn")}
-                  </span>
-                  <span className="text-[15px] font-bold mt-0.5">
-                    {t("footer.googlePlay")}
-                  </span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </FadeIn>
+      <a
+        href="#services"
+        aria-label={t("home.hero.scrollDown")}
+        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 text-white/70 transition hover:text-white md:block"
+      >
+        <Icon name="keyboard_arrow_down" className="animate-bounce text-3xl" />
+      </a>
     </section>
   );
 }
