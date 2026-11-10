@@ -114,6 +114,10 @@ router.get("/checkout/:paymentId", limiter(30), async (req: Request, res: Respon
     }
 
     const base = publicBaseUrl(req);
+    // The app can open the page on a payment method the customer already picked (UPI, card,
+    // wallet, ...). Anything else is ignored and the page shows every method as before.
+    const requested = String(req.query.m || "");
+    const preselect = ["upi", "card", "wallet", "netbanking", "paylater"].includes(requested) ? requested : undefined;
     res.type("html").send(
       renderCheckoutPage({
         language: payment.language,
@@ -126,7 +130,7 @@ router.get("/checkout/:paymentId", limiter(30), async (req: Request, res: Respon
           amount: payment.amount,
           currency: payment.currency,
           name: "Flavour",
-          prefill: { name: user?.name, email: user?.email, contact: user?.phone },
+          prefill: { name: user?.name, email: user?.email, contact: user?.phone, ...(preselect ? { method: preselect } : {}) },
           theme: { color: "#0EA5E9" },
           timeout: 25 * 60, // a little shorter than the 30-minute link
         },

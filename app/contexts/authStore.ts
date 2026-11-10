@@ -41,7 +41,10 @@ export interface AuthState {
    */
   handleUnauthorized: () => boolean;
   requestOTP: (phone: string) => Promise<{ success: boolean; message: string }>;
-  verifyOTP: (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => Promise<{ success: boolean; isNewUser?: boolean }>;
+  verifyOTP: (phone: string, code: string, role: string, name?: string, email?: string, password?: string) => Promise<{ success: boolean; isNewUser?: boolean; ticket?: string }>;
+  requestEmailOTP: (email: string) => Promise<{ success: boolean; message: string }>;
+  verifyEmailOTP: (email: string, code: string) => Promise<{ success: boolean; isNewUser: boolean; ticket?: string }>;
+  completeSignup: (ticket: string, input: { name?: string; phone?: string }, method: "otp" | "email_otp") => Promise<{ success: boolean }>;
   loginWithPassword: (phoneOrEmail: string, password: string, role: string) => Promise<{ success: boolean }>;
   initializeAuth: () => Promise<void>;
   toggleFavorite: (restaurantId: string) => Promise<void>;

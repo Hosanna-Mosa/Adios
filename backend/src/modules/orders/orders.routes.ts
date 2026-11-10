@@ -15,6 +15,7 @@ import {
   sendChatMessageSchema,
   helperStatusSchema,
   helperQuoteSchema,
+  rideHistoryRequestSchema,
   validateCouponSchema,
   increasePriceSchema,
   updateStatusSchema,
@@ -41,6 +42,7 @@ router.get("/driver/active", authenticateToken, authorizeRole([UserRole.DRIVER])
 // The driver's own order list (ongoing / past). Before /:id so "driver" isn't read as an id.
 router.get("/driver/orders", authenticateToken, authorizeRole([UserRole.DRIVER]), ordersController.driverOrders.bind(ordersController));
 router.get("/", authenticateToken, ordersController.getUserOrders.bind(ordersController));
+router.post("/ride-history-request", authenticateToken, validateRequest(rideHistoryRequestSchema), ordersController.rideHistoryRequest.bind(ordersController));
 router.get("/helper-quote", authenticateToken, validateRequest(helperQuoteSchema), ordersController.helperQuote.bind(ordersController));
 router.get("/estimate-fare", authenticateToken, validateRequest(estimateFareSchema), ordersController.estimateFare.bind(ordersController));
 router.get("/vendor/:vendorId", authenticateToken, validateRequest(vendorOrdersQuerySchema), ordersController.getVendorOrders.bind(ordersController));

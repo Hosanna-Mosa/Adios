@@ -59,7 +59,7 @@ export function HomeTopBar({
         accessibilityRole="button"
         accessibilityLabel={t("app.home.deliveryAddressAccessibilityLabel", { area: areaLine })}
       >
-        <Ionicons name="location-sharp" size={moderateScale(16)} color={tokens.services.food.accent} />
+        <Ionicons name="location-sharp" size={moderateScale(16)} color={tokens.brand} style={{ marginRight: moderateScale(4) }} />
         <Text style={styles.addressInlineText} numberOfLines={1}>
           <Text style={styles.addressInlineLabel}>{areaLabel}</Text>
           <Text style={styles.addressInlineLabel}>{areaLine}</Text>

@@ -56,7 +56,8 @@ export function useRestaurantMenuId() {
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const { orderingState, isClosed: outletClosed, refresh: refreshOrderingState } = useOutletOrderingState(id as string, isOpen === "false" ? false : undefined);
 
-  const handleAddToCart = (item: FoodItem) => {
+  // `quantity` is how many to put in the cart at once (the dish sheet lets the customer pick first).
+  const handleAddToCart = (item: FoodItem, quantity = 1) => {
     if (loadingItems[item._id] || item.isAvailable === false) return;
     // The partner switched "Accepting orders" off, or it's outside its hours.
     // Re-check in the background so a reopened outlet unlocks on the next tap.
@@ -67,7 +68,8 @@ export function useRestaurantMenuId() {
     }
     setLoadingItems((prev) => ({ ...prev, [item._id]: true }));
     setTimeout(() => {
-      requestAddItem(item as any, id as string, name as string, (image as string) || undefined);
+      const result = requestAddItem(item as any, id as string, name as string, (image as string) || undefined);
+      if (result === "added" && quantity > 1) updateQuantity(item._id, quantity);
       setLoadingItems((prev) => ({ ...prev, [item._id]: false }));
     }, 450);
   };

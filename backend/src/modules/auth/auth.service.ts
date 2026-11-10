@@ -4,6 +4,8 @@ import crypto from "crypto";
 import User, { UserRole } from "../../database/models/User";
 import Driver, { DriverStatus } from "../../database/models/Driver";
 import RevokedToken from "../../database/models/RevokedToken";
+import EmailOtp from "../../database/models/EmailOtp";
+import { sendEmail } from "../../services/email.service";
 import { AppError, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError } from "../../utils/errors";
 import { getJwtSecret } from "../../utils/jwtSecret";
 import {
@@ -90,6 +92,30 @@ async function startDriverSessionOffline(user: { _id: unknown; role: UserRole })
   }
 }
 
+// ── Email login codes and sign-up tickets ──────────────────────────────────────────
+const EMAIL_OTP_TTL_MS = 10 * 60 * 1000;
+const EMAIL_OTP_RESEND_MS = 30 * 1000;
+const EMAIL_OTP_MAX_ATTEMPTS = 5;
+const SIGNUP_TICKET_TTL = "15m";
+const PHONE_TAKEN_MESSAGE = "This phone number is already registered. Sign in with it instead.";
+
+function hashEmailCode(email: string, code: string) {
+  return crypto.createHmac("sha256", getJwtSecret()).update(`${email}:${code}`).digest("hex");
+}
+
+// A different key from the access tokens, so a sign-up ticket can never pass as a session.
+const ticketSecret = () => `${getJwtSecret()}:signup-ticket`;
+
+/** Proof that a phone or an email was just verified, spent by completeSignup. */
+function signSignupTicket(identity: { phone?: string; email?: string }) {
+  return jwt.sign({ purpose: "signup", ...identity }, ticketSecret(), { expiresIn: SIGNUP_TICKET_TTL });
+}
+
+function nameFromEmail(email: string) {
+  const local = email.split("@")[0].replace(/[._-]+/g, " ").trim();
+  return local ? local.replace(/\b\w/g, (c) => c.toUpperCase()).slice(0, 60) : "Customer";
+}
+
 export class AuthService {
   async requestOTP(phone: string, email?: string) {
     // No SMS provider is wired up yet, so outside dev there is no OTP to send.
@@ -142,7 +168,9 @@ export class AuthService {
 
     if (!user) {
       if (!name) {
-        return { isNewUser: true };
+        // Nothing is created yet. The ticket proves this phone was verified, so the
+        // name screen can finish the sign-up without asking for a code again.
+        return { isNewUser: true, ticket: signSignupTicket({ phone }) };
       }
       if (!password) {
         throw new ValidationError("Password is required for new user registration");
@@ -166,6 +194,118 @@ export class AuthService {
     }
 
     await startDriverSessionOffline(user);
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
+    return { user, token, isNewUser: false };
+  }
+
+  /** Emails a 6-digit login code. Answers the same whether or not the address has an account. */
+  async requestEmailOTP(rawEmail: string) {
+    const email = rawEmail.trim().toLowerCase();
+    const existing = await EmailOtp.findOne({ email });
+    if (existing && Date.now() - existing.sentAt.getTime() < EMAIL_OTP_RESEND_MS) {
+      throw new AppError(429, "Please wait a few seconds before asking for another code.");
+    }
+
+    const code = String(crypto.randomInt(100000, 1000000));
+    await EmailOtp.findOneAndUpdate(
+      { email },
+      { codeHash: hashEmailCode(email, code), attempts: 0, sentAt: new Date(), expiresAt: new Date(Date.now() + EMAIL_OTP_TTL_MS) },
+      { upsert: true }
+    );
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: `${code} is your Adios verification code`,
+        text: `Your Adios verification code is ${code}. It expires in 10 minutes. If you didn't ask for it, you can ignore this email.`,
+        html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:28px 24px;background:#fcf6f6;border-radius:16px;text-align:center">
+          <h1 style="color:#990039;font-size:22px;margin:0 0 8px">Your verification code</h1>
+          <p style="color:#667085;font-size:14px;margin:0 0 20px">Enter this code in the Adios app to continue.</p>
+          <div style="font-size:34px;font-weight:700;letter-spacing:8px;color:#171717;background:#fff;border:1px solid #e8e5e7;border-radius:12px;padding:14px 0">${code}</div>
+          <p style="color:#667085;font-size:12px;margin:20px 0 0">It expires in 10 minutes. If you didn't ask for it, you can ignore this email.</p>
+        </div>`,
+      });
+    } catch (err) {
+      await EmailOtp.deleteOne({ email });
+      console.error("[AUTH] Could not send email OTP:", err);
+      throw new AppError(502, "We couldn't send the code right now. Please try again in a moment.");
+    }
+    return { success: true, message: "Verification code sent to your email" };
+  }
+
+  /** Checks an emailed code. An existing account gets a session; a new address gets a sign-up ticket. */
+  async verifyEmailOTP(rawEmail: string, code: string, accessTtl = "30d") {
+    const email = rawEmail.trim().toLowerCase();
+
+    // Counted before the compare, so every guess spends an attempt even if requests race.
+    const record = await EmailOtp.findOneAndUpdate({ email }, { $inc: { attempts: 1 } }, { new: true });
+    if (!record || record.expiresAt.getTime() < Date.now()) {
+      throw new ValidationError("That code has expired. Ask for a new one.");
+    }
+    if (record.attempts > EMAIL_OTP_MAX_ATTEMPTS) {
+      await EmailOtp.deleteOne({ email });
+      throw new AppError(429, "Too many wrong codes. Ask for a new one.");
+    }
+    const expected = Buffer.from(record.codeHash);
+    const given = Buffer.from(hashEmailCode(email, code));
+    if (expected.length !== given.length || !crypto.timingSafeEqual(expected, given)) {
+      throw new ValidationError("That code didn't work. Check it and try again.");
+    }
+    await EmailOtp.deleteOne({ email });
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return { isNewUser: true, ticket: signSignupTicket({ email }) };
+    }
+    if (!isSelfSignupRole(user.role)) {
+      throw new ForbiddenError(OTP_ROLE_NOT_ALLOWED_MESSAGE);
+    }
+    if (user.isBlocked) {
+      throw new ForbiddenError(ACCOUNT_BLOCKED_MESSAGE);
+    }
+    const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
+    return { user, token, isNewUser: false };
+  }
+
+  /**
+   * Finishes a sign-up from a ticket. A phone ticket (verified by SMS code) supplies the phone
+   * and needs a name; an email ticket (verified by emailed code) supplies the email and needs
+   * a phone number.
+   */
+  async completeSignup(ticket: string, input: { name?: string; phone?: string }, accessTtl = "30d") {
+    let identity: { phone?: string; email?: string };
+    try {
+      const payload: any = jwt.verify(ticket, ticketSecret());
+      if (payload?.purpose !== "signup") throw new Error("wrong purpose");
+      identity = { phone: payload.phone, email: payload.email };
+    } catch {
+      throw new ValidationError("Your sign-up session expired. Please start again.");
+    }
+
+    let phone: string;
+    let email: string | undefined;
+    let name: string;
+
+    if (identity.phone) {
+      phone = identity.phone;
+      name = (input.name ?? "").trim();
+      if (!name) throw new ValidationError("Please enter your name");
+      if (name.length > 60) throw new ValidationError("Name must be 60 characters or fewer");
+    } else if (identity.email) {
+      email = identity.email;
+      phone = (input.phone ?? "").replace(/\D/g, "");
+      if (phone.length === 12 && phone.startsWith("91")) phone = phone.slice(2);
+      if (phone.length !== 10) throw new ValidationError("Enter a valid 10-digit phone number");
+      name = nameFromEmail(email);
+    } else {
+      throw new ValidationError("Your sign-up session expired. Please start again.");
+    }
+
+    if (email && (await User.exists({ email }))) throw new AppError(409, EMAIL_TAKEN_MESSAGE);
+    if (await User.exists(buildLoginIdentifierQuery(phone))) throw new AppError(409, PHONE_TAKEN_MESSAGE);
+
+    const user = new User({ name, phone, email, role: UserRole.USER });
+    await user.save();
     const token = this.generateToken((user._id as any).toString(), user.role, user.tokenVersion ?? 0, accessTtl);
     return { user, token, isNewUser: false };
   }

@@ -34,7 +34,8 @@ export default function LanguageSettingsScreen() {
         onBack={() => (router.canGoBack() ? router.back() : router.replace("/(tabs)/profile"))}
         style={{ paddingTop: 12, paddingBottom: 12 }}
       />
-      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} showHero={false} />
+      {/* The current language is marked, so the user sees what they'd be changing from. */}
+      <SelectLanguageBody tokens={tokens} theme={theme} onSelect={handleSelect} selectedLanguage={language} />
     </ScreenShell>
   );
 }

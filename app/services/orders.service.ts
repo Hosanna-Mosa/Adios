@@ -99,3 +99,7 @@ export const getHelperQuote = (q: { pickupLat: number; pickupLng: number; dropLa
 /** The customer confirms the task to the helper from the chat. Idempotent. */
 export const confirmHelperAssign = (id: string) =>
   customFetch<{ orderId: string; assignConfirmedAt: string }>(`/orders/${id}/confirm-assign`, { method: "POST" });
+
+/** Emails the customer their ride history for a date range (rides older than the app lists). */
+export const requestRideHistory = (body: { from: string; to: string; email: string }) =>
+  customFetch<{ success: boolean; count: number }>("/orders/ride-history-request", { method: "POST", body: JSON.stringify(body) });

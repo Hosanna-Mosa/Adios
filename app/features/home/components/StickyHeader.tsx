@@ -1,18 +1,11 @@
-import { Text, View } from "react-native";
-import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
+import { Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { moderateScale } from "react-native-size-matters";
 import Animated from "react-native-reanimated";
 import { type ThemeTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type HomeStyles } from "@/features/home/home.styles";
-import { useTranslation } from "react-i18next";
-
-// The emoji buttons are ~28-30pt; the slop brings each tap target to ~44pt.
-// Horizontal slop is kept within the gaps so neighbouring buttons never overlap.
-const STICKY_TOGGLE_HIT_SLOP = { top: 8, bottom: 8 };
-const STICKY_HIT_SLOP = { top: 7, bottom: 7, left: 4, right: 4 };
 
 // Moved out of app/(tabs)/index.tsx. The JSX is unchanged; every value it used to read from
 // the screen's scope is now a prop of the same name, so the markup did not
@@ -37,76 +30,35 @@ export function StickyHeader({
   styles,
   tokens,
 }: Props) {
-  const { t } = useTranslation();
-  const iconSize = moderateScale(17);
-  const accent = tokens.services?.food?.accent ?? tokens.text;
-  const foodOn = activeService === "Food";
-  const meatOn = activeService === "Meat";
   return (
     <Animated.View
       style={[styles.stickyHeader, { paddingTop: insets.top + 8 }, stickyHeaderAnimatedStyle]}
     >
       <View style={styles.stickyRow}>
-        {/* Only the saved name (Home / Work…), not the full address line. */}
-        <TouchableOpacity
-          style={styles.stickyAddressBtn}
-          activeOpacity={0.7}
-          onPress={() => router.push("/delivery/saved-addresses")}
-          accessibilityRole="button"
-        >
-          <Ionicons name="location-sharp" size={moderateScale(16)} color={accent} />
-          <Text style={styles.stickyAddress} numberOfLines={1}>{areaLabel}</Text>
-          <Ionicons name="chevron-down" size={moderateScale(14)} color={tokens.sec} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", flexShrink: 1, gap: moderateScale(4) }}>
+          <Ionicons name="location-sharp" size={moderateScale(16)} color={tokens.brand} />
+          <Text style={[styles.stickyAddress, { flex: 0, flexShrink: 1 }]} numberOfLines={1}>{areaLabel}</Text>
+        </View>
         <View style={styles.stickyActions}>
           <View style={styles.stickyTogglePill}>
             <TouchableOpacity
               style={[styles.stickyToggleCell, activeService === "Food" && { backgroundColor: tokens.surface }]}
               onPress={() => handleServiceSwitch("Food")}
-              hitSlop={STICKY_TOGGLE_HIT_SLOP}
-              accessibilityRole="button"
-              accessibilityLabel={t("app.serviceMeta.food")}
-              accessibilityState={{ selected: activeService === "Food" }}
             >
-              <MaterialCommunityIcons name="silverware-fork-knife" size={iconSize} color={foodOn ? accent : tokens.muted} />
+              <Text style={styles.stickyToggleEmoji}>🍛</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.stickyToggleCell, activeService === "Meat" && { backgroundColor: tokens.surface }]}
               onPress={() => handleServiceSwitch("Meat")}
-              hitSlop={STICKY_TOGGLE_HIT_SLOP}
-              accessibilityRole="button"
-              accessibilityLabel={t("app.serviceMeta.meat")}
-              accessibilityState={{ selected: activeService === "Meat" }}
             >
-              <MaterialCommunityIcons name="food-steak" size={iconSize} color={meatOn ? accent : tokens.muted} />
+              <Text style={styles.stickyToggleEmoji}>🍖</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.stickyIconBtn}
-            onPress={() => router.push("/all-services")}
-            hitSlop={STICKY_HIT_SLOP}
-            accessibilityRole="button"
-            accessibilityLabel={t("app.serviceMeta.ride")}
-          >
-            <Ionicons name="car-sport-outline" size={iconSize} color={tokens.sec} />
+          <TouchableOpacity style={styles.stickyIconBtn} onPress={() => router.push("/all-services")}>
+            <Text style={styles.stickyToggleEmoji}>🛺</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.stickyIconBtn}
-            onPress={() => router.push("/package-delivery")}
-            hitSlop={STICKY_HIT_SLOP}
-            accessibilityRole="button"
-            accessibilityLabel={t("app.serviceMeta.packageDelivery")}
-          >
-            <Ionicons name="cube-outline" size={iconSize} color={tokens.sec} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.stickyIconBtn}
-            onPress={() => router.push("/helper-task")}
-            hitSlop={STICKY_HIT_SLOP}
-            accessibilityRole="button"
-            accessibilityLabel={t("app.home.hireAHelper")}
-          >
-            <Ionicons name="briefcase-outline" size={iconSize} color={tokens.sec} />
+          <TouchableOpacity style={styles.stickyIconBtn} onPress={() => router.push("/helper-task")}>
+            <Text style={styles.stickyToggleEmoji}>🧰</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -10,10 +10,10 @@ import { useLanguageStore } from "@/contexts/languageStore";
 
 export default function AuthScreen() {
   const {
-  insets, showSplash, splashOpacity, introAnims, identifier,
+  insets, showSplash, splashOpacity, letters, translateAnim, opacityAnim, identifier,
   setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
   loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
-  handleContinueWithOtp
+  handleContinueWithOtp, email, setEmail, sendingEmailOtp, handleContinueWithEmail
   } = useAuth();
   const token = useAuthStore((s) => s.token);
   const languageConfirmed = useLanguageStore((s) => s.languageConfirmed);
@@ -27,7 +27,11 @@ export default function AuthScreen() {
         alignItems: "center",
         opacity: splashOpacity,
       }}>
-        <LandingLoadingBody anims={introAnims} />
+        <LandingLoadingBody
+          letters={letters}
+          opacityAnim={opacityAnim}
+          translateAnim={translateAnim}
+        />
       </Animated.View>
     );
   }
@@ -48,6 +52,10 @@ export default function AuthScreen() {
       <LandingBody
         Reanimated={Reanimated}
         handleContinueWithOtp={handleContinueWithOtp}
+        email={email}
+        setEmail={setEmail}
+        sendingEmailOtp={sendingEmailOtp}
+        handleContinueWithEmail={handleContinueWithEmail}
         handleForgotPassword={handleForgotPassword}
         handleSignIn={handleSignIn}
         identifier={identifier}

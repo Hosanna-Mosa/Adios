@@ -50,13 +50,17 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   headlineMeasure: { position: "absolute", left: 0, top: 0, width: 4000, opacity: 0 },
   headlineMeasureText: { alignSelf: "flex-start" },
 
-  // Same shape as the search screen's input (searchSheetInputWrap), so tapping
-  // the bar reads as the field simply coming into focus.
+  // The search bar and the mic button beside it share one row.
+  searchRow: { flexDirection: "row", alignItems: "center", gap: 10, marginHorizontal: 16, marginTop: 14 },
   searchBar: {
-    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface,
-    borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(16), height: moderateScale(52),
-    paddingLeft: 8, paddingRight: 16, marginHorizontal: 16, marginTop: 14,
-    shadowColor: "#000000", shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2,
+    flex: 1, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
+    borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), height: moderateScale(48),
+    paddingHorizontal: 14,
+  },
+  micButton: {
+    width: moderateScale(48), height: moderateScale(48), borderRadius: moderateScale(24),
+    backgroundColor: tokens.brandSkin, borderWidth: 1, borderColor: tokens.border,
+    alignItems: "center", justifyContent: "center",
   },
   searchIconCircle: {
     width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(12),

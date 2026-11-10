@@ -15,6 +15,8 @@ export interface FoodItem {
 
 export interface CartItem extends FoodItem {
   quantity: number;
+  /** The customer's note for the kitchen / meat counter on this dish, e.g. "Don't make it too spicy". */
+  cookingRequest?: string;
 }
 
 /** An add that was blocked because the cart already holds another outlet's items. */
@@ -52,6 +54,10 @@ export interface CartState {
   /** Corrections from the last hydrate — stale prices fixed, sold-out lines dropped. */
   syncNotices: CartSyncNotice[];
   clearSyncNotices: () => void;
+  /** Notes typed for dishes that are not in the cart yet; applied when the dish is added. */
+  draftNotes: Record<string, string>;
+  /** Sets the note on a dish (in the cart now, or when it is added). Empty clears it. */
+  setItemNote: (itemId: string, note: string) => void;
   setIsHoveringSearch: (hovering: boolean) => void;
   addItem: (item: FoodItem, vendorId: string, vendorName?: string, vendorImage?: string) => void;
   /** Returns 'added' when the item went in, 'conflict' when a dialog is now pending. */

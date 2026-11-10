@@ -166,6 +166,14 @@ export const restaurantAcceptSchema = z.object({
   }),
 });
 
+export const rideHistoryRequestSchema = z.object({
+  body: z.object({
+    from: z.string().min(8, "Choose a from date"),
+    to: z.string().min(8, "Choose a to date"),
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  }),
+});
+
 const orderIdParams = z.object({ id: z.string().min(1) });
 
 export const validateCouponSchema = z.object({

@@ -79,6 +79,28 @@ export const loginWithPasswordSchema = z.object({
     }),
 });
 
+
+export const requestEmailOtpSchema = z.object({
+  body: z.object({
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+  }),
+});
+
+export const verifyEmailOtpSchema = z.object({
+  body: z.object({
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address"),
+    code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code"),
+  }),
+});
+
+export const completeSignupSchema = z.object({
+  body: z.object({
+    ticket: z.string().min(10),
+    name: z.string().trim().max(60).optional(),
+    phone: z.string().trim().max(20).optional(),
+  }),
+});
+
 /**
  * POST /auth/delete-account — the web deletion request (Google Play requires one
  * outside the app). Same credentials as the app sign-in: customers, drivers, and

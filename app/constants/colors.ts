@@ -35,13 +35,14 @@ export type ThemeTokens = {
   warningSkin: string;
   error: string;
   errorSkin: string;
+  // In-progress status (live order steps, "Preparing" pills).
+  info: string;
+  infoSkin: string;
   veg: string;
   nonveg: string;
   // Modal/backdrop scrim.
   overlay: string;
-  // Brand anchor — the same orange the food/ride services use, so screens with
-  // no service context (login, account) read as the same app as the rest of it.
-  // Was an electric indigo, which left those screens looking purple.
+  // Brand anchor — burgundy, shared by every service.
   brand: string;
   brandPressed: string;
   brandSkin: string;
@@ -56,67 +57,72 @@ export type ThemeTokens = {
 };
 
 export const designTokens: { light: ThemeTokens; dark: ThemeTokens } = {
+  // Light values come straight from "Adios UI Colour Palette"
+  // (Adios_UI_Color_Palette.pdf). The palette defines no dark theme, so the dark
+  // values are derived from the same burgundy hue.
   light: {
-    bg: "#FAF8F5",
+    bg: "#FCF6F6",
     surface: "#FFFFFF",
-    sunken: "#F0ECE6",
-    border: "#E4DFD7",
-    borderStrong: "#CFC8BC",
-    text: "#1A1720",
-    sec: "#56505E",
-    muted: "#6E6877",
-    success: "#16794F",
-    successSkin: "#E3F5EC",
+    sunken: "#FCEEF2",
+    border: "#E8E5E7",
+    borderStrong: "#D2CDD0",
+    text: "#171717",
+    sec: "#667085",
+    muted: "#AEB4BE",
+    success: "#28A745",
+    successSkin: "#E8F5E9",
     warning: "#92600A",
     warningSkin: "#FBF0DC",
-    error: "#C22A1E",
-    errorSkin: "#FCEAE8",
-    veg: "#16794F",
-    nonveg: "#B5281F",
-    overlay: "rgba(20, 16, 30, 0.4)",
-    brand: "#E8720C",
-    brandPressed: "#C25F0A",
-    brandSkin: "#FDF0E2",
+    error: "#D90000",
+    errorSkin: "#FCE8E8",
+    info: "#1D5FD6",
+    infoSkin: "#EAF1FF",
+    veg: "#28A745",
+    nonveg: "#D90000",
+    overlay: "rgba(23, 23, 23, 0.4)",
+    brand: "#990039",
+    brandPressed: "#860132",
+    brandSkin: "#FCEEF2",
     onBrand: "#FFFFFF",
     services: {
-      food: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
-      meat: { accent: "#C13566", skin: "#FBE8EF", on: "#FFFFFF" },
-      // Ride deliberately shares Food's orange rather than carrying its own teal:
-      // the ride flow is meant to read as the same app as the home screen, not as
-      // a separate product. Meat is the one service that still recolours the UI.
-      ride: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
-      task: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
-      delivery: { accent: "#E8720C", skin: "#FDF0E2", on: "#FFFFFF" },
+      // One brand across every service — the palette has no per-service accents.
+      food: { accent: "#990039", skin: "#FCEEF2", on: "#FFFFFF" },
+      meat: { accent: "#990039", skin: "#FCEEF2", on: "#FFFFFF" },
+      ride: { accent: "#990039", skin: "#FCEEF2", on: "#FFFFFF" },
+      task: { accent: "#990039", skin: "#FCEEF2", on: "#FFFFFF" },
+      delivery: { accent: "#990039", skin: "#FCEEF2", on: "#FFFFFF" },
     },
   },
   dark: {
-    bg: "#131118",
-    surface: "#1E1B24",
-    sunken: "#0B0A0F",
-    border: "#2E2A36",
-    borderStrong: "#433C4D",
-    text: "#F5F2F8",
-    sec: "#B3ACBD",
-    muted: "#8B8494",
-    success: "#4FD495",
-    successSkin: "#0C2A1D",
+    bg: "#151012",
+    surface: "#1F181B",
+    sunken: "#0E0A0C",
+    border: "#322A2E",
+    borderStrong: "#473D42",
+    text: "#F7F2F3",
+    sec: "#B5AEB4",
+    muted: "#8A828A",
+    success: "#4FD46B",
+    successSkin: "#0F2A16",
     warning: "#E9B44C",
     warningSkin: "#2E2209",
-    error: "#FF8579",
-    errorSkin: "#331512",
-    veg: "#5FD68C",
-    nonveg: "#FF8A80",
+    error: "#FF6B6B",
+    errorSkin: "#331414",
+    info: "#6EA0FF",
+    infoSkin: "#14213D",
+    veg: "#4FD46B",
+    nonveg: "#FF6B6B",
     overlay: "rgba(0, 0, 0, 0.7)",
-    brand: "#FF9A4D",
-    brandPressed: "#E8842F",
-    brandSkin: "#33200F",
-    onBrand: "#131118",
+    brand: "#E5648F",
+    brandPressed: "#CF4C79",
+    brandSkin: "#33141F",
+    onBrand: "#151012",
     services: {
-      food: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
-      meat: { accent: "#F589AC", skin: "#331522", on: "#131118" },
-      ride: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
-      task: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
-      delivery: { accent: "#FF9A4D", skin: "#33200F", on: "#131118" },
+      food: { accent: "#E5648F", skin: "#33141F", on: "#151012" },
+      meat: { accent: "#E5648F", skin: "#33141F", on: "#151012" },
+      ride: { accent: "#E5648F", skin: "#33141F", on: "#151012" },
+      task: { accent: "#E5648F", skin: "#33141F", on: "#151012" },
+      delivery: { accent: "#E5648F", skin: "#33141F", on: "#151012" },
     },
   },
 };

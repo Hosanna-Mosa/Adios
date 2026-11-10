@@ -17,13 +17,13 @@ export default {
     // between the native splash and the first JS frame, so it matches the brand
     // colour of the JS intro splash (designTokens.light.brand in
     // constants/colors.ts) instead of flashing white.
-    backgroundColor: '#E8720C',
+    backgroundColor: '#990039',
     splash: {
       image: './assets/images/splash-icon.png',
       resizeMode: 'contain',
       // Same brand colour as the JS intro splash in app/index.tsx, so the
       // native -> JS splash hand-off is seamless.
-      backgroundColor: '#E8720C',
+      backgroundColor: '#990039',
     },
     ios: {
       supportsTablet: false,
@@ -120,6 +120,15 @@ export default {
       // Package Manager, with static frameworks, which Firebase's iOS pods need.
       ['@react-native-firebase/app', { ios: { disableSPM: true } }],
       ['expo-build-properties', { ios: { useFrameworks: 'static' } }],
+      [
+        'expo-speech-recognition',
+        {
+          microphonePermission: 'Adios uses the microphone so you can search by voice.',
+          speechRecognitionPermission: 'Adios uses speech recognition to turn your voice into a search.',
+          // Lets the Google recognizer be found on Android 11+ (package visibility).
+          androidSpeechServicePackages: ['com.google.android.googlequicksearchbox'],
+        },
+      ],
       [
         'expo-notifications',
         {

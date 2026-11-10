@@ -87,6 +87,7 @@
     "noDeliveryAddressSpecified": "कोई डिलीवरी पता निर्दिष्ट नहीं है",
     "itemsInOrder": "ऑर्डर में आइटम",
     "noItemsSpecifiedInStops": "स्टॉप्स में कोई आइटम निर्दिष्ट नहीं है",
+    "cookingRequest": "ग्राहक का नोट",
     "totalAmount": "कुल राशि",
     "assignedDriver": "नियुक्त ड्राइवर",
     "assignedDriverFallback": "नियुक्त ड्राइवर",

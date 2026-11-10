@@ -39,7 +39,7 @@ export function DropLocationHeader({
       >
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>{t("app.ride.whereTo")}</Text>
+      <Text style={styles.headerTitle}>{t("app.ride.pickupTitle", "Pickup")}</Text>
       <TouchableOpacity style={styles.forMeSelector} onPress={() => setShowBookingForSheet(true)}>
         <Text style={styles.forMeText}>{bookingFor === "myself" ? t("app.ride.forMe") : t("app.ride.someoneElse")}</Text>
         <Ionicons name="chevron-down" size={14} color={tokens.sec} />

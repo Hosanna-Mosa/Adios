@@ -13,21 +13,21 @@ export const radius = {
 
 export const elevation = {
   sm: {
-    shadowColor: "#14101E",
+    shadowColor: "#171717",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
   md: {
-    shadowColor: "#14101E",
+    shadowColor: "#171717",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 6,
   },
   lg: {
-    shadowColor: "#14101E",
+    shadowColor: "#171717",
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.14,
     shadowRadius: 32,
@@ -42,19 +42,19 @@ export const gradients: {
   dark: Record<"brand" | "food" | "meat" | "ride" | "task" | "delivery", [string, string]>;
 } = {
   light: {
-    brand: ["#E8720C", "#F3924A"],
-    food: ["#E8720C", "#F3924A"],
-    meat: ["#C13566", "#D65F8A"],
-    ride: ["#E8720C", "#F3924A"],
-    task: ["#E8720C", "#F3924A"],
-    delivery: ["#5B8A1E", "#82AE49"],
+    brand: ["#860132", "#990039"],
+    food: ["#860132", "#990039"],
+    meat: ["#860132", "#990039"],
+    ride: ["#860132", "#990039"],
+    task: ["#860132", "#990039"],
+    delivery: ["#860132", "#990039"],
   },
   dark: {
-    brand: ["#FF9A4D", "#FFB878"],
-    food: ["#FF9A4D", "#FFB878"],
-    meat: ["#F589AC", "#FAAAC6"],
-    ride: ["#FF9A4D", "#FFB878"],
-    task: ["#FF9A4D", "#FFB878"],
-    delivery: ["#A6D65C", "#C1E58A"],
+    brand: ["#E5648F", "#EE86A8"],
+    food: ["#E5648F", "#EE86A8"],
+    meat: ["#E5648F", "#EE86A8"],
+    ride: ["#E5648F", "#EE86A8"],
+    task: ["#E5648F", "#EE86A8"],
+    delivery: ["#E5648F", "#EE86A8"],
   },
 };

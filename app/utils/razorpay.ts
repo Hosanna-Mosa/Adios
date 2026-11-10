@@ -76,7 +76,7 @@ export const RazorpayIntegration = {
  * cash order posts to /orders), open Razorpay, and return the order the server placed once
  * the payment was confirmed. Throws PaymentFlowError / ApiError — see describePaymentError.
  */
-export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown): Promise<T> {
+export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData: unknown, method?: OnlineMethod): Promise<T> {
   const body = orderData as { serviceType?: string; isReserved?: boolean; scheduledFor?: unknown } | null;
   const params = {
     service_type: body?.serviceType,
@@ -86,7 +86,7 @@ export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData:
     scheduled: !!(body?.isReserved || body?.scheduledFor),
   };
   try {
-    const order = await payAndPlace<T>(amount, orderData);
+    const order = await payAndPlace<T>(amount, orderData, method);
     // Same order_placed the cash path sends (services/orders.service.ts), plus
     // purchase for the money actually taken.
     trackEvent("order_placed", params);
@@ -104,9 +104,15 @@ export async function payOnlineAndPlaceOrder<T = any>(amount: number, orderData:
   }
 }
 
-async function payAndPlace<T>(amount: number, orderData: unknown): Promise<T> {
-  return checkoutAndVerify<T>(await createPaymentOrder(amount, orderData));
+async function payAndPlace<T>(amount: number, orderData: unknown, method?: OnlineMethod): Promise<T> {
+  const checkout = await createPaymentOrder(amount, orderData);
+  // Opens the hosted page on the method the customer chose (the server ignores anything unknown).
+  if (method) checkout.checkoutUrl = `${checkout.checkoutUrl}${checkout.checkoutUrl.includes("?") ? "&" : "?"}m=${method}`;
+  return checkoutAndVerify<T>(checkout);
 }
+
+/** Which family of methods Razorpay's page should open on. */
+export type OnlineMethod = "upi" | "card" | "wallet" | "netbanking" | "paylater";
 
 /**
  * Raises the price of a helper task that was paid online: the customer pays `amount` (the

@@ -1,39 +1,57 @@
-import { Text, View } from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
+import { moderateScale } from "react-native-size-matters";
 import { fadeInDown } from "@/motion/presets";
-import { OrdersFilterButton } from "@/features/orders/components/OrdersFilterButton";
-import { RefreshButton } from "@/components/ui/RefreshButton";
 import type { ThemeTokens } from "@/constants/colors";
-import type { OrdersStyles } from "@/features/orders/orders.styles";
+import type { OrdersStyles } from "../orders.styles";
 
-// The "My orders" title row with its refresh and filter buttons. Moved out of the screen
-// unchanged — same animation, same padding, same styles.
+// The "My Orders" title row with a search button that opens a search field below it.
 
 interface Props {
-  hasActiveFilters?: boolean;
   insets: { top: number };
-  /** e.g. "2 active · 14 past"; hidden while loading or when there are no orders. */
-  summary?: string;
-  openFilterSheet: () => void;
+  searchOpen: boolean;
+  query: string;
+  onToggleSearch: () => void;
+  onChangeQuery: (value: string) => void;
   styles: OrdersStyles;
   tokens: ThemeTokens;
-  onRefresh: () => void;
-  refreshing: boolean;
 }
 
-export function OrdersHeader({ hasActiveFilters, insets, summary, openFilterSheet, styles, tokens, onRefresh, refreshing }: Props) {
+export function OrdersHeader({ insets, searchOpen, query, onToggleSearch, onChangeQuery, styles, tokens }: Props) {
   const { t } = useTranslation();
   return (
-    <Animated.View style={[styles.header, { paddingTop: insets.top + 14 }]} entering={fadeInDown(0)}>
-      <View>
+    <>
+      <Animated.View style={[styles.header, { paddingTop: insets.top + 14 }]} entering={fadeInDown(0)}>
         <Text style={styles.headline}>{t("app.profile.menuItems.myOrders")}</Text>
-        {!!summary && <Text style={styles.headerSub}>{summary}</Text>}
-      </View>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <RefreshButton onPress={onRefresh} refreshing={refreshing} accessibilityLabel={t("actions.refresh")} />
-        <OrdersFilterButton hasActiveFilters={hasActiveFilters} openFilterSheet={openFilterSheet} styles={styles} tokens={tokens} />
-      </View>
-    </Animated.View>
+        <TouchableOpacity
+          onPress={onToggleSearch}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.orders.search", "Search orders")}
+        >
+          <Ionicons name={searchOpen ? "close" : "search"} size={moderateScale(22)} color={tokens.brand} />
+        </TouchableOpacity>
+      </Animated.View>
+      {searchOpen && (
+        <View style={styles.searchBar}>
+          <Ionicons name="search" size={moderateScale(16)} color={tokens.muted} />
+          <TextInput
+            style={styles.searchInput}
+            value={query}
+            onChangeText={onChangeQuery}
+            placeholder={t("app.orders.searchPlaceholder", "Search restaurant, item or address")}
+            placeholderTextColor={tokens.muted}
+            autoFocus
+            autoCorrect={false}
+            autoCapitalize="none"
+            accessibilityLabel={t("app.orders.search", "Search orders")}
+            returnKeyType="search"
+            selectionColor={tokens.brand}
+          />
+        </View>
+      )}
+    </>
   );
 }

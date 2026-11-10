@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { OrdersHeader } from "@/features/orders/components/OrdersHeader";
@@ -6,18 +6,25 @@ import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useOrders } from "@/features/orders/useOrders";
 import type { ThemeTokens } from "@/constants/colors";
 import { OrdersScreenBody } from "@/features/orders/components/OrdersScreenBody";
+import { matchesQuery } from "@/features/orders/orderCardHelpers";
 import { OrdersSheets } from "@/features/orders/components/OrdersSheets";
 
 export default function OrdersScreen() {
   const {
-  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, loadError, retryOrders, serviceFilters, setServiceFilters,
+  insets, tabBarHeight, tokens, styles, orders, loading, refreshing, onRefresh, serviceFilters, setServiceFilters,
   showFilterSheet, setShowFilterSheet, pendingServiceFilters, setPendingServiceFilters,
   reorderingId, selectedOrderForReview, setSelectedOrderForReview, reviewRating, setReviewRating,
-  reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, scheduled, active,
-  past, serviceCounts, handleOpenReviewModal, handleSubmitReview, handleReorder, openFilterSheet,
+  reviewComment, setReviewComment, reviewTags, setReviewTags, submittingReview, scheduled: allScheduled, active: allActive,
+  past: allPast, serviceCounts, handleOpenReviewModal, handleSubmitReview, handleReorder,
   applyFilters, toggleServiceFilter, pendingCount, isEmpty
   } = useOrders();
   const { t } = useTranslation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const q = searchOpen ? query : "";
+  const scheduled = useMemo(() => allScheduled.filter((o: any) => matchesQuery(o, q)), [allScheduled, q]);
+  const active = useMemo(() => allActive.filter((o: any) => matchesQuery(o, q)), [allActive, q]);
+  const past = useMemo(() => allPast.filter((o: any) => matchesQuery(o, q)), [allPast, q]);
 
   const SCHEDULE_PILL: Record<string, string> = useMemo(() => ({
     pending: t("app.schedulePill.awaitingRestaurant"),
@@ -48,22 +55,13 @@ export default function OrdersScreen() {
   return (
     <ScreenShell>
       <OrdersHeader
-        hasActiveFilters={serviceFilters.size > 0}
         insets={insets}
-        summary={
-          loading || isEmpty || loadError
-            ? undefined
-            : [
-                active.length ? t("app.orders.activeCount", { count: active.length, defaultValue: "{{count}} active" }) : null,
-                scheduled.length ? t("app.orders.scheduledCount", { count: scheduled.length, defaultValue: "{{count}} scheduled" }) : null,
-                past.length ? t("app.orders.pastCount", { count: past.length, defaultValue: "{{count}} past" }) : null,
-              ].filter(Boolean).join(" · ")
-        }
-        openFilterSheet={openFilterSheet}
+        searchOpen={searchOpen}
+        query={query}
+        onToggleSearch={() => { setSearchOpen((v) => !v); setQuery(""); }}
+        onChangeQuery={setQuery}
         styles={styles}
         tokens={tokens}
-        onRefresh={onRefresh}
-        refreshing={refreshing}
       />
 
       <OrdersScreenBody
@@ -74,8 +72,6 @@ export default function OrdersScreen() {
         loading={loading}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        loadError={loadError}
-        onRetry={retryOrders}
         serviceFilters={serviceFilters}
         setServiceFilters={setServiceFilters}
         reorderingId={reorderingId}
@@ -85,6 +81,7 @@ export default function OrdersScreen() {
         handleOpenReviewModal={handleOpenReviewModal}
         handleReorder={handleReorder}
         isEmpty={isEmpty}
+        searching={searchOpen && query.trim().length > 0}
         scheduledSlot={scheduledSlot}
         SCHEDULE_PILL={SCHEDULE_PILL}
         SERVICE_META={SERVICE_META}
@@ -154,11 +151,6 @@ function activeStatusCaption(order: any, serviceKey: string): string {
     if (["DELIVERED", "COMPLETED"].includes(status)) return i18n.t("app.orders.taskCompleted", "Task completed");
     if (status === "CANCELLED") return i18n.t("app.orders.cancelled", "Cancelled");
     return i18n.t("app.orders.findingAHelper", "Finding a helper");
-  }
-  if (serviceKey === "packageDelivery") {
-    if (["EN_ROUTE_DELIVERY", "IN_TRANSIT", "ARRIVED_DELIVERY"].includes(status)) return i18n.t("app.packageDelivery.steps.inProgress");
-    if (["DRIVER_ASSIGNED", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP"].includes(status)) return i18n.t("app.packageDelivery.steps.partnerAssigned");
-    return i18n.t("app.ride.findingYourDeliveryPartner");
   }
   if (serviceKey === "delivery") return i18n.t("app.orders.riderOnTheRoute", "Rider on the route");
   if (["DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.tracking.rideLabels.captainAssigned", "Rider assigned");

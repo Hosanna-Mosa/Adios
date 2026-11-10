@@ -29,7 +29,11 @@ export function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
         <Stack.Screen name="index" options={{ animation: "fade" }} />
         <Stack.Screen name="login" options={{ animation: "fade" }} />
-        <Stack.Screen name="signup" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="otp" />
+        <Stack.Screen name="enter-name" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="enter-phone" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="order-details" />
+        <Stack.Screen name="ride-home" />
         <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
         <Stack.Screen name="delivery/entry" />
         <Stack.Screen name="delivery/add-stop" />

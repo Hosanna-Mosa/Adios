@@ -10,7 +10,7 @@ import { fontFamilies, typography } from "@/constants/typography";
 export const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingBottom: 10 },
-    headline: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.text },
+    headline: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.3, color: tokens.brand },
     headerSub: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginTop: 2 },
     filterBtn: {
       width: moderateScale(40), height: moderateScale(40), borderRadius: moderateScale(20),
@@ -23,11 +23,41 @@ export const createStyles = (tokens: ThemeTokens) =>
       borderWidth: 1, borderColor: tokens.surface,
     },
 
-    chipsRow: { paddingHorizontal: 16, gap: 8 },
-    chip: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.borderStrong, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 9, minHeight: 40 },
-    chipActive: { backgroundColor: tokens.brand, borderColor: tokens.brand },
-    chipText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec },
-    chipTextActive: { color: tokens.onBrand },
+    searchBar: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginBottom: 10, paddingHorizontal: 12, minHeight: moderateScale(42), borderRadius: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border },
+    searchInput: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.text, paddingVertical: 8 },
+
+    // Service filter: icon over label, six equal columns; the selected one is a filled burgundy tile.
+    chipsRow: { flexDirection: "row", paddingHorizontal: 8, gap: 4, marginTop: 4 },
+    chip: { flex: 1, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 14, minHeight: moderateScale(56) },
+    chipActive: { backgroundColor: tokens.brand },
+    chipText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.small, color: tokens.text },
+    chipTextActive: { color: tokens.onBrand, fontFamily: fontFamilies.body.bold },
+
+    // "Active" / "Past" bands
+    band: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: 12, marginTop: 16, marginBottom: 10, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12 },
+    bandText: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.large, color: tokens.text },
+    liveDot: { width: moderateScale(12), height: moderateScale(12), borderRadius: moderateScale(6), backgroundColor: tokens.success },
+    pastIcon: { width: moderateScale(24), height: moderateScale(24), borderRadius: moderateScale(12), backgroundColor: tokens.brand, alignItems: "center", justifyContent: "center" },
+    dayLabel: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.sec, marginHorizontal: 12, marginTop: 6, marginBottom: 6 },
+
+    // Order card (active and past share it)
+    orderCard: { backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, marginHorizontal: 12, marginBottom: 12, padding: 12 },
+    orderTop: { flexDirection: "row", gap: 12 },
+    cardThumb: { width: moderateScale(68), height: moderateScale(68), borderRadius: 12, overflow: "hidden", alignItems: "center", justifyContent: "center" },
+    cardHead: { flexDirection: "row", alignItems: "center", gap: 6 },
+    cardTitleText: { flex: 1, fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.brand },
+    cardName: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.text, marginTop: 3 },
+    cardLine: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.sec, marginTop: 2 },
+    cardTotal: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text, marginTop: 3 },
+    routeRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 3 },
+    routeText: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec },
+    cardChevron: { alignSelf: "center" },
+    pill: { flexDirection: "row", alignItems: "center", gap: 4, borderRadius: 999, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 2, flexShrink: 0 },
+    pillText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small },
+    cardDivider: { height: 1, backgroundColor: tokens.border, marginTop: 10 },
+    cardActions: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 10, paddingHorizontal: 4 },
+    cardAction: { flexDirection: "row", alignItems: "center", gap: 5, minHeight: 28 },
+    cardActionText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text },
 
     section: { paddingHorizontal: 16, paddingTop: 22 },
     sectionLabel: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, textTransform: "uppercase", color: tokens.muted, marginBottom: 10 },
@@ -70,9 +100,14 @@ export const createStyles = (tokens: ThemeTokens) =>
     rejectionReason: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, lineHeight: typography.lineHeights.small, color: tokens.error, marginTop: 6 },
 
 
-    emptyWrap: { flex: 1, alignItems: "center", paddingTop: 100, paddingHorizontal: 32 },
+    emptyWrap: { flex: 1, alignItems: "center", paddingTop: 72, paddingHorizontal: 32 },
+    emptyBlob: { width: moderateScale(130), height: moderateScale(110), alignItems: "center", justifyContent: "center", marginBottom: 20 },
+    emptyArt: { width: moderateScale(104), height: moderateScale(104) },
+    sparkBar: { position: "absolute", width: 3, height: 12, borderRadius: 2, backgroundColor: tokens.brand },
+    ctaBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, minHeight: moderateScale(48), paddingHorizontal: 36, borderRadius: 999, backgroundColor: tokens.brand },
+    ctaText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium, color: tokens.onBrand },
     emptyIconCircle: { width: 72, height: 72, borderRadius: 24, backgroundColor: tokens.brandSkin, alignItems: "center", justifyContent: "center", marginBottom: 18 },
-    emptyTitle: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text, textAlign: "center" },
+    emptyTitle: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text, textAlign: "center" },
     emptySubtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, textAlign: "center", marginTop: 10, marginBottom: 22 },
     primaryBtn: { width: "100%", borderRadius: 14, minHeight: moderateScale(48), alignItems: "center", justifyContent: "center" },
     primaryBtnText: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.medium },

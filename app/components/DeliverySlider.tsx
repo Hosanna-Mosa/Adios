@@ -20,7 +20,7 @@ export const DeliverySlider: React.FC<DeliverySliderProps> = ({ onConfirm, title
   } = useDeliverySlider(onConfirm);
 
   return (
-    <View style={[styles.container, { backgroundColor: '#F8FAFC', borderColor: '#E2E8F0' }]}>
+    <View style={[styles.container, { backgroundColor: '#FCF6F6', borderColor: '#E8E5E7' }]}>
       
       {/* Target Docking Zone */}
       <View style={styles.dockZone}>
@@ -79,7 +79,7 @@ export const DeliverySlider: React.FC<DeliverySliderProps> = ({ onConfirm, title
         {...panResponder.panHandlers}
       >
         <LinearGradient
-          colors={isConfirmed ? ['#10B981', '#059669'] : [colors.primary, colors.primaryDark]}
+          colors={isConfirmed ? ['#28A745', '#1E8E3A'] : [colors.primary, colors.primaryDark]}
           style={styles.thumbGradient}
         >
           <MaterialCommunityIcons 

@@ -52,6 +52,10 @@ interface Props {
    * does, so this live value is used instead when provided. Takes priority
    * over the static sheetHeight while present. */
   sheetHeightValue?: SharedValue<number>;
+  /** A map embedded in a card on a scrolling page: no zoom buttons (the card has its own locate control). */
+  hideZoomControls?: boolean;
+  /** Called whenever the map stops moving (a drag, a zoom or a programmatic move) with the final region. */
+  onRegionSettled?: (region: Region) => void;
 }
 
 export interface MapBackgroundRef {
@@ -82,6 +86,8 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
   rideOrder,
   sheetHeight = 0,
   sheetHeightValue,
+  hideZoomControls,
+  onRegionSettled,
 }, ref) => {
   const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
@@ -115,7 +121,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
         customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={region}
-        onRegionChangeComplete={(r) => setRegion(r)}
+        onRegionChangeComplete={(r) => { setRegion(r); onRegionSettled?.(r); }}
         mapType={mapType}
         showsUserLocation={!userLocation || !!outletOrder || !!rideOrder}
         showsPointsOfInterest={false}
@@ -202,7 +208,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
       </MapView>
 
       {/* Clean Zoom Controls */}
-      <Animated.View style={[styles.zoomControlsContainer, { bottom: insets.bottom + sheetHeight + 16 }, animatedZoomStyle]}>
+      {!hideZoomControls && <Animated.View style={[styles.zoomControlsContainer, { bottom: insets.bottom + sheetHeight + 16 }, animatedZoomStyle]}>
         <TouchableOpacity
           style={[styles.zoomButton, { backgroundColor: tokens.surface, borderColor: tokens.border }]}
           onPress={() => handleZoom(0.5)}
@@ -221,7 +227,7 @@ export const MapBackground = forwardRef<MapBackgroundRef, Props>(({
         >
           <Feather name="minus" size={18} color={tokens.text} />
         </TouchableOpacity>
-      </Animated.View>
+      </Animated.View>}
 
       {children}
     </View>

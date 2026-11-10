@@ -173,7 +173,7 @@ export default function RootLayout() {
     if (!(fontsLoaded || fontError) || !isInitialized || !introSplashDone) return;
 
     const firstSegment = segments[0];
-    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup";
+    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "otp" || firstSegment === "enter-name" || firstSegment === "enter-phone";
 
     // A restored session always wins — an authenticated user goes straight to
     // the main app and never sees the language gate again this process.

@@ -44,7 +44,8 @@ interface AppTabBarProps {
 export const BOTTOM_GAP = 0;
 export const STACK_GAP = moderateScale(10);
 export const TOP_CLEARANCE = moderateScale(14);
-export const ALL_TAB_KEYS: TabKey[] = ["home", "orders", "account", "cart"];
+// The cart is not a tab: it floats above the bar (CartStripe) once something is added.
+export const ALL_TAB_KEYS: TabKey[] = ["home", "orders", "account"];
 
 /**
  * Total height the floating bar cluster occupies, measured from the very
@@ -83,7 +84,6 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
   indicatorStyle, handleTabPress
   } = useAppTabBar(active, accent, cartVendorName);
   const TABS = useTabs();
-  const { t } = useTranslation();
   const { isActive: hasActiveOrder } = useActiveOrder();
   // Where the first floating stripe sits: above the pill, or on the bottom edge without it.
   const stackBase = insets.bottom + BOTTOM_GAP + (hideTabs ? 0 : TAB_PILL_HEIGHT) + STACK_GAP;
@@ -154,35 +154,6 @@ export function AppTabBar({ active, accent, cartVendorName, hideTabs }: AppTabBa
                 );
               })}
 
-              <TouchableOpacity
-                style={styles.tabItem}
-                activeOpacity={0.7}
-                onPress={() => handleTabPress("cart", "/cart")}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: active === "cart" }}
-                accessibilityLabel={itemCount > 0 ? t("app.a11y.cartWithItems", { count: itemCount }) : t("tabs.cart")}
-              >
-                <View style={styles.cartIconWrap}>
-                  <Ionicons
-                    name={active === "cart" ? "bag" : "bag-outline"}
-                    size={moderateScale(21)}
-                    color={active === "cart" ? accentTokens.accent : tokens.muted}
-                  />
-                  {itemCount > 0 && (
-                    <View style={styles.cartBadge}>
-                      <Text style={styles.cartBadgeText} numberOfLines={1}>{itemCount > 99 ? "99+" : itemCount}</Text>
-                    </View>
-                  )}
-                </View>
-                <Text
-                  style={[styles.tabLabel, active === "cart" && { color: accentTokens.accent, fontFamily: fontFamilies.body.semibold }]}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.75}
-                >
-                  {t("tabs.cart")}
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
         </View>

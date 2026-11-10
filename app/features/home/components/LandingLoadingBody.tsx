@@ -1,96 +1,132 @@
-// Animated must come from react-native, not reanimated: the values below are RN
-// Animated.Value instances created in features/home/useIntroSplash.ts.
-import { Animated, StyleSheet, View, useWindowDimensions } from "react-native";
+// Animated must come from react-native, not reanimated: everything below is driven by
+// RN Animated values with the native driver.
+import { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
-import { designTokens } from "@/constants/colors";
+import { moderateScale as ms } from "react-native-size-matters";
 import { fontFamilies, typography } from "@/constants/typography";
+import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
-import { SPLASH_WORD, type IntroSplashAnims } from "@/features/home/useIntroSplash";
 
-const MARK = require("@/assets/images/splash-mark.png");
+// The splash: five service badges (food, bike, car, parcel, driver) pop in around a ring
+// and orbit it, then fly into the centre as the ADIOS wordmark and tagline settle.
+// The whole thing runs in about 2.6 s, inside the intro time app/index.tsx waits for.
 
 interface Props {
-  anims: IntroSplashAnims;
+  /** Kept for callers (app/index.tsx still passes them); this splash runs its own animation. */
+  letters?: any[];
+  opacityAnim?: any;
+  translateAnim?: any;
 }
 
-/** The intro splash: the white "A" mark (same artwork as the native splash) with ripples,
- * then the ADIOS wordmark and tagline. */
-export function LandingLoadingBody({ anims }: Props) {
-  const { t } = useTranslation();
-  const { width } = useWindowDimensions();
-  // Text on the brand colour uses onBrand, not white: dark mode's brand is a lighter orange (#FF9A4D),
-  // where white letters had too little contrast.
-  const onBrand = designTokens[useThemeStore((st) => st.theme)].onBrand;
-  // Same share of the screen width as the native splash image's mark (assets/images/splash-icon.png).
-  const markSize = Math.min(width * 0.36, 180);
+const ICONS = ["hamburger", "motorbike", "car", "package-variant-closed", "racing-helmet"] as const;
+const RADIUS = ms(104);
+const BADGE = ms(54);
+const ORBIT_DEG = 100;
 
-  const markScale = anims.mark.interpolate({ inputRange: [0, 0.4, 1], outputRange: [1, 0.9, 1] });
-  const lift = anims.lift.interpolate({ inputRange: [0, 1], outputRange: [0, -markSize * 0.3] });
-  const ringScale = anims.ring.interpolate({ inputRange: [0, 1], outputRange: [1, 2.1] });
-  const ringOpacity = anims.ring.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0] });
+export function LandingLoadingBody(_props: Props) {
+  const { t } = useTranslation();
+  // onBrand, not white: dark mode's splash is a lighter pink, where white had too little contrast.
+  const tokens = designTokens[useThemeStore((s) => s.theme)];
+
+  const intro = useRef(new Animated.Value(0)).current; // badges pop in, one after another
+  const orbit = useRef(new Animated.Value(0)).current; // slow turn of the ring
+  const merge = useRef(new Animated.Value(0)).current; // badges fly in, wordmark appears
+  const pulse = useRef(new Animated.Value(0)).current; // soft ring behind everything
+
+  useEffect(() => {
+    const run = Animated.parallel([
+      Animated.timing(intro, { toValue: 1, duration: 900, easing: Easing.linear, useNativeDriver: true }),
+      Animated.timing(orbit, { toValue: 1, duration: 1900, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.sequence([
+        Animated.delay(1250),
+        Animated.timing(merge, { toValue: 1, duration: 750, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
+      ]),
+      Animated.loop(Animated.timing(pulse, { toValue: 1, duration: 1400, easing: Easing.out(Easing.quad), useNativeDriver: true })),
+    ]);
+    run.start();
+    return () => run.stop();
+  }, [intro, orbit, merge, pulse]);
+
+  const fade = merge.interpolate({ inputRange: [0, 0.75, 1], outputRange: [1, 1, 0] });
+  const shrink = merge.interpolate({ inputRange: [0, 1], outputRange: [1, 0.25] });
+  const reach = merge.interpolate({ inputRange: [0, 1], outputRange: [RADIUS, 0] });
+  const ringTurn = orbit.interpolate({ inputRange: [0, 1], outputRange: ["0deg", `${ORBIT_DEG}deg`] });
+
+  const wordOpacity = merge.interpolate({ inputRange: [0.45, 0.9], outputRange: [0, 1], extrapolate: "clamp" });
+  const wordScale = merge.interpolate({ inputRange: [0.45, 1], outputRange: [0.7, 1], extrapolate: "clamp" });
+  const tagOpacity = merge.interpolate({ inputRange: [0.8, 1], outputRange: [0, 1], extrapolate: "clamp" });
+  const tagLift = merge.interpolate({ inputRange: [0.8, 1], outputRange: [8, 0], extrapolate: "clamp" });
+
+  const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1.25] });
+  const pulseOpacity = pulse.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 0.28, 0] });
 
   return (
-    <Animated.View style={[styles.stack, { transform: [{ translateY: lift }] }]}>
-      <View style={{ width: markSize, height: markSize, alignItems: "center", justifyContent: "center" }}>
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.ring, { width: markSize, height: markSize, borderRadius: markSize / 2, opacity: ringOpacity, transform: [{ scale: ringScale }] }]}
-        />
-        <Animated.Image
-          source={MARK}
-          style={[styles.mark, { width: markSize, height: markSize, borderRadius: markSize / 2, transform: [{ scale: markScale }] }]}
-        />
-      </View>
+    <View style={styles.stage}>
+      <Animated.View
+        style={[styles.pulse, { borderColor: tokens.onBrand, opacity: pulseOpacity, transform: [{ scale: pulseScale }] }]}
+      />
+      <View style={[styles.guide, { borderColor: tokens.onBrand }]} />
 
-      <View style={styles.wordRow}>
-        {SPLASH_WORD.map((letter, idx) => (
-          <Animated.Text
-            key={idx}
-            style={[
-              styles.wordLetter,
-              {
-                color: onBrand,
-                opacity: anims.letters[idx],
-                transform: [{ translateY: anims.letters[idx].interpolate({ inputRange: [0, 1], outputRange: [18, 0] }) }],
-              },
-            ]}
-          >
-            {letter}
-          </Animated.Text>
-        ))}
-      </View>
+      <Animated.View style={[styles.ring, { transform: [{ rotate: ringTurn }] }]}>
+        {ICONS.map((name, i) => {
+          const angle = i * 72 - 90;
+          const start = i * 0.14;
+          const pop = intro.interpolate({ inputRange: [start, start + 0.3], outputRange: [0, 1], extrapolate: "clamp" });
+          const scale = Animated.multiply(pop, shrink);
+          const opacity = Animated.multiply(pop, fade);
+          // Counter-turn so each icon stays upright while the ring turns.
+          const upright = orbit.interpolate({ inputRange: [0, 1], outputRange: [`${-angle}deg`, `${-angle - ORBIT_DEG}deg`] });
+          return (
+            <Animated.View
+              key={name}
+              style={[
+                styles.badgeSlot,
+                { opacity, transform: [{ rotate: `${angle}deg` }, { translateX: reach }, { rotate: upright }, { scale }] },
+              ]}
+            >
+              <View style={[styles.badge, { backgroundColor: tokens.onBrand }]}>
+                <MaterialCommunityIcons name={name} size={ms(28)} color={tokens.brand} />
+              </View>
+            </Animated.View>
+          );
+        })}
+      </Animated.View>
 
-      <Animated.Text style={[styles.tagline, { color: onBrand, opacity: anims.tagline }]} numberOfLines={2}>
-        {/* The splash is always English, whichever language the customer has chosen. */}
-        {t("app.home.foodMeatRidesHelpersAndCourier", { lng: "en" })}
+      <Animated.Text
+        style={[styles.word, { color: tokens.onBrand, opacity: wordOpacity, transform: [{ scale: wordScale }] }]}
+        accessibilityRole="header"
+      >
+        ADIOS
       </Animated.Text>
-    </Animated.View>
+      <Animated.Text style={[styles.tag, { color: tokens.onBrand, opacity: tagOpacity, transform: [{ translateY: tagLift }] }]}>
+        {t("app.splash.tagline", "Food · Rides · Delivery · Helpers")}
+      </Animated.Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  stack: { alignItems: "center", paddingHorizontal: 32 },
-  ring: { position: "absolute", borderWidth: 2, borderColor: "#FFFFFF" },
-  mark: {
-    shadowColor: "#000000",
-    shadowOpacity: 0.18,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  wordRow: { flexDirection: "row", marginTop: 28 },
-  wordLetter: {
-    fontFamily: fontFamilies.heading.bold,
+  stage: { width: ms(300), height: ms(300), alignItems: "center", justifyContent: "center" },
+  pulse: { position: "absolute", width: ms(210), height: ms(210), borderRadius: ms(105), borderWidth: 2 },
+  guide: { position: "absolute", width: RADIUS * 2, height: RADIUS * 2, borderRadius: RADIUS, borderWidth: 1, opacity: 0.18 },
+  ring: { position: "absolute", width: 0, height: 0, alignItems: "center", justifyContent: "center" },
+  badgeSlot: { position: "absolute", width: BADGE, height: BADGE, marginLeft: -BADGE / 2, marginTop: -BADGE / 2 },
+  badge: { flex: 1, borderRadius: BADGE / 2, alignItems: "center", justifyContent: "center" },
+  word: {
     fontSize: typography.sizes.extraLarge,
-    color: "#FFFFFF",
+    fontFamily: fontFamilies.heading.bold,
     letterSpacing: 6,
-    marginHorizontal: 2,
+    textShadowColor: "rgba(0,0,0,0.25)",
+    textShadowOffset: { width: 0, height: 3 },
+    textShadowRadius: 6,
   },
-  tagline: {
-    fontFamily: fontFamilies.body.medium,
-    fontSize: typography.sizes.medium,
-    lineHeight: typography.lineHeights.medium,
-    color: "rgba(255,255,255,0.9)",
-    textAlign: "center",
-    marginTop: 10,
+  tag: {
+    position: "absolute",
+    bottom: ms(70),
+    fontSize: typography.sizes.small,
+    fontFamily: fontFamilies.body.semibold,
+    letterSpacing: 0.5,
   },
 });

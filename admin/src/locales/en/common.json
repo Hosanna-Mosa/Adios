@@ -87,6 +87,7 @@
     "noDeliveryAddressSpecified": "No delivery address specified",
     "itemsInOrder": "Items in Order",
     "noItemsSpecifiedInStops": "No items specified in the stops",
+    "cookingRequest": "Customer's note",
     "totalAmount": "Total Amount",
     "assignedDriver": "Assigned Driver",
     "assignedDriverFallback": "Assigned Driver",

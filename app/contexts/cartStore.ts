@@ -96,7 +96,21 @@ export const useCartStore = create<CartState>((set, get) => ({
   status: "idle",
   pendingConflict: null,
   syncNotices: [],
+  draftNotes: {},
   clearSyncNotices: () => set({ syncNotices: [] }),
+  setItemNote: (itemId, rawNote) => {
+    const note = rawNote.slice(0, 200);
+    set((state) => {
+      const draftNotes = { ...state.draftNotes };
+      if (note.trim()) draftNotes[itemId] = note; else delete draftNotes[itemId];
+      const inCart = state.items.some((i) => i._id === itemId);
+      return {
+        draftNotes,
+        items: inCart ? state.items.map((i) => (i._id === itemId ? { ...i, cookingRequest: note.trim() ? note : undefined } : i)) : state.items,
+      };
+    });
+    if (get().items.some((i) => i._id === itemId)) scheduleSync();
+  },
   setIsHoveringSearch: (hovering) => set({ isHoveringSearch: hovering }),
 
   addItem: (item, vendorId, vendorName, vendorImage) => {
@@ -129,7 +143,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       });
     } else {
       set({
-        items: [...items, { ...item, quantity: 1 }],
+        items: [...items, { ...item, quantity: 1, ...(get().draftNotes[item._id] ? { cookingRequest: get().draftNotes[item._id] } : {}) }],
         vendorId,
         vendorName: vendorName ?? get().vendorName,
         vendorImage: vendorImage || keptImage,
@@ -195,7 +209,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: () => {
-    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, pendingConflict: null });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, pendingConflict: null, draftNotes: {} });
     // Order placement navigates away immediately, so this one can't sit on a debounce.
     scheduleSync(true);
   },
@@ -219,7 +233,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       clearTimeout(syncTimer);
       syncTimer = null;
     }
-    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [] });
+    set({ items: [], vendorId: null, vendorName: null, vendorImage: null, ownerId: null, status: "idle", pendingConflict: null, syncNotices: [], draftNotes: {} });
   },
 
   getTotalPrice: () => {

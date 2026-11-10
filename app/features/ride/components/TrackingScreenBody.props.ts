@@ -42,7 +42,7 @@ export interface Props {
   timeline: any;
   pickupLabel: any;
   formatClock: any;
-  /** Re-fetches the order now. */
-  onRefresh: () => void;
-  refreshing: boolean;
+  vendorName?: string | null;
+  vendorPartnerType?: string | null;
+  serviceType?: string | null;
 }

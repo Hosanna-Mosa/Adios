@@ -98,6 +98,45 @@ export class AuthController {
     }
   }
 
+  /** Sends a result back, adding a refresh session when the client asked for one and the result holds a user. */
+  private async respondWithSession(req: Request, res: Response, result: any) {
+    if (clientSupportsRefresh(req) && result?.user) {
+      const user = result.user;
+      const session = await startSession({ subjectId: String(user._id), role: user.role, tokenVersion: user.tokenVersion ?? 0 });
+      return res.json({ ...result, ...session });
+    }
+    return res.json(result);
+  }
+
+  async requestEmailOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      return res.json(await authService.requestEmailOTP(req.body.email));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async verifyEmailOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const refresh = clientSupportsRefresh(req);
+      const result = await authService.verifyEmailOTP(req.body.email, req.body.code, refresh ? ACCESS_TOKEN_TTL : undefined);
+      return await this.respondWithSession(req, res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async completeSignup(req: Request, res: Response, next: NextFunction) {
+    try {
+      const refresh = clientSupportsRefresh(req);
+      const { ticket, name, phone } = req.body;
+      const result = await authService.completeSignup(ticket, { name, phone }, refresh ? ACCESS_TOKEN_TTL : undefined);
+      return await this.respondWithSession(req, res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const { name, phone, email, password } = req.body;

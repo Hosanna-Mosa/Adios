@@ -105,6 +105,7 @@ export function RestaurantListItem({
       onPress={handlePress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      accessibilityHint={isClosed ? t("app.food.closedPill") : undefined}
       disabled={isClosed}
       accessibilityRole="button"
       accessibilityState={{ disabled: isClosed }}
@@ -149,11 +150,13 @@ export function RestaurantListItem({
         </Text>
 
         <View style={styles.badgeRow}>
-          <View style={[styles.statusBadge, isClosed ? styles.statusBadgeClosed : styles.statusBadgeOpen]}>
-            <Text style={[styles.statusText, isClosed ? styles.statusTextClosed : styles.statusTextOpen]} numberOfLines={1}>
-              {statusText}
-            </Text>
-          </View>
+          {!isClosed && (
+            <View style={[styles.statusBadge, styles.statusBadgeOpen]}>
+              <Text style={[styles.statusText, styles.statusTextOpen]} numberOfLines={1}>
+                {statusText}
+              </Text>
+            </View>
+          )}
           {!isClosed && !!offer && (
             <View style={styles.offerBadge}>
               <Text style={styles.offerText}>{offer}</Text>

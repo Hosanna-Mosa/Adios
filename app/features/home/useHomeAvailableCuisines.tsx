@@ -34,7 +34,7 @@ export function useHomeAvailableCuisines(restaurants: any, meatCenters: any, act
   }, [restaurants, meatCenters, activeService]);
 
   const cuisineChips = availableCuisines.length > 0
-    ? availableCuisines.slice(0, 8)
+    ? availableCuisines
     : activeService === "Meat" ? DEFAULT_MEAT_TYPES : DEFAULT_CUISINES;
 
   // "No riders nearby" replaces the restaurant list, not the whole screen: the

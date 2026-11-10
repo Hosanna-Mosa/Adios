@@ -10,8 +10,6 @@ import { useThemeStore } from "@/contexts/themeStore";
 import { useIntroSplashStore } from "@/contexts/introSplashStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { showAlert } from "@/components/ui/AppAlert";
-import { useIntroSplash } from "./useIntroSplash";
-import { isValidIdentifier, toMobileNumber } from "@/features/auth/login.validation";
 
 // State, data loading and handlers for app/index.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -21,20 +19,60 @@ export function useAuth() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
-  // The intro splash (see useIntroSplash). When it finishes, the routing gate
-  // in app/_layout.tsx may redirect (to select-language, login, or tabs)
-  // without cutting the animation short.
-  const [showSplash, setShowSplash] = useState(true);
+  // Arrival Animation States for "ADIOS". Timing and layout follow letters.length,
+  // so the word can change without touching the animation below.
+  // The splash plays once per cold start. app/index.tsx remounts when the language screen
+  // sends the user back to "/", and a second splash there is what this guards against.
+  const splashAlreadyPlayed = useIntroSplashStore.getState().introSplashDone;
+  const [showSplash, setShowSplash] = useState(!splashAlreadyPlayed);
   const splashOpacity = React.useRef(new Animated.Value(1)).current;
-  const introAnims = useIntroSplash(() => {
-    setIntroPlayed(true);
-    useIntroSplashStore.getState().setIntroSplashDone();
-  });
-  const [introPlayed, setIntroPlayed] = useState(false);
+  const letters = ["A", "D", "I", "O", "S"];
+  const translateAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
+  const opacityAnim = React.useRef(letters.map(() => new Animated.Value(0))).current;
+
+  useEffect(() => {
+    if (splashAlreadyPlayed) return;
+    // Set up spring arrival animations from opposite vertical directions
+    const animations = letters.map((_, idx) => {
+      const isOdd = idx % 2 !== 0;
+      translateAnim[idx].setValue(isOdd ? -450 : 450);
+      opacityAnim[idx].setValue(0);
+
+      return Animated.parallel([
+        Animated.spring(translateAnim[idx], {
+          toValue: 0,
+          tension: 40,
+          friction: 6.5,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim[idx], {
+          toValue: 1,
+          duration: 900,
+          useNativeDriver: true,
+        })
+      ]);
+    });
+
+    Animated.sequence([
+      Animated.delay(200),
+      Animated.stagger(120, animations),
+      Animated.delay(1200), // Let the complete name rest in the center
+    ]).start(() => {
+      setIntroPlayed(true);
+      // Lets app/_layout.tsx's routing gate know the splash has fully played,
+      // so it can safely redirect (to select-language, login, or tabs)
+      // without cutting this animation short.
+      useIntroSplashStore.getState().setIntroSplashDone();
+    });
+  }, []);
+  const [introPlayed, setIntroPlayed] = useState(splashAlreadyPlayed);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [sendingEmailOtp, setSendingEmailOtp] = useState(false);
+  const requestEmailOTP = useAuthStore((s) => s.requestEmailOTP);
 
   const loginWithPassword = useAuthStore((s) => s.loginWithPassword);
   const requestOTP = useAuthStore((s) => s.requestOTP);
@@ -75,10 +113,6 @@ export function useAuth() {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPhoneNumberOr"));
       return;
     }
-    if (!isValidIdentifier(trimmed)) {
-      showAlert(t("actions.error"), t("app.home.enterAValidPhoneOrEmail"));
-      return;
-    }
     if (!password) {
       showAlert(t("actions.error"), t("app.home.pleaseEnterYourPassword"));
       return;
@@ -99,19 +133,15 @@ export function useAuth() {
 
   const handleContinueWithOtp = async () => {
     const trimmed = identifier.trim();
-    if (!trimmed.replace(/\D/g, "")) {
+    const digitsOnly = trimmed.replace(/\D/g, "");
+    if (digitsOnly.length < 10) {
       showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterYourPhoneNumberAboveTo"));
-      return;
-    }
-    const phone = toMobileNumber(trimmed);
-    if (!phone) {
-      showAlert(t("app.home.phoneNumberNeeded"), t("app.home.enterAValid10digitNumber"));
       return;
     }
     setSendingOtp(true);
     try {
-      await requestOTP(phone);
-      router.push({ pathname: "/otp", params: { phone } });
+      await requestOTP(digitsOnly);
+      router.push({ pathname: "/otp", params: { phone: digitsOnly } });
     } catch (error: any) {
       showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
     } finally {
@@ -119,12 +149,30 @@ export function useAuth() {
     }
   };
 
+  // "Continue with email": the code is emailed, and the OTP screen verifies it against the address.
+  const handleContinueWithEmail = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(trimmed)) {
+      showAlert(t("actions.error"), t("app.auth.enterValidEmail", "Enter a valid email address."));
+      return;
+    }
+    setSendingEmailOtp(true);
+    try {
+      await requestEmailOTP(trimmed);
+      router.push({ pathname: "/otp", params: { email: trimmed, via: "email" } });
+    } catch (error: any) {
+      showAlert(t("app.auth.couldntSendCode"), error.message || t("app.ride.pleaseTryAgain"));
+    } finally {
+      setSendingEmailOtp(false);
+    }
+  };
+
   // Show a loading indicator while auth state is being restored
 
   return {
-  insets, showSplash, splashOpacity, introAnims, identifier,
+  insets, showSplash, splashOpacity, letters, translateAnim, opacityAnim, identifier,
   setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
   loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
-  handleContinueWithOtp
+  handleContinueWithOtp, email, setEmail, sendingEmailOtp, handleContinueWithEmail
   };
 }

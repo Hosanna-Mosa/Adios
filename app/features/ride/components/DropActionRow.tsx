@@ -34,12 +34,6 @@ export function DropActionRow({
     <Animated.View entering={fadeInUp(80)} style={styles.actionRow}>
       <TouchableOpacity
         style={styles.actionBtn}
-        onPress={handleAddStop}
-      >
-        <Text style={styles.actionBtnText}>{t("app.ride.addStop")}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.actionBtn}
         onPress={() => router.push({
           pathname: "/map-picker",
           params: {
@@ -54,8 +48,15 @@ export function DropActionRow({
           }
         })}
       >
-        <Ionicons name="locate-outline" size={15} color={tokens.sec} />
+        <Ionicons name="location-outline" size={15} color={tokens.sec} />
         <Text style={styles.actionBtnText}>{t("app.ride.selectOnMap")}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.actionBtn}
+        onPress={handleAddStop}
+      >
+        <Ionicons name="add-circle-outline" size={15} color={tokens.sec} />
+        <Text style={styles.actionBtnText}>{t("app.ride.addStops", "Add stops")}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
