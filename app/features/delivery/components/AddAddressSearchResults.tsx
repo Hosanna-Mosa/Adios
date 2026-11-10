@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import { ScrollView, Text } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import Animated from "react-native-reanimated";
 import { staggerListItem } from "@/motion/presets";
 import { type EdgeInsets } from "react-native-safe-area-context";

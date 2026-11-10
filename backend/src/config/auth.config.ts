@@ -1,4 +1,5 @@
 import { UserRole } from "../database/models/User";
+import { isDevEnv } from "../utils/env";
 
 /**
  * Roles a caller may obtain through the public OTP endpoint.
@@ -10,6 +11,18 @@ import { UserRole } from "../database/models/User";
 export const SELF_SIGNUP_ROLES: readonly UserRole[] = [UserRole.USER, UserRole.DRIVER];
 
 export const isSelfSignupRole = (role: UserRole): boolean => SELF_SIGNUP_ROLES.includes(role);
+
+/**
+ * Whether the stub OTP flow may run. It accepts any code, so it signs anyone in
+ * as any customer or driver whose phone number they know. Fails closed: it runs
+ * only where NODE_ENV says this is not a live server, or where ALLOW_DUMMY_OTP
+ * has been set to "true" deliberately — an unset NODE_ENV on a production box
+ * does not switch it on.
+ */
+export const isDummyOtpEnabled = (): boolean => isDevEnv() || process.env.ALLOW_DUMMY_OTP === "true";
+
+export const OTP_UNAVAILABLE_MESSAGE =
+  "OTP sign-in is not available right now. Please sign in with your password.";
 
 /**
  * The one phone number allowed to hold the ADMIN role. The account is

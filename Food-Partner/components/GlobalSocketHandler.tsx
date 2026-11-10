@@ -8,6 +8,11 @@ import { socketService } from "@/utils/socketService";
 import type { ScheduledRequestAlert } from "@/types/models";
 import { alertNewOrder, alertScheduledRequest } from "./liveAlerts";
 
+// NOT MOUNTED while sockets are off: LiveOrderWatcher (polling) does this job
+// now. Kept for when sockets come back — set EXPO_PUBLIC_ENABLE_SOCKETS=true
+// and render it next to LiveOrderWatcher in app/_layout.tsx; the alert store's
+// de-duplication keeps the two from ringing twice for one order.
+//
 // Mounted once at the root, for the whole signed-in session — the same job
 // VendorLayout does for every page of the web vendor panel. A new-order alert
 // that only fired on the dashboard would miss every order that arrived while

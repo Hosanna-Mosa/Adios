@@ -1,4 +1,5 @@
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -61,7 +62,7 @@ export function TaskComposeFormWhereTheWorkWhereTheWork({
                 onChangeText={(t) => handleSearch(t, "pickup")}
                 onFocus={() => setActiveField("pickup")}
               />
-              <TouchableOpacity onPress={handleUseCurrentLocation}>
+              <TouchableOpacity onPress={handleUseCurrentLocation} accessibilityRole="button" accessibilityLabel={t("app.packageDelivery.useCurrentLocation")} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
                 <Ionicons name="locate" size={moderateScale(18)} color={accent.accent} />
               </TouchableOpacity>
             </View>

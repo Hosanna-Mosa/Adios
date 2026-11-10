@@ -18,8 +18,10 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
       width: moderateScale(38), height: moderateScale(38), borderRadius: moderateScale(19),
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, alignItems: "center", justifyContent: "center",
     },
+    // Sits in the button row (its `top` is set from the safe-area inset where it is
+    // rendered), between the back button and the share / recenter / add-stop column.
     routeChip: {
-      position: "absolute", left: 66, right: 16, top: 54,
+      position: "absolute", left: 16 + moderateScale(40) + 10, right: 16 + moderateScale(38) + 10,
       backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border, borderRadius: 14, paddingHorizontal: 13, paddingVertical: 9,
     },
     routeChipMain: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
@@ -53,6 +55,11 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     tierIconCircle: { width: 46, height: 46, borderRadius: 14, backgroundColor: accent.skin, alignItems: "center", justifyContent: "center", flexShrink: 0 },
     tierName: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, color: tokens.text },
     tierMeta: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec, marginTop: 2 },
+    capacityNote: {
+      flexDirection: "row", alignItems: "center", gap: 8, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10,
+      backgroundColor: accent.skin,
+    },
+    capacityNoteText: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: tokens.text },
     tierPrice: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.large, letterSpacing: -0.3, color: tokens.text },
 
     scheduleRow: {

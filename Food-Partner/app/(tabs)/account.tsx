@@ -10,10 +10,10 @@ import { useAccount } from "@/features/account/useAccount";
 
 export default function AccountScreen() {
   const { t } = useTranslation();
-  const { insets, tabBarHeight, tokens, styles, profile, isMeat, isDark, toggleTheme, languageName, confirmSignOut, editProfile, version } = useAccount();
+  const { insets, tabBarHeight, tokens, styles, profile, isMeat, isDark, toggleTheme, languageName, confirmSignOut, editProfile, testNotification, version } = useAccount();
 
   return (
-    <ScreenShell scroll contentStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: tabBarHeight }]}>
+    <ScreenShell scroll style={{ paddingTop: insets.top }} contentStyle={[styles.content, { paddingTop: 12, paddingBottom: tabBarHeight }]}>
       <ScreenTitle title={t("account.title")} style={styles.title} />
       <ProfileCard
         name={profile?.name ?? ""}
@@ -26,7 +26,7 @@ export default function AccountScreen() {
         onEdit={editProfile}
       />
       <BusinessSection isMeat={isMeat} tokens={tokens} />
-      <PreferencesSection isDark={isDark} toggleTheme={toggleTheme} languageName={languageName} tokens={tokens} />
+      <PreferencesSection isDark={isDark} toggleTheme={toggleTheme} languageName={languageName} tokens={tokens} onTestNotification={testNotification} />
       <HelpSection tokens={tokens} />
       <SignOutSection onSignOut={confirmSignOut} version={version} styles={styles} />
     </ScreenShell>

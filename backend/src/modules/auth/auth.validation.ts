@@ -52,6 +52,16 @@ export const verifyOtpSchema = z.object({
     }),
 });
 
+// Customer self-sign-up with a password (the customer app has no OTP step).
+export const registerSchema = z.object({
+  body: z.object({
+    name: z.string().trim().min(3, "Please enter your full name"),
+    phone: z.string().trim().min(10, "Phone number must be at least 10 digits").max(15, "Phone number must be at most 15 digits"),
+    email: z.string().trim().toLowerCase().email("Please enter a valid email address").optional(),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+  }),
+});
+
 export const loginWithPasswordSchema = z.object({
   // The admin portal posts { email, password, role } when the identifier looks
   // like an email and { phone, ... } otherwise, so either key identifies the
@@ -69,3 +79,15 @@ export const loginWithPasswordSchema = z.object({
     }),
 });
 
+/**
+ * POST /auth/delete-account — the web deletion request (Google Play requires one
+ * outside the app). Same credentials as the app sign-in: customers, drivers, and
+ * PARTNER for restaurant / meat-centre owners (the Partner app's sign-in).
+ */
+export const deleteAccountWithPasswordSchema = z.object({
+  body: z.object({
+    phone: z.string().trim().min(3, "Phone or email is required").max(254),
+    password: z.string().min(1, "Password is required").max(128),
+    role: z.enum([UserRole.USER, UserRole.DRIVER, "PARTNER"]),
+  }),
+});

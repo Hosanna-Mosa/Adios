@@ -1,4 +1,5 @@
-import { ActivityIndicator, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -38,7 +39,7 @@ export function AddAddressSearchRow({
   const { t } = useTranslation();
   return (
     <Animated.View style={[styles.searchRow, { top: insets.top + 10 }]} entering={fadeIn(0)}>
-      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("app.a11y.goBack")}>
         <Ionicons name="chevron-back" size={moderateScale(20)} color={tokens.text} />
       </TouchableOpacity>
       <View style={styles.searchBox}>

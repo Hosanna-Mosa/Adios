@@ -1,5 +1,6 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
 import { moderateScale } from "react-native-size-matters";
@@ -48,7 +49,7 @@ export function HomeFilter(props: Props) {
   return (
     <View style={styles.filterModalContent}>
       <View style={styles.filterModalHeader}>
-        <Text style={styles.filterModalTitle}>Filter</Text>
+        <Text style={styles.filterModalTitle}>{t("app.home.filter")}</Text>
         <TouchableOpacity
           onPress={() => setIsFilterModalVisible(false)}
           style={styles.filterModalCloseBtn}

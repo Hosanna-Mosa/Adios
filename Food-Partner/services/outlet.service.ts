@@ -14,6 +14,9 @@ export const setOutletOpen = (isOpen: boolean) =>
 export const registerPushToken = (expoPushToken: string) =>
   customFetch("/vendors/me/push-token", { method: "POST", body: JSON.stringify({ expoPushToken }) });
 
+/** Sends a test notification to this outlet's devices (POST /vendors/me/test-push). */
+export const sendTestPush = () => customFetch<{ message: string }>("/vendors/me/test-push", { method: "POST" });
+
 /**
  * Stops this device getting the outlet's alerts. Sign-out passes the session's
  * Authorization header explicitly, because the token is cleared before this

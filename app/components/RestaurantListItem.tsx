@@ -1,6 +1,7 @@
 import { optimizedImageUrl } from "@/utils/imageUrl";
 import React from "react";
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -11,6 +12,7 @@ import { designTokens } from "@/constants/colors";
 import { useThemeStore } from "@/contexts/themeStore";
 import { useAuthStore } from "@/contexts/authStore";
 import { usePressScale } from "@/motion/presets";
+import { trackEvent } from "@/utils/analytics";
 import { createStyles } from "./RestaurantListItem.styles";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -76,6 +78,7 @@ export function RestaurantListItem({
     : distance;
 
   const handlePress = () => {
+    trackEvent("select_vendor", { vendor_id: _id, vendor_name: name, is_meat: !!isMeat, is_open: !isClosed });
     router.push({
       pathname: "/restaurant-menu",
       params: {
@@ -102,14 +105,21 @@ export function RestaurantListItem({
       onPress={handlePress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      disabled={isClosed}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: isClosed }}
     >
-      <Image source={{ uri: optimizedImageUrl(image, 120) }} style={styles.thumb} contentFit="cover" transition={200} />
+      <View style={styles.thumbWrap}>
+        <Image source={{ uri: optimizedImageUrl(image, 120) }} style={styles.thumb} contentFit="cover" transition={200} />
+        {isClosed && <View style={styles.thumbGreyscale} pointerEvents="none" />}
+      </View>
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <Text style={styles.name} numberOfLines={1}>{name}</Text>
           <TouchableOpacity
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             onPress={() => toggleFavorite(_id)}
+            disabled={isClosed}
             accessibilityRole="button"
             accessibilityLabel={isFavorite ? t("app.food.removeFromFavorites") : t("app.food.addToFavorites")}
           >

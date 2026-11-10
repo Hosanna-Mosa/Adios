@@ -45,9 +45,9 @@ import UpdateModal from "@/components/UpdateModal";
 import CartConflictDialog from "@/components/CartConflictDialog";
 import { PaymentOutcomeOverlay } from "@/components/PaymentOutcomeOverlay";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { GlobalOrderPoller } from "@/components/GlobalOrderPoller";
 import { SlowNetworkToast } from "@/components/SlowNetworkToast";
 import { SessionExpiredNotice } from "@/components/SessionExpiredNotice";
-import { GlobalSocketHandler } from "@/components/GlobalSocketHandler";
 import { AppAlert } from "@/components/ui/AppAlert";
 import { ToastProvider } from "@/components/ui/Toast";
 import { useThemeStore } from "@/contexts/themeStore";
@@ -173,7 +173,7 @@ export default function RootLayout() {
     if (!(fontsLoaded || fontError) || !isInitialized || !introSplashDone) return;
 
     const firstSegment = segments[0];
-    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup" || firstSegment === "otp";
+    const isAuthScreen = !firstSegment || firstSegment === "login" || firstSegment === "signup";
 
     // A restored session always wins — an authenticated user goes straight to
     // the main app and never sees the language gate again this process.
@@ -202,7 +202,8 @@ export default function RootLayout() {
     // need an account send them to Login themselves.
     if (guestMode) return;
 
-    if (!isAuthScreen) {
+    // Terms & Privacy are linked from Sign up, so they open signed out too.
+    if (!isAuthScreen && firstSegment !== "legal") {
       router.replace("/login");
     }
   }, [isInitialized, token, fontsLoaded, fontError, segments, languageConfirmed, introSplashDone, guestMode]);
@@ -222,7 +223,7 @@ export default function RootLayout() {
             <KeyboardProvider>
               <ToastProvider>
                 <RootLayoutNav />
-                <GlobalSocketHandler />
+                <GlobalOrderPoller />
                 <OfflineBanner />
                 <SlowNetworkToast />
                 <SessionExpiredNotice />

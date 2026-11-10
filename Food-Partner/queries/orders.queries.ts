@@ -21,7 +21,7 @@ import { queryKeys } from "./keys";
 
 const fetchLiveOrders = (vendorId: string) => getLiveOrders(vendorId, startOfToday());
 
-/** Today's orders plus anything still in progress — kept fresh by the socket. */
+/** Today's orders plus anything still in progress — kept fresh by polling. */
 export function useVendorOrders() {
   const partner = usePartner();
   const vendorId = partner?._id ?? "";
@@ -29,8 +29,10 @@ export function useVendorOrders() {
     queryKey: queryKeys.orders(vendorId),
     queryFn: () => fetchLiveOrders(vendorId),
     enabled: !!vendorId,
-    // Sockets push changes; this is only the safety net for a missed event.
-    refetchInterval: 60_000,
+    // Polling is how new orders and status changes arrive (LiveOrderWatcher rings
+    // for new ones). Mounted app-wide via the tab bar; paused in the background,
+    // and refetched on return to the foreground (focusManager in app/_layout).
+    refetchInterval: 10_000,
   });
 }
 
@@ -86,6 +88,8 @@ export function useVendorOrder(orderId: string) {
     initialData: fromList,
     initialDataUpdatedAt: 0,
     enabled: !!orderId && !!partner,
+    // The rider and status change while the order screen is open.
+    refetchInterval: 10_000,
   });
 }
 

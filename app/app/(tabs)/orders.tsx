@@ -62,6 +62,8 @@ export default function OrdersScreen() {
         openFilterSheet={openFilterSheet}
         styles={styles}
         tokens={tokens}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
       />
 
       <OrdersScreenBody
@@ -152,6 +154,11 @@ function activeStatusCaption(order: any, serviceKey: string): string {
     if (["DELIVERED", "COMPLETED"].includes(status)) return i18n.t("app.orders.taskCompleted", "Task completed");
     if (status === "CANCELLED") return i18n.t("app.orders.cancelled", "Cancelled");
     return i18n.t("app.orders.findingAHelper", "Finding a helper");
+  }
+  if (serviceKey === "packageDelivery") {
+    if (["EN_ROUTE_DELIVERY", "IN_TRANSIT", "ARRIVED_DELIVERY"].includes(status)) return i18n.t("app.packageDelivery.steps.inProgress");
+    if (["DRIVER_ASSIGNED", "EN_ROUTE_PICKUP", "ARRIVED_PICKUP"].includes(status)) return i18n.t("app.packageDelivery.steps.partnerAssigned");
+    return i18n.t("app.ride.findingYourDeliveryPartner");
   }
   if (serviceKey === "delivery") return i18n.t("app.orders.riderOnTheRoute", "Rider on the route");
   if (["DRIVER_ASSIGNED", "driver_assigned"].includes(status)) return i18n.t("app.tracking.rideLabels.captainAssigned", "Rider assigned");

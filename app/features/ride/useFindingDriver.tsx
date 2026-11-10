@@ -1,5 +1,6 @@
 import { useFindingDriverInsets } from "./useFindingDriverInsets";
 import { useFindingDriverShowCancelSheet } from "./useFindingDriverShowCancelSheet";
+import { useFindingDriverRaiseFare } from "./useFindingDriverRaiseFare";
 
 // State, data loading and handlers for app/finding-driver.tsx.
 // Moved out of the screen unchanged and in the same order, so the hooks
@@ -8,14 +9,17 @@ import { useFindingDriverShowCancelSheet } from "./useFindingDriverShowCancelShe
 // useFindingDriverShowCancelSheet() instead, since its labels call t().
 
 export function useFindingDriver() {
-  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight } = useFindingDriverInsets();
+  const { insets, orderId, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops, onlineDrivers, setOnlineDrivers, orderSummary, spinStyle, foodStage, isRide, sheetHeight, setSheetHeight, refresh, refreshing } = useFindingDriverInsets();
   const { showCancelSheet, setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel, CANCEL_REASONS } = useFindingDriverShowCancelSheet(orderId, stops, setOnlineDrivers, orderSummary, isRide);
 
+  const { showRaiseFare, raising, raiseFare } = useFindingDriverRaiseFare(orderId, orderSummary, foodStage);
+
   return {
+  showRaiseFare, raising, raiseFare,
   insets, dateTimeStr, tokens, accent, styles, bookingConfirmed, confirmedDriver, stops,
   onlineDrivers, orderSummary, spinStyle, showCancelSheet,
   setShowCancelSheet, cancelReason, setCancelReason, handleCancel, pickupStop, dropStop, tierLabel,
-  CANCEL_REASONS, foodStage, isRide, sheetHeight, setSheetHeight
+CANCEL_REASONS, foodStage, isRide, sheetHeight, setSheetHeight, refresh, refreshing
   };
 }
 

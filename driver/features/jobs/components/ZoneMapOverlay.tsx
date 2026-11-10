@@ -25,7 +25,7 @@ export function ZoneMapOverlay({
     // Was a hardcoded top: 48, which is under the status bar on any device
     // with a taller inset (notch/punch-hole) now that the bar is translucent.
     <Box style={[styles.headerOverlay, { top: insets.top + 12 }]}>
-      <Touchable style={styles.roundBackBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.roundBackBtn} onPress={onBack}>
         <Feather name="arrow-left" size={24} color={Colors.text} />
       </Touchable>
       <Box style={styles.titleContainer}>

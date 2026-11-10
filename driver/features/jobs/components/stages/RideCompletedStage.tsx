@@ -11,12 +11,12 @@ import { DeliveryEarningsBreakdown } from "./DeliveryEarningsBreakdown";
 
 export function RideCompletedStage() {
   const { t } = useTranslation();
-  const { handleStatusTransition } = useActiveOrderCtx();
+  const { handleStatusTransition, currentOrder } = useActiveOrderCtx();
 
   return (
     <CompletedScroll>
       <CompletionHeader
-        title={t("jobs.rideCompleted")}
+        title={currentOrder?.packageDelivery ? t("jobs.packageDeliveryCompleted") : t("jobs.rideCompleted")}
         subtitle={t("jobs.earningsAddedToWallet")}
       />
 

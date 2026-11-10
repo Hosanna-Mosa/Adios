@@ -10,6 +10,7 @@ import Coupon from "../../database/models/Coupon";
 import SystemConfig from "../../database/models/SystemConfig";
 import ChatMessage from "../../database/models/ChatMessage";
 import AppVersion from "../../database/models/AppVersion";
+import { OrdersService } from "../orders/orders.service";
 import Zone from "../../database/models/Zone";
 import Banner from "../../database/models/Banner";
 import Offer from "../../database/models/Offer";
@@ -24,6 +25,8 @@ import {
 } from "../../services/supportAssignment.service";
 import { NotificationService } from "../../services/notification.service";
 import { sendDriverDecisionEmail } from "../verification/verification.emails";
+import { computeSla } from "../support/support.sla";
+import { cleanPermissions, effectivePermissions, hasPermission } from "../support/support.permissions";
 
 const SUPPORT_PHONE_PREFIX = "support-";
 
@@ -33,8 +36,9 @@ function findSupportMember(id: string) {
   return User.findOne({ _id: id, role: UserRole.SUPPORT });
 }
 
-function toSupportMemberResponse(member: { _id: unknown; name: string; email?: string; phone?: string; createdAt?: Date }) {
+function toSupportMemberResponse(member: { _id: unknown; name: string; email?: string; phone?: string; createdAt?: Date; supportPermissions?: string[] }) {
   return {
+    permissions: effectivePermissions(UserRole.SUPPORT, member.supportPermissions),
     _id: String(member._id),
     name: member.name,
     email: member.email ?? "",
@@ -92,7 +96,7 @@ export class AdminController {
           end.setHours(hourNum + 2, 0, 0, 0);
 
           const delivered = await Order.countDocuments({
-            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] },
+            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] },
             createdAt: { $gte: start, $lt: end }
           });
 
@@ -114,7 +118,7 @@ export class AdminController {
           end.setDate(end.getDate() - (weekNum - 1) * 7);
 
           const delivered = await Order.countDocuments({
-            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] },
+            status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] },
             createdAt: { $gte: start, $lt: end }
           });
 
@@ -136,7 +140,7 @@ export class AdminController {
       // back to a hardcoded name.
       const dynamicActivity: any[] = [];
 
-      const latestDelivered = await Order.find({ status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] } })
+      const latestDelivered = await Order.find({ status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] } })
         .populate({ path: "driver", populate: { path: "user" } })
         .sort({ updatedAt: -1 })
         .limit(5);
@@ -171,7 +175,7 @@ export class AdminController {
       // and no invented rows when the board is empty: an idle system should show
       // an empty table, not two fictional San Jose deliveries.
       const liveOrders = await Order.find({
-        status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "searching_driver", "driver_assigned"] }
+        status: { $in: [OrderStatus.SEARCHING_DRIVER, OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "searching_driver" as OrderStatus, "driver_assigned" as OrderStatus] }
       })
       .populate({ path: "driver", populate: { path: "user" } })
       .sort({ createdAt: -1 })
@@ -426,6 +430,24 @@ export class AdminController {
   async updateOrder(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { status, ...rest } = req.body || {};
+
+      // Cancelling goes through the same path as every other cancel: refund for
+      // online payments, stop the driver search, free the driver, and notify
+      // the customer, driver and vendor. A raw field update did none of that.
+      if (status === OrderStatus.CANCELLED) {
+        const current = await Order.findById(id).select("status").lean();
+        if (!current) return res.status(404).json({ message: "Order not found" });
+        const finished = [OrderStatus.CANCELLED, OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC];
+        if (finished.includes(current.status as OrderStatus)) {
+          return res.status(409).json({ message: `Order is already ${current.status} and can't be cancelled.` });
+        }
+
+        if (Object.keys(rest).length) await Order.findByIdAndUpdate(id, rest);
+        const order = await new OrdersService().updateOrderStatus(id as string, OrderStatus.CANCELLED);
+        return res.json({ message: "Order updated successfully", order });
+      }
+
       const order = await Order.findByIdAndUpdate(id, req.body, { new: true });
       if (!order) return res.status(404).json({ message: "Order not found" });
       return res.json({ message: "Order updated successfully", order });
@@ -437,7 +459,7 @@ export class AdminController {
   async getPayments(req: Request, res: Response) {
     try {
       const orders = await Order.find({
-        status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered"] }
+        status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus] }
       }).sort({ createdAt: -1 });
 
       const payments = orders.map(o => {
@@ -498,7 +520,7 @@ export class AdminController {
         Order.countDocuments({ createdAt: { $gte: rangeStart } }),
         Order.find({
           createdAt: { $gte: rangeStart },
-          status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered", "completed"] },
+          status: { $in: [OrderStatus.DELIVERED, OrderStatus.COMPLETED, "delivered" as OrderStatus, "completed" as OrderStatus] },
         }).select("totalPrice createdAt updatedAt"),
         Driver.countDocuments({ status: DriverStatus.ONLINE }),
       ]);
@@ -576,8 +598,13 @@ export class AdminController {
     try {
       // Support members only ever see the cases assigned to them; admins see all.
       const filter = req.user?.role === UserRole.SUPPORT ? { assignedTo: req.user.userId } : {};
-      const tickets = await SupportTicket.find(filter).populate("assignedTo", "name").populate("botQuery", "question answer intentKey helpful").sort({ createdAt: -1 });
-      return res.json(tickets);
+      const tickets = await SupportTicket.find(filter)
+        .select("+internalNotes")
+        .populate("assignedTo", "name")
+        .populate("botQuery", "question answer intentKey helpful")
+        .sort({ createdAt: -1 });
+      const now = new Date();
+      return res.json(tickets.map((ticket) => ({ ...ticket.toJSON({ staff: true } as any), sla: computeSla(ticket, now) })));
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }
@@ -618,12 +645,18 @@ export class AdminController {
   async updateSupportTicket(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status, replyText, orderId } = req.body;
+      const { status, replyText, priority, orderId } = req.body;
       const ticket = await SupportTicket.findById(id);
       // Another member's case answers exactly like a missing one.
       const isForeignCase = req.user?.role === UserRole.SUPPORT && ticket?.assignedTo?.toString() !== req.user.userId;
       if (!ticket || isForeignCase) return res.status(404).json({ message: "Ticket not found" });
 
+      // A support member may only do what their account allows (admins always may).
+      const denied = async (permission: Parameters<typeof hasPermission>[1]) => !(await hasPermission(req, permission));
+      if ((replyText && (await denied("reply"))) || (status !== undefined && (await denied("resolve"))) || (priority !== undefined && (await denied("priority")))) {
+        return res.status(403).json({ message: "Your support account does not have permission to do this. Ask an admin." });
+      }
+      if (priority !== undefined) ticket.priority = priority;
       if (orderId !== undefined) {
         if (orderId === null) {
           ticket.orderId = null;
@@ -693,7 +726,7 @@ export class AdminController {
   async getSupportMembers(req: Request, res: Response) {
     try {
       const [members, workloads] = await Promise.all([
-        User.find({ role: UserRole.SUPPORT }).select("name email phone createdAt updatedAt").sort({ createdAt: -1 }).lean(),
+        User.find({ role: UserRole.SUPPORT }).select("name email phone createdAt updatedAt supportPermissions").sort({ createdAt: -1 }).lean(),
         getSupportWorkloads(),
       ]);
       return res.json(
@@ -714,7 +747,7 @@ export class AdminController {
 
   async createSupportMember(req: Request, res: Response) {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, permissions } = req.body;
 
       const existing = await User.findOne({ email }).select("_id").lean();
       if (existing) {
@@ -729,6 +762,7 @@ export class AdminController {
         password,
         phone: `${SUPPORT_PHONE_PREFIX}${new Types.ObjectId().toHexString()}`,
         role: UserRole.SUPPORT,
+        ...(Array.isArray(permissions) ? { supportPermissions: cleanPermissions(permissions) } : {}),
       });
       await member.save();
       // Cases that arrived while nobody was on the team go to the new member(s) now.
@@ -788,7 +822,7 @@ export class AdminController {
       }
       
       // Find user (customer)
-      let customer = await User.findOne({ role: "USER" });
+      let customer = await User.findOne({ role: UserRole.USER });
       if (!customer) {
         customer = await User.findOne();
       }

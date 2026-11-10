@@ -19,6 +19,7 @@ const Drivers = lazy(() => import("@/pages/Drivers"));
 const DevDrivers = import.meta.env.DEV ? lazy(() => import("@/pages/DevDrivers")) : null;
 const Analytics = lazy(() => import("@/pages/Analytics"));
 const LiveActivity = lazy(() => import("@/pages/LiveActivity"));
+const ItemInsights = lazy(() => import("@/pages/ItemInsights"));
 const Payments = lazy(() => import("@/pages/Payments"));
 const Refunds = lazy(() => import("@/pages/Refunds"));
 const Payouts = lazy(() => import("@/pages/Payouts"));
@@ -42,6 +43,9 @@ const UserDetail = lazy(() => import("@/pages/UserDetail"));
 const DriverDetail = lazy(() => import("@/pages/DriverDetail"));
 const AppVersions = lazy(() => import("@/pages/AppVersions"));
 const HelperPricing = lazy(() => import("@/pages/HelperPricing"));
+const AuditLog = lazy(() => import("@/pages/AuditLog"));
+const Broadcasts = lazy(() => import("@/pages/Broadcasts"));
+const Reports = lazy(() => import("@/pages/Reports"));
 const DriverVerification = lazy(() => import("@/pages/DriverVerification"));
 const RestaurantVerification = lazy(() => import("@/pages/RestaurantVerification"));
 
@@ -88,6 +92,7 @@ export function AnimatedRoutes() {
         {DevDrivers && <Route path="/dev-drivers" element={<RequireAdmin><DevDrivers /></RequireAdmin>} />}
         <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
         <Route path="/live-activity" element={<RequireAdmin><LiveActivity /></RequireAdmin>} />
+        <Route path="/item-insights" element={<RequireAdmin><ItemInsights /></RequireAdmin>} />
         <Route path="/payments" element={<RequireAdmin><Payments /></RequireAdmin>} />
         <Route path="/refunds" element={<RequireAdmin><Refunds /></RequireAdmin>} />
         <Route path="/payouts" element={<RequireAdmin><Payouts /></RequireAdmin>} />
@@ -112,6 +117,9 @@ export function AnimatedRoutes() {
         <Route path="/drivers/:id" element={<RequireAdmin><DriverDetail /></RequireAdmin>} />
         <Route path="/app-updates" element={<RequireAdmin><AppVersions /></RequireAdmin>} />
         <Route path="/helper-pricing" element={<RequireAdmin><HelperPricing /></RequireAdmin>} />
+        <Route path="/audit-log" element={<RequireAdmin><AuditLog /></RequireAdmin>} />
+        <Route path="/broadcasts" element={<RequireAdmin><Broadcasts /></RequireAdmin>} />
+        <Route path="/reports" element={<RequireAdmin><Reports /></RequireAdmin>} />
 
         </Route>
         <Route element={<RequireVendor><VendorShell /></RequireVendor>}>

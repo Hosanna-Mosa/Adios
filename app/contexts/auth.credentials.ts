@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { AuthState } from "@/contexts/authStore";
 import { resetSessionExpiry } from "@/contexts/auth.session";
 import { trackEvent } from "@/utils/analytics";
+import { clearRefreshToken, saveRefreshToken, saveToken } from "@/utils/secureToken";
 import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 
 // The three credential exchanges: request an OTP, verify one, and sign in with
@@ -21,9 +22,9 @@ type Set = (partial: Partial<AuthState>) => void;
 async function persistSession(token: string, user: unknown, refreshToken?: string | null) {
   try {
     await Promise.all([
-      AsyncStorage.setItem("token", token),
+      saveToken(token),
       AsyncStorage.setItem("user", JSON.stringify(user)),
-      refreshToken ? AsyncStorage.setItem("refreshToken", refreshToken) : AsyncStorage.removeItem("refreshToken"),
+      refreshToken ? saveRefreshToken(refreshToken) : clearRefreshToken(),
     ]);
   } catch (err) {
     console.warn("Could not save the session to device storage:", err);
@@ -96,7 +97,6 @@ export const createCredentialActions = (set: Set) => ({
       resetSessionExpiry();
       set({ user: data.user, token: data.token, refreshToken: data.refreshToken ?? null });
       await persistSession(data.token, data.user, data.refreshToken);
-
       trackEvent("login", { method: "password" });
       return { success: true };
     } catch (err: any) {

@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
 import { styles } from "../home.styles";
-import { Touchable } from "@/components/ui/Touchable";
 import { AppImage } from "@/components/ui/AppImage";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
@@ -27,9 +26,10 @@ export function NoActiveTasksCard({ isOnline }: { isOnline: boolean }) {
             : t("jobs.goOnlineToReceiveBookings")}
         </AppText>
       </Box>
-      <Touchable style={styles.calendarBtn}>
+      {/* Decorative: it has no action, so it is not a button. */}
+      <Box style={styles.calendarBtn} accessible={false} importantForAccessibility="no-hide-descendants">
         <Feather name="calendar" size={18} color={Colors.primary} />
-      </Touchable>
+      </Box>
     </Box>
   );
 }

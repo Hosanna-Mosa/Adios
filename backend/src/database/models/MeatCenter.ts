@@ -15,6 +15,7 @@ export interface IMeatCenter extends Document {
   };
   address: string;
   image?: string;
+  coverImage?: string;
   rating: number;
   reviews: string;
   categories: string[]; // e.g., ["Chicken", "Mutton", "Fish"]
@@ -32,6 +33,8 @@ export interface IMeatCenter extends Document {
    * NOT move the searchable `location` pin.
    */
   currentLocation?: { lat: number; lng: number; address?: string };
+  /** Set when the partner deleted their own account (see partner-account-deletion.service). */
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   matchPassword: (password: string) => Promise<boolean>;
@@ -78,6 +81,7 @@ const MeatCenterSchema: Schema = new Schema(
     },
     address: { type: String, required: true },
     image: { type: String },
+    coverImage: { type: String },
     rating: { type: Number, default: 0 },
     reviews: { type: String, default: "0" },
     categories: { type: [String], default: [] },
@@ -89,8 +93,18 @@ const MeatCenterSchema: Schema = new Schema(
     expoPushTokens: { type: [String], default: [] },
     branchCode: { type: String, trim: true },
     currentLocation: { type: currentLocationSchema, default: undefined },
+    deletedAt: { type: Date },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Never send the bcrypt hash to a client (see the same option on Vendor).
+    toJSON: {
+      transform: (_doc, ret: Record<string, unknown>) => {
+        delete ret.password;
+        return ret;
+      },
+    },
+  }
 );
 
 // Hash password before saving

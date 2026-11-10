@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
@@ -50,15 +51,15 @@ export function HomeFilterSORTBY(props: Props) {
     <View style={styles.filterModalBody}>
       <ScrollView style={styles.filterModalLeftPane} showsVerticalScrollIndicator={false}>
         {[
-          { id: "Sort", label: "Sort" },
-          { id: "99store", label: "149 Store" },
-          { id: "15mins", label: "15 mins" },
-          { id: "OpenNow", label: "Open now" },
-          { id: "Offers", label: "Offers" },
-          { id: "Ratings", label: "Ratings" },
-          { id: "CostForTwo", label: "Cost for two" },
-          { id: "VegNonVeg", label: "Veg/Non-Veg" },
-          { id: "Cuisines", label: "Cuisines" },
+          { id: "Sort", label: t("app.home.filterModal.tabs.sort") },
+          { id: "99store", label: t("app.home.filterModal.tabs.store149") },
+          { id: "15mins", label: t("app.home.filterModal.tabs.mins15") },
+          { id: "OpenNow", label: t("app.home.openNow") },
+          { id: "Offers", label: t("app.home.offers") },
+          { id: "Ratings", label: t("app.home.filterModal.tabs.ratings") },
+          { id: "CostForTwo", label: t("app.home.filterModal.tabs.costForTwo") },
+          { id: "VegNonVeg", label: t("app.home.filterModal.tabs.vegNonVeg") },
+          { id: "Cuisines", label: t("app.home.filterModal.tabs.cuisines") },
         ].map((tab) => {
           const isActive = activeFilterTab === tab.id;
           let hasApplied = false;
@@ -89,7 +90,7 @@ export function HomeFilterSORTBY(props: Props) {
       </TouchableOpacity>
       <TouchableOpacity style={styles.filterModalApplyBtn} onPress={() => setIsFilterModalVisible(false)}>
         <Text style={styles.filterModalApplyText}>
-          {t("app.home.apply")} · {filteredAndSortedItems.length} {filteredAndSortedItems.length === 1 ? "result" : "results"}
+          {t("app.home.apply")} · {t("app.home.filterModal.resultCount", { count: filteredAndSortedItems.length })}
         </Text>
       </TouchableOpacity>
     </View>

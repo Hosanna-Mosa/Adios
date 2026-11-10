@@ -54,6 +54,8 @@ export function Chip({ label, selected = false, onPress, icon, accent }: ChipPro
   return (
     <Pressable
       onPress={onPress}
+      // 36dp chip, 48dp touch area.
+      hitSlop={{ top: 6, bottom: 6 }}
       accessibilityRole="button"
       accessibilityState={{ selected }}
       style={[styles.base, selected && { backgroundColor: fill, borderColor: fill }]}
@@ -111,7 +113,8 @@ const createChipStyles = (tokens: ThemeTokens) =>
       borderColor: tokens.border,
       borderRadius: radius.pill,
       paddingHorizontal: moderateScale(14),
-      height: moderateScale(36),
+      paddingVertical: moderateScale(6),
+      minHeight: moderateScale(36),
     },
     label: {
       fontFamily: fontFamilies.body.semibold,

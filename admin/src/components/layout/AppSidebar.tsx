@@ -37,8 +37,12 @@ import {
   ShieldCheck,
   BadgeCheck,
   BadgePercent,
+  UtensilsCrossed,
   HandHelping,
   Bot,
+  ScrollText,
+  Megaphone,
+  FileDown,
   PackageSearch,
 } from "lucide-react";
 
@@ -67,6 +71,8 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.payouts"), url: "/payouts", icon: Banknote },
     { title: t("sidebar.refunds"), url: "/refunds", icon: Undo2 },
     { title: t("sidebar.analytics"), url: "/analytics", icon: BarChart3 },
+    { title: t("sidebar.liveActivity"), url: "/live-activity", icon: Activity },
+    { title: t("sidebar.itemInsights"), url: "/item-insights", icon: UtensilsCrossed },
     { title: t("sidebar.support"), url: "/support", icon: Headphones },
     { title: t("sidebar.supportCases"), url: "/support-cases", icon: Headphones },
     { title: t("sidebar.activeChats"), url: "/support/chats", icon: MessageSquare },
@@ -76,6 +82,9 @@ function getNavItems(t: (key: string) => string) {
     { title: t("sidebar.offers"), url: "/offers", icon: BadgePercent },
     { title: t("sidebar.appUpdates"), url: "/app-updates", icon: RefreshCw },
     { title: t("sidebar.banners"), url: "/banners", icon: Image },
+    { title: t("sidebar.broadcasts"), url: "/broadcasts", icon: Megaphone },
+    { title: t("sidebar.reports"), url: "/reports", icon: FileDown },
+    { title: t("sidebar.auditLog"), url: "/audit-log", icon: ScrollText },
   ];
 }
 

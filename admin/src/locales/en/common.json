@@ -229,6 +229,7 @@
     "failedToChangePassword": "Failed to change password"
   },
   "common": {
+    "refresh": "Refresh",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "savingEllipsis": "Saving...",
@@ -259,6 +260,8 @@
     "payouts": "Payouts",
     "refunds": "Refunds",
     "analytics": "Analytics",
+    "liveActivity": "Live Activity",
+    "itemInsights": "Item Insights",
     "support": "Support",
     "supportCases": "Support Cases",
     "activeChats": "Active Chats",
@@ -273,6 +276,9 @@
     "signOut": "Sign Out",
     "helperPricing": "Helper Pricing",
     "supportBot": "Support Bot",
+    "broadcasts": "Push broadcast",
+    "reports": "Reports",
+    "auditLog": "Audit log",
     "supportOrders": "Orders"
   },
   "notifications": {

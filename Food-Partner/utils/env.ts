@@ -21,6 +21,8 @@ export const env = {
   supportPhone: clean(process.env.EXPO_PUBLIC_SUPPORT_PHONE || extra.supportPhone),
   supportEmail: clean(process.env.EXPO_PUBLIC_SUPPORT_EMAIL || extra.supportEmail),
   partnerWebUrl: clean(process.env.EXPO_PUBLIC_PARTNER_WEB_URL || extra.partnerWebUrl),
+  /** The published privacy policy, opened from Account → Help. */
+  privacyPolicyUrl: clean(process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || extra.privacyPolicyUrl),
 };
 
 /** Socket.IO lives on the server root, not under /api/v1. */

@@ -2,7 +2,8 @@ import React from "react";
 import MapView, { Marker, Callout, PROVIDER_GOOGLE, Polyline } from "@/components/maps";
 import MapViewDirections from "@/components/maps/MapViewDirections";
 import { fadeIn } from "@/motion/presets";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -14,6 +15,7 @@ import Animated from "react-native-reanimated";
 
 import type { Props } from "./RideMapPanel.props";
 import { RIDE_STOP_ANCHOR, rideStopMarker, vehicleMarkerIcon } from "@/components/mapBackground.utils";
+import { useMapStyle } from "@/components/useMapStyle";
 import { MapBackButton, mapControlTop } from "@/components/ui/MapBackButton";
 
 export function RideMapPanel(props: Props) {
@@ -23,11 +25,13 @@ export function RideMapPanel(props: Props) {
   routeCoordinates, selectedFare, selectedTier, setMapReady, styles, tokens, tripCoordinates,
   userLocation, validStops } = props;
   const { t } = useTranslation();
+  const mapStyle = useMapStyle();
   return (
     <View style={styles.mapContainer}>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
+        customMapStyle={mapStyle}
         style={StyleSheet.absoluteFill}
         initialRegion={initialRegion}
         zoomEnabled scrollEnabled pitchEnabled rotateEnabled zoomTapEnabled
@@ -138,7 +142,7 @@ export function RideMapPanel(props: Props) {
         </View>
       </Animated.View>
 
-      <Animated.View style={styles.routeChip} entering={fadeIn(60)}>
+      <Animated.View style={[styles.routeChip, { top: insets.top + 10 }]} entering={fadeIn(60)}>
         <Text style={styles.routeChipMain} numberOfLines={1}>{getDisplayName(params.pickupName)} → {getDisplayName(params.dropName)}</Text>
         {selectedFare && (
           <Text style={styles.routeChipSub}>{t("app.ride.etaSummary", { km: selectedFare.distanceInKm.toFixed(1), min: selectedFare.estimatedMinutes })}</Text>

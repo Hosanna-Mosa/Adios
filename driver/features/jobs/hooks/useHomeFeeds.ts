@@ -103,5 +103,11 @@ export function useHomeFeeds({
     return () => clearInterval(interval);
   }, [loadHighDemandAreas]);
 
-  return { scheduledRides, loadingScheduled, driverAds };
+  // Home's Refresh button: reload every feed at once.
+  const refreshFeeds = useCallback(
+    () => Promise.all([loadScheduledRides(), loadHighDemandAreas(), token ? fetchEarnings() : undefined]).then(() => {}),
+    [loadScheduledRides, loadHighDemandAreas, fetchEarnings, token],
+  );
+
+  return { scheduledRides, loadingScheduled, driverAds, refreshFeeds };
 }

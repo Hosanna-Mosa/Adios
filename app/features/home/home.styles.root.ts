@@ -50,12 +50,19 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   headlineMeasure: { position: "absolute", left: 0, top: 0, width: 4000, opacity: 0 },
   headlineMeasureText: { alignSelf: "flex-start" },
 
+  // Same shape as the search screen's input (searchSheetInputWrap), so tapping
+  // the bar reads as the field simply coming into focus.
   searchBar: {
-    flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface,
-    borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), height: moderateScale(48),
-    paddingHorizontal: 14, marginHorizontal: 16, marginTop: 14,
+    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface,
+    borderWidth: 1, borderColor: tokens.border, borderRadius: moderateScale(16), height: moderateScale(52),
+    paddingLeft: 8, paddingRight: 16, marginHorizontal: 16, marginTop: 14,
+    shadowColor: "#000000", shadowOpacity: 0.06, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2,
   },
-  searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, color: tokens.sec },
+  searchIconCircle: {
+    width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(12),
+    backgroundColor: accent.skin, alignItems: "center", justifyContent: "center",
+  },
+  searchPlaceholder: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.muted },
 
   // Five equal cards (Food/Meat/Ride/Package/Helper) in one row, replacing the old
   // grouped pill + launcher-tile layout. Fixed width keeps all 5 + their gaps within
@@ -85,6 +92,7 @@ export const createRootStyles = (tokens: ThemeTokens, accent: ServiceTokens) =>
   adDescription: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.small, color: tokens.sec, marginTop: 2 },
 
   sectionBlock: { marginTop: 24, paddingHorizontal: 16 },
+  sectionEndRule: { height: StyleSheet.hairlineWidth * 2, backgroundColor: tokens.border, marginTop: 20 },
   sectionHeadRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   sectionHeadLeft: { flexDirection: "row", alignItems: "baseline", gap: 8 },
   sectionTitle: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.large, letterSpacing: -0.1, color: tokens.text },

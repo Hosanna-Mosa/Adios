@@ -13,7 +13,7 @@ import { CurrentVehicleRow } from "./CurrentVehicleRow";
 import { DocumentStatusCard } from "./DocumentStatusCard";
 import { ProfileHeaderCard } from "./ProfileHeaderCard";
 import { ProfileStatsCard } from "./ProfileStatsCard";
-import { RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
+import { DeleteAccountLink, PrivacyPolicyLink, RetakeOnboardingButton, SignOutButton } from "./ProfileActions";
 import { AppText } from "@/components/ui/AppText";
 import { useDriverStore } from "@/store/driverStore";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
@@ -107,6 +107,8 @@ export function ProfileTabBody({
             />
 
             <SignOutButton onPress={onLogout} />
+            <DeleteAccountLink />
+            <PrivacyPolicyLink />
 
             <RetakeOnboardingButton
               onPress={onRetakeOnboarding}

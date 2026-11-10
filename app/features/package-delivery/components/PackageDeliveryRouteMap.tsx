@@ -5,6 +5,7 @@ import { RIDE_STOP_ANCHOR, driverMarkerLook, rideStopMarker } from "@/components
 import type { ThemeTokens } from "@/constants/colors";
 import type { PackageDeliveryPoint, PackageDeliveryVehicle } from "@/contexts/packageDeliveryStore";
 import { driverMatches, type NearbyDriver } from "../usePackageDeliveryTrip";
+import { useMapStyle } from "@/components/useMapStyle";
 
 // The trip on a map: pickup and drop pins, the road route between them, and the online
 // captains who drive the selected vehicle. Framed to stay clear of the bottom sheet.
@@ -25,6 +26,7 @@ interface Props {
 
 export function PackageDeliveryRouteMap({ pickup, drop, route, drivers, vehicle, topInset, bottomInset, tokens, fitKey }: Props) {
   const mapRef = useRef<MapView>(null);
+  const mapStyle = useMapStyle();
   const [ready, setReady] = useState(false);
   const pickupCoord = { latitude: pickup.lat, longitude: pickup.lng };
   const dropCoord = { latitude: drop.lat, longitude: drop.lng };
@@ -47,6 +49,7 @@ export function PackageDeliveryRouteMap({ pickup, drop, route, drivers, vehicle,
     <MapView
       ref={mapRef}
       provider={PROVIDER_GOOGLE}
+      customMapStyle={mapStyle}
       style={StyleSheet.absoluteFill}
       initialRegion={{
         latitude: (pickup.lat + drop.lat) / 2,

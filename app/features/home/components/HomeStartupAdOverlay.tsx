@@ -1,4 +1,5 @@
-import { Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";

@@ -39,3 +39,6 @@ yarn-error.*
 .vercel
 
 .env
+
+# Firebase config: supplied by the GOOGLE_SERVICES_JSON EAS file variable
+google-services.json

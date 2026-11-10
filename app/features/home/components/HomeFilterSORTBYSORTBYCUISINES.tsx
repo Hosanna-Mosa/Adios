@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { fontFamilies } from "@/constants/typography";
@@ -33,7 +34,7 @@ export function HomeFilterSORTBYSORTBYCUISINES({
     <>
     {activeFilterTab === "Cuisines" && (
       <View>
-        <Text style={styles.filterSectionTitle}>CUISINES</Text>
+        <Text style={styles.filterSectionTitle}>{t("app.home.filterModal.sections.cuisines")}</Text>
         {availableCuisines.length === 0 ? (
           <Text style={styles.filterEmptyNote}>{t("app.home.noCuisinesAvailableInCurrentLocation")}</Text>
         ) : (

@@ -10,7 +10,7 @@ import { useLanguageStore } from "@/contexts/languageStore";
 
 export default function AuthScreen() {
   const {
-  insets, showSplash, splashOpacity, letters, translateAnim, opacityAnim, identifier,
+  insets, showSplash, splashOpacity, introAnims, identifier,
   setIdentifier, password, setPassword, isPasswordVisible, setIsPasswordVisible, sendingOtp,
   loading, isInitialized, tokens, styles, handleSignIn, handleForgotPassword,
   handleContinueWithOtp
@@ -27,11 +27,7 @@ export default function AuthScreen() {
         alignItems: "center",
         opacity: splashOpacity,
       }}>
-        <LandingLoadingBody
-          letters={letters}
-          opacityAnim={opacityAnim}
-          translateAnim={translateAnim}
-        />
+        <LandingLoadingBody anims={introAnims} />
       </Animated.View>
     );
   }

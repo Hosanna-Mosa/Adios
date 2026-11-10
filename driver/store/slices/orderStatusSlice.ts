@@ -1,7 +1,6 @@
 import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
 import { trackEvent } from "@/utils/analytics";
-import { socketService } from "../../utils/socketService";
 import { mapApiOrder } from "../orderMapper";
 import type {
   CompletedOrder,
@@ -55,9 +54,6 @@ export const createOrderStatusSlice = (
         throw e;
       }
     }
-
-    // Also emit via socket to ensure real-time notification
-    socketService.emit("order_status_update", { orderId: currentOrder.id, status });
 
     trackEvent("order_status_updated", { status, service_type: currentOrder.serviceType });
 

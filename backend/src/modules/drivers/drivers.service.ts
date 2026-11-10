@@ -14,6 +14,7 @@ import { NotificationService } from "../../services/notification.service";
 import { onlineSessionsWithin } from "../../database/models/DriverOnlineSession";
 import { onlineHoursWithin } from "./onlineTime";
 import { istYmd, maskPan, parseStatementPeriod, renderStatementHtml, statementMonthRange, summarizeStatement, type StatementPayout, type StatementTrip } from "./earningsStatement";
+import { maskPhone } from "../../utils/logMask";
 
 export interface HighDemandArea {
   id: string;
@@ -140,10 +141,9 @@ export class DriverService {
       const allOnlineDrivers = await Driver.find({ status: DriverStatus.ONLINE }).populate("user");
       console.log(`🟢 ONLINE DRIVERS AVAILABLE IN BACKEND: ${allOnlineDrivers.length}`);
       allOnlineDrivers.forEach(d => {
-        const userName = (d.user as any)?.name || "Unknown";
-        const userPhone = (d.user as any)?.phone || "No Phone";
+        const userPhone = maskPhone((d.user as any)?.phone);
         const driverZoneName = d.preferredZone ? (zoneMap.get(d.preferredZone.toString()) || "Unknown Zone") : "No Zone Assigned";
-        console.log(`   🚗 Driver: ${userName} (${userPhone}) | ID: ${d._id} | Vehicle: ${d.vehicleType || "N/A"} | Zone: "${driverZoneName}"`);
+        console.log(`   🚗 Driver: ${userPhone} | ID: ${d._id} | Vehicle: ${d.vehicleType || "N/A"} | Zone: "${driverZoneName}"`);
       });
     } catch (err: any) {
       console.error("Error querying online drivers for logging:", err.message);
@@ -323,13 +323,13 @@ export class DriverService {
 
     console.log(`[DRIVER SEARCH FINAL] Matched: ${results.length} driver(s) via ${matchedStageName || "No Stage Match"}`);
     results.forEach((d) => {
-      console.log(` -> Matched Driver: ${d._id}, Name: ${d.user?.name}, Phone: ${d.user?.phone}, vehicleType: ${d.vehicleType}, status: ${d.status}`);
+      console.log(` -> Matched Driver: ${d._id}, Phone: ${maskPhone(d.user?.phone)}, vehicleType: ${d.vehicleType}, status: ${d.status}`);
     });
 
     return results;
   }
 
-  async updateLocation(driverId: string, lat: number, lng: number) {
+  async updateLocation(driverId: string, lat: number, lng: number, heading?: number) {
     const driver = await Driver.findById(driverId);
     if (!driver) throw new Error("Driver not found");
 
@@ -337,6 +337,10 @@ export class DriverService {
       type: "Point",
       coordinates: [lng, lat],
     };
+    driver.lastLocationAt = new Date();
+    if (typeof heading === "number" && Number.isFinite(heading)) {
+      driver.heading = heading;
+    }
 
     if (driver.status === DriverStatus.ONLINE) {
       driver.isAvailable = true;
@@ -355,11 +359,11 @@ export class DriverService {
 
     const savedDriver = await driver.save();
 
-    // Sync Redis if online
+    // Sync Redis if online — getNearbyDrivers searches `drivers:locations` before Mongo,
+    // so a REST-only driver app must land there too.
     try {
-      const { socketManager } = require("../../sockets/socket.manager");
-      const redisClient = socketManager ? socketManager.redisClient : null;
-      if (redisClient && redisClient.isReady && driver.status === DriverStatus.ONLINE) {
+      const redisClient = SocketManager.getInstance()?.getRedisClient();
+      if (redisClient && driver.status === DriverStatus.ONLINE) {
         await redisClient.geoAdd("drivers:locations", {
           longitude: Number(lng),
           latitude: Number(lat),
@@ -390,7 +394,22 @@ export class DriverService {
         driver.activeServices = activeServices;
       }
     }
-    return driver.save();
+    const saved = await driver.save();
+
+    // An offline driver's last Redis point would otherwise keep matching nearby searches
+    // (Redis is searched before Mongo) until it ages out.
+    if (status === DriverStatus.OFFLINE) {
+      try {
+        const redisClient = SocketManager.getInstance()?.getRedisClient();
+        if (redisClient) {
+          await redisClient.zRem("drivers:locations", driver._id.toString());
+          await redisClient.del(`driver_status:${driver._id.toString()}`);
+        }
+      } catch (redisErr: any) {
+        console.warn("[DRIVER STATUS] Failed to drop offline driver from Redis:", redisErr.message);
+      }
+    }
+    return saved;
   }
 
   async updateHomeMode(driverId: string, homeMode: boolean) {

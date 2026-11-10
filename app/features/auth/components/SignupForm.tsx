@@ -1,4 +1,5 @@
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -121,6 +122,9 @@ export function SignupForm({
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             style={styles.eyeBtn}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? t("app.a11y.hidePassword") : t("app.a11y.showPassword")}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           >
             <Ionicons
               name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}

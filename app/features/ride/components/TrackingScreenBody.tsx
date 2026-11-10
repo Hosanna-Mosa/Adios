@@ -20,7 +20,7 @@ import { TrackingBottomSheet } from "./TrackingBottomSheet";
 export function TrackingScreenBody(props: Props) {
   const {
   accent, bannerText, driver, driverLocation, eta, insets, mapRef, radius, route, status, stops,
-  styles, tokens, userLocCoords, outletOrder, rideOrder
+  styles, tokens, userLocCoords, outletOrder, rideOrder, onRefresh, refreshing
   } = props;
   // TrackingBottomSheet's own BottomSheet sits at this same resting height
   // (its `defaultHeight`) until the user drags it. That drag is a reanimated
@@ -56,6 +56,8 @@ export function TrackingScreenBody(props: Props) {
       status={status}
       styles={styles}
       tokens={tokens}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     />
 
     <TrackingBottomSheet {...props} sheetHeightValue={sheetHeightValue} />

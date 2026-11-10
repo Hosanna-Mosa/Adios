@@ -16,7 +16,8 @@
     "confirm": "Confirm",
     "logout": "Logout",
     "update": "Update",
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "refresh": "Refresh"
   },
   "tabs": {
     "home": "Home",
@@ -26,7 +27,8 @@
   },
   "chat": {
     "typeAMessage": "Type a message...",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "messageNotSent": "Message not sent"
   },
   "errors": {
     "somethingWentWrong": "Something went wrong",
@@ -37,7 +39,7 @@
     "errorLabel": "Error",
     "stackTrace": "Stack Trace",
     "newDriverAppVersion": "New Driver App Version!",
-    "updateFlavourDriverToContinue": "Update the FLAVOUR Driver app to continue receiving orders smoothly.",
+    "updateFlavourDriverToContinue": "Update the ADIOS Driver app to continue receiving orders smoothly.",
     "updateMandatoryToContinueOnlineDuties": "This update is mandatory to continue online duties.",
     "updateNow": "Update Now",
     "maybeLater": "Maybe Later"
@@ -73,7 +75,7 @@
     "creatingAccount": "Creating account...",
     "verifyAndCreateAccount": "Verify & Create Account",
     "resendOtp": "Resend OTP",
-    "flavourDriver": "Flavour Driver",
+    "flavourDriver": "Adios Driver",
     "driverPartnerApp": "Driver Partner App",
     "invalidPhone": "Invalid Phone",
     "pleaseEnterAValid10DigitPhone": "Please enter a valid 10-digit phone number",
@@ -315,7 +317,6 @@
     "arrivedAtPickupLocation": "Arrived at Pickup Location",
     "arrivedAtRestaurant": "Arrived at Restaurant",
     "assistanceRequested": "Assistance Requested",
-    "backToOrder": "Back to Order",
     "cancelDelivery": "Cancel Delivery",
     "checklistIncomplete": "Checklist Incomplete",
     "confirmCustomerDelivery": "Confirm Customer Delivery",
@@ -496,7 +497,6 @@
     "waitForCustomerToAssignTask": "Wait for the customer to assign the task.",
     "waitingFeeEarned": "Waiting Fee Earned",
     "waitingForRestaurant": "Waiting for Restaurant...",
-    "whyAreYouDeclining": "Why are you declining?",
     "within20MetersOfRestaurant": "You are within 20 meters of restaurant location.",
     "yesCancel": "Yes, Cancel",
     "youllReceiveOrdersFor": "You'll receive orders for {{value}}",
@@ -504,10 +504,6 @@
     "youreOnline": "You're Online!",
     "youreOnlineAndReceivingOrders": "You're online and receiving orders",
     "youreVisibleToCustomers": "You're visible to customers",
-    "declineReasonFareTooLow": "Fare is too low",
-    "declineReasonDistanceTooLong": "Distance is too long",
-    "declineReasonPickupTooFar": "Pickup is too far",
-    "declineReasonNotInterested": "Not interested right now",
     "backToOnboarding": "Back to Onboarding",
     "deliveryActiveTask": "Delivery Active Task",
     "failedToLoadZoneMap": "Failed to load zone map",
@@ -533,13 +529,16 @@
     "scheduledRideStartsIn15Minutes": "Your scheduled ride for {{value}} starts in 15 minutes! Please prepare to travel.",
     "startTravel": "Start Travel",
     "upcomingReservedRide": "Upcoming Reserved Ride!",
-    "flavourDriverActive": "Flavour Driver Active",
+    "backgroundLocationDisclosureTitle": "Allow location while you are online",
+    "backgroundLocationDisclosureBody": "Adios Driver collects your location to send you nearby ride and delivery requests, and to show your live position to the customer and support during a job — including when the app is closed or not in use.\n\nLocation is collected only while you are online and stops as soon as you go offline. It is not used for advertising.\n\nOn the next screen, choose \"Allow all the time\".",
+    "backgroundLocationDisclosureAccept": "Continue",
+    "backgroundLocationDisclosureDecline": "Not now",
+    "flavourDriverActive": "Adios Driver Active",
     "trackingLocationForOrderDispatches": "Tracking location for order dispatches in background...",
     "noHighDemandAreas": "No high-demand areas right now",
     "backgroundLocationOffNowOffline": "Background location isn't enabled, so you're offline while the app is minimised.",
     "noPhoneNumber": "No phone number",
     "customerPhoneNotAvailable": "The customer's phone number isn't available for this order.",
-    "restaurantPhoneNotAvailable": "The restaurant's phone number isn't available for this order.",
     "chatEmptyState": "Messages with {{value}} will show up here.",
     "theCustomer": "the customer",
     "offerGoneTitle": "Order not available",
@@ -553,6 +552,8 @@
     "firstToAcceptGetsIt": "Sent to nearby drivers — the first to accept gets it",
     "restaurantNotReadyYet": "Waiting for the restaurant to mark this order ready. You can enter the pickup code once they do.",
     "completeDelivery": "Complete Delivery",
+    "updateNotSent": "Update not sent",
+    "restaurantPhoneNotAvailable": "The restaurant's phone number isn't available for this order.",
     "oneHour": "1 hr",
     "hoursShortN": "{{value}} hrs",
     "helperTaskBookedFor": "Helper task · {{value}} booked",
@@ -585,6 +586,8 @@
     "packageDeliveryOtpPlaceholder": "4-digit OTP",
     "packageDeliveryInvalidOtp": "Wrong OTP. Ask the receiver for the 4-digit code the sender shared with them.",
     "packageDeliveryComplete": "Complete package delivery",
+    "packageDeliveryActiveTask": "Package Delivery Task",
+    "packageDeliveryCompleted": "Package Delivered!",
     "youEarn": "You earn",
     "activeOrderCancelledByRestaurant": "The active order has been cancelled by the restaurant.",
     "activeOrderCancelledByTeam": "The active order has been cancelled by the Adios team.",
@@ -600,7 +603,6 @@
     "waitingForMeatShop": "Waiting for Meat Shop...",
     "meatShopPickupCode": "MEAT SHOP PICKUP CODE",
     "invalidCodeAskMeatShopForPickupCode": "Invalid code. Please ask the meat shop for the correct pickup code.",
-    "packageDeliveryActiveTask": "Package Delivery Active Task",
     "youreOnlineAndReceivingRides": "You're online and receiving rides",
     "youreOnlineAndReceivingRidesAndOrders": "You're online and receiving rides and orders",
     "licenseExpiredTitle": "Driving licence expired",
@@ -731,6 +733,31 @@
     "bankAccountSavedTeamWillVerify": "Bank account saved. Our team will verify it before your first payout."
   },
   "profile": {
+    "privacyPolicy": "Privacy policy",
+    "deleteAccount": {
+      "title": "Delete account",
+      "whatHappens": "What happens when you delete your account",
+      "points": {
+        "removed": "Your name, phone number, email and profile photo are removed.",
+        "kyc": "Your Aadhaar, PAN, driving licence, bank details and document photos are deleted.",
+        "records": "Your past trips, earnings and payouts are kept without your details, because we must keep them for tax and accounting.",
+        "signedOut": "You are signed out on every device and stop receiving jobs.",
+        "final": "This can't be undone. To drive again you'll need to sign up and verify again."
+      },
+      "passwordLabel": "Current password",
+      "passwordPlaceholder": "Enter your password to confirm",
+      "passwordRequired": "Enter your password to confirm.",
+      "passwordIncorrect": "That password is incorrect.",
+      "activeOrder": "You have a job in progress. You can delete your account once it is completed or cancelled.",
+      "payoutPending": "A payout to your bank account is still being processed. Try again once it has completed.",
+      "failed": "Couldn't delete your account. Please try again.",
+      "deleteButton": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "Your details and documents are removed and you are signed out everywhere. This can't be undone.",
+      "confirmButton": "Delete",
+      "doneTitle": "Account deleted",
+      "doneBody": "Your account has been deleted."
+    },
     "personalInfo": "Personal Info",
     "name": "Name",
     "username": "Username",
@@ -907,7 +934,7 @@
     "assuranceLast4": "We store only the last 4 digits of your Aadhaar — never the full number.",
     "assuranceOwnScreen": "You sign in on DigiLocker's own screen. We never see your DigiLocker password.",
     "assuranceRemoveAnytime": "You can remove this access at any time from your profile.",
-    "consentNote": "By continuing, you allow Flavour Driver to read the documents listed above from your DigiLocker account for driver verification.",
+    "consentNote": "By continuing, you allow Adios Driver to read the documents listed above from your DigiLocker account for driver verification.",
     "identityVerified": "Identity verified",
     "verifiedForName": "Verified against government records for {{name}}.",
     "verifiedGeneric": "Your details were confirmed against government records.",
@@ -970,6 +997,26 @@
       "bank": "Bank account",
       "selfie": "Selfie"
     }
+  },
+  "offline": {
+    "driverMessage": "You're offline. New jobs won't reach you until you reconnect.",
+    "retry": "Retry",
+    "checking": "Checking…"
+  },
+  "a11y": {
+    "back": "Go back",
+    "close": "Close",
+    "sos": "Send SOS alert",
+    "call": "Call",
+    "callCustomer": "Call customer",
+    "chat": "Open chat",
+    "navigate": "Open directions",
+    "contact": "Contact",
+    "rateStars_one": "Rate {{count}} star",
+    "rateStars_other": "Rate {{count}} stars",
+    "takeSelfie": "Take selfie",
+    "editAddress": "Edit address",
+    "deleteAddress": "Delete address"
   },
   "orders": {
     "ongoing": "Ongoing",

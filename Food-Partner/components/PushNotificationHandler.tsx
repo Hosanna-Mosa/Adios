@@ -7,12 +7,12 @@ import { useAuthStore } from "@/contexts/authStore";
 import { useLanguageStore } from "@/contexts/languageStore";
 import { usePushStore } from "@/contexts/pushStore";
 import { registerPushToken } from "@/services/outlet.service";
-import { parsePushPayload, pushTarget } from "@/utils/pushPayload";
+import { parsePushPayload, pushTargetFromData } from "@/utils/pushPayload";
 import { configureNotificationChannels, getPushTokenAsync, installForegroundHandler } from "@/utils/pushNotifications";
 import { alertNewOrder, alertScheduledRequest } from "./liveAlerts";
 
 // Order alerts for when the partner isn't looking at the app. Mounted once at
-// the root next to GlobalSocketHandler: it registers this device for the
+// the root next to LiveOrderWatcher: it registers this device for the
 // signed-in outlet's pushes, turns a push received while the app is open into
 // the in-app alert, and opens the order (or scheduled requests) a tapped push
 // is about.
@@ -84,7 +84,7 @@ export function PushNotificationHandler() {
     const id = lastResponse.notification.request.identifier;
     if (handledResponse.current === id) return;
     handledResponse.current = id;
-    const target = pushTarget(parsePushPayload(lastResponse.notification.request.content.data));
+    const target = pushTargetFromData(lastResponse.notification.request.content.data);
     if (target) router.push(target);
   }, [lastResponse, token, inApp]);
 

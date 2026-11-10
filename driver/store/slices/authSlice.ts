@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import i18n from "@/i18n";
 import { API_URL as apiUrl } from "@/utils/apiUrl";
@@ -6,6 +5,7 @@ import { trackEvent } from "@/utils/analytics";
 import { AUTH_REFRESH_HEADER } from "@/utils/api/sessionRefresh";
 import { useLanguageStore } from "@/store/languageStore";
 import type { DriverState, GetDriverState, SetDriverState } from "../types";
+import { secureStateStorage } from "../secureStorage";
 
 type Actions = Pick<
   DriverState,
@@ -91,8 +91,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
         const serverOnline = String(result.driver?.status || "").toUpperCase() === "ONLINE";
         const { isOnline, activeServices } = get();
         if (serverOnline && !isOnline) {
-          // goOnline, not a bare flag: it also re-establishes the socket the
-          // driver needs to actually receive dispatches.
+          // goOnline, not a bare flag: it also re-sends the driver's
+          // active services, which dispatch needs.
           await get().goOnline(activeServices.length ? activeServices : ["food", "ride"]);
         } else if (!serverOnline && isOnline) {
           set({ isOnline: false });
@@ -120,7 +120,8 @@ export const createAuthSlice = (set: SetDriverState, get: GetDriverState): Actio
       }).catch(() => {});
     }
 
-    AsyncStorage.removeItem("driver-store"); // Clear persistence on logout
+    // Clear persistence on logout — the AsyncStorage JSON and the Keystore token.
+    secureStateStorage.removeItem("driver-store");
     // Keep the persisted language choice; only the in-memory "gate passed"
     // flag resets, so Select Language reappears (pre-selected) before the
     // next login instead of being skipped.

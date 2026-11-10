@@ -1,6 +1,7 @@
 import React from "react";
 import { modalSlideUp } from "@/motion/presets";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated from "react-native-reanimated";
@@ -89,6 +90,12 @@ export function TripChooserSheet({
               )}
             </View>
           </View>
+          {selectedTier === "auto" && (
+            <View style={styles.capacityNote} accessibilityRole="text">
+              <Ionicons name="people-outline" size={16} color={accent.accent} />
+              <Text style={styles.capacityNoteText}>{t("app.rideConfirmation.autoCapacityNote")}</Text>
+            </View>
+          )}
         </View>
 
         <TouchableOpacity style={styles.scheduleRow} onPress={() => setShowDatePicker(true)} activeOpacity={0.85}>

@@ -32,7 +32,8 @@ export const createChipBadgeStyles = (tokens: ThemeTokens, accent: ServiceTokens
     borderBottomWidth: 1, borderBottomColor: tokens.border, paddingBottom: 10,
   },
   stickyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16 },
-  stickyAddress: { flex: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text, marginRight: 8 },
+  stickyAddressBtn: { flex: 1, flexDirection: "row", alignItems: "center", gap: 4, marginRight: 8 },
+  stickyAddress: { flexShrink: 1, fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium, color: tokens.text },
   stickyActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   stickyTogglePill: { flexDirection: "row", gap: 3, backgroundColor: accent.skin, borderRadius: 999, padding: 3 },
   stickyToggleCell: { width: moderateScale(28), height: moderateScale(28), borderRadius: 999, alignItems: "center", justifyContent: "center" },
@@ -89,8 +90,22 @@ export const createChipBadgeStyles = (tokens: ThemeTokens, accent: ServiceTokens
   searchSheetHeaderRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, gap: 16 },
   searchSheetHeaderText: { fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.sec },
   searchSheetInputRow: { paddingHorizontal: 16, paddingBottom: 16 },
-  searchSheetInputWrap: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: tokens.surface, borderWidth: 1, borderColor: accent.accent, borderRadius: moderateScale(14), paddingHorizontal: 14, paddingVertical: Platform.OS === "ios" ? 13 : 9 },
-  searchSheetInput: { flex: 1, fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text },
+  // Matches the Home search bar (searchBar); the border and icon take the accent while focused.
+  searchSheetInputWrap: {
+    flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: tokens.surface, borderWidth: 1, borderColor: tokens.border,
+    borderRadius: moderateScale(16), height: moderateScale(52), paddingLeft: 8, paddingRight: 12,
+  },
+  searchSheetInputWrapFocused: { borderColor: accent.accent, borderWidth: 1.5 },
+  searchSheetIconCircle: {
+    width: moderateScale(36), height: moderateScale(36), borderRadius: moderateScale(12),
+    backgroundColor: tokens.sunken, alignItems: "center", justifyContent: "center",
+  },
+  searchSheetIconCircleFocused: { backgroundColor: accent.skin },
+  // Android pads TextInput by default, which pushed the text off-centre in a fixed-height row.
+  searchSheetInput: {
+    flex: 1, height: "100%", paddingVertical: 0, includeFontPadding: false,
+    fontFamily: fontFamilies.body.medium, fontSize: typography.sizes.medium, color: tokens.text,
+  },
   searchSectionHeadRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   searchSectionTitle: { fontFamily: fontFamilies.body.bold, fontSize: typography.sizes.small, letterSpacing: 1, color: tokens.muted },
   searchClearLink: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.small, color: accent.accent },

@@ -16,6 +16,7 @@ interface Props {
   togglingId?: string;
   toggleAvailability: (item: MeatItem, isAvailable: boolean) => void;
   startEditing: (item: MeatItem) => void;
+  editItem: (item: MeatItem) => void;
   refreshing: boolean;
   refresh: () => void;
   bottomInset: number;
@@ -40,6 +41,7 @@ export function MeatList(p: Props) {
           toggling={p.togglingId === item._id}
           onToggle={(value) => p.toggleAvailability(item, value)}
           onEditPrice={() => p.startEditing(item)}
+          onEdit={() => p.editItem(item)}
           styles={p.styles}
           tokens={p.tokens}
         />

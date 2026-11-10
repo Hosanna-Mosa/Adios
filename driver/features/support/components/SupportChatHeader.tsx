@@ -8,16 +8,21 @@ import type { SupportTicket } from "../types";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
 import { AppText } from "@/components/ui/AppText";
+import { RefreshButton } from "@/components/shared/RefreshButton";
 
 /** Chat header showing the agent avatar and the ticket's id and status. */
 export function SupportChatHeader({
   ticket,
   paddingTop,
   onBack,
+  onRefresh,
+  refreshing = false,
 }: {
   ticket: SupportTicket | null;
   paddingTop: number;
   onBack: () => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
   const { t } = useTranslation();
   const STATUS_LABEL: Record<SupportTicket["status"], string> = {
@@ -27,7 +32,7 @@ export function SupportChatHeader({
   };
   return (
     <Box style={[styles.header, { paddingTop, borderBottomColor: Colors.border }]}>
-      <Touchable style={styles.backBtn} onPress={onBack}>
+      <Touchable accessibilityLabel={t("a11y.back")} hitSlop={8} style={styles.backBtn} onPress={onBack}>
         <Feather name="arrow-left" size={22} color={Colors.text} />
       </Touchable>
       <Box style={styles.headerCenter}>
@@ -42,6 +47,7 @@ export function SupportChatHeader({
           </Box>
         )}
       </Box>
+      {onRefresh && <RefreshButton onPress={onRefresh} refreshing={refreshing} />}
     </Box>
   );
 }

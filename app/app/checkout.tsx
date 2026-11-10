@@ -7,6 +7,7 @@ import { ScheduleDateTimeSheet } from "@/components/ScheduleDateTimeSheet";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { useFoodCheckout } from "@/features/food/useFoodCheckout";
 import { useState } from "react";
+import { useKeyboardVisible } from "@/components/useKeyboardVisible";
 
 export default function FoodCheckoutScreen() {
   const {
@@ -21,6 +22,8 @@ export default function FoodCheckoutScreen() {
   // The footer's height depends on the payment options shown; measured so the
   // last section (bill total) is never hidden behind it.
   const [footerHeight, setFooterHeight] = useState(0);
+  // The fixed footer would otherwise sit over the promo / tip input being typed in.
+  const keyboardOpen = useKeyboardVisible();
 
   return (
     <ScreenShell>
@@ -70,18 +73,20 @@ export default function FoodCheckoutScreen() {
         total={total}
       />
 
-      <CheckoutFooter
-        onHeightChange={setFooterHeight}
-        accent={accent}
-        addressIssue={addressIssue}
-        insets={insets}
-        isPlacingOrder={isPlacingOrder}
-        placeOrder={placeOrder}
-        scheduledFor={scheduledFor}
-        styles={styles}
-        tokens={tokens}
-        total={total}
-      />
+      {!keyboardOpen && (
+        <CheckoutFooter
+          onHeightChange={setFooterHeight}
+          accent={accent}
+          addressIssue={addressIssue}
+          insets={insets}
+          isPlacingOrder={isPlacingOrder}
+          placeOrder={placeOrder}
+          scheduledFor={scheduledFor}
+          styles={styles}
+          tokens={tokens}
+          total={total}
+        />
+      )}
 
       <ScheduleDateTimeSheet
         visible={showScheduleSheet}

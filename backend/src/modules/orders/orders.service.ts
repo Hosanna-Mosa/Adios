@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Order, { OrderStatus, ServiceType, StopType } from "../../database/models/Order";
-import User from "../../database/models/User";
+import User, { UserRole } from "../../database/models/User";
 import Driver from "../../database/models/Driver";
 import Vendor from "../../database/models/Vendor";
 import MeatCenter from "../../database/models/MeatCenter";
@@ -12,7 +12,7 @@ import { SocketManager } from "../../sockets/socket.manager";
 import { QueueManager } from "../../services/queue.service";
 import { ZonesService } from "../zones/zones.service";
 import Zone from "../../database/models/Zone";
-import { ConflictError, NotFoundError, ValidationError } from "../../utils/errors";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../../utils/errors";
 import { NotificationService } from "../../services/notification.service";
 import { CouponsService } from "../coupons/coupons.service";
 import { CartService } from "../cart/cart.service";
@@ -29,6 +29,8 @@ import { getOutletOrderingState } from "../../utils/outletOrderingState";
 import { clampHelperHours, haversineKm, helperStopsDistanceKm } from "../pricing/helper.pricing";
 import { assertHelperTransition, helperPushText, isHelperDone, isHelperOrder, isHelperStart, withoutCustomerCodes } from "./helper.flow";
 import { DriverStatus } from "../../database/models/Driver";
+import { PUBLIC_VENDOR_SELECT } from "../vendors/vendor.public";
+import { maskPhone } from "../../utils/logMask";
 
 const VENDOR_ROLES = ["restaurant_vendor", "meat_vendor"];
 
@@ -481,7 +483,7 @@ export class OrdersService {
       console.log("\n============================================================");
       console.log("🛒 [NEW ORDER BOOKED]");
       console.log(`Order ID: ${savedOrder._id}`);
-      console.log(`👤 Customer: ${user.name || "N/A"} (${user.phone || "N/A"})`);
+      console.log(`👤 Customer: ${user._id} (${maskPhone(user.phone)})`);
       console.log(`📍 Booked Pickup Zone: "${pickupZoneName}"`);
       console.log(`Service Type: ${effectiveType}`);
 
@@ -591,10 +593,9 @@ export class OrdersService {
 
       console.log(`\n📢 [NOTIFIED DRIVERS]: ${driversToNotify.length} drivers selected`);
       driversToNotify.forEach((d: any) => {
-        const uName = (d.user as any)?.name || "Unknown";
-        const uPhone = (d.user as any)?.phone || "No Phone";
+        const uPhone = maskPhone((d.user as any)?.phone);
         const dZoneName = d.preferredZone ? (zoneNameMap.get(d.preferredZone.toString()) || "Unknown Zone") : "No Zone";
-        console.log(`   🚗 Driver: ${uName} (${uPhone}) | Driver ID: ${d._id} | Assigned Zone: "${dZoneName}"`);
+        console.log(`   🚗 Driver: ${uPhone} | Driver ID: ${d._id} | Assigned Zone: "${dZoneName}"`);
       });
       console.log("============================================================\n");
 
@@ -801,7 +802,7 @@ export class OrdersService {
     // Not awaited: the restaurant is waiting for its button, not for a rider.
     foodDispatch.startDispatch(accepted._id.toString(), "accepted");
 
-    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -823,7 +824,7 @@ export class OrdersService {
     if (["searching", "unassigned"].includes(order.dispatch?.state)) {
       foodDispatch.startDispatch(order._id.toString(), "food is ready");
     }
-    return Order.findOne(this.getOrderQuery(order._id.toString())).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(order._id.toString())).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -1231,7 +1232,7 @@ export class OrdersService {
       })
       .catch((err) => console.error("[orders.service] Failed to send cash-collected notification:", err));
 
-    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -1306,9 +1307,27 @@ export class OrdersService {
     dropLng: number,
     serviceType: ServiceType,
   ) {
-    // Calculate approximate distance using Haversine
-    const distanceInKm = this.haversineDistance(pickupLat, pickupLng, dropLat, dropLng);
-    const estimatedMinutes = Math.round(distanceInKm * 4); // assume avg speed 15 km/h
+    // Same road route createOrder prices the order on (priceOrder → optimizeAndGetRoute),
+    // so the fare quoted on the booking screen is the fare that gets charged. The
+    // straight-line distance it used before quoted ₹26 for a trip then booked at ₹25.
+    // Straight line (at ~15 km/h) is only the fallback when routing is unavailable.
+    let distanceInKm = this.haversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+    let estimatedMinutes = Math.round(distanceInKm * 4);
+    try {
+      const route = await this.routingService.optimizeAndGetRoute(
+        { latitude: pickupLat, longitude: pickupLng },
+        [
+          { id: "pickup", address: "Pickup", latitude: pickupLat, longitude: pickupLng, type: "pickup", items: [] },
+          { id: "drop", address: "Drop", latitude: dropLat, longitude: dropLng, type: "drop", items: [] },
+        ]
+      );
+      if (route) {
+        distanceInKm = route.totalDistance;
+        estimatedMinutes = route.estimatedTime;
+      }
+    } catch (error) {
+      console.warn("[estimateFare] routing failed, using straight-line distance:", (error as Error).message);
+    }
 
     let surgeMultiplier = 1.0;
     const activeZonesCount = await Zone.countDocuments({ isActive: true });
@@ -1366,7 +1385,7 @@ export class OrdersService {
         path: "driver",
         populate: { path: "user" }
       })
-      .populate("vendor");
+      .populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Dynamically adjust totalCandidatesCount based on active online status of the candidates
     if (order && order.status === OrderStatus.SEARCHING_DRIVER) {
@@ -1405,7 +1424,142 @@ export class OrdersService {
     const isParty = order.user?.toString() === requestingUserId || driverUserId === requestingUserId;
     if (!isParty) throw new Error("Unauthorized to view this chat");
 
-    return ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 });
+    const messages = await ChatMessage.find({ orderId: order._id.toString() }).sort({ createdAt: 1 }).lean();
+    // `id` is what the live message carried (the sender's clientId), so a client polling
+    // this list can match it against the optimistic copy it already shows.
+    return messages.map((m: any) => ({ ...m, id: m.clientId || m._id.toString(), from: m.role }));
+  }
+
+  /**
+   * Post a chat message on an order: saved, relayed to the order's socket room and pushed
+   * to the other party. Used by POST /orders/:id/chat and the socket `send_message` event.
+   * Who may post, and the role stored with the message, come from the caller's verified
+   * relation to the order — never from what the client says it is.
+   */
+  async sendChatMessage(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string, clientId?: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    // Support may read an order but not speak in its chat (same as SocketManager.canActOnOrder).
+    if (relation === "staff" && actor?.role === "SUPPORT") {
+      throw new ForbiddenError("Support can view orders but not post in their chat.");
+    }
+
+    const body = String(text ?? "").trim();
+    if (!body) throw new ValidationError("Message text is required");
+    if (body.length > 2000) throw new ValidationError("Message is too long");
+
+    // Stored roles predate this method: the customer app sent "user", the driver app "driver".
+    const from = relation === "driver" ? "driver" : relation === "customer" ? "user" : relation === "vendor" ? "vendor" : "admin";
+    const canonicalOrderId = order._id.toString();
+
+    let driverUserId: string | undefined;
+    if (order.driver) {
+      const drv = await Driver.findById(order.driver).select("user").lean();
+      driverUserId = drv?.user?.toString();
+    }
+
+    // A vendor / admin token's subject is already an ObjectId; this only guards odd tokens.
+    let senderId = actor!.userId!;
+    if (!mongoose.Types.ObjectId.isValid(senderId)) {
+      senderId = (relation === "driver" ? driverUserId : order.user?.toString()) || "";
+    }
+    if (!mongoose.Types.ObjectId.isValid(senderId)) throw new ValidationError("Could not resolve the message sender");
+
+    const _id = new mongoose.Types.ObjectId();
+    const id = clientId || _id.toString();
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const saved = await ChatMessage.create({ _id, orderId: canonicalOrderId, clientId: id, senderId, role: from, text: body, time });
+
+    const payload = { id, text: body, from, time, senderId };
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "receive_message", payload, "OrdersService.sendChatMessage");
+
+    // Push the other party so an out-of-app message isn't missed (fire-and-forget).
+    const recipientUserId = from === "driver" ? order.user?.toString() : driverUserId;
+    if (recipientUserId && recipientUserId !== actor?.userId) {
+      NotificationService.getInstance()
+        .sendNotification({
+          userId: recipientUserId,
+          title: "New message 💬",
+          body: body.length > 120 ? `${body.slice(0, 117)}...` : body,
+          type: "transactional",
+          category: "chat",
+          data: { orderId: canonicalOrderId, deepLink: { screen: "/chat", params: { orderId: canonicalOrderId } } },
+        })
+        .catch((err: any) => console.error("[CHAT] Failed to send chat push notification:", err));
+    }
+
+    return { ...payload, createdAt: saved.createdAt };
+  }
+
+  /**
+   * The sequential offer this driver holds right now, else the food broadcast offer, else
+   * null. Polled by the driver app in place of the socket's `new_order`.
+   */
+  async getDriverOffer(driverUserId: string) {
+    const now = new Date();
+    const order: any = await Order.findOne({
+      "currentOffer.driverUserId": driverUserId,
+      "currentOffer.expiresAt": { $gt: now },
+      status: OrderStatus.SEARCHING_DRIVER,
+      driver: null,
+    })
+      .sort({ "currentOffer.offeredAt": -1 })
+      .select("currentOffer")
+      .lean();
+
+    if (order?.currentOffer) {
+      const expiresAt = new Date(order.currentOffer.expiresAt);
+      return {
+        ...(order.currentOffer.payload || {}),
+        expiresAt: expiresAt.toISOString(),
+        secondsLeft: Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / 1000)),
+      };
+    }
+
+    return foodDispatch.currentOfferFor(driverUserId);
+  }
+
+  /** Helper task: the customer confirms the task they assigned. Idempotent. */
+  async confirmHelperTask(orderId: string, actor: { userId?: string; role?: string } | undefined) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "customer") throw new ForbiddenError("Only the customer can confirm this task.");
+    if (order.helperTaskConfirmedAt) return { helperTaskConfirmedAt: order.helperTaskConfirmedAt };
+
+    const helperTaskConfirmedAt = new Date();
+    await Order.updateOne({ _id: order._id, helperTaskConfirmedAt: { $exists: false } }, { $set: { helperTaskConfirmedAt } });
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "assign_task_confirmed", { orderId: canonicalOrderId }, "OrdersService.confirmHelperTask");
+    return { helperTaskConfirmedAt };
+  }
+
+  /** Helper task: the assigned helper posts a short progress note for the customer. */
+  async updateHelperStatus(orderId: string, actor: { userId?: string; role?: string } | undefined, text: string) {
+    const { order, relation } = await this.getOrderForActor(orderId, actor);
+    if (relation !== "driver") throw new ForbiddenError("Only the assigned helper can post task updates.");
+
+    const helperStatusText = String(text ?? "").trim();
+    if (!helperStatusText) throw new ValidationError("Status text is required");
+    const helperStatusAt = new Date();
+    await Order.updateOne({ _id: order._id }, { $set: { helperStatusText, helperStatusAt } });
+
+    const canonicalOrderId = order._id.toString();
+    SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "helper_status_update", { orderId: canonicalOrderId, text: helperStatusText }, "OrdersService.updateHelperStatus");
+
+    NotificationService.getInstance()
+      .sendNotification({
+        userId: order.user.toString(),
+        title: "Task update",
+        body: helperStatusText,
+        type: "transactional",
+        category: "order_status",
+        data: {
+          kind: "helper_status",
+          orderId: canonicalOrderId,
+          deepLink: { screen: "/tracking", params: { orderId: canonicalOrderId } },
+        },
+      })
+      .catch((err: any) => console.error("[orders.service] Failed to push a helper status update:", err));
+
+    return { helperStatusText, helperStatusAt };
   }
 
   async increaseOrderPrice(orderId: string, amount: number, userId: string) {
@@ -1486,7 +1640,7 @@ export class OrdersService {
         },
       ],
       { new: true, updatePipeline: true },
-    ).populate("user").populate("vendor");
+    ).populate("user").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
     if (!order) return null;
 
     const newPrice = order.customerPrice || order.totalPrice;
@@ -1580,7 +1734,7 @@ export class OrdersService {
     if (order.dispatchMode === "broadcast" && isReadyStatus(status)) {
       if (!order.restaurantAcceptedAt) throw new ConflictError("Accept the order before marking it ready.");
       if (order.foodReadyAt) {
-        return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+        return Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
       }
       if (!order.driver) return this.markFoodReadyBeforeRider(order);
       order.foodReadyAt = new Date();
@@ -1624,6 +1778,11 @@ export class OrdersService {
 
     // An online-paid order that is now cancelled gets a real Razorpay refund (cash: skipped).
     if (status === OrderStatus.CANCELLED) {
+      // Stop any running driver search and withdraw the offer on screen now,
+      // rather than leaving it up until the offer timer runs out.
+      const { dispatchManager } = require("../../services/dispatch.manager");
+      dispatchManager.handleCustomerCancel(order._id.toString());
+
       await this.refundIfPaidOnline(order._id.toString(), "order_cancelled");
       if (order.dispatchMode === "broadcast") await foodDispatch.cancelDispatch(order._id.toString());
       else {
@@ -1689,7 +1848,7 @@ export class OrdersService {
       }
     }
 
-    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Send Push & In-app notifications based on status changes
     if (populated && populated.user) {
@@ -1809,7 +1968,8 @@ export class OrdersService {
   }
 
   async getUserOrders(userId: string) {
-    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 }).lean();
+    // lean() skips toJSON, so drop the driver-side offer here (see the Order transform).
+    const orders = await Order.find({ user: userId }).select("-currentOffer").sort({ createdAt: -1 }).lean();
     const outlets = await this.outletSummaries(orders.map((order: any) => order.vendor));
     return orders.map((order: any) => ({
       ...order,
@@ -2048,7 +2208,7 @@ export class OrdersService {
         $nin: [
           OrderStatus.CREATED, OrderStatus.SEARCHING_DRIVER, OrderStatus.CONFIRMED,
           OrderStatus.COMPLETED, OrderStatus.DELIVERED, OrderStatus.DELIVERED_LC, OrderStatus.CANCELLED,
-          "completed", "cancelled",
+          "completed" as OrderStatus, "cancelled" as OrderStatus,
         ],
       },
       updatedAt: { $gte: new Date(now.getTime() - 6 * 60 * 60 * 1000) },
@@ -2057,7 +2217,7 @@ export class OrdersService {
       .sort({ updatedAt: -1 })
       .populate("user")
       .populate("driver")
-      .populate("vendor");
+      .populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
   }
 
   /**
@@ -2264,7 +2424,7 @@ export class OrdersService {
       socketManager.logConnectionStatus("after_driver_accept_emit", order.user?.toString(), driverUserId, orderId.toString());
     }
 
-    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate("vendor");
+    const populated = await Order.findOne(this.getOrderQuery(orderId)).populate("user").populate("driver").populate({ path: "vendor", select: PUBLIC_VENDOR_SELECT });
 
     // Send Push & In-app Notification to customer
     if (populated && populated.user) {
@@ -2345,7 +2505,7 @@ export class OrdersService {
     emitTicketUpdate(supportTicket);
 
     // 2. Query all Admin users
-    const admins = await User.find({ role: "ADMIN" });
+    const admins = await User.find({ role: UserRole.ADMIN });
 
     // 3. Dispatch Push & In-app alerts to all admins
     const notificationService = NotificationService.getInstance();

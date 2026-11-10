@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -43,7 +44,7 @@ export function MeatCentersTopRow({
         <Text style={styles.addressEyebrow}>{t("app.home.deliveryTo")}</Text>
         <View style={styles.addressLabelRow}>
           <Text style={styles.addressLabel} numberOfLines={1}>
-            {selectedAddress?.label ? `${selectedAddress.label} · Nallagandla` : t("app.meat.selectLocation")}
+            {selectedAddress?.label || t("app.meat.selectLocation")}
           </Text>
           <Ionicons name="chevron-down" size={moderateScale(12)} color={tokens.sec} />
         </View>

@@ -12,7 +12,8 @@
     "loading": "Loading...",
     "error": "Error",
     "continue": "Continue",
-    "ok": "OK"
+    "ok": "OK",
+    "refresh": "Refresh"
   },
   "app": {
     "schedulePill": {
@@ -43,15 +44,16 @@
     },
     "allServices": {
       "rideTierDesc": {
-        "bike": "1 seat · fastest",
-        "auto": "3 seats · metered"
+        "bike": "1 person · fastest",
+        "auto": "Up to 3 people · metered"
       }
     },
     "rideConfirmation": {
       "capacity": {
-        "bike": "1 seat",
-        "auto": "3 seats"
-      }
+        "bike": "1 person",
+        "auto": "Up to 3 people"
+      },
+      "autoCapacityNote": "An auto can carry a maximum of 3 passengers."
     },
     "quickReplies": {
       "onMyWay": "On my way",
@@ -70,7 +72,7 @@
         "arrivedDelivery": "Arrived",
         "delivered": "Completed"
       },
-      "safetyBanner": "Keep the conversation in Flavour. Don't share your PIN with the {{partner}} before the {{context}} starts.",
+      "safetyBanner": "Keep the conversation in Adios. Don't share your PIN with the {{partner}} before the {{context}} starts.",
       "contextTask": "task",
       "contextRide": "ride",
       "contextOrder": "order",
@@ -99,6 +101,7 @@
         "bookedByMistake": "Booked by mistake",
         "fareTooHigh": "Fare is too high",
         "foundAnotherRide": "Found another ride",
+        "sendingAnotherWay": "Sending it another way",
         "priceTooHigh": "Price is too high",
         "changedMind": "Changed my mind",
         "other": "Other"
@@ -143,7 +146,7 @@
       "assignTask": "Assign task",
       "messagesWithVarWillShowUpHere": "Messages with your {{value}} will show up here.",
       "messageVar": "Message {{value}}…",
-      "flavourSupport": "Flavour Support",
+      "flavourSupport": "Adios Support",
       "case": "Case #",
       "yourCases": "Your cases",
       "loadingYourCases": "Loading your cases…",
@@ -315,8 +318,6 @@
       "vegOnly": "Veg only",
       "welcomeBack": "Welcome back",
       "foodMeatRidesHelpersAndCourier": "Food, meat, rides, helpers and courier runs. One app.",
-      "or": "or",
-      "continueWithOtpInstead": "Continue with OTP instead",
       "newHere": "New here?",
       "createAnAccount": "Create an account",
       "noLocationSelected": "No location selected",
@@ -338,7 +339,7 @@
       "freeDeliverySpecialOffers": "Free delivery / special offers",
       "goingSomewhere": "Going somewhere?",
       "pickARideToSeeLive": "Pick a ride to see live fares for your trip.",
-      "alsoOnFlavour": "Also on Flavour",
+      "alsoOnFlavour": "Also on Adios",
       "hireAHelper": "Hire a helper",
       "from80Hour": "From ₹80 / hour",
       "multistopCourierFrom39": "Multi-stop courier · from ₹39",
@@ -370,6 +371,78 @@
       "beta": "Beta",
       "offerEyebrow": "Offer",
       "viewOffer": "View offer",
+      "filterModal": {
+        "tabs": {
+          "sort": "Sort",
+          "store149": "149 Store",
+          "mins15": "15 mins",
+          "ratings": "Ratings",
+          "costForTwo": "Cost for two",
+          "vegNonVeg": "Veg/Non-Veg",
+          "cuisines": "Cuisines"
+        },
+        "sections": {
+          "sortBy": "SORT BY",
+          "store149Partners": "149 STORE PARTNERS",
+          "deliveryTime": "DELIVERY TIME",
+          "availability": "AVAILABILITY",
+          "offers": "OFFERS",
+          "ratings": "RATINGS",
+          "costForTwo": "COST FOR TWO",
+          "dietaryPreference": "DIETARY PREFERENCE",
+          "cuisines": "CUISINES"
+        },
+        "sort": {
+          "relevance": "Relevance (Default)",
+          "distance": "Distance: Nearest first",
+          "time": "Delivery Time",
+          "rating": "Rating",
+          "costLowHigh": "Cost: Low to High",
+          "costHighLow": "Cost: High to Low"
+        },
+        "showAll": "Show all",
+        "ratingsPlus": "Ratings {{value}}+",
+        "cost": {
+          "under300": "Less than ₹300",
+          "between300And600": "₹300 – ₹600",
+          "over600": "More than ₹600"
+        },
+        "diet": {
+          "pureVeg": "Pure veg",
+          "nonVeg": "Non-veg"
+        },
+        "resultCount_one": "{{count}} result",
+        "resultCount_other": "{{count}} results"
+      },
+      "foodPromos": {
+        "firstOrder": {
+          "eyebrow": "First order",
+          "headline": "50% off up to ₹120",
+          "caption": "Code FLAV50 · min ₹199"
+        },
+        "lateNight": {
+          "eyebrow": "Late night",
+          "headline": "Open till 2 AM",
+          "caption": "42 outlets near you"
+        }
+      },
+      "meatPromos": {
+        "sundaySpecial": {
+          "eyebrow": "Sunday special",
+          "headline": "Country chicken ₹399 / kg"
+        },
+        "cleanedAndCut": {
+          "eyebrow": "Cleaned & cut",
+          "headline": "No fee today"
+        }
+      },
+      "searchFoodHungry": "Hungry? Find dishes & restaurants near you",
+      "searchFoodTry": "Try “pizza”, “dosa”, “thali”",
+      "searchMeatFresh": "Fresh meat delivered to your door",
+      "searchMeatTry": "Try “chicken”, “fish”, “eggs”",
+      "searchEverything": "Food, meat, rides & more — all in Adios",
+      "packageShort": "Package",
+      "helperShort": "Helper",
       "kmUnit": "km",
       "suggest": {
         "chickenCurryCut": "Chicken curry cut",
@@ -378,7 +451,9 @@
         "biryani": "Biryani",
         "pizza": "Pizza",
         "meals149": "₹149 meals"
-      }
+      },
+      "continueWithOtpInstead": "Continue with OTP instead",
+      "or": "or"
     },
     "profile": {
       "menuItems": {
@@ -389,7 +464,8 @@
         "notifications": "Notifications",
         "security": "Security",
         "language": "Language",
-        "helpSupport": "Help & support"
+        "helpSupport": "Help & support",
+        "termsPrivacy": "Terms & Privacy Policy"
       },
       "signOutOfAllDevices": "Sign out of all devices?",
       "everyPhoneSignedInToThis": "Every phone signed in to this account gets signed out, including this one.",
@@ -482,8 +558,6 @@
       "lastOrderDaysAgo_other": "Nothing here yet. Your last order was {{vendor}}, {{count}} days ago.",
       "nothingHereYetFindSomethingTo": "Nothing here yet — find something to add from a restaurant or meat center.",
       "browseRestaurants": "Browse restaurants",
-      "orderFrom": "Order from",
-      "again": "again",
       "orderAgain": "Order again",
       "itemWasUpdatedCount_one": "{{count}} item was updated",
       "itemWasUpdatedCount_other": "{{count}} items were updated",
@@ -500,7 +574,7 @@
       "placeOrder": "Place order",
       "noDishesMatch": "No dishes match",
       "menuNotAvailableYet": "Menu not available yet",
-      "soldOut": "Sold out",
+      "soldOut": "SOLD OUT",
       "cravingAnyDish": "Craving? Any dish",
       "everything": "Everything",
       "at149": "at ₹149",
@@ -522,7 +596,6 @@
       "clearSearch": "Clear search",
       "share": "Share",
       "deliveryAmount": "₹{{amount}} delivery",
-      "soldOut": "SOLD OUT",
       "fromVendor": "from {{vendor}}",
       "minOrderFromPerKg": "from ₹{{amount}} / kg",
       "costForTwo": "₹{{amount}} for two",
@@ -564,7 +637,7 @@
       "searchInVar": "Search in {{value}}",
       "paying": "Paying",
       "upiCardsWalletsAndNetBanking": "UPI, cards, wallets and net banking — choose on the next step",
-      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Flavour never sees or stores your card, UPI PIN or bank credentials.",
+      "encryptedAndSecureTransactionFlavourNever": "Encrypted and secure transaction. Adios never sees or stores your card, UPI PIN or bank credentials.",
       "address": "Address",
       "navigateInGoogleMaps": "Navigate in Google Maps",
       "offers": "Offers",
@@ -702,7 +775,6 @@
       "passwordMustBeAtLeast8": "Password must be at least 8 characters long.",
       "termsPrivacyPolicy": "Terms & Privacy Policy",
       "pleaseAgreeToTheTermsAnd": "Please agree to the Terms and Privacy Policy to continue.",
-      "couldntSendCode": "Couldn't send code",
       "somethingWentWrongTryAgain": "Something went wrong. Please try again.",
       "fullName": "Full name",
       "yourName": "Your name",
@@ -723,28 +795,31 @@
       "rahulvermagmailcom": "rahul.verma@gmail.com",
       "password": "Password",
       "min8Characters": "Min. 8 characters",
-      "verificationFailed": "Verification failed",
-      "thatCodeDidntWork": "That code didn't work. Please try again.",
-      "couldntResend": "Couldn't resend",
-      "pleaseTryAgainInAMoment": "Please try again in a moment.",
-      "callRequested": "Call requested",
-      "wellRingYouWithYourCode": "We'll ring you with your code shortly.",
-      "didnapostGetIt": "Didn't get it?",
-      "getACallInstead": "Get a call instead",
-      "verifyYourNumber": "Verify your number",
-      "weSentA6digitCodeTo": "We sent a 6-digit code to",
-      "change": "Change",
-      "resend": "Resend",
       "verified": "Verified",
       "createYourAccount": "Create your account",
       "takesAboutAMinuteWeaposllVerify": "Takes about a minute. We'll verify your phone with an OTP.",
+      "couldntCreateAccount": "Couldn't create account",
+      "and": "and",
       "strength": {
         "weak": "Weak",
         "fair": "Fair",
         "good": "Good"
       },
       "agreeToTermsAndPrivacy": "I agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
-      "resendCodeIn": "Resend code in {{time}}"
+      "resendCodeIn": "Resend code in {{time}}",
+      "callRequested": "Call requested",
+      "change": "Change",
+      "couldntResend": "Couldn't resend",
+      "couldntSendCode": "Couldn't send code",
+      "didnapostGetIt": "Didn't get it?",
+      "getACallInstead": "Get a call instead",
+      "pleaseTryAgainInAMoment": "Please try again in a moment.",
+      "resend": "Resend",
+      "thatCodeDidntWork": "That code didn't work. Please try again.",
+      "verificationFailed": "Verification failed",
+      "verifyYourNumber": "Verify your number",
+      "weSentA6digitCodeTo": "We sent a 6-digit code to",
+      "wellRingYouWithYourCode": "We'll ring you with your code shortly."
     },
     "delivery": {
       "streetAddress": "Street address",
@@ -857,7 +932,7 @@
       "contactedHelpersHavePassedSoFar": "contacted helpers have passed so far — consider raising your offer.",
       "attractHelpersFaster": "Attract helpers faster",
       "noSavedPlaces": "No saved places",
-      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Flavour gets one tap shorter.",
+      "saveTheAddressesYouUseOften": "Save the addresses you use often — home, work, your parents' place — and every flow in Adios gets one tap shorter.",
       "addYourFirstAddress": "Add your first address",
       "whatDoYouNeed": "What do you need?",
       "suggestedOffer": "Suggested offer",
@@ -1115,7 +1190,7 @@
       "giveThisToYourHelperOnceWorkIsFinished": "Give this to your helper only once the work is finished.",
       "restaurantDidNotAcceptInTime": "The restaurant didn't accept your order in time, so it has been cancelled. Any online payment will be refunded.",
       "restaurantCouldNotTakeOrder": "The restaurant couldn't take your order, so it has been cancelled. Any online payment will be refunded.",
-      "waitingForRestaurantTitle": "Waiting for the restaurant",
+      "waitingForRestaurantTitle": "Waiting for restaurant to confirm your order",
       "waitingForRestaurantSubtitle": "The restaurant will accept your order shortly. We'll find a rider as soon as it does.",
       "restaurantPreparingTitle": "Restaurant is preparing your food",
       "restaurantPreparingSubtitle": "Finding a rider to pick it up. Usually under a minute.",
@@ -1126,6 +1201,7 @@
       "cancelledByAdios": "Order cancelled by Adios",
       "adiosCancelledOrder": "The Adios team cancelled this order. Any online payment will be refunded. Contact support if you have questions.",
       "youCancelledThisOrder": "You cancelled this order.",
+      "noRidersAvailableNow": "Sorry, no riders are available right now. Please try again in a few minutes.",
       "noHelperAvailable": "No helper was available",
       "noHelperWasAvailableCancelled": "No helper was available for your task, so we've cancelled it.",
       "etaMinutes": "{{min}} min"
@@ -1134,8 +1210,8 @@
       "couldntOpenTheStore": "Couldn't open the store",
       "updateRequired": "Update required",
       "newVersionAvailable": "New version available",
-      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Flavour.",
-      "updateFlavourToGetTheLatest": "Update Flavour to get the latest features and improvements.",
+      "thisUpdateChangesHowYourAccount": "This update changes how your account stays secure. You'll need it to keep using Adios.",
+      "updateFlavourToGetTheLatest": "Update Adios to get the latest features and improvements.",
       "updateNow": "Update now",
       "noDismissRequiredRelease": "No dismiss — required release",
       "maybeLater": "Maybe later"
@@ -1185,9 +1261,6 @@
       "hoursAgo": "{{count}}h ago",
       "today": "Today"
     },
-    "otp": {
-      "verifyContinue": "Verify & continue"
-    },
     "payment": {
       "pricesChangedTitle": "Your cart has changed",
       "pricesChanged": "Some prices or items changed since you opened your cart. Please go back to your cart to review, then pay again. You haven't been charged.",
@@ -1208,10 +1281,46 @@
       "online": "Online",
       "onlineHint": "UPI, cards, netbanking",
       "paySecurely": "Pay securely",
+      "proceedToPay": "Proceed to pay",
+      "paymentOptions": "Payment options",
+      "toPayAmount": "To pay ₹{{amount}}",
+      "scheduledFor": "Scheduled for {{slot}}",
+      "payOnDelivery": "Pay on delivery",
+      "payOnDeliveryHint": "Pay the rider in cash when your order arrives",
+      "payOnline": "Pay online",
+      "payOnlineHint": "UPI, cards, netbanking & wallets",
+      "payWithCash": "Pay ₹{{amount}} with cash",
+      "payAmountOnline": "Pay ₹{{amount}} online",
+      "securedByRazorpay": "Online payments are processed securely by Razorpay. If your order is cancelled, the money goes back to the account you paid from.",
       "topupRefundedTitle": "Payment refunded",
       "topupRefunded": "Your task was already taken, so this payment is being refunded."
     },
+    "deleteAccount": {
+      "title": "Delete account",
+      "whatHappens": "What happens when you delete your account",
+      "points": {
+        "removed": "Your name, phone number, email, saved addresses, favourites and profile photo are removed.",
+        "orders": "Your past orders and invoices are kept without your details, because we must keep them for tax and accounting.",
+        "signedOut": "You are signed out on every device.",
+        "final": "This can't be undone. You can sign up again later with the same phone number."
+      },
+      "passwordLabel": "Current password",
+      "passwordPlaceholder": "Enter your password to confirm",
+      "passwordRequired": "Enter your password to confirm.",
+      "passwordIncorrect": "That password is incorrect.",
+      "activeOrder": "You have an order in progress. You can delete your account once it is completed or cancelled.",
+      "deleteButton": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "Your details are removed and you are signed out everywhere. This can't be undone.",
+      "confirmButton": "Delete",
+      "doneTitle": "Account deleted",
+      "doneBody": "Your account has been deleted."
+    },
     "personaldetails": {
+      "currentPassword": "Current password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "currentPasswordHint": "Needed to move your account to a new email.",
+      "currentPasswordRequired": "Enter your current password to change your email.",
       "couldntSave": "Couldn't save",
       "fullNameRequired": "Full name is required.",
       "useAtLeast3Characters": "Use at least 3 characters.",
@@ -1227,11 +1336,6 @@
     },
     "mapPickingIsnapostAvailableOnWeb": "Map picking isn't available on web — use the mobile app.",
     "mapViewIsnapostAvailableOnWeb": "Map view isn't available on web — use the mobile app.",
-    "GlobalSocketHandler": {
-      "upcomingReservedRide": "Upcoming Reserved Ride!",
-      "yourReservedRideWithVarStarts": "Your reserved ride with {{value}} starts in 15 minutes!",
-      "trackDriver": "Track Driver"
-    },
     "network": {
       "requestTimedOut": "The request timed out. Check your connection and try again."
     },
@@ -1288,7 +1392,8 @@
         "inProgress": "In progress",
         "arrived": "Arrived",
         "waitingForRestaurant": "Waiting for restaurant"
-      }
+      },
+      "deliveryInProgress": "Delivery in progress"
     },
     "shareLink": {
       "cantShareRightNow": "Can't share right now",
@@ -1296,8 +1401,8 @@
       "couldntShare": "Couldn't share",
       "shareSheetDidntOpen": "The share sheet didn't open. Please try again.",
       "thisDish": "this dish",
-      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Flavour! {{url}}",
-      "checkOutVendor": "Check out {{name}} on Flavour! {{url}}"
+      "checkOutItemAtVendor": "Check out {{item}} at {{name}} on Adios! {{url}}",
+      "checkOutVendor": "Check out {{name}} on Adios! {{url}}"
     },
     "offers": {
       "title": "Offers for you",
@@ -1399,7 +1504,25 @@
       "deliveryOtpLabel": "Package delivery OTP",
       "deliveryOtpHint": "Share this with the receiver. The captain needs it to complete the delivery — the receiver should give it only after getting the package.",
       "shareOtp": "Share OTP with receiver",
-      "shareOtpMessage": "Your package delivery OTP is {{otp}}. Give it to the captain only after you receive the package."
+      "shareOtpMessage": "Your package delivery OTP is {{otp}}. Give it to the captain only after you receive the package.",
+      "cancelDelivery": "Cancel delivery",
+      "noFeeNoPartnerYet": "No cancellation fee — we haven't assigned a delivery partner yet.",
+      "steps": {
+        "partnerAssigned": "Delivery partner assigned",
+        "inProgress": "Delivery in progress",
+        "delivered": "Package delivered"
+      },
+      "banner": {
+        "partnerOnTheWay": "Delivery partner on the way",
+        "partnerArrived": "Delivery partner has arrived",
+        "inProgress": "Delivery in progress",
+        "arrivedAtDrop": "Arrived at drop location"
+      },
+      "done": {
+        "headline": "Package delivered",
+        "deliveredBy": "Delivered by {{name}}.",
+        "delivered": "Your package was delivered."
+      }
     },
     "supportBot": {
       "allQuestions": "All questions",
@@ -1428,8 +1551,16 @@
         "general": "General"
       }
     },
+    "cartStripe": {
+      "yourCart": "Your cart",
+      "viewCart": "View cart",
+      "a11yLabel": "{{vendor}}, {{total}}, {{items}}. View cart"
+    },
     "a11y": {
+      "back": "Go back",
       "goBack": "Go back",
+      "rateStars_one": "Rate {{count}} star",
+      "rateStars_other": "Rate {{count}} stars",
       "unreadCount_one": "{{label}} unread",
       "unreadCount_other": "{{label}} unread",
       "cartWithItems_one": "Cart, {{count}} item",
@@ -1444,9 +1575,54 @@
       "close": "Close",
       "changePhoto": "Change photo"
     },
+    "deleteAccount": {
+      "title": "Delete account",
+      "heading": "Deleting your account is permanent",
+      "pointProfile": "Your name, email, phone number and photo are removed from your profile.",
+      "pointAddresses": "Saved addresses, favourites, your cart and notifications are cleared.",
+      "pointSignOut": "You are signed out on every device and can't sign in to this account again.",
+      "pointOrders": "Past orders and payments are kept for our records, as the law requires.",
+      "passwordLabel": "Confirm with your password",
+      "passwordPlaceholder": "Password",
+      "deleteMyAccount": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "This can't be undone.",
+      "deleteForever": "Delete",
+      "couldntDelete": "Couldn't delete account"
+    },
+    "legal": {
+      "title": "Terms & Privacy",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}"
+    },
     "language": {
       "chooseYourLanguage": "Choose your language",
+      "changeLater": "You can change this later from your profile.",
       "youCanChangeThisLater": "You can change this later from your profile."
+    },
+    "foodOrder": {
+      "cancelOrder": "Cancel order",
+      "keepOrder": "Keep order",
+      "cancelTitle": "Cancel this order?",
+      "cancelBody": "Your delivery partner hasn't picked up the food yet. If you paid online, the amount will be refunded.",
+      "couldntCancel": "Couldn't cancel the order",
+      "noFeeNoPartnerYet": "No cancellation fee — a delivery partner hasn't been assigned yet.",
+      "cancelReasons": {
+        "orderedByMistake": "Ordered by mistake",
+        "changeMyOrder": "Want to change my order",
+        "wrongAddress": "Wrong delivery address"
+      }
+    },
+    "raiseFare": {
+      "titleRide": "No rider has accepted yet",
+      "titlePackage": "No delivery partner has accepted yet",
+      "subtitle": "Add to your fare and we'll send your request out again — a higher fare gets accepted faster.",
+      "addAmount": "Add ₹{{amount}} to the fare",
+      "couldntRaise": "Couldn't raise the fare"
+    },
+    "otp": {
+      "verifyContinue": "Verify & continue"
     }
   }
 }

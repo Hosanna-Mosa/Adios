@@ -1,4 +1,5 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -6,11 +7,11 @@ import { moderateScale } from "react-native-size-matters";
 import { type ThemeTokens, type ServiceTokens } from "@/constants/colors";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { type CheckoutStyles } from "@/features/food/checkout.styles";
-import { PaymentMethodSelector } from "@/components/shared/PaymentMethodSelector";
 import { formatINR } from "@/utils/pricing";
 
 // Moved out of app/checkout.tsx. The JSX is unchanged; every value it used to read
-// from the screen's scope is now a prop of the same name.
+// from the screen's scope is now a prop of the same name. Cash or online is chosen on the
+// next screen (app/payment.tsx), so this only proceeds to it.
 
 interface Props {
   accent: ServiceTokens;
@@ -33,7 +34,6 @@ export function CheckoutFooter({
   insets,
   isPlacingOrder,
   placeOrder,
-  scheduledFor,
   styles,
   tokens,
   total,
@@ -55,7 +55,6 @@ export function CheckoutFooter({
           <Text style={styles.changeLink}>{t("app.food.fix")}</Text>
         </TouchableOpacity>
       )}
-      <PaymentMethodSelector flow="food" accent={accent} disabled={isPlacingOrder} style={{ marginBottom: 12 }} />
       <TouchableOpacity
         style={[styles.placeOrderBtn, (isPlacingOrder || !!addressIssue) && styles.placeOrderBtnDisabled]}
         activeOpacity={0.9}
@@ -66,7 +65,7 @@ export function CheckoutFooter({
           <ActivityIndicator size="small" color={accent.on} />
         ) : (
           <>
-            <Text style={styles.placeOrderBtnText}>{scheduledFor ? t("app.food.scheduleOrder") : t("app.food.placeOrder")}</Text>
+            <Text style={styles.placeOrderBtnText}>{t("app.payment.proceedToPay")}</Text>
             <Text style={styles.placeOrderBtnPrice}>· ₹{formatINR(total)}</Text>
           </>
         )}

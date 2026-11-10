@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { TouchableOpacity } from "@/components/ui/TrackedTouchable";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { type ThemeTokens } from "@/constants/colors";
@@ -14,12 +15,14 @@ export function OrderReviewCard({
   orderId,
   isRide,
   isHelper,
+  isPackageDelivery = false,
   tokens,
   accent,
 }: {
   orderId: string;
   isRide: boolean;
   isHelper: boolean;
+  isPackageDelivery?: boolean;
   tokens: ThemeTokens;
   accent: ThemeTokens["services"]["food"];
 }) {
@@ -35,12 +38,14 @@ export function OrderReviewCard({
   // Not in the module-level constants inventory (defined inline here, not as
   // a module const), but the same "freeform review tag, safe to translate"
   // reasoning as orders.tsx's REVIEW_TAGS applies.
-  const availableTags = useMemo(() => (isRide
+  const availableTags = useMemo(() => (isPackageDelivery
+    ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.carefulWithItems"), t("app.ride.reviewTags.fastDelivery"), t("app.ride.reviewTags.friendlyPartner")]
+    : isRide
     ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.smoothRide"), t("app.ride.reviewTags.politeCaptain"), t("app.ride.reviewTags.cleanVehicle"), t("app.ride.reviewTags.greatRoute")]
     : isHelper
       ? [t("app.ride.reviewTags.onTime"), t("app.ride.reviewTags.carefulWithItems"), t("app.ride.reviewTags.polite"), t("app.ride.reviewTags.hardWorking")]
       : [t("app.ride.reviewTags.fastDelivery"), t("app.ride.reviewTags.freshAndHot"), t("app.ride.reviewTags.wellPackaged"), t("app.ride.reviewTags.friendlyPartner")]
-  ), [isRide, isHelper, t]);
+  ), [isRide, isHelper, isPackageDelivery, t]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -108,7 +113,7 @@ export function OrderReviewCard({
       <Text style={[styles.reviewTitle, { alignSelf: "center" }]}>{t("app.ride.rateYourExperience")}</Text>
       <View style={{ flexDirection: "row", gap: 10, marginTop: 12, alignSelf: "center" }}>
         {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7}>
+          <TouchableOpacity key={star} onPress={() => setRating(star)} activeOpacity={0.7} accessibilityRole="button" accessibilityLabel={t("app.a11y.rateStars", { count: star })} accessibilityState={{ selected: star <= rating }}>
             <Ionicons name="star" size={32} color={star <= rating ? "#F59E0B" : tokens.border} />
           </TouchableOpacity>
         ))}
