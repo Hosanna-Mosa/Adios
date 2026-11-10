@@ -5,8 +5,18 @@ import Order, { OrderStatus } from "../../database/models/Order";
 // GET /admin/fleet — every online driver with their last known position, and whether they are on
 // a job, for the dashboard's live fleet map. Read straight from the database each time.
 
-const ACTIVE_STATUSES = [OrderStatus.DRIVER_ASSIGNED, OrderStatus.IN_TRANSIT, OrderStatus.PICKING_ITEMS, "driver_assigned", "in_transit", "picking_items"];
-const SEARCHING_STATUSES = [OrderStatus.SEARCHING_DRIVER, "searching_driver"];
+// The three raw lowercase strings are legacy client-tracking-sequence values (see Order.ts's
+// "_LC" enum members) — "in_transit" has no formal _LC member, but is kept here defensively
+// rather than removed outright without confirming no legacy order still uses it.
+const ACTIVE_STATUSES: OrderStatus[] = [
+  OrderStatus.DRIVER_ASSIGNED,
+  OrderStatus.IN_TRANSIT,
+  OrderStatus.PICKING_ITEMS,
+  "driver_assigned" as OrderStatus,
+  "in_transit" as OrderStatus,
+  "picking_items" as OrderStatus,
+];
+const SEARCHING_STATUSES: OrderStatus[] = [OrderStatus.SEARCHING_DRIVER, "searching_driver" as OrderStatus];
 
 export const getFleet = async (_req: Request, res: Response) => {
   try {

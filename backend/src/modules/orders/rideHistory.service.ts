@@ -1,10 +1,10 @@
-import Order from "../../database/models/Order";
+import Order, { ServiceType } from "../../database/models/Order";
 import { sendEmail } from "../../services/email.service";
 import { AppError, ValidationError } from "../../utils/errors";
 
 // "Looking for rides older than 90 days?" — emails a customer their ride history for a date range.
 
-const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
+const RIDE_TYPES = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME];
 const MAX_RANGE_DAYS = 366;
 const MAX_ROWS = 2000;
 
