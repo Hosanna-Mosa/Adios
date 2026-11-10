@@ -3,9 +3,9 @@ import { Icon } from "../../../components/shared/Icon";
 import type { PartnerApplication } from "../types";
 
 const TONE_CLASSES = {
-  blue: "bg-blue-50 border-blue-200 text-blue-700",
-  green: "bg-green-50 border-green-200 text-green-700",
-  red: "bg-red-50 border-red-200 text-red-700",
+  blue: "bg-soft border-primary/20 text-primary",
+  green: "bg-success-soft border-success/30 text-success",
+  red: "bg-danger-soft border-danger/30 text-danger",
 };
 
 /** Where an application stands, for an applicant with no documents to resubmit. */
@@ -64,7 +64,7 @@ export function ApplicationStatusCard({
   })();
 
   return (
-    <div className="mt-10 bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+    <div className="mt-10 bg-white rounded-2xl border border-surface-container p-6 sm:p-8">
       <h1 className="font-display text-2xl font-bold mb-4">
         {application.name}
       </h1>

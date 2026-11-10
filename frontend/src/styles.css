@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
+ * Design system definition — Adios UI colour palette.
  *
  * The @theme inline block maps CSS custom properties to Tailwind utility
  * classes (e.g. --color-primary -> bg-primary, text-primary).
  *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
+ * The :root and .dark blocks define the actual colour values, taken from
+ * Adios_UI_Color_Palette.pdf. Keep every screen on these tokens.
  *
  * To add a new semantic color:
  * 1. Add the variable to :root (light value) and .dark (dark value)
@@ -62,100 +62,116 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --radius: 0.75rem;
+  /* Adios UI colour palette (Adios_UI_Color_Palette.pdf). */
+  --background: #fcf6f6; /* Warm Off-White — main screen background */
+  --foreground: #171717; /* Primary Text */
+  --card: #ffffff; /* White — cards and content surfaces */
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #860132; /* Primary Burgundy — brand, headings, icons, selected nav */
+  --primary-foreground: #ffffff;
+  --secondary: #fceef2; /* Light Pink — soft backgrounds */
+  --secondary-foreground: #860132;
+  --muted: #f6eff0;
+  --muted-foreground: #667085; /* Secondary Grey — dates, addresses, descriptions */
+  --accent: #fceef2;
+  --accent-foreground: #860132;
+  --destructive: #d90000; /* Action Red */
+  --destructive-foreground: #ffffff;
+  --border: #e8e5e7; /* Border Grey */
+  --input: #e8e5e7;
+  --ring: #860132;
+  --chart-1: #860132;
+  --chart-2: #990039;
+  --chart-3: #28a745;
+  --chart-4: #667085;
+  --chart-5: #aeb4be;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #860132;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fceef2;
+  --sidebar-accent-foreground: #860132;
+  --sidebar-border: #e8e5e7;
+  --sidebar-ring: #860132;
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --background: #171717;
+  --foreground: #fcf6f6;
+  --card: #222022;
+  --card-foreground: #fcf6f6;
+  --popover: #222022;
+  --popover-foreground: #fcf6f6;
+  --primary: #f0a3bd;
+  --primary-foreground: #171717;
+  --secondary: #3a1424;
+  --secondary-foreground: #fcf6f6;
+  --muted: #2a2628;
+  --muted-foreground: #aeb4be;
+  --accent: #3a1424;
+  --accent-foreground: #fcf6f6;
+  --destructive: #ff6b6b;
+  --destructive-foreground: #171717;
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #f0a3bd;
+  --chart-1: #f0a3bd;
+  --chart-2: #e05a8a;
+  --chart-3: #5cd17a;
+  --chart-4: #aeb4be;
+  --chart-5: #667085;
+  --sidebar: #222022;
+  --sidebar-foreground: #fcf6f6;
+  --sidebar-primary: #f0a3bd;
+  --sidebar-primary-foreground: #171717;
+  --sidebar-accent: #3a1424;
+  --sidebar-accent-foreground: #fcf6f6;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #f0a3bd;
 }
 
 @theme {
-  --color-brand-kinetic: #c5a47e;
-  --color-on-surface: #0a1128;
-  --color-secondary-app: #4a5568;
-  --color-surface-container: #edeeef;
-  --color-surface-container-low: #f3f4f5;
-  --color-secondary-fixed-dim: #e1e3e4;
-  --color-primary: #002045;
-  --color-accent: #c5a47e;
-  --color-surface-soft: #f8f9fa;
-  --color-menu-surface: #f4f6f8;
-  --color-menu-ink: #0f172a;
-  --color-menu-glow: #3b82f6;
-  --color-menu-highlight: #0651ed;
-  --color-navy-deep: #01356e;
-  --color-navy-mid: #0d2844;
-  --color-navy-light: #162d4a;
-  --color-onboarding-surface: #f8f9fc;
-  --color-map-marker: #f97316;
-  --color-device-frame: #e5e7eb;
-  --color-device-screen: #e4e9f0;
-  --color-gradient-flame: #ff5733;
-  --font-display: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  /* Adios palette, named for direct use (bg-brand, text-brand-action, …). */
+  --color-brand: #860132; /* Primary Burgundy */
+  --color-brand-action: #990039; /* Deep Burgundy — primary buttons */
+  --color-brand-dark: #5a0022; /* darker burgundy for gradients/overlays */
+  --color-soft: #fceef2; /* Light Pink */
+  --color-success: #28a745; /* Delivered / Completed */
+  --color-success-soft: #e8f5e9;
+  --color-danger: #d90000; /* Cancelled */
+  --color-danger-soft: #fce8e8;
+  --color-inactive: #aeb4be; /* Inactive / Pending */
+
+  /*
+   * Legacy names kept so older components keep compiling; every one of them
+   * now resolves to the Adios palette above.
+   */
+  --color-brand-kinetic: #990039;
+  --color-on-surface: #171717;
+  --color-secondary-app: #667085;
+  --color-surface-container: #e8e5e7;
+  --color-surface-container-low: #fcf6f6;
+  --color-secondary-fixed-dim: #e8e5e7;
+  --color-surface-soft: #fcf6f6;
+  --color-menu-surface: #fcf6f6;
+  --color-menu-ink: #171717;
+  --color-menu-glow: #990039;
+  --color-menu-highlight: #860132;
+  --color-navy-deep: #5a0022;
+  --color-navy-mid: #6e0129;
+  --color-navy-light: #860132;
+  --color-onboarding-surface: #fcf6f6;
+  --color-map-marker: #990039;
+  --color-device-frame: #e8e5e7;
+  --color-device-screen: #fcf6f6;
+  --color-gradient-flame: #c2185b;
+
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
@@ -167,6 +183,14 @@
     background-color: var(--background);
     color: var(--color-on-surface);
     font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
   }
 }
 
@@ -175,14 +199,12 @@
 }
 
 /*
- * Partner (restaurant / meat-center) onboarding uses the Adios orange — the
- * customer app's brand colour (app/constants/colors.ts `brand`) — instead of
- * the marketing site's tan. Re-pointing the token re-themes every
- * brand-kinetic utility (incl. /10 tints, hover and focus rings) on those
- * pages. Set on <html> by usePartnerTheme() so portalled dialogs follow too.
+ * Partner pages used to re-point brand-kinetic to orange here. The whole site
+ * now shares the Adios burgundy, so the class is kept (usePartnerTheme still
+ * sets it) but intentionally changes nothing.
  */
 .partner-theme {
-  --color-brand-kinetic: #e8720c;
+  --color-brand-kinetic: #990039;
 }
 
 .glass-card {
@@ -205,4 +227,18 @@
 }
 .fill-icon {
   font-variation-settings: "FILL" 1;
+}
+
+/* Full-bleed hero video: never show native controls or the iOS play glyph. */
+.hero-video::-webkit-media-controls,
+.hero-video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

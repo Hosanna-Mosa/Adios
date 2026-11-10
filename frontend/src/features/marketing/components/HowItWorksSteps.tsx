@@ -28,8 +28,8 @@ export function HowItWorksSteps() {
   ];
   return (
     <section
-      id="how-it-works"
-      className="py-20 lg:py-28 bg-surface-container-low/30"
+      id="partner-steps"
+      className="scroll-mt-20 py-20 lg:py-28 bg-background"
     >
       <div className="container max-w-[900px] mx-auto px-6">
         <div className="text-center mb-16">

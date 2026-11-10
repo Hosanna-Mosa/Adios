@@ -33,7 +33,7 @@ export function MenuHeader({ restaurant }: Props) {
       >
         <Link
           to="/"
-          className="p-2 -ml-2 rounded-full hover:bg-slate-100/50 text-primary transition-colors"
+          className="p-2 -ml-2 rounded-full hover:bg-soft text-primary transition-colors"
         >
           <Icon name="arrow_back" />
         </Link>
@@ -43,76 +43,72 @@ export function MenuHeader({ restaurant }: Props) {
         <LanguageSwitcher />
       </motion.div>
 
-      {/* Premium Hero Header */}
+      {/* Restaurant header card — light, Zomato-style layout on the Adios palette */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative bg-gradient-to-b from-primary to-navy-deep text-white overflow-hidden py-10 md:py-16 px-6 md:px-20 md:border-b border-slate-100 md:shadow-md rounded-b-[2.5rem] md:rounded-none"
+        className="relative overflow-hidden border-b border-surface-container bg-white px-4 py-8 md:px-20 md:py-12"
       >
-        {/* Animated Background Blob */}
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-0 right-0 w-72 md:w-[400px] h-72 md:h-[400px] rounded-full bg-menu-glow/20 blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"
-        />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-brand via-brand-action to-brand" />
 
-        <div className="max-w-[1280px] mx-auto relative z-10">
-          <div className="hidden md:flex items-center justify-between mb-8">
+        <div className="relative z-10 mx-auto max-w-[1280px]">
+          <div className="mb-8 hidden items-center justify-between md:flex">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-sm font-semibold group"
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-secondary-app transition-colors hover:text-primary"
             >
               <Icon
                 name="arrow_back"
-                className="text-lg group-hover:-translate-x-1 transition-transform"
+                className="text-lg transition-transform group-hover:-translate-x-1"
               />
               {t("menu.backToHome")}
             </Link>
-            <LanguageSwitcher variant="light" />
+            <LanguageSwitcher />
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="space-y-3 md:space-y-4 text-center md:text-left"
+              className="space-y-3 text-center md:space-y-4 md:text-left"
             >
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                <span className="bg-white/10 backdrop-blur-md text-white text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-white/10 flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+                <span className="flex items-center gap-1 rounded-full bg-soft px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary md:text-xs">
                   <Icon name="restaurant" className="text-xs md:text-sm" />{" "}
                   {t("menu.restaurant")}
                 </span>
                 {restaurant.isPureVeg ? (
-                  <span className="bg-green-500/20 text-green-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-green-500/30 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-green-400 animate-pulse" />{" "}
+                  <span className="flex items-center gap-1 rounded-full bg-success-soft px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-success md:text-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-success md:h-2 md:w-2" />{" "}
                     {t("menu.pureVeg")}
                   </span>
                 ) : (
-                  <span className="bg-orange-500/20 text-orange-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-orange-500/30 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-orange-400" />{" "}
+                  <span className="flex items-center gap-1 rounded-full border border-surface-container bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-secondary-app md:text-xs">
+                    <span className="h-1.5 w-1.5 rounded-full bg-success md:h-2 md:w-2" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-danger md:h-2 md:w-2" />{" "}
                     {t("menu.vegAndNonVeg")}
                   </span>
                 )}
                 {!hasRating && (
-                  <span className="bg-amber-400/20 text-amber-300 text-[10px] md:text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-amber-400/30 flex items-center gap-1">
+                  <span className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white md:text-xs">
                     <Icon name="star" className="text-xs md:text-sm" />{" "}
                     {t("menu.new")}
                   </span>
                 )}
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-black tracking-tight">
+              <h1 className="font-display text-3xl font-extrabold tracking-tight text-on-surface md:text-5xl">
                 {restaurant.name}
               </h1>
 
-              <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center md:justify-start gap-y-1.5 gap-x-6 text-xs md:text-sm text-white/80">
+              <div className="flex flex-col items-center justify-center gap-x-6 gap-y-1.5 text-xs text-secondary-app md:flex-row md:flex-wrap md:justify-start md:text-sm">
                 <div className="flex items-center gap-1">
                   <Icon
-                    name="map_pin"
-                    className="text-sm md:text-base text-white/60"
+                    name="location_on"
+                    className="text-sm text-primary md:text-base"
                   />
-                  <span className="truncate max-w-[250px]">
+                  <span className="max-w-[250px] truncate md:max-w-[480px]">
                     {restaurant.address}
                   </span>
                 </div>
@@ -120,7 +116,7 @@ export function MenuHeader({ restaurant }: Props) {
                   <div className="flex items-center gap-1">
                     <Icon
                       name="call"
-                      className="text-sm md:text-base text-white/60"
+                      className="text-sm text-primary md:text-base"
                     />
                     <span>{restaurant.phone}</span>
                   </div>
@@ -133,28 +129,17 @@ export function MenuHeader({ restaurant }: Props) {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center justify-center gap-6 bg-white/10 backdrop-blur-xl border border-white/10 p-4 md:p-5 rounded-2xl mx-auto md:mx-0 shrink-0"
+                className="mx-auto flex shrink-0 items-center gap-4 rounded-2xl border border-surface-container bg-white p-3 shadow-sm md:mx-0"
               >
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-amber-400">
-                    <Icon
-                      name="star"
-                      className="fill-current text-lg md:text-xl"
-                    />
-                    <span className="text-lg md:text-xl font-black">
-                      {rating}
-                    </span>
-                  </div>
-                  <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
-                    {t("menu.rating")}
-                  </span>
-                </div>
-                <div className="w-[1px] h-10 bg-white/20" />
-                <div className="text-center px-2">
-                  <div className="text-lg md:text-xl font-black text-white">
+                <span className="flex items-center gap-1 rounded-lg bg-success px-2.5 py-1.5 text-lg font-bold text-white">
+                  {rating}
+                  <Icon name="star" className="fill-icon text-base" />
+                </span>
+                <div className="pr-2 text-left leading-tight">
+                  <div className="text-base font-bold text-on-surface">
                     {restaurant.reviews || "0"}
                   </div>
-                  <span className="text-[10px] md:text-xs text-white/60 font-medium uppercase tracking-widest">
+                  <span className="text-[11px] font-medium uppercase tracking-widest text-secondary-app">
                     {t("menu.reviews")}
                   </span>
                 </div>

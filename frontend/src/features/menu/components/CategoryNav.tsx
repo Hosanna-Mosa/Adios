@@ -39,8 +39,8 @@ export function CategoryNav({
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-sm border border-slate-100">
-            <Icon name="search" className="text-slate-400 text-lg" />
+          <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-sm border border-surface-container">
+            <Icon name="search" className="text-inactive text-lg" />
             <input
               type="text"
               placeholder={t("menu.searchDish")}
@@ -51,13 +51,13 @@ export function CategoryNav({
           </div>
           <button
             onClick={() => setVegOnly(!vegOnly)}
-            className={`shrink-0 flex items-center justify-center h-10 w-10 rounded-xl transition-all shadow-sm ${vegOnly ? "bg-green-100 border-green-200 text-green-700" : "bg-white border-slate-100 text-slate-400"}`}
+            className={`shrink-0 flex items-center justify-center h-10 w-10 rounded-xl transition-all shadow-sm ${vegOnly ? "bg-success-soft border-success/30 text-success" : "bg-white border-surface-container text-inactive"}`}
           >
             <div
-              className={`h-4 w-4 rounded-sm border-2 flex items-center justify-center ${vegOnly ? "border-green-600" : "border-slate-400"}`}
+              className={`h-4 w-4 rounded-sm border-2 flex items-center justify-center ${vegOnly ? "border-success" : "border-inactive"}`}
             >
               <div
-                className={`h-2 w-2 rounded-full ${vegOnly ? "bg-green-600" : "bg-transparent"}`}
+                className={`h-2 w-2 rounded-full ${vegOnly ? "bg-success" : "bg-transparent"}`}
               />
             </div>
           </button>
@@ -75,7 +75,7 @@ export function CategoryNav({
               className={`snap-start shrink-0 px-5 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${
                 selectedCategory === cat
                   ? "bg-primary text-white"
-                  : "bg-white text-slate-500 hover:bg-slate-50"
+                  : "bg-white text-secondary-app hover:bg-surface-soft"
               }`}
             >
               {categoryLabel(cat, t)}
@@ -86,15 +86,15 @@ export function CategoryNav({
 
       {/* Desktop Sidebar Filters */}
       <div className="hidden lg:block lg:col-span-1 space-y-6">
-        <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm space-y-6 sticky top-28">
+        <div className="bg-white p-6 rounded-[2rem] border border-surface-container shadow-sm space-y-6 sticky top-28">
           <h2 className="font-black text-xl text-primary flex items-center gap-2">
             <Icon name="tune" /> {t("menu.filter")}
           </h2>
 
           {/* Search */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 border-2 border-slate-100 focus-within:border-primary p-3 rounded-2xl bg-slate-50 transition-colors">
-              <Icon name="search" className="text-slate-400 text-lg" />
+            <div className="flex items-center gap-2 border-2 border-surface-container focus-within:border-primary p-3 rounded-2xl bg-surface-soft transition-colors">
+              <Icon name="search" className="text-inactive text-lg" />
               <input
                 type="text"
                 placeholder={t("menu.searchCraving")}
@@ -108,16 +108,18 @@ export function CategoryNav({
           {/* Veg Switch */}
           <div
             onClick={() => setVegOnly(!vegOnly)}
-            className="flex items-center justify-between p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-between p-4 border-2 border-surface-container rounded-2xl cursor-pointer hover:bg-surface-soft transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="h-5 w-5 rounded-sm border-2 border-green-600 flex items-center justify-center bg-green-50">
-                <div className="h-2.5 w-2.5 rounded-full bg-green-600" />
+              <div className="h-5 w-5 rounded-sm border-2 border-success flex items-center justify-center bg-success-soft">
+                <div className="h-2.5 w-2.5 rounded-full bg-success" />
               </div>
-              <span className="text-sm font-bold text-slate-700">{t("menu.vegOnly")}</span>
+              <span className="text-sm font-bold text-on-surface">
+                {t("menu.vegOnly")}
+              </span>
             </div>
             <div
-              className={`w-10 h-6 rounded-full p-1 transition-colors ${vegOnly ? "bg-green-500" : "bg-slate-200"}`}
+              className={`w-10 h-6 rounded-full p-1 transition-colors ${vegOnly ? "bg-success" : "bg-surface-container"}`}
             >
               <motion.div
                 layout
@@ -126,11 +128,11 @@ export function CategoryNav({
             </div>
           </div>
 
-          <div className="h-px bg-slate-100 w-full" />
+          <div className="h-px bg-surface-container w-full" />
 
           {/* Categories list */}
           <div className="space-y-3">
-            <label className="text-xs font-black text-slate-300 uppercase tracking-widest block">
+            <label className="text-xs font-black text-inactive uppercase tracking-widest block">
               {t("menu.categories")}
             </label>
             <div className="flex flex-col gap-1.5">
@@ -141,7 +143,7 @@ export function CategoryNav({
                   className={`text-left px-4 py-3 rounded-2xl text-sm font-bold transition-all flex items-center justify-between group ${
                     selectedCategory === cat
                       ? "bg-primary text-white shadow-md"
-                      : "text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                      : "text-secondary-app hover:bg-surface-container hover:text-on-surface"
                   }`}
                 >
                   <span>{categoryLabel(cat, t)}</span>

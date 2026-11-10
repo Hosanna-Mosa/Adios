@@ -71,7 +71,7 @@ export function StepBusinessInfo({ form }: Props) {
           </h2>
         </div>
 
-        <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
           <div>
             <label className="block text-sm font-semibold mb-2">
               {copy.businessLabel} <span className="text-brand-kinetic">*</span>
@@ -84,7 +84,7 @@ export function StepBusinessInfo({ form }: Props) {
               value={restaurantName}
               onChange={(e) => setRestaurantName(e.target.value)}
               placeholder={copy.businessPlaceholder}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
             />
           </div>
 
@@ -104,7 +104,7 @@ export function StepBusinessInfo({ form }: Props) {
                   className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all ${
                     cuisines.includes(c)
                       ? "bg-brand-kinetic text-white border-brand-kinetic"
-                      : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                      : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
                   }`}
                 >
                   {categoryOptionLabel(c)}
@@ -135,7 +135,7 @@ export function StepBusinessInfo({ form }: Props) {
           </h2>
         </div>
 
-        <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
@@ -147,7 +147,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={ownerName}
                 onChange={(e) => setOwnerName(e.target.value)}
                 placeholder={t("onboarding.ownersFullName")}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             <div>
@@ -160,10 +160,10 @@ export function StepBusinessInfo({ form }: Props) {
                 value={ownerEmail}
                 onChange={(e) => setOwnerEmail(e.target.value)}
                 placeholder="owner@business.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
               {ownerEmail.trim() && !isValidEmail(ownerEmail) ? (
-                <p className="mt-2 text-xs font-medium text-red-600">
+                <p className="mt-2 text-xs font-medium text-danger">
                   {t("onboarding.invalidEmail", "Enter a valid email address.")}
                 </p>
               ) : (
@@ -202,7 +202,7 @@ export function StepBusinessInfo({ form }: Props) {
                   value={portalPassword}
                   onChange={(e) => setPortalPassword(e.target.value)}
                   placeholder={t("onboarding.minimum6Characters")}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                 />
               </div>
               <div>
@@ -215,13 +215,13 @@ export function StepBusinessInfo({ form }: Props) {
                   value={confirmPortalPassword}
                   onChange={(e) => setConfirmPortalPassword(e.target.value)}
                   placeholder={t("onboarding.reEnterPassword")}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                 />
               </div>
             </div>
             {confirmPortalPassword &&
               portalPassword !== confirmPortalPassword && (
-                <p className="mt-2 text-xs font-medium text-red-600">
+                <p className="mt-2 text-xs font-medium text-danger">
                   {t("onboarding.passwordsDoNotMatch")}
                 </p>
               )}
@@ -234,7 +234,7 @@ export function StepBusinessInfo({ form }: Props) {
               <span className="text-brand-kinetic">*</span>
             </label>
             <div className="flex gap-3">
-              <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-gray-200 bg-white">
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-surface-container bg-white">
                 <span className="text-sm font-semibold">🇮🇳 +91</span>
               </div>
               <input
@@ -245,11 +245,11 @@ export function StepBusinessInfo({ form }: Props) {
                   setOwnerPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
                 }
                 placeholder={t("onboarding.enterPhoneNumber")}
-                className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="flex-1 px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             {ownerPhone.length > 0 && ownerPhone.length < 10 && (
-              <p className="mt-2 text-xs font-medium text-red-600">
+              <p className="mt-2 text-xs font-medium text-danger">
                 {t(
                   "onboarding.enterValidTenDigitPhone",
                   "Enter a valid 10-digit mobile number.",
@@ -258,7 +258,7 @@ export function StepBusinessInfo({ form }: Props) {
             )}
           </div>
 
-          <div className="border-t border-gray-100 pt-5">
+          <div className="border-t border-surface-container pt-5">
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-semibold">
                 {t("onboarding.primaryContactNumber")}
@@ -294,7 +294,7 @@ export function StepBusinessInfo({ form }: Props) {
               }
               disabled={sameAsOwner}
               placeholder={t("onboarding.primaryContactNumberPlaceholder")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm disabled:bg-gray-50 disabled:text-gray-400"
+              className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm disabled:bg-surface-soft disabled:text-inactive"
             />
           </div>
         </div>
@@ -311,16 +311,16 @@ export function StepBusinessInfo({ form }: Props) {
           </h2>
         </div>
 
-        <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
           {/* Google Maps Container */}
-          <div className="h-72 rounded-xl bg-gray-100 border border-gray-200 relative overflow-hidden">
+          <div className="h-72 rounded-xl bg-surface-container border border-surface-container relative overflow-hidden">
             <div ref={mapRef} className="absolute inset-0 z-0 h-full w-full" />
 
             <div className="pointer-events-none absolute inset-0 z-[1000]">
               {/* Search bar overlay */}
               <div className="pointer-events-auto absolute left-3 right-16 top-3">
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 flex items-center gap-2 px-3 py-2.5">
-                  <Icon name="search" className="text-lg text-gray-400" />
+                <div className="bg-white rounded-lg shadow-lg border border-surface-container flex items-center gap-2 px-3 py-2.5">
+                  <Icon name="search" className="text-lg text-inactive" />
                   <input
                     ref={searchInputRef}
                     type="text"
@@ -331,17 +331,17 @@ export function StepBusinessInfo({ form }: Props) {
                         ? t("onboarding.searchForAreaStreetName")
                         : t("onboarding.loadingGoogleMaps")
                     }
-                    className="flex-1 bg-transparent text-sm text-on-surface placeholder:text-gray-400 outline-none"
+                    className="flex-1 bg-transparent text-sm text-on-surface placeholder:text-inactive outline-none"
                   />
                 </div>
               </div>
 
               {/* Zoom controls */}
-              <div className="pointer-events-auto absolute right-3 top-3 flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="pointer-events-auto absolute right-3 top-3 flex flex-col overflow-hidden rounded-lg border border-surface-container bg-white shadow-lg">
                 <button
                   type="button"
                   onClick={() => handleMapZoom("in")}
-                  className="flex h-9 w-9 items-center justify-center border-b border-gray-200 text-lg font-bold text-on-surface hover:bg-gray-50"
+                  className="flex h-9 w-9 items-center justify-center border-b border-surface-container text-lg font-bold text-on-surface hover:bg-surface-soft"
                   title={t("onboarding.zoomIn")}
                 >
                   +
@@ -349,7 +349,7 @@ export function StepBusinessInfo({ form }: Props) {
                 <button
                   type="button"
                   onClick={() => handleMapZoom("out")}
-                  className="flex h-9 w-9 items-center justify-center text-lg font-bold text-on-surface hover:bg-gray-50"
+                  className="flex h-9 w-9 items-center justify-center text-lg font-bold text-on-surface hover:bg-surface-soft"
                   title={t("onboarding.zoomOut")}
                 >
                   -
@@ -366,7 +366,7 @@ export function StepBusinessInfo({ form }: Props) {
                 <button
                   type="button"
                   onClick={handleUseCurrentLocation}
-                  className="flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-on-surface shadow-lg transition-colors hover:bg-gray-50"
+                  className="flex h-10 items-center gap-2 rounded-lg border border-surface-container bg-white px-3 text-xs font-semibold text-on-surface shadow-lg transition-colors hover:bg-surface-soft"
                   title={t("onboarding.useCurrentLocationCoordinates")}
                 >
                   <Icon
@@ -378,14 +378,14 @@ export function StepBusinessInfo({ form }: Props) {
               </div>
 
               {/* Map type toggle */}
-              <div className="pointer-events-auto absolute bottom-3 right-3 overflow-hidden rounded-lg border border-gray-200 bg-white text-xs font-semibold shadow-lg">
+              <div className="pointer-events-auto absolute bottom-3 right-3 overflow-hidden rounded-lg border border-surface-container bg-white text-xs font-semibold shadow-lg">
                 <button
                   type="button"
                   onClick={() => setMapView("map")}
                   className={`px-4 py-2 transition-colors ${
                     mapView === "map"
                       ? "bg-brand-kinetic text-white"
-                      : "text-secondary-app hover:bg-gray-50"
+                      : "text-secondary-app hover:bg-surface-soft"
                   }`}
                 >
                   {t("onboarding.map")}
@@ -396,7 +396,7 @@ export function StepBusinessInfo({ form }: Props) {
                   className={`px-4 py-2 transition-colors ${
                     mapView === "satellite"
                       ? "bg-brand-kinetic text-white"
-                      : "text-secondary-app hover:bg-gray-50"
+                      : "text-secondary-app hover:bg-surface-soft"
                   }`}
                 >
                   {t("onboarding.satellite")}
@@ -415,7 +415,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={gpsLat}
                 readOnly
                 placeholder={t("onboarding.autoFilled")}
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500"
+                className="w-full px-3 py-2.5 rounded-lg border border-surface-container bg-surface-soft text-sm text-secondary-app"
               />
             </div>
             <div>
@@ -427,7 +427,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={gpsLng}
                 readOnly
                 placeholder={t("onboarding.autoFilled")}
-                className="w-full px-3 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-500"
+                className="w-full px-3 py-2.5 rounded-lg border border-surface-container bg-surface-soft text-sm text-secondary-app"
               />
             </div>
           </div>
@@ -445,12 +445,12 @@ export function StepBusinessInfo({ form }: Props) {
           </h2>
         </div>
 
-        <div className="space-y-5 bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="space-y-5 bg-white rounded-2xl border border-surface-container p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-semibold mb-2">
                 {t("onboarding.shopNoBuildingTower")}{" "}
-                <span className="text-gray-400 font-normal">
+                <span className="text-inactive font-normal">
                   {t("onboarding.optional")}
                 </span>
               </label>
@@ -459,13 +459,13 @@ export function StepBusinessInfo({ form }: Props) {
                 value={shopNo}
                 onChange={(e) => setShopNo(e.target.value)}
                 placeholder={t("onboarding.egShop42")}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             <div>
               <label className="block text-sm font-semibold mb-2">
                 {t("onboarding.floorDetails")}{" "}
-                <span className="text-gray-400 font-normal">
+                <span className="text-inactive font-normal">
                   {t("onboarding.optional")}
                 </span>
               </label>
@@ -474,7 +474,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={floor}
                 onChange={(e) => setFloor(e.target.value)}
                 placeholder={t("onboarding.egGroundFloor")}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
           </div>
@@ -489,7 +489,7 @@ export function StepBusinessInfo({ form }: Props) {
               value={area}
               onChange={(e) => setArea(e.target.value)}
               placeholder={t("onboarding.egHsrLayout")}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+              className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
             />
           </div>
 
@@ -504,7 +504,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder={t("onboarding.egMumbai")}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
             </div>
             <div>
@@ -517,7 +517,7 @@ export function StepBusinessInfo({ form }: Props) {
                 value={landmark}
                 onChange={(e) => setLandmark(e.target.value)}
                 placeholder={t("onboarding.egNearCityMall")}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
               />
               <p className="text-[10px] text-secondary-app/60 mt-1">
                 {t("onboarding.ensureMatchesFssai")}

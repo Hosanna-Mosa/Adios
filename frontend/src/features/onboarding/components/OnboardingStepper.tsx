@@ -9,10 +9,10 @@ export function OnboardingStepper({ form }: Props) {
   const { t } = useTranslation();
   const { onboardingSteps, step, setStep, copy } = form;
   return (
-    <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-white border-r border-gray-200 fixed top-0 left-0 h-screen z-40">
-      <div className="p-6 border-b border-gray-100">
+    <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-white border-r border-surface-container fixed top-0 left-0 h-screen z-40">
+      <div className="p-6 border-b border-surface-container">
         <Link
-          to="/partner"
+          to="/#partner"
           className="font-display text-xl font-extrabold text-brand-kinetic tracking-tighter"
         >
           ADIOS<span className="text-on-surface"> Partner</span>
@@ -37,17 +37,17 @@ export function OnboardingStepper({ form }: Props) {
                 isActive
                   ? "bg-brand-kinetic/10 text-brand-kinetic"
                   : isCompleted
-                    ? "text-green-700 hover:bg-green-50"
-                    : "text-gray-400 cursor-not-allowed"
+                    ? "text-success hover:bg-success-soft"
+                    : "text-inactive cursor-not-allowed"
               }`}
             >
               <span
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
                   isCompleted
-                    ? "bg-green-500 text-white"
+                    ? "bg-success text-white"
                     : isActive
                       ? "bg-brand-kinetic text-white"
-                      : "bg-gray-200 text-gray-400"
+                      : "bg-surface-container text-inactive"
                 }`}
               >
                 {isCompleted ? (
@@ -59,7 +59,7 @@ export function OnboardingStepper({ form }: Props) {
               <div className="text-left">
                 <p className="font-semibold leading-tight">{s.label}</p>
                 <p
-                  className={`text-[11px] mt-0.5 ${isActive ? "text-brand-kinetic/60" : "text-gray-400"}`}
+                  className={`text-[11px] mt-0.5 ${isActive ? "text-brand-kinetic/60" : "text-inactive"}`}
                 >
                   {isCompleted
                     ? t("onboarding.completed")
@@ -74,7 +74,7 @@ export function OnboardingStepper({ form }: Props) {
       </nav>
 
       {/* Progress indicator at bottom of sidebar */}
-      <div className="p-4 border-t border-gray-100">
+      <div className="p-4 border-t border-surface-container">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-secondary-app">
             {t("onboarding.overallProgress")}
@@ -83,7 +83,7 @@ export function OnboardingStepper({ form }: Props) {
             {Math.round((step / 4) * 100)}%
           </span>
         </div>
-        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-surface-container rounded-full overflow-hidden">
           <div
             className="h-full bg-brand-kinetic rounded-full transition-all duration-500"
             style={{ width: `${(step / 4) * 100}%` }}

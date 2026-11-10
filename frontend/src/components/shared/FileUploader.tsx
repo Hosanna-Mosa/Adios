@@ -41,8 +41,8 @@ export function FileUploader({
         dragOver
           ? "border-brand-kinetic bg-brand-kinetic/5"
           : file
-            ? "border-green-300 bg-green-50/50"
-            : "border-gray-200 bg-white hover:border-brand-kinetic/40 hover:bg-gray-50/50"
+            ? "border-success/30 bg-success-soft/50"
+            : "border-surface-container bg-white hover:border-brand-kinetic/40 hover:bg-surface-soft/50"
       }`}
     >
       <input
@@ -54,12 +54,12 @@ export function FileUploader({
       />
       {file ? (
         <div className="flex items-center justify-center gap-3">
-          <Icon name="description" className="text-2xl text-green-600" />
+          <Icon name="description" className="text-2xl text-success" />
           <div className="text-left">
-            <p className="text-sm font-semibold text-green-700 truncate max-w-[200px]">
+            <p className="text-sm font-semibold text-success truncate max-w-[200px]">
               {file.name}
             </p>
-            <p className="text-xs text-green-500">
+            <p className="text-xs text-success">
               {(file.size / 1024).toFixed(0)} KB
             </p>
           </div>
@@ -69,15 +69,15 @@ export function FileUploader({
               e.stopPropagation();
               onChange(null);
             }}
-            className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
+            className="ml-auto text-inactive hover:text-danger transition-colors"
           >
             <Icon name="close" className="text-lg" />
           </button>
         </div>
       ) : (
         <div>
-          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
-            <Icon name="cloud_upload" className="text-2xl text-gray-400" />
+          <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center mx-auto mb-3">
+            <Icon name="cloud_upload" className="text-2xl text-inactive" />
           </div>
           <p className="text-sm font-semibold text-on-surface mb-1">{label}</p>
           {desc && <p className="text-xs text-secondary-app mb-2">{desc}</p>}

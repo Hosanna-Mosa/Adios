@@ -6,16 +6,12 @@ import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { RouteLoadingFallback } from "@/components/motion/RouteLoadingFallback";
 
-interface LayoutProps {
-  variant: "marketing" | "minimal";
-}
-
-export default function Layout({ variant }: LayoutProps) {
+export default function Layout() {
   const location = useLocation();
 
   return (
     <div>
-      <Header variant={variant} />
+      <Header />
       <AnimatePresence mode="wait" initial={false}>
         <PageTransition key={location.pathname}>
           <Suspense fallback={<RouteLoadingFallback />}>
@@ -23,7 +19,7 @@ export default function Layout({ variant }: LayoutProps) {
           </Suspense>
         </PageTransition>
       </AnimatePresence>
-      <Footer variant={variant} />
+      <Footer />
     </div>
   );
 }

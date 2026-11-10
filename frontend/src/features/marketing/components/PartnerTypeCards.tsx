@@ -39,7 +39,7 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-secondary-app transition-colors hover:text-on-surface"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-surface-container text-secondary-app transition-colors hover:text-on-surface"
                 aria-label={t("partnerTypeCards.close")}
               >
                 <Icon name="close" className="text-lg" />
@@ -50,7 +50,7 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
               <button
                 type="button"
                 onClick={() => onSelect("food")}
-                className="group rounded-xl border border-gray-200 p-5 text-left transition-all hover:border-brand-kinetic hover:bg-brand-kinetic/5"
+                className="group rounded-xl border border-surface-container p-5 text-left transition-all hover:border-brand-kinetic hover:bg-brand-kinetic/5"
               >
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-kinetic/10 text-brand-kinetic transition-colors group-hover:bg-brand-kinetic group-hover:text-white">
                   <Icon name="restaurant" className="text-2xl" />
@@ -66,7 +66,7 @@ export function PartnerTypeCards({ open, onClose, onSelect }: Props) {
               <button
                 type="button"
                 onClick={() => onSelect("meat")}
-                className="group rounded-xl border border-gray-200 p-5 text-left transition-all hover:border-brand-kinetic hover:bg-brand-kinetic/5"
+                className="group rounded-xl border border-surface-container p-5 text-left transition-all hover:border-brand-kinetic hover:bg-brand-kinetic/5"
               >
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-brand-kinetic/10 text-brand-kinetic transition-colors group-hover:bg-brand-kinetic group-hover:text-white">
                   <Icon name="set_meal" className="text-2xl" />

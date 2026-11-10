@@ -55,7 +55,7 @@ export function AppDialogHost() {
               onClick={() => settleDialog(dialog.id, true)}
               className={`rounded-xl ${
                 dialog.tone === "destructive"
-                  ? "bg-red-600 text-white hover:bg-red-600/90"
+                  ? "bg-danger text-white hover:bg-danger/90"
                   : "bg-brand-kinetic text-white hover:bg-brand-kinetic/90"
               }`}
             >

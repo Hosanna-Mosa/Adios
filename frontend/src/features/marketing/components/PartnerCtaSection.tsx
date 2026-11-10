@@ -6,7 +6,7 @@ type Props = { onGetStarted: () => void };
 export function PartnerCtaSection({ onGetStarted }: Props) {
   const { t } = useTranslation();
   return (
-    <section className="py-20 bg-gradient-to-br from-brand-kinetic via-gradient-flame to-brand-kinetic">
+    <section className="py-20 bg-gradient-to-br from-brand-dark via-brand to-brand-action">
       <FadeIn
         inView
         className="container max-w-[700px] mx-auto px-6 text-center"
@@ -20,7 +20,7 @@ export function PartnerCtaSection({ onGetStarted }: Props) {
         <button
           type="button"
           onClick={onGetStarted}
-          className="inline-block bg-white text-brand-kinetic px-8 py-3.5 rounded-full font-bold shadow-xl hover:scale-105 active:scale-95 transition-all"
+          className="inline-block bg-white text-primary px-8 py-3.5 rounded-full font-bold shadow-xl hover:scale-105 active:scale-95 transition-all"
         >
           {t("partnerCta.getStartedNow")}
         </button>

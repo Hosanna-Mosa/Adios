@@ -1,0 +1,1574 @@
+[
+  {
+    "title": "Adios User Cookie Policy",
+    "meta": [
+      "Cookies and similar tracking technologies used in the Adios customer app and Adios websites",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026 Operated by: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          ["The Adios customer app is a mobile application. ", false],
+          ["Mobile apps do not use browser cookies.", true],
+          [
+            " Instead, the app uses similar technologies: storage on your device, software development kits (SDKs) and device identifiers. This Policy explains each technology we use, why we use it, how long the data lasts and how you can control it. Browser cookies are relevant only when you visit an Adios web page, such as a shared restaurant menu link or our website; Section 5 covers those. This Policy should be read with the Adios User Privacy Policy.",
+            false
+          ]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. What these technologies are",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [
+              ["Cookies", true],
+              [
+                " are small text files that a website places in your web browser. They are used only on Adios web pages, not inside the mobile app.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["On-device storage", true],
+              [
+                " (local storage, secure storage and app caches) lets the app remember information on your phone, such as the fact that you are signed in.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["SDKs", true],
+              [
+                " are pieces of code from other companies that we build into the app to provide a function, such as maps, notifications or analytics. Some SDKs collect information about your device and how you use the app.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Identifiers", true],
+              [
+                " are values that recognise an app installation or device, such as a push-notification token, a Firebase app-instance ID or, on Android, the advertising ID.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-what-these-technologies-are"
+      },
+      {
+        "title": "2. Categories we use",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Strictly necessary", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What it does: Signs you in, keeps your session secure, remembers your cart and language, delivers Order notifications, and shows maps and locations",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Can you turn it off?: No. The app cannot work without these. You can sign out or uninstall the app",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Functional", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What it does: Remembers your preferences, such as language, recent locations and favourites",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Can you turn it off?: Partly. You can clear them in the app or by clearing app data",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Analytics and performance", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What it does: Helps us understand how the app is used, which screens or steps fail, and how to improve it",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Can you turn it off?: Yes, see Section 6", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Advertising and marketing", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["What it does: ", false],
+              ["Not used.", true],
+              [
+                " We do not use advertising SDKs or show third-party advertisements in the app",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Can you turn it off?: Not applicable", false]]
+          }
+        ],
+        "id": "2-categories-we-use"
+      },
+      {
+        "title": "3. Technologies in the Adios customer app",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Sign-in session storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: your access token and session details",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: to keep you signed in securely", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Retention: until you sign out, the session expires, or you uninstall the app",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["App preferences storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: language, cart contents, recently viewed items, onboarding progress",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: to remember your choices", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Retention: until you clear app data or uninstall", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Push notification token", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Expo; Google Firebase Cloud Messaging (Android); Apple Push Notification service (iOS)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: a device push token, stored on our servers with your account",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: to send Order updates, arrival alerts, refund notices and, if you agree, offers",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Retention: until you sign out, disable notifications, or delete your account",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Maps and places", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Google Maps Platform (Maps SDK, Places and Directions)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: your location and the places you search for or select, sent to Google to return maps, addresses and routes",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: maps, address search, route and fare estimates", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: under Google's privacy policy", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Firebase Analytics", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Google LLC", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Analytics", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: app-instance ID, events (for example, app opened, order placed), device model, OS, app version, approximate location derived from IP (we do not collect your Android advertising ID)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: usage statistics and diagnosing problems", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: 2 months", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Adios product analytics", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (our own servers)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Analytics", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: events you trigger in the app (for example, \"ride searched\", \"checkout started\"), your account ID, app version, platform and a session ID",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: live service monitoring and product improvement",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: 90 days, then deleted automatically", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Device information", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Expo / Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "What is stored or collected: device model, operating system version, app version",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: compatibility, mandatory security updates and fraud prevention",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: with the related request or log", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["The app does ", false],
+              ["not", true],
+              [
+                " use cross-app tracking. On iOS, we do not request permission under Apple's App Tracking Transparency framework because we do not track you across apps or websites owned by other companies.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "3-technologies-in-the-adios-customer-app"
+      },
+      {
+        "title": "4. Location technology",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Location is collected only when you allow it, and only ",
+                false
+              ],
+              ["while the app is in use", true],
+              [
+                ". It is used to find services near you and to set pickup and drop points. It is not used for advertising. You can change the permission in your device settings at any time. Your saved addresses and recent locations are stored with your account as described in the Privacy Policy.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-location-technology"
+      },
+      {
+        "title": "5. Cookies on Adios web pages",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "When you open an Adios web page, such as a shared restaurant menu link at adios.one or our partner website, we use:",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Language preference (local storage)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: First party, functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remembers your chosen language", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: until you clear browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Analytics cookies", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: None", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: Our public web pages do not use analytics or marketing cookies",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: Not applicable", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We do not use advertising cookies on Adios web pages. If we introduce non-essential cookies, we will ask for your consent through a cookie banner before setting them.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "5-cookies-on-adios-web-pages"
+      },
+      {
+        "title": "6. Consent and your choices",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["6.1 ", false],
+              ["Strictly necessary technologies", true],
+              [
+                " are required to provide the Services you request, and are used on that basis.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["6.2 ", false],
+              ["Analytics.", true],
+              [
+                " We use analytics only with your consent. You can withdraw consent at any time in ________. Analytics collection then stops on that device. Withdrawing consent does not affect your use of the Services.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["6.3 ", false],
+              ["Device controls.", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Android:", true],
+              [
+                " Settings > Apps > Adios > Permissions / Notifications / Storage. Settings > Google > Ads lets you delete or reset the advertising ID.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["iOS:", true],
+              [
+                " Settings > Adios lets you manage location and notifications. Settings > Privacy & Security lets you manage tracking permissions.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["6.4 ", false],
+              ["Browser controls.", true],
+              [
+                " On Adios web pages, you can block or delete cookies and local storage in your browser settings. Blocking strictly necessary storage may stop some features from working.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["6.5 ", false],
+              ["Uninstalling.", true],
+              [
+                " Uninstalling the app removes data stored on your device by the app. It does not delete your account. To delete your account, see the Privacy Policy.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "6-consent-and-your-choices"
+      },
+      {
+        "title": "7. Changes and contact",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We will update this Policy when we add or change technologies, and will ask for fresh consent where required. Questions: ________. Grievance Officer: ________, grievances@adios.one.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "7-changes-and-contact"
+      }
+    ],
+    "id": "customers-cookies",
+    "audience": "customers",
+    "kind": "cookies"
+  },
+  {
+    "title": "Adios Driver Cookie and Tracking Technologies Policy",
+    "meta": [
+      "Applies to: the Adios Driver mobile application (the \"Driver app\")",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026 Operated by: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          ["The Driver app is a mobile application and ", false],
+          ["does not use browser cookies", true],
+          [
+            ". It uses on-device storage, software development kits (SDKs), device identifiers and, while you are online, background location tracking. This Policy describes each of these technologies, why it is used, how long the data is kept and how you can control it. It should be read with the Adios Driver Privacy Policy.",
+            false
+          ]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. Technologies used in the Driver app",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Sign-in session storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: access token, session state, your online/offline status",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: keeps you signed in and restores an active Job after the app restarts",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: until you sign out or uninstall", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["App preferences storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: language, head-home settings, saved addresses cache",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remembers your settings", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Retention: until you clear app data or uninstall", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Background location service", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Adios, using your device's location services (Expo Location / Task Manager)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary while online", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: precise GPS location, about every 10 seconds or 10 metres, sent to Adios servers",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: Job offers, navigation, live tracking for Customers and Merchants, zones, safety and dispute resolution",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Retention: runs only while you are online; see the Privacy Policy for storage",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Push notification token", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Expo; Google Firebase Cloud Messaging; Apple Push Notification service",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: device push token, linked to your account", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: Job offers, alerts, payout and document notices",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Retention: until you sign out or delete your account", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Maps and navigation", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Google Maps Platform", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: your location, and pickup and drop points", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: maps, routes and distance calculation", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: under Google's privacy policy", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Camera access", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Provider: your device's camera (Expo Image Picker)", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Used on request", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Data: the selfie or document photograph you take", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: onboarding verification", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: as in the Privacy Policy", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Firebase Analytics", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Google LLC", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Analytics", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: app-instance ID, events, device model, OS, app version, approximate location from IP (we do not collect your Android advertising ID)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: usage statistics and diagnosing problems", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: 2 months", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Adios product analytics", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Analytics", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: events in the app (for example, \"went online\", \"job accepted\"), your account ID, app version, platform and session ID",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: live operations monitoring and improvement", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: 90 days", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Device information", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Expo / Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: device model, OS version, app version", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: compatibility, mandatory updates, fraud and location-spoofing detection",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: with the related request or log", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "No advertising SDKs are used, and you are not tracked across other companies' apps or websites.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-technologies-used-in-the-driver-app"
+      },
+      {
+        "title": "2. Background location",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["2.1 ", false],
+              ["When it runs.", true],
+              [
+                " Only when you are online. When you go online for the first time, the Driver app explains why background location is needed and then asks for the \"Allow all the time\" permission. While tracking is active, Android shows a persistent notification (\"Adios Driver active\") and iOS shows the location indicator.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["2.2 ", false],
+              ["When it stops.", true],
+              [
+                " When you go offline, sign out, or revoke the permission.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["2.3 ", false],
+              ["Why it is necessary.", true],
+              [
+                " Without location while you are online, Adios cannot offer you nearby Jobs, show Customers where you are, or protect you and Customers in a safety incident.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "2-background-location"
+      },
+      {
+        "title": "3. Consent and control",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["3.1 ", false],
+              ["Strictly necessary technologies", true],
+              [
+                " are required to provide the Driver app and the services you have asked for.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["3.2 ", false],
+              ["Analytics.", true],
+              [
+                " We use analytics only with your consent. You can withdraw consent in ________. This does not affect your Jobs or earnings.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["3.3 ", false],
+              ["Device settings.", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Android:", true],
+              [
+                " Settings > Apps > Adios Driver > Permissions (location, camera, notifications).",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["iOS:", true],
+              [" Settings > Adios Driver.", false]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Revoking location stops you from receiving Jobs while online. Revoking camera access affects only onboarding and document re-upload.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["3.4 ", false],
+              ["Uninstalling", true],
+              [
+                " removes on-device data but does not delete your account. See the Privacy Policy for account deletion.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "3-consent-and-control"
+      },
+      {
+        "title": "4. Web portal and partner pages",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "If you access any Adios web page (for example, a DigiLocker consent redirect page), only strictly necessary storage is used to complete that step. No driver-facing Adios web page uses analytics cookies.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-web-portal-and-partner-pages"
+      },
+      {
+        "title": "5. Changes and contact",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We will update this Policy if we change the technologies we use, and will ask for fresh consent where required. Questions: ________. Grievance Officer: ________, grievances@adios.one.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "5-changes-and-contact"
+      }
+    ],
+    "id": "partners-cookies",
+    "audience": "partners",
+    "kind": "cookies"
+  },
+  {
+    "title": "Adios Food Partner Cookie and Tracking Technologies Policy",
+    "meta": [
+      "Applies to: the Adios Partner mobile app, the partner web portal and the Adios partner website",
+      "Version: 1.0 · Effective date: 24 November 2026 · Last updated: 24 November 2026 Operated by: Adios Private Limited (U62013AP2026PTC128916), Gadiraju Krishna Vanaja, 30-15-109/1, Ward 27, Dabagardens, Visakhapatnam (Urban), Visakhapatnam – 530020, Andhra Pradesh"
+    ],
+    "intro": [
+      {
+        "type": "p",
+        "runs": [
+          ["Food Partners use Adios in three ways: the ", false],
+          ["Partner mobile app", true],
+          [", the ", false],
+          ["partner web portal", true],
+          [
+            " (in a browser, to manage Orders, menus and settings), and the ",
+            false
+          ],
+          ["partner website", true],
+          [
+            " (to sign up and complete onboarding). The mobile app does not use browser cookies, but it does use on-device storage and push-notification identifiers. The web portal and the website use cookies and browser storage. This Policy describes each technology and how you can control it. It should be read with the Adios Food Partner Privacy Policy.",
+            false
+          ]
+        ]
+      }
+    ],
+    "sections": [
+      {
+        "title": "1. Partner mobile app",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Sign-in session storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: access and refresh tokens, outlet profile", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: keeps your outlet signed in", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: until you sign out or uninstall", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["App preferences storage", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios (on your device)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: language and app settings", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remembers your settings", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Retention: until you clear app data or uninstall", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Push notification token", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Expo; Google Firebase Cloud Messaging; Apple Push Notification service",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: device push token, linked to your outlet", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: new-order alerts with sound, Order updates and support replies",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Retention: until you sign out or the token is replaced", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Camera and photo library", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: your device (on request)", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Used on request", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Data: the dish photographs you take or select", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: menu images", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: as in the Privacy Policy", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Location (while in use, on request)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: your device's location services", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Used on request", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Data: the device location at the time you tap \"use my current location\"",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: setting your outlet address", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Retention: stored as your outlet location", false]]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["The Partner app does ", false],
+              ["not", true],
+              [
+                " contain an analytics or advertising SDK and does not use background location.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "1-partner-mobile-app"
+      },
+      {
+        "title": "2. Partner web portal",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["vendor_token, vendor_data (local storage)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: keep you signed in and remember your outlet profile",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Duration: until you sign out or clear browser storage", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["vendor_sidebar_open (local storage)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: remember whether the menu sidebar is open", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: until cleared", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["sidebar:state", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Cookie", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remember the sidebar layout", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: 7 days", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Language preference (local storage)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remember your language", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: until cleared", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["_ga, _ga_40T1NQGZGC", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Cookies", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Provider: Google Analytics 4 (Firebase Analytics for web)",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Analytics", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: distinguish visitors and sessions, and measure use of portal pages",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Duration: up to 2 years (Google's default setting)", false]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "Analytics on the web portal are recorded together with your role (\"vendor\"), so that we can understand how Food Partners use the portal.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "2-partner-web-portal"
+      },
+      {
+        "title": "3. Partner website (sign-up and onboarding)",
+        "blocks": [
+          {
+            "type": "li",
+            "runs": [["Language preference (local storage)", true]]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Functional", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Purpose: remember your language", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: until cleared", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["vendor_token (local storage, only if you are signed in)", true]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Type: Browser storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Purpose: authenticate requests from the website when you are signed in to your partner account",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Duration: until you sign out or clear storage", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["DigiLocker consent session", true]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              [
+                "Type: Server-side session, linked through the browser redirect",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [["Provider: Adios / DigiLocker", false]]
+          },
+          {
+            "type": "li",
+            "runs": [["Category: Strictly necessary", false]]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Purpose: complete owner verification through DigiLocker", false]
+            ]
+          },
+          {
+            "type": "li",
+            "runs": [
+              ["Duration: expires automatically if not completed", false]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              [
+                "The partner website does not use analytics or marketing tags.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "3-partner-website-sign-up-and-onboarding"
+      },
+      {
+        "title": "4. Consent and choices",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              ["4.1 ", false],
+              ["Strictly necessary", true],
+              [
+                " cookies and storage are used without consent because the portal and website cannot work without them.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["4.2 ", false],
+              ["Analytics cookies", true],
+              [
+                " on the web portal are set when you use the portal. A cookie banner is not yet available; when we add one, you will be able to manage your consent through it. You can block or delete these cookies at any time in your browser settings.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["4.3 ", false],
+              ["Browser controls.", true],
+              [
+                " Most browsers let you block or delete cookies and site data (for example, Chrome: Settings > Privacy and security > Cookies and other site data). Blocking strictly necessary storage will sign you out.",
+                false
+              ]
+            ]
+          },
+          {
+            "type": "p",
+            "runs": [
+              ["4.4 ", false],
+              ["Mobile app controls.", true],
+              [
+                " Manage notifications, camera, photos and location in your device settings. Turning off notifications or sound may cause you to miss Orders, which can lead to automatic cancellations under the Food Partner Terms and Conditions.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "4-consent-and-choices"
+      },
+      {
+        "title": "5. Changes and contact",
+        "blocks": [
+          {
+            "type": "p",
+            "runs": [
+              [
+                "We will update this Policy when we change the technologies we use, and will ask for consent again where required. Questions: ________. Grievance Officer: ________, grievances@adios.one.",
+                false
+              ]
+            ]
+          }
+        ],
+        "id": "5-changes-and-contact"
+      }
+    ],
+    "id": "restaurants-cookies",
+    "audience": "restaurants",
+    "kind": "cookies"
+  }
+]

@@ -1,213 +1,147 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/components/shared/Icon";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
+import { StoreBadges } from "@/features/marketing/components/StoreBadges";
 
-interface FooterProps {
-  /** "marketing" = Home's full 4-column footer. "minimal" = Partner's compact footer. */
-  variant: "marketing" | "minimal";
-}
+type FooterLink = { label: string; href: string; route?: boolean };
 
-export function Footer({ variant }: FooterProps) {
-  if (variant === "minimal") return <MinimalFooter />;
-  return <MarketingFooter />;
-}
-
-function MarketingFooter() {
+/** White, multi-column footer (Zomato-style layout, Adios palette). */
+export function Footer() {
   const { t } = useTranslation();
+
+  const columns: { title: string; links: FooterLink[] }[] = [
+    {
+      title: t("footer.aboutAdios"),
+      links: [
+        { label: t("footer.whoWeAre"), href: "/#services", route: true },
+        { label: t("header.faq"), href: "/#faq", route: true },
+        { label: t("footer.howItWorks"), href: "/#how-it-works", route: true },
+        { label: t("footer.contactSupport"), href: "#support" },
+      ],
+    },
+    {
+      title: t("footer.services"),
+      links: [
+        {
+          label: t("home.hero.quick.food"),
+          href: "/#service-food",
+          route: true,
+        },
+        {
+          label: t("home.hero.quick.meat"),
+          href: "/#service-meat",
+          route: true,
+        },
+        {
+          label: t("home.hero.quick.rides"),
+          href: "/#service-rides",
+          route: true,
+        },
+        {
+          label: t("home.hero.quick.parcel"),
+          href: "/#service-parcel",
+          route: true,
+        },
+        {
+          label: t("home.hero.quick.helper"),
+          href: "/#helper",
+          route: true,
+        },
+      ],
+    },
+    {
+      title: t("footer.forPartners"),
+      links: [
+        { label: t("footer.partnerWithUs"), href: "/#partner", route: true },
+        { label: t("footer.rideWithUs"), href: "/#earn", route: true },
+      ],
+    },
+    {
+      title: t("footer.legal"),
+      links: [
+        {
+          label: t("footer.termsAndConditions"),
+          href: "/legal/terms",
+          route: true,
+        },
+        {
+          label: t("footer.cookiePolicy"),
+          href: "/legal/cookies",
+          route: true,
+        },
+        {
+          label: t("footer.privacyPolicy"),
+          href: "/legal/privacy",
+          route: true,
+        },
+      ],
+    },
+  ];
+
+  const linkCls =
+    "text-sm text-secondary-app transition-colors hover:text-primary";
+
   return (
-    <footer className="bg-on-surface text-white pt-20 pb-10 border-t border-white/10">
-      <div className="max-w-[1440px] mx-auto px-10 md:px-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-          <div className="col-span-1 text-left">
-            <h2 className="text-[28px] font-black text-white mb-6 tracking-tight font-display">
-              Adios
-            </h2>
-            <p className="text-neutral-400 text-sm leading-relaxed mb-6 font-body">
-              {t("footer.tagline")}
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="#social"
-                className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
-              >
-                <Icon name="public" className="text-base" />
-              </a>
-              <a
-                href="#social"
-                className="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white transition-all"
-              >
-                <Icon name="alternate_email" className="text-base" />
-              </a>
-            </div>
-          </div>
-
-          <div className="text-left">
-            <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              {t("footer.solutions")}
-            </h4>
-            <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#food"
-                >
-                  {t("footer.executiveFood")}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#rides"
-                >
-                  {t("footer.executiveMotion")}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#corporate"
-                >
-                  {t("footer.corporateAccounts")}
-                </a>
-              </li>
-              <li>
-                <Link
-                  className="hover:text-brand-kinetic transition-colors"
-                  to="/partner"
-                >
-                  {t("footer.partnerWithUs")}
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="text-left">
-            <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              {t("footer.support")}
-            </h4>
-            <ul className="space-y-3.5 text-sm text-neutral-300 font-body">
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#help"
-                >
-                  {t("footer.helpCenter")}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#safety"
-                >
-                  {t("footer.safetyProtocols")}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#privacy"
-                >
-                  {t("footer.privacyPolicy")}
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-brand-kinetic transition-colors"
-                  href="#terms"
-                >
-                  {t("footer.termsOfService")}
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div className="text-left">
-            <h4 className="text-xs uppercase tracking-widest font-bold mb-6 text-white/40 font-display">
-              {t("footer.download")}
-            </h4>
-            <div className="flex flex-col gap-3">
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded hover:bg-white/10 transition-all max-w-[170px]"
-              >
-                <Icon name="grid_view" className="text-lg" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[8px] uppercase tracking-wider text-neutral-400">
-                    {t("footer.downloadOnThe")}
-                  </span>
-                  <span className="text-[13px] font-bold mt-0.5">
-                    {t("footer.appStore")}
-                  </span>
-                </div>
-              </a>
-              <a
-                href="#download"
-                className="flex items-center gap-3 bg-white/5 border border-white/10 text-white px-4 py-2.5 rounded hover:bg-white/10 transition-all max-w-[170px]"
-              >
-                <Icon name="play_arrow" className="text-lg" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[8px] uppercase tracking-wider text-neutral-400">
-                    {t("footer.getItOn")}
-                  </span>
-                  <span className="text-[13px] font-bold mt-0.5">
-                    {t("footer.googlePlay")}
-                  </span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-white/40 text-xs font-body">
-            {t("footer.copyright")}
-          </p>
-          <div className="flex gap-8 text-xs font-bold text-white/40 uppercase tracking-widest font-display">
-            <a className="hover:text-white" href="#privacy">
-              {t("footer.privacy")}
-            </a>
-            <a className="hover:text-white" href="#terms">
-              {t("footer.terms")}
-            </a>
-            <a className="hover:text-white" href="#security">
-              {t("footer.security")}
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-function MinimalFooter() {
-  const { t } = useTranslation();
-  return (
-    <footer className="bg-on-surface text-white pt-16 pb-10">
-      <div className="container max-w-[1280px] mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+    <footer className="border-t border-surface-container bg-white">
+      <div className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6">
+        <div className="flex flex-col gap-6 border-b border-surface-container pb-10 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/"
-            className="font-display text-2xl font-extrabold text-brand-kinetic tracking-tighter"
+            className="font-display text-3xl font-black tracking-tight text-primary"
           >
-            ADIOS
+            Adios
           </Link>
-          <div className="flex gap-6 text-sm text-white/60">
-            <a href="#" className="hover:text-white transition-colors">
-              {t("footer.privacyPolicy")}
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              {t("footer.termsOfService")}
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              {t("footer.contactSupport")}
-            </a>
+          <LanguageSwitcher />
+        </div>
+
+        <div className="grid grid-cols-2 gap-10 py-10 md:grid-cols-5">
+          {columns.map((col) => (
+            <div key={col.title}>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-on-surface">
+                {col.title}
+              </h4>
+              <ul className="space-y-3">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    {l.route && !l.href.includes("#") ? (
+                      <Link to={l.href} className={linkCls}>
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a href={l.href} className={linkCls}>
+                        {l.label}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-on-surface">
+              {t("footer.socialLinks")}
+            </h4>
+            <div className="mb-5 flex gap-2">
+              {["public", "alternate_email", "photo_camera"].map((icon) => (
+                <a
+                  key={icon}
+                  href="#social"
+                  aria-label={icon}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-on-surface text-white transition hover:bg-primary"
+                >
+                  <Icon name={icon} className="text-base" />
+                </a>
+              ))}
+            </div>
+            <StoreBadges className="flex-col !gap-2" />
           </div>
         </div>
-        <div className="pt-6 border-t border-white/10 text-center">
-          <p className="text-white/40 text-xs">
-            {t("footer.minimalCopyright")}
-          </p>
-        </div>
+
+        <p className="border-t border-surface-container pt-8 text-xs leading-relaxed text-secondary-app">
+          {t("footer.legalNote")} {t("footer.copyright")}
+        </p>
       </div>
     </footer>
   );

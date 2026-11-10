@@ -40,8 +40,8 @@ export default function PartnerOnboarding() {
     return (
       <div className="min-h-screen bg-onboarding-surface flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-8">
-            <Icon name="check_circle" className="text-5xl text-green-600" />
+          <div className="w-20 h-20 rounded-full bg-success-soft flex items-center justify-center mx-auto mb-8">
+            <Icon name="check_circle" className="text-5xl text-success" />
           </div>
           <h1 className="font-display text-3xl font-bold mb-4">
             {t("onboarding.applicationSubmitted")}
@@ -70,11 +70,11 @@ export default function PartnerOnboarding() {
       {/* ─── Right Content Area ─── */}
       <div className="flex-1 lg:ml-[280px]">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 lg:border-none">
+        <header className="sticky top-0 z-30 bg-white border-b border-surface-container lg:border-none">
           <div className="flex items-center justify-between px-4 lg:px-8 h-16">
             <div className="flex items-center gap-3">
               <Link
-                to="/partner"
+                to="/#partner"
                 className="lg:hidden font-display text-lg font-extrabold text-brand-kinetic tracking-tighter"
               >
                 ADIOS
@@ -95,7 +95,7 @@ export default function PartnerOnboarding() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowSaveModal(true)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-surface-container text-sm font-medium text-secondary-app hover:text-on-surface hover:border-inactive transition-all"
               >
                 <Icon name="save" className="text-lg" />
                 <span className="hidden sm:inline">
@@ -123,10 +123,10 @@ export default function PartnerOnboarding() {
                     key={s.num}
                     className={`flex-1 h-1.5 rounded-full transition-all ${
                       isCompleted
-                        ? "bg-green-500"
+                        ? "bg-success"
                         : isActive
                           ? "bg-brand-kinetic"
-                          : "bg-gray-200"
+                          : "bg-surface-container"
                     }`}
                   />
                 );
@@ -186,20 +186,20 @@ export default function PartnerOnboarding() {
           </AnimatePresence>
 
           {/* ─── Navigation Footer ─── */}
-          <div className="fixed bottom-0 left-0 right-0 lg:left-[280px] z-30 bg-white border-t border-gray-200 px-4 lg:px-8 py-4">
+          <div className="fixed bottom-0 left-0 right-0 lg:left-[280px] z-30 bg-white border-t border-surface-container px-4 lg:px-8 py-4">
             <div className="max-w-[900px] mx-auto flex items-center justify-between">
               {step > 1 ? (
                 <button
                   onClick={handleBack}
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl border border-surface-container text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-inactive transition-all"
                 >
                   <Icon name="arrow_back" className="text-lg" />
                   {t("onboarding.back")}
                 </button>
               ) : (
                 <Link
-                  to="/partner"
-                  className="flex items-center gap-2 px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
+                  to="/#partner"
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl border border-surface-container text-sm font-semibold text-secondary-app hover:text-on-surface hover:border-inactive transition-all"
                 >
                   <Icon name="close" className="text-lg" />
                   {t("onboarding.cancel")}
@@ -209,7 +209,7 @@ export default function PartnerOnboarding() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowSaveModal(true)}
-                  className="hidden sm:flex items-center gap-1.5 px-4 py-3 rounded-xl border border-gray-200 text-sm font-medium text-secondary-app hover:text-on-surface hover:border-gray-300 transition-all"
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-3 rounded-xl border border-surface-container text-sm font-medium text-secondary-app hover:text-on-surface hover:border-inactive transition-all"
                 >
                   <Icon name="save" className="text-lg" />
                   {t("onboarding.saveDraft")}
@@ -234,7 +234,7 @@ export default function PartnerOnboarding() {
                     disabled={
                       !acceptedTos || signature.length < 2 || isSubmitting
                     }
-                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-8 py-3 rounded-xl bg-success text-white text-sm font-semibold hover:bg-success/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Icon
                       name={isSubmitting ? "pending" : "how_to_reg"}

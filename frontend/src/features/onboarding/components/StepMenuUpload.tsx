@@ -42,7 +42,7 @@ export function StepMenuUpload({ form }: Props) {
 
       <div className="space-y-5">
         {/* Setup Mode Toggle */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-surface-container p-6">
           <label className="block text-sm font-semibold mb-3">
             {isMeatPartner
               ? t("onboarding.howToSetUpProductList")
@@ -55,7 +55,7 @@ export function StepMenuUpload({ form }: Props) {
               className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border text-sm font-semibold transition-all ${
                 menuSetupMode === "manual"
                   ? "bg-brand-kinetic text-white border-brand-kinetic"
-                  : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                  : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
               }`}
             >
               <Icon name="edit_note" className="text-lg" />
@@ -67,7 +67,7 @@ export function StepMenuUpload({ form }: Props) {
               className={`flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border text-sm font-semibold transition-all ${
                 menuSetupMode === "upload"
                   ? "bg-brand-kinetic text-white border-brand-kinetic"
-                  : "bg-white text-secondary-app border-gray-200 hover:border-brand-kinetic/30"
+                  : "bg-white text-secondary-app border-surface-container hover:border-brand-kinetic/30"
               }`}
             >
               <Icon name="upload_file" className="text-lg" />
@@ -105,7 +105,7 @@ export function StepMenuUpload({ form }: Props) {
 
         {/* Upload Mode */}
         {menuSetupMode === "upload" && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="bg-white rounded-2xl border border-surface-container p-6">
             <FileUploader
               label={
                 isMeatPartner
@@ -128,26 +128,26 @@ export function StepMenuUpload({ form }: Props) {
               })}
             </p>
             {menuUploadError && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-xs font-medium text-danger">
                 <Icon name="error" className="text-base" />
                 {menuUploadError}
               </div>
             )}
             {menuUploadValid && menuReferenceFile && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs font-medium text-green-700">
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-success/30 bg-success-soft px-3 py-2 text-xs font-medium text-success">
                 <Icon name="check_circle" className="text-base" />
                 {t("onboarding.sheetAcceptedAddImages")}
               </div>
             )}
             <MenuPreviewTable form={form} />
-            <div className="mt-4 p-4 rounded-xl bg-blue-50 border border-blue-200">
+            <div className="mt-4 p-4 rounded-xl bg-soft border border-primary/20">
               <div className="flex items-start gap-3">
-                <Icon name="info" className="text-lg text-blue-500 mt-0.5" />
+                <Icon name="info" className="text-lg text-primary mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-blue-800">
+                  <p className="text-sm font-semibold text-primary">
                     {t("onboarding.ourTeamWillHandleRest")}
                   </p>
-                  <p className="text-xs text-blue-600 mt-1">
+                  <p className="text-xs text-primary mt-1">
                     {t("onboarding.ourTeamWillHandleRestDesc")}
                   </p>
                 </div>
@@ -159,7 +159,7 @@ export function StepMenuUpload({ form }: Props) {
         {/* Manual Mode — Menu Builder */}
         {menuSetupMode === "manual" && (
           <div className="space-y-5">
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <div className="bg-white rounded-2xl border border-surface-container p-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <label className="text-sm font-semibold">
@@ -172,7 +172,7 @@ export function StepMenuUpload({ form }: Props) {
                   </p>
                 </div>
                 {menuCategories.length > 0 && (
-                  <span className="text-xs font-semibold text-secondary-app bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-secondary-app bg-surface-container px-3 py-1 rounded-full">
                     {t("menu.itemCount", {
                       count: menuCategories.reduce(
                         (sum, c) => sum + c.items.length,
@@ -187,10 +187,10 @@ export function StepMenuUpload({ form }: Props) {
               {/* Empty State */}
               {menuCategories.length === 0 ? (
                 <div className="text-center py-10">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mx-auto mb-4">
                     <Icon
                       name="restaurant_menu"
-                      className="text-3xl text-gray-400"
+                      className="text-3xl text-inactive"
                     />
                   </div>
                   <p className="text-sm font-semibold text-on-surface mb-1">
@@ -206,10 +206,10 @@ export function StepMenuUpload({ form }: Props) {
                   {menuCategories.map((category) => (
                     <div
                       key={category.id}
-                      className="border border-gray-200 rounded-xl overflow-hidden"
+                      className="border border-surface-container rounded-xl overflow-hidden"
                     >
                       {/* Category Header */}
-                      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                      <div className="flex items-center justify-between px-4 py-3 bg-surface-soft border-b border-surface-container">
                         <div className="flex items-center gap-3">
                           <Icon
                             name="category"
@@ -247,7 +247,7 @@ export function StepMenuUpload({ form }: Props) {
                                 ),
                               )
                             }
-                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            className="text-inactive hover:text-danger transition-colors"
                           >
                             <Icon name="delete_outline" className="text-lg" />
                           </button>
@@ -256,23 +256,23 @@ export function StepMenuUpload({ form }: Props) {
 
                       {/* Items list */}
                       {category.items.length > 0 ? (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-surface-container">
                           {category.items.map((item) => (
                             <div
                               key={item.id}
-                              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-surface-soft/50 transition-colors"
                             >
                               {/* Veg/Non-veg indicator */}
                               <span
                                 className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center shrink-0 ${
                                   item.isVeg
-                                    ? "border-green-500 bg-green-50"
-                                    : "border-red-500 bg-red-50"
+                                    ? "border-success bg-success-soft"
+                                    : "border-danger bg-danger-soft"
                                 }`}
                               >
                                 <span
                                   className={`w-2 h-2 rounded-full ${
-                                    item.isVeg ? "bg-green-500" : "bg-red-500"
+                                    item.isVeg ? "bg-success" : "bg-danger"
                                   }`}
                                 />
                               </span>
@@ -307,7 +307,7 @@ export function StepMenuUpload({ form }: Props) {
                                     item,
                                   })
                                 }
-                                className="p-1.5 text-gray-400 hover:text-brand-kinetic transition-colors rounded-lg hover:bg-gray-100"
+                                className="p-1.5 text-inactive hover:text-brand-kinetic transition-colors rounded-lg hover:bg-surface-container"
                               >
                                 <Icon name="edit" className="text-base" />
                               </button>
@@ -330,7 +330,7 @@ export function StepMenuUpload({ form }: Props) {
               <button
                 type="button"
                 onClick={() => setShowCategoryDialog(true)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-secondary-app hover:border-brand-kinetic/30 hover:text-brand-kinetic transition-all"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-surface-container text-sm font-semibold text-secondary-app hover:border-brand-kinetic/30 hover:text-brand-kinetic transition-all"
               >
                 <Icon name="add" className="text-lg" />
                 {t("onboarding.addCategory")}
@@ -350,13 +350,14 @@ export function StepMenuUpload({ form }: Props) {
                         setShowCategoryDialog(false);
                         setNewCategoryName("");
                       }}
-                      className="text-gray-400 hover:text-on-surface transition-colors"
+                      className="text-inactive hover:text-on-surface transition-colors"
                     >
                       <Icon name="close" className="text-xl" />
                     </button>
                   </div>
                   <label className="block text-sm font-semibold mb-2">
-                    {t("onboarding.categoryName")} <span className="text-brand-kinetic">*</span>
+                    {t("onboarding.categoryName")}{" "}
+                    <span className="text-brand-kinetic">*</span>
                   </label>
                   <input
                     type="text"
@@ -366,7 +367,7 @@ export function StepMenuUpload({ form }: Props) {
                       if (event.key === "Enter") addCategory();
                     }}
                     placeholder={t("onboarding.categoryNamePlaceholder")}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-surface-container bg-white outline-none focus:border-brand-kinetic focus:ring-2 focus:ring-brand-kinetic/10 transition-all text-sm"
                     autoFocus
                   />
                   <div className="mt-6 flex justify-end gap-3">
@@ -376,7 +377,7 @@ export function StepMenuUpload({ form }: Props) {
                         setShowCategoryDialog(false);
                         setNewCategoryName("");
                       }}
-                      className="px-5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
+                      className="px-5 py-3 rounded-xl border border-surface-container text-sm font-semibold text-secondary-app hover:text-on-surface transition-all"
                     >
                       {t("onboarding.cancel")}
                     </button>
@@ -396,7 +397,7 @@ export function StepMenuUpload({ form }: Props) {
             {/* Add/Edit Item Panel */}
             {editingItem && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-                <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto bg-white rounded-2xl border border-gray-200 p-6 shadow-2xl">
+                <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto bg-white rounded-2xl border border-surface-container p-6 shadow-2xl">
                   <div className="flex items-center justify-between mb-5">
                     <h3 className="font-display text-base font-bold">
                       {editingItem.item
@@ -406,7 +407,7 @@ export function StepMenuUpload({ form }: Props) {
                     <button
                       type="button"
                       onClick={() => setEditingItem(null)}
-                      className="text-gray-400 hover:text-on-surface transition-colors"
+                      className="text-inactive hover:text-on-surface transition-colors"
                     >
                       <Icon name="close" className="text-xl" />
                     </button>

@@ -81,8 +81,7 @@ export default function RestaurantMenuFront() {
         setMenu(menuRes.ok ? await menuRes.json() : []);
       } catch (err) {
         setError(
-          (err as { message?: string })?.message ||
-            t("menu.failedToLoadMenu"),
+          (err as { message?: string })?.message || t("menu.failedToLoadMenu"),
         );
       } finally {
         setLoading(false);
@@ -103,7 +102,7 @@ export default function RestaurantMenuFront() {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-[100dvh] bg-surface-soft flex flex-col items-center justify-center gap-4">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, ease: "linear", duration: 1 }}
@@ -122,12 +121,12 @@ export default function RestaurantMenuFront() {
 
   if (error || !restaurant) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-        <Icon name="error" className="text-red-500 text-6xl mb-4" />
+      <div className="min-h-[100dvh] bg-surface-soft flex flex-col items-center justify-center p-6 text-center">
+        <Icon name="error" className="text-danger text-6xl mb-4" />
         <h1 className="text-2xl font-bold text-primary">
           {t("menu.somethingWentWrong")}
         </h1>
-        <p className="text-slate-500 mt-2 max-w-md">
+        <p className="text-secondary-app mt-2 max-w-md">
           {error || t("menu.restaurantNotFoundDesc")}
         </p>
         <Link
@@ -194,15 +193,15 @@ export default function RestaurantMenuFront() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-white py-20 text-center border-2 border-dashed border-slate-200 rounded-[2rem] space-y-4 shadow-sm"
+                className="bg-white py-20 text-center border-2 border-dashed border-surface-container rounded-[2rem] space-y-4 shadow-sm"
               >
-                <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <Icon name="search_off" className="text-slate-300 text-4xl" />
+                <div className="h-20 w-20 bg-surface-soft rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Icon name="search_off" className="text-inactive text-4xl" />
                 </div>
-                <h3 className="text-xl font-black text-slate-700">
+                <h3 className="text-xl font-black text-on-surface">
                   {t("menu.noDishesFound")}
                 </h3>
-                <p className="text-slate-400 text-sm font-medium">
+                <p className="text-inactive text-sm font-medium">
                   {t("menu.tryAdjustingFilters")}
                 </p>
                 <button
@@ -211,7 +210,7 @@ export default function RestaurantMenuFront() {
                     setVegOnly(false);
                     setSelectedCategory("All");
                   }}
-                  className="mt-4 px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-bold transition-colors"
+                  className="mt-4 px-6 py-2.5 bg-surface-container hover:bg-surface-container text-secondary-app rounded-full text-sm font-bold transition-colors"
                 >
                   {t("menu.clearFilters")}
                 </button>
@@ -231,9 +230,12 @@ export default function RestaurantMenuFront() {
                     <h3 className="text-xl md:text-2xl font-black text-primary capitalize tracking-tight">
                       {categoryDisplay(category, t)}
                     </h3>
-                    <div className="h-px bg-slate-200 flex-1 hidden md:block" />
-                    <span className="text-xs font-black bg-white border border-slate-200 text-slate-500 px-3 py-1 rounded-full shadow-sm">
-                      {t("menu.itemCount", { count: items.length, defaultValue: "{{count}} items" })}
+                    <div className="h-px bg-surface-container flex-1 hidden md:block" />
+                    <span className="text-xs font-black bg-white border border-surface-container text-secondary-app px-3 py-1 rounded-full shadow-sm">
+                      {t("menu.itemCount", {
+                        count: items.length,
+                        defaultValue: "{{count}} items",
+                      })}
                     </span>
                   </div>
 
