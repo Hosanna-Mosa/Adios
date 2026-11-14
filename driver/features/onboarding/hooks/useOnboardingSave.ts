@@ -31,7 +31,7 @@ function payloadFor(
     case "gender":
       return { gender: step1.gender };
     case "vehicle":
-      return { vehicleType: step1.vehicle };
+      return { vehicleType: step1.vehicle, vehicleNumber: step1.vehicleNumber.replace(/[^A-Za-z0-9]/g, "").toUpperCase() };
     case "zone":
       return { preferredZone: step1.preferredZone };
     case "aadhaar":

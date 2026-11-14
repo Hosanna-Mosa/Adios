@@ -53,6 +53,9 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
               // have any, which the partner row renders as "New" rather than 0.
               rating: order.driver.rating ?? null,
               ratingCount: order.driver.ratingCount ?? 0,
+              // Shown on the partner card so the customer can match who arrives.
+              photo: order.driver.user?.profilePic || order.driver.selfieImage || null,
+              vehicleNumber: order.driver.vehicleNumber || null,
             });
             if (order.driver.currentLocation?.coordinates) {
               const coords = order.driver.currentLocation.coordinates;
@@ -91,10 +94,9 @@ export function useTrackingPickupStop(setStatus: any, currentOrderId: any, setSe
           if (order.radius) setRadius(order.radius);
           if (order.deliveryOtp) setDeliveryOtp(order.deliveryOtp);
           if (order.serviceType) setServiceType(order.serviceType);
-          // A package delivery starts without a PIN, so there is none to show.
           setIsPackageDelivery(!!order.packageDelivery);
           useDeliveryStore.getState().setIsPackageDelivery(!!order.packageDelivery);
-          if (order.restaurantPickupCode && !order.packageDelivery) setStartOtp(order.restaurantPickupCode);
+          if (order.restaurantPickupCode) setStartOtp(order.restaurantPickupCode);
           if (order.totalPrice != null) setTotalPrice(order.totalPrice);
           if (order.createdAt) setOrderCreatedAt((prev: any) => prev || new Date(order.createdAt));
           if (order.helperStatusText) setHelperStatus(order.helperStatusText);

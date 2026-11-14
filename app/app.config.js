@@ -17,13 +17,13 @@ export default {
     // between the native splash and the first JS frame, so it matches the brand
     // colour of the JS intro splash (designTokens.light.brand in
     // constants/colors.ts) instead of flashing white.
-    backgroundColor: '#990039',
+    backgroundColor: '#E1E4ED',
     splash: {
-      image: './assets/images/splash-icon.png',
-      resizeMode: 'contain',
-      // Same brand colour as the JS intro splash in app/index.tsx, so the
+      // The Adios artwork, same as the JS intro splash in app/index.tsx, so the
       // native -> JS splash hand-off is seamless.
-      backgroundColor: '#990039',
+      image: './assets/images/adios_hero.png',
+      resizeMode: 'cover',
+      backgroundColor: '#E1E4ED',
     },
     ios: {
       supportsTablet: false,

@@ -111,7 +111,7 @@ export function useDeliveryCheckout() {
       // Before any payment: nothing to charge for if no driver can take it.
       const first = stops[0];
       if (!(await ensureServiceable(first?.lat != null && first?.lng != null ? { lat: first.lat, lng: first.lng } : null))) return;
-      if (!(await ensureDriversOnline(first?.lat != null && first?.lng != null ? { lat: first.lat, lng: first.lng } : null))) return;
+      if (!(await ensureDriversOnline(first?.lat != null && first?.lng != null ? { lat: first.lat, lng: first.lng } : null, "package"))) return;
 
       // Online: the server stores this with the payment and places the order once Razorpay
       // confirms the money. Cash: it goes to /orders directly and the driver collects.

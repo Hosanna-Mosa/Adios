@@ -40,7 +40,7 @@ export function useOnboardingGates(
     switch (currentKey) {
       case "email": return validateEmailFormat(step1.email);
       case "gender": return !!step1.gender;
-      case "vehicle": return !!step1.vehicle;
+      case "vehicle": return !!step1.vehicle && step1.vehicleNumber.replace(/[^A-Za-z0-9]/g, "").length >= 6;
       case "zone": return !!step1.preferredZone;
       case "homeAddress":
         return validateHomeAddress(step1.homeAddressLine, step1.homeLat !== null && step1.homeLng !== null) === null;

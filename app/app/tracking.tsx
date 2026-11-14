@@ -13,7 +13,7 @@ export default function TrackingScreen() {
   vendorName, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,
   mapRef, handleSOS, handleShareTrip, deliveryStop, pickupStop,
-  handleBack, userLocCoords, bannerText, vendorPartnerType, serviceType
+  handleBack, userLocCoords, bannerText, vendorPartnerType, serviceType, canCancel, handleCancel, cancelling
   } = useTracking();
   const { t } = useTranslation();
 
@@ -87,7 +87,10 @@ export default function TrackingScreen() {
         setTripModalVisible={setTripModalVisible}
         helperStatus={helperStatus}
         deliveryOtp={outletOrder || (isRide && !isPackageDelivery) ? null : deliveryOtp}
-        startOtp={isPackageDelivery ? null : startOtp}
+        startOtp={startOtp}
+        canCancel={canCancel}
+        handleCancel={handleCancel}
+        cancelling={cancelling}
         isPackageDelivery={isPackageDelivery}
         driverLocation={driverLocation}
         radius={radius}

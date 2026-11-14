@@ -2,7 +2,7 @@ import { Animated } from "react-native";
 import Reanimated from "react-native-reanimated";
 import { ScreenShell } from "@/components/ui/ScreenShell";
 import { LandingBody } from "@/features/home/components/LandingBody";
-import { LandingLoadingBody } from "@/features/home/components/LandingLoadingBody";
+import { LandingLoadingBody, SPLASH_BG } from "@/features/home/components/LandingLoadingBody";
 import { useAuth } from "@/features/home/useAuth";
 import { LandingBrandBackdrop } from "@/features/home/components/LandingBrandBackdrop";
 import { useAuthStore } from "@/contexts/authStore";
@@ -22,9 +22,7 @@ export default function AuthScreen() {
     return (
       <Animated.View style={{
         flex: 1,
-        backgroundColor: tokens.brand,
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: SPLASH_BG,
         opacity: splashOpacity,
       }}>
         <LandingLoadingBody

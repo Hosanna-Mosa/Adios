@@ -97,6 +97,8 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
             // What decides whether "add to your fare" can be offered.
             isReserved: !!orderData.isReserved,
             paidOnline: orderData.paymentMethod === "online" && orderData.paymentStatus === "paid",
+            // Every rider nearby has passed: the screen offers to raise the fare instead of giving up.
+            dispatchExhausted: !!orderData.dispatchExhaustedAt,
             // A restaurant / meat-shop order: the map marks the restaurant and the delivery home.
             hasOutlet: !!orderData.vendor,
             packageDelivery: !!orderData.packageDelivery,
@@ -123,8 +125,13 @@ export const buildFindingDriverInsetsEffect = (orderId: any, isReserved: any, se
             handleTransition(orderData.driver);
             return;
           }
-          // Sequential dispatch ran out of drivers: same outcome as the reserved-ride timeout.
-          if (orderData.dispatchExhaustedAt) handleNoCaptain(isReservedVal ? undefined : "app.ride.noRidersAvailableNow");
+          // Sequential dispatch ran out of drivers. An instant cash ride or package delivery stays
+          // open on this screen so the customer can raise the fare (see useFindingDriverRaiseFare);
+          // anything that cannot be raised (reserved, outlet orders, already paid online) ends here.
+          if (orderData.dispatchExhaustedAt) {
+            const canRaise = !isReservedVal && !orderData.vendor && !(orderData.paymentMethod === "online" && orderData.paymentStatus === "paid");
+            if (!canRaise) handleNoCaptain(isReservedVal ? undefined : "app.ride.noRidersAvailableNow");
+          }
         }
       } catch (err) {
         console.error("Error checking order status:", err);
