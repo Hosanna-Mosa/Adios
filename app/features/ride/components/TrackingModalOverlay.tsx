@@ -12,6 +12,8 @@ import type { OrderStop } from "@/types/models";
 interface Props {
   accent: ServiceTokens;
   currentOrderId: string | null;
+  /** The same code the Tracking header shows, e.g. "#PK-180315". */
+  orderCode?: string;
   insets: EdgeInsets;
   pickupLabel: string;
   setTripModalVisible: any;
@@ -24,6 +26,7 @@ interface Props {
 export function TrackingModalOverlay({
   accent,
   currentOrderId,
+  orderCode,
   insets,
   pickupLabel,
   setTripModalVisible,
@@ -58,7 +61,7 @@ export function TrackingModalOverlay({
         </View>
         <View style={styles.modalOrderIdRow}>
           <Text style={styles.addrLabel}>ORDER ID</Text>
-          <Text style={styles.modalOrderIdValue}>{currentOrderId?.substring(0, 8).toUpperCase()}</Text>
+          <Text style={styles.modalOrderIdValue}>{orderCode || `#${String(currentOrderId || "").slice(-6).toUpperCase()}`}</Text>
         </View>
         {totalPrice != null && (
           <View style={styles.modalOrderIdRow}>

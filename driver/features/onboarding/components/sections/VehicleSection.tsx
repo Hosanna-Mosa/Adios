@@ -6,8 +6,11 @@ import { getVehicles } from "../../vehicles";
 import { FieldColumn } from "../FieldColumn";
 import { SelectCard } from "../SelectCard";
 import { AnimatedBox } from "@/components/ui/AnimatedBox";
+import { FormInput } from "../FormInput";
+import { useTranslation } from "react-i18next";
 
 export function VehicleSection() {
+  const { t } = useTranslation();
   const { step1 } = useOnboardingCtx();
   const VEHICLES = getVehicles();
 
@@ -24,6 +27,13 @@ export function VehicleSection() {
           />
         </AnimatedBox>
       ))}
+      <FormInput
+        label={t("onboarding.vehicleNumberLabel", "Vehicle number")}
+        value={step1.vehicleNumber}
+        onChangeText={(value) => step1.setVehicleNumber(value.toUpperCase().slice(0, 14))}
+        placeholder="AP05AB1234"
+        autoCapitalize="characters"
+      />
     </FieldColumn>
   );
 }

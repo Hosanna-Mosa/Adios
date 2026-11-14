@@ -17,6 +17,8 @@ interface OrderSummary {
   isReserved?: boolean;
   /** Money was already taken online: a raise there needs an extra payment, which rides don't have. */
   paidOnline?: boolean;
+  /** The server has offered the order to every rider nearby and none accepted. */
+  dispatchExhausted?: boolean;
   serviceType?: string;
 }
 
@@ -70,5 +72,5 @@ export function useFindingDriverRaiseFare(orderId: string | undefined, orderSumm
     [orderId, raising, t],
   );
 
-  return { showRaiseFare: eligible && promptVisible, raising, raiseFare };
+  return { showRaiseFare: eligible && (promptVisible || !!orderSummary.dispatchExhausted), raising, raiseFare };
 }

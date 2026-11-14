@@ -25,6 +25,7 @@ export function useHelperTaskCreateTask(driver: any, setOrderId: any, setService
     }
     const driversOnline = await ensureDriversOnline(
       pickupCoords?.lat != null && pickupCoords?.lng != null ? { lat: pickupCoords.lat, lng: pickupCoords.lng } : null,
+      "helper",
     );
     if (!driversOnline) {
       setIsCreating(false);

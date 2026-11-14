@@ -6,9 +6,8 @@ import { CashCollectionPanel, GpsVerifiedBox, OrderStage, OtpEntry, PackageDeliv
 
 const OTP_SPACING = { marginTop: 16, marginBottom: 20 };
 
-// A ride starts with the rider's start PIN and ends without an OTP. A package delivery
-// is the other way round: no code at pickup (the captain collects the package and goes),
-// and the receiver's delivery OTP is required to complete it.
+// A ride starts with the rider's start PIN and ends without an OTP. A package delivery needs
+// both: the sender's start OTP at pickup and the receiver's delivery OTP at the drop.
 
 export function RideArrivedPickupStage() {
   const { t } = useTranslation();
@@ -27,22 +26,20 @@ export function RideArrivedPickupStage() {
       <PackageDeliveryBanner order={currentOrder} leg="pickup" />
       {collectAtPickup && <CashCollectionPanel />}
 
-      {!isPackageDelivery && (
-        <OtpEntry
-          label={t("jobs.enterStartRideOtp")}
-          placeholder={t("jobs.enter4DigitRideOtp")}
-          maxLength={8}
-          testCode={currentOrder.restaurantPickupCode || currentOrder.id.slice(-4)}
-          value={verification.restaurantOTP}
-          onChangeText={(val) => {
-            verification.setRestaurantOTP(val);
-            verification.setRestaurantOTPError(false);
-          }}
-          hasError={verification.restaurantOTPError}
-          errorText={t("jobs.invalidOtpAskRiderForStartRideOtp")}
-          style={OTP_SPACING}
-        />
-      )}
+      <OtpEntry
+        label={isPackageDelivery ? t("jobs.packageDeliveryEnterStartOtp") : t("jobs.enterStartRideOtp")}
+        placeholder={isPackageDelivery ? t("jobs.packageDeliveryStartOtpPlaceholder") : t("jobs.enter4DigitRideOtp")}
+        maxLength={8}
+        testCode={currentOrder.restaurantPickupCode || currentOrder.id.slice(-4)}
+        value={verification.restaurantOTP}
+        onChangeText={(val) => {
+          verification.setRestaurantOTP(val);
+          verification.setRestaurantOTPError(false);
+        }}
+        hasError={verification.restaurantOTPError}
+        errorText={isPackageDelivery ? t("jobs.packageDeliveryInvalidStartOtp") : t("jobs.invalidOtpAskRiderForStartRideOtp")}
+        style={OTP_SPACING}
+      />
 
       <StageActionButton
         label={isPackageDelivery ? t("jobs.packageDeliveryStartTrip") : t("jobs.startTrip")}

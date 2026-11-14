@@ -1469,7 +1469,7 @@ export class OrdersService {
     const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     const saved = await ChatMessage.create({ _id, orderId: canonicalOrderId, clientId: id, senderId, role: from, text: body, time });
 
-    const payload = { id, text: body, from, time, senderId };
+    const payload = { id, text: body, from, time, at: new Date().toISOString(), senderId };
     SocketManager.getInstance()?.emitToOrderRoom(canonicalOrderId, "receive_message", payload, "OrdersService.sendChatMessage");
 
     // Push the other party so an out-of-app message isn't missed (fire-and-forget).

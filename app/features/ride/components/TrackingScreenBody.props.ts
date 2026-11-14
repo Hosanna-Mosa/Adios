@@ -28,8 +28,11 @@ export interface Props {
   isPackageDelivery?: boolean;
   /** Restaurant order: Order details + Cancel (until pickup) instead of the SOS "Help". */
   isFoodOrder?: boolean;
-  canCancelFoodOrder?: boolean;
-  handleCancelFoodOrder?: () => void;
+  /** The order can still be cancelled from here (ride until it starts, package until pickup, ...). */
+  canCancel?: boolean;
+  handleCancel?: () => void;
+  cancelling?: boolean;
+  cancelKind?: "food" | "ride" | "package" | "helper" | null;
   driverLocation: any;
   radius: any;
   totalPrice: any;

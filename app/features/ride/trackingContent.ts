@@ -22,11 +22,17 @@ export function trackingServiceKey(opts: {
 
 const PREFIX: Record<string, string> = { food: "FO", meat: "MT", packageDelivery: "PK", helper: "HP", delivery: "DL" };
 
+/** "#FO-784321": the one code every Tracking surface (header card, View Details sheet) shows. */
+export function orderCodeValue(serviceKey: string, orderId: string | null): string {
+  const isRide = RIDE_SERVICE_KEYS.includes(serviceKey);
+  const prefix = isRide ? "RD" : PREFIX[serviceKey] || "OR";
+  return `#${prefix}-${String(orderId || "").slice(-6).toUpperCase()}`;
+}
+
 /** "Order ID: #FO-784321" / "Trip ID: #RD-918274" / "Service ID: #HP-771092". */
 export function orderCodeLine(serviceKey: string, orderId: string | null): string {
   const isRide = RIDE_SERVICE_KEYS.includes(serviceKey);
-  const prefix = isRide ? "RD" : PREFIX[serviceKey] || "OR";
-  const code = `#${prefix}-${String(orderId || "").slice(-6).toUpperCase()}`;
+  const code = orderCodeValue(serviceKey, orderId);
   const label = isRide
     ? i18n.t("app.tracking.tripId", "Trip ID")
     : serviceKey === "helper"
@@ -36,11 +42,15 @@ export function orderCodeLine(serviceKey: string, orderId: string | null): strin
 }
 
 /** The card under the map: what is happening right now, in one line and a sentence. */
-export function statusMessage(serviceKey: string, steps: Stepper, waitingForRestaurant: boolean): { title: string; subtitle: string } {
+export function statusMessage(serviceKey: string, steps: Stepper, waitingForRestaurant: boolean, status?: string): { title: string; subtitle: string } {
   const t = (k: string, d: string) => i18n.t(`app.tracking.message.${k}`, d);
   const step = steps.current;
   if (RIDE_SERVICE_KEYS.includes(serviceKey)) {
     if (step >= 2) return { title: t("rideProgress", "Ride in Progress"), subtitle: t("rideProgressSub", "You are on your way to your destination.") };
+    // Accepted, but not yet on the way: the captain has not tapped "start to pickup".
+    if (step === 1 && String(status || "").toLowerCase() === "driver_assigned") {
+      return { title: t("captainAssigned", "Captain assigned"), subtitle: t("captainAssignedSub", "Your captain has accepted the ride and will head to the pickup shortly.") };
+    }
     if (step === 1) return { title: t("captainComing", "Captain is on the way"), subtitle: t("captainComingSub", "Your captain is heading to the pickup point.") };
     return { title: t("findingCaptain", "Finding your captain"), subtitle: t("findingCaptainSub", "Hang tight, we are matching you with a captain.") };
   }

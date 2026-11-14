@@ -12,11 +12,20 @@ export const RIDE_TYPES = ["bike", "auto", "cab", "cab_prime"];
  * `date` is the server's real `createdAt` (Mongoose timestamps), kept separately
  * from `timestamp` (a locale time-of-day string with no date in it) so the date
  * divider can compare real days instead of always reading as today. */
+/** A message's clock time in the phone's own time zone and format, so sent and received lines agree.
+ * The server's `time` string is stamped in the server's zone and locale (it read "01:14 PM" beside
+ * the customer's own "18:44"), so it is only a fallback when there is no real timestamp. */
+export const chatClock = (at: any, fallback?: string): string => {
+  const d = at ? new Date(at) : null;
+  if (d && !Number.isNaN(d.getTime())) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return fallback || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
 export const toChatMessage = (m: any) => ({
   id: String(m.id || m.clientId || m._id),
   text: m.text,
   sender: (m.role === "driver" || m.from === "driver" ? "driver" : "customer") as "driver" | "customer",
-  timestamp: m.time,
+  timestamp: chatClock(m.createdAt, m.time),
   date: m.createdAt,
 });
 

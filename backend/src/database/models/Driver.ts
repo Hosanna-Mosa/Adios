@@ -47,6 +47,8 @@ export interface IDriver extends Document {
   onboardingStatus: OnboardingStatus;
   gender?: "male" | "female";
   vehicleType?: "bike" | "auto" | "car";
+  /** Registration plate, shown to the customer on tracking (e.g. "AP05AB1234"). */
+  vehicleNumber?: string;
   preferredZone?: mongoose.Types.ObjectId;
   preferredZones?: mongoose.Types.ObjectId[];
   aadhaarNumber?: string;
@@ -133,6 +135,7 @@ const DriverSchema: Schema = new Schema(
     },
     gender: { type: String, enum: ["male", "female"] },
     vehicleType: { type: String, enum: ["bike", "auto", "car"] },
+    vehicleNumber: { type: String, trim: true, uppercase: true },
     preferredZone: { type: Schema.Types.ObjectId, ref: "Zone" },
     preferredZones: [{ type: Schema.Types.ObjectId, ref: "Zone" }],
     aadhaarNumber: { type: String },

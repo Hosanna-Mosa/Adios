@@ -1,5 +1,6 @@
 import { Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { moderateScale } from "react-native-size-matters";
@@ -42,14 +43,21 @@ export function TrackingSummaryCard({ serviceKey, orderId, steps, styles, tokens
 export function TrackingMapCard(props: Common & {
   mapRef: any; stops: any; route: any; status: string; driverLocation: any; driver: any; userLocCoords: any;
   outletOrder: boolean; rideOrder: boolean; radius: any; eta: number | null;
+  /** Called with true while a finger is on the map, so the page behind it stops scrolling. */
+  onMapTouch?: (touching: boolean) => void;
 }) {
-  const { styles, tokens, mapRef, stops, route, status, driverLocation, driver, userLocCoords, outletOrder, rideOrder, radius, eta } = props;
+  const { styles, tokens, mapRef, stops, route, status, driverLocation, driver, userLocCoords, outletOrder, rideOrder, radius, eta, onMapTouch } = props;
   const { t } = useTranslation();
   const arrived = status === "arrived_pickup" || status === "arrived_delivery";
   return (
     <View style={styles.tkMap}>
-      {/* Not interactive: the map sits in a scrolling page, so drags must scroll the page. */}
-      <View style={{ flex: 1 }} pointerEvents="none">
+      {/* The map can be dragged and pinched: while a finger is on it the page does not scroll. */}
+      <View
+        style={{ flex: 1 }}
+        onTouchStart={() => onMapTouch?.(true)}
+        onTouchEnd={() => onMapTouch?.(false)}
+        onTouchCancel={() => onMapTouch?.(false)}
+      >
         <MapBackground
           ref={mapRef}
           stops={stops}
@@ -84,8 +92,8 @@ export function TrackingMapCard(props: Common & {
   );
 }
 
-export function TrackingStatusCard({ serviceKey, steps, waiting, styles, tokens }: Common & { serviceKey: string; steps: Stepper; waiting: boolean }) {
-  const msg = statusMessage(serviceKey, steps, waiting);
+export function TrackingStatusCard({ serviceKey, steps, waiting, status, styles, tokens }: Common & { serviceKey: string; steps: Stepper; waiting: boolean; status?: string }) {
+  const msg = statusMessage(serviceKey, steps, waiting, status);
   return (
     <View style={[styles.tkCard, styles.tkStatusRow]}>
       <View style={styles.tkStatusTile}>
@@ -109,7 +117,11 @@ export function TrackingPartnerCard({ driver, serviceKey, unreadCount, Linking, 
   return (
     <View style={[styles.tkCard, styles.tkPartnerRow]}>
       <View style={styles.tkAvatar}>
-        <Ionicons name="person" size={moderateScale(24)} color={tokens.brand} />
+        {driver.photo ? (
+          <Image source={{ uri: driver.photo }} style={{ width: "100%", height: "100%", borderRadius: moderateScale(28) }} contentFit="cover" />
+        ) : (
+          <Ionicons name="person" size={moderateScale(24)} color={tokens.brand} />
+        )}
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={styles.tkPartnerName} numberOfLines={1}>{driver.name || t("app.ride.assignedPartnerFallback")}</Text>
@@ -118,6 +130,9 @@ export function TrackingPartnerCard({ driver, serviceKey, unreadCount, Linking, 
           <Text style={styles.tkPartnerMeta} numberOfLines={1}>{rating}{count}</Text>
         </View>
         <Text style={styles.tkPartnerMeta}>{role}</Text>
+        {!!driver.vehicleNumber && (
+          <Text style={styles.tkPartnerMeta} numberOfLines={1}>{t("app.tracking.vehicleNumber", "Vehicle")}: {driver.vehicleNumber}</Text>
+        )}
       </View>
       <TouchableOpacity style={styles.tkRoundBtn} hitSlop={5} onPress={() => Linking.openURL(`tel:${driver.phone || ""}`)} accessibilityRole="button" accessibilityLabel={t("app.delivery.call")}>
         <Ionicons name="call-outline" size={moderateScale(18)} color={tokens.brand} />
@@ -137,8 +152,10 @@ export function TrackingPartnerCard({ driver, serviceKey, unreadCount, Linking, 
 export function TrackingDetailsCard(props: Common & {
   serviceKey: string; vendorName: string | null; stops: any[]; deliveryStop: any; pickupLabel: string;
   totalPrice: number | null; orderCreatedAt: any; onOpen: () => void;
+  /** Shown beside the details button while the order can still be cancelled. */
+  canCancel?: boolean; onCancel?: () => void; cancelling?: boolean;
 }) {
-  const { styles, tokens, serviceKey, vendorName, stops, deliveryStop, pickupLabel, totalPrice, orderCreatedAt, onOpen } = props;
+  const { styles, tokens, serviceKey, vendorName, stops, deliveryStop, pickupLabel, totalPrice, orderCreatedAt, onOpen, canCancel, onCancel, cancelling } = props;
   const { t } = useTranslation();
   const isRide = RIDE_SERVICE_KEYS.includes(serviceKey);
   const isOutlet = serviceKey === "food" || serviceKey === "meat";
@@ -233,9 +250,24 @@ export function TrackingDetailsCard(props: Common & {
         </>
       )}
 
-      <TouchableOpacity style={styles.tkDetailsBtn} onPress={onOpen} activeOpacity={0.85} accessibilityRole="button">
-        <Text style={styles.tkDetailsBtnText}>{button}</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
+        <TouchableOpacity style={[styles.tkDetailsBtn, { flex: 1 }]} onPress={onOpen} activeOpacity={0.85} accessibilityRole="button">
+          <Text style={styles.tkDetailsBtnText}>{button}</Text>
+        </TouchableOpacity>
+        {canCancel && onCancel && (
+          <TouchableOpacity
+            style={[styles.tkDetailsBtn, { flex: 1, backgroundColor: "transparent", borderWidth: 1.5, borderColor: tokens.error, opacity: cancelling ? 0.6 : 1 }]}
+            onPress={onCancel}
+            disabled={cancelling}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.tkDetailsBtnText, { color: tokens.error }]}>
+              {isRide ? t("app.tracking.cancelRide", "Cancel ride") : isPackage ? t("app.tracking.cancelDelivery", "Cancel delivery") : isHelper ? t("app.tracking.cancelBooking", "Cancel booking") : t("app.foodOrder.cancelOrder")}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }

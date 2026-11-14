@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Linking, ScrollView, Share, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,7 @@ import { TrackingFooterButton } from "@/features/ride/components/TrackingFooterB
 import { TrackingHelperUpdate } from "@/features/ride/components/TrackingHelperUpdate";
 import { TrackingPinCard } from "@/features/ride/components/TrackingPinCard";
 import { TripDetailsModal } from "@/features/ride/components/TripDetailsModal";
-import { trackingServiceKey } from "@/features/ride/trackingContent";
+import { orderCodeValue, trackingServiceKey } from "@/features/ride/trackingContent";
 import { goHomeFromTracking } from "../useTrackingHandleBack";
 import { TrackingDetailsCard, TrackingMapCard, TrackingPartnerCard, TrackingStatusCard, TrackingSummaryCard } from "./TrackingCards";
 import type { Props } from "./TrackingScreenBody.props";
@@ -26,7 +27,10 @@ export function TrackingScreenBody(props: Props) {
     outletOrder, rideOrder, currentOrderId, unreadCount, isRide, isHelper, isPackageDelivery, helperStatus,
     deliveryOtp, startOtp, deliveryStop, pickupLabel, totalPrice, orderCreatedAt, tripModalVisible,
     setTripModalVisible, handleSOS, handleShareTrip, vendorName, vendorPartnerType, serviceType,
+    canCancel, handleCancel, cancelling,
   } = props;
+  // True while a finger is on the map card, so dragging the map does not scroll the page.
+  const [mapTouched, setMapTouched] = useState(false);
   const { t } = useTranslation();
   const foodStage = useDeliveryStore((s) => s.foodStage);
 
@@ -52,18 +56,19 @@ export function TrackingScreenBody(props: Props) {
       <ScrollView
         contentContainerStyle={[styles.tkScroll, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={!mapTouched}
       >
         <TrackingSummaryCard serviceKey={serviceKey} orderId={currentOrderId} steps={steps} styles={styles} tokens={tokens} />
 
         <TrackingMapCard
           mapRef={mapRef} stops={stops} route={route} status={status} driverLocation={driverLocation} driver={driver}
           userLocCoords={userLocCoords} outletOrder={!!outletOrder} rideOrder={!!rideOrder} radius={radius} eta={eta}
-          styles={styles} tokens={tokens}
+          styles={styles} tokens={tokens} onMapTouch={setMapTouched}
         />
 
         {driver ? (
           <>
-            <TrackingStatusCard serviceKey={serviceKey} steps={steps} waiting={waiting} styles={styles} tokens={tokens} />
+            <TrackingStatusCard serviceKey={serviceKey} steps={steps} waiting={waiting} status={status} styles={styles} tokens={tokens} />
             <TrackingPartnerCard driver={driver} serviceKey={serviceKey} unreadCount={unreadCount} Linking={Linking} styles={styles} tokens={tokens} />
           </>
         ) : (
@@ -75,9 +80,18 @@ export function TrackingScreenBody(props: Props) {
         {driver && isRide && !isPackageDelivery && startOtp && ["confirmed", "driver_assigned", "en_route_pickup", "arrived_pickup"].includes(status) && (
           <TrackingPinCard accent={accent} otp={startOtp} label={t("app.ride.startRidePin")} hint={t("app.ride.giveThisToYourCaptainTo")} styles={styles} />
         )}
+        {/* Package delivery has two codes: the start OTP (the sender gives it to the captain at pickup)
+            and the end OTP (the receiver gives it to the captain at the drop). */}
+        {driver && isPackageDelivery && startOtp && ["confirmed", "driver_assigned", "en_route_pickup", "arrived_pickup"].includes(status) && (
+          <TrackingPinCard
+            accent={accent} otp={startOtp} label={t("app.packageDelivery.startOtpLabel", "START OTP")}
+            hint={t("app.packageDelivery.startOtpHint", "The sender gives this to the captain at pickup, so the package leaves with the right person.")}
+            styles={styles}
+          />
+        )}
         {isPackageDelivery && deliveryOtp && !["delivered", "cancelled"].includes(status) && (
           <TrackingPinCard
-            accent={accent} otp={deliveryOtp} label={t("app.packageDelivery.deliveryOtpLabel")} hint={t("app.packageDelivery.deliveryOtpHint")}
+            accent={accent} otp={deliveryOtp} label={t("app.packageDelivery.endOtpLabel", "END OTP")} hint={t("app.packageDelivery.deliveryOtpHint")}
             onShare={shareDeliveryOtp} shareLabel={t("app.packageDelivery.shareOtp")} styles={styles}
           />
         )}
@@ -95,6 +109,7 @@ export function TrackingScreenBody(props: Props) {
         <TrackingDetailsCard
           serviceKey={serviceKey} vendorName={vendorName ?? null} stops={stops} deliveryStop={deliveryStop} pickupLabel={pickupLabel}
           totalPrice={totalPrice} orderCreatedAt={orderCreatedAt} onOpen={openDetails} styles={styles} tokens={tokens}
+          canCancel={canCancel} onCancel={handleCancel} cancelling={cancelling}
         />
 
         <View style={{ flexDirection: "row", gap: 10 }}>
@@ -107,7 +122,7 @@ export function TrackingScreenBody(props: Props) {
       </ScrollView>
 
       <TripDetailsModal
-        accent={accent} currentOrderId={currentOrderId} insets={insets} pickupLabel={pickupLabel}
+        accent={accent} currentOrderId={currentOrderId} orderCode={orderCodeValue(serviceKey, currentOrderId)} insets={insets} pickupLabel={pickupLabel}
         setTripModalVisible={setTripModalVisible} stops={stops} styles={styles} tokens={tokens}
         totalPrice={totalPrice} tripModalVisible={tripModalVisible}
       />

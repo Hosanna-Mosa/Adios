@@ -21,7 +21,7 @@ export function useRideConfirmationPlaceOrder(params: any, selectedTier: any, ti
       // Before any payment: the pickup must be inside a service area, reserved or not.
       if (!(await ensureServiceable({ lat: pickupCoords.latitude, lng: pickupCoords.longitude }))) return;
       // A reservation is for later, so who is online right now is irrelevant.
-      if (!isReserved && !(await ensureDriversOnline({ lat: pickupCoords.latitude, lng: pickupCoords.longitude }))) return;
+      if (!isReserved && !(await ensureDriversOnline({ lat: pickupCoords.latitude, lng: pickupCoords.longitude }, "ride"))) return;
       const orderStops = [
         { address: params.pickupName, latitude: pickupCoords.latitude, longitude: pickupCoords.longitude, type: "pickup" },
         ...stops.map((s: any) => ({ address: s.name, latitude: s.lat, longitude: s.lng, type: "stop" })),

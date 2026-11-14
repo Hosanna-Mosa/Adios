@@ -11,6 +11,7 @@ import type { OrderStop } from "@/types/models";
 interface Props {
   accent: ServiceTokens;
   currentOrderId: string | null;
+  orderCode?: string;
   insets: EdgeInsets;
   pickupLabel: string;
   setTripModalVisible: any;
@@ -24,6 +25,7 @@ interface Props {
 export function TripDetailsModal({
   accent,
   currentOrderId,
+  orderCode,
   insets,
   pickupLabel,
   setTripModalVisible,
@@ -38,6 +40,7 @@ export function TripDetailsModal({
       <TrackingModalOverlay
         accent={accent}
         currentOrderId={currentOrderId}
+        orderCode={orderCode}
         insets={insets}
         pickupLabel={pickupLabel}
         setTripModalVisible={setTripModalVisible}

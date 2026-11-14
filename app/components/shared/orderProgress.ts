@@ -67,7 +67,8 @@ export function buildStepper(serviceKey: string, status: string, waitingForResta
   if (RIDE_SERVICE_KEYS.includes(serviceKey)) {
     return {
       labels: [s("rideAccepted", "Ride Accepted"), s("onTheWay", "On the Way"), s("inRide", "In Ride"), s("completed", "Completed")],
-      current: rank >= 4 ? 3 : rank >= 3 ? 2 : rank >= 1 ? 1 : 0,
+      // "On the Way" starts when the captain taps start-to-pickup, not the moment they accept.
+      current: rank >= 4 ? 3 : rank >= 3 ? 2 : rank >= 1 && String(status || "").toUpperCase() !== "DRIVER_ASSIGNED" ? 1 : 0,
     };
   }
   if (serviceKey === "helper") {
