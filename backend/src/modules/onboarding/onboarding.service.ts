@@ -87,6 +87,7 @@ export class OnboardingService {
     const allowedFields = [
       "gender",
       "vehicleType",
+      "vehicleNumber",
       "preferredZone",
       "panImage",
       "dlNumber",
@@ -236,6 +237,7 @@ export class OnboardingService {
       data: {
         gender: driver.gender,
         vehicleType: driver.vehicleType,
+        vehicleNumber: driver.vehicleNumber,
         preferredZone: driver.preferredZone,
         aadhaarNumber: driver.aadhaarNumber,
         aadhaarVerified: driver.aadhaarVerified,

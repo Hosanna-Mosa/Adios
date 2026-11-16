@@ -13,6 +13,7 @@ export function useStep1Fields() {
   const [homeLng, setHomeLng] = useState<number | null>(null);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [vehicle, setVehicle] = useState<string | null>(null);
+  const [vehicleNumber, setVehicleNumber] = useState("");
   const [preferredZone, setPreferredZone] = useState<string | null>(null);
   const [zones, setZones] = useState<any[]>([]);
   const [zoneSearchText, setZoneSearchText] = useState("");
@@ -49,6 +50,7 @@ export function useStep1Fields() {
     homeLng, setHomeLng,
     suggestions, setSuggestions, fetchSuggestions,
     vehicle, setVehicle,
+    vehicleNumber, setVehicleNumber,
     preferredZone, setPreferredZone,
     zones, setZones,
     zoneSearchText, setZoneSearchText,

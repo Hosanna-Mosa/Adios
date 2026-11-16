@@ -6,6 +6,7 @@ import { RecentPlace, recentLocationsKeyFor, toRecentPlace } from "./useLocation
 import { buildHandleSearch, buildHandleSelection } from "./useLocationSelectionFetchingLocation.handlers";
 import { buildHandleStopSelection } from "./useLocationSelectionFetchingLocation.stops";
 import { getPlaceDetails } from "@/services/places.service";
+import { useDeliveryStore } from "@/contexts/deliveryStore";
 
 // Split out of useLocationSelection so each file stays small. Kept in the original call
 // order, so React still sees the same hook sequence.
@@ -65,6 +66,23 @@ export function useLocationSelectionFetchingLocation(params: any, serviceId: any
       });
     }
   }, [params.pickupName, params.pickupLat, params.dropName, params.dropLat, params.stops]);
+
+  // With location on, the pickup starts as where the phone is (the same point the ride home
+  // map shows), instead of an empty "Pickup location" field. Only fills an untouched field,
+  // and only once: after that the customer's own edits win.
+  const currentCoords = useDeliveryStore((st) => st.currentCoords);
+  const currentLocation = useDeliveryStore((st) => st.currentLocation);
+  const prefilledPickup = useRef(false);
+  useEffect(() => {
+    if (prefilledPickup.current || params.pickupName || pickup) return;
+    if (!currentCoords || !currentLocation) return;
+    // The ride home parks a placeholder in the store while it looks the address up.
+    if (/^(detecting|pinned|fetching)/i.test(currentLocation.trim())) return;
+    prefilledPickup.current = true;
+    setPickup({ name: currentLocation, lat: currentCoords.lat, lng: currentCoords.lng });
+    pickupRef.current?.setAddressText(currentLocation);
+    setFieldText((current) => ({ ...current, pickup: currentLocation }));
+  }, [currentCoords, currentLocation, pickup, params.pickupName]);
 
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);

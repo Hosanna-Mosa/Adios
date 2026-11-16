@@ -56,10 +56,17 @@ describe("runPickupLeg", () => {
     expect(c.updateOrderStatus).toHaveBeenCalledWith("en_route_delivery", "4821");
   });
 
-  it("a package delivery starts without a code", async () => {
-    const c = ctx({ currentOrder: order({ packageDelivery: { payAt: "drop" } }) });
+  it("a package delivery needs the sender's start OTP, like a ride's pickup code", async () => {
+    const c = ctx({ currentOrder: order({ packageDelivery: { payAt: "drop" } }), restaurantOTP: "4821" });
     expect(await runPickupLeg("arrived_pickup", c)).toBe(true);
-    expect(c.updateOrderStatus).toHaveBeenCalledWith("en_route_delivery");
+    expect(c.updateOrderStatus).toHaveBeenCalledWith("en_route_delivery", "4821");
+  });
+
+  it("a package delivery does not start on a wrong start OTP", async () => {
+    const c = ctx({ currentOrder: order({ packageDelivery: { payAt: "drop" } }), restaurantOTP: "0000" });
+    expect(await runPickupLeg("arrived_pickup", c)).toBe(true);
+    expect(c.setRestaurantOTPError).toHaveBeenCalledWith(true);
+    expect(c.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it("on the way to drop → arrived at drop", async () => {

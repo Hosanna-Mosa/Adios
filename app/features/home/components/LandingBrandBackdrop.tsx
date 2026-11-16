@@ -14,8 +14,8 @@ interface Props {
 
 export function LandingBrandBackdrop({ tokens, showLoader = false }: Props) {
   return (
-    <View style={{ flex: 1, backgroundColor: tokens.brand, justifyContent: "center", alignItems: "center" }}>
-      {showLoader && <FullScreenLoader color={tokens.onBrand} />}
+    <View style={{ flex: 1, backgroundColor: "#E1E4ED", justifyContent: "center", alignItems: "center" }}>
+      {showLoader && <FullScreenLoader color={tokens.brand} />}
     </View>
   );
 }

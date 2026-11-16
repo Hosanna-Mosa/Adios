@@ -3,7 +3,7 @@ import { useTrackingOrderCreatedAt } from "./useTrackingOrderCreatedAt";
 import { useTrackingHandleShareTrip } from "./useTrackingHandleShareTrip";
 import { useTrackingPickupStop } from "./useTrackingPickupStop";
 import { useTrackingHandleBack } from "./useTrackingHandleBack";
-import { useTrackingCancelFoodOrder } from "./useTrackingCancelFoodOrder";
+import { useTrackingCancelOrder, type CancelKind } from "./useTrackingCancelOrder";
 export { STATUS_ORDER } from "./useTracking.shared";
 export { TimelineStep } from "./useTracking.shared";
 
@@ -20,10 +20,12 @@ export function useTracking() {
 
   // A restaurant order (not meat): food wording, and Cancel instead of the ride SOS button.
   const isFoodOrder = !isRide && !isHelper && vendorPartnerType === "food";
-  const { canCancelFoodOrder, handleCancelFoodOrder } = useTrackingCancelFoodOrder(currentOrderId, status, isFoodOrder, handleOrderCancelledByDriver);
+  // Cancel sits beside the details button for as long as the order can still be called off.
+  const cancelKind: CancelKind | null = isRide ? (isPackageDelivery ? "package" : "ride") : isHelper ? "helper" : isFoodOrder ? "food" : null;
+  const { canCancel, handleCancel, cancelling } = useTrackingCancelOrder(currentOrderId, status, cancelKind, handleOrderCancelledByDriver);
 
   return {
-  isFoodOrder, canCancelFoodOrder, handleCancelFoodOrder,
+  isFoodOrder, canCancel, handleCancel, cancelling, cancelKind,
   status, currentOrderId, route, stops, driver, unreadCount, insets, tokens, isRide, isHelper,
   vendorName, vendorPartnerType, serviceType, accent, styles, eta, orderCreatedAt, deliveredAt, tripModalVisible,
   setTripModalVisible, helperStatus, deliveryOtp, startOtp, isPackageDelivery, driverLocation, radius, totalPrice,

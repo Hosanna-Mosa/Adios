@@ -29,7 +29,8 @@ export const createStyles = (tokens: ThemeTokens, accent: ThemeTokens["services"
     sheetHandle: { width: 38, height: 4, borderRadius: 2, backgroundColor: tokens.borderStrong, alignSelf: "center", marginBottom: 16 },
     titleRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 6 },
     spinner: { width: 22, height: 22, borderRadius: 11, borderWidth: 2.5, borderColor: accent.accent, borderTopColor: "transparent" },
-    title: { fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text },
+    // flex + shrink so a long heading ("Finding your delivery partner") wraps inside the sheet instead of running off its edge.
+    title: { flex: 1, flexShrink: 1, fontFamily: fontFamilies.heading.semibold, fontSize: typography.sizes.extraLarge, letterSpacing: -0.2, color: tokens.text },
     subtitle: { fontFamily: fontFamilies.body.regular, fontSize: typography.sizes.medium, lineHeight: typography.lineHeights.medium, color: tokens.sec, marginBottom: 16 },
 
     routeCard: { backgroundColor: tokens.bg, borderWidth: 1, borderColor: tokens.border, borderRadius: 16, padding: 14, marginBottom: 12 },

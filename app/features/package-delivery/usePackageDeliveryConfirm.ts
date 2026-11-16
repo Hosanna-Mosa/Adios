@@ -55,7 +55,7 @@ export function usePackageDeliveryConfirm() {
     try {
       // Before any payment: nothing to charge for if no driver can take it.
       if (!(await ensureServiceable({ lat: pickup.lat, lng: pickup.lng }))) return;
-      if (!(await ensureDriversOnline({ lat: pickup.lat, lng: pickup.lng }))) return;
+      if (!(await ensureDriversOnline({ lat: pickup.lat, lng: pickup.lng }, "package"))) return;
       const isOnline = getPaymentMethod("packageDelivery") === "online";
       const orderBody = {
         serviceType: vehicle,

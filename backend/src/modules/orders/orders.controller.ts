@@ -241,7 +241,7 @@ export class OrdersController {
       const { order, relation } = await ordersService.getOrderForActor(id as string, req.user);
       // The tracking screen reads the assigned driver's name, phone and vehicle off
       // this payload, so the driver (and its user) has to be populated here.
-      await order.populate({ path: "driver", populate: { path: "user", select: "name phone" } });
+      await order.populate({ path: "driver", populate: { path: "user", select: "name phone profilePic" } });
 
       // Answers 404 rather than 403 so that order ids cannot be probed for
       // existence by a caller who is not party to them.
@@ -599,9 +599,10 @@ export class OrdersController {
         if (current.vendor && relation === "driver" && !markedReady) {
           throw new ConflictError("The restaurant hasn't marked this order ready yet. You can pick it up once they tap \"Mark as ready\".");
         }
-        // A package delivery starts without a code: the captain collects the package and
-        // goes. It is secured at the other end instead, by the receiver's delivery OTP.
-        if (orderObj && (orderObj as any).restaurantPickupCode && !isPackageDeliveryOrder(orderObj)) {
+        // A ride starts with the rider's PIN; a package delivery starts with the sender's
+        // start OTP (the captain asks the sender for it at pickup). The receiver's delivery
+        // OTP then secures the other end.
+        if (orderObj && (orderObj as any).restaurantPickupCode) {
           // Only the order's own code — no master code (RAZORPAY_INTEGRATION.md §5.4 A2/C1).
           if (!verificationCodeMatches(otp, (orderObj as any).restaurantPickupCode)) {
             throw new ValidationError("Invalid restaurant pickup code. Please ask the restaurant for the correct code.");

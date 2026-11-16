@@ -33,6 +33,7 @@ export function useOnboardingHydrate(
           if (d) {
             if (d.gender) step1.setGender(d.gender);
             if (d.vehicleType) step1.setVehicle(d.vehicleType);
+            if (d.vehicleNumber) step1.setVehicleNumber(d.vehicleNumber);
             if (d.preferredZone) step1.setPreferredZone(d.preferredZone);
             if (d.aadhaarNumber)
               identity.setAadhaarNumber(d.aadhaarNumber.replace(/(\d{4})(?=\d)/g, "$1 "));

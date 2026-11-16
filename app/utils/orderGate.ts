@@ -49,14 +49,25 @@ export async function ensureServiceable(point: OrderPoint | null | undefined): P
  * A point we cannot read, or a failed lookup, does not block the order: the server still
  * dispatches (or reports no drivers) on its own, so a flaky check must not stop a customer.
  */
-export async function ensureDriversOnline(point: OrderPoint | null | undefined): Promise<boolean> {
+export type DriverGateKind = "food" | "ride" | "package" | "helper";
+
+// Wording per flow: food and meat say "delivery partners", rides "riders", package delivery
+// names the service, and a helper booking says "helper".
+const NO_DRIVERS_COPY: Record<DriverGateKind, { title: string; message: string }> = {
+  food: { title: "app.checkout.noDriversTitle", message: "app.checkout.noDriversMessage" },
+  ride: { title: "app.checkout.noRidersTitle", message: "app.checkout.noRidersMessage" },
+  package: { title: "app.checkout.noPackageRidersTitle", message: "app.checkout.noPackageRidersMessage" },
+  helper: { title: "app.checkout.noHelpersTitle", message: "app.checkout.noHelpersMessage" },
+};
+
+export async function ensureDriversOnline(point: OrderPoint | null | undefined, kind: DriverGateKind = "food"): Promise<boolean> {
   const lat = Number(point?.lat);
   const lng = Number(point?.lng);
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return true;
   try {
     const drivers = await getNearbyDrivers<any[]>(`latitude=${lat}&longitude=${lng}&radius=${DRIVER_RADIUS_M}`);
     if (Array.isArray(drivers) && drivers.length === 0) {
-      showAlert(i18n.t("app.checkout.noDriversTitle"), i18n.t("app.checkout.noDriversMessage"), undefined, "warning");
+      showAlert(i18n.t(NO_DRIVERS_COPY[kind].title), i18n.t(NO_DRIVERS_COPY[kind].message), undefined, "warning");
       return false;
     }
   } catch (error) {

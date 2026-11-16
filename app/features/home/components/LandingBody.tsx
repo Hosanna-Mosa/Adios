@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { moderateScale } from "react-native-size-matters";
 import { type EdgeInsets } from "react-native-safe-area-context";
 import { fadeInUp } from "@/motion/presets";
 import { type ThemeTokens } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import { showAlert } from "@/components/ui/AppAlert";
+import { skipAuth } from "@/components/shared/SkipButton";
 import { type LandingStyles } from "../index.styles";
 
 // The login screen: brand artwork on top, a sheet below with the phone field, "remember me"
@@ -37,16 +37,22 @@ interface Props {
   tokens: ThemeTokens;
 }
 
-const HERO = require("@/assets/images/login_hero.png");
-const HERO_RATIO = 996 / 1047;
-const HERO_TOP = "#E1E4ED";
-const HERO_BOTTOM = "#DDE0E9";
+const HERO = require("@/assets/images/adios_hero.png");
+// Design: the artwork covers the top 57% of the screen, the login card the other 43%.
+const HERO_SHARE = 0.57;
+const HERO_BG = "#E1E4ED";
 
 export function LandingBody({
   Reanimated, handleContinueWithOtp, identifier, insets, sendingOtp, setIdentifier, tokens,
   email, setEmail, sendingEmailOtp, handleContinueWithEmail,
 }: Props) {
   const { t } = useTranslation();
+  const { height: windowHeight } = useWindowDimensions();
+  // 57% of the screen the user actually sees: measured from this container (on Android the window
+  // height leaves out the system bars, so a share of it comes up short).
+  const [rootHeight, setRootHeight] = useState(0);
+  const height = rootHeight || windowHeight;
+  const heroHeight = Math.round(height * HERO_SHARE);
   const [remember, setRemember] = useState(false);
   // Phone is the default; "Continue with email" swaps the field and emails the code instead.
   const [emailMode, setEmailMode] = useState(false);
@@ -58,16 +64,25 @@ export function LandingBody({
   const soon = (title: string) => showAlert(title, t("app.auth.comingSoon", "This will be available soon."));
 
   return (
-    <View style={[s.root, { backgroundColor: HERO_BOTTOM }]}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
-        <LinearGradient colors={[HERO_TOP, HERO_BOTTOM]} style={{ paddingTop: insets.top }}>
-          <Image source={HERO} style={s.hero} contentFit="cover" accessibilityIgnoresInvertColors />
-          <LinearGradient colors={[HERO_TOP, "rgba(225,228,237,0)"]} style={s.heroFade} pointerEvents="none" />
-        </LinearGradient>
+    <View style={[s.root, { backgroundColor: HERO_BG }]} onLayout={(e) => setRootHeight(e.nativeEvent.layout.height)}>
+      <View style={{ height: heroHeight, backgroundColor: HERO_BG }}>
+        <Image source={HERO} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityIgnoresInvertColors />
+        <Pressable
+          onPress={skipAuth}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={t("app.auth.skip", "Skip")}
+          style={[s.skip, { top: insets.top + 8, backgroundColor: "rgba(255,255,255,0.85)" }]}
+        >
+          <Text style={[s.skipText, { color: tokens.brand }]}>{t("app.auth.skip", "Skip")}</Text>
+        </Pressable>
+      </View>
 
+      <View style={[s.sheetWrap, { backgroundColor: tokens.surface }]}>
+      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} bounces={false}>
         <Reanimated.View
           entering={fadeInUp(90)}
-          style={[s.sheet, { backgroundColor: tokens.surface, paddingBottom: Math.max(insets.bottom, 16) + 12 }]}
+          style={[s.sheet, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}
         >
           <Text style={[s.title, { color: tokens.brand }]}>{t("app.auth.loginOrSignUp", "Log in or Sign up")}</Text>
           <Text style={[s.sub, { color: tokens.text }]}>
@@ -164,6 +179,7 @@ export function LandingBody({
           </View>
         </Reanimated.View>
       </ScrollView>
+      </View>
     </View>
   );
 }
@@ -173,14 +189,13 @@ const ms = moderateScale;
 const s = StyleSheet.create({
   root: { flex: 1 },
   scroll: { flexGrow: 1 },
-  hero: { width: "100%", aspectRatio: 1 / HERO_RATIO },
-  heroFade: { position: "absolute", top: 0, left: 0, right: 0, height: ms(24) },
+  skip: { position: "absolute", right: ms(14), paddingHorizontal: ms(16), paddingVertical: ms(7), borderRadius: ms(18) },
+  skipText: { fontFamily: fontFamilies.body.semibold, fontSize: typography.sizes.medium },
+  // The card takes the remaining 43%; its rounded top corners overlap the artwork a little.
+  sheetWrap: { flex: 1, marginTop: -ms(20), borderTopLeftRadius: ms(24), borderTopRightRadius: ms(24), overflow: "hidden" },
   sheet: {
     flexGrow: 1,
-    borderTopLeftRadius: ms(24),
-    borderTopRightRadius: ms(24),
-    marginTop: -ms(1),
-    paddingTop: ms(20),
+    paddingTop: ms(16),
     paddingHorizontal: ms(14),
   },
   title: { fontFamily: fontFamilies.heading.bold, fontSize: typography.sizes.large, lineHeight: typography.lineHeights.large, textAlign: "center" },

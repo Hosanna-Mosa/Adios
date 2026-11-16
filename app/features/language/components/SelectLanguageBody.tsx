@@ -1,5 +1,7 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,7 +10,6 @@ import { elevation } from "@/constants/colors";
 import { fontFamilies, typography } from "@/constants/typography";
 import type { ThemeTokens } from "@/constants/colors";
 import type { SupportedLanguage } from "@/contexts/languageStore";
-import { LanguageIllustration } from "./LanguageIllustration";
 
 // Each option leads with its own native script — deliberately not run through t() —
 // so a Telugu/Hindi speaker can find their language without first having to read English.
@@ -37,12 +38,19 @@ interface Props {
 export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onContinue }: Props) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  // The share is of the screen the user actually sees: measured from this container, because on
+  // Android the window height leaves out the system bars and 47% of it comes up short.
+  const [rootHeight, setRootHeight] = useState(0);
+  const height = rootHeight || windowHeight;
   const canContinue = !!selectedLanguage;
+  // Design: the artwork covers the top 47% of the screen and the language card the other 53%.
+  const artHeight = Math.round(height * ART_RATIO);
 
   return (
-    <LinearGradient colors={[tokens.brandSkin, tokens.bg]} style={styles.root}>
-      <View style={styles.art}>
-        <LanguageIllustration tokens={tokens} />
+    <LinearGradient colors={[ART_BG, ART_BG]} style={styles.root} onLayout={(e) => setRootHeight(e.nativeEvent.layout.height)}>
+      <View style={[styles.art, { height: artHeight }]}>
+        <Image source={HERO} style={styles.artImage} contentFit="cover" accessibilityIgnoresInvertColors />
       </View>
 
       <View style={[styles.sheet, elevation.md, { backgroundColor: tokens.surface, paddingBottom: Math.max(insets.bottom, 16) + 12 }]}>
@@ -66,8 +74,9 @@ export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onConti
                   pressed && !isSelected && { backgroundColor: tokens.sunken },
                 ]}
               >
-                <View style={[styles.glyph, { backgroundColor: isEnglish ? tokens.border : tokens.brandSkin }]}>
-                  <Text style={[styles.glyphText, { color: isEnglish ? tokens.text : tokens.brand }]}>{option.glyph}</Text>
+                {/* EN sits on a soft grey disc until chosen, then turns the same pink as the other two. */}
+                <View style={[styles.glyph, { backgroundColor: isEnglish && !isSelected ? EN_IDLE_BG : GLYPH_PINK }]}>
+                  <Text style={[styles.glyphText, { color: tokens.brand }]}>{option.glyph}</Text>
                 </View>
                 <Text style={[styles.cardLabel, { color: tokens.text }]} numberOfLines={1}>{option.label}</Text>
                 <View style={[styles.radio, { borderColor: isSelected ? tokens.brand : tokens.borderStrong }]}>
@@ -98,10 +107,18 @@ export function SelectLanguageBody({ tokens, onSelect, selectedLanguage, onConti
   );
 }
 
+const HERO = require("@/assets/images/language_hero.png");
+const ART_RATIO = 0.47;
+const ART_BG = "#FCEEF3";
+const EN_IDLE_BG = "#E7E9EE";
+const GLYPH_PINK = "#F9D9E5";
+
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  art: { flex: 1, alignItems: "center", justifyContent: "center", paddingTop: 16 },
+  art: { width: "100%", overflow: "hidden" },
+  artImage: { width: "100%", height: "100%" },
   sheet: {
+    flex: 1,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingTop: 22,

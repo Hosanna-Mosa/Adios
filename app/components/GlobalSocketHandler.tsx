@@ -6,6 +6,7 @@ import { useAuthStore } from "@/contexts/authStore";
 import { socketService } from "@/utils/socketService";
 import { showAlert } from "@/components/ui/AppAlert";
 import { nextFoodStage, normalizeStatus } from "@/features/ride/useTracking.shared";
+import { chatClock } from "@/features/support/useChat.shared";
 
 export function GlobalSocketHandler() {
   const currentOrderId = useDeliveryStore((s) => s.currentOrderId);
@@ -63,7 +64,9 @@ export function GlobalSocketHandler() {
         id: msg.id || (Date.now().toString() + Math.random().toString()),
         text: msg.text,
         sender: msg.from === "driver" ? ("driver" as const) : ("customer" as const),
-        timestamp: msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        // Stamped on this phone (arrival is within moments of sending), not with the server's own
+        // time string, which is in the server's zone and format.
+        timestamp: chatClock(msg.at),
         // Same reasoning as useChatSendMessage.tsx: the live payload carries no
         // date, but "now" is the real date this message arrived.
         date: new Date().toISOString(),
