@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 import type { StyleProp, ViewStyle } from "react-native";
+import Animated from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
+import { fadeInUp, useShakeX } from "@/motion/presets";
 import { SHOW_TEST_OTP } from "../../testOtp";
 import { styles } from "../../active-order.styles";
 import { AppTextInput } from "@/components/ui/AppTextInput";
@@ -32,22 +34,31 @@ export function OtpEntry({
   testCode?: string | null;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { animatedStyle, shake } = useShakeX();
+  const wasError = useRef(hasError);
+  useEffect(() => {
+    if (hasError && !wasError.current) shake();
+    wasError.current = hasError;
+  }, [hasError, shake]);
+
   return (
-    <Box style={[styles.otpSection, style]}>
-      <AppText style={styles.otpLabel}>{label}</AppText>
-      <AppTextInput
-        style={[styles.otpInput, hasError ? styles.otpInputError : null]}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.textMuted}
-        keyboardType="number-pad"
-        maxLength={maxLength}
-        value={value}
-        onChangeText={onChangeText}
-      />
-      {SHOW_TEST_OTP && testCode ? (
-        <AppText style={{ color: Colors.primaryDark, marginTop: 6 }}>Test OTP: {testCode}</AppText>
-      ) : null}
-      {hasError && <AppText style={styles.errorText}>{errorText}</AppText>}
-    </Box>
+    <Animated.View entering={fadeInUp()} style={animatedStyle}>
+      <Box style={[styles.otpSection, style]}>
+        <AppText style={styles.otpLabel}>{label}</AppText>
+        <AppTextInput
+          style={[styles.otpInput, hasError ? styles.otpInputError : null]}
+          placeholder={placeholder}
+          placeholderTextColor={Colors.textMuted}
+          keyboardType="number-pad"
+          maxLength={maxLength}
+          value={value}
+          onChangeText={onChangeText}
+        />
+        {SHOW_TEST_OTP && testCode ? (
+          <AppText style={{ color: Colors.primaryDark, marginTop: 6 }}>Test OTP: {testCode}</AppText>
+        ) : null}
+        {hasError && <AppText style={styles.errorText}>{errorText}</AppText>}
+      </Box>
+    </Animated.View>
   );
 }

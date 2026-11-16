@@ -72,3 +72,21 @@ export function useShimmer() {
   }, [opacity]);
   return useAnimatedStyle(() => ({ opacity: opacity.value }));
 }
+
+/** Horizontal shake for invalid-input feedback (e.g. a wrong OTP). Call
+ * `shake()` whenever the error becomes true; apply `animatedStyle` to the
+ * element that should wiggle. */
+export function useShakeX() {
+  const translateX = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ translateX: translateX.value }] }));
+  const shake = () => {
+    translateX.value = withSequence(
+      withTiming(-8, TIMING_FAST),
+      withTiming(8, TIMING_FAST),
+      withTiming(-6, TIMING_FAST),
+      withTiming(6, TIMING_FAST),
+      withTiming(0, TIMING_FAST),
+    );
+  };
+  return { animatedStyle, shake };
+}

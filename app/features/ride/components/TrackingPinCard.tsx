@@ -1,5 +1,7 @@
 import { Text, TouchableOpacity, View } from "react-native";
+import Animated, { ZoomIn } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
+import { fadeInUp } from "@/motion/presets";
 
 // The PIN block on the tracking sheet. Replaces TrackingPinCard{,2,3}, which
 // were the same card with a different label, a different OTP source, and — for
@@ -28,13 +30,16 @@ interface Props {
 
 export function TrackingPinCard({ accent, otp, label, hint, onShare, shareLabel, styles }: Props) {
   return (
-    <View style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}>
+    <Animated.View
+      entering={fadeInUp()}
+      style={[styles.pinCard, { backgroundColor: accent.skin, borderColor: accent.accent }]}
+    >
       <Text style={[styles.pinLabel, { color: accent.accent }]}>{label}</Text>
       <View style={styles.pinBoxes}>
         {String(otp).split("").map((digit, i) => (
-          <View key={i} style={[styles.pinBox, { borderColor: accent.accent }]}>
+          <Animated.View key={i} entering={ZoomIn.delay(i * 40).duration(220)} style={[styles.pinBox, { borderColor: accent.accent }]}>
             <Text style={styles.pinDigit}>{digit}</Text>
-          </View>
+          </Animated.View>
         ))}
       </View>
       {hint ? <Text style={styles.pinHint}>{hint}</Text> : null}
@@ -49,6 +54,6 @@ export function TrackingPinCard({ accent, otp, label, hint, onShare, shareLabel,
           <Text style={[styles.pinShareText, { color: accent.accent }]}>{shareLabel}</Text>
         </TouchableOpacity>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }

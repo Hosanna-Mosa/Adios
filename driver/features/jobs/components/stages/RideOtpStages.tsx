@@ -6,9 +6,9 @@ import { CashCollectionPanel, GpsVerifiedBox, OrderStage, OtpEntry, PackageDeliv
 
 const OTP_SPACING = { marginTop: 16, marginBottom: 20 };
 
-// A ride starts with the rider's start PIN and ends without an OTP. A package delivery
-// is the other way round: no code at pickup (the captain collects the package and goes),
-// and the receiver's delivery OTP is required to complete it.
+// A ride starts with the rider's start PIN and ends with the rider's own end-ride OTP.
+// A package delivery is the other way round at pickup: no code (the captain collects the
+// package and goes), but it still ends with the receiver's delivery OTP, same as a ride.
 
 export function RideArrivedPickupStage() {
   const { t } = useTranslation();
@@ -68,21 +68,19 @@ export function RideArrivedDeliveryStage() {
 
       <CashCollectionPanel />
 
-      {isPackageDelivery && (
-        <OtpEntry
-          label={t("jobs.packageDeliveryEnterOtp")}
-          placeholder={t("jobs.packageDeliveryOtpPlaceholder")}
-          maxLength={4}
-          value={verification.customerOTP}
-          onChangeText={(val) => {
-            verification.setCustomerOTP(val.replace(/\D/g, ""));
-            verification.setCustomerOTPError(false);
-          }}
-          hasError={verification.customerOTPError}
-          errorText={t("jobs.packageDeliveryInvalidOtp")}
-          style={OTP_SPACING}
-        />
-      )}
+      <OtpEntry
+        label={isPackageDelivery ? t("jobs.packageDeliveryEnterOtp") : t("jobs.enterEndRideOtp")}
+        placeholder={isPackageDelivery ? t("jobs.packageDeliveryOtpPlaceholder") : t("jobs.enter4DigitRideOtp")}
+        maxLength={4}
+        value={verification.customerOTP}
+        onChangeText={(val) => {
+          verification.setCustomerOTP(val.replace(/\D/g, ""));
+          verification.setCustomerOTPError(false);
+        }}
+        hasError={verification.customerOTPError}
+        errorText={isPackageDelivery ? t("jobs.packageDeliveryInvalidOtp") : t("jobs.invalidOtpAskRiderForEndRideOtp")}
+        style={OTP_SPACING}
+      />
 
       <StageActionButton
         label={isPackageDelivery ? t("jobs.packageDeliveryComplete") : t("jobs.endTripAndCompleteRide")}

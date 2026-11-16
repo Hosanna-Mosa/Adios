@@ -562,21 +562,22 @@ export class OrdersController {
         if (storedCash && !orderObj.cashCollected) {
           throw new ConflictError("Confirm the cash you collected before completing this order.");
         }
-        // Restaurant / meat-shop orders, package deliveries and helper tasks all finish with the
-        // customer's (or receiver's) OTP; only rides end without one (they start with a PIN).
+        // Every order type finishes with its own delivery OTP: restaurant / meat-shop orders and
+        // package deliveries with the customer's (or receiver's) code, rides with the rider's own
+        // code (they also start with a separate PIN, shown to the driver at pickup).
         // A package delivery is stored as a bike/auto ride, but it always ends with the
         // receiver's OTP — that is the only proof the package reached the right person.
         const isPackageDelivery = isPackageDeliveryOrder(orderObj);
         const isRide = [ServiceType.BIKE, ServiceType.AUTO, ServiceType.CAB, ServiceType.CAB_PRIME].includes(orderObj?.serviceType as ServiceType);
-        // Rides end without a code (they start with a PIN); every other order — package, helper,
-        // and food / meat from an outlet — is completed with the customer's own delivery code.
         // `orderObj.vendor` is not used here: it is populated from Vendor only, so a legacy
         // MeatCenter outlet reads as null — the rule must not depend on it.
-        if (orderObj && orderObj.deliveryOtp && (!isRide || isPackageDelivery)) {
+        if (orderObj && orderObj.deliveryOtp) {
           if (!verificationCodeMatches(otp, orderObj.deliveryOtp)) {
             throw new ValidationError(
               isPackageDelivery
                 ? "Invalid delivery OTP. Ask the receiver for the 4-digit code the sender shared with them."
+                : isRide
+                ? "Invalid ride completion OTP. Please ask the rider for the correct code."
                 : "Invalid delivery verification OTP. Please ask the customer for the correct code."
             );
           }

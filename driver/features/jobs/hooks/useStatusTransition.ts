@@ -49,10 +49,10 @@ export function useStatusTransition(args: Args) {
 
   const confirmDelivery = useCallback(async (who: string) => {
     if (cashStillToCollect()) return;
-    // A package delivery, or a food / meat order, can't be completed without the receiver's / customer's 4-digit OTP. The app
-    // never has the code (the backend withholds it from drivers) — it only checks the
-    // shape here, and the backend checks the value.
-    if (currentOrder && (currentOrder.packageDelivery || !isRide) && !/^\d{4}$/.test(verification.customerOTP.trim())) {
+    // Every order — package delivery, food / meat, or a plain ride — finishes with the
+    // receiver's / customer's / rider's 4-digit OTP. The app never has the code (the backend
+    // withholds it from drivers) — it only checks the shape here, and the backend checks the value.
+    if (!/^\d{4}$/.test(verification.customerOTP.trim())) {
       verification.setCustomerOTPError(true);
       return;
     }
@@ -63,7 +63,7 @@ export function useStatusTransition(args: Args) {
       verification.setCustomerOTPError(true);
       warnVerificationFailed(err, who);
     }
-  }, [currentOrder, isRide, updateOrderStatus, verification, cashStillToCollect]);
+  }, [updateOrderStatus, verification, cashStillToCollect]);
 
   /**
    * Helper tasks: start with the customer's start OTP, complete with their completion PIN.

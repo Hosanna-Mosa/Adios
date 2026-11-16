@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import * as Haptics from "expo-haptics";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/colors";
+import { SPRING, fadeInUp } from "@/motion/presets";
 import { styles } from "../../active-order.styles";
 import { Touchable } from "@/components/ui/Touchable";
 import { Box } from "@/components/ui/Box";
@@ -10,11 +13,23 @@ import { AppText } from "@/components/ui/AppText";
 
 /** Tick, headline and reassurance shown when a job is finished. */
 export function CompletionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  const scale = useSharedValue(0);
+  const checkAnimatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  useEffect(() => {
+    scale.value = withSpring(1, SPRING);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+  }, [scale]);
+
   return (
     <Box style={styles.successHeader}>
-      <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
-      <AppText style={styles.successTitle}>{title}</AppText>
-      <AppText style={styles.successSubtitle}>{subtitle}</AppText>
+      <Animated.View style={checkAnimatedStyle}>
+        <Ionicons name="checkmark-circle" size={48} color={Colors.success} />
+      </Animated.View>
+      <Animated.View entering={fadeInUp(120)}>
+        <AppText style={styles.successTitle}>{title}</AppText>
+        <AppText style={styles.successSubtitle}>{subtitle}</AppText>
+      </Animated.View>
     </Box>
   );
 }
